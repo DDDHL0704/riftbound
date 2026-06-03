@@ -893,6 +893,7 @@ public static class MatchRecoveryValidator
     private const string FndTeemoOnPlaySelfPowerEffectKindForRecovery = "FND_TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
     private const string WatchfulSentinelLastBreathDrawEffectKindForRecovery = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
+    private const string ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery = "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4050,6 +4051,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueUnsungHeroLastBreathPowerfulDrawContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueScoutingWarhawkLastBreathCallRuneContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16340,6 +16348,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueScoutingWarhawkLastBreathCallRuneContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -16852,6 +16867,25 @@ public static class MatchRecoveryValidator
             triggeredEventKind,
             UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery,
             "unsung hero last-breath powerful draw",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueScoutingWarhawkLastBreathCallRuneContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery,
+            "scouting warhawk last-breath call rune",
             errors);
     }
 
@@ -19365,6 +19399,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueUnsungHeroLastBreathPowerfulDrawContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueScoutingWarhawkLastBreathCallRuneContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,

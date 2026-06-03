@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-17WN recovery timing trigger queue Unsung Hero last-breath powerful draw context validation tightens `MatchRecoveryValidator` so Unsung Hero last-breath powerful draw trigger ids reject source-visibility/effect/event context drift from runtime construction. Runtime creates these standard last-breath trigger queue items as `TRIGGER-{stackItemId}-{sourceObjectId}-UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2`, with effect kind `UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2` and triggered event kind `UNIT_DESTROYED`. Validation passed: focused new Unsung Hero last-breath powerful draw context tests `3/3`, focused `TriggerQueue` `116/116`, focused recovery `801/801`, adjacent recovery/official-opening/Postgres recovery-store filter `1381/1381`, backend full `6746/6746`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-17WO recovery timing trigger queue Scouting Warhawk last-breath call-rune context validation tightens `MatchRecoveryValidator` so Scouting Warhawk last-breath call-rune trigger ids reject source-visibility/effect/event context drift from runtime construction. Runtime creates these standard last-breath trigger queue items as `TRIGGER-{stackItemId}-{sourceObjectId}-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, with effect kind `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1` and triggered event kind `UNIT_DESTROYED`. Validation passed: focused new Scouting Warhawk last-breath call-rune context tests `3/3`, focused `TriggerQueue` `119/119`, focused recovery `804/804`, adjacent recovery/official-opening/Postgres recovery-store filter `1384/1384`, backend full `6749/6749`. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17WN; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-03 09:09 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-17WO; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-03 09:17 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-03 09:17 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `677d3e62` (`checkpoint: stage 4D recovery trigger queue unsung hero context`). This entry records the Stage 4D-17WO work to be committed/pushed as `checkpoint: stage 4D recovery trigger queue scouting warhawk context`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_17WO_RECOVERY_TIMING_TRIGGER_QUEUE_SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_CONTEXT_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-17WO recovery timing trigger queue Scouting Warhawk last-breath call-rune context validation accepted. `MatchRecoveryValidator` now rejects recovered snapshot, authoritative state and spectator replay-frame timing `triggerQueue[]` entries whose Scouting Warhawk last-breath call-rune trigger id carries source-visibility/effect/event context drift from runtime construction. Project remains **NOT READY**.
+
+Validation: focused new Scouting Warhawk last-breath call-rune context tests `3/3`; focused `TriggerQueue` filter `119/119`; focused recovery `804/804`; adjacent recovery/official-opening/Postgres recovery-store filter `1384/1384`; backend full `6749/6749`; touched-file scoped whitespace format, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed.
+
+Requested action: no DOC_MATRIX action requested. Future DOC_MATRIX work must re-read this board and obtain/observe an approved scope before touching matrix/test/checkpoint files.
 
 ### 2026-06-03 09:09 A_MAIN
 
