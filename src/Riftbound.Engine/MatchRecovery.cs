@@ -4124,6 +4124,12 @@ public static class MatchRecoveryValidator
                 effectKind,
                 triggeredEventKind,
                 errors);
+            ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 triggerLabel,
                 triggerId,
@@ -16492,6 +16498,12 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            errors);
         ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
             payloadLabel,
             triggerId,
@@ -17322,6 +17334,120 @@ public static class MatchRecoveryValidator
             && triggerId.EndsWith(
                 $"-{expectedEffectKind}",
                 StringComparison.Ordinal);
+    }
+
+    private static void ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            WatchfulSentinelLastBreathDrawEffectKindForRecovery,
+            "watchful sentinel last-breath draw",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery,
+            "unsung hero last-breath powerful draw",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery,
+            "scouting warhawk last-breath call rune",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            SadPoroLastBreathDrawEffectKindForRecovery,
+            "sad poro last-breath draw",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            LoyalPoroLastBreathDrawEffectKindForRecovery,
+            "loyal poro last-breath draw",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            HonestBrokerLastBreathCreateGoldEffectKindForRecovery,
+            "honest broker last-breath create gold",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery,
+            "mechanical trickster last-breath create minions",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            UndercoverAgentLastBreathEffectKindForRecovery,
+            "undercover agent last-breath",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery,
+            "ironclad vanguard last-breath create robots",
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery,
+            "muddy dredger last-breath create warhawk",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (!triggerId.EndsWith($"-{sourceObjectId}-{expectedEffectKind}", StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id before {expectedEffectKind}");
+        }
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
@@ -19834,6 +19960,12 @@ public static class MatchRecoveryValidator
                 sourceVisibility: null,
                 effectKind,
                 triggeredEventKind,
+                errors);
+            ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                effectKind,
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 $"authoritative state trigger queue item {triggerLabel}",
