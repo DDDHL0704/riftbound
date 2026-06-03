@@ -3984,6 +3984,9 @@ public static class MatchRecoveryValidator
         var playerBaseObjectIdsByPlayer = view.Snapshot.Players is null
             ? null
             : BuildSnapshotPlayerBaseObjectIdsByPlayer(view.Snapshot);
+        var playerGraveyardObjectIdsByPlayer = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotPlayerGraveyardObjectIdsByPlayer(view.Snapshot);
         var playerFieldObjectIdsByPlayer = view.Snapshot.Players is null
             ? null
             : BuildSnapshotPlayerFieldObjectIdsByPlayer(view.Snapshot);
@@ -4253,6 +4256,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectLocations,
                 "object locations",
+                playerGraveyardObjectIdsByPlayer,
+                "player zones",
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 triggerLabel,
@@ -6831,6 +6836,35 @@ public static class MatchRecoveryValidator
         }
 
         return playerBaseObjectIdsByPlayer;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildSnapshotPlayerGraveyardObjectIdsByPlayer(SnapshotDto snapshot)
+    {
+        var playerGraveyardObjectIdsByPlayer =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return playerGraveyardObjectIdsByPlayer;
+        }
+
+        foreach (var (playerId, playerPayload) in snapshot.Players)
+        {
+            if (string.IsNullOrWhiteSpace(playerId)
+                || !IsSnapshotPlayerPayloadObject(playerPayload)
+                || !TryReadObjectValue(playerPayload, "zones", out var zonesPayload)
+                || !IsSnapshotPlayerPayloadObject(zonesPayload)
+                || !TryReadObjectStringList(zonesPayload, "graveyard", out var graveyardObjectIds))
+            {
+                continue;
+            }
+
+            playerGraveyardObjectIdsByPlayer[playerId.Trim()] = graveyardObjectIds
+                .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                .Select(objectId => objectId.Trim())
+                .ToHashSet(StringComparer.Ordinal);
+        }
+
+        return playerGraveyardObjectIdsByPlayer;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildSnapshotPlayerFieldObjectIdsByPlayer(SnapshotDto snapshot)
@@ -16352,6 +16386,8 @@ public static class MatchRecoveryValidator
             BuildAuthoritativeStatePlayerBattlefieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         var playerBaseObjectIdsByPlayer =
             BuildAuthoritativeStatePlayerBaseObjectIdsByPlayer(authoritativeState.PlayerZones);
+        var playerGraveyardObjectIdsByPlayer =
+            BuildAuthoritativeStatePlayerGraveyardObjectIdsByPlayer(authoritativeState.PlayerZones);
         var playerFieldObjectIdsByPlayer =
             BuildAuthoritativeStatePlayerFieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
@@ -16379,6 +16415,7 @@ public static class MatchRecoveryValidator
                 authoritativeState.ObjectLocations,
                 playerBattlefieldObjectIdsByPlayer,
                 playerBaseObjectIdsByPlayer,
+                playerGraveyardObjectIdsByPlayer,
                 playerFieldObjectIdsByPlayer,
                 battlefieldStateObjectIds,
                 authoritativeState.Tick,
@@ -16642,6 +16679,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         IReadOnlyDictionary<string, IReadOnlySet<string>> playerBattlefieldObjectIdsByPlayer,
         IReadOnlyDictionary<string, IReadOnlySet<string>> playerBaseObjectIdsByPlayer,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> playerGraveyardObjectIdsByPlayer,
         IReadOnlyDictionary<string, IReadOnlySet<string>> playerFieldObjectIdsByPlayer,
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
@@ -16904,6 +16942,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectLocations,
             "authoritative state object locations",
+            playerGraveyardObjectIdsByPlayer,
+            "authoritative state player zones",
             errors);
         ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
             payloadLabel,
@@ -18648,6 +18688,8 @@ public static class MatchRecoveryValidator
         string objectCardNoLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
         string objectLocationLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerGraveyardObjectIdsByPlayer,
+        string playerGraveyardObjectIdsLabel,
         List<string> errors)
     {
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
@@ -18662,6 +18704,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             WatchfulSentinelLastBreathDrawEffectKindForRecovery,
             "watchful sentinel last-breath draw",
             errors);
@@ -18677,6 +18721,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery,
             "unsung hero last-breath powerful draw",
             errors);
@@ -18692,6 +18738,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery,
             "scouting warhawk last-breath call rune",
             errors);
@@ -18707,6 +18755,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             SadPoroLastBreathDrawEffectKindForRecovery,
             "sad poro last-breath draw",
             errors);
@@ -18722,6 +18772,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             LoyalPoroLastBreathDrawEffectKindForRecovery,
             "loyal poro last-breath draw",
             errors);
@@ -18737,6 +18789,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             HonestBrokerLastBreathCreateGoldEffectKindForRecovery,
             "honest broker last-breath create gold",
             errors);
@@ -18752,6 +18806,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery,
             "mechanical trickster last-breath create minions",
             errors);
@@ -18767,6 +18823,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             UndercoverAgentLastBreathEffectKindForRecovery,
             "undercover agent last-breath",
             errors);
@@ -18782,6 +18840,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery,
             "ironclad vanguard last-breath create robots",
             errors);
@@ -18797,6 +18857,8 @@ public static class MatchRecoveryValidator
             objectCardNoLabel,
             objectLocations,
             objectLocationLabel,
+            playerGraveyardObjectIdsByPlayer,
+            playerGraveyardObjectIdsLabel,
             MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery,
             "muddy dredger last-breath create warhawk",
             errors);
@@ -18814,6 +18876,8 @@ public static class MatchRecoveryValidator
         string objectCardNoLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
         string objectLocationLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? playerGraveyardObjectIdsByPlayer,
+        string playerGraveyardObjectIdsLabel,
         string expectedEffectKind,
         string diagnosticName,
         List<string> errors)
@@ -18849,6 +18913,22 @@ public static class MatchRecoveryValidator
             var sourceZone = sourceLocation.Zone.Trim();
             errors.Add(
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location zone {sourceZone} must be GRAVEYARD in {objectLocationLabel}");
+        }
+
+        if (objectLocations is not null
+            && objectLocations.TryGetValue(sourceObjectId, out var sourceGraveyardLocation)
+            && !string.IsNullOrWhiteSpace(sourceGraveyardLocation.Zone)
+            && string.Equals(sourceGraveyardLocation.Zone.Trim(), "GRAVEYARD", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(sourceGraveyardLocation.PlayerId)
+            && playerGraveyardObjectIdsByPlayer is not null
+            && playerGraveyardObjectIdsByPlayer.TryGetValue(
+                sourceGraveyardLocation.PlayerId.Trim(),
+                out var graveyardObjectIds)
+            && !graveyardObjectIds.Contains(sourceObjectId))
+        {
+            var sourceLocationPlayerId = sourceGraveyardLocation.PlayerId.Trim();
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location player id {sourceLocationPlayerId} must include source object in {playerGraveyardObjectIdsLabel} graveyard");
         }
 
         if (controllerId is not null
@@ -20971,6 +21051,8 @@ public static class MatchRecoveryValidator
             BuildAuthoritativeStatePlayerBattlefieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         var playerBaseObjectIdsByPlayer =
             BuildAuthoritativeStatePlayerBaseObjectIdsByPlayer(authoritativeState.PlayerZones);
+        var playerGraveyardObjectIdsByPlayer =
+            BuildAuthoritativeStatePlayerGraveyardObjectIdsByPlayer(authoritativeState.PlayerZones);
         var playerFieldObjectIdsByPlayer =
             BuildAuthoritativeStatePlayerFieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
@@ -20984,6 +21066,7 @@ public static class MatchRecoveryValidator
             authoritativeState.ObjectLocations,
             playerBattlefieldObjectIdsByPlayer,
             playerBaseObjectIdsByPlayer,
+            playerGraveyardObjectIdsByPlayer,
             playerFieldObjectIdsByPlayer,
             battlefieldStateObjectIds,
             authoritativeState.Tick,
@@ -21271,6 +21354,7 @@ public static class MatchRecoveryValidator
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         IReadOnlyDictionary<string, IReadOnlySet<string>> playerBattlefieldObjectIdsByPlayer,
         IReadOnlyDictionary<string, IReadOnlySet<string>> playerBaseObjectIdsByPlayer,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> playerGraveyardObjectIdsByPlayer,
         IReadOnlyDictionary<string, IReadOnlySet<string>> playerFieldObjectIdsByPlayer,
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
@@ -21538,6 +21622,8 @@ public static class MatchRecoveryValidator
                 "authoritative state object registry",
                 objectLocations,
                 "authoritative state object locations",
+                playerGraveyardObjectIdsByPlayer,
+                "authoritative state player zones",
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 $"authoritative state trigger queue item {triggerLabel}",
@@ -23649,7 +23735,9 @@ public static class MatchRecoveryValidator
 
         foreach (var (playerId, zones) in playerZones)
         {
-            if (string.IsNullOrWhiteSpace(playerId) || zones is null)
+            if (string.IsNullOrWhiteSpace(playerId)
+                || zones is null
+                || zones.Base is null)
             {
                 continue;
             }
@@ -23661,6 +23749,34 @@ public static class MatchRecoveryValidator
         }
 
         return playerBaseObjectIdsByPlayer;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildAuthoritativeStatePlayerGraveyardObjectIdsByPlayer(
+        IReadOnlyDictionary<string, PlayerZones>? playerZones)
+    {
+        var playerGraveyardObjectIdsByPlayer =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
+        if (playerZones is null)
+        {
+            return playerGraveyardObjectIdsByPlayer;
+        }
+
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (string.IsNullOrWhiteSpace(playerId)
+                || zones is null
+                || zones.Graveyard is null)
+            {
+                continue;
+            }
+
+            playerGraveyardObjectIdsByPlayer[playerId.Trim()] = zones.Graveyard
+                .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                .Select(objectId => objectId.Trim())
+                .ToHashSet(StringComparer.Ordinal);
+        }
+
+        return playerGraveyardObjectIdsByPlayer;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlySet<string>> BuildAuthoritativeStatePlayerFieldObjectIdsByPlayer(
