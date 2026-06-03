@@ -4030,6 +4030,7 @@ public static class MatchRecoveryValidator
                 sourceVisibility,
                 knownBattlefieldStateObjectIds,
                 "battlefield states",
+                view.Snapshot.TurnNumber,
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16092,6 +16093,7 @@ public static class MatchRecoveryValidator
                 knownObjectIds,
                 objectTags,
                 battlefieldStateObjectIds,
+                authoritativeState.TurnNumber,
                 errors);
         }
 
@@ -16346,6 +16348,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
+        int currentTurnNumber,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
@@ -16419,6 +16422,7 @@ public static class MatchRecoveryValidator
             sourceVisibility,
             battlefieldStateObjectIds,
             "authoritative state battlefield states",
+            currentTurnNumber,
             effectKind,
             triggeredEventKind,
             errors);
@@ -16652,6 +16656,7 @@ public static class MatchRecoveryValidator
         string? sourceVisibility,
         IReadOnlySet<string>? battlefieldStateObjectIds,
         string battlefieldStateLabel,
+        int? currentTurnNumber,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -16663,12 +16668,20 @@ public static class MatchRecoveryValidator
 
         if (!TryReadBlueSentinelDelayedTriggerContextForRecovery(
                 triggerId,
-                out _,
+                out var capturedTurnNumber,
                 out var expectedSourceObjectId,
                 out var battlefieldObjectId))
         {
             errors.Add($"{payloadLabel} blue sentinel delayed resource trigger id is invalid");
             return;
+        }
+
+        if (currentTurnNumber is { } turnNumber
+            && turnNumber > 0
+            && capturedTurnNumber > turnNumber)
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource captured turn number {capturedTurnNumber} cannot be greater than current turn {turnNumber}");
         }
 
         if (battlefieldStateObjectIds is not null
@@ -19645,6 +19658,7 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             objectTags,
             battlefieldStateObjectIds,
+            authoritativeState.TurnNumber,
             errors);
     }
 
@@ -19923,6 +19937,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         IReadOnlySet<string> battlefieldStateObjectIds,
+        int currentTurnNumber,
         List<string> errors)
     {
         if (triggerQueue is null)
@@ -20001,6 +20016,7 @@ public static class MatchRecoveryValidator
                 sourceVisibility: null,
                 battlefieldStateObjectIds,
                 "authoritative state battlefield states",
+                currentTurnNumber,
                 effectKind,
                 triggeredEventKind,
                 errors);
