@@ -20546,14 +20546,32 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} power {sourcePower} must be at least {PowerfulUnitPowerThresholdForRecovery} in {objectPowerLabel}");
         }
 
-        if (string.Equals(expectedEffectKind, LoyalPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal)
-            && !HasOtherFriendlyFaceUpBaseUnitForLoyalPoroLastBreathForRecovery(
+        var hasKnownPoroBaseAllyContext = false;
+        var hasOtherFriendlyFaceUpBaseUnit = false;
+        if (string.Equals(expectedEffectKind, SadPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal)
+            || string.Equals(expectedEffectKind, LoyalPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal))
+        {
+            hasKnownPoroBaseAllyContext = TryHasOtherFriendlyFaceUpBaseUnitForStandardLastBreathForRecovery(
                 controllerId,
                 sourceObjectId,
                 playerBaseObjectIdsByPlayer,
                 objectControllers,
                 objectFaceDowns,
-                objectTags))
+                objectTags,
+                out hasOtherFriendlyFaceUpBaseUnit);
+        }
+
+        if (string.Equals(expectedEffectKind, SadPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal)
+            && hasKnownPoroBaseAllyContext
+            && hasOtherFriendlyFaceUpBaseUnit)
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be isolated from other friendly face-up units in {playerBaseObjectIdsLabel} base for controller id {controllerId}");
+        }
+
+        if (string.Equals(expectedEffectKind, LoyalPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal)
+            && hasKnownPoroBaseAllyContext
+            && !hasOtherFriendlyFaceUpBaseUnit)
         {
             errors.Add(
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} requires another friendly face-up unit in {playerBaseObjectIdsLabel} base for controller id {controllerId}");
@@ -20596,38 +20614,42 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static bool HasOtherFriendlyFaceUpBaseUnitForLoyalPoroLastBreathForRecovery(
+    private static bool TryHasOtherFriendlyFaceUpBaseUnitForStandardLastBreathForRecovery(
         string? controllerId,
         string sourceObjectId,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? playerBaseObjectIdsByPlayer,
         IReadOnlyDictionary<string, string>? objectControllers,
         IReadOnlyDictionary<string, bool>? objectFaceDowns,
-        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags)
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        out bool hasOtherFriendlyFaceUpBaseUnit)
     {
+        hasOtherFriendlyFaceUpBaseUnit = false;
+
         if (string.IsNullOrWhiteSpace(controllerId)
             || string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
             || playerBaseObjectIdsByPlayer is null
             || objectTags is null)
         {
-            return true;
+            return false;
         }
 
         if (!playerBaseObjectIdsByPlayer.TryGetValue(controllerId, out var baseObjectIds))
         {
-            return false;
+            return true;
         }
 
-        return baseObjectIds.Any(candidateObjectId =>
-            IsOtherFriendlyFaceUpBaseUnitForLoyalPoroLastBreathForRecovery(
+        hasOtherFriendlyFaceUpBaseUnit = baseObjectIds.Any(candidateObjectId =>
+            IsOtherFriendlyFaceUpBaseUnitForStandardLastBreathForRecovery(
                 candidateObjectId,
                 controllerId,
                 sourceObjectId,
                 objectControllers,
                 objectFaceDowns,
                 objectTags));
+        return true;
     }
 
-    private static bool IsOtherFriendlyFaceUpBaseUnitForLoyalPoroLastBreathForRecovery(
+    private static bool IsOtherFriendlyFaceUpBaseUnitForStandardLastBreathForRecovery(
         string candidateObjectId,
         string controllerId,
         string sourceObjectId,
