@@ -4260,6 +4260,8 @@ public static class MatchRecoveryValidator
                 "objects",
                 objectCardNos,
                 "objects",
+                objectFaceDowns,
+                "objects",
                 objectTags,
                 "objects",
                 objectLocations,
@@ -17069,6 +17071,8 @@ public static class MatchRecoveryValidator
             "authoritative state object registry",
             objectCardNos,
             "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
             objectTags,
             "authoritative state object registry",
             objectLocations,
@@ -20106,6 +20110,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
@@ -20124,6 +20130,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20143,6 +20151,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20162,6 +20172,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20181,6 +20193,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20200,6 +20214,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20219,6 +20235,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20238,6 +20256,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20257,6 +20277,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20276,6 +20298,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20295,6 +20319,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectFaceDowns,
+            objectFaceDownLabel,
             objectTags,
             objectTagLabel,
             objectLocations,
@@ -20316,6 +20342,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string objectTagLabel,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
@@ -20422,6 +20450,29 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be an equipment card in {objectTagLabel}");
         }
+
+        if (!IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind)
+            && objectFaceDowns is not null
+            && objectFaceDowns.TryGetValue(sourceObjectId, out var isFaceDown)
+            && isFaceDown)
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+        }
+
+        if (!IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind)
+            && objectTags is not null
+            && objectTags.TryGetValue(sourceObjectId, out var standbySourceTags)
+            && standbySourceTags.Contains(CardObjectTags.Standby))
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
+        }
+    }
+
+    private static bool IsWatchfulSentinelLastBreathDrawEffectForRecovery(string effectKind)
+    {
+        return string.Equals(effectKind, WatchfulSentinelLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal);
     }
 
     private static string[] GetStandardLastBreathSourceCardNosForRecovery(string effectKind)
@@ -23103,6 +23154,8 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 "authoritative state object registry",
                 objectCardNos,
+                "authoritative state object registry",
+                objectFaceDowns,
                 "authoritative state object registry",
                 objectTags,
                 "authoritative state object registry",
