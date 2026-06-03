@@ -4038,6 +4038,8 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 triggerId,
                 sourceObjectId,
+                knownObjectIds,
+                "objects",
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16414,6 +16416,8 @@ public static class MatchRecoveryValidator
             payloadLabel,
             triggerId,
             sourceObjectId,
+            knownObjectIds,
+            "object registry",
             effectKind,
             triggeredEventKind,
             errors);
@@ -16775,6 +16779,8 @@ public static class MatchRecoveryValidator
         string payloadLabel,
         string? triggerId,
         string? sourceObjectId,
+        IReadOnlySet<string>? knownObjectIds,
+        string knownObjectLabel,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -16784,10 +16790,16 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (!TryReadKogmawLastBreathTriggerBattlefieldObjectIdForRecovery(triggerId, out _))
+        if (!TryReadKogmawLastBreathTriggerBattlefieldObjectIdForRecovery(triggerId, out var battlefieldObjectId))
         {
             errors.Add($"{payloadLabel} kogmaw last breath trigger id is invalid");
             return;
+        }
+
+        if (knownObjectIds is not null && !knownObjectIds.Contains(battlefieldObjectId))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {knownObjectLabel}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -19547,8 +19559,9 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
-        ValidateAuthoritativeStateTriggerQueueValues(authoritativeState.TriggerQueue, errors);
+        ValidateAuthoritativeStateTriggerQueueValues(authoritativeState.TriggerQueue, knownObjectIds, errors);
     }
 
     private static void ValidateAuthoritativeStatePendingPaymentValues(
@@ -19823,6 +19836,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateAuthoritativeStateTriggerQueueValues(
         IReadOnlyList<TriggerQueueItemState>? triggerQueue,
+        IReadOnlySet<string> knownObjectIds,
         List<string> errors)
     {
         if (triggerQueue is null)
@@ -19913,6 +19927,8 @@ public static class MatchRecoveryValidator
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceObjectId,
+                knownObjectIds,
+                "object registry",
                 effectKind,
                 triggeredEventKind,
                 errors);
