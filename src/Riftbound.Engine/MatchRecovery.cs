@@ -4307,6 +4307,14 @@ public static class MatchRecoveryValidator
                 knownObjectIds,
                 "objects",
                 errors);
+            ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+                triggerLabel,
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectTags,
+                "objects",
+                errors);
             ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
                 triggerLabel,
                 triggerId,
@@ -17055,6 +17063,14 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             "object registry",
             errors);
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectTags,
+            "authoritative state object registry",
+            errors);
         ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
             payloadLabel,
             triggerId,
@@ -18945,6 +18961,90 @@ public static class MatchRecoveryValidator
             (sourceObjectMarkerIndex + sourceObjectMarker.Length)..effectSuffixIndex];
         return !string.IsNullOrWhiteSpace(destroyedObjectId)
             && !string.Equals(destroyedObjectId, sourceObjectId, StringComparison.Ordinal);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
+        List<string> errors)
+    {
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectTags,
+            objectTagLabel,
+            GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
+            "ghostly centaur friendly-destroyed power",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectTags,
+            objectTagLabel,
+            ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
+            "resonant soul first friendly-destroyed draw",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectTags,
+            objectTagLabel,
+            SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
+            "savage jawfish friendly-destroyed experience",
+            errors);
+        ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+            payloadLabel,
+            triggerId,
+            sourceObjectId,
+            effectKind,
+            objectTags,
+            objectTagLabel,
+            ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
+            "viktor destroyed non-minion create minion",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceObjectId,
+        string? effectKind,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null
+            || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind)
+            || !IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.IsNullOrWhiteSpace(sourceObjectId)
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            || objectTags is null
+            || !TryReadFriendlyDestroyedTriggerDestroyedObjectIdForRecovery(
+                triggerId,
+                sourceObjectId,
+                expectedEffectKind,
+                out var destroyedObjectId)
+            || !objectTags.TryGetValue(destroyedObjectId, out var destroyedTags)
+            || !destroyedTags.Contains(CardObjectTags.EquipmentCard)
+            || destroyedTags.Contains(CardObjectTags.UnitCard))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} must not be an equipment card in {objectTagLabel}");
     }
 
     private static void ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
@@ -22506,6 +22606,14 @@ public static class MatchRecoveryValidator
                 effectKind,
                 knownObjectIds,
                 "object registry",
+                errors);
+            ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceObjectId,
+                effectKind,
+                objectTags,
+                "authoritative state object registry",
                 errors);
             ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
                 $"authoritative state trigger queue item {triggerLabel}",

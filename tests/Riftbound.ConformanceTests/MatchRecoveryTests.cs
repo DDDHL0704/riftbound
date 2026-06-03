@@ -9216,6 +9216,100 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDrift()
+    {
+        const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["zones"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["mainDeckCount"] = 0,
+            ["runeDeckCount"] = 0,
+            ["hand"] = Array.Empty<string>(),
+            ["handHidden"] = 0,
+            ["base"] = new[] { "source-1" },
+            ["battlefields"] = Array.Empty<string>(),
+            ["battlefieldHiddenStandbyCount"] = 0,
+            ["graveyard"] = new[] { "destroyed-1" },
+            ["banished"] = Array.Empty<string>(),
+            ["legendZone"] = Array.Empty<string>(),
+            ["championZone"] = Array.Empty<string>()
+        };
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-1",
+                ["cardNo"] = "UNL-068/219",
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.UnitCard },
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["zone"] = "BASE"
+                },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            ["destroyed-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "destroyed-1",
+                ["cardNo"] = "EQUIP-001",
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.EquipmentCard },
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["zone"] = "GRAVEYARD"
+                },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = triggerId,
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2",
+                ["triggeredByEventKind"] = "UNIT_DESTROYED"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 must not be an equipment card in objects",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedSourceCardContextDrift()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
@@ -28617,6 +28711,78 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-404-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-404 is missing from object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDrift()
+    {
+        const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+        const string sourceObjectId = "source-1";
+        const string destroyedObjectId = "destroyed-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            0,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId],
+                    Graveyard = [destroyedObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-068/219",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                [destroyedObjectId] = new(
+                    destroyedObjectId,
+                    tags: [CardObjectTags.EquipmentCard],
+                    cardNo: "EQUIP-001",
+                    ownerId: "alice",
+                    controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE"),
+                [destroyedObjectId] = new("alice", "GRAVEYARD")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2",
+                    "UNIT_DESTROYED")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 0);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 must not be an equipment card in authoritative state object registry",
                 StringComparison.Ordinal));
     }
 
@@ -69128,6 +69294,93 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-404 is missing from object registry",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDrift()
+    {
+        const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+        const string sourceObjectId = "source-1";
+        const string destroyedObjectId = "destroyed-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId],
+                    Graveyard = [destroyedObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-068/219",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                [destroyedObjectId] = new(
+                    destroyedObjectId,
+                    tags: [CardObjectTags.EquipmentCard],
+                    cardNo: "EQUIP-001",
+                    ownerId: "alice",
+                    controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE"),
+                [destroyedObjectId] = new("alice", "GRAVEYARD")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2",
+                    "UNIT_DESTROYED")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 must not be an equipment card in authoritative state object registry",
                 StringComparison.Ordinal));
     }
 
