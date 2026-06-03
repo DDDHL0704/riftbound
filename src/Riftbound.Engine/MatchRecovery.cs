@@ -17520,6 +17520,16 @@ public static class MatchRecoveryValidator
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && triggerId.StartsWith(
+                $"{StandardTriggerIdPrefixForRecovery}-{sourceObjectId}-",
+                StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} kogmaw last breath trigger id stack item id is required before source object id {sourceObjectId}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
             && objectLocations is not null
             && objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
             && !string.IsNullOrWhiteSpace(sourceLocation.Zone)
