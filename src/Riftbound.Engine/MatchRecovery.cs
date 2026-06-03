@@ -16901,6 +16901,13 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"{payloadLabel} blue sentinel delayed resource captured turn number {capturedTurnNumber} cannot be greater than current turn {turnNumber}");
         }
+        else if (currentTurnNumber is { } staleTurnNumber
+            && staleTurnNumber > 1
+            && capturedTurnNumber < staleTurnNumber - 1)
+        {
+            errors.Add(
+                $"{payloadLabel} blue sentinel delayed resource captured turn number {capturedTurnNumber} cannot be earlier than previous turn {staleTurnNumber - 1} for current turn {staleTurnNumber}");
+        }
 
         if (controllerId is not null
             && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)
