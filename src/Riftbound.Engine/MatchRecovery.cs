@@ -897,6 +897,17 @@ public static class MatchRecoveryValidator
     private const string TeemoAltAOnPlaySelfPowerCardNoForRecovery = "OGN·197a/298";
     private const string TeemoAltBOnPlaySelfPowerCardNoForRecovery = "OGN·197b/298";
     private const string FndTeemoOnPlaySelfPowerCardNoForRecovery = "FND-196/298";
+    private const string WatchfulSentinelCardNoForRecovery = "OGN·096/298";
+    private const string SadPoroOriginalCardNoForRecovery = "SFD·036/221";
+    private const string SadPoroUnleashedCardNoForRecovery = "UNL-221/219";
+    private const string LoyalPoroCardNoForRecovery = "UNL-156/219";
+    private const string UnsungHeroCardNoForRecovery = "SFD·167/221";
+    private const string ScoutingWarhawkCardNoForRecovery = "OGN·216/298";
+    private const string HonestBrokerCardNoForRecovery = "SFD·155/221";
+    private const string MechanicalTricksterCardNoForRecovery = "OGN·239/298";
+    private const string UndercoverAgentCardNoForRecovery = "OGN·178/298";
+    private const string IroncladVanguardCardNoForRecovery = "SFD·021/221";
+    private const string MuddyDredgerCardNoForRecovery = "UNL-153/219";
     private const string WatchfulSentinelLastBreathDrawEffectKindForRecovery = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string SadPoroLastBreathDrawEffectKindForRecovery = "SAD_PORO_LAST_BREATH_DRAW_1";
     private const string LoyalPoroLastBreathDrawEffectKindForRecovery = "LOYAL_PORO_LAST_BREATH_DRAW_1";
@@ -4235,6 +4246,8 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 effectKind,
+                objectCardNos,
+                "objects",
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 triggerLabel,
@@ -16879,6 +16892,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            "authoritative state object registry",
             errors);
         ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
             payloadLabel,
@@ -18616,6 +18631,8 @@ public static class MatchRecoveryValidator
         string? triggerId,
         string? sourceObjectId,
         string? effectKind,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        string objectCardNoLabel,
         List<string> errors)
     {
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
@@ -18623,6 +18640,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             WatchfulSentinelLastBreathDrawEffectKindForRecovery,
             "watchful sentinel last-breath draw",
             errors);
@@ -18631,6 +18650,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery,
             "unsung hero last-breath powerful draw",
             errors);
@@ -18639,6 +18660,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery,
             "scouting warhawk last-breath call rune",
             errors);
@@ -18647,6 +18670,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             SadPoroLastBreathDrawEffectKindForRecovery,
             "sad poro last-breath draw",
             errors);
@@ -18655,6 +18680,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             LoyalPoroLastBreathDrawEffectKindForRecovery,
             "loyal poro last-breath draw",
             errors);
@@ -18663,6 +18690,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             HonestBrokerLastBreathCreateGoldEffectKindForRecovery,
             "honest broker last-breath create gold",
             errors);
@@ -18671,6 +18700,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery,
             "mechanical trickster last-breath create minions",
             errors);
@@ -18679,6 +18710,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             UndercoverAgentLastBreathEffectKindForRecovery,
             "undercover agent last-breath",
             errors);
@@ -18687,6 +18720,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery,
             "ironclad vanguard last-breath create robots",
             errors);
@@ -18695,6 +18730,8 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            objectCardNos,
+            objectCardNoLabel,
             MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery,
             "muddy dredger last-breath create warhawk",
             errors);
@@ -18705,6 +18742,8 @@ public static class MatchRecoveryValidator
         string? triggerId,
         string? sourceObjectId,
         string? effectKind,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        string objectCardNoLabel,
         string expectedEffectKind,
         string diagnosticName,
         List<string> errors)
@@ -18731,6 +18770,46 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"{payloadLabel} {diagnosticName} trigger id stack item id is required before source object id {sourceObjectId}");
         }
+
+        if (objectCardNos is not null
+            && objectCardNos.TryGetValue(sourceObjectId, out var sourceCardNo))
+        {
+            var expectedSourceCardNos = GetStandardLastBreathSourceCardNosForRecovery(expectedEffectKind);
+            if (expectedSourceCardNos.Length > 0
+                && !Array.Exists(
+                    expectedSourceCardNos,
+                    expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
+            {
+                var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
+                errors.Add(
+                    $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {sourceCardNoLabel} must be {FormatExpectedCardNosForRecovery(expectedSourceCardNos)} in {objectCardNoLabel}");
+            }
+        }
+    }
+
+    private static string[] GetStandardLastBreathSourceCardNosForRecovery(string effectKind)
+    {
+        return effectKind switch
+        {
+            WatchfulSentinelLastBreathDrawEffectKindForRecovery => [WatchfulSentinelCardNoForRecovery],
+            UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery => [UnsungHeroCardNoForRecovery],
+            ScoutingWarhawkLastBreathCallRuneEffectKindForRecovery => [ScoutingWarhawkCardNoForRecovery],
+            SadPoroLastBreathDrawEffectKindForRecovery => [SadPoroOriginalCardNoForRecovery, SadPoroUnleashedCardNoForRecovery],
+            LoyalPoroLastBreathDrawEffectKindForRecovery => [LoyalPoroCardNoForRecovery],
+            HonestBrokerLastBreathCreateGoldEffectKindForRecovery => [HonestBrokerCardNoForRecovery],
+            MechanicalTricksterLastBreathCreateMinionsEffectKindForRecovery => [MechanicalTricksterCardNoForRecovery],
+            UndercoverAgentLastBreathEffectKindForRecovery => [UndercoverAgentCardNoForRecovery],
+            IroncladVanguardLastBreathCreateRobotsEffectKindForRecovery => [IroncladVanguardCardNoForRecovery],
+            MuddyDredgerLastBreathCreateWarhawkEffectKindForRecovery => [MuddyDredgerCardNoForRecovery],
+            _ => []
+        };
+    }
+
+    private static string FormatExpectedCardNosForRecovery(string[] cardNos)
+    {
+        return cardNos.Length == 1
+            ? cardNos[0]
+            : $"one of {string.Join(", ", cardNos)}";
     }
 
     private static void ValidateTriggerQueueControllerPlayerMembership(
@@ -21362,6 +21441,8 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 effectKind,
+                objectCardNos,
+                "authoritative state object registry",
                 errors);
             ValidateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContext(
                 $"authoritative state trigger queue item {triggerLabel}",
