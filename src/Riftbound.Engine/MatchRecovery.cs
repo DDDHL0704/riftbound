@@ -16926,11 +16926,16 @@ public static class MatchRecoveryValidator
                 triggerId,
                 out _,
                 out var expectedSourceObjectId,
-                out _,
+                out var origin,
                 out var destination))
         {
             errors.Add($"{payloadLabel} jhin movement resource trigger id is invalid");
             return;
+        }
+
+        if (string.Equals(origin, destination, StringComparison.Ordinal))
+        {
+            errors.Add($"{payloadLabel} jhin movement resource origin {origin} and destination {destination} must differ");
         }
 
         if (sourceObjectId is not null
