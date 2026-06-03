@@ -3946,6 +3946,9 @@ public static class MatchRecoveryValidator
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
+        var objectTags = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectTagIndex(view.Snapshot);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var triggerPayload in triggerPayloads)
         {
@@ -4040,6 +4043,7 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 knownObjectIds,
                 "objects",
+                objectTags,
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16061,6 +16065,7 @@ public static class MatchRecoveryValidator
 
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var spectatorTrigger in spectatorTriggers)
         {
@@ -16079,6 +16084,7 @@ public static class MatchRecoveryValidator
                 seenTriggerIds,
                 seatPlayerIds,
                 knownObjectIds,
+                objectTags,
                 errors);
         }
 
@@ -16331,6 +16337,7 @@ public static class MatchRecoveryValidator
         HashSet<string> seenTriggerIds,
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
@@ -16418,6 +16425,7 @@ public static class MatchRecoveryValidator
             sourceObjectId,
             knownObjectIds,
             "object registry",
+            objectTags,
             effectKind,
             triggeredEventKind,
             errors);
@@ -16781,6 +16789,7 @@ public static class MatchRecoveryValidator
         string? sourceObjectId,
         IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -16796,10 +16805,25 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (knownObjectIds is not null && !knownObjectIds.Contains(battlefieldObjectId))
+        var battlefieldObjectKnown = knownObjectIds is null || knownObjectIds.Contains(battlefieldObjectId);
+        if (!battlefieldObjectKnown)
         {
             errors.Add(
                 $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {knownObjectLabel}");
+        }
+
+        if (battlefieldObjectKnown && objectTags is not null)
+        {
+            if (!objectTags.TryGetValue(battlefieldObjectId, out var battlefieldObjectTags))
+            {
+                errors.Add(
+                    $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from object tags");
+            }
+            else if (!battlefieldObjectTags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
+            {
+                errors.Add(
+                    $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is not a battlefield card");
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -19560,8 +19584,9 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
-        ValidateAuthoritativeStateTriggerQueueValues(authoritativeState.TriggerQueue, knownObjectIds, errors);
+        ValidateAuthoritativeStateTriggerQueueValues(authoritativeState.TriggerQueue, knownObjectIds, objectTags, errors);
     }
 
     private static void ValidateAuthoritativeStatePendingPaymentValues(
@@ -19837,6 +19862,7 @@ public static class MatchRecoveryValidator
     private static void ValidateAuthoritativeStateTriggerQueueValues(
         IReadOnlyList<TriggerQueueItemState>? triggerQueue,
         IReadOnlySet<string> knownObjectIds,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
         List<string> errors)
     {
         if (triggerQueue is null)
@@ -19929,6 +19955,7 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 knownObjectIds,
                 "object registry",
+                objectTags,
                 effectKind,
                 triggeredEventKind,
                 errors);
