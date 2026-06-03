@@ -4143,6 +4143,10 @@ public static class MatchRecoveryValidator
                 sourceVisibility,
                 objectCardNos,
                 "objects",
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
                 effectKind,
                 triggeredEventKind,
                 errors);
@@ -16743,6 +16747,10 @@ public static class MatchRecoveryValidator
             sourceVisibility,
             objectCardNos,
             "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
             effectKind,
             triggeredEventKind,
             errors);
@@ -17937,6 +17945,10 @@ public static class MatchRecoveryValidator
         string? sourceVisibility,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, bool>? objectFaceDowns,
+        string objectFaceDownLabel,
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
+        string objectTagLabel,
         string? effectKind,
         string? triggeredEventKind,
         List<string> errors)
@@ -17970,6 +17982,26 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} card no {sourceCardNoLabel} must be {expectedSourceCardNo} in {objectCardNoLabel}");
             }
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectFaceDowns is not null
+            && objectFaceDowns.TryGetValue(sourceObjectId, out var isFaceDown)
+            && isFaceDown)
+        {
+            errors.Add(
+                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceObjectId)
+            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            && objectTags is not null
+            && objectTags.TryGetValue(sourceObjectId, out var sourceTags)
+            && !sourceTags.Contains(CardObjectTags.UnitCard))
+        {
+            errors.Add(
+                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
         }
 
         if (sourceVisibility is not null
@@ -21126,6 +21158,10 @@ public static class MatchRecoveryValidator
                 sourceObjectId,
                 sourceVisibility: null,
                 objectCardNos,
+                "authoritative state object registry",
+                objectFaceDowns,
+                "authoritative state object registry",
+                objectTags,
                 "authoritative state object registry",
                 effectKind,
                 triggeredEventKind,
