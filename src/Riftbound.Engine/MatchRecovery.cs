@@ -18274,10 +18274,18 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (!triggerId.EndsWith($"-{sourceObjectId}-{expectedEffectKind}", StringComparison.Ordinal))
+        var sourceObjectSuffix = $"-{sourceObjectId}-{expectedEffectKind}";
+        if (!triggerId.EndsWith(sourceObjectSuffix, StringComparison.Ordinal))
         {
             errors.Add(
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id before {expectedEffectKind}");
+            return;
+        }
+
+        if (triggerId.Length - sourceObjectSuffix.Length <= StandardTriggerIdPrefixForRecovery.Length)
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} trigger id stack item id is required before source object id {sourceObjectId}");
         }
     }
 
