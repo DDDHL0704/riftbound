@@ -892,6 +892,7 @@ public static class MatchRecoveryValidator
     private const string TeemoAltBOnPlaySelfPowerEffectKindForRecovery = "TEEMO_ALT_B_PLAY_UNIT_SELF_POWER_PLUS_3";
     private const string FndTeemoOnPlaySelfPowerEffectKindForRecovery = "FND_TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
     private const string WatchfulSentinelLastBreathDrawEffectKindForRecovery = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
+    private const string UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
 
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
@@ -4042,6 +4043,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueWatchfulSentinelLastBreathDrawContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueUnsungHeroLastBreathPowerfulDrawContext(
                 triggerLabel,
                 triggerId,
                 sourceVisibility,
@@ -16325,6 +16333,13 @@ public static class MatchRecoveryValidator
             effectKind,
             triggeredEventKind,
             errors);
+        ValidateTriggerQueueUnsungHeroLastBreathPowerfulDrawContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -16810,29 +16825,69 @@ public static class MatchRecoveryValidator
         string? triggeredEventKind,
         List<string> errors)
     {
-        if (triggerId is null || !IsWatchfulSentinelLastBreathDrawTriggerForRecovery(triggerId, effectKind))
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            WatchfulSentinelLastBreathDrawEffectKindForRecovery,
+            "watchful sentinel last-breath draw",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueUnsungHeroLastBreathPowerfulDrawContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        List<string> errors)
+    {
+        ValidateTriggerQueueStandardLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery,
+            "unsung hero last-breath powerful draw",
+            errors);
+    }
+
+    private static void ValidateTriggerQueueStandardLastBreathContext(
+        string payloadLabel,
+        string? triggerId,
+        string? sourceVisibility,
+        string? effectKind,
+        string? triggeredEventKind,
+        string expectedEffectKind,
+        string diagnosticName,
+        List<string> errors)
+    {
+        if (triggerId is null || !IsStandardLastBreathTriggerForRecovery(triggerId, effectKind, expectedEffectKind))
         {
             return;
         }
 
-        if (!IsWatchfulSentinelLastBreathDrawTriggerIdForRecovery(triggerId))
+        if (!IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind))
         {
-            errors.Add($"{payloadLabel} watchful sentinel last-breath draw trigger id is invalid");
+            errors.Add($"{payloadLabel} {diagnosticName} trigger id is invalid");
             return;
         }
 
         if (sourceVisibility is not null
             && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
         {
-            errors.Add($"{payloadLabel} watchful sentinel last-breath draw source visibility must be VISIBLE");
+            errors.Add($"{payloadLabel} {diagnosticName} source visibility must be VISIBLE");
         }
 
         if (effectKind is not null
             && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(effectKind, WatchfulSentinelLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal))
+            && !string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal))
         {
             errors.Add(
-                $"{payloadLabel} watchful sentinel last-breath draw effect kind {effectKind} must be {WatchfulSentinelLastBreathDrawEffectKindForRecovery}");
+                $"{payloadLabel} {diagnosticName} effect kind {effectKind} must be {expectedEffectKind}");
         }
 
         if (triggeredEventKind is not null
@@ -16840,23 +16895,24 @@ public static class MatchRecoveryValidator
             && !string.Equals(triggeredEventKind, "UNIT_DESTROYED", StringComparison.Ordinal))
         {
             errors.Add(
-                $"{payloadLabel} watchful sentinel last-breath draw triggered event kind {triggeredEventKind} must be UNIT_DESTROYED");
+                $"{payloadLabel} {diagnosticName} triggered event kind {triggeredEventKind} must be UNIT_DESTROYED");
         }
     }
 
-    private static bool IsWatchfulSentinelLastBreathDrawTriggerForRecovery(
+    private static bool IsStandardLastBreathTriggerForRecovery(
         string triggerId,
-        string? effectKind)
+        string? effectKind,
+        string expectedEffectKind)
     {
-        return IsWatchfulSentinelLastBreathDrawTriggerIdForRecovery(triggerId)
-            || string.Equals(effectKind, WatchfulSentinelLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal);
+        return IsStandardLastBreathTriggerIdForRecovery(triggerId, expectedEffectKind)
+            || string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal);
     }
 
-    private static bool IsWatchfulSentinelLastBreathDrawTriggerIdForRecovery(string triggerId)
+    private static bool IsStandardLastBreathTriggerIdForRecovery(string triggerId, string expectedEffectKind)
     {
         return triggerId.StartsWith(StandardTriggerIdPrefixForRecovery, StringComparison.Ordinal)
             && triggerId.EndsWith(
-                $"-{WatchfulSentinelLastBreathDrawEffectKindForRecovery}",
+                $"-{expectedEffectKind}",
                 StringComparison.Ordinal);
     }
 
@@ -19302,6 +19358,13 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateTriggerQueueWatchfulSentinelLastBreathDrawContext(
+                $"authoritative state trigger queue item {triggerLabel}",
+                triggerId,
+                sourceVisibility: null,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueUnsungHeroLastBreathPowerfulDrawContext(
                 $"authoritative state trigger queue item {triggerLabel}",
                 triggerId,
                 sourceVisibility: null,
