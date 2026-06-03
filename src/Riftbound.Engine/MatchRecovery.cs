@@ -902,6 +902,7 @@ public static class MatchRecoveryValidator
     private const string SadPoroUnleashedCardNoForRecovery = "UNL-221/219";
     private const string LoyalPoroCardNoForRecovery = "UNL-156/219";
     private const string UnsungHeroCardNoForRecovery = "SFD·167/221";
+    private const int PowerfulUnitPowerThresholdForRecovery = 5;
     private const string ScoutingWarhawkCardNoForRecovery = "OGN·216/298";
     private const string HonestBrokerCardNoForRecovery = "SFD·155/221";
     private const string MechanicalTricksterCardNoForRecovery = "OGN·239/298";
@@ -3972,6 +3973,9 @@ public static class MatchRecoveryValidator
         var objectCardNos = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectCardNoIndex(view.Snapshot);
+        var objectPowers = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectPowerIndex(view.Snapshot);
         var objectControllers = view.Snapshot.Players is null
             ? null
             : BuildSnapshotObjectControllerIndex(view.Snapshot);
@@ -4259,6 +4263,8 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 "objects",
                 objectCardNos,
+                "objects",
+                objectPowers,
                 "objects",
                 objectFaceDowns,
                 "objects",
@@ -7097,6 +7103,38 @@ public static class MatchRecoveryValidator
         }
 
         return objectCardNos;
+    }
+
+    private static IReadOnlyDictionary<string, int> BuildSnapshotObjectPowerIndex(SnapshotDto snapshot)
+    {
+        var objectPowers = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (snapshot.Players is null)
+        {
+            return objectPowers;
+        }
+
+        foreach (var playerPayload in snapshot.Players.Values)
+        {
+            if (!TryReadObjectValue(playerPayload, "objects", out var objectsPayload)
+                || !TryReadObjectDictionaryValue(objectsPayload, out var objectPayloads))
+            {
+                continue;
+            }
+
+            foreach (var (objectId, objectPayload) in objectPayloads)
+            {
+                if (string.IsNullOrWhiteSpace(objectId)
+                    || !IsSnapshotPlayerPayloadObject(objectPayload)
+                    || !TryReadObjectInt(objectPayload, "power", out var power))
+                {
+                    continue;
+                }
+
+                objectPowers[objectId.Trim()] = power;
+            }
+        }
+
+        return objectPowers;
     }
 
     private static IReadOnlyDictionary<string, bool> BuildSnapshotObjectFaceDownIndex(SnapshotDto snapshot)
@@ -16509,6 +16547,7 @@ public static class MatchRecoveryValidator
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
+        var objectPowers = BuildAuthoritativeStateObjectPowerIndex(authoritativeState);
         var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
         var objectFaceDowns = BuildAuthoritativeStateObjectFaceDownIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
@@ -16540,6 +16579,7 @@ public static class MatchRecoveryValidator
                 seatPlayerIds,
                 knownObjectIds,
                 objectCardNos,
+                objectPowers,
                 objectControllers,
                 objectFaceDowns,
                 objectTags,
@@ -16804,6 +16844,7 @@ public static class MatchRecoveryValidator
         IReadOnlySet<string> seatPlayerIds,
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, string?> objectCardNos,
+        IReadOnlyDictionary<string, int> objectPowers,
         IReadOnlyDictionary<string, string> objectControllers,
         IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
@@ -17070,6 +17111,8 @@ public static class MatchRecoveryValidator
             objectControllers,
             "authoritative state object registry",
             objectCardNos,
+            "authoritative state object registry",
+            objectPowers,
             "authoritative state object registry",
             objectFaceDowns,
             "authoritative state object registry",
@@ -20110,6 +20153,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, int>? objectPowers,
+        string objectPowerLabel,
         IReadOnlyDictionary<string, bool>? objectFaceDowns,
         string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
@@ -20130,6 +20175,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20151,6 +20198,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20172,6 +20221,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20193,6 +20244,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20214,6 +20267,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20235,6 +20290,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20256,6 +20313,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20277,6 +20336,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20298,6 +20359,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20319,6 +20382,8 @@ public static class MatchRecoveryValidator
             objectControllerLabel,
             objectCardNos,
             objectCardNoLabel,
+            objectPowers,
+            objectPowerLabel,
             objectFaceDowns,
             objectFaceDownLabel,
             objectTags,
@@ -20342,6 +20407,8 @@ public static class MatchRecoveryValidator
         string objectControllerLabel,
         IReadOnlyDictionary<string, string?>? objectCardNos,
         string objectCardNoLabel,
+        IReadOnlyDictionary<string, int>? objectPowers,
+        string objectPowerLabel,
         IReadOnlyDictionary<string, bool>? objectFaceDowns,
         string objectFaceDownLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? objectTags,
@@ -20440,6 +20507,15 @@ public static class MatchRecoveryValidator
                 errors.Add(
                     $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {sourceCardNoLabel} must be {FormatExpectedCardNosForRecovery(expectedSourceCardNos)} in {objectCardNoLabel}");
             }
+        }
+
+        if (string.Equals(expectedEffectKind, UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery, StringComparison.Ordinal)
+            && objectPowers is not null
+            && objectPowers.TryGetValue(sourceObjectId, out var sourcePower)
+            && sourcePower < PowerfulUnitPowerThresholdForRecovery)
+        {
+            errors.Add(
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} power {sourcePower} must be at least {PowerfulUnitPowerThresholdForRecovery} in {objectPowerLabel}");
         }
 
         if (objectTags is not null
@@ -22587,6 +22663,7 @@ public static class MatchRecoveryValidator
     {
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
+        var objectPowers = BuildAuthoritativeStateObjectPowerIndex(authoritativeState);
         var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
         var objectFaceDowns = BuildAuthoritativeStateObjectFaceDownIndex(authoritativeState);
         var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
@@ -22604,6 +22681,7 @@ public static class MatchRecoveryValidator
             authoritativeState.TriggerQueue,
             knownObjectIds,
             objectCardNos,
+            objectPowers,
             objectControllers,
             objectFaceDowns,
             objectTags,
@@ -22892,6 +22970,7 @@ public static class MatchRecoveryValidator
         IReadOnlyList<TriggerQueueItemState>? triggerQueue,
         IReadOnlySet<string> knownObjectIds,
         IReadOnlyDictionary<string, string?> objectCardNos,
+        IReadOnlyDictionary<string, int> objectPowers,
         IReadOnlyDictionary<string, string> objectControllers,
         IReadOnlyDictionary<string, bool> objectFaceDowns,
         IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
@@ -23163,6 +23242,8 @@ public static class MatchRecoveryValidator
                 objectControllers,
                 "authoritative state object registry",
                 objectCardNos,
+                "authoritative state object registry",
+                objectPowers,
                 "authoritative state object registry",
                 objectFaceDowns,
                 "authoritative state object registry",
@@ -25346,6 +25427,22 @@ public static class MatchRecoveryValidator
         }
 
         return objectCardNos;
+    }
+
+    private static IReadOnlyDictionary<string, int> BuildAuthoritativeStateObjectPowerIndex(MatchState authoritativeState)
+    {
+        var objectPowers = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var (objectId, cardObject) in authoritativeState.CardObjects)
+        {
+            if (string.IsNullOrWhiteSpace(objectId))
+            {
+                continue;
+            }
+
+            objectPowers[objectId.Trim()] = cardObject.Power;
+        }
+
+        return objectPowers;
     }
 
     private static IReadOnlyDictionary<string, bool> BuildAuthoritativeStateObjectFaceDownIndex(MatchState authoritativeState)
