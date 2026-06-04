@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18CH recovery spectator timing temporary-payment-resource keyed property-name coverage adds a targeted `MatchRecoveryTests` regression proving spectator replay-frame timing `temporaryPaymentResources[]` same-key duplicate `resourceId`, whitespace-padded `ownerPlayerId` property name and blank property name still emit property-name and keyed authoritative diagnostics when resource-count mismatch skips broad ordered parity. Validation passed: focused new keyed property-name test `1/1`, focused `TemporaryPaymentResource` `81/81`, focused recovery `1114/1114`, adjacent recovery/official-opening/Postgres recovery-store `1695/1695`, backend full `7060/7060`, touched-file scoped whitespace format, `git diff --check`, anchored conflict-marker scan, matrix JSON parse and path typo scan. Backend full was rerun because this batch touched the MatchRecovery test surface. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-18CI recovery spectator timing temporary-payment-resource keyed power-trait map property-name coverage adds a targeted `MatchRecoveryTests` regression proving spectator replay-frame timing `temporaryPaymentResources[]` same-key `generatedPowerByTrait` and `remainingPowerByTrait` maps with duplicate `red` property names, whitespace-padded `blue` property names and blank property names still emit nested map property-name and keyed authoritative trait collection diagnostics when resource-count mismatch skips broad ordered parity. Validation passed: focused new keyed power-trait map property-name test `1/1`, focused `TemporaryPaymentResource` `82/82`, focused recovery `1115/1115`, adjacent recovery/official-opening/Postgres recovery-store `1696/1696`, backend full `7061/7061`, touched-file scoped whitespace format, `git diff --check`, anchored conflict-marker scan, matrix JSON parse and path typo scan. Backend full was rerun because this batch touched the MatchRecovery test surface. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18CH; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-04 15:59 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18CI; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-04 16:11 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-04 16:11 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `93dac979` (`checkpoint: stage 4D recovery temporary payment resource keyed property name`). This entry records the Stage 4D-18CI work to be committed/pushed as `checkpoint: stage 4D recovery temporary payment resource keyed trait map property name`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0-P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_18CI_RECOVERY_TIMING_TEMPORARY_PAYMENT_RESOURCE_KEYED_POWER_TRAIT_MAP_PROPERTY_NAME_AUDIT.md`. Runtime validation code, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18CI recovery spectator timing temporary-payment-resource keyed power-trait map property-name coverage accepted. Existing `MatchRecoveryValidator` nested power-trait map property-name validation and keyed authoritative validation for `temporaryPaymentResources[]` now has targeted coverage proving same-key duplicate, whitespace-padded and blank `generatedPowerByTrait` / `remainingPowerByTrait` property names still emit nested map property-name and keyed authoritative trait collection diagnostics before resource-count mismatch can hide broad ordered parity. Project remains **NOT READY**.
+
+Validation: focused new keyed power-trait map property-name test `1/1`; focused `TemporaryPaymentResource` filter `82/82`; focused recovery `1115/1115`; adjacent recovery/official-opening/Postgres recovery-store filter `1696/1696`; backend full `7061/7061`; touched-file scoped whitespace format, `git diff --check`, anchored conflict-marker scan, matrix JSON parse and path typo scan passed. Backend full was rerun because this batch touched the MatchRecovery test surface.
+
+Requested action: none. A_MAIN will commit and push this checkpoint on `main`; future DOC_MATRIX work must re-read the shared board and observe current locks.
 
 ### 2026-06-04 15:59 A_MAIN
 
