@@ -1235,6 +1235,91 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task EndTurnDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+        var readyJournalCount = journal.Entries.Count;
+
+        var acceptedClients = new RecordingHubClients();
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .EndTurn("room-a", "alice", "end-turn-same");
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_ENDED", StringComparison.Ordinal));
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_BEGAN", StringComparison.Ordinal));
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
+        var acceptedSnapshot = SnapshotFor(acceptedClients, "bob");
+        Assert.Equal("bob", acceptedSnapshot.ActivePlayerId);
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(readyJournalCount + 1, acceptedJournalCount);
+        var endTurnEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "end-turn-same", StringComparison.Ordinal));
+        Assert.Equal("alice", endTurnEntry.PlayerId);
+        Assert.Equal("END_TURN", endTurnEntry.CommandType);
+        Assert.NotNull(endTurnEntry.RawCommand);
+        Assert.Equal("END_TURN", endTurnEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.False(endTurnEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .EndTurn("room-a", "alice", "end-turn-same");
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(2, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedEndTurn = JsonDocument.Parse("""{"cmdType":"END_TURN","clientNote":"changed"}""").RootElement.Clone();
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "end-turn-same", changedEndTurn);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } rawCommand
+            && rawCommand.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+
+        var stateClients = new RecordingHubClients();
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-2", registry)
+            .RequestSnapshot("room-a", "bob");
+
+        Assert.Empty(stateClients.CallerClient.Errors);
+        var currentSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
+        Assert.Equal(acceptedSnapshot.Tick, currentSnapshot.Tick);
+        Assert.Equal(acceptedSnapshot.TurnNumber, currentSnapshot.TurnNumber);
+        Assert.Equal(acceptedSnapshot.ActivePlayerId, currentSnapshot.ActivePlayerId);
+    }
+
+    [Fact]
     public async Task GameHubDuplicateClientIntentRawPayloadConflictReturnsStableErrorWithoutMutation()
     {
         var journal = new RecordingMatchJournal();

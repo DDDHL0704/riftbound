@@ -253,28 +253,77 @@ public sealed class LayerEngineTimestampDependencyTests
         Assert.Equal(
             [BattlefieldAttackerObjectId, BattlefieldDefenderObjectId],
             effects.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        Assert.DoesNotContain(
+            OtherBattlefieldUnitObjectId,
+            effects.Select(effect => Assert.IsType<string>(effect.TargetObjectId)));
         Assert.All(
             effects,
             effect =>
             {
+                var targetObjectId = Assert.IsType<string>(effect.TargetObjectId);
+
+                Assert.Equal([targetObjectId], effect.TargetDependencyObjectIds);
                 Assert.Equal([BattlefieldAttackerObjectId, BattlefieldDefenderObjectId], effect.ParticipantObjectIds);
                 Assert.Equal(
                     [BattlefieldAttackerObjectId, BattlefieldDefenderObjectId],
                     effect.ParticipantDependencyObjectIds);
+                Assert.DoesNotContain(OtherBattlefieldUnitObjectId, effect.TargetDependencyObjectIds ?? []);
                 Assert.DoesNotContain(OtherBattlefieldUnitObjectId, effect.ParticipantObjectIds ?? []);
                 Assert.DoesNotContain(OtherBattlefieldUnitObjectId, effect.ParticipantDependencyObjectIds ?? []);
             });
-
-        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
-        var effectViews = ContinuousEffectViews(snapshot);
         Assert.DoesNotContain(
-            effectViews,
-            effect => string.Equals(
+            effects.Select(AuthoritativeBattlefieldStaticAuraSignature),
+            signature => signature.Contains(OtherBattlefieldUnitObjectId, StringComparison.Ordinal));
+
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var p1Signatures = AssertBattlefieldStaticAuraSnapshotExcludesOtherBattlefieldUnit(snapshots["P1"]);
+        var p2Signatures = AssertBattlefieldStaticAuraSnapshotExcludesOtherBattlefieldUnit(snapshots["P2"]);
+        Assert.Equal(p1Signatures, p2Signatures);
+
+        static string AuthoritativeBattlefieldStaticAuraSignature(ContinuousEffectState effect)
+        {
+            return string.Join(
+                "|",
+                effect.EffectId ?? string.Empty,
+                effect.TargetObjectId ?? string.Empty,
+                string.Join(",", effect.TargetDependencyObjectIds ?? []),
+                string.Join(",", effect.ParticipantObjectIds ?? []),
+                string.Join(",", effect.ParticipantDependencyObjectIds ?? []));
+        }
+
+        static string[] AssertBattlefieldStaticAuraSnapshotExcludesOtherBattlefieldUnit(SnapshotDto snapshot)
+        {
+            var effectViews = ContinuousEffectViews(snapshot)
+                .Where(effect => string.Equals(
                     effect["effectKind"] as string,
                     "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
-                    StringComparison.Ordinal)
-                && string.Equals(effect["targetObjectId"] as string, OtherBattlefieldUnitObjectId, StringComparison.Ordinal));
-        AssertDoesNotExposeDependencyObjectId(snapshot, OtherBattlefieldUnitObjectId);
+                    StringComparison.Ordinal))
+                .OrderBy(effect => Assert.IsType<int>(effect["sequence"]))
+                .ToArray();
+            Assert.Equal(2, effectViews.Length);
+            Assert.DoesNotContain(
+                effectViews,
+                effect => string.Equals(
+                    effect["targetObjectId"] as string,
+                    OtherBattlefieldUnitObjectId,
+                    StringComparison.Ordinal));
+            Assert.All(
+                effectViews,
+                effect =>
+                {
+                    Assert.DoesNotContain(OtherBattlefieldUnitObjectId, StringList(effect, "targetDependencyObjectIds"));
+                    Assert.DoesNotContain(OtherBattlefieldUnitObjectId, StringList(effect, "participantObjectIds"));
+                    Assert.DoesNotContain(OtherBattlefieldUnitObjectId, StringList(effect, "participantDependencyObjectIds"));
+                });
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, OtherBattlefieldUnitObjectId);
+
+            var signatures = effectViews.Select(StaticAuraSnapshotSignature).ToArray();
+            Assert.DoesNotContain(
+                signatures,
+                signature => signature.Contains(OtherBattlefieldUnitObjectId, StringComparison.Ordinal));
+
+            return signatures;
+        }
     }
 
     [Fact]

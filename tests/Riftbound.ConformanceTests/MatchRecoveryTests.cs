@@ -20859,6 +20859,81 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentRequiredAssignmentItemValueDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battle"] = RawJson("""
+            {
+                "isActive": true,
+                "battleId": "battle-a",
+                "battlefieldObjectId": "battlefield-a",
+                "attackerObjectIds": ["attacker-a"],
+                "defenderObjectIds": ["defender-a"],
+                "participantControllerIds": {
+                    "attacker-a": "alice",
+                    "defender-a": "bob"
+                },
+                "damageAssignment": {
+                    "isPending": true,
+                    "phase": "DAMAGE_ASSIGNMENT",
+                    "battleId": "battle-a",
+                    "battlefieldId": "battlefield-a",
+                    "assigningPlayerId": "alice",
+                    "damagePool": {
+                        "attacker-a": 3
+                    },
+                    "legalTargets": {
+                        "attacker-a": ["defender-a"]
+                    },
+                    "existingDamage": {
+                        "defender-a": 0
+                    },
+                    "lethalDamageThreshold": {
+                        "defender-a": 2
+                    },
+                    "requiredAssignments": [
+                        {
+                            "sourceObjectId": "",
+                            "damage": -1,
+                            "legalTargetObjectIds": ["defender-a"]
+                        },
+                        {
+                            "sourceObjectId": "   ",
+                            "damage": 1,
+                            "legalTargetObjectIds": ["defender-a"]
+                        }
+                    ]
+                }
+            }
+            """);
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Equal(
+            2,
+            errors.Count(error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item source object id is required",
+                StringComparison.Ordinal)));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment required assignment item damage -1 cannot be negative",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentObjectReferencesOutsideSnapshotObjects()
     {
         var alice = PlayerView("alice", 0, 0);
