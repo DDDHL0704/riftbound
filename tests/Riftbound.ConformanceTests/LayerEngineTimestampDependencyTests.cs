@@ -157,6 +157,63 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
+    public void LayerEngineObjectStaticAuraParticipantMetadataRecomputesAcrossPlayerViewsWhenEquipmentParticipantLeavesPublicField()
+    {
+        var state = BuildOrnnState(
+            p1Base: [OrnnObjectId, PublicEquipmentObjectId, HiddenEquipmentObjectId],
+            p1Graveyard: [SecondPublicEquipmentObjectId],
+            cardObjects: BuildOrnnCardObjects(includeSecondPublicEquipment: true));
+
+        Assert.Contains(PublicEquipmentObjectId, state.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(SecondPublicEquipmentObjectId, state.PlayerZones["P1"].Base);
+        Assert.Contains(SecondPublicEquipmentObjectId, state.PlayerZones["P1"].Graveyard);
+
+        var aura = Assert.Single(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal($"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{OrnnObjectId}", aura.EffectId);
+        Assert.Equal(OrnnObjectId, aura.TargetObjectId);
+        Assert.Equal(OrnnObjectId, aura.SourceObjectId);
+        Assert.Equal(1, aura.PowerDelta);
+        Assert.Equal(4, aura.BasePower);
+        Assert.Equal(5, aura.EffectivePower);
+        Assert.Equal("FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER", aura.EffectKind);
+        Assert.Equal([PublicEquipmentObjectId], aura.ParticipantObjectIds);
+        Assert.Equal([OrnnObjectId], aura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], aura.TargetDependencyObjectIds);
+        Assert.Equal([PublicEquipmentObjectId], aura.ParticipantDependencyObjectIds);
+        Assert.DoesNotContain(SecondPublicEquipmentObjectId, aura.ParticipantObjectIds ?? []);
+        Assert.DoesNotContain(SecondPublicEquipmentObjectId, aura.ParticipantDependencyObjectIds ?? []);
+        Assert.DoesNotContain(HiddenEquipmentObjectId, aura.ParticipantObjectIds ?? []);
+        Assert.DoesNotContain(HiddenEquipmentObjectId, aura.ParticipantDependencyObjectIds ?? []);
+
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var p1View = AssertStaticAuraSnapshotView(snapshots["P1"], aura);
+        var p2View = AssertStaticAuraSnapshotView(snapshots["P2"], aura);
+        Assert.Equal(StaticAuraSnapshotSignature(p1View), StaticAuraSnapshotSignature(p2View));
+
+        foreach (var view in new[] { p1View, p2View })
+        {
+            Assert.Equal(1, Assert.IsType<int>(view["powerDelta"]));
+            Assert.Equal(4, Assert.IsType<int>(view["basePower"]));
+            Assert.Equal(5, Assert.IsType<int>(view["effectivePower"]));
+            Assert.Equal([PublicEquipmentObjectId], StringList(view, "participantObjectIds"));
+            Assert.Equal([PublicEquipmentObjectId], StringList(view, "participantDependencyObjectIds"));
+            Assert.DoesNotContain(SecondPublicEquipmentObjectId, StringList(view, "participantObjectIds"));
+            Assert.DoesNotContain(SecondPublicEquipmentObjectId, StringList(view, "participantDependencyObjectIds"));
+            Assert.DoesNotContain(HiddenEquipmentObjectId, StringList(view, "participantObjectIds"));
+            Assert.DoesNotContain(HiddenEquipmentObjectId, StringList(view, "participantDependencyObjectIds"));
+        }
+
+        foreach (var snapshot in new[] { snapshots["P1"], snapshots["P2"] })
+        {
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, SecondPublicEquipmentObjectId);
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, HiddenEquipmentObjectId);
+        }
+    }
+
+    [Fact]
     public void LayerEngineObjectStaticAuraPowerScalarsMatchAuthoritativeStateAcrossPlayerViews()
     {
         var cardObjects = BuildOrnnCardObjects(includeSecondPublicEquipment: true);
