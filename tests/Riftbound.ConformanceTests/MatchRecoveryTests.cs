@@ -12183,6 +12183,89 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceOriginBattlefieldLocationContextDrift()
+    {
+        var alice = PlayerView("alice", 4, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-1",
+                ["cardNo"] = P4ActivatedAbilityCatalog.JhinCardNo,
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.UnitCard },
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["zone"] = "BATTLEFIELD",
+                    ["battlefieldObjectId"] = "battlefield-1"
+                },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            ["battlefield-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "battlefield-1",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { P6TokenFactoryCatalog.BattlefieldCardTag },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefields"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["battlefieldObjectId"] = "battlefield-1"
+                }
+            }
+        };
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "JHIN_MOVE_RESOURCE::4::source-1::BATTLEFIELD:battlefield-1::BASE",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                ["triggeredByEventKind"] = "UNIT_MOVED_TO_BASE"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Lanes = lanes,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item jhin movement resource destination BASE does not match source object id source-1 location BATTLEFIELD in object locations",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceDestinationLocationContextDrift()
     {
         var alice = PlayerView("alice", 4, 0);

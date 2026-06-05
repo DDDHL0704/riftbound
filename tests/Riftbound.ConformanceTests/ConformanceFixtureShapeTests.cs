@@ -854,6 +854,82 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperStrictP0TextArraysTrimStringsAndRejectMalformedItems()
+    {
+        var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PAY_COST",
+              "paymentId": "PAY-1",
+              "paymentWindow": "TEST_PAYMENT",
+              "paymentChoiceIds": [" SPEND_MANA:1 ", " DECLINE "]
+            }
+            """).RootElement));
+        var orderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "orderedTriggerIds": [" TRIGGER-2 ", " TRIGGER-1 "]
+            }
+            """).RootElement));
+        var legacyOrderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "triggerIds": [" TRIGGER-1 ", " TRIGGER-2 "]
+            }
+            """).RootElement));
+        var chooseHandCards = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-UNDERCOVER-1",
+              "choiceWindow": "HAND_CHOICE:UNDERCOVER_AGENT",
+              "chosenObjectIds": [" P1-HAND-UNDERCOVER ", " P1-HAND-SECOND "]
+            }
+            """).RootElement));
+
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payCost.PaymentChoiceIds);
+        Assert.Equal(["TRIGGER-2", "TRIGGER-1"], orderTriggers.TriggerIds);
+        Assert.Equal(["TRIGGER-2", "TRIGGER-1"], orderTriggers.OrderedTriggerIds);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], legacyOrderTriggers.TriggerIds);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], legacyOrderTriggers.OrderedTriggerIds);
+        Assert.Equal(["P1-HAND-UNDERCOVER", "P1-HAND-SECOND"], chooseHandCards.ChosenObjectIds);
+
+        var blankPaymentChoice = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PAY_COST",
+              "paymentId": "PAY-1",
+              "paymentWindow": "TEST_PAYMENT",
+              "paymentChoiceIds": ["SPEND_MANA:1", " "]
+            }
+            """).RootElement));
+        var nullOrderedTrigger = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "orderedTriggerIds": ["TRIGGER-1", null]
+            }
+            """).RootElement));
+        var nonStringLegacyTrigger = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "triggerIds": ["TRIGGER-1", 2]
+            }
+            """).RootElement));
+        var unreadableChosenObject = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-UNDERCOVER-1",
+              "choiceWindow": "HAND_CHOICE:UNDERCOVER_AGENT",
+              "chosenObjectIds": ["P1-HAND-UNDERCOVER", {"objectId": "P1-HAND-SECOND"}]
+            }
+            """).RootElement));
+
+        Assert.Null(blankPaymentChoice.PaymentChoiceIds);
+        Assert.Null(nullOrderedTrigger.TriggerIds);
+        Assert.Null(nullOrderedTrigger.OrderedTriggerIds);
+        Assert.Null(nonStringLegacyTrigger.TriggerIds);
+        Assert.Null(nonStringLegacyTrigger.OrderedTriggerIds);
+        Assert.Null(unreadableChosenObject.ChosenObjectIds);
+    }
+
+    [Fact]
     public void GameCommandMapperPreservesMalformedP0PayloadsForStableValidation()
     {
         var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
