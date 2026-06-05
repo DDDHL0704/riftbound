@@ -37,6 +37,34 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public void GameCommandMapperTrimsOfficialDeckAndMulliganTextArrays()
+    {
+        var deckCommand = Assert.IsType<SubmitDeckCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+        {
+          "cmdType": "SUBMIT_DECK",
+          "legendCardNo": "UNL-181/219",
+          "championCardNo": "UNL-022/219",
+          "mainDeck": [" UNL-022/219 ", " ", null, 7, {"cardNo": "UNL-023/219"}, "UNL-024/219"],
+          "runeDeck": [null, " UNL-R01", {}, "UNL-R02 ", 12],
+          "battlefields": [{"cardNo": "UNL-205/219"}, " UNL-205/219 ", "", null, 3]
+        }
+        """).RootElement));
+
+        Assert.Equal(["UNL-022/219", "UNL-024/219"], deckCommand.MainDeck);
+        Assert.Equal(["UNL-R01", "UNL-R02"], deckCommand.RuneDeck);
+        Assert.Equal(["UNL-205/219"], deckCommand.Battlefields);
+
+        var mulliganCommand = Assert.IsType<MulliganCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+        {
+          "cmdType": "MULLIGAN",
+          "handObjectIds": [" P1-MAIN-001 ", null, " ", 9, {"objectId": "P1-MAIN-002"}, "P1-MAIN-003"]
+        }
+        """).RootElement));
+
+        Assert.Equal(["P1-MAIN-001", "P1-MAIN-003"], mulliganCommand.HandObjectIds);
+    }
+
+    [Fact]
     public async Task OfficialDeckValidatorRejectsCoreConstructionErrors()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

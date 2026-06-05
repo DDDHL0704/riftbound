@@ -103,6 +103,27 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
+    public void LayerEngineStaticAuraDependencyMetadataDisappearsWhenSourceLeavesPublicFieldAcrossPlayerViews()
+    {
+        var state = BuildOrnnState(
+            p1Base: [PublicEquipmentObjectId, HiddenEquipmentObjectId],
+            p1Graveyard: [OrnnObjectId],
+            cardObjects: BuildOrnnCardObjects(includeSecondPublicEquipment: false));
+
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        foreach (var snapshot in new[] { snapshots["P1"], snapshots["P2"] })
+        {
+            Assert.DoesNotContain(
+                ContinuousEffectViews(snapshot),
+                effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                    && string.Equals(effect["sourceObjectId"] as string, OrnnObjectId, StringComparison.Ordinal));
+            AssertDoesNotExposeDependencyObjectId(snapshot, OrnnObjectId);
+            AssertDoesNotExposeDependencyObjectId(snapshot, PublicEquipmentObjectId);
+            AssertDoesNotExposeDependencyObjectId(snapshot, HiddenEquipmentObjectId);
+        }
+    }
+
+    [Fact]
     public void LayerEngineStaticAuraParticipantDependenciesRecomputeWhenParticipantLeavesPublicField()
     {
         var before = BuildOrnnState(
