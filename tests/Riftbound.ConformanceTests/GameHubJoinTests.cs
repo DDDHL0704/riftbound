@@ -6087,6 +6087,172 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task MoveUnitDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "p7-9-move-unit-raw-idempotency";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario(roomId, "P1", "battlefield-static-roam", "seed-p7-9-move-unit-raw-idempotency");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var moveCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.Contains(moveCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLEFIELD-WIND-RUNNER", StringComparison.Ordinal));
+        Assert.Contains(moveCandidate.OptionalCosts ?? [], choice => string.Equals(choice.Id, "ROAM", StringComparison.Ordinal));
+        var seededJournalCount = journal.Entries.Count;
+        var move = JsonDocument.Parse("""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": "P1-BATTLEFIELD-WIND-RUNNER",
+              "origin": "BATTLEFIELD:P1-WIND-HILL",
+              "destination": "BATTLEFIELD:P1-FAR-FIELD",
+              "optionalCosts": ["ROAM"]
+            }
+            """).RootElement.Clone();
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "move-unit-same", move);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        var acceptedMoveEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Equal("游走", acceptedMoveEvent.Payload["movementKeyword"]);
+        Assert.Equal("BATTLEFIELD:P1-WIND-HILL", acceptedMoveEvent.Payload["origin"]);
+        Assert.Equal("BATTLEFIELD:P1-FAR-FIELD", acceptedMoveEvent.Payload["destination"]);
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
+        var acceptedSnapshot = SnapshotFor(acceptedClients, "P1");
+        var acceptedP1Zones = ZoneView(PlayerView(acceptedSnapshot, "P1"));
+        var acceptedBattlefields = StringList(acceptedP1Zones["battlefields"]).ToArray();
+        Assert.Equal(["P1-BATTLEFIELD-WIND-HILL", "P1-BATTLEFIELD-WIND-RUNNER"], acceptedBattlefields);
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(seededJournalCount + 1, acceptedJournalCount);
+        var moveEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "move-unit-same", StringComparison.Ordinal));
+        Assert.Equal(roomId, moveEntry.RoomId);
+        Assert.Equal("P1", moveEntry.PlayerId);
+        Assert.Equal("MOVE_UNIT", moveEntry.CommandType);
+        Assert.NotNull(moveEntry.RawCommand);
+        var rawCommand = moveEntry.RawCommand.Value;
+        Assert.Equal("MOVE_UNIT", rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("P1-BATTLEFIELD-WIND-RUNNER", rawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal("BATTLEFIELD:P1-WIND-HILL", rawCommand.GetProperty("origin").GetString());
+        Assert.Equal("BATTLEFIELD:P1-FAR-FIELD", rawCommand.GetProperty("destination").GetString());
+        Assert.Equal(
+            ["ROAM"],
+            rawCommand.GetProperty("optionalCosts")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.False(rawCommand.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "move-unit-same", move);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        var replayMoveEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Equal(acceptedMoveEvent.Payload["movementKeyword"], replayMoveEvent.Payload["movementKeyword"]);
+        Assert.Equal(acceptedMoveEvent.Payload["origin"], replayMoveEvent.Payload["origin"]);
+        Assert.Equal(acceptedMoveEvent.Payload["destination"], replayMoveEvent.Payload["destination"]);
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        var replaySnapshot = SnapshotFor(replayClients, "P1");
+        Assert.Equal(acceptedSnapshot.Tick, replaySnapshot.Tick);
+        Assert.Equal(acceptedSnapshot.ActivePlayerId, replaySnapshot.ActivePlayerId);
+        Assert.Equal(
+            acceptedBattlefields,
+            StringList(ZoneView(PlayerView(replaySnapshot, "P1"))["battlefields"]).ToArray());
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedMove = JsonDocument.Parse("""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": "P1-BATTLEFIELD-WIND-RUNNER",
+              "origin": "BATTLEFIELD:P1-WIND-HILL",
+              "destination": "BATTLEFIELD:P1-FAR-FIELD",
+              "optionalCosts": ["ROAM"],
+              "clientNote": "changed"
+            }
+            """).RootElement.Clone();
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "move-unit-same", changedMove);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+
+        var stateClients = new RecordingHubClients();
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+            .RequestSnapshot(roomId, "P1");
+
+        Assert.Empty(stateClients.CallerClient.Errors);
+        var currentSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
+        Assert.Equal(acceptedSnapshot.Tick, currentSnapshot.Tick);
+        Assert.Equal(acceptedSnapshot.ActivePlayerId, currentSnapshot.ActivePlayerId);
+        Assert.Equal(
+            acceptedBattlefields,
+            StringList(ZoneView(PlayerView(currentSnapshot, "P1"))["battlefields"]).ToArray());
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticPreventMoveBaseSeedRejectsMoveToBase()
     {
         const string roomId = "p7-9-battlefield-static-prevent-move-base";

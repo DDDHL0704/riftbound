@@ -518,9 +518,12 @@ public sealed class LayerEngineTimestampDependencyTests
 
         Assert.Equal(2, authoritativeEffects.Length);
 
+        var authoritativeDependencySignatures = authoritativeEffects
+            .Select(StaticAuraAuthoritativeDependencySignature)
+            .ToArray();
         var snapshots = ResolutionResult.BuildSnapshots(state);
-        var p1Signatures = new List<string>();
-        var p2Signatures = new List<string>();
+        var p1DependencySignatures = new List<string>();
+        var p2DependencySignatures = new List<string>();
 
         foreach (var aura in authoritativeEffects)
         {
@@ -534,11 +537,12 @@ public sealed class LayerEngineTimestampDependencyTests
 
             var p1View = AssertStaticAuraSnapshotView(snapshots["P1"], aura);
             var p2View = AssertStaticAuraSnapshotView(snapshots["P2"], aura);
-            p1Signatures.Add(StaticAuraSnapshotSignature(p1View));
-            p2Signatures.Add(StaticAuraSnapshotSignature(p2View));
+            p1DependencySignatures.Add(StaticAuraSnapshotDependencySignature(p1View));
+            p2DependencySignatures.Add(StaticAuraSnapshotDependencySignature(p2View));
         }
 
-        Assert.Equal(p1Signatures, p2Signatures);
+        Assert.Equal(authoritativeDependencySignatures, p1DependencySignatures);
+        Assert.Equal(authoritativeDependencySignatures, p2DependencySignatures);
     }
 
     private static MatchState BuildMixedLayerState()
@@ -902,6 +906,36 @@ public sealed class LayerEngineTimestampDependencyTests
             string.Join(",", StringList(view, "participantObjectIds")),
             string.Join(",", StringList(view, "sourceDependencyObjectIds")),
             string.Join(",", StringList(view, "targetDependencyObjectIds")),
+            string.Join(",", StringList(view, "participantDependencyObjectIds")),
+            string.Join(",", StringList(view, "deferredLayerEngineResiduals")));
+    }
+
+    private static string StaticAuraAuthoritativeDependencySignature(ContinuousEffectState effect)
+    {
+        return string.Join(
+            "|",
+            effect.Sequence.ToString(),
+            effect.SourceOrder.GetValueOrDefault().ToString(),
+            Assert.IsType<string>(effect.SourceObjectId),
+            Assert.IsType<string>(effect.TargetObjectId),
+            string.Join(",", effect.SourceDependencyObjectIds ?? Array.Empty<string>()),
+            string.Join(",", effect.TargetDependencyObjectIds ?? Array.Empty<string>()),
+            string.Join(",", effect.ParticipantObjectIds ?? Array.Empty<string>()),
+            string.Join(",", effect.ParticipantDependencyObjectIds ?? Array.Empty<string>()),
+            string.Join(",", effect.DeferredLayerEngineResiduals ?? Array.Empty<string>()));
+    }
+
+    private static string StaticAuraSnapshotDependencySignature(Dictionary<string, object?> view)
+    {
+        return string.Join(
+            "|",
+            Assert.IsType<int>(view["sequence"]).ToString(),
+            Assert.IsType<int>(view["sourceOrder"]).ToString(),
+            Assert.IsType<string>(view["sourceObjectId"]),
+            Assert.IsType<string>(view["targetObjectId"]),
+            string.Join(",", StringList(view, "sourceDependencyObjectIds")),
+            string.Join(",", StringList(view, "targetDependencyObjectIds")),
+            string.Join(",", StringList(view, "participantObjectIds")),
             string.Join(",", StringList(view, "participantDependencyObjectIds")),
             string.Join(",", StringList(view, "deferredLayerEngineResiduals")));
     }
