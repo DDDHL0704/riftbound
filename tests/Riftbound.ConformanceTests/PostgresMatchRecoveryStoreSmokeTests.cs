@@ -99,6 +99,94 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
         }
     }
 
+    [Fact]
+    public async Task PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands()
+    {
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return;
+        }
+
+        await using var dataSource = NpgsqlDataSource.Create(connectionString);
+        await ApplySchemaAsync(dataSource);
+
+        var roomId = $"recovery-raw-smoke-{Guid.NewGuid():N}";
+        try
+        {
+            var playerStore = new PostgresMatchPlayerStore(dataSource);
+            await playerStore.SavePlayerSessionAsync(
+                roomId,
+                "alice",
+                "P1",
+                ReconnectTokenHasher.Hash("rt_alice"),
+                CancellationToken.None);
+            await playerStore.SavePlayerSessionAsync(
+                roomId,
+                "bob",
+                "P2",
+                ReconnectTokenHasher.Hash("rt_bob"),
+                CancellationToken.None);
+
+            var journal = new PostgresMatchJournal(dataSource);
+            var initialState = MatchReplayInitialStateBuilder.FromSeats(
+                roomId,
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["alice"] = "P1",
+                    ["bob"] = "P2"
+                });
+            var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+            var acceptedRawCommand = RawCommand("PASS", "clientNote", "accepted raw smoke payload");
+            var rejectedRawCommand = RawCommand(
+                "UNKNOWN_RECOVERY_TEST",
+                "clientNote",
+                "rejected raw smoke payload");
+
+            await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
+            await liveSession.ReadyAsync("bob", "intent-ready-b", RawCommand("READY"), CancellationToken.None);
+            await liveSession.SubmitAsync(
+                "alice",
+                "intent-pass-with-client-note",
+                new PassCommand(),
+                acceptedRawCommand,
+                CancellationToken.None);
+            await liveSession.SubmitAsync(
+                "alice",
+                "intent-unsupported-with-client-note",
+                new UnsupportedCommand("UNKNOWN_RECOVERY_TEST", rejectedRawCommand),
+                rejectedRawCommand,
+                CancellationToken.None);
+
+            var recoveryStore = new PostgresMatchRecoveryStore(dataSource);
+            var recovery = await recoveryStore.LoadAsync(roomId, CancellationToken.None);
+
+            Assert.NotNull(recovery);
+            Assert.True(recovery.IsConsistent, string.Join("; ", recovery.ValidationErrors));
+            var accepted = Assert.Single(
+                recovery.Commands,
+                command => command.ClientIntentId == "intent-pass-with-client-note");
+            var rejected = Assert.Single(
+                recovery.Commands,
+                command => command.ClientIntentId == "intent-unsupported-with-client-note");
+
+            Assert.True(accepted.Accepted);
+            Assert.False(rejected.Accepted);
+            Assert.Equal("PASS", accepted.CommandType);
+            Assert.Equal("UNKNOWN_RECOVERY_TEST", rejected.CommandType);
+            AssertRawCommand(accepted.RawCommand, "PASS", "clientNote", "accepted raw smoke payload");
+            AssertRawCommand(
+                rejected.RawCommand,
+                "UNKNOWN_RECOVERY_TEST",
+                "clientNote",
+                "rejected raw smoke payload");
+        }
+        finally
+        {
+            await DeleteRoomAsync(dataSource, roomId);
+        }
+    }
+
     private static async Task ApplySchemaAsync(NpgsqlDataSource dataSource)
     {
         await using var connection = await dataSource.OpenConnectionAsync();
@@ -146,5 +234,27 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
     private static JsonElement RawCommand(string cmdType)
     {
         return JsonDocument.Parse($$"""{"cmdType":"{{cmdType}}"}""").RootElement.Clone();
+    }
+
+    private static JsonElement RawCommand(string cmdType, string propertyName, string propertyValue)
+    {
+        return JsonSerializer.SerializeToElement(new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["cmdType"] = cmdType,
+            [propertyName] = propertyValue
+        });
+    }
+
+    private static void AssertRawCommand(
+        JsonElement? rawCommand,
+        string cmdType,
+        string propertyName,
+        string propertyValue)
+    {
+        Assert.True(rawCommand.HasValue);
+        var raw = rawCommand.Value;
+        Assert.Equal(JsonValueKind.Object, raw.ValueKind);
+        Assert.Equal(cmdType, raw.GetProperty("cmdType").GetString());
+        Assert.Equal(propertyValue, raw.GetProperty(propertyName).GetString());
     }
 }

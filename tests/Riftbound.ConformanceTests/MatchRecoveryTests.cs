@@ -113481,6 +113481,45 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task ActionLogReplayerRejectsRawCommandTypeMismatchBeforeReplay()
+    {
+        var initialState = ReplayInitialState();
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.SubmitAsync(
+            "alice",
+            "intent-unsupported",
+            new UnsupportedCommand("UNKNOWN_RECOVERY_TEST", RawCommand("UNKNOWN_RECOVERY_TEST")),
+            RawCommand("UNKNOWN_RECOVERY_TEST"),
+            CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var recoveredCommands = journal.Entries
+            .Select(ToRecoveredCommand)
+            .Select(command => string.Equals(command.ClientIntentId, "intent-unsupported", StringComparison.Ordinal)
+                ? command with { CommandType = "PASS" }
+                : command)
+            .ToArray();
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            recoveredCommands,
+            expectedFinalState,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None);
+
+        Assert.False(replay.IsMatch);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.DoesNotContain(
+            replay.Errors,
+            error => error.Contains("replayed final state hash", StringComparison.Ordinal));
+        Assert.Contains(
+            replay.Errors,
+            error => error.Contains(
+                "command intent-unsupported raw cmdType UNKNOWN_RECOVERY_TEST does not match recovered command type PASS",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task ActionLogReplayerRejectsReplayInitialStateSeatValueDrift()
     {
         var replayInitialState = MatchReplayInitialStateBuilder.FromSeats(

@@ -13362,6 +13362,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 
 public sealed class MatchSession : IMatchSession
 {
+    private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
@@ -13537,6 +13538,7 @@ public sealed class MatchSession : IMatchSession
                 command.Accepted ? null : ErrorCodes.UnsupportedCommand);
             intentCache[$"{command.PlayerId}:{command.ClientIntentId}"] = new CachedResolution(
                 command.CommandType,
+                RawCommandFingerprint(command.RawCommand),
                 result);
         }
     }
@@ -13737,17 +13739,18 @@ public sealed class MatchSession : IMatchSession
         var normalizedScenarioId = NormalizeScenarioId(scenarioId);
         var commandType = $"DEV_SEED_SCENARIO:{normalizedScenarioId}";
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
+        var rawCommandHash = RawCommandFingerprint(rawCommand);
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (intentCache.TryGetValue(cacheKey, out var cached))
             {
-                if (!string.Equals(cached.CommandType, commandType, StringComparison.Ordinal))
+                if (IntentConflicts(cached, commandType, rawCommandHash))
                 {
                     throw new MatchSessionException(
                         ErrorCodes.ClientIntentConflict,
-                        "该客户端行动编号已用于其他命令。");
+                        ClientIntentConflictMessage);
                 }
 
                 return cached.Result;
@@ -13800,7 +13803,7 @@ public sealed class MatchSession : IMatchSession
             lastEventSequence = completedEventSequence;
 
             state = nextState;
-            intentCache[cacheKey] = new CachedResolution(commandType, result);
+            intentCache[cacheKey] = new CachedResolution(commandType, rawCommandHash, result);
             return result;
         }
         finally
@@ -13821,17 +13824,18 @@ public sealed class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
+        var rawCommandHash = RawCommandFingerprint(rawCommand);
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (intentCache.TryGetValue(cacheKey, out var cached))
             {
-                if (!string.Equals(cached.CommandType, "SUBMIT_DECK", StringComparison.Ordinal))
+                if (IntentConflicts(cached, "SUBMIT_DECK", rawCommandHash))
                 {
                     throw new MatchSessionException(
                         ErrorCodes.ClientIntentConflict,
-                        "该客户端行动编号已用于其他命令。");
+                        ClientIntentConflictMessage);
                 }
 
                 return cached.Result;
@@ -13949,7 +13953,7 @@ public sealed class MatchSession : IMatchSession
                 state = result.State;
             }
             lastEventSequence = completedEventSequence;
-            intentCache[cacheKey] = new CachedResolution("SUBMIT_DECK", result);
+            intentCache[cacheKey] = new CachedResolution("SUBMIT_DECK", rawCommandHash, result);
             return result;
         }
         finally
@@ -13968,17 +13972,18 @@ public sealed class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
+        var rawCommandHash = RawCommandFingerprint(rawCommand);
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (intentCache.TryGetValue(cacheKey, out var cached))
             {
-                if (!string.Equals(cached.CommandType, "READY", StringComparison.Ordinal))
+                if (IntentConflicts(cached, "READY", rawCommandHash))
                 {
                     throw new MatchSessionException(
                         ErrorCodes.ClientIntentConflict,
-                        "该客户端行动编号已用于其他命令。");
+                        ClientIntentConflictMessage);
                 }
 
                 return cached.Result;
@@ -13991,7 +13996,7 @@ public sealed class MatchSession : IMatchSession
 
             if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
             {
-                intentCache[cacheKey] = new CachedResolution("READY", promptRejection);
+                intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, promptRejection);
                 return promptRejection;
             }
 
@@ -14004,7 +14009,7 @@ public sealed class MatchSession : IMatchSession
                     [],
                     ResolutionResult.BuildSnapshots(state),
                     ResolutionResult.BuildPrompts(state));
-                intentCache[cacheKey] = new CachedResolution("READY", current);
+                intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, current);
                 return current;
             }
 
@@ -14017,7 +14022,7 @@ public sealed class MatchSession : IMatchSession
                     state,
                     "正式卡组房间需要先提交合法卡组才能准备。",
                     ErrorCodes.InvalidDeck);
-                intentCache[cacheKey] = new CachedResolution("READY", rejected);
+                intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, rejected);
                 return rejected;
             }
 
@@ -14108,7 +14113,7 @@ public sealed class MatchSession : IMatchSession
             }
 
             state = nextState;
-            intentCache[cacheKey] = new CachedResolution("READY", result);
+            intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, result);
             return result;
         }
         finally
@@ -14128,17 +14133,18 @@ public sealed class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
+        var rawCommandHash = RawCommandFingerprint(rawCommand);
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (intentCache.TryGetValue(cacheKey, out var cached))
             {
-                if (!string.Equals(cached.CommandType, command.CmdType, StringComparison.Ordinal))
+                if (IntentConflicts(cached, command.CmdType, rawCommandHash))
                 {
                     return ResolutionResult.Rejected(
                         state,
-                        "该客户端行动编号已用于其他命令。",
+                        ClientIntentConflictMessage,
                         ErrorCodes.ClientIntentConflict);
                 }
 
@@ -14199,7 +14205,7 @@ public sealed class MatchSession : IMatchSession
             }
             lastEventSequence = completedEventSequence;
 
-            intentCache[cacheKey] = new CachedResolution(command.CmdType, result);
+            intentCache[cacheKey] = new CachedResolution(command.CmdType, rawCommandHash, result);
             return result;
         }
         finally
@@ -14208,7 +14214,27 @@ public sealed class MatchSession : IMatchSession
         }
     }
 
-    private sealed record CachedResolution(string CommandType, ResolutionResult Result);
+    private sealed record CachedResolution(string CommandType, string? RawCommandHash, ResolutionResult Result);
+
+    private static bool IntentConflicts(CachedResolution cached, string commandType, string? rawCommandHash)
+    {
+        if (!string.Equals(cached.CommandType, commandType, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        // Legacy recovered commands can lack raw payloads, so only enforce payload identity when both sides are fingerprinted.
+        return cached.RawCommandHash is not null
+            && rawCommandHash is not null
+            && !string.Equals(cached.RawCommandHash, rawCommandHash, StringComparison.Ordinal);
+    }
+
+    private static string? RawCommandFingerprint(JsonElement? rawCommand)
+    {
+        return rawCommand is { } command
+            ? MatchStateHasher.HashValue(command)
+            : null;
+    }
 
     private static bool TryRejectStalePrompt(
         MatchState state,

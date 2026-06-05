@@ -105,6 +105,7 @@ public sealed record MatchActionLogReplayResult(
 public static class MatchActionLogReplayer
 {
     private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
+    private const string DevSeedScenarioCommandType = "DEV_SEED_SCENARIO";
 
     public static async ValueTask<IReadOnlyList<string>> ValidateRecoveryFrameAsync(
         MatchRecoveryFrame recovery,
@@ -552,6 +553,17 @@ public static class MatchActionLogReplayer
             .ThenBy(command => command.CompletedEventSequence)
             .ThenBy(command => command.ClientIntentId, StringComparer.Ordinal))
         {
+            if (TryReadRawCommandType(command.RawCommand, out var rawCommandType)
+                && !string.Equals(
+                    rawCommandType,
+                    ExpectedRawCommandType(command.CommandType.Trim()),
+                    StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} raw cmdType {rawCommandType} does not match recovered command type {command.CommandType}");
+                continue;
+            }
+
             ResolutionResult result;
             try
             {
@@ -714,6 +726,33 @@ public static class MatchActionLogReplayer
 
         using var document = JsonDocument.Parse($$"""{"cmdType":"{{recovered.CommandType}}"}""");
         return document.RootElement.Clone();
+    }
+
+    private static bool TryReadRawCommandType(JsonElement? rawCommand, out string commandType)
+    {
+        commandType = string.Empty;
+        if (rawCommand is not { ValueKind: JsonValueKind.Object } raw
+            || !raw.TryGetProperty("cmdType", out var rawCommandType)
+            || rawCommandType.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        var value = rawCommandType.GetString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        commandType = value.Trim();
+        return true;
+    }
+
+    private static string ExpectedRawCommandType(string recoveredCommandType)
+    {
+        return recoveredCommandType.StartsWith(DevSeedScenarioPrefix, StringComparison.Ordinal)
+            ? DevSeedScenarioCommandType
+            : recoveredCommandType;
     }
 }
 

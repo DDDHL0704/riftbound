@@ -134,6 +134,58 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
+    public void LayerEngineObjectStaticAuraPowerScalarsMatchAuthoritativeStateAcrossPlayerViews()
+    {
+        var cardObjects = BuildOrnnCardObjects(includeSecondPublicEquipment: true);
+        cardObjects[OrnnObjectId] = new CardObjectState(
+            OrnnObjectId,
+            cardNo: OrnnCardNo,
+            power: 6,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        var state = BuildOrnnState(
+            p1Base: [OrnnObjectId, PublicEquipmentObjectId, SecondPublicEquipmentObjectId, HiddenEquipmentObjectId],
+            cardObjects: cardObjects);
+
+        var aura = Assert.Single(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal($"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{OrnnObjectId}", aura.EffectId);
+        Assert.Equal("OBJECT", aura.Scope);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", aura.Duration);
+        Assert.Equal(OrnnObjectId, aura.TargetObjectId);
+        Assert.Equal(OrnnObjectId, aura.SourceObjectId);
+        Assert.Equal(2, aura.PowerDelta);
+        Assert.Equal(4, aura.BasePower);
+        Assert.Equal(6, aura.EffectivePower);
+        Assert.Equal("FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER", aura.EffectKind);
+        Assert.Equal(OrnnCardNo, aura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute", aura.SourcePath);
+        Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT", aura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE", aura.Lifecycle);
+        Assert.True(aura.IsLayerEngineFoundationOnly);
+        Assert.Contains("multiple equipment/static aura interactions", aura.DeferredLayerEngineResiduals ?? []);
+        Assert.Equal([PublicEquipmentObjectId, SecondPublicEquipmentObjectId], aura.ParticipantObjectIds);
+        Assert.Equal([OrnnObjectId], aura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], aura.TargetDependencyObjectIds);
+        Assert.Equal([PublicEquipmentObjectId, SecondPublicEquipmentObjectId], aura.ParticipantDependencyObjectIds);
+        Assert.Equal(1, aura.Sequence);
+        Assert.Equal(1, aura.SourceOrder.GetValueOrDefault());
+        Assert.Null(aura.RequestedPowerDelta);
+        Assert.Null(aura.AppliedPowerDelta);
+        Assert.Null(aura.MinimumPower);
+        Assert.Null(aura.ResultingPower);
+        Assert.Null(aura.AppliedOrder);
+
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var p1View = AssertObjectStaticAuraSnapshotView(snapshots["P1"], aura);
+        var p2View = AssertObjectStaticAuraSnapshotView(snapshots["P2"], aura);
+        Assert.Equal(ObjectStaticAuraSnapshotSignature(p1View), ObjectStaticAuraSnapshotSignature(p2View));
+    }
+
+    [Fact]
     public void LayerEngineBattlefieldStaticAuraTargetDependenciesDisappearWhenParticipantLeavesBattlefield()
     {
         var before = BuildBattlefieldStaticAuraState(includeDefender: true);
@@ -453,6 +505,73 @@ public sealed class LayerEngineTimestampDependencyTests
     private static IReadOnlyList<string> StringList(Dictionary<string, object?> view, string key)
     {
         return Assert.IsAssignableFrom<IReadOnlyList<string>>(view[key]);
+    }
+
+    private static Dictionary<string, object?> AssertObjectStaticAuraSnapshotView(
+        SnapshotDto snapshot,
+        ContinuousEffectState aura)
+    {
+        var view = Assert.Single(
+            ContinuousEffectViews(snapshot),
+            effect => string.Equals(effect["effectId"] as string, aura.EffectId, StringComparison.Ordinal));
+
+        Assert.Equal(aura.EffectId, Assert.IsType<string>(view["effectId"]));
+        Assert.Equal(aura.Scope, Assert.IsType<string>(view["scope"]));
+        Assert.Equal(aura.Layer, Assert.IsType<string>(view["layer"]));
+        Assert.Equal(aura.Duration, Assert.IsType<string>(view["duration"]));
+        Assert.Equal(aura.TargetObjectId, Assert.IsType<string>(view["targetObjectId"]));
+        Assert.Equal(aura.SourceObjectId, Assert.IsType<string>(view["sourceObjectId"]));
+        Assert.Equal(aura.PowerDelta, Assert.IsType<int>(view["powerDelta"]));
+        Assert.Equal(aura.BasePower, Assert.IsType<int>(view["basePower"]));
+        Assert.Equal(aura.EffectivePower, Assert.IsType<int>(view["effectivePower"]));
+        Assert.Equal(aura.Sequence, Assert.IsType<int>(view["sequence"]));
+        Assert.Equal(aura.EffectKind, Assert.IsType<string>(view["effectKind"]));
+        Assert.Equal(aura.SourceCardNo, Assert.IsType<string>(view["sourceCardNo"]));
+        Assert.Equal(aura.SourcePath, Assert.IsType<string>(view["sourcePath"]));
+        Assert.Equal(aura.Condition, Assert.IsType<string>(view["condition"]));
+        Assert.Equal(aura.Lifecycle, Assert.IsType<string>(view["lifecycle"]));
+        Assert.Equal("FOUNDATION_ONLY", Assert.IsType<string>(view["layerEngineStatus"]));
+        Assert.Equal(aura.SourceOrder.GetValueOrDefault(), Assert.IsType<int>(view["sourceOrder"]));
+        Assert.Equal(aura.ParticipantObjectIds, StringList(view, "participantObjectIds"));
+        Assert.Equal(aura.SourceDependencyObjectIds, StringList(view, "sourceDependencyObjectIds"));
+        Assert.Equal(aura.TargetDependencyObjectIds, StringList(view, "targetDependencyObjectIds"));
+        Assert.Equal(aura.ParticipantDependencyObjectIds, StringList(view, "participantDependencyObjectIds"));
+        Assert.Equal(aura.DeferredLayerEngineResiduals, StringList(view, "deferredLayerEngineResiduals"));
+        Assert.False(view.ContainsKey("requestedPowerDelta"));
+        Assert.False(view.ContainsKey("appliedPowerDelta"));
+        Assert.False(view.ContainsKey("minimumPower"));
+        Assert.False(view.ContainsKey("resultingPower"));
+        Assert.False(view.ContainsKey("appliedOrder"));
+
+        return view;
+    }
+
+    private static string ObjectStaticAuraSnapshotSignature(Dictionary<string, object?> view)
+    {
+        return string.Join(
+            "|",
+            Assert.IsType<string>(view["effectId"]),
+            Assert.IsType<string>(view["scope"]),
+            Assert.IsType<string>(view["layer"]),
+            Assert.IsType<string>(view["duration"]),
+            Assert.IsType<string>(view["targetObjectId"]),
+            Assert.IsType<string>(view["sourceObjectId"]),
+            Assert.IsType<int>(view["powerDelta"]).ToString(),
+            Assert.IsType<int>(view["basePower"]).ToString(),
+            Assert.IsType<int>(view["effectivePower"]).ToString(),
+            Assert.IsType<int>(view["sequence"]).ToString(),
+            Assert.IsType<int>(view["sourceOrder"]).ToString(),
+            Assert.IsType<string>(view["effectKind"]),
+            Assert.IsType<string>(view["sourceCardNo"]),
+            Assert.IsType<string>(view["sourcePath"]),
+            Assert.IsType<string>(view["condition"]),
+            Assert.IsType<string>(view["lifecycle"]),
+            Assert.IsType<string>(view["layerEngineStatus"]),
+            string.Join(",", StringList(view, "participantObjectIds")),
+            string.Join(",", StringList(view, "sourceDependencyObjectIds")),
+            string.Join(",", StringList(view, "targetDependencyObjectIds")),
+            string.Join(",", StringList(view, "participantDependencyObjectIds")),
+            string.Join(",", StringList(view, "deferredLayerEngineResiduals")));
     }
 
     private static string EffectSignature(Dictionary<string, object?> view)

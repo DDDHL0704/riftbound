@@ -677,6 +677,44 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentDuplicateSameCommandDifferentRawPayloadReturnsStableConflict()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-same", pass);
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-same", pass);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        Assert.Equal(MessageType.EVENTS, Assert.Single(replayClients.GroupClient.EventMessages).Type);
+        Assert.Equal(2, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, replayClients.GroupClient.Prompts.Count);
+
+        var clients = new RecordingHubClients();
+        var changedPass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY","clientNote":"changed"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-same", changedPass);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+    }
+
+    [Fact]
     public async Task SubmitIntentPreservesOriginalCommandPayloadInJournal()
     {
         var journal = new RecordingMatchJournal();
