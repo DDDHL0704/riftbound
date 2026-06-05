@@ -9000,6 +9000,134 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialFirstTurnTapRuneDuplicateClientIntentReplaysExactRawButRejectsChangedRawPayload()
+    {
+        var journal = new RecordingMatchJournal();
+        var context = await BuildFinalMulliganFirstTurnAuditContext(
+            "official-first-turn-tap-rune-raw-intent-room",
+            journal);
+
+        var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
+        Assert.True(firstTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
+        Assert.Contains(CommandTypes.TapRune, firstTurnPrompt.Actions);
+        var tapRuneCandidate = Assert.Single(
+            firstTurnPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal));
+        Assert.True(tapRuneCandidate.Enabled);
+        var sourceIds = (tapRuneCandidate.Sources ?? []).Select(source => source.Id).ToArray();
+        Assert.NotEmpty(sourceIds);
+        var sourceId = sourceIds[0];
+        Assert.Contains(sourceId, context.CalledRuneObjectIds);
+        var command = new TapRuneCommand(sourceId);
+        var rawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.TapRune,
+            promptId = firstTurnPrompt.PromptId,
+            snapshotTick = firstTurnPrompt.SnapshotTick,
+            sourceObjectId = sourceId
+        });
+        var journalEntryCountBeforeTapRune = journal.Entries.Count;
+
+        var accepted = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-tap-rune-raw-intent",
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["RUNE_TAPPED", "MANA_GAINED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(journalEntryCountBeforeTapRune + 1, journal.Entries.Count);
+        AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
+            accepted,
+            context.ActivePlayerId,
+            context.SecondPlayerId,
+            context.ActiveSelectedObjectIds,
+            context.ActiveDrawnObjectIds,
+            context.SecondSelectedObjectIds,
+            context.SecondDrawnObjectIds,
+            context.CalledRuneObjectIds,
+            context.TurnDrawnObjectIds,
+            assertEvents: false);
+        Assert.Equal(1, accepted.State.RunePools[context.ActivePlayerId].Mana);
+        Assert.True(accepted.State.CardObjects[sourceId].IsExhausted);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEvents = JsonSerializer.Serialize(accepted.Events);
+        var acceptedPrompts = JsonSerializer.Serialize(accepted.Prompts);
+        var acceptedSnapshots = JsonSerializer.Serialize(accepted.Snapshots);
+
+        var replay = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-tap-rune-raw-intent",
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, replay.State.RngCursor);
+        Assert.Equal(acceptedEvents, JsonSerializer.Serialize(replay.Events));
+        Assert.Equal(acceptedPrompts, JsonSerializer.Serialize(replay.Prompts));
+        Assert.Equal(acceptedSnapshots, JsonSerializer.Serialize(replay.Snapshots));
+        AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
+            replay,
+            context.ActivePlayerId,
+            context.SecondPlayerId,
+            context.ActiveSelectedObjectIds,
+            context.ActiveDrawnObjectIds,
+            context.SecondSelectedObjectIds,
+            context.SecondDrawnObjectIds,
+            context.CalledRuneObjectIds,
+            context.TurnDrawnObjectIds,
+            assertEvents: false);
+        Assert.Equal(1, replay.State.RunePools[context.ActivePlayerId].Mana);
+        Assert.True(replay.State.CardObjects[sourceId].IsExhausted);
+        Assert.Equal(journalEntryCountBeforeTapRune + 1, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(context.Session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(context.Session, "P2");
+        var conflict = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-tap-rune-raw-intent",
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.TapRune,
+                promptId = firstTurnPrompt.PromptId,
+                snapshotTick = firstTurnPrompt.SnapshotTick,
+                sourceObjectId = sourceId,
+                clientNote = "changed-payload"
+            }),
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.ErrorMessage);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
+        AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
+            conflict,
+            context.ActivePlayerId,
+            context.SecondPlayerId,
+            context.ActiveSelectedObjectIds,
+            context.ActiveDrawnObjectIds,
+            context.SecondSelectedObjectIds,
+            context.SecondDrawnObjectIds,
+            context.CalledRuneObjectIds,
+            context.TurnDrawnObjectIds,
+            assertEvents: false);
+        Assert.Equal(1, conflict.State.RunePools[context.ActivePlayerId].Mana);
+        Assert.True(conflict.State.CardObjects[sourceId].IsExhausted);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(context.Session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(context.Session, "P2"));
+        Assert.Equal(journalEntryCountBeforeTapRune + 1, journal.Entries.Count);
+    }
+
+    [Fact]
     public Task WrongPlayerFirstTurnTapRunePromptRejectsWithoutMutation()
     {
         return AssertWrongPlayerFirstTurnTapRunePromptRejectsWithoutMutation(
