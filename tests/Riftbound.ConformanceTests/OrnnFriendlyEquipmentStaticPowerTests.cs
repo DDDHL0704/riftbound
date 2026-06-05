@@ -90,6 +90,65 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     }
 
     [Fact]
+    public async Task OrnnFriendlyEquipmentStaticAuraMetadataMatchesAuthoritativeStateAcrossPlayerViews()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnState(OrnnCardNo, includeFriendlyFieldEquipment: true);
+        var expectedResiduals = new[]
+        {
+            "timestamp ordering",
+            "dependency ordering",
+            "source ordering",
+            "keyword gain/loss layering",
+            "multiple equipment/static aura interactions",
+            "minimum-power layering",
+            "full official LayerEngine coverage"
+        };
+
+        var played = await PlayOrnnAsync(engine, state, OrnnCardNo);
+        var resolved = await ResolveTopStackAsync(engine, played.State);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.True(resolved.Accepted, resolved.ErrorMessage);
+        var staticAura = Assert.Single(
+            resolved.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal($"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{OrnnObjectId}", staticAura.EffectId);
+        Assert.Equal("OBJECT", staticAura.Scope);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", staticAura.Duration);
+        Assert.Equal(OrnnObjectId, staticAura.TargetObjectId);
+        Assert.Equal(OrnnObjectId, staticAura.SourceObjectId);
+        Assert.Equal(2, staticAura.PowerDelta);
+        Assert.Equal(4, staticAura.BasePower);
+        Assert.Equal(6, staticAura.EffectivePower);
+        Assert.Equal("FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER", staticAura.EffectKind);
+        Assert.Equal(OrnnCardNo, staticAura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute", staticAura.SourcePath);
+        Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT", staticAura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE", staticAura.Lifecycle);
+        Assert.True(staticAura.IsLayerEngineFoundationOnly);
+        Assert.Equal(expectedResiduals, staticAura.DeferredLayerEngineResiduals);
+        Assert.Equal([FriendlyBaseEquipmentObjectId, SecondFriendlyBaseEquipmentObjectId], staticAura.ParticipantObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.TargetDependencyObjectIds);
+        Assert.Equal(
+            [FriendlyBaseEquipmentObjectId, SecondFriendlyBaseEquipmentObjectId],
+            staticAura.ParticipantDependencyObjectIds);
+        Assert.Equal(1, staticAura.Sequence);
+        Assert.Equal(5, staticAura.SourceOrder.GetValueOrDefault());
+        Assert.Null(staticAura.RequestedPowerDelta);
+        Assert.Null(staticAura.AppliedPowerDelta);
+        Assert.Null(staticAura.MinimumPower);
+        Assert.Null(staticAura.ResultingPower);
+        Assert.Null(staticAura.AppliedOrder);
+
+        var p1View = AssertSnapshotStaticAuraMetadata(resolved.Snapshots["P1"], staticAura, expectedResiduals);
+        var p2View = AssertSnapshotStaticAuraMetadata(resolved.Snapshots["P2"], staticAura, expectedResiduals);
+        Assert.Equal(StaticAuraMetadataSignature(p1View), StaticAuraMetadataSignature(p2View));
+    }
+
+    [Fact]
     public async Task OrnnRecomputesUpWhenFriendlyPublicEquipmentResolvesAfterOrnnIsInField()
     {
         var engine = new CoreRuleEngine();
@@ -546,5 +605,80 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal(
             participantObjectIds,
             Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["participantDependencyObjectIds"]));
+    }
+
+    private static Dictionary<string, object?> AssertSnapshotStaticAuraMetadata(
+        SnapshotDto snapshot,
+        ContinuousEffectState staticAura,
+        IReadOnlyList<string> expectedResiduals)
+    {
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        var effect = Assert.Single(
+            continuousEffects,
+            effect => string.Equals(effect["effectId"] as string, staticAura.EffectId, StringComparison.Ordinal));
+
+        Assert.Equal(staticAura.EffectId, Assert.IsType<string>(effect["effectId"]));
+        Assert.Equal(staticAura.Scope, Assert.IsType<string>(effect["scope"]));
+        Assert.Equal(staticAura.Layer, Assert.IsType<string>(effect["layer"]));
+        Assert.Equal(staticAura.Duration, Assert.IsType<string>(effect["duration"]));
+        Assert.Equal(staticAura.TargetObjectId, Assert.IsType<string>(effect["targetObjectId"]));
+        Assert.Equal(staticAura.SourceObjectId, Assert.IsType<string>(effect["sourceObjectId"]));
+        Assert.Equal(staticAura.PowerDelta, Assert.IsType<int>(effect["powerDelta"]));
+        Assert.Equal(staticAura.BasePower, Assert.IsType<int>(effect["basePower"]));
+        Assert.Equal(staticAura.EffectivePower, Assert.IsType<int>(effect["effectivePower"]));
+        Assert.Equal(staticAura.Sequence, Assert.IsType<int>(effect["sequence"]));
+        Assert.Equal(staticAura.EffectKind, Assert.IsType<string>(effect["effectKind"]));
+        Assert.Equal(staticAura.SourceCardNo, Assert.IsType<string>(effect["sourceCardNo"]));
+        Assert.Equal(staticAura.SourcePath, Assert.IsType<string>(effect["sourcePath"]));
+        Assert.Equal(staticAura.Condition, Assert.IsType<string>(effect["condition"]));
+        Assert.Equal(staticAura.Lifecycle, Assert.IsType<string>(effect["lifecycle"]));
+        Assert.Equal("FOUNDATION_ONLY", Assert.IsType<string>(effect["layerEngineStatus"]));
+        Assert.Equal(staticAura.SourceOrder.GetValueOrDefault(), Assert.IsType<int>(effect["sourceOrder"]));
+        Assert.Equal(staticAura.ParticipantObjectIds, StringList(effect, "participantObjectIds"));
+        Assert.Equal(staticAura.SourceDependencyObjectIds, StringList(effect, "sourceDependencyObjectIds"));
+        Assert.Equal(staticAura.TargetDependencyObjectIds, StringList(effect, "targetDependencyObjectIds"));
+        Assert.Equal(staticAura.ParticipantDependencyObjectIds, StringList(effect, "participantDependencyObjectIds"));
+        Assert.Equal(expectedResiduals, StringList(effect, "deferredLayerEngineResiduals"));
+        Assert.False(effect.ContainsKey("requestedPowerDelta"));
+        Assert.False(effect.ContainsKey("appliedPowerDelta"));
+        Assert.False(effect.ContainsKey("minimumPower"));
+        Assert.False(effect.ContainsKey("resultingPower"));
+        Assert.False(effect.ContainsKey("appliedOrder"));
+
+        return effect;
+    }
+
+    private static IReadOnlyList<string> StringList(Dictionary<string, object?> view, string key)
+    {
+        return Assert.IsAssignableFrom<IReadOnlyList<string>>(view[key]);
+    }
+
+    private static string StaticAuraMetadataSignature(Dictionary<string, object?> view)
+    {
+        return string.Join(
+            "|",
+            Assert.IsType<string>(view["effectId"]),
+            Assert.IsType<string>(view["scope"]),
+            Assert.IsType<string>(view["layer"]),
+            Assert.IsType<string>(view["duration"]),
+            Assert.IsType<string>(view["targetObjectId"]),
+            Assert.IsType<string>(view["sourceObjectId"]),
+            Assert.IsType<int>(view["powerDelta"]).ToString(),
+            Assert.IsType<int>(view["basePower"]).ToString(),
+            Assert.IsType<int>(view["effectivePower"]).ToString(),
+            Assert.IsType<int>(view["sequence"]).ToString(),
+            Assert.IsType<int>(view["sourceOrder"]).ToString(),
+            Assert.IsType<string>(view["effectKind"]),
+            Assert.IsType<string>(view["sourceCardNo"]),
+            Assert.IsType<string>(view["sourcePath"]),
+            Assert.IsType<string>(view["condition"]),
+            Assert.IsType<string>(view["lifecycle"]),
+            Assert.IsType<string>(view["layerEngineStatus"]),
+            string.Join(",", StringList(view, "participantObjectIds")),
+            string.Join(",", StringList(view, "sourceDependencyObjectIds")),
+            string.Join(",", StringList(view, "targetDependencyObjectIds")),
+            string.Join(",", StringList(view, "participantDependencyObjectIds")),
+            string.Join(",", StringList(view, "deferredLayerEngineResiduals")));
     }
 }

@@ -187,6 +187,70 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
         }
     }
 
+    [Fact]
+    public async Task PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift()
+    {
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return;
+        }
+
+        await using var dataSource = NpgsqlDataSource.Create(connectionString);
+        await ApplySchemaAsync(dataSource);
+
+        var roomId = $"journal-dup-intent-smoke-{Guid.NewGuid():N}";
+        try
+        {
+            var journal = new PostgresMatchJournal(dataSource);
+            var original = CommandEntry(
+                roomId,
+                "intent-duplicate-payload",
+                CommandTypes.Pass,
+                RawCommand(CommandTypes.Pass, "clientNote", "original raw smoke payload"));
+
+            await journal.RecordAsync(original, CancellationToken.None);
+            await journal.RecordAsync(original, CancellationToken.None);
+
+            var rawConflict = original with
+            {
+                RawCommand = RawCommand(CommandTypes.Pass, "clientNote", "changed raw smoke payload")
+            };
+            var rawException = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await journal.RecordAsync(rawConflict, CancellationToken.None));
+            Assert.Contains("duplicate client intent", rawException.Message, StringComparison.OrdinalIgnoreCase);
+            await AssertCommandLogRawCommandAsync(
+                dataSource,
+                roomId,
+                "intent-duplicate-payload",
+                "original raw smoke payload");
+
+            var commandOriginal = CommandEntry(
+                roomId,
+                "intent-duplicate-command",
+                CommandTypes.Pass,
+                RawCommand(CommandTypes.Pass, "clientNote", "command original payload"));
+            await journal.RecordAsync(commandOriginal, CancellationToken.None);
+
+            var commandConflict = commandOriginal with
+            {
+                CommandType = CommandTypes.EndTurn
+            };
+            var commandException = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await journal.RecordAsync(commandConflict, CancellationToken.None));
+            Assert.Contains("duplicate client intent", commandException.Message, StringComparison.OrdinalIgnoreCase);
+            await AssertCommandLogRawCommandAsync(
+                dataSource,
+                roomId,
+                "intent-duplicate-command",
+                "command original payload");
+        }
+        finally
+        {
+            await DeleteRoomAsync(dataSource, roomId);
+        }
+    }
+
     private static async Task ApplySchemaAsync(NpgsqlDataSource dataSource)
     {
         await using var connection = await dataSource.OpenConnectionAsync();
@@ -229,6 +293,72 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
             connection);
         command.Parameters.AddWithValue("match_id", roomId);
         await command.ExecuteNonQueryAsync();
+    }
+
+    private static MatchJournalEntry CommandEntry(
+        string roomId,
+        string clientIntentId,
+        string commandType,
+        JsonElement rawCommand)
+    {
+        var state = MatchReplayInitialStateBuilder.FromSeats(
+            roomId,
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            }) with
+            {
+                Tick = 1,
+                Status = MatchStatuses.InProgress,
+                ReadyPlayerIds = ["alice", "bob"],
+                Phase = MatchPhases.Main,
+                TimingState = TimingStates.NeutralOpen
+            };
+
+        return new MatchJournalEntry(
+            roomId,
+            "alice",
+            clientIntentId,
+            commandType,
+            rawCommand,
+            0,
+            state.Tick,
+            0,
+            0,
+            true,
+            null,
+            state,
+            [],
+            ResolutionResult.BuildSnapshots(state),
+            ResolutionResult.BuildPrompts(state),
+            DateTimeOffset.UtcNow);
+    }
+
+    private static async Task AssertCommandLogRawCommandAsync(
+        NpgsqlDataSource dataSource,
+        string roomId,
+        string clientIntentId,
+        string expectedClientNote)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync();
+        await using var command = new NpgsqlCommand(
+            """
+            select count(*)::bigint, max(payload #>> '{rawCommand,clientNote}')
+            from command_log
+            where match_id = @match_id
+              and player_id = @player_id
+              and client_intent_id = @client_intent_id;
+            """,
+            connection);
+        command.Parameters.AddWithValue("match_id", roomId);
+        command.Parameters.AddWithValue("player_id", "alice");
+        command.Parameters.AddWithValue("client_intent_id", clientIntentId);
+
+        await using var reader = await command.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync());
+        Assert.Equal(1, reader.GetInt64(0));
+        Assert.Equal(expectedClientNote, reader.GetString(1));
     }
 
     private static JsonElement RawCommand(string cmdType)

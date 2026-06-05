@@ -677,17 +677,28 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
-    public async Task SubmitIntentDuplicateSameCommandDifferentRawPayloadReturnsStableConflict()
+    public async Task GameHubDuplicateClientIntentRawPayloadConflictReturnsStableErrorWithoutMutation()
     {
-        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .JoinRoom("room-a", "alice");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
-        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        var readyJournalCount = journal.Entries.Count;
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY","clientNote":"original"}""").RootElement.Clone();
+        var acceptedClients = new RecordingHubClients();
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
             .SubmitIntent("room-a", "alice", "intent-same", pass);
+        var acceptedJournalCount = journal.Entries.Count;
+        var acceptedEvents = EventsFor(acceptedClients);
+
+        Assert.Equal(readyJournalCount + 1, acceptedJournalCount);
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "PASS_PRIORITY", StringComparison.Ordinal));
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
 
         var replayClients = new RecordingHubClients();
         await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
@@ -695,8 +706,12 @@ public sealed class GameHubJoinTests
 
         Assert.Empty(replayClients.CallerClient.Errors);
         Assert.Equal(MessageType.EVENTS, Assert.Single(replayClients.GroupClient.EventMessages).Type);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(2, replayClients.GroupClient.Snapshots.Count);
         Assert.Equal(2, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
 
         var clients = new RecordingHubClients();
         var changedPass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY","clientNote":"changed"}""").RootElement.Clone();
@@ -712,6 +727,13 @@ public sealed class GameHubJoinTests
         Assert.Empty(clients.GroupClient.EventMessages);
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
+        Assert.Empty(clients.CallerClient.Snapshots);
+        Assert.Empty(clients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } rawCommand
+            && rawCommand.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
     }
 
     [Fact]

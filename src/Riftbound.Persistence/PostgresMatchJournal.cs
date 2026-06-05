@@ -86,6 +86,54 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             on conflict (match_id, player_id, client_intent_id) do nothing;
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
+        AddCommandLogParameters(command, entry);
+        var inserted = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        if (inserted > 0)
+        {
+            return;
+        }
+
+        var duplicateMatches = await DuplicateCommandMatchesAsync(connection, transaction, entry, cancellationToken)
+            .ConfigureAwait(false);
+        if (duplicateMatches)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(
+            "Postgres command journal rejected duplicate client intent with conflicting command payload.");
+    }
+
+    private static async Task<bool> DuplicateCommandMatchesAsync(
+        NpgsqlConnection connection,
+        NpgsqlTransaction transaction,
+        MatchJournalEntry entry,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            select exists (
+                select 1
+                from command_log
+                where match_id = @match_id
+                  and player_id = @player_id
+                  and client_intent_id = @client_intent_id
+                  and command_type = @command_type
+                  and payload = @payload
+            );
+            """;
+        await using var command = new NpgsqlCommand(sql, connection, transaction);
+        command.Parameters.AddWithValue("match_id", entry.RoomId);
+        command.Parameters.AddWithValue("player_id", entry.PlayerId);
+        command.Parameters.AddWithValue("client_intent_id", entry.ClientIntentId);
+        command.Parameters.AddWithValue("command_type", entry.CommandType);
+        AddCommandPayload(command, entry);
+
+        var result = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+        return result is true;
+    }
+
+    private static void AddCommandLogParameters(NpgsqlCommand command, MatchJournalEntry entry)
+    {
         command.Parameters.AddWithValue("match_id", entry.RoomId);
         command.Parameters.AddWithValue("player_id", entry.PlayerId);
         command.Parameters.AddWithValue("client_intent_id", entry.ClientIntentId);
@@ -97,6 +145,11 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         command.Parameters.AddWithValue("accepted", entry.Accepted);
         command.Parameters.AddWithValue("error_message", (object?)entry.ErrorMessage ?? DBNull.Value);
         AddRulesetParameters(command, entry);
+        AddCommandPayload(command, entry);
+    }
+
+    private static void AddCommandPayload(NpgsqlCommand command, MatchJournalEntry entry)
+    {
         AddJson(command, "payload", new
         {
             entry.RoomId,
@@ -114,7 +167,6 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             entry.FaqVersion,
             entry.RulesAuditStatus
         });
-        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task InsertEventsAsync(
