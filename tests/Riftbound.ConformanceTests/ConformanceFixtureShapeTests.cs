@@ -700,6 +700,25 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperTrimsAndDropsUnreadableHideCardOptionalCosts()
+    {
+        var command = Assert.IsType<HideCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "HIDE_CARD",
+              "sourceObjectId": "P1-HAND-OGN-TEEMO",
+              "cardNo": "OGN·121/298",
+              "destination": "STANDBY",
+              "optionalCosts": ["  STANDBY_A  ", "", "   ", null, 7, true, { "cost": "ignored" }, ["nested"], " STANDBY_FREE "]
+            }
+            """).RootElement));
+
+        Assert.Equal("P1-HAND-OGN-TEEMO", command.SourceObjectId);
+        Assert.Equal("OGN·121/298", command.CardNo);
+        Assert.Equal("STANDBY", command.Destination);
+        Assert.Equal(new[] { "STANDBY_A", "STANDBY_FREE" }, command.OptionalCosts);
+    }
+
+    [Fact]
     public void GameCommandMapperParsesRevealCardPayload()
     {
         var command = Assert.IsType<RevealCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
