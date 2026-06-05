@@ -19,6 +19,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     private const string FriendlyUnitObjectId = "P1-UNIT-FRIENDLY";
     private const string FirstRuneObjectId = "P1-RUNE-1";
     private const string SecondRuneObjectId = "P1-RUNE-2";
+    private const string VengeanceObjectId = "P1-SPELL-VENGEANCE";
 
     [Theory]
     [InlineData(OrnnCardNo)]
@@ -689,6 +690,63 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             FriendlyBaseEquipmentObjectId);
     }
 
+    [Fact]
+    public async Task OrnnStaticAuraMetadataDisappearsAfterAcceptedSourceLeavesFieldCommandAcrossPlayerViews()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnFieldState(
+            ornnPower: 5,
+            p1Hand: [VengeanceObjectId],
+            p1Base: [OrnnObjectId, FriendlyBaseEquipmentObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 5),
+                [FriendlyBaseEquipmentObjectId] = Equipment(FriendlyBaseEquipmentObjectId, "P1", "P1"),
+                [VengeanceObjectId] = new CardObjectState(
+                    VengeanceObjectId,
+                    cardNo: "OGN·229/298",
+                    manaCost: 4,
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var initialAura = Assert.Single(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], initialAura.ParticipantObjectIds);
+        Assert.Equal([OrnnObjectId], initialAura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], initialAura.TargetDependencyObjectIds);
+        Assert.Equal([FriendlyBaseEquipmentObjectId], initialAura.ParticipantDependencyObjectIds);
+
+        var vengeancePlayed = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-source-leaves-vengeance-play", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(VengeanceObjectId, "OGN·229/298", [OrnnObjectId]),
+            CancellationToken.None);
+        var vengeanceResolved = await ResolveTopStackAsync(engine, vengeancePlayed.State);
+
+        Assert.True(vengeancePlayed.Accepted, vengeancePlayed.ErrorMessage);
+        Assert.True(vengeanceResolved.Accepted, vengeanceResolved.ErrorMessage);
+        Assert.Contains(OrnnObjectId, vengeanceResolved.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(FriendlyBaseEquipmentObjectId, vengeanceResolved.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(OrnnObjectId, vengeanceResolved.State.CardObjects.Keys);
+        Assert.DoesNotContain(
+            vengeanceResolved.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+
+        AssertSnapshotDoesNotExposeOrnnStaticAuraMetadata(
+            vengeanceResolved.Snapshots["P1"],
+            OrnnObjectId,
+            FriendlyBaseEquipmentObjectId);
+        AssertSnapshotDoesNotExposeOrnnStaticAuraMetadata(
+            vengeanceResolved.Snapshots["P2"],
+            OrnnObjectId,
+            FriendlyBaseEquipmentObjectId);
+    }
+
     private static async Task<ResolutionResult> PlayOrnnAsync(
         CoreRuleEngine engine,
         MatchState state,
@@ -993,6 +1051,14 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         };
         foreach (var effect in continuousEffects)
         {
+            foreach (var hiddenObjectId in hiddenObjectIds)
+            {
+                Assert.False(
+                    string.Equals(effect["sourceObjectId"] as string, hiddenObjectId, StringComparison.Ordinal)
+                    || string.Equals(effect["targetObjectId"] as string, hiddenObjectId, StringComparison.Ordinal),
+                    $"Snapshot continuous effect must not reference hidden object id {hiddenObjectId} as source or target.");
+            }
+
             foreach (var dependencyKey in dependencyKeys)
             {
                 if (!effect.TryGetValue(dependencyKey, out var objectIdsValue))

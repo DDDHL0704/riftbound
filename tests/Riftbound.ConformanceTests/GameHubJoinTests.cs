@@ -10701,6 +10701,50 @@ public sealed class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Prompts);
     }
 
+    [Fact]
+    public async Task SeedScenarioProductionRejectionRedactsSentinelInputsAndDoesNotBroadcast()
+    {
+        const string sentinel = "SECRET-RAW-clientIntentId";
+        const string roomId = "room-SECRET-RAW-clientIntentId";
+        const string playerId = "player-SECRET-RAW-clientIntentId";
+        const string scenarioId = "scenario-SECRET-RAW-clientIntentId";
+        const string seedId = "seed-SECRET-RAW-clientIntentId";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, playerId);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var clients = new RecordingHubClients();
+
+        await CreateHub(
+                clients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Production))
+            .SeedScenario(roomId, playerId, scenarioId, seedId);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
+        Assert.Equal("载入测试状态仅在开发环境可用。", payload.Message);
+        Assert.DoesNotContain("SeedScenario", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(roomId, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(playerId, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(scenarioId, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(seedId, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(sentinel, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("raw", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("secret", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Empty(clients.CallerClient.EventMessages);
+        Assert.Empty(clients.CallerClient.Snapshots);
+        Assert.Empty(clients.CallerClient.Prompts);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+    }
+
     private static JsonElement SubmitDeckJson(OfficialDecklist decklist)
     {
         return JsonSerializer.SerializeToElement(new
