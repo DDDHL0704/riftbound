@@ -1415,6 +1415,137 @@ public sealed class ConformanceFixtureRunnerTests
         AssertEndTurnNextPlayerPromptQueueAudit(replay);
     }
 
+    [Fact]
+    public async Task EndTurnDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 1),
+                ["P2"] = new(0, 1)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-PUNISHMENT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003", "P2-RUNE-004"]
+                }
+            }
+        };
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var command = new EndTurnCommand();
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.EndTurn, prompt.Actions);
+        var rawCommand = PromptScopedRawCommand(CommandTypes.EndTurn, prompt);
+        const string clientIntentId = "intent-p1-end-turn-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(1, accepted.State.Tick);
+        Assert.Equal("P2", accepted.State.ActivePlayerId);
+        Assert.Equal("P2", accepted.State.TurnPlayerId);
+        Assert.Equal(MatchPhases.Main, accepted.State.Phase);
+        Assert.Equal(TimingStates.NeutralOpen, accepted.State.TimingState);
+        Assert.Contains("TURN_PLAYER_ADVANCED", accepted.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.False(accepted.Prompts["P1"].Actionable);
+        Assert.Contains(CommandTypes.EndTurn, accepted.Prompts["P2"].Actions);
+        AssertEndTurnNextPlayerPromptQueueAudit(accepted);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.EndTurn, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.EndTurn, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal("P2", replay.State.ActivePlayerId);
+        Assert.Equal("P2", replay.State.TurnPlayerId);
+        Assert.Equal(MatchPhases.Main, replay.State.Phase);
+        Assert.Equal(TimingStates.NeutralOpen, replay.State.TimingState);
+        Assert.False(replay.Prompts["P1"].Actionable);
+        Assert.DoesNotContain(CommandTypes.EndTurn, replay.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, replay.Prompts["P2"].Actions);
+        AssertEndTurnNextPlayerPromptQueueAudit(replay);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.EndTurn,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal("P2", conflict.State.ActivePlayerId);
+        Assert.Equal("P2", conflict.State.TurnPlayerId);
+        Assert.Equal(MatchPhases.Main, conflict.State.Phase);
+        Assert.Equal(TimingStates.NeutralOpen, conflict.State.TimingState);
+        Assert.False(conflict.Prompts["P1"].Actionable);
+        Assert.DoesNotContain(CommandTypes.EndTurn, conflict.Prompts["P1"].Actions);
+        Assert.Contains(CommandTypes.EndTurn, conflict.Prompts["P2"].Actions);
+        AssertEndTurnNextPlayerPromptQueueAudit(conflict);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
     private static void AssertEndTurnNextPlayerPromptQueueAudit(ResolutionResult result)
     {
         AssertEndTurnNextPlayerPromptQueueAudit(result.State, result.Prompts);

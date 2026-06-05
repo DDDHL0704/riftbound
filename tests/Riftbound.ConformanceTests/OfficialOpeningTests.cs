@@ -9128,6 +9128,162 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialFirstTurnRecycleRuneDuplicateClientIntentReplaysExactRawButRejectsChangedRawPayload()
+    {
+        var journal = new RecordingMatchJournal();
+        var context = await BuildFinalMulliganFirstTurnAuditContext(
+            "official-first-turn-recycle-rune-raw-intent-room",
+            journal);
+
+        var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
+        Assert.True(firstTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.RecycleRune, firstTurnPrompt.Actions);
+        var recycleRuneCandidate = Assert.Single(
+            firstTurnPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal));
+        Assert.True(recycleRuneCandidate.Enabled);
+        var sourceIds = (recycleRuneCandidate.Sources ?? []).Select(source => source.Id).ToArray();
+        Assert.NotEmpty(sourceIds);
+        var sourceId = sourceIds[0];
+        Assert.Contains(sourceId, context.CalledRuneObjectIds);
+        var command = new RecycleRuneCommand(sourceId);
+        var rawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.RecycleRune,
+            promptId = firstTurnPrompt.PromptId,
+            snapshotTick = firstTurnPrompt.SnapshotTick,
+            sourceObjectId = sourceId
+        });
+        var journalEntryCountBeforeRecycleRune = journal.Entries.Count;
+
+        var accepted = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-recycle-rune-raw-intent",
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["RUNE_RECYCLED", "POWER_GAINED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(journalEntryCountBeforeRecycleRune + 1, journal.Entries.Count);
+        Assert.Equal(MatchStatuses.InProgress, accepted.State.Status);
+        Assert.Equal(MatchPhases.Main, accepted.State.Phase);
+        Assert.Equal(TimingStates.NeutralOpen, accepted.State.TimingState);
+        Assert.Equal(context.ActivePlayerId, accepted.State.ActivePlayerId);
+        Assert.Equal(context.ActivePlayerId, accepted.State.TurnPlayerId);
+        Assert.Equal(context.SecondPlayerId, accepted.State.OpeningSecondActionPlayerId);
+        Assert.Empty(accepted.State.StackItems);
+        Assert.False(accepted.State.PendingTaskQueue.HasTasks);
+        var acceptedZones = accepted.State.PlayerZones[context.ActivePlayerId];
+        Assert.DoesNotContain(sourceId, acceptedZones.Base);
+        Assert.Contains(sourceId, acceptedZones.RuneDeck);
+        Assert.Equal(context.CalledRuneObjectIds.Count - 1, acceptedZones.Base.Count);
+        Assert.Equal(context.Accepted.State.PlayerZones[context.ActivePlayerId].RuneDeck.Count + 1, acceptedZones.RuneDeck.Count);
+        Assert.Equal(context.Accepted.State.PlayerZones[context.ActivePlayerId].Hand, acceptedZones.Hand);
+        Assert.Equal(context.Accepted.State.PlayerZones[context.ActivePlayerId].MainDeck, acceptedZones.MainDeck);
+        Assert.Equal(context.Accepted.State.PlayerZones[context.ActivePlayerId].Graveyard, acceptedZones.Graveyard);
+        Assert.Equal(context.SecondPlayerId, accepted.Prompts[context.SecondPlayerId].PlayerId);
+        Assert.False(accepted.Prompts[context.SecondPlayerId].Actionable);
+        Assert.Equal(PromptTypes.Wait, accepted.Prompts[context.SecondPlayerId].View?.Type);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], accepted.Prompts[context.SecondPlayerId].Actions);
+        var acceptedPrompt = accepted.Prompts[context.ActivePlayerId];
+        Assert.True(acceptedPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, acceptedPrompt.View?.Type);
+        Assert.Contains(CommandTypes.RecycleRune, acceptedPrompt.Actions);
+        var acceptedRecycleEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        var acceptedPowerEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(context.ActivePlayerId, Assert.IsType<string>(acceptedRecycleEvent.Payload["playerId"]));
+        Assert.Equal(sourceId, Assert.IsType<string>(acceptedRecycleEvent.Payload["sourceObjectId"]));
+        var recycleTrait = Assert.IsType<string>(acceptedRecycleEvent.Payload["trait"]);
+        Assert.Equal(1, Assert.IsType<int>(acceptedRecycleEvent.Payload["power"]));
+        Assert.Equal(acceptedZones.RuneDeck.Count, Assert.IsType<int>(acceptedRecycleEvent.Payload["runeDeckCountAfter"]));
+        Assert.Equal(context.ActivePlayerId, Assert.IsType<string>(acceptedPowerEvent.Payload["playerId"]));
+        Assert.Equal(sourceId, Assert.IsType<string>(acceptedPowerEvent.Payload["sourceObjectId"]));
+        Assert.Equal(recycleTrait, Assert.IsType<string>(acceptedPowerEvent.Payload["trait"]));
+        Assert.Equal(1, Assert.IsType<int>(acceptedPowerEvent.Payload["power"]));
+        Assert.Equal(1, Assert.IsType<int>(acceptedPowerEvent.Payload["powerAfter"]));
+        Assert.Equal(1, Assert.IsType<int>(acceptedPowerEvent.Payload["traitPowerAfter"]));
+        var acceptedPool = accepted.State.RunePools[context.ActivePlayerId];
+        Assert.Equal(0, acceptedPool.Mana);
+        Assert.Equal(0, acceptedPool.Power);
+        Assert.Equal(1, acceptedPool.TotalPower);
+        Assert.Equal(1, acceptedPool.PowerByTrait[recycleTrait]);
+        Assert.Equal(context.ActivePlayerId, accepted.State.ObjectLocations[sourceId].PlayerId);
+        Assert.Equal("RUNE_DECK", accepted.State.ObjectLocations[sourceId].Zone);
+        Assert.False(accepted.State.CardObjects[sourceId].IsExhausted);
+        var recycleEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "first-turn-recycle-rune-raw-intent", StringComparison.Ordinal));
+        Assert.Equal(context.ActivePlayerId, recycleEntry.PlayerId);
+        Assert.Equal(CommandTypes.RecycleRune, recycleEntry.CommandType);
+        Assert.NotNull(recycleEntry.RawCommand);
+        var recordedRawCommand = recycleEntry.RawCommand.Value;
+        Assert.Equal(CommandTypes.RecycleRune, recordedRawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(firstTurnPrompt.PromptId, recordedRawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(firstTurnPrompt.SnapshotTick, recordedRawCommand.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(sourceId, recordedRawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.False(recordedRawCommand.TryGetProperty("clientNote", out _));
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEvents = JsonSerializer.Serialize(accepted.Events);
+        var acceptedPrompts = JsonSerializer.Serialize(accepted.Prompts);
+        var acceptedSnapshots = JsonSerializer.Serialize(accepted.Snapshots);
+
+        var replay = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-recycle-rune-raw-intent",
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, replay.State.RngCursor);
+        Assert.Equal(acceptedEvents, JsonSerializer.Serialize(replay.Events));
+        Assert.Equal(acceptedPrompts, JsonSerializer.Serialize(replay.Prompts));
+        Assert.Equal(acceptedSnapshots, JsonSerializer.Serialize(replay.Snapshots));
+        Assert.Equal(acceptedPool, replay.State.RunePools[context.ActivePlayerId]);
+        Assert.DoesNotContain(sourceId, replay.State.PlayerZones[context.ActivePlayerId].Base);
+        Assert.Contains(sourceId, replay.State.PlayerZones[context.ActivePlayerId].RuneDeck);
+        Assert.Equal(journalEntryCountBeforeRecycleRune + 1, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(context.Session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(context.Session, "P2");
+        var conflict = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-recycle-rune-raw-intent",
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.RecycleRune,
+                promptId = firstTurnPrompt.PromptId,
+                snapshotTick = firstTurnPrompt.SnapshotTick,
+                sourceObjectId = sourceId,
+                clientNote = "changed-payload"
+            }),
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.ErrorMessage);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
+        Assert.Equal(acceptedPool, conflict.State.RunePools[context.ActivePlayerId]);
+        Assert.DoesNotContain(sourceId, conflict.State.PlayerZones[context.ActivePlayerId].Base);
+        Assert.Contains(sourceId, conflict.State.PlayerZones[context.ActivePlayerId].RuneDeck);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(context.Session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(context.Session, "P2"));
+        Assert.Equal(journalEntryCountBeforeRecycleRune + 1, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public Task WrongPlayerFirstTurnTapRunePromptRejectsWithoutMutation()
     {
         return AssertWrongPlayerFirstTurnTapRunePromptRejectsWithoutMutation(
