@@ -845,6 +845,60 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperAssignCombatDamageKeepsMalformedAssignmentShapesNull()
+    {
+        var valid = MapAssignDamage("""
+            [
+              { "sourceObjectId": "A", "targetObjectId": "B", "damage": 2 }
+            ]
+            """);
+        var nonArrayAssignments = MapAssignDamage("""
+            { "sourceObjectId": "A", "targetObjectId": "B", "damage": 2 }
+            """);
+        var nonObjectAssignment = MapAssignDamage("""
+            [
+              "not-an-assignment"
+            ]
+            """);
+        var missingDamage = MapAssignDamage("""
+            [
+              { "sourceObjectId": "A", "targetObjectId": "B" }
+            ]
+            """);
+        var unreadableDamage = MapAssignDamage("""
+            [
+              { "sourceObjectId": "A", "targetObjectId": "B", "damage": 2147483648 }
+            ]
+            """);
+
+        var assignment = Assert.Single(valid.Assignments ?? []);
+        Assert.Equal("battle:BF-1", valid.BattleId);
+        Assert.Equal("BF-1", valid.BattlefieldId);
+        Assert.Equal("A", assignment.SourceObjectId);
+        Assert.Equal("B", assignment.TargetObjectId);
+        Assert.Equal(2, assignment.Damage);
+
+        foreach (var malformed in new[] { nonArrayAssignments, nonObjectAssignment, missingDamage, unreadableDamage })
+        {
+            Assert.Equal("battle:BF-1", malformed.BattleId);
+            Assert.Equal("BF-1", malformed.BattlefieldId);
+            Assert.Null(malformed.Assignments);
+        }
+
+        static AssignCombatDamageCommand MapAssignDamage(string assignmentsJson)
+        {
+            return Assert.IsType<AssignCombatDamageCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse($$"""
+                {
+                  "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                  "battleId": "battle:BF-1",
+                  "battlefieldId": "BF-1",
+                  "assignments": {{assignmentsJson}}
+                }
+                """).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperParsesChooseHandCardsPayloadAndPreservesMalformedListForStableValidation()
     {
         var command = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
