@@ -10202,6 +10202,221 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task LegendActDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "p7-9-legend-act-raw-idempotency";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario(roomId, "P1", "legend-act", "seed-p7-9-legend-act-raw-idempotency");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var legendCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal));
+        Assert.True(legendCandidate.Enabled);
+        Assert.Contains(legendCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-LEGEND-POPPY", StringComparison.Ordinal));
+        Assert.Contains(legendCandidate.Modes ?? [], choice => string.Equals(choice.Id, "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", StringComparison.Ordinal));
+        Assert.Contains(legendCandidate.OptionalCosts ?? [], choice => string.Equals(choice.Id, "SPEND_EXPERIENCE:3", StringComparison.Ordinal));
+        var seededJournalCount = journal.Entries.Count;
+        var legendAct = JsonDocument.Parse("""
+            {
+              "cmdType": "LEGEND_ACT",
+              "sourceObjectId": "P1-LEGEND-POPPY",
+              "abilityId": "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+              "targetObjectIds": [],
+              "optionalCosts": ["SPEND_EXPERIENCE:3"]
+            }
+            """).RootElement.Clone();
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "legend-act-same", legendAct);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        var acceptedLegendEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal("P1", acceptedLegendEvent.Payload["playerId"]);
+        Assert.Equal("P1-LEGEND-POPPY", acceptedLegendEvent.Payload["sourceObjectId"]);
+        Assert.Equal("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", acceptedLegendEvent.Payload["abilityId"]);
+        var acceptedExperienceEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(3, acceptedExperienceEvent.Payload["amount"]);
+        Assert.Equal(0, acceptedExperienceEvent.Payload["remainingExperience"]);
+        Assert.Equal("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", acceptedExperienceEvent.Payload["abilityId"]);
+        var acceptedExhaustEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-POPPY", acceptedExhaustEvent.Payload["sourceObjectId"]);
+        Assert.Equal("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", acceptedExhaustEvent.Payload["abilityId"]);
+        var acceptedDrawEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal("P1", acceptedDrawEvent.Payload["playerId"]);
+        Assert.Equal(1, acceptedDrawEvent.Payload["count"]);
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
+        var acceptedSnapshot = SnapshotFor(acceptedClients, "P1");
+        var acceptedP1 = PlayerView(acceptedSnapshot, "P1");
+        Assert.Equal(0, Assert.IsType<int>(acceptedP1["experience"]));
+        var acceptedZones = ZoneView(acceptedP1);
+        Assert.Equal(0, Assert.IsType<int>(acceptedZones["mainDeckCount"]));
+        Assert.Equal(["P1-LEGEND-DRAW-001"], StringList(acceptedZones["hand"]));
+        var acceptedObjects = Assert.IsType<Dictionary<string, object?>>(acceptedP1["objects"]);
+        var acceptedLegend = Assert.IsType<Dictionary<string, object?>>(acceptedObjects["P1-LEGEND-POPPY"]);
+        Assert.True(Assert.IsType<bool>(acceptedLegend["isExhausted"]));
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptActions = acceptedClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
+            .Select(prompt => string.Join("|", prompt.Actions))
+            .ToArray();
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(seededJournalCount + 1, acceptedJournalCount);
+        var legendEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "legend-act-same", StringComparison.Ordinal));
+        Assert.Equal(roomId, legendEntry.RoomId);
+        Assert.Equal("P1", legendEntry.PlayerId);
+        Assert.Equal("LEGEND_ACT", legendEntry.CommandType);
+        Assert.NotNull(legendEntry.RawCommand);
+        var rawCommand = legendEntry.RawCommand.Value;
+        Assert.Equal("LEGEND_ACT", rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("P1-LEGEND-POPPY", rawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", rawCommand.GetProperty("abilityId").GetString());
+        Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
+        Assert.Equal(
+            ["SPEND_EXPERIENCE:3"],
+            rawCommand.GetProperty("optionalCosts")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.False(rawCommand.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "legend-act-same", legendAct);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        var replayLegendEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal(acceptedLegendEvent.Payload["sourceObjectId"], replayLegendEvent.Payload["sourceObjectId"]);
+        Assert.Equal(acceptedLegendEvent.Payload["abilityId"], replayLegendEvent.Payload["abilityId"]);
+        var replayExperienceEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(acceptedExperienceEvent.Payload["amount"], replayExperienceEvent.Payload["amount"]);
+        Assert.Equal(acceptedExperienceEvent.Payload["remainingExperience"], replayExperienceEvent.Payload["remainingExperience"]);
+        var replayExhaustEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Equal(acceptedExhaustEvent.Payload["sourceObjectId"], replayExhaustEvent.Payload["sourceObjectId"]);
+        Assert.Equal(acceptedExhaustEvent.Payload["abilityId"], replayExhaustEvent.Payload["abilityId"]);
+        var replayDrawEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(acceptedDrawEvent.Payload["count"], replayDrawEvent.Payload["count"]);
+        Assert.Equal(acceptedDrawEvent.Payload["playerId"], replayDrawEvent.Payload["playerId"]);
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        var replayPromptActions = replayClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
+            .Select(prompt => string.Join("|", prompt.Actions))
+            .ToArray();
+        Assert.Equal(acceptedPromptActions, replayPromptActions);
+        var replaySnapshot = SnapshotFor(replayClients, "P1");
+        Assert.Equal(acceptedSnapshot.Tick, replaySnapshot.Tick);
+        Assert.Equal(acceptedSnapshot.ActivePlayerId, replaySnapshot.ActivePlayerId);
+        var replayP1 = PlayerView(replaySnapshot, "P1");
+        Assert.Equal(acceptedP1["experience"], replayP1["experience"]);
+        var replayZones = ZoneView(replayP1);
+        Assert.Equal(acceptedZones["mainDeckCount"], replayZones["mainDeckCount"]);
+        Assert.Equal(StringList(acceptedZones["hand"]), StringList(replayZones["hand"]));
+        var replayObjects = Assert.IsType<Dictionary<string, object?>>(replayP1["objects"]);
+        var replayLegend = Assert.IsType<Dictionary<string, object?>>(replayObjects["P1-LEGEND-POPPY"]);
+        Assert.Equal(acceptedLegend["isExhausted"], replayLegend["isExhausted"]);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedLegendAct = JsonDocument.Parse("""
+            {
+              "cmdType": "LEGEND_ACT",
+              "sourceObjectId": "P1-LEGEND-POPPY",
+              "abilityId": "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+              "targetObjectIds": [],
+              "optionalCosts": ["SPEND_EXPERIENCE:3"],
+              "clientNote": "changed"
+            }
+            """).RootElement.Clone();
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "legend-act-same", changedLegendAct);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+
+        var stateClients = new RecordingHubClients();
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+            .RequestSnapshot(roomId, "P1");
+
+        Assert.Empty(stateClients.CallerClient.Errors);
+        var currentSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
+        Assert.Equal(acceptedSnapshot.Tick, currentSnapshot.Tick);
+        Assert.Equal(acceptedSnapshot.ActivePlayerId, currentSnapshot.ActivePlayerId);
+        var currentP1 = PlayerView(currentSnapshot, "P1");
+        Assert.Equal(acceptedP1["experience"], currentP1["experience"]);
+        var currentZones = ZoneView(currentP1);
+        Assert.Equal(acceptedZones["mainDeckCount"], currentZones["mainDeckCount"]);
+        Assert.Equal(StringList(acceptedZones["hand"]), StringList(currentZones["hand"]));
+        var currentObjects = Assert.IsType<Dictionary<string, object?>>(currentP1["objects"]);
+        var currentLegend = Assert.IsType<Dictionary<string, object?>>(currentObjects["P1-LEGEND-POPPY"]);
+        Assert.Equal(acceptedLegend["isExhausted"], currentLegend["isExhausted"]);
+    }
+
+    [Fact]
     public async Task P79LegendActSeedBroadcastsPromptAndDrawsFromLegendActionInDevelopment()
     {
         const string roomId = "p7-9-legend-act-core";

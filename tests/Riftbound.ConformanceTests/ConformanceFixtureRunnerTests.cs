@@ -30508,6 +30508,145 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task DeclareBattleDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        var state = ActiveStartBattleTaskStateForCommandGuards();
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var command = new DeclareBattleCommand(
+            "BF-1",
+            ["P1-UNIT-1"],
+            ["P2-UNIT-1"],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.DeclareBattle, prompt.Actions);
+        var rawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.DeclareBattle,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            battlefieldId = "BF-1",
+            attackerObjectIds = new[] { "P1-UNIT-1" },
+            defenderObjectIds = new[] { "P2-UNIT-1" },
+            optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+        });
+        const string clientIntentId = "intent-p1-declare-battle-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(10, accepted.State.Tick);
+        Assert.Contains(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.DoesNotContain("P2-UNIT-1", accepted.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P2-UNIT-1", accepted.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal("IDLE", accepted.State.PendingTaskQueue.Phase);
+        Assert.False(accepted.State.BattleState.IsActive);
+        Assert.False(accepted.State.CardObjects["P1-UNIT-1"].IsAttacking);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.DeclareBattle, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.DeclareBattle, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal("BF-1", journalEntry.RawCommand.Value.GetProperty("battlefieldId").GetString());
+        Assert.Equal(
+            ["P1-UNIT-1"],
+            journalEntry.RawCommand.Value.GetProperty("attackerObjectIds")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.Equal(
+            ["P2-UNIT-1"],
+            journalEntry.RawCommand.Value.GetProperty("defenderObjectIds")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.Equal(
+            ["COMBAT_ASSIGNMENT"],
+            journalEntry.RawCommand.Value.GetProperty("optionalCosts")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.DoesNotContain("P2-UNIT-1", replay.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P2-UNIT-1", replay.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal("IDLE", replay.State.PendingTaskQueue.Phase);
+        Assert.False(replay.State.BattleState.IsActive);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.DeclareBattle,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            battlefieldId = "BF-1",
+            attackerObjectIds = new[] { "P1-UNIT-1" },
+            defenderObjectIds = new[] { "P2-UNIT-1" },
+            optionalCosts = new[] { "COMBAT_ASSIGNMENT" },
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.DoesNotContain("P2-UNIT-1", conflict.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P2-UNIT-1", conflict.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal("IDLE", conflict.State.PendingTaskQueue.Phase);
+        Assert.False(conflict.State.BattleState.IsActive);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask()
     {
         var state = ActiveStartBattleTaskStateForCommandGuards();
