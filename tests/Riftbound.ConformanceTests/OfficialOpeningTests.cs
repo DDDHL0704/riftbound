@@ -8275,12 +8275,16 @@ public sealed class OfficialOpeningTests
             "行动快照已过期，请按最新状态重新提交。");
     }
 
-    private static async Task<FinalMulliganFirstTurnAuditContext> BuildFinalMulliganFirstTurnAuditContext(string sessionName)
+    private static async Task<FinalMulliganFirstTurnAuditContext> BuildFinalMulliganFirstTurnAuditContext(
+        string sessionName,
+        IMatchJournal? journal = null)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
-        var session = new MatchSession(sessionName, new CoreRuleEngine());
+        var session = journal is null
+            ? new MatchSession(sessionName, new CoreRuleEngine())
+            : new MatchSession(sessionName, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
@@ -9324,6 +9328,76 @@ public sealed class OfficialOpeningTests
             "first-turn-surrender",
             firstTurnPrompt => PromptScopedBasicRawCommand(CommandTypes.Surrender, firstTurnPrompt),
             "行动窗口已过期，请按最新提示重新提交。");
+    }
+
+    [Fact]
+    public async Task OfficialFirstTurnSurrenderDuplicateClientIntentReplaysExactRawButRejectsChangedRawPayload()
+    {
+        var journal = new RecordingMatchJournal();
+        var context = await BuildFinalMulliganFirstTurnAuditContext(
+            "official-first-turn-surrender-raw-intent-room",
+            journal);
+
+        var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
+        Assert.True(firstTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        var rawCommand = PromptScopedBasicRawCommand(CommandTypes.Surrender, firstTurnPrompt);
+        var journalEntryCountBeforeSurrender = journal.Entries.Count;
+
+        var accepted = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-surrender-raw-intent",
+            new SurrenderCommand(),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, accepted);
+        Assert.Equal(journalEntryCountBeforeSurrender + 1, journal.Entries.Count);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-surrender-raw-intent",
+            new SurrenderCommand(),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, replay.State.RngCursor);
+        Assert.Equal(accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray(), replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, replay);
+        Assert.Equal(journalEntryCountBeforeSurrender + 1, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(context.Session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(context.Session, "P2");
+        var conflict = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-surrender-raw-intent",
+            new SurrenderCommand(),
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.Surrender,
+                promptId = firstTurnPrompt.PromptId,
+                snapshotTick = firstTurnPrompt.SnapshotTick,
+                clientNote = "changed-payload"
+            }),
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.ErrorMessage);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, conflict, assertEvents: false);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(context.Session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(context.Session, "P2"));
+        Assert.Equal(journalEntryCountBeforeSurrender + 1, journal.Entries.Count);
     }
 
     [Fact]

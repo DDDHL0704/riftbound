@@ -43955,6 +43955,166 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task ActivateAbilityDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
+                }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new(
+                    "P1-UNIT-VI",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    cardNo: "UNL-030/219"),
+                ["P2-SPELLSHIELD-UNIT-001"] = new(
+                    "P2-SPELLSHIELD-UNIT-001",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
+            }
+        };
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var command = new ActivateAbilityCommand(
+            "P1-UNIT-VI",
+            "PAY_2_RED_DOUBLE_POWER",
+            []);
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var rawCommand = PromptScopedRawCommand(CommandTypes.ActivateAbility, prompt);
+        const string clientIntentId = "intent-p1-activate-ability-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["ABILITY_ACTIVATED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-VI"], accepted.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], accepted.State.PlayerZones["P2"].Battlefields);
+        var stackItem = Assert.Single(accepted.State.StackItems);
+        Assert.Equal("P1", stackItem.ControllerId);
+        Assert.Equal("P1-UNIT-VI", stackItem.SourceObjectId);
+        Assert.Equal("UNL-030/219", stackItem.CardNo);
+        Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", stackItem.EffectKind);
+        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Equal("BASE", accepted.State.ObjectLocations["P1-UNIT-VI"].Zone);
+        Assert.Equal("BATTLEFIELD", accepted.State.ObjectLocations["P2-SPELLSHIELD-UNIT-001"].Zone);
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, accepted.Prompts["P1"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].Actions);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.ActivateAbility, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(["ABILITY_ACTIVATED", "COST_PAID", "STACK_ITEM_ADDED"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), replay.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-VI"], replay.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], replay.State.PlayerZones["P2"].Battlefields);
+        var replayStackItem = Assert.Single(replay.State.StackItems);
+        Assert.Equal(stackItem.StackItemId, replayStackItem.StackItemId);
+        Assert.Equal("P1-UNIT-VI", replayStackItem.SourceObjectId);
+        Assert.Equal("UNL-030/219", replayStackItem.CardNo);
+        Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", replayStackItem.EffectKind);
+        Assert.Empty(replayStackItem.TargetObjectIds);
+        Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
+        Assert.Equal("P1", replay.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, replay.Prompts["P1"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].Actions);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.ActivateAbility,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(new RunePool(0, 0), conflict.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-VI"], conflict.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], conflict.State.PlayerZones["P2"].Battlefields);
+        var conflictStackItem = Assert.Single(conflict.State.StackItems);
+        Assert.Equal(stackItem.StackItemId, conflictStackItem.StackItemId);
+        Assert.Equal("P1-UNIT-VI", conflictStackItem.SourceObjectId);
+        Assert.Equal("UNL-030/219", conflictStackItem.CardNo);
+        Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", conflictStackItem.EffectKind);
+        Assert.Empty(conflictStackItem.TargetObjectIds);
+        Assert.Equal(TimingStates.NeutralClosed, conflict.State.TimingState);
+        Assert.Equal("P1", conflict.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, conflict.Prompts["P1"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, conflict.Prompts["P1"].Actions);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P7TypedPowerPaymentActivatesViSkillWithTraitPool()
     {
         var state = PunishmentState(mana: 2) with

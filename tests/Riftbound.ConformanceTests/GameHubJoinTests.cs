@@ -1939,6 +1939,183 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task PlayCardDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "p7-9-play-card-raw-idempotency";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario(roomId, "P1", "typed-power-payment", "seed-p7-9-play-card-raw-idempotency");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-SPELL-BULLET-TIME", StringComparison.Ordinal));
+        var seededJournalCount = journal.Entries.Count;
+        var playCard = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-BULLET-TIME",
+              "cardNo": "OGN·268/298",
+              "targetObjectIds": [],
+              "optionalCosts": ["SPEND_POWER:red:2"]
+            }
+            """).RootElement.Clone();
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "play-card-same", playCard);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        var acceptedCostEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal("PLAY_CARD", Assert.IsType<string>(acceptedCostEvent.Payload["paymentWindow"]));
+        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(acceptedCostEvent.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal(2, acceptedCostEvent.Payload["power"]);
+        var acceptedSnapshot = SnapshotFor(acceptedClients, "P1");
+        var acceptedStackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(acceptedSnapshot.Stack));
+        Assert.Equal(2, Assert.IsType<int>(acceptedStackItem["damageAmount"]));
+        var acceptedP1 = PlayerView(acceptedSnapshot, "P1");
+        var acceptedRunePool = Assert.IsType<Dictionary<string, object?>>(acceptedP1["runePool"]);
+        Assert.Equal(0, Assert.IsType<int>(acceptedRunePool["power"]));
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptActions = acceptedClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
+            .Select(prompt => string.Join("|", prompt.Actions))
+            .ToArray();
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(seededJournalCount + 1, acceptedJournalCount);
+        var playEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "play-card-same", StringComparison.Ordinal));
+        Assert.Equal(roomId, playEntry.RoomId);
+        Assert.Equal("P1", playEntry.PlayerId);
+        Assert.Equal("PLAY_CARD", playEntry.CommandType);
+        Assert.NotNull(playEntry.RawCommand);
+        var rawCommand = playEntry.RawCommand.Value;
+        Assert.Equal("PLAY_CARD", rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("P1-SPELL-BULLET-TIME", rawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal("OGN·268/298", rawCommand.GetProperty("cardNo").GetString());
+        Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
+        Assert.Equal(
+            ["SPEND_POWER:red:2"],
+            rawCommand.GetProperty("optionalCosts")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.False(rawCommand.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "play-card-same", playCard);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        var replayCostEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(acceptedCostEvent.Payload["paymentWindow"], replayCostEvent.Payload["paymentWindow"]);
+        Assert.Equal(acceptedCostEvent.Payload["paymentId"], replayCostEvent.Payload["paymentId"]);
+        Assert.Equal(acceptedCostEvent.Payload["power"], replayCostEvent.Payload["power"]);
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        var replaySnapshot = SnapshotFor(replayClients, "P1");
+        Assert.Equal(acceptedSnapshot.Tick, replaySnapshot.Tick);
+        Assert.Equal(acceptedSnapshot.ActivePlayerId, replaySnapshot.ActivePlayerId);
+        Assert.Single(replaySnapshot.Stack);
+        var replayPromptActions = replayClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
+            .Select(prompt => string.Join("|", prompt.Actions))
+            .ToArray();
+        Assert.Equal(acceptedPromptActions, replayPromptActions);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedPlayCard = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-BULLET-TIME",
+              "cardNo": "OGN·268/298",
+              "targetObjectIds": [],
+              "optionalCosts": ["SPEND_POWER:red:2"],
+              "clientNote": "changed"
+            }
+            """).RootElement.Clone();
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "play-card-same", changedPlayCard);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+
+        var stateClients = new RecordingHubClients();
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+            .RequestSnapshot(roomId, "P1");
+
+        Assert.Empty(stateClients.CallerClient.Errors);
+        var currentSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
+        Assert.Equal(acceptedSnapshot.Tick, currentSnapshot.Tick);
+        Assert.Single(currentSnapshot.Stack);
+        var currentP1 = PlayerView(currentSnapshot, "P1");
+        var currentRunePool = Assert.IsType<Dictionary<string, object?>>(currentP1["runePool"]);
+        Assert.Equal(0, Assert.IsType<int>(currentRunePool["power"]));
+    }
+
+    [Fact]
     public async Task SubmitIntentAcceptsMatchingPromptStamp()
     {
         const string roomId = "prompt-stamp-matching-core";
