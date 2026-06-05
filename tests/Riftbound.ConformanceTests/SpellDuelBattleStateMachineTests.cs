@@ -99,6 +99,49 @@ public sealed class SpellDuelBattleStateMachineTests
     }
 
     [Fact]
+    public async Task PassPriorityByNonPriorityPlayerOrWrongTimingRejectsWithoutMutation()
+    {
+        var engine = new CoreRuleEngine();
+        var command = new PassPriorityCommand();
+        var stackState = SpellDuelStackState();
+
+        var nonPriorityResult = await engine.ResolveAsync(
+            stackState,
+            new PlayerIntent("intent-non-priority-pass-priority", "P2", CommandTypes.PassPriority),
+            command,
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(stackState, nonPriorityResult, ErrorCodes.PhaseNotAllowed);
+        AssertSpellDuelStackPriorityRejectedWithoutMutationAudit(nonPriorityResult);
+
+        var neutralState = IdleNeutralState();
+        var neutralResult = await engine.ResolveAsync(
+            neutralState,
+            new PlayerIntent("intent-neutral-pass-priority", "P1", CommandTypes.PassPriority),
+            command,
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(neutralState, neutralResult, ErrorCodes.PhaseNotAllowed);
+        AssertWrongTimingPassPriorityRejectionAudit(neutralResult);
+
+        var focusState = MultiContestSpellDuelState();
+        var focusResult = await engine.ResolveAsync(
+            focusState,
+            new PlayerIntent("intent-spell-duel-focus-pass-priority", "P1", CommandTypes.PassPriority),
+            command,
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(focusState, focusResult, ErrorCodes.PhaseNotAllowed);
+        AssertMultiContestActiveSpellDuelTaskAudit(
+            focusResult.State,
+            focusResult.Snapshots["P1"],
+            focusResult.Prompts["P1"]);
+        Assert.DoesNotContain(CommandTypes.PassPriority, focusResult.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassPriority, focusResult.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, focusResult.Prompts["P2"].Actions);
+    }
+
+    [Fact]
     public async Task PassFocusDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
@@ -687,6 +730,59 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.False(result.Prompts["P1"].Actionable);
         Assert.Equal("BF-A", result.Prompts["P1"].View?.RelatedBattlefieldId);
         Assert.Equal("spell-duel:BF-A", result.Prompts["P1"].View?.RelatedSpellDuelId);
+    }
+
+    private static void AssertSpellDuelStackPriorityRejectedWithoutMutationAudit(ResolutionResult result)
+    {
+        Assert.Equal(TimingStates.SpellDuelClosed, result.State.TimingState);
+        Assert.Null(result.State.FocusPlayerId);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.Equal(["P2"], result.State.PassedPriorityPlayerIds);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("STACK-SWIFT-A", stackItem.StackItemId);
+        Assert.Equal("P1", stackItem.ControllerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackItem.TimingContext);
+        Assert.Equal("BF-A", result.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("spell-duel:BF-A", result.State.SpellDuelState.SpellDuelId);
+        Assert.Equal(["STACK-SWIFT-A"], result.State.SpellDuelState.StackItemIds);
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:BF-A", result.State.PendingTaskQueue.ActiveTaskId);
+
+        var p1Prompt = result.Prompts["P1"];
+        Assert.True(p1Prompt.Actionable);
+        Assert.Equal(PromptTypes.StackPriority, p1Prompt.View?.Type);
+        Assert.Equal("STACK-SWIFT-A", p1Prompt.View?.RelatedStackItemId);
+        Assert.Contains(CommandTypes.PassPriority, p1Prompt.Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, p1Prompt.Actions);
+
+        var p2Prompt = result.Prompts["P2"];
+        Assert.False(p2Prompt.Actionable);
+        Assert.Equal(PromptTypes.StackPriority, p2Prompt.View?.Type);
+        Assert.Equal("STACK-SWIFT-A", p2Prompt.View?.RelatedStackItemId);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], p2Prompt.Actions);
+        Assert.DoesNotContain(CommandTypes.PassPriority, p2Prompt.Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, p2Prompt.Actions);
+    }
+
+    private static void AssertWrongTimingPassPriorityRejectionAudit(ResolutionResult result)
+    {
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Null(result.State.FocusPlayerId);
+        Assert.Null(result.State.PriorityPlayerId);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Empty(result.State.PassedPriorityPlayerIds);
+        Assert.Empty(result.State.StackItems);
+        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
+        Assert.Null(result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Empty(result.State.PendingTaskQueue.Tasks);
+        Assert.Empty(result.State.BattlefieldTasks);
+
+        foreach (var prompt in result.Prompts.Values)
+        {
+            Assert.DoesNotContain(CommandTypes.PassPriority, prompt.Actions);
+            Assert.DoesNotContain(CommandTypes.PassFocus, prompt.Actions);
+        }
     }
 
     private static void AssertStackResolutionReturnsToActiveSpellDuelTaskAudit(ResolutionResult result)
