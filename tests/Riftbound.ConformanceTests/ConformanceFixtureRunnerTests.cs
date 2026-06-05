@@ -5878,6 +5878,169 @@ public sealed class ConformanceFixtureRunnerTests
         AssertRecycleRuneOrdinaryMainPromptQueueAudit(replay, runeObjectId, bottomRuneObjectId);
     }
 
+    [Fact]
+    public async Task RecycleRuneDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string runeObjectId = "P1-RUNE-RED-RECYCLE-RAW-IDEMPOTENCY";
+        const string bottomRuneObjectId = "P1-RUNE-BOTTOM-RECYCLE-RAW-IDEMPOTENCY";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = [bottomRuneObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    isExhausted: true,
+                    cardNo: "UNL-R01",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [bottomRuneObjectId] = new(
+                    bottomRuneObjectId,
+                    cardNo: "UNL-R03",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new("P1", "BASE"),
+                [bottomRuneObjectId] = new("P1", "RUNE_DECK")
+            }
+        };
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var command = new RecycleRuneCommand(runeObjectId);
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.RecycleRune, prompt.Actions);
+        Assert.Contains(prompt.Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
+        var rawCommand = PromptScopedRawCommand(CommandTypes.RecycleRune, prompt);
+        const string clientIntentId = "intent-basic-rune-recycle-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["RUNE_RECYCLED", "POWER_GAINED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(accepted.State.PlayerZones["P1"].Base);
+        Assert.Equal([bottomRuneObjectId, runeObjectId], accepted.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(0, accepted.State.RunePools["P1"].Mana);
+        Assert.Equal(1, accepted.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, accepted.State.RunePools["P1"].TotalPower);
+        Assert.False(accepted.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal("RUNE_DECK", accepted.State.ObjectLocations[runeObjectId].Zone);
+        Assert.DoesNotContain(accepted.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
+        AssertRecycleRuneOrdinaryMainPromptQueueAudit(accepted, runeObjectId, bottomRuneObjectId);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.RecycleRune, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.RecycleRune, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, replay.State.RngCursor);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(["RUNE_RECYCLED", "POWER_GAINED"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(replay.State.PlayerZones["P1"].Base);
+        Assert.Equal([bottomRuneObjectId, runeObjectId], replay.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(0, replay.State.RunePools["P1"].Mana);
+        Assert.Equal(1, replay.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, replay.State.RunePools["P1"].TotalPower);
+        Assert.False(replay.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal("RUNE_DECK", replay.State.ObjectLocations[runeObjectId].Zone);
+        Assert.DoesNotContain(replay.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
+        AssertRecycleRuneOrdinaryMainPromptQueueAudit(replay, runeObjectId, bottomRuneObjectId);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.RecycleRune,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.ErrorMessage);
+        Assert.DoesNotContain(clientIntentId, conflict.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Empty(conflict.State.PlayerZones["P1"].Base);
+        Assert.Equal([bottomRuneObjectId, runeObjectId], conflict.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(0, conflict.State.RunePools["P1"].Mana);
+        Assert.Equal(1, conflict.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, conflict.State.RunePools["P1"].TotalPower);
+        Assert.False(conflict.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal("RUNE_DECK", conflict.State.ObjectLocations[runeObjectId].Zone);
+        Assert.DoesNotContain(conflict.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
+        AssertRecycleRuneOrdinaryMainPromptQueueAudit(conflict, runeObjectId, bottomRuneObjectId);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
     private static void AssertRecycleRuneOrdinaryMainPromptQueueAudit(
         ResolutionResult result,
         string runeObjectId,
