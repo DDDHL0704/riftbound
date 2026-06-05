@@ -20321,6 +20321,40 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentPayloadShapeDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battle"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["isActive"] = false,
+            ["attackerObjectIds"] = Array.Empty<string>(),
+            ["defenderObjectIds"] = Array.Empty<string>(),
+            ["participantControllerIds"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["damageAssignment"] = "not-damage-assignment"
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment payload is invalid",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentMapPayloadShapeDrift()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -56143,6 +56177,109 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingTaskQueueMetadataRequiredDrift()
+    {
+        const string battlefieldObjectId = "alice-cleanup-battlefield-1";
+        const string hiddenStandbyObjectId = "bob-hidden-standby-1";
+        const string equipmentObjectId = "alice-unattached-equipment-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, equipmentObjectId]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = [hiddenStandbyObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "SFD-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [hiddenStandbyObjectId] = new(
+                    hiddenStandbyObjectId,
+                    power: 2,
+                    isFaceDown: true,
+                    ownerId: "bob",
+                    controllerId: "bob",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
+                [equipmentObjectId] = new(
+                    equipmentObjectId,
+                    cardNo: "SFD-EQUIPMENT",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.EquipmentCard])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [hiddenStandbyObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId),
+                [equipmentObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var pendingTaskQueue = Assert.IsType<Dictionary<string, object?>>(timing["pendingTaskQueue"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        pendingTaskQueue.Remove("metadata");
+        timing["pendingTaskQueue"] = pendingTaskQueue;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending task queue metadata is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingPendingTaskQueueMetadataListPayloadShapeDrift()
     {
         const string battlefieldObjectId = "alice-cleanup-battlefield-1";
@@ -56907,6 +57044,103 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending payment resource actions do not match authoritative state pending payment resource actions", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectsMissingPayload()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["source-1", "target-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("source-1", ownerId: "alice", controllerId: "alice"),
+                ["target-1"] = new(
+                    "target-1",
+                    power: 5,
+                    untilEndOfTurnPowerModifier: 2,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "effect-1",
+                            "TEST_POWER_MODIFIER",
+                            "UNTIL_END_OF_TURN",
+                            "target-1",
+                            "source-1",
+                            "SRC-001",
+                            powerDelta: 2,
+                            basePower: 3,
+                            effectivePower: 5,
+                            sourcePath: "test-source-path",
+                            requestedPowerDelta: 4,
+                            minimumPower: 1,
+                            resultingPower: 5,
+                            appliedOrder: 7)
+                    ])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE"),
+                ["target-1"] = new("alice", "BASE")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        Assert.True(timing.Remove("continuousEffects"));
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing continuous effects are required", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -94181,6 +94415,90 @@ public sealed class MatchRecoveryTests
             malformedItemErrors.Count(error => error.Contains(
                 "spectator replay frame timing battlefield task payload is required",
                 StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesMissingPayload()
+    {
+        const string sourceObjectId = "source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(sourceObjectId, ownerId: "alice", controllerId: "alice")
+            },
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "temp-payment-resource-1",
+                    "alice",
+                    sourceObjectId,
+                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "PAY_COST",
+                    generatedPower: 3,
+                    remainingPower: 1,
+                    allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                    createdTick: 2,
+                    generatedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["blue"] = 2
+                    },
+                    remainingPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        ["blue"] = 1
+                    })
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        Assert.True(timing.Remove("temporaryPaymentResources"));
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing temporary payment resources are required",
+                StringComparison.Ordinal));
     }
 
     [Fact]
