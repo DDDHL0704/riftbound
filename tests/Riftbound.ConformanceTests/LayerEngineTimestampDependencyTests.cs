@@ -180,9 +180,35 @@ public sealed class LayerEngineTimestampDependencyTests
         Assert.Null(aura.AppliedOrder);
 
         var snapshots = ResolutionResult.BuildSnapshots(state);
-        var p1View = AssertObjectStaticAuraSnapshotView(snapshots["P1"], aura);
-        var p2View = AssertObjectStaticAuraSnapshotView(snapshots["P2"], aura);
-        Assert.Equal(ObjectStaticAuraSnapshotSignature(p1View), ObjectStaticAuraSnapshotSignature(p2View));
+        var p1View = AssertStaticAuraSnapshotView(snapshots["P1"], aura);
+        var p2View = AssertStaticAuraSnapshotView(snapshots["P2"], aura);
+        Assert.Equal(StaticAuraSnapshotSignature(p1View), StaticAuraSnapshotSignature(p2View));
+    }
+
+    [Fact]
+    public void LayerEngineBattlefieldStaticAuraPowerScalarsMatchAuthoritativeStateAcrossPlayerViews()
+    {
+        var state = BuildBattlefieldStaticAuraState(includeDefender: true);
+        var effects = BattlefieldStaticAuraEffects(state);
+        Assert.Equal(
+            [BattlefieldAttackerObjectId, BattlefieldDefenderObjectId],
+            effects.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        AssertBattlefieldStaticAuraMatchesSnapshots(
+            snapshots,
+            effects[0],
+            BattlefieldAttackerObjectId,
+            basePower: 2,
+            effectivePower: 3,
+            sequence: 1);
+        AssertBattlefieldStaticAuraMatchesSnapshots(
+            snapshots,
+            effects[1],
+            BattlefieldDefenderObjectId,
+            basePower: 3,
+            effectivePower: 4,
+            sequence: 2);
     }
 
     [Fact]
@@ -507,7 +533,47 @@ public sealed class LayerEngineTimestampDependencyTests
         return Assert.IsAssignableFrom<IReadOnlyList<string>>(view[key]);
     }
 
-    private static Dictionary<string, object?> AssertObjectStaticAuraSnapshotView(
+    private static void AssertBattlefieldStaticAuraMatchesSnapshots(
+        IReadOnlyDictionary<string, SnapshotDto> snapshots,
+        ContinuousEffectState aura,
+        string targetObjectId,
+        int basePower,
+        int effectivePower,
+        int sequence)
+    {
+        Assert.Equal($"STATIC_AURA:BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE:{BattlefieldSourceObjectId}:{targetObjectId}", aura.EffectId);
+        Assert.Equal("BATTLEFIELD", aura.Scope);
+        Assert.Equal("WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", aura.Duration);
+        Assert.Equal(targetObjectId, aura.TargetObjectId);
+        Assert.Equal(BattlefieldSourceObjectId, aura.SourceObjectId);
+        Assert.Equal(1, aura.PowerDelta);
+        Assert.Equal(basePower, aura.BasePower);
+        Assert.Equal(effectivePower, aura.EffectivePower);
+        Assert.Equal("BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", aura.EffectKind);
+        Assert.Equal("OGN·294/298", aura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus", aura.SourcePath);
+        Assert.Equal("SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD", aura.Condition);
+        Assert.Equal("DERIVED_FROM_CURRENT_BATTLEFIELD_OBJECT_LOCATIONS", aura.Lifecycle);
+        Assert.True(aura.IsLayerEngineFoundationOnly);
+        Assert.Contains("full official LayerEngine coverage", aura.DeferredLayerEngineResiduals ?? []);
+        Assert.Equal([BattlefieldAttackerObjectId, BattlefieldDefenderObjectId], aura.ParticipantObjectIds);
+        Assert.Equal([BattlefieldSourceObjectId], aura.SourceDependencyObjectIds);
+        Assert.Equal([targetObjectId], aura.TargetDependencyObjectIds);
+        Assert.Equal([BattlefieldAttackerObjectId, BattlefieldDefenderObjectId], aura.ParticipantDependencyObjectIds);
+        Assert.Equal(sequence, aura.Sequence);
+        Assert.Equal(1, aura.SourceOrder.GetValueOrDefault());
+        Assert.Null(aura.RequestedPowerDelta);
+        Assert.Null(aura.AppliedPowerDelta);
+        Assert.Null(aura.MinimumPower);
+        Assert.Null(aura.ResultingPower);
+        Assert.Null(aura.AppliedOrder);
+
+        var p1View = AssertStaticAuraSnapshotView(snapshots["P1"], aura);
+        var p2View = AssertStaticAuraSnapshotView(snapshots["P2"], aura);
+        Assert.Equal(StaticAuraSnapshotSignature(p1View), StaticAuraSnapshotSignature(p2View));
+    }
+
+    private static Dictionary<string, object?> AssertStaticAuraSnapshotView(
         SnapshotDto snapshot,
         ContinuousEffectState aura)
     {
@@ -546,7 +612,7 @@ public sealed class LayerEngineTimestampDependencyTests
         return view;
     }
 
-    private static string ObjectStaticAuraSnapshotSignature(Dictionary<string, object?> view)
+    private static string StaticAuraSnapshotSignature(Dictionary<string, object?> view)
     {
         return string.Join(
             "|",

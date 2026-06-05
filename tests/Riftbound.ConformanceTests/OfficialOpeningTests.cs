@@ -407,6 +407,59 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialSubmitDeckDuplicateClientIntentReplaysExactRawButRejectsChangedRawPayload()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var decklist = BuildValidDeck(catalog);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession("official-submit-deck-raw-intent-room", new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var rawCommand = RawCommand("SUBMIT_DECK");
+
+        var accepted = await session.SubmitDeckAsync(
+            "P1",
+            "submit-p1-raw-intent",
+            ToSubmitCommand(decklist),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(1, accepted.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal)));
+        Assert.Single(journal.Entries);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await session.SubmitDeckAsync(
+            "P1",
+            "submit-p1-raw-intent",
+            ToSubmitCommand(decklist),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray(), replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Single(journal.Entries);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(session, "P2");
+        var conflict = await Assert.ThrowsAsync<MatchSessionException>(() =>
+            session.SubmitDeckAsync(
+                "P1",
+                "submit-p1-raw-intent",
+                ToSubmitCommand(decklist),
+                RawCommandWithClientNote("SUBMIT_DECK", "changed-payload"),
+                CancellationToken.None).AsTask());
+
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.Message);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(session, "P2"));
+        Assert.Single(journal.Entries);
+    }
+
+    [Fact]
     public async Task SubmitDeckStalePromptReplayAfterReadyPromptStartsRejectsWithoutMutation()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -748,6 +801,63 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.PlayerDecklists["P1"].RuneDeck, replay.State.PlayerDecklists["P1"].RuneDeck);
         Assert.Equal(accepted.State.PlayerDecklists["P1"].Battlefields, replay.State.PlayerDecklists["P1"].Battlefields);
         AssertOfficialSingleReadyWaitingSubmitPromptQueueAudit(replay, "P1", "P2", p1Deck);
+    }
+
+    [Fact]
+    public async Task OfficialReadyDuplicateClientIntentReplaysExactRawButRejectsChangedRawPayload()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession("official-ready-raw-intent-room", new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        await session.SubmitDeckAsync(
+            "P1",
+            "submit-p1-before-raw-ready",
+            ToSubmitCommand(p1Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+        var rawCommand = RawCommand("READY");
+
+        var accepted = await session.ReadyAsync(
+            "P1",
+            "ready-p1-raw-intent",
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(1, accepted.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "PLAYER_READY", StringComparison.Ordinal)));
+        Assert.Equal(2, journal.Entries.Count);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await session.ReadyAsync(
+            "P1",
+            "ready-p1-raw-intent",
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(accepted.State.ReadyPlayerIds, replay.State.ReadyPlayerIds);
+        Assert.Equal(accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray(), replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(2, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(session, "P2");
+        var conflict = await Assert.ThrowsAsync<MatchSessionException>(() =>
+            session.ReadyAsync(
+                "P1",
+                "ready-p1-raw-intent",
+                RawCommandWithClientNote("READY", "changed-payload"),
+                CancellationToken.None).AsTask());
+
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.Message);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(session, "P2"));
+        Assert.Equal(2, journal.Entries.Count);
     }
 
     [Fact]
@@ -17412,6 +17522,16 @@ public sealed class OfficialOpeningTests
         return JsonSerializer.SerializeToElement(new { cmdType });
     }
 
+    private static JsonElement RawCommandWithClientNote(string cmdType, string clientNote)
+    {
+        return JsonSerializer.SerializeToElement(new { cmdType, clientNote });
+    }
+
+    private static string SnapshotSignature(MatchSession session, string playerId)
+    {
+        return JsonSerializer.Serialize(session.SnapshotFor(playerId));
+    }
+
     private static JsonElement PromptScopedSubmitDeckRawCommand(
         OfficialDecklist decklist,
         ActionPromptDto prompt,
@@ -17549,6 +17669,17 @@ public sealed class OfficialOpeningTests
             handObjectIds,
             snapshotTick
         });
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 
     private static OfficialDecklist BuildValidDeck(OfficialCardCatalog catalog)

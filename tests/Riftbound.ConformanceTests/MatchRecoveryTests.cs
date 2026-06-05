@@ -26857,9 +26857,9 @@ public sealed class MatchRecoveryTests
                     "intent-pass-priority",
                     "PASS_PRIORITY",
                     null,
-                    1,
+                    0,
                     2,
-                    5,
+                    0,
                     6,
                     true,
                     null)
@@ -26930,9 +26930,9 @@ public sealed class MatchRecoveryTests
                     "intent-pass-priority",
                     "PASS_PRIORITY",
                     null,
-                    1,
+                    0,
                     2,
-                    5,
+                    0,
                     6,
                     true,
                     null)
@@ -27042,7 +27042,11 @@ public sealed class MatchRecoveryTests
             await registry.GetOrCreateAsync("room-a", CancellationToken.None));
 
         Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
-        Assert.Contains("match recovery is inconsistent", error.Message, StringComparison.Ordinal);
+        Assert.Contains("match recovery validation failed", error.Message, StringComparison.Ordinal);
+        Assert.Contains(
+            "event stream is empty but match last event sequence is 1",
+            error.Message,
+            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -113760,6 +113764,40 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task RegistryRevalidatesStoreReturnedRecoveryFrameBeforeRestore()
+    {
+        var frame = RecoveryFrame(currentTick: 2, lastEventSequence: 1);
+        var playerViews = frame.PlayerViews.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        playerViews["alice"] = playerViews["alice"] with
+        {
+            SnapshotTick = frame.CurrentTick + 1
+        };
+        var uncheckedFrame = frame with
+        {
+            PlayerViews = playerViews,
+            ValidationErrors = []
+        };
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(uncheckedFrame));
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await registry.GetOrCreateAsync("room-a", CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Contains("match recovery validation failed", error.Message, StringComparison.Ordinal);
+        Assert.Contains(
+            "snapshot for alice has row tick 3 after recovery tick 2",
+            error.Message,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("action-log audit failed", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task RegistryRejectsRecoveryFrameWhenActionLogReplayHashMismatches()
     {
         var initialState = MatchReplayInitialStateBuilder.FromSeats(
@@ -113774,7 +113812,7 @@ public sealed class MatchRecoveryTests
         await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
         var wrongFinalState = journal.Entries[^1].AuthoritativeState with
         {
-            Tick = journal.Entries[^1].AuthoritativeState.Tick + 1
+            RngCursor = journal.Entries[^1].AuthoritativeState.RngCursor + 1
         };
         var frame = new MatchRecoveryFrame(
             "room-a",
@@ -114924,7 +114962,11 @@ public sealed class MatchRecoveryTests
             ["bob"] = PlayerView("bob", currentTick, lastEventSequence, turnNumber: 2, activePlayerId: "bob")
         };
         var events = Enumerable.Range(1, (int)lastEventSequence)
-            .Select(sequence => RecoveredEvent(sequence, $"EVENT_{sequence}"))
+            .Select(sequence => new RecoveredEvent(
+                sequence,
+                currentTick,
+                sequence - 1,
+                new GameEvent($"EVENT_{sequence}", $"EVENT_{sequence}", new Dictionary<string, object?>())))
             .ToArray();
         return new MatchRecoveryFrame(
             "room-a",

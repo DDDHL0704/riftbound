@@ -13341,6 +13341,22 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
                 $"match recovery returned room {recovery.RoomId} for requested room {roomId}");
         }
 
+        var validationErrors = MatchRecoveryValidator.Validate(
+            recovery.RoomId,
+            recovery.LastEventSequence,
+            recovery.Commands,
+            recovery.Events,
+            recovery.PlayerViews,
+            recovery.AuthoritativeState,
+            recovery.CurrentTick,
+            recovery.SpectatorReplayFrame);
+        if (validationErrors.Count > 0)
+        {
+            throw new MatchSessionException(
+                ErrorCodes.RecoveryInconsistent,
+                $"match recovery validation failed: {string.Join("; ", validationErrors)}");
+        }
+
         if (recovery.IsConsistent)
         {
             var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(
