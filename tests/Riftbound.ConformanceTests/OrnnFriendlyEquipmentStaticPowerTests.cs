@@ -149,6 +149,63 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     }
 
     [Fact]
+    public async Task OrnnStaticAuraOmitsParticipantMetadataWhenFriendlyEquipmentLeavesPublicFieldAcrossPlayerViews()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnFieldState(
+            ornnPower: 5,
+            p1Base: [OrnnObjectId, FirstRuneObjectId],
+            p1Graveyard: [FriendlyBaseEquipmentObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 5),
+                [FriendlyBaseEquipmentObjectId] = Equipment(FriendlyBaseEquipmentObjectId, "P1", "P1"),
+                [FirstRuneObjectId] = Rune(FirstRuneObjectId)
+            });
+
+        var tapped = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-static-aura-no-participants", "P1", CommandTypes.TapRune),
+            new TapRuneCommand(FirstRuneObjectId),
+            CancellationToken.None);
+
+        Assert.True(tapped.Accepted, tapped.ErrorMessage);
+        Assert.Equal(4, tapped.State.CardObjects[OrnnObjectId].Power);
+        var staticAura = Assert.Single(
+            tapped.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal(OrnnObjectId, staticAura.TargetObjectId);
+        Assert.Equal(0, staticAura.PowerDelta);
+        Assert.Equal(4, staticAura.BasePower);
+        Assert.Equal(4, staticAura.EffectivePower);
+        Assert.Empty(staticAura.ParticipantObjectIds ?? []);
+        Assert.Equal([OrnnObjectId], staticAura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.TargetDependencyObjectIds);
+        Assert.Empty(staticAura.ParticipantDependencyObjectIds ?? []);
+
+        var p1View = AssertSnapshotStaticAura(
+            tapped.Snapshots["P1"],
+            OrnnObjectId,
+            OrnnObjectId,
+            [],
+            powerDelta: 0,
+            basePower: 4,
+            effectivePower: 4);
+        var p2View = AssertSnapshotStaticAura(
+            tapped.Snapshots["P2"],
+            OrnnObjectId,
+            OrnnObjectId,
+            [],
+            powerDelta: 0,
+            basePower: 4,
+            effectivePower: 4);
+        Assert.Equal(
+            p1View.Keys.OrderBy(key => key, StringComparer.Ordinal),
+            p2View.Keys.OrderBy(key => key, StringComparer.Ordinal));
+    }
+
+    [Fact]
     public async Task OrnnRecomputesUpWhenFriendlyPublicEquipmentResolvesAfterOrnnIsInField()
     {
         var engine = new CoreRuleEngine();
@@ -557,7 +614,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal(effectivePower, Assert.IsType<int>(objectView["power"]));
     }
 
-    private static void AssertSnapshotStaticAura(
+    private static Dictionary<string, object?> AssertSnapshotStaticAura(
         SnapshotDto snapshot,
         string sourceObjectId,
         string targetObjectId,
@@ -596,7 +653,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         {
             Assert.False(effect.ContainsKey("participantObjectIds"));
             Assert.False(effect.ContainsKey("participantDependencyObjectIds"));
-            return;
+            return effect;
         }
 
         Assert.Equal(
@@ -605,6 +662,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal(
             participantObjectIds,
             Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["participantDependencyObjectIds"]));
+        return effect;
     }
 
     private static Dictionary<string, object?> AssertSnapshotStaticAuraMetadata(
