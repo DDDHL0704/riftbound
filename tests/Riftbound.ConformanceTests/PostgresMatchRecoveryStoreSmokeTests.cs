@@ -188,6 +188,95 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
     }
 
     [Fact]
+    public async Task PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift()
+    {
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return;
+        }
+
+        await using var dataSource = NpgsqlDataSource.Create(connectionString);
+        await ApplySchemaAsync(dataSource);
+
+        var roomId = $"player-seat-uniqueness-smoke-{Guid.NewGuid():N}";
+        try
+        {
+            var playerStore = new PostgresMatchPlayerStore(dataSource);
+            var aliceOriginalHash = ReconnectTokenHasher.Hash("rt_alice_original");
+            var aliceUpdatedHash = ReconnectTokenHasher.Hash("rt_alice_updated");
+
+            await playerStore.SavePlayerSessionAsync(
+                roomId,
+                "alice",
+                "P1",
+                aliceOriginalHash,
+                CancellationToken.None);
+            await playerStore.SavePlayerSessionAsync(
+                roomId,
+                "alice",
+                "P1",
+                aliceUpdatedHash,
+                CancellationToken.None);
+
+            Assert.True(await playerStore.HasReconnectTokenHashAsync(
+                roomId,
+                "alice",
+                aliceUpdatedHash,
+                CancellationToken.None));
+            Assert.False(await playerStore.HasReconnectTokenHashAsync(
+                roomId,
+                "alice",
+                aliceOriginalHash,
+                CancellationToken.None));
+
+            var duplicateSeatException = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await playerStore.SavePlayerSessionAsync(
+                    roomId,
+                    "bob",
+                    "P1",
+                    ReconnectTokenHasher.Hash("rt_bob_duplicate_seat"),
+                    CancellationToken.None));
+            Assert.Contains("duplicate seat", duplicateSeatException.Message, StringComparison.OrdinalIgnoreCase);
+
+            var bobOriginalHash = ReconnectTokenHasher.Hash("rt_bob_original");
+            await playerStore.SavePlayerSessionAsync(
+                roomId,
+                "bob",
+                "P2",
+                bobOriginalHash,
+                CancellationToken.None);
+
+            var driftHash = ReconnectTokenHasher.Hash("rt_bob_drift");
+            var seatDriftException = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await playerStore.SavePlayerSessionAsync(
+                    roomId,
+                    "bob",
+                    "P3",
+                    driftHash,
+                    CancellationToken.None));
+            Assert.Contains("seat drift", seatDriftException.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.True(await playerStore.HasReconnectTokenHashAsync(
+                roomId,
+                "bob",
+                bobOriginalHash,
+                CancellationToken.None));
+            Assert.False(await playerStore.HasReconnectTokenHashAsync(
+                roomId,
+                "bob",
+                driftHash,
+                CancellationToken.None));
+
+            await AssertPlayerSeatAsync(dataSource, roomId, "alice", "P1");
+            await AssertPlayerSeatAsync(dataSource, roomId, "bob", "P2");
+        }
+        finally
+        {
+            await DeleteRoomAsync(dataSource, roomId);
+        }
+    }
+
+    [Fact]
     public async Task PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift()
     {
         var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
@@ -293,6 +382,28 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
             connection);
         command.Parameters.AddWithValue("match_id", roomId);
         await command.ExecuteNonQueryAsync();
+    }
+
+    private static async Task AssertPlayerSeatAsync(
+        NpgsqlDataSource dataSource,
+        string roomId,
+        string playerId,
+        string expectedSeat)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync();
+        await using var command = new NpgsqlCommand(
+            """
+            select seat
+            from match_players
+            where match_id = @match_id
+              and player_id = @player_id;
+            """,
+            connection);
+        command.Parameters.AddWithValue("match_id", roomId);
+        command.Parameters.AddWithValue("player_id", playerId);
+
+        var seat = await command.ExecuteScalarAsync();
+        Assert.Equal(expectedSeat, Assert.IsType<string>(seat));
     }
 
     private static MatchJournalEntry CommandEntry(

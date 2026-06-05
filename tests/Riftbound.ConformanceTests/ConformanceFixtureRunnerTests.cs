@@ -39179,8 +39179,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal([sourceObjectId], p2Pass.State.PlayerZones["P1"].Base);
         Assert.Contains("P1-ORNN-EQUIPMENT-001", p2Pass.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("P1-ORNN-EQUIPMENT-001", p2Pass.State.PlayerZones["P1"].MainDeck);
-        Assert.Contains("P1-ORNN-DECK-TAIL-001", p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(
+            ["P1-ORNN-DECK-TAIL-001", "P1-ORNN-UNIT-001", "P1-ORNN-SPELL-001", "P1-ORNN-EQUIPMENT-002"],
+            p2Pass.State.PlayerZones["P1"].MainDeck);
 
         var drawEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.Equal("P1", drawEvent.Payload["playerId"]);
@@ -39189,9 +39190,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1", recycleEvent.Payload["playerId"]);
         Assert.Equal(3, recycleEvent.Payload["count"]);
         Assert.Equal(
-            ["P1-ORNN-EQUIPMENT-002", "P1-ORNN-SPELL-001", "P1-ORNN-UNIT-001"],
+            ["P1-ORNN-UNIT-001", "P1-ORNN-SPELL-001", "P1-ORNN-EQUIPMENT-002"],
             Assert.IsAssignableFrom<IEnumerable<string>>(recycleEvent.Payload["cardIds"])
-                .Order(StringComparer.Ordinal)
                 .ToArray());
     }
 
@@ -39227,16 +39227,16 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Equal([sourceObjectId], p2Pass.State.PlayerZones["P1"].Base);
         Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
-        Assert.Equal(5, p2Pass.State.PlayerZones["P1"].MainDeck.Count);
-        Assert.Equal("P1-ORNN-DECK-TAIL-001", p2Pass.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.Equal(
+            ["P1-ORNN-DECK-TAIL-001", "P1-ORNN-UNIT-001", "P1-ORNN-SPELL-001", "P1-ORNN-EQUIPMENT-001", "P1-ORNN-EQUIPMENT-002"],
+            p2Pass.State.PlayerZones["P1"].MainDeck);
         Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         var recycleEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
         Assert.Equal("P1", recycleEvent.Payload["playerId"]);
         Assert.Equal(4, recycleEvent.Payload["count"]);
         Assert.Equal(
-            ["P1-ORNN-EQUIPMENT-001", "P1-ORNN-EQUIPMENT-002", "P1-ORNN-SPELL-001", "P1-ORNN-UNIT-001"],
+            ["P1-ORNN-UNIT-001", "P1-ORNN-SPELL-001", "P1-ORNN-EQUIPMENT-001", "P1-ORNN-EQUIPMENT-002"],
             Assert.IsAssignableFrom<IEnumerable<string>>(recycleEvent.Payload["cardIds"])
-                .Order(StringComparer.Ordinal)
                 .ToArray());
     }
 

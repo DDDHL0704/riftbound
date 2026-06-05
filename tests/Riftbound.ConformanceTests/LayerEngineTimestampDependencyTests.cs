@@ -14,6 +14,8 @@ public sealed class LayerEngineTimestampDependencyTests
     private const string BattlefieldSourceObjectId = "P1-BATTLEFIELD-POWER-PLUS";
     private const string BattlefieldAttackerObjectId = "P1-BATTLEFIELD-STATIC-ATTACKER";
     private const string BattlefieldDefenderObjectId = "P2-BATTLEFIELD-STATIC-DEFENDER";
+    private const string OtherBattlefieldObjectId = "P1-BATTLEFIELD-OTHER";
+    private const string OtherBattlefieldUnitObjectId = "P1-BATTLEFIELD-OTHER-UNIT";
     private const string FieldFirstBattlefieldSourceObjectId = "P1-BATTLEFIELD-Z-SOURCE";
     private const string FieldLaterBattlefieldSourceObjectId = "P1-BATTLEFIELD-A-SOURCE";
     private const string BattlefieldSharedUnitObjectId = "P1-BATTLEFIELD-SOURCE-ORDER-UNIT";
@@ -209,6 +211,70 @@ public sealed class LayerEngineTimestampDependencyTests
             basePower: 3,
             effectivePower: 4,
             sequence: 2);
+    }
+
+    [Fact]
+    public void LayerEngineBattlefieldStaticAuraUsesObjectLocationsToExcludeOtherBattlefields()
+    {
+        var state = BuildBattlefieldStaticAuraState(includeDefender: true);
+        state = state with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = state.PlayerZones["P1"] with
+                {
+                    Battlefields =
+                    [
+                        BattlefieldSourceObjectId,
+                        BattlefieldAttackerObjectId,
+                        OtherBattlefieldObjectId,
+                        OtherBattlefieldUnitObjectId
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+            {
+                [OtherBattlefieldObjectId] = new(
+                    OtherBattlefieldObjectId,
+                    cardNo: "UNL·T01",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [OtherBattlefieldUnitObjectId] = Unit(OtherBattlefieldUnitObjectId, "P1", power: 4)
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+            {
+                [OtherBattlefieldObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId),
+                [OtherBattlefieldUnitObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId)
+            }
+        };
+
+        var effects = BattlefieldStaticAuraEffects(state);
+        Assert.Equal(
+            [BattlefieldAttackerObjectId, BattlefieldDefenderObjectId],
+            effects.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        Assert.All(
+            effects,
+            effect =>
+            {
+                Assert.Equal([BattlefieldAttackerObjectId, BattlefieldDefenderObjectId], effect.ParticipantObjectIds);
+                Assert.Equal(
+                    [BattlefieldAttackerObjectId, BattlefieldDefenderObjectId],
+                    effect.ParticipantDependencyObjectIds);
+                Assert.DoesNotContain(OtherBattlefieldUnitObjectId, effect.ParticipantObjectIds ?? []);
+                Assert.DoesNotContain(OtherBattlefieldUnitObjectId, effect.ParticipantDependencyObjectIds ?? []);
+            });
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var effectViews = ContinuousEffectViews(snapshot);
+        Assert.DoesNotContain(
+            effectViews,
+            effect => string.Equals(
+                    effect["effectKind"] as string,
+                    "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                    StringComparison.Ordinal)
+                && string.Equals(effect["targetObjectId"] as string, OtherBattlefieldUnitObjectId, StringComparison.Ordinal));
+        AssertDoesNotExposeDependencyObjectId(snapshot, OtherBattlefieldUnitObjectId);
     }
 
     [Fact]

@@ -22,7 +22,8 @@ create table if not exists match_players (
     connection_state text not null default 'DISCONNECTED',
     joined_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
-    primary key (match_id, player_id)
+    primary key (match_id, player_id),
+    constraint match_players_match_id_seat_key unique (match_id, seat)
 );
 
 create table if not exists command_log (
