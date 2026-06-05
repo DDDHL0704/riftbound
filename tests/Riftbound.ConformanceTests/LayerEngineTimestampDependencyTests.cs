@@ -278,7 +278,7 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
-    public void LayerEngineBattlefieldStaticAuraTargetDependenciesDisappearWhenParticipantLeavesBattlefield()
+    public void LayerEngineBattlefieldStaticAuraTargetDependenciesDisappearWhenParticipantLeavesBattlefieldAcrossPlayerViews()
     {
         var before = BuildBattlefieldStaticAuraState(includeDefender: true);
         var beforeEffects = BattlefieldStaticAuraEffects(before);
@@ -292,6 +292,9 @@ public sealed class LayerEngineTimestampDependencyTests
                 Assert.Equal([targetObjectId], effect.TargetDependencyObjectIds);
                 Assert.Equal(
                     [BattlefieldAttackerObjectId, BattlefieldDefenderObjectId],
+                    effect.ParticipantObjectIds);
+                Assert.Equal(
+                    [BattlefieldAttackerObjectId, BattlefieldDefenderObjectId],
                     effect.ParticipantDependencyObjectIds);
             });
 
@@ -300,15 +303,34 @@ public sealed class LayerEngineTimestampDependencyTests
         Assert.Equal(BattlefieldAttackerObjectId, afterEffect.TargetObjectId);
         Assert.Equal([BattlefieldSourceObjectId], afterEffect.SourceDependencyObjectIds);
         Assert.Equal([BattlefieldAttackerObjectId], afterEffect.TargetDependencyObjectIds);
+        Assert.Equal([BattlefieldAttackerObjectId], afterEffect.ParticipantObjectIds);
         Assert.Equal([BattlefieldAttackerObjectId], afterEffect.ParticipantDependencyObjectIds);
 
-        var snapshot = ResolutionResult.BuildSnapshots(after)["P1"];
-        var effectView = Assert.Single(
-            ContinuousEffectViews(snapshot),
-            effect => string.Equals(effect["effectKind"] as string, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal));
-        Assert.Equal([BattlefieldAttackerObjectId], StringList(effectView, "targetDependencyObjectIds"));
-        Assert.Equal([BattlefieldAttackerObjectId], StringList(effectView, "participantDependencyObjectIds"));
-        AssertDoesNotExposeDependencyObjectId(snapshot, BattlefieldDefenderObjectId);
+        var snapshots = ResolutionResult.BuildSnapshots(after);
+        var p1View = AssertBattlefieldStaticAuraSnapshotViewAfterParticipantLeaves(snapshots["P1"]);
+        var p2View = AssertBattlefieldStaticAuraSnapshotViewAfterParticipantLeaves(snapshots["P2"]);
+        Assert.Equal(StaticAuraSnapshotSignature(p1View), StaticAuraSnapshotSignature(p2View));
+
+        static Dictionary<string, object?> AssertBattlefieldStaticAuraSnapshotViewAfterParticipantLeaves(
+            SnapshotDto snapshot)
+        {
+            var effectView = Assert.Single(
+                ContinuousEffectViews(snapshot),
+                effect => string.Equals(
+                    effect["effectKind"] as string,
+                    "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                    StringComparison.Ordinal));
+            Assert.Equal(BattlefieldAttackerObjectId, Assert.IsType<string>(effectView["targetObjectId"]));
+            Assert.Equal([BattlefieldAttackerObjectId], StringList(effectView, "targetDependencyObjectIds"));
+            Assert.Equal([BattlefieldAttackerObjectId], StringList(effectView, "participantObjectIds"));
+            Assert.Equal([BattlefieldAttackerObjectId], StringList(effectView, "participantDependencyObjectIds"));
+            Assert.DoesNotContain(BattlefieldDefenderObjectId, StringList(effectView, "targetDependencyObjectIds"));
+            Assert.DoesNotContain(BattlefieldDefenderObjectId, StringList(effectView, "participantObjectIds"));
+            Assert.DoesNotContain(BattlefieldDefenderObjectId, StringList(effectView, "participantDependencyObjectIds"));
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, BattlefieldDefenderObjectId);
+
+            return effectView;
+        }
     }
 
     [Fact]
@@ -863,12 +885,53 @@ public sealed class LayerEngineTimestampDependencyTests
             dependencyId => dependencyId.Contains("TASK", StringComparison.OrdinalIgnoreCase));
     }
 
+    private static void AssertDoesNotExposeDependencyOrParticipantObjectId(
+        SnapshotDto snapshot,
+        string objectId)
+    {
+        var objectIds = ContinuousEffectViews(snapshot)
+            .SelectMany(DependencyOrParticipantObjectIds)
+            .ToArray();
+
+        Assert.DoesNotContain(objectId, objectIds);
+        Assert.DoesNotContain(
+            objectIds,
+            dependencyId => dependencyId.Contains("TASK", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static IEnumerable<string> DependencyObjectIds(Dictionary<string, object?> view)
     {
         foreach (var key in new[]
         {
             "sourceDependencyObjectIds",
             "targetDependencyObjectIds",
+            "participantDependencyObjectIds"
+        })
+        {
+            if (view.TryGetValue(key, out var value)
+                && value is IReadOnlyList<string> objectIds)
+            {
+                foreach (var objectId in objectIds)
+                {
+                    yield return objectId;
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<string> DependencyOrParticipantObjectIds(Dictionary<string, object?> view)
+    {
+        if (view.TryGetValue("targetObjectId", out var targetObjectId)
+            && targetObjectId is string target)
+        {
+            yield return target;
+        }
+
+        foreach (var key in new[]
+        {
+            "sourceDependencyObjectIds",
+            "targetDependencyObjectIds",
+            "participantObjectIds",
             "participantDependencyObjectIds"
         })
         {

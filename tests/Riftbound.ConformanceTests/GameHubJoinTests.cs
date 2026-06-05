@@ -1011,6 +1011,134 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task PayCostDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "pay-cost-raw-idempotency";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario(roomId, "P1", "pay-cost-window", "seed-pay-cost-window");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var prompt = PromptFor(seedClients, "P1");
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.NotNull(prompt.PromptId);
+        Assert.True(prompt.SnapshotTick.HasValue);
+        var seededJournalCount = journal.Entries.Count;
+        var payCost = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = "PAY-3A-MANA-1",
+            paymentWindow = "TEST_PAYMENT",
+            paymentChoiceIds = new[] { "SPEND_MANA:1" },
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "pay-cost-same", payCost);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(seededJournalCount + 1, acceptedJournalCount);
+        var payEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "pay-cost-same", StringComparison.Ordinal));
+        Assert.Equal(roomId, payEntry.RoomId);
+        Assert.Equal("P1", payEntry.PlayerId);
+        Assert.Equal(CommandTypes.PayCost, payEntry.CommandType);
+        Assert.NotNull(payEntry.RawCommand);
+        var rawCommand = payEntry.RawCommand.Value;
+        Assert.Equal(CommandTypes.PayCost, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("PAY-3A-MANA-1", rawCommand.GetProperty("paymentId").GetString());
+        Assert.Equal("TEST_PAYMENT", rawCommand.GetProperty("paymentWindow").GetString());
+        Assert.Equal(
+            ["SPEND_MANA:1"],
+            rawCommand.GetProperty("paymentChoiceIds")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rawCommand.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "pay-cost-same", payCost);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedPayCost = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = "PAY-3A-MANA-1",
+            paymentWindow = "TEST_PAYMENT",
+            paymentChoiceIds = new[] { "SPEND_MANA:1" },
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed"
+        });
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "pay-cost-same", changedPayCost);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+
+        var snapshotClients = new RecordingHubClients();
+        await CreateHub(snapshotClients, new RecordingGroupManager(), "connection-1", registry)
+            .RequestSnapshot(roomId, "P1");
+
+        Assert.Empty(snapshotClients.CallerClient.Errors);
+        var currentSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(snapshotClients.CallerClient.Snapshots).Payload);
+        Assert.Null(currentSnapshot.Timing["pendingPayment"]);
+        var currentP1 = PlayerView(currentSnapshot, "P1");
+        var currentRunePool = Assert.IsType<Dictionary<string, object?>>(currentP1["runePool"]);
+        Assert.Equal(0, Assert.IsType<int>(currentRunePool["mana"]));
+    }
+
+    [Fact]
     public async Task SubmitIntentDuplicateConflictReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
