@@ -99,6 +99,108 @@ public sealed class SpellDuelBattleStateMachineTests
     }
 
     [Fact]
+    public async Task PassFocusDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var state = MultiContestSpellDuelState();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.SpellDuelFocus, prompt.View?.Type);
+        Assert.Equal("spell-duel:BF-A", prompt.View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, prompt.Actions);
+
+        var command = new PassFocusCommand();
+        var rawCommand = PromptScopedRawCommand(CommandTypes.PassFocus, prompt);
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PassFocus,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        const string clientIntentId = "intent-pass-focus-raw-duplicate";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["FOCUS_PASSED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal("P2", accepted.State.FocusPlayerId);
+        Assert.Equal(["P1"], accepted.State.PassedFocusPlayerIds);
+        Assert.Equal(PromptTypes.SpellDuelFocus, accepted.Prompts["P2"].View?.Type);
+        Assert.Contains(CommandTypes.PassFocus, accepted.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, accepted.Prompts["P1"].Actions);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var p1SnapshotAfterAccepted = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var p2SnapshotAfterAccepted = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.PassFocus, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.PassFocus, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var duplicate = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(duplicate.Accepted, duplicate.ErrorMessage);
+        Assert.Null(duplicate.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(duplicate.State));
+        Assert.Equal(accepted.State.Tick, duplicate.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(duplicate.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(duplicate.Prompts));
+        Assert.Equal(PromptTypes.SpellDuelFocus, duplicate.Prompts["P2"].View?.Type);
+        Assert.Contains(CommandTypes.PassFocus, duplicate.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, duplicate.Prompts["P1"].Actions);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Single(journal.Entries);
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(PromptTypes.SpellDuelFocus, conflict.Prompts["P2"].View?.Type);
+        Assert.Contains(CommandTypes.PassFocus, conflict.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, conflict.Prompts["P1"].Actions);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task SpellDuelStackResolutionReturnsToSameActiveTaskUntilBothPlayersPassFocus()
     {
         var state = SpellDuelStackState();
@@ -900,6 +1002,17 @@ public sealed class SpellDuelBattleStateMachineTests
     private static IReadOnlyList<string> StringList(object? value)
     {
         return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 
     private static JsonElement PromptScopedRawCommand(string cmdType, ActionPromptDto prompt)

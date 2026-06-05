@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18LM/18LN/18LO endturn/reveal/recycle test bundle integrates three parallel worker-produced server test slices proving `END_TURN` exact raw-payload duplicate intents replay cached accepted end-turn output while changed raw payloads conflict without mutation, GameHub `REVEAL_CARD` exact raw-payload duplicate intents replay stable reveal-card event/snapshot/prompt output while changed raw payloads conflict without group/caller mutation, and official first-turn `RECYCLE_RUNE` exact raw-payload duplicate intents replay stable rune-recycle output after final mulligan while changed raw payloads conflict without mutation. Runtime changed: no, test coverage only; tests changed in `ConformanceFixtureRunnerTests`, `GameHubJoinTests` and `OfficialOpeningTests`. Validation passed: focused new tests `3/3`, touched class filter `3782/3782`, broader adjacent server filter `5240/5240`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7284/7284`, `git diff --cached --check`, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed. Worker source commits were `48953ee3`, `d26c910d` and `7633bd23`; A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18LP/18LQ/18LR assemble/pass-focus test bundle integrates three parallel worker-produced server test slices proving session `ASSEMBLE_EQUIPMENT` exact raw-payload duplicate intents replay cached accepted assemble output while changed raw payloads conflict without mutation, GameHub `ASSEMBLE_EQUIPMENT` exact raw-payload duplicate intents replay stable rune-recycle/cost/equipment-attach output while changed raw payloads conflict without group/caller mutation, and spell-duel `PASS_FOCUS` exact raw-payload duplicate intents replay stable focus-pass output while changed raw payloads conflict without mutation. Runtime changed: no, test coverage only; tests changed in `ConformanceFixtureRunnerTests`, `GameHubJoinTests` and `SpellDuelBattleStateMachineTests`. Validation passed: focused new tests `3/3`, touched class filter `3206/3206`, broader adjacent server filter `5251/5251`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7287/7287`, `git diff --cached --check`, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed. Worker source commits were `a3472fc2`, `639d001a` and `a3016f4d`; A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18LM/18LN/18LO; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 02:13 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18LP/18LQ/18LR; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 02:55 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-06 02:55 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, pending commit after validation at time of entry
+
+Write locks: closed for `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`, `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`, `tests/Riftbound.ConformanceTests/SpellDuelBattleStateMachineTests.cs`, current checkpoint/completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18LP_18LR_ASSEMBLE_PASSFOCUS_AUDIT.md`. Runtime validation code, matrix JSON, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18LP/18LQ/18LR integrated parallel worker output: `a3472fc2` (session `ASSEMBLE_EQUIPMENT` raw intent idempotency/conflict), `639d001a` (GameHub `ASSEMBLE_EQUIPMENT` raw intent idempotency/conflict) and `a3016f4d` (spell-duel `PASS_FOCUS` raw intent idempotency/conflict).
+
+Validation: focused new tests `3/3`; touched class filter `3206/3206`; broader adjacent server filter `5251/5251`; backend full `7287/7287` under no-DB environment; `git diff --cached --check`, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and can dispatch another non-overlapping parallel server group. Project remains **NOT READY**.
 
 ### 2026-06-06 02:32 A_MAIN
 

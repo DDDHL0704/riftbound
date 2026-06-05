@@ -55419,6 +55419,165 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task AssembleEquipmentDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string equipmentObjectId = "P1-EQUIPMENT-LONG-SWORD";
+        const string unitObjectId = "P1-UNIT-ASSEMBLE-TARGET";
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [equipmentObjectId, unitObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [equipmentObjectId] = new(
+                    equipmentObjectId,
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [unitObjectId] = new(
+                    unitObjectId,
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var command = new AssembleEquipmentCommand(
+            equipmentObjectId,
+            unitObjectId,
+            ["ASSEMBLE_RED"]);
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.AssembleEquipment, prompt.Actions);
+        Assert.Contains(prompt.Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, equipmentObjectId, StringComparison.Ordinal))
+            && (candidate.Targets ?? []).Any(target => string.Equals(target.Id, unitObjectId, StringComparison.Ordinal))
+            && (candidate.OptionalCosts ?? []).Any(optionalCost => string.Equals(optionalCost.Id, "ASSEMBLE_RED", StringComparison.Ordinal)));
+        var rawCommand = PromptScopedRawCommand(CommandTypes.AssembleEquipment, prompt);
+        const string clientIntentId = "intent-assemble-equipment-long-sword-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, accepted.State.Tick);
+        Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
+        Assert.Empty(accepted.State.RunePools["P1"].PowerByTrait);
+        Assert.Equal([equipmentObjectId, unitObjectId], accepted.State.PlayerZones["P1"].Base);
+        Assert.Equal(unitObjectId, accepted.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.Empty(accepted.State.StackItems);
+        Assert.DoesNotContain(accepted.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, equipmentObjectId, StringComparison.Ordinal)));
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentAssemblePromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentAssembleSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.AssembleEquipment, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.AssembleEquipment, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), replay.State.RunePools["P1"]);
+        Assert.Empty(replay.State.RunePools["P1"].PowerByTrait);
+        Assert.Equal([equipmentObjectId, unitObjectId], replay.State.PlayerZones["P1"].Base);
+        Assert.Equal(unitObjectId, replay.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.DoesNotContain(replay.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, equipmentObjectId, StringComparison.Ordinal)));
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.AssembleEquipment,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(currentAssemblePromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentAssembleSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(new RunePool(0, 0), conflict.State.RunePools["P1"]);
+        Assert.Empty(conflict.State.RunePools["P1"].PowerByTrait);
+        Assert.Equal([equipmentObjectId, unitObjectId], conflict.State.PlayerZones["P1"].Base);
+        Assert.Equal(unitObjectId, conflict.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.DoesNotContain(conflict.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, equipmentObjectId, StringComparison.Ordinal)));
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P7TypedPowerPaymentAssemblesLongSwordWithRecycleRunePaymentResource()
     {
         var state = PunishmentState(mana: 0) with
