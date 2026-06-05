@@ -51396,6 +51396,160 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task MoveUnitDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string sourceObjectId = "P1-MOVE-UNIT-BASE-001";
+        const string keeperObjectId = "P1-MOVE-FIELD-KEEPER";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId],
+                    Battlefields = [keeperObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: "SFD·125/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard]),
+                [keeperObjectId] = new(
+                    keeperObjectId,
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var command = new MoveUnitCommand(
+            sourceObjectId,
+            "BASE",
+            "BATTLEFIELD",
+            []);
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.MoveUnit, prompt.Actions);
+        Assert.Contains(prompt.Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.MoveUnit, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, sourceObjectId, StringComparison.Ordinal))
+            && (candidate.Destinations ?? []).Any(destination => string.Equals(destination.Id, "BATTLEFIELD", StringComparison.Ordinal)));
+        var rawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.MoveUnit,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            sourceObjectId,
+            origin = "BASE",
+            destination = "BATTLEFIELD",
+            optionalCosts = Array.Empty<string>()
+        });
+        const string clientIntentId = "intent-move-unit-base-to-battlefield-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["UNIT_MOVED_TO_BATTLEFIELD"], accepted.Events.Select(evt => evt.Kind).ToArray());
+        Assert.Equal(1, accepted.State.Tick);
+        Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
+        Assert.Empty(accepted.State.PlayerZones["P1"].Base);
+        Assert.Equal([keeperObjectId, sourceObjectId], accepted.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, accepted.State.CardObjects[sourceObjectId].Power);
+        Assert.Empty(accepted.State.StackItems);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.MoveUnit, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.MoveUnit, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(sourceObjectId, journalEntry.RawCommand.Value.GetProperty("sourceObjectId").GetString());
+        Assert.Equal("BASE", journalEntry.RawCommand.Value.GetProperty("origin").GetString());
+        Assert.Equal("BATTLEFIELD", journalEntry.RawCommand.Value.GetProperty("destination").GetString());
+        Assert.Empty(journalEntry.RawCommand.Value.GetProperty("optionalCosts").EnumerateArray());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(["UNIT_MOVED_TO_BATTLEFIELD"], replay.Events.Select(evt => evt.Kind).ToArray());
+        Assert.Empty(replay.State.PlayerZones["P1"].Base);
+        Assert.Equal([keeperObjectId, sourceObjectId], replay.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, replay.State.CardObjects[sourceObjectId].Power);
+        Assert.Empty(replay.State.StackItems);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.MoveUnit,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            sourceObjectId,
+            origin = "BASE",
+            destination = "BATTLEFIELD",
+            optionalCosts = Array.Empty<string>(),
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Empty(conflict.State.PlayerZones["P1"].Base);
+        Assert.Equal([keeperObjectId, sourceObjectId], conflict.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, conflict.State.CardObjects[sourceObjectId].Power);
+        Assert.Empty(conflict.State.StackItems);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandMovesFriendlyBattlefieldUnitToBaseInCoarseModel()
     {
         var state = PunishmentState(mana: 0) with
