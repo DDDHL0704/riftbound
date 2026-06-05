@@ -4130,6 +4130,191 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task DeclareBattleDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "declare-battle-raw-idempotency";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario(roomId, "P1", "battle-declare", "seed-declare-battle-raw-idempotency");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var seededJournalCount = journal.Entries.Count;
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLE-ATTACKER-001"],
+              "defenderObjectIds": ["P2-BATTLE-DEFENDER-001"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "declare-battle-same", declareBattle);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal(2, acceptedEvents.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
+        var acceptedSnapshot = SnapshotFor(acceptedClients, "P1");
+        Assert.Empty(acceptedSnapshot.Stack);
+        var acceptedP1Zones = ZoneView(PlayerView(acceptedSnapshot, "P1"));
+        var acceptedP1Battlefields = StringList(acceptedP1Zones["battlefields"]).ToArray();
+        Assert.Contains("P1-BATTLE-ATTACKER-001", acceptedP1Battlefields);
+        var acceptedP2Zones = ZoneView(PlayerView(acceptedSnapshot, "P2"));
+        var acceptedP2Battlefields = StringList(acceptedP2Zones["battlefields"]).ToArray();
+        var acceptedP2Graveyard = StringList(acceptedP2Zones["graveyard"]).ToArray();
+        Assert.DoesNotContain("P2-BATTLE-DEFENDER-001", acceptedP2Battlefields);
+        Assert.Contains("P2-BATTLE-DEFENDER-001", acceptedP2Graveyard);
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(seededJournalCount + 1, acceptedJournalCount);
+        var declareBattleEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "declare-battle-same", StringComparison.Ordinal));
+        Assert.Equal(roomId, declareBattleEntry.RoomId);
+        Assert.Equal("P1", declareBattleEntry.PlayerId);
+        Assert.Equal("DECLARE_BATTLE", declareBattleEntry.CommandType);
+        Assert.NotNull(declareBattleEntry.RawCommand);
+        var rawCommand = declareBattleEntry.RawCommand.Value;
+        Assert.Equal("DECLARE_BATTLE", rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("BATTLEFIELD:P1-MAIN", rawCommand.GetProperty("battlefieldId").GetString());
+        Assert.Equal(
+            ["P1-BATTLE-ATTACKER-001"],
+            rawCommand.GetProperty("attackerObjectIds")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.Equal(
+            ["P2-BATTLE-DEFENDER-001"],
+            rawCommand.GetProperty("defenderObjectIds")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.Equal(
+            ["COMBAT_ASSIGNMENT"],
+            rawCommand.GetProperty("optionalCosts")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.False(rawCommand.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "declare-battle-same", declareBattle);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        var replaySnapshot = SnapshotFor(replayClients, "P1");
+        Assert.Equal(acceptedSnapshot.Tick, replaySnapshot.Tick);
+        Assert.Empty(replaySnapshot.Stack);
+        Assert.Equal(
+            acceptedP1Battlefields,
+            StringList(ZoneView(PlayerView(replaySnapshot, "P1"))["battlefields"]).ToArray());
+        Assert.Equal(
+            acceptedP2Battlefields,
+            StringList(ZoneView(PlayerView(replaySnapshot, "P2"))["battlefields"]).ToArray());
+        Assert.Equal(
+            acceptedP2Graveyard,
+            StringList(ZoneView(PlayerView(replaySnapshot, "P2"))["graveyard"]).ToArray());
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedDeclareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLE-ATTACKER-001"],
+              "defenderObjectIds": ["P2-BATTLE-DEFENDER-001"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"],
+              "clientNote": "changed"
+            }
+            """).RootElement.Clone();
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "declare-battle-same", changedDeclareBattle);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+
+        var stateClients = new RecordingHubClients();
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+            .RequestSnapshot(roomId, "P1");
+
+        Assert.Empty(stateClients.CallerClient.Errors);
+        var currentSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
+        Assert.Equal(acceptedSnapshot.Tick, currentSnapshot.Tick);
+        Assert.Empty(currentSnapshot.Stack);
+        Assert.Equal(
+            acceptedP1Battlefields,
+            StringList(ZoneView(PlayerView(currentSnapshot, "P1"))["battlefields"]).ToArray());
+        Assert.Equal(
+            acceptedP2Battlefields,
+            StringList(ZoneView(PlayerView(currentSnapshot, "P2"))["battlefields"]).ToArray());
+        Assert.Equal(
+            acceptedP2Graveyard,
+            StringList(ZoneView(PlayerView(currentSnapshot, "P2"))["graveyard"]).ToArray());
+    }
+
+    [Fact]
     public async Task P79CombatPromptFiltersDeclareBattleCandidatesToLegalBattlefieldUnits()
     {
         const string roomId = "p7-9-combat-prompt-filter";
