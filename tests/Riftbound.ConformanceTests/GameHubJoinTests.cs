@@ -558,6 +558,230 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SurrenderDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "official-hub-surrender-raw-idempotency";
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .Ready(roomId, "P1", "ready-official-p1");
+        var readyClients = new RecordingHubClients();
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+            .Ready(roomId, "P2", "ready-official-p2");
+
+        var startSnapshot = SnapshotFor(readyClients, "P1");
+        Assert.Equal(MatchPhases.Mulligan, Assert.IsType<string>(startSnapshot.Timing["phase"]));
+        var activePlayerId = startSnapshot.ActivePlayerId;
+        var secondPlayerId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "P2" : "P1";
+        var activeConnectionId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal)
+            ? "connection-1"
+            : "connection-2";
+        var secondConnectionId = string.Equals(secondPlayerId, "P1", StringComparison.Ordinal)
+            ? "connection-1"
+            : "connection-2";
+
+        var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
+        var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
+        var activeMulliganClients = new RecordingHubClients();
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, activePlayerId, "mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));
+        Assert.Empty(activeMulliganClients.CallerClient.Errors);
+
+        var secondMulliganClients = new RecordingHubClients();
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry)
+            .SubmitIntent(roomId, secondPlayerId, "mulligan-second", MulliganJson([]));
+        Assert.Empty(secondMulliganClients.CallerClient.Errors);
+        var completeEvents = EventsFor(secondMulliganClients);
+        Assert.Contains(completeEvents, gameEvent => string.Equals(gameEvent.Kind, "MULLIGAN_PHASE_COMPLETED", StringComparison.Ordinal));
+        Assert.Contains(completeEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        var mainPrompt = PromptFor(secondMulliganClients, activePlayerId);
+        Assert.True(mainPrompt.Actionable);
+        Assert.Contains(CommandTypes.Surrender, mainPrompt.Actions);
+        var tapRuneCandidate = Assert.Single(
+            mainPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal));
+        var runeSourceId = (tapRuneCandidate.Sources ?? []).First().Id;
+
+        var tapRuneClients = new RecordingHubClients();
+        await CreateHub(tapRuneClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, activePlayerId, "tap-rune-active", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.TapRune,
+                sourceObjectId = runeSourceId
+            }));
+        Assert.Empty(tapRuneClients.CallerClient.Errors);
+
+        var endTurnClients = new RecordingHubClients();
+        await CreateHub(endTurnClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, activePlayerId, "end-turn-active", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.EndTurn
+            }));
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var endTurnEvents = EventsFor(endTurnClients);
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_END_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_PLAYER_ADVANCED", StringComparison.Ordinal));
+        var nextPlayerId = secondPlayerId;
+        var nextConnectionId = secondConnectionId;
+        var nextSnapshot = SnapshotFor(endTurnClients, nextPlayerId);
+        Assert.Equal(nextPlayerId, nextSnapshot.ActivePlayerId);
+        Assert.Equal(nextPlayerId, Assert.IsType<string>(nextSnapshot.Timing["turnPlayerId"]));
+        Assert.Equal(MatchPhases.Main, Assert.IsType<string>(nextSnapshot.Timing["phase"]));
+        Assert.Equal(TimingStates.NeutralOpen, Assert.IsType<string>(nextSnapshot.Timing["timingState"]));
+        var nextPrompt = PromptFor(endTurnClients, nextPlayerId);
+        Assert.True(nextPrompt.Actionable);
+        Assert.Contains(CommandTypes.Surrender, nextPrompt.Actions);
+
+        var surrender = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.Surrender
+        });
+        var readyJournalCount = journal.Entries.Count;
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), nextConnectionId, registry)
+            .SubmitIntent(roomId, nextPlayerId, "surrender-same", surrender);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        var acceptedSurrenderEvent = Assert.Single(
+            acceptedEvents,
+            gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal(activePlayerId, Assert.IsType<string>(acceptedSurrenderEvent.Payload["winnerPlayerId"]));
+        Assert.Equal(nextPlayerId, Assert.IsType<string>(acceptedSurrenderEvent.Payload["surrenderedPlayerId"]));
+        Assert.Equal(CommandTypes.Surrender, Assert.IsType<string>(acceptedSurrenderEvent.Payload["reason"]));
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
+        var acceptedSnapshot = SnapshotFor(acceptedClients, activePlayerId);
+        Assert.Equal(MatchStatuses.Finished, Assert.IsType<string>(acceptedSnapshot.Timing["roomStatus"]));
+        Assert.Equal(activePlayerId, Assert.IsType<string>(acceptedSnapshot.Timing["winnerPlayerId"]));
+        var acceptedPrompt = PromptFor(acceptedClients, nextPlayerId);
+        Assert.False(acceptedPrompt.Actionable);
+        Assert.DoesNotContain(CommandTypes.Surrender, acceptedPrompt.Actions);
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptActions = acceptedClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
+            .Select(prompt => string.Join("|", prompt.Actions))
+            .ToArray();
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(readyJournalCount + 1, acceptedJournalCount);
+        var surrenderEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "surrender-same", StringComparison.Ordinal));
+        Assert.Equal(roomId, surrenderEntry.RoomId);
+        Assert.Equal(nextPlayerId, surrenderEntry.PlayerId);
+        Assert.Equal(CommandTypes.Surrender, surrenderEntry.CommandType);
+        Assert.NotNull(surrenderEntry.RawCommand);
+        Assert.Equal(CommandTypes.Surrender, surrenderEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.False(surrenderEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), nextConnectionId, registry)
+            .SubmitIntent(roomId, nextPlayerId, "surrender-same", surrender);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        var replaySurrenderEvent = Assert.Single(
+            replayEvents,
+            gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal(acceptedSurrenderEvent.Description, replaySurrenderEvent.Description);
+        Assert.Equal(acceptedSurrenderEvent.Payload["winnerPlayerId"], replaySurrenderEvent.Payload["winnerPlayerId"]);
+        Assert.Equal(acceptedSurrenderEvent.Payload["surrenderedPlayerId"], replaySurrenderEvent.Payload["surrenderedPlayerId"]);
+        Assert.Equal(acceptedSurrenderEvent.Payload["reason"], replaySurrenderEvent.Payload["reason"]);
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        var replaySnapshot = SnapshotFor(replayClients, activePlayerId);
+        Assert.Equal(acceptedSnapshot.Tick, replaySnapshot.Tick);
+        Assert.Equal(MatchStatuses.Finished, Assert.IsType<string>(replaySnapshot.Timing["roomStatus"]));
+        Assert.Equal(activePlayerId, Assert.IsType<string>(replaySnapshot.Timing["winnerPlayerId"]));
+        var replayPromptActions = replayClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
+            .Select(prompt => string.Join("|", prompt.Actions))
+            .ToArray();
+        Assert.Equal(acceptedPromptActions, replayPromptActions);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedSurrender = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.Surrender,
+            clientNote = "changed"
+        });
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), nextConnectionId, registry)
+            .SubmitIntent(roomId, nextPlayerId, "surrender-same", changedSurrender);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+
+        var stateClients = new RecordingHubClients();
+        await CreateHub(stateClients, new RecordingGroupManager(), nextConnectionId, registry)
+            .RequestSnapshot(roomId, nextPlayerId);
+
+        Assert.Empty(stateClients.CallerClient.Errors);
+        var currentSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
+        Assert.Equal(acceptedSnapshot.Tick, currentSnapshot.Tick);
+        Assert.Equal(MatchStatuses.Finished, Assert.IsType<string>(currentSnapshot.Timing["roomStatus"]));
+        Assert.Equal(activePlayerId, Assert.IsType<string>(currentSnapshot.Timing["winnerPlayerId"]));
+        var currentPrompt = Assert.IsType<ActionPromptDto>(Assert.Single(stateClients.CallerClient.Prompts).Payload);
+        Assert.False(currentPrompt.Actionable);
+        Assert.DoesNotContain(CommandTypes.Surrender, currentPrompt.Actions);
+    }
+
+    [Fact]
     public async Task MulliganDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         const string roomId = "official-hub-mulligan-raw-idempotency";

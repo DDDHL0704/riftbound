@@ -2525,6 +2525,131 @@ public sealed class ConformanceFixtureRunnerTests
         AssertPlayCardStackPriorityPromptQueueAudit(replay);
     }
 
+    [Fact]
+    public async Task PlayCardDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        var state = PunishmentState(mana: 2);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var command = new PlayCardCommand(
+            "P1-SPELL-PUNISHMENT",
+            "UNL-007/219",
+            ["P2-UNIT-001"]);
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var rawCommand = PromptScopedRawCommand(CommandTypes.PlayCard, prompt);
+        const string clientIntentId = "intent-punishment-play-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(accepted.State.PlayerZones["P1"].Hand);
+        Assert.Equal(0, accepted.State.RunePools["P1"].Mana);
+        var stackItem = Assert.Single(accepted.State.StackItems);
+        Assert.Equal("P1-SPELL-PUNISHMENT", stackItem.SourceObjectId);
+        Assert.Equal(["P2-UNIT-001"], stackItem.TargetObjectIds);
+        Assert.Equal("STACK", accepted.State.ObjectLocations["P1-SPELL-PUNISHMENT"].Zone);
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, accepted.Prompts["P1"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.PlayCard, accepted.Prompts["P1"].Actions);
+        AssertPlayCardStackPriorityPromptQueueAudit(accepted);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.PlayCard, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.PlayCard, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(replay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(0, replay.State.RunePools["P1"].Mana);
+        var replayStackItem = Assert.Single(replay.State.StackItems);
+        Assert.Equal(stackItem.StackItemId, replayStackItem.StackItemId);
+        Assert.Equal("P1-SPELL-PUNISHMENT", replayStackItem.SourceObjectId);
+        Assert.Equal(["P2-UNIT-001"], replayStackItem.TargetObjectIds);
+        Assert.Equal("STACK", replay.State.ObjectLocations["P1-SPELL-PUNISHMENT"].Zone);
+        Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
+        Assert.Equal("P1", replay.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, replay.Prompts["P1"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.PlayCard, replay.Prompts["P1"].Actions);
+        AssertPlayCardStackPriorityPromptQueueAudit(replay);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PlayCard,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Empty(conflict.State.PlayerZones["P1"].Hand);
+        Assert.Equal(0, conflict.State.RunePools["P1"].Mana);
+        var conflictStackItem = Assert.Single(conflict.State.StackItems);
+        Assert.Equal(stackItem.StackItemId, conflictStackItem.StackItemId);
+        Assert.Equal("P1-SPELL-PUNISHMENT", conflictStackItem.SourceObjectId);
+        Assert.Equal(["P2-UNIT-001"], conflictStackItem.TargetObjectIds);
+        Assert.Equal("STACK", conflict.State.ObjectLocations["P1-SPELL-PUNISHMENT"].Zone);
+        Assert.Equal(TimingStates.NeutralClosed, conflict.State.TimingState);
+        Assert.Equal("P1", conflict.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, conflict.Prompts["P1"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.PlayCard, conflict.Prompts["P1"].Actions);
+        AssertPlayCardStackPriorityPromptQueueAudit(conflict);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
     private static void AssertPlayCardStackPriorityPromptQueueAudit(ResolutionResult result)
     {
         Assert.Equal("P1", result.State.ActivePlayerId);

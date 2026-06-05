@@ -545,6 +545,125 @@ public sealed class LayerEngineTimestampDependencyTests
         Assert.Equal(authoritativeDependencySignatures, p2DependencySignatures);
     }
 
+    [Fact]
+    public void LayerEngineBattlefieldStaticAuraSourceOrderExcludesOtherBattlefieldParticipantsAcrossPlayerViews()
+    {
+        var state = BuildBattlefieldSourceOrderState();
+        state = state with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = state.PlayerZones["P1"] with
+                {
+                    Battlefields =
+                    [
+                        FieldFirstBattlefieldSourceObjectId,
+                        BattlefieldSharedUnitObjectId,
+                        FieldLaterBattlefieldSourceObjectId,
+                        OtherBattlefieldObjectId,
+                        OtherBattlefieldUnitObjectId
+                    ]
+                },
+                ["P2"] = state.PlayerZones["P2"] with
+                {
+                    Battlefields = [BattlefieldDefenderObjectId]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+            {
+                [OtherBattlefieldObjectId] = new(
+                    OtherBattlefieldObjectId,
+                    cardNo: "UNL·T01",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [OtherBattlefieldUnitObjectId] = Unit(OtherBattlefieldUnitObjectId, "P1", power: 4),
+                [BattlefieldDefenderObjectId] = Unit(BattlefieldDefenderObjectId, "P2", power: 3)
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+            {
+                [FieldFirstBattlefieldSourceObjectId] = new("P1", "BATTLEFIELD", FieldFirstBattlefieldSourceObjectId),
+                [BattlefieldSharedUnitObjectId] = new("P1", "BATTLEFIELD", FieldFirstBattlefieldSourceObjectId),
+                [FieldLaterBattlefieldSourceObjectId] = new("P1", "BATTLEFIELD", FieldLaterBattlefieldSourceObjectId),
+                [BattlefieldDefenderObjectId] = new("P2", "BATTLEFIELD", FieldLaterBattlefieldSourceObjectId),
+                [OtherBattlefieldObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId),
+                [OtherBattlefieldUnitObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId)
+            }
+        };
+
+        var expectedParticipantObjectIdsBySource = new Dictionary<string, string[]>(StringComparer.Ordinal)
+        {
+            [FieldFirstBattlefieldSourceObjectId] = [BattlefieldSharedUnitObjectId],
+            [FieldLaterBattlefieldSourceObjectId] = [BattlefieldDefenderObjectId]
+        };
+        var authoritativeEffects = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.EffectKind, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                && effect.SourceObjectId is not null
+                && expectedParticipantObjectIdsBySource.ContainsKey(effect.SourceObjectId))
+            .OrderBy(effect => effect.Sequence)
+            .ToArray();
+
+        Assert.Equal(2, authoritativeEffects.Length);
+        Assert.Equal([1, 2], authoritativeEffects.Select(effect => effect.Sequence).ToArray());
+        Assert.Equal([1, 3], authoritativeEffects.Select(effect => effect.SourceOrder.GetValueOrDefault()).ToArray());
+        Assert.Equal(
+            [FieldFirstBattlefieldSourceObjectId, FieldLaterBattlefieldSourceObjectId],
+            authoritativeEffects.Select(effect => Assert.IsType<string>(effect.SourceObjectId)).ToArray());
+        Assert.Equal(
+            [BattlefieldSharedUnitObjectId, BattlefieldDefenderObjectId],
+            authoritativeEffects.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.EffectKind, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, OtherBattlefieldUnitObjectId, StringComparison.Ordinal));
+
+        foreach (var aura in authoritativeEffects)
+        {
+            var sourceObjectId = Assert.IsType<string>(aura.SourceObjectId);
+            var expectedParticipantObjectIds = expectedParticipantObjectIdsBySource[sourceObjectId];
+            Assert.Equal([sourceObjectId], aura.SourceDependencyObjectIds);
+            Assert.Equal(expectedParticipantObjectIds, aura.TargetDependencyObjectIds);
+            Assert.Equal(expectedParticipantObjectIds, aura.ParticipantObjectIds);
+            Assert.Equal(expectedParticipantObjectIds, aura.ParticipantDependencyObjectIds);
+            Assert.DoesNotContain(OtherBattlefieldObjectId, aura.TargetDependencyObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldObjectId, aura.ParticipantObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldObjectId, aura.ParticipantDependencyObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldUnitObjectId, aura.TargetDependencyObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldUnitObjectId, aura.ParticipantObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldUnitObjectId, aura.ParticipantDependencyObjectIds ?? []);
+        }
+
+        var authoritativeDependencySignatures = authoritativeEffects
+            .Select(StaticAuraAuthoritativeDependencySignature)
+            .ToArray();
+        Assert.DoesNotContain(
+            authoritativeDependencySignatures,
+            signature => signature.Contains(OtherBattlefieldObjectId, StringComparison.Ordinal)
+                || signature.Contains(OtherBattlefieldUnitObjectId, StringComparison.Ordinal));
+
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        Assert.Equal(authoritativeDependencySignatures, SnapshotDependencySignatures(snapshots["P1"], authoritativeEffects));
+        Assert.Equal(authoritativeDependencySignatures, SnapshotDependencySignatures(snapshots["P2"], authoritativeEffects));
+
+        static string[] SnapshotDependencySignatures(
+            SnapshotDto snapshot,
+            ContinuousEffectState[] authoritativeEffects)
+        {
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, OtherBattlefieldObjectId);
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, OtherBattlefieldUnitObjectId);
+
+            var dependencySignatures = authoritativeEffects
+                .Select(effect => StaticAuraSnapshotDependencySignature(AssertStaticAuraSnapshotView(snapshot, effect)))
+                .ToArray();
+            Assert.DoesNotContain(
+                dependencySignatures,
+                signature => signature.Contains(OtherBattlefieldObjectId, StringComparison.Ordinal)
+                    || signature.Contains(OtherBattlefieldUnitObjectId, StringComparison.Ordinal));
+
+            return dependencySignatures;
+        }
+    }
+
     private static MatchState BuildMixedLayerState()
     {
         var cardObjects = BuildOrnnCardObjects(includeSecondPublicEquipment: false);
