@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18NG/18NH/18NI protocol/recovery/Ornn test bundle integrates three parallel worker-produced server test slices proving GameHub production `SeedScenario` rejection redacts room/player/scenario/seed/raw/client-intent sentinel inputs and does not broadcast, proving spectator replay timing Jhin movement-resource move-to-base payloads reject object-location drift when the source remains on battlefield, and proving Ornn accepted source-leaves commands remove stale static-aura metadata across P1/P2 snapshots. Runtime changed: no, test coverage only; tests changed in `GameHubJoinTests`, `MatchRecoveryTests` and `OrnnFriendlyEquipmentStaticPowerTests`. Validation passed: focused new tests `3/3`, touched class filter `1463/1463`, broader adjacent server filter `5385/5385`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7311/7311`, `git diff --cached --check`, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed before docs sync. Worker source commits were `c62ac5d2`, `ab25640e` and `5a53e7b8`; A_MAIN corrected the 18NH assertion during review and owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18NJ/18NK/18NL Postgres/layer/recovery test bundle integrates three parallel worker-produced server test slices plus one reviewed LayerEngine main-worktree drift proving Postgres exact duplicate accepted journal writes load as one consistent recovered command and replay cleanly when a DB connection is configured, proving battlefield static-aura source-order/dependency metadata remains authoritative and snapshot-stable under reordered source/public participant positions, and proving spectator replay timing temporary-payment-resource `allowedPaymentKinds` element-shape drift is rejected under keyed count-mismatch validation. Runtime changed: no, test coverage only; tests changed in `PostgresMatchRecoveryStoreSmokeTests`, `LayerEngineTimestampDependencyTests` and `MatchRecoveryTests`. Validation passed: focused new tests `4/4`, touched class filter `1319/1319`, broader adjacent server filter `5389/5389`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7315/7315`, pre-doc `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed. Worker source commits were `b1fe0776`, `212bc4e1` and `31eb9904`; A_MAIN manually merged 18NK around an existing same-file LayerEngine test drift and owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18NG/18NH/18NI; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 05:28 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18NJ/18NK/18NL; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 05:45 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-06 05:45 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, pending commit after validation at time of entry
+
+Write locks: closed for `tests/Riftbound.ConformanceTests/PostgresMatchRecoveryStoreSmokeTests.cs`, `tests/Riftbound.ConformanceTests/LayerEngineTimestampDependencyTests.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18NJ_18NL_POSTGRES_LAYER_RECOVERY_AUDIT.md`. Runtime validation code, matrix JSON, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18NJ/18NK/18NL integrated parallel worker output: `b1fe0776` (Postgres exact duplicate accepted journal recovery replay), `212bc4e1` (LayerEngine participant-move source-order metadata; manually merged because main already had a same-file LayerEngine test drift) and `31eb9904` (temporary-payment-resource allowed-payment-kind element shape). A_MAIN also preserved `LayerEngineBattlefieldStaticAuraSourceOrderDependencyMetadataTracksReorderedPublicFieldOrderAcrossPlayerViews` after review.
+
+Validation: focused new tests `4/4`; touched class filter `1319/1319`; broader adjacent server filter `5389/5389`; backend full `7315/7315` under no-DB environment; pre-doc `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and can dispatch another non-overlapping parallel server group. Project remains **NOT READY**.
 
 ### 2026-06-06 05:28 A_MAIN
 

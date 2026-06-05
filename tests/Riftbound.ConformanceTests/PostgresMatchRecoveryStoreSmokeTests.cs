@@ -188,6 +188,101 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
     }
 
     [Fact]
+    public async Task PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry()
+    {
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return;
+        }
+
+        await using var dataSource = NpgsqlDataSource.Create(connectionString);
+        await ApplySchemaAsync(dataSource);
+
+        var roomId = $"recovery-duplicate-journal-smoke-{Guid.NewGuid():N}";
+        try
+        {
+            var playerStore = new PostgresMatchPlayerStore(dataSource);
+            await playerStore.SavePlayerSessionAsync(
+                roomId,
+                "alice",
+                "P1",
+                ReconnectTokenHasher.Hash("rt_alice"),
+                CancellationToken.None);
+            await playerStore.SavePlayerSessionAsync(
+                roomId,
+                "bob",
+                "P2",
+                ReconnectTokenHasher.Hash("rt_bob"),
+                CancellationToken.None);
+
+            var postgresJournal = new PostgresMatchJournal(dataSource);
+            var journal = new CapturingMatchJournal(postgresJournal);
+            var ruleEngine = new PlaceholderRuleEngine();
+            var initialState = MatchReplayInitialStateBuilder.FromSeats(
+                roomId,
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["alice"] = "P1",
+                    ["bob"] = "P2"
+                });
+            var liveSession = new MatchSession(initialState, ruleEngine, journal);
+            var rawPass = RawCommand(CommandTypes.Pass, "clientNote", "duplicate accepted replay payload");
+
+            await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
+            await liveSession.ReadyAsync("bob", "intent-ready-b", RawCommand("READY"), CancellationToken.None);
+            var pass = await liveSession.SubmitAsync(
+                "alice",
+                "intent-pass-duplicate-accepted",
+                new PassCommand(),
+                rawPass,
+                CancellationToken.None);
+            Assert.True(pass.Accepted, pass.ErrorMessage);
+
+            var passEntry = Assert.Single(
+                journal.Entries,
+                entry => entry.ClientIntentId == "intent-pass-duplicate-accepted");
+            await postgresJournal.RecordAsync(passEntry, CancellationToken.None);
+            await AssertCommandLogRawCommandAsync(
+                dataSource,
+                roomId,
+                "intent-pass-duplicate-accepted",
+                "duplicate accepted replay payload");
+
+            var recoveryStore = new PostgresMatchRecoveryStore(dataSource);
+            var recovery = await recoveryStore.LoadAsync(roomId, CancellationToken.None);
+
+            Assert.NotNull(recovery);
+            Assert.True(recovery.IsConsistent, string.Join("; ", recovery.ValidationErrors));
+            Assert.Equal(3, recovery.Commands.Count);
+            Assert.Equal(passEntry.CompletedEventSequence, recovery.LastEventSequence);
+
+            var recoveredPass = Assert.Single(
+                recovery.Commands,
+                command => command.ClientIntentId == "intent-pass-duplicate-accepted");
+            Assert.True(recoveredPass.Accepted);
+            Assert.Equal(CommandTypes.Pass, recoveredPass.CommandType);
+            Assert.Equal(passEntry.StartedEventSequence, recoveredPass.StartedEventSequence);
+            Assert.Equal(passEntry.CompletedEventSequence, recoveredPass.CompletedEventSequence);
+            AssertRawCommand(
+                recoveredPass.RawCommand,
+                CommandTypes.Pass,
+                "clientNote",
+                "duplicate accepted replay payload");
+
+            var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(
+                recovery,
+                ruleEngine,
+                CancellationToken.None);
+            Assert.Empty(replayErrors);
+        }
+        finally
+        {
+            await DeleteRoomAsync(dataSource, roomId);
+        }
+    }
+
+    [Fact]
     public async Task PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift()
     {
         var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
@@ -497,5 +592,16 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
         Assert.Equal(JsonValueKind.Object, raw.ValueKind);
         Assert.Equal(cmdType, raw.GetProperty("cmdType").GetString());
         Assert.Equal(propertyValue, raw.GetProperty(propertyName).GetString());
+    }
+
+    private sealed class CapturingMatchJournal(IMatchJournal inner) : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public async ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            await inner.RecordAsync(entry, cancellationToken);
+        }
     }
 }
