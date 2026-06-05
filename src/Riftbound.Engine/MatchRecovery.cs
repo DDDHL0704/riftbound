@@ -28529,7 +28529,7 @@ public static class MatchRecoveryValidator
         if (!TryReadObjectValue(battlePayload, "damageAssignment", out var damageAssignmentPayload)
             || IsNullSnapshotPayloadValue(damageAssignmentPayload))
         {
-            errors.Add($"{payloadLabel} is required");
+            errors.Add($"{payloadLabel} payload is required");
             return;
         }
 
