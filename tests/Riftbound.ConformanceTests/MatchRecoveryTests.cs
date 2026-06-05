@@ -58302,6 +58302,129 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectKeyedStaticAuraConditionWhitespaceValueWithCountMismatch()
+    {
+        const string EffectId = "STATIC_AURA:BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE:battlefield-1:participant-1";
+
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["battlefield-1", "participant-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new(
+                    "battlefield-1",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    cardNo: "OGN·294/298",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["participant-1"] = new(
+                    "participant-1",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "alice",
+                    controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["participant-1"] = new("alice", "BATTLEFIELD", "battlefield-1")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToList();
+        Assert.Single(continuousEffects);
+        var effect = Assert.IsType<Dictionary<string, object?>>(continuousEffects[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        Assert.Equal(EffectId, Assert.IsType<string>(effect["effectId"]));
+        Assert.Equal(
+            "SOURCE_BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+            Assert.IsType<string>(effect["condition"]));
+        var extraEffect = effect.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        effect["condition"] = "   ";
+        extraEffect["effectId"] = "effect-extra";
+        extraEffect["sequence"] = 2;
+        continuousEffects[0] = effect;
+        continuousEffects.Add(extraEffect);
+        timing["continuousEffects"] = continuousEffects.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item condition is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item static aura condition is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item condition does not match authoritative state continuous effect condition for effect id {EffectId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item effect id effect-extra is not present in authoritative state continuous effects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectKeyedStaticAuraEffectKindMissingFieldWithCountMismatch()
     {
         const string EffectId = "STATIC_AURA:BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE:battlefield-1:participant-1";
