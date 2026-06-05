@@ -381,6 +381,94 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     }
 
     [Fact]
+    public async Task OrnnDynamicEquipmentResolveRefreshesStaticAuraMetadataAcrossPlayerViews()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnFieldState(
+            ornnPower: 4,
+            p1Hand: [FriendlyPlayedEquipmentObjectId],
+            p1Base: [OrnnObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 4),
+                [FriendlyPlayedEquipmentObjectId] = Equipment(
+                    FriendlyPlayedEquipmentObjectId,
+                    "P1",
+                    "P1",
+                    cardNo: "SFD·046/221")
+            });
+        var expectedResiduals = new[]
+        {
+            "timestamp ordering",
+            "dependency ordering",
+            "source ordering",
+            "keyword gain/loss layering",
+            "multiple equipment/static aura interactions",
+            "minimum-power layering",
+            "full official LayerEngine coverage"
+        };
+
+        var played = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-dynamic-metadata-play-equipment", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(FriendlyPlayedEquipmentObjectId, "SFD·046/221", []),
+            CancellationToken.None);
+        var resolved = await ResolveTopStackAsync(engine, played.State);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.True(resolved.Accepted, resolved.ErrorMessage);
+        Assert.Contains(FriendlyPlayedEquipmentObjectId, resolved.State.PlayerZones["P1"].Base);
+        Assert.Equal(5, resolved.State.CardObjects[OrnnObjectId].Power);
+        AssertSnapshotPower(resolved.Snapshots["P1"], OrnnObjectId, basePower: 5, effectivePower: 5);
+        AssertSnapshotPower(resolved.Snapshots["P2"], OrnnObjectId, basePower: 5, effectivePower: 5);
+
+        var staticAura = Assert.Single(
+            resolved.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal($"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{OrnnObjectId}", staticAura.EffectId);
+        Assert.Equal("OBJECT", staticAura.Scope);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", staticAura.Duration);
+        Assert.Equal(OrnnObjectId, staticAura.TargetObjectId);
+        Assert.Equal(OrnnObjectId, staticAura.SourceObjectId);
+        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal(4, staticAura.BasePower);
+        Assert.Equal(5, staticAura.EffectivePower);
+        Assert.Equal("FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER", staticAura.EffectKind);
+        Assert.Equal(OrnnCardNo, staticAura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute", staticAura.SourcePath);
+        Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT", staticAura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE", staticAura.Lifecycle);
+        Assert.True(staticAura.IsLayerEngineFoundationOnly);
+        Assert.Equal(expectedResiduals, staticAura.DeferredLayerEngineResiduals);
+        Assert.Equal([FriendlyPlayedEquipmentObjectId], staticAura.ParticipantObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.TargetDependencyObjectIds);
+        Assert.Equal([FriendlyPlayedEquipmentObjectId], staticAura.ParticipantDependencyObjectIds);
+        Assert.True(staticAura.Sequence > 0);
+        Assert.True(staticAura.SourceOrder.GetValueOrDefault() > 0);
+        Assert.Null(staticAura.RequestedPowerDelta);
+        Assert.Null(staticAura.AppliedPowerDelta);
+        Assert.Null(staticAura.MinimumPower);
+        Assert.Null(staticAura.ResultingPower);
+        Assert.Null(staticAura.AppliedOrder);
+
+        var p1View = AssertSnapshotStaticAuraMetadata(resolved.Snapshots["P1"], staticAura, expectedResiduals);
+        var p2View = AssertSnapshotStaticAuraMetadata(resolved.Snapshots["P2"], staticAura, expectedResiduals);
+        Assert.Equal(StaticAuraMetadataSignature(p1View), StaticAuraMetadataSignature(p2View));
+        Assert.Equal([FriendlyPlayedEquipmentObjectId], StringList(p1View, "participantObjectIds"));
+        Assert.Equal([FriendlyPlayedEquipmentObjectId], StringList(p2View, "participantObjectIds"));
+        Assert.Equal([OrnnObjectId], StringList(p1View, "sourceDependencyObjectIds"));
+        Assert.Equal([OrnnObjectId], StringList(p2View, "sourceDependencyObjectIds"));
+        Assert.Equal([OrnnObjectId], StringList(p1View, "targetDependencyObjectIds"));
+        Assert.Equal([OrnnObjectId], StringList(p2View, "targetDependencyObjectIds"));
+        Assert.Equal([FriendlyPlayedEquipmentObjectId], StringList(p1View, "participantDependencyObjectIds"));
+        Assert.Equal([FriendlyPlayedEquipmentObjectId], StringList(p2View, "participantDependencyObjectIds"));
+        Assert.Equal(expectedResiduals, StringList(p1View, "deferredLayerEngineResiduals"));
+        Assert.Equal(expectedResiduals, StringList(p2View, "deferredLayerEngineResiduals"));
+    }
+
+    [Fact]
     public async Task OrnnRecomputesDownFromStableBaseAndDoesNotDriftAcrossRepeatedAcceptedCommands()
     {
         var engine = new CoreRuleEngine();

@@ -563,6 +563,33 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperTrimsAndDropsUnreadableEntriesForNonStrictTextArrays()
+    {
+        var playCard = Assert.IsType<PlayCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-PUNISHMENT",
+              "cardNo": "UNL-007/219",
+              "targetObjectIds": ["  P2-UNIT-001  ", " ", 7, null, false, "P2-UNIT-002"],
+              "optionalCosts": ["  ECHO  ", "", { "cost": "ignored" }, " RECYCLE_RUNE:P1-RUNE-BLUE "]
+            }
+            """).RootElement));
+        var declareBattle = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLEFIELD-GAREN"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+              "battlefieldTargetObjectIds": ["  P2-BATTLEFIELD-LEFT  ", [], "   ", true, "P2-BATTLEFIELD-RIGHT"]
+            }
+            """).RootElement));
+
+        Assert.Equal(new[] { "P2-UNIT-001", "P2-UNIT-002" }, playCard.TargetObjectIds);
+        Assert.Equal(new[] { "ECHO", "RECYCLE_RUNE:P1-RUNE-BLUE" }, playCard.OptionalCosts);
+        Assert.Equal(new[] { "P2-BATTLEFIELD-LEFT", "P2-BATTLEFIELD-RIGHT" }, declareBattle.BattlefieldTargetObjectIds);
+    }
+
+    [Fact]
     public void GameCommandMapperParsesActivateAbilityPayload()
     {
         var command = Assert.IsType<ActivateAbilityCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
