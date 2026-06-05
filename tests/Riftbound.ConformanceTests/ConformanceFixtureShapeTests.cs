@@ -727,6 +727,34 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperParsesChooseHandCardsPayloadAndPreservesMalformedListForStableValidation()
+    {
+        var command = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-UNDERCOVER-1",
+              "choiceWindow": "HAND_CHOICE:UNDERCOVER_AGENT",
+              "chosenObjectIds": ["P1-HAND-UNDERCOVER", "P1-HAND-SECOND"]
+            }
+            """).RootElement));
+        var malformed = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-UNDERCOVER-1",
+              "choiceWindow": "HAND_CHOICE:UNDERCOVER_AGENT",
+              "chosenObjectIds": "P1-HAND-UNDERCOVER"
+            }
+            """).RootElement));
+
+        Assert.Equal("CHOICE-UNDERCOVER-1", command.ChoiceId);
+        Assert.Equal("HAND_CHOICE:UNDERCOVER_AGENT", command.ChoiceWindow);
+        Assert.Equal(["P1-HAND-UNDERCOVER", "P1-HAND-SECOND"], command.ChosenObjectIds);
+        Assert.Equal("CHOICE-UNDERCOVER-1", malformed.ChoiceId);
+        Assert.Equal("HAND_CHOICE:UNDERCOVER_AGENT", malformed.ChoiceWindow);
+        Assert.Null(malformed.ChosenObjectIds);
+    }
+
+    [Fact]
     public void GameCommandMapperPreservesMalformedP0PayloadsForStableValidation()
     {
         var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""

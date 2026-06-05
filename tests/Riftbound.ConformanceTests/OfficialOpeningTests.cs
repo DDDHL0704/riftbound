@@ -7752,6 +7752,109 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialMulliganDuplicateClientIntentReplaysExactRawButRejectsChangedRawPayload()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession("official-mulligan-raw-intent-room", new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        await session.SubmitDeckAsync(
+            "P1",
+            "submit-p1-before-raw-mulligan",
+            ToSubmitCommand(p1Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+        await session.SubmitDeckAsync(
+            "P2",
+            "submit-p2-before-raw-mulligan",
+            ToSubmitCommand(p2Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+        await session.ReadyAsync("P1", "ready-p1-before-raw-mulligan", RawCommand("READY"), CancellationToken.None);
+        var ready = await session.ReadyAsync("P2", "ready-p2-before-raw-mulligan", RawCommand("READY"), CancellationToken.None);
+
+        var activePlayerId = ready.State.ActivePlayerId;
+        var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
+        var selectedObjectIds = ready.State.PlayerZones[activePlayerId].Hand
+            .Take(1)
+            .ToArray();
+        var command = new MulliganCommand(selectedObjectIds);
+        var rawCommand = RawCommand("MULLIGAN");
+        var journalEntryCountBeforeMulligan = journal.Entries.Count;
+
+        var accepted = await session.SubmitAsync(
+            activePlayerId,
+            "mulligan-active-raw-intent",
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(1, accepted.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "MULLIGAN_COMPLETED", StringComparison.Ordinal)));
+        AssertOfficialMulliganSecondPlayerPromptQueueAudit(
+            accepted,
+            activePlayerId,
+            secondPlayerId,
+            selectedObjectIds);
+        Assert.Equal(journalEntryCountBeforeMulligan + 1, journal.Entries.Count);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEvents = JsonSerializer.Serialize(accepted.Events);
+        var acceptedPrompts = JsonSerializer.Serialize(accepted.Prompts);
+        var acceptedSnapshots = JsonSerializer.Serialize(accepted.Snapshots);
+
+        var replay = await session.SubmitAsync(
+            activePlayerId,
+            "mulligan-active-raw-intent",
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, replay.State.RngCursor);
+        Assert.Equal(acceptedEvents, JsonSerializer.Serialize(replay.Events));
+        Assert.Equal(acceptedPrompts, JsonSerializer.Serialize(replay.Prompts));
+        Assert.Equal(acceptedSnapshots, JsonSerializer.Serialize(replay.Snapshots));
+        AssertOfficialMulliganSecondPlayerPromptQueueAudit(
+            replay,
+            activePlayerId,
+            secondPlayerId,
+            selectedObjectIds);
+        Assert.Equal(journalEntryCountBeforeMulligan + 1, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(session, "P2");
+        var conflict = await session.SubmitAsync(
+            activePlayerId,
+            "mulligan-active-raw-intent",
+            command,
+            RawCommandWithClientNote("MULLIGAN", "changed-payload"),
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.ErrorMessage);
+        Assert.DoesNotContain("mulligan-active-raw-intent", conflict.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
+        AssertOfficialMulliganSecondPlayerPromptQueueAudit(
+            conflict,
+            activePlayerId,
+            secondPlayerId,
+            selectedObjectIds);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(session, "P2"));
+        Assert.Equal(journalEntryCountBeforeMulligan + 1, journal.Entries.Count);
+    }
+
+    [Fact]
     public async Task OfficialMulliganStalePromptReplayAfterSecondPlayerWindowStartsRejectsWithoutMutation()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
