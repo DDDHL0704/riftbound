@@ -10129,6 +10129,76 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialFirstTurnPassDuplicateClientIntentReplaysExactRawButRejectsChangedRawPayload()
+    {
+        var journal = new RecordingMatchJournal();
+        var context = await BuildFinalMulliganFirstTurnAuditContext(
+            "official-first-turn-pass-raw-intent-room",
+            journal);
+
+        var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
+        Assert.True(firstTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
+        Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.Actions);
+        var rawCommand = PromptScopedBasicRawCommand(CommandTypes.Pass, firstTurnPrompt);
+        var journalEntryCountBeforePass = journal.Entries.Count;
+
+        var accepted = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-pass-raw-intent",
+            new PassCommand(),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        AssertOfficialFirstTurnGenericPassPromptQueueAudit(context, accepted);
+        Assert.Equal(journalEntryCountBeforePass + 1, journal.Entries.Count);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+
+        var replay = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-pass-raw-intent",
+            new PassCommand(),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, replay.State.RngCursor);
+        Assert.Equal(accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray(), replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        AssertOfficialFirstTurnGenericPassPromptQueueAudit(context, replay);
+        Assert.Equal(journalEntryCountBeforePass + 1, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(context.Session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(context.Session, "P2");
+        var conflict = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-pass-raw-intent",
+            new PassCommand(),
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.Pass,
+                promptId = firstTurnPrompt.PromptId,
+                snapshotTick = firstTurnPrompt.SnapshotTick,
+                clientNote = "changed-payload"
+            }),
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.ErrorMessage);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
+        AssertOfficialFirstTurnGenericPassPromptQueueAudit(context, conflict, assertEvents: false);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(context.Session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(context.Session, "P2"));
+        Assert.Equal(journalEntryCountBeforePass + 1, journal.Entries.Count);
+    }
+
+    [Fact]
     public Task ActivePlayerFirstTurnPassPriorityWithOppositeWaitPromptRejectsWithoutMutation()
     {
         return AssertActivePlayerFirstTurnPassPriorityWithOppositeWaitPromptRejectsWithoutMutation(
