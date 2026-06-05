@@ -394,6 +394,41 @@ public sealed class LayerEngineTimestampDependencyTests
         }
     }
 
+    [Fact]
+    public void LayerEngineBattlefieldStaticAuraSourceOrderDependencyMetadataMatchesAuthoritativeStateAcrossPlayerViews()
+    {
+        var state = BuildBattlefieldSourceOrderState();
+        var authoritativeEffects = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.EffectKind, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, BattlefieldSharedUnitObjectId, StringComparison.Ordinal))
+            .OrderBy(effect => effect.Sequence)
+            .ToArray();
+
+        Assert.Equal(2, authoritativeEffects.Length);
+
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var p1Signatures = new List<string>();
+        var p2Signatures = new List<string>();
+
+        foreach (var aura in authoritativeEffects)
+        {
+            var sourceObjectId = Assert.IsType<string>(aura.SourceObjectId);
+            Assert.Equal([sourceObjectId], aura.SourceDependencyObjectIds);
+            Assert.Equal([BattlefieldSharedUnitObjectId], aura.TargetDependencyObjectIds);
+            Assert.Equal([BattlefieldSharedUnitObjectId], aura.ParticipantObjectIds);
+            Assert.Equal([BattlefieldSharedUnitObjectId], aura.ParticipantDependencyObjectIds);
+            Assert.True(aura.IsLayerEngineFoundationOnly);
+            Assert.True(aura.SourceOrder.HasValue);
+
+            var p1View = AssertStaticAuraSnapshotView(snapshots["P1"], aura);
+            var p2View = AssertStaticAuraSnapshotView(snapshots["P2"], aura);
+            p1Signatures.Add(StaticAuraSnapshotSignature(p1View));
+            p2Signatures.Add(StaticAuraSnapshotSignature(p2View));
+        }
+
+        Assert.Equal(p1Signatures, p2Signatures);
+    }
+
     private static MatchState BuildMixedLayerState()
     {
         var cardObjects = BuildOrnnCardObjects(includeSecondPublicEquipment: false);

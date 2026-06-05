@@ -275,6 +275,75 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ReadyWrapperDuplicateClientIntentRawPayloadReplaysButSubmitIntentChangedRawConflictsWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+
+        var acceptedClients = new RecordingHubClients();
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .Ready("room-a", "alice", "ready-same");
+
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.READY, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "PLAYER_READY", StringComparison.Ordinal));
+        Assert.DoesNotContain(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
+        var acceptedJournalCount = journal.Entries.Count;
+        var readyEntry = Assert.Single(journal.Entries);
+        Assert.Equal("alice", readyEntry.PlayerId);
+        Assert.Equal("ready-same", readyEntry.ClientIntentId);
+        Assert.Equal("READY", readyEntry.CommandType);
+        Assert.NotNull(readyEntry.RawCommand);
+        Assert.Equal("READY", readyEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.False(readyEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .Ready("room-a", "alice", "ready-same");
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.READY, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(2, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedReady = JsonDocument.Parse("""{"cmdType":"READY","clientNote":"changed"}""").RootElement.Clone();
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "ready-same", changedReady);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } rawCommand
+            && rawCommand.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub()
     {
         const string roomId = "official-hub-opening-room";
