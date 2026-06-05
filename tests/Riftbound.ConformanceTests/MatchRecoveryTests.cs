@@ -33160,6 +33160,80 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueJhinMovementResourceOriginBattlefieldStateContextDrift()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            4,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            turnPlayerId: "bob",
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["source-1", "battlefield-2"],
+                    Battlefields = ["battlefield-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new(
+                    "source-1",
+                    cardNo: P4ActivatedAbilityCatalog.JhinCardNo,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                ["battlefield-1"] = new(
+                    "battlefield-1",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                ["battlefield-2"] = new(
+                    "battlefield-2",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE"),
+                ["battlefield-1"] = new("alice", "BATTLEFIELD"),
+                ["battlefield-2"] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "JHIN_MOVE_RESOURCE::4::source-1::BATTLEFIELD:battlefield-2::BASE",
+                    "alice",
+                    sourceObjectId: "source-1",
+                    effectKind: P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                    triggeredByEventKind: "UNIT_MOVED_TO_BASE")
+            ]);
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 4);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BATTLEFIELD:battlefield-2::BASE jhin movement resource origin battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueJhinMovementResourceDestinationLocationContextDrift()
     {
         const string triggerId = "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD:battlefield-1";

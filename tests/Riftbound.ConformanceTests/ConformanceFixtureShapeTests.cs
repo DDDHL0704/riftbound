@@ -590,6 +590,78 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperTrimsNonStrictArraysForAbilityLegendMovementAndEquipmentCommands()
+    {
+        var activateAbility = Assert.IsType<ActivateAbilityCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ACTIVATE_ABILITY",
+              "sourceObjectId": "P1-UNIT-VI",
+              "abilityId": "PAY_2_RED_DOUBLE_POWER",
+              "targetObjectIds": ["  P2-UNIT-001  ", " ", null, 7, false, { "ignored": true }, ["nested"], "P2-UNIT-002"],
+              "optionalCosts": ["  SPEND_EXPERIENCE:1  ", "", null, 8, true, { "cost": "ignored" }, [], " BONUS_POWER "]
+            }
+            """).RootElement));
+        var legendAct = Assert.IsType<LegendActCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "LEGEND_ACT",
+              "sourceObjectId": "P1-LEGEND-YASUO",
+              "abilityId": "PAY_2_MOVE_FRIENDLY_UNIT",
+              "targetObjectIds": ["  P1-UNIT-LEFT  ", "   ", null, 9, false, { "target": "ignored" }, [], "P1-UNIT-RIGHT"],
+              "optionalCosts": ["  SPEND_MANA:2  ", "", null, 10, true, { "cost": "ignored" }, ["nested"], " READY_LEGEND "]
+            }
+            """).RootElement));
+        var revealCard = Assert.IsType<RevealCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "REVEAL_CARD",
+              "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO",
+              "cardNo": "OGN·121/298",
+              "targetObjectIds": ["  P2-BATTLEFIELD-UNIT-001  ", "", null, 11, false, { "target": "ignored" }, [], "P2-BATTLEFIELD-UNIT-002"],
+              "mode": "STANDBY_REACTION",
+              "optionalCosts": ["  STANDBY_REVEAL_0  ", " ", null, 12, true, { "cost": "ignored" }, ["nested"], " EXTRA_REVEAL "],
+              "destination": "STACK"
+            }
+            """).RootElement));
+        var moveUnit = Assert.IsType<MoveUnitCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": "P1-BATTLEFIELD-SFD-YASUO",
+              "origin": "BATTLEFIELD:P1-LEFT",
+              "destination": "BATTLEFIELD:P1-RIGHT",
+              "optionalCosts": ["  ROAM  ", "", null, 13, false, { "cost": "ignored" }, [], " SHIFT "]
+            }
+            """).RootElement));
+        var assembleEquipment = Assert.IsType<AssembleEquipmentCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ASSEMBLE_EQUIPMENT",
+              "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
+              "targetObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+              "optionalCosts": ["  ASSEMBLE_RED  ", "   ", null, 14, true, { "cost": "ignored" }, ["nested"], " ATTACH_FAST "]
+            }
+            """).RootElement));
+        var declareBattle = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["  P1-BATTLEFIELD-GAREN  ", "", null, 15, false, { "attacker": "ignored" }, [], "P1-BATTLEFIELD-LUX"],
+              "defenderObjectIds": ["  P2-BATTLEFIELD-MUTANT-KITTEN  ", " ", null, 16, true, { "defender": "ignored" }, ["nested"], "P2-BATTLEFIELD-ROBOT"],
+              "optionalCosts": ["  COMBAT_ASSIGNMENT  ", "", null, 17, false, { "cost": "ignored" }, [], " BRUSH_AMBUSH "]
+            }
+            """).RootElement));
+
+        Assert.Equal(new[] { "P2-UNIT-001", "P2-UNIT-002" }, activateAbility.TargetObjectIds);
+        Assert.Equal(new[] { "SPEND_EXPERIENCE:1", "BONUS_POWER" }, activateAbility.OptionalCosts);
+        Assert.Equal(new[] { "P1-UNIT-LEFT", "P1-UNIT-RIGHT" }, legendAct.TargetObjectIds);
+        Assert.Equal(new[] { "SPEND_MANA:2", "READY_LEGEND" }, legendAct.OptionalCosts);
+        Assert.Equal(new[] { "P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002" }, revealCard.TargetObjectIds);
+        Assert.Equal(new[] { "STANDBY_REVEAL_0", "EXTRA_REVEAL" }, revealCard.OptionalCosts);
+        Assert.Equal(new[] { "ROAM", "SHIFT" }, moveUnit.OptionalCosts);
+        Assert.Equal(new[] { "ASSEMBLE_RED", "ATTACH_FAST" }, assembleEquipment.OptionalCosts);
+        Assert.Equal(new[] { "P1-BATTLEFIELD-GAREN", "P1-BATTLEFIELD-LUX" }, declareBattle.AttackerObjectIds);
+        Assert.Equal(new[] { "P2-BATTLEFIELD-MUTANT-KITTEN", "P2-BATTLEFIELD-ROBOT" }, declareBattle.DefenderObjectIds);
+        Assert.Equal(new[] { "COMBAT_ASSIGNMENT", "BRUSH_AMBUSH" }, declareBattle.OptionalCosts);
+    }
+
+    [Fact]
     public void GameCommandMapperParsesActivateAbilityPayload()
     {
         var command = Assert.IsType<ActivateAbilityCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""

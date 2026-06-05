@@ -1354,6 +1354,46 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentKnownP0ContractCommandsRedactValidationErrorDetails()
+    {
+        const string sentinel = "secret-raw-validation-leak";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+
+        var cases = new[]
+        {
+            ("intent-redact-pay-cost", """{"cmdType":"PAY_COST","clientNote":"secret-raw-validation-leak"}"""),
+            ("intent-redact-assign-damage", """{"cmdType":"ASSIGN_COMBAT_DAMAGE","clientNote":"secret-raw-validation-leak"}"""),
+            ("intent-redact-order-triggers", """{"cmdType":"ORDER_TRIGGERS","clientNote":"secret-raw-validation-leak"}""")
+        };
+
+        foreach (var (intentId, commandJson) in cases)
+        {
+            var clients = new RecordingHubClients();
+            var cmd = JsonDocument.Parse(commandJson).RootElement.Clone();
+
+            await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+                .SubmitIntent("room-a", "alice", intentId, cmd);
+
+            var error = Assert.Single(clients.CallerClient.Errors);
+            var payload = Assert.IsType<ErrorDto>(error.Payload);
+            Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+            Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+            Assert.DoesNotContain(intentId, payload.Message, StringComparison.Ordinal);
+            Assert.DoesNotContain(sentinel, payload.Message, StringComparison.Ordinal);
+            Assert.Empty(clients.GroupClient.EventMessages);
+            Assert.Empty(clients.GroupClient.Snapshots);
+            Assert.Empty(clients.GroupClient.Prompts);
+            Assert.Empty(clients.CallerClient.Snapshots);
+            Assert.Empty(clients.CallerClient.Prompts);
+        }
+    }
+
+    [Fact]
     public async Task SubmitIntentPayCostWindowUsesPromptStampAndClosesRuntimeSlice()
     {
         const string roomId = "pay-cost-window-core";
