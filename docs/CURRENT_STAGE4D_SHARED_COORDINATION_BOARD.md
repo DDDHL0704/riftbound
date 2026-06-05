@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18HC-18HE recovery spectator timing trigger-queue keyed hidden-source redaction empty-value bundle integrates three parallel worker-produced `MatchRecoveryTests` regressions proving spectator replay-frame timing `triggerQueue[]` same-key hidden-source payloads whose redacted `sourceObjectId`, `sourceVisibility` or `effectKind` are `string.Empty` still emit the corresponding required diagnostic, keyed authoritative mismatch, unknown extra-trigger and count-mismatch diagnostics when trigger-count mismatch skips broad ordered parity. Validation passed: focused new redaction empty-value tests `3/3`, focused `TriggerQueue` `414/414`, focused recovery `1241/1241`, adjacent recovery/official-opening/Postgres recovery-store `1822/1822`, backend full via tracked `Riftbound.slnx` `7187/7187`, touched-file scoped whitespace format, `git diff --check`, anchored conflict-marker scan, matrix JSON parse and path typo scan. Worker source commits were `8e8aca97`, `c39db948` and `39a76cde`; A_MAIN resolved the adjacent insertion conflict and owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
+Current A_MAIN latest accepted slice: Stage 4D-18HF-18HH recovery spectator timing trigger-queue keyed hidden-source redaction null-value bundle integrates three parallel worker-produced `MatchRecoveryTests` regressions proving spectator replay-frame timing `triggerQueue[]` same-key hidden-source payloads whose redacted `sourceObjectId`, `sourceVisibility` or `effectKind` are `null` still emit the corresponding required diagnostic, keyed authoritative mismatch, unknown extra-trigger and count-mismatch diagnostics when trigger-count mismatch skips broad ordered parity. Validation passed: focused new redaction null-value tests `3/3`, focused `TriggerQueue` `417/417`, focused recovery `1244/1244`, adjacent recovery/official-opening/Postgres recovery-store `1825/1825`, backend full via tracked `Riftbound.slnx` `7190/7190`, scoped whitespace verification, `git diff HEAD --check`, anchored conflict-marker scan, matrix JSON parse and stale/path typo scan. Worker source commits were `2f0962a9`, `5417b4da` and `598c544f`; A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18HC-18HE; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-05 16:54 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18HF-18HH; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-05 17:21 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-05 17:21 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`; latest local commit before this entry is `93bfe33f` (`checkpoint: stage 4D recovery trigger queue hidden source redaction empty values`). This entry records Stage 4D-18HF-18HH work to be committed/pushed as `checkpoint: stage 4D recovery trigger queue hidden source redaction null values`. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; A_MAIN did not touch that worktree.
+
+Write locks: A_MAIN touched only `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current checkpoint/completion/P0/P1/next-dispatch docs, this shared board, and `docs/CURRENT_STAGE4D_18HF_18HH_RECOVERY_TIMING_TRIGGER_QUEUE_KEYED_HIDDEN_SOURCE_REDACTION_NULL_VALUES_AUDIT.md`. Runtime validation code, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, protocol, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18HF-18HH recovery spectator timing trigger-queue keyed hidden-source redaction null-value bundle accepted. Existing `MatchRecoveryValidator` required-scalar validation and keyed authoritative validation for hidden-source redacted `sourceObjectId`, `sourceVisibility` and `effectKind` in `triggerQueue[]` now have targeted coverage proving same-key hidden-source payloads whose redacted fields are `null` still emit the corresponding required diagnostic, keyed authoritative mismatch, unknown extra-trigger and count-mismatch diagnostics before trigger-count mismatch can hide broad ordered parity. Project remains **NOT READY**.
+
+Validation: focused new redaction null-value tests `3/3`; focused `TriggerQueue` filter `417/417`; focused recovery `1244/1244`; adjacent recovery/official-opening/Postgres recovery-store filter `1825/1825`; backend full via tracked `Riftbound.slnx` `7190/7190`; scoped whitespace verification, `git diff HEAD --check`, anchored conflict-marker scan, matrix JSON parse and stale/path typo scan passed. Worker source commits were `2f0962a9`, `5417b4da` and `598c544f`; A_MAIN owns the main bundle.
+
+Requested action: none. A_MAIN will commit and push this checkpoint on `main`; future DOC_MATRIX work must re-read the shared board and observe current locks.
 
 ### 2026-06-05 16:54 A_MAIN
 
