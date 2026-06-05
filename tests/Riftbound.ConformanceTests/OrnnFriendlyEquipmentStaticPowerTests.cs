@@ -355,7 +355,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     }
 
     [Fact]
-    public void OrnnStaticAuraMetadataDisappearsWhenSourceLeavesField()
+    public void OrnnStaticAuraMetadataDisappearsWhenSourceLeavesFieldAcrossPlayerViews()
     {
         var state = BuildOrnnFieldState(
             ornnPower: 5,
@@ -372,13 +372,15 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
                 && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
 
-        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
-        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
-            snapshot.Timing["continuousEffects"]);
-        Assert.DoesNotContain(
-            continuousEffects,
-            effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
-                && string.Equals(effect["sourceObjectId"] as string, OrnnObjectId, StringComparison.Ordinal));
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        AssertSnapshotDoesNotExposeOrnnStaticAuraMetadata(
+            snapshots["P1"],
+            OrnnObjectId,
+            FriendlyBaseEquipmentObjectId);
+        AssertSnapshotDoesNotExposeOrnnStaticAuraMetadata(
+            snapshots["P2"],
+            OrnnObjectId,
+            FriendlyBaseEquipmentObjectId);
     }
 
     private static async Task<ResolutionResult> PlayOrnnAsync(
@@ -663,6 +665,42 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
             participantObjectIds,
             Assert.IsAssignableFrom<IReadOnlyList<string>>(effect["participantDependencyObjectIds"]));
         return effect;
+    }
+
+    private static void AssertSnapshotDoesNotExposeOrnnStaticAuraMetadata(
+        SnapshotDto snapshot,
+        params string[] hiddenObjectIds)
+    {
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        Assert.DoesNotContain(
+            continuousEffects,
+            effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect["sourceObjectId"] as string, OrnnObjectId, StringComparison.Ordinal));
+
+        var dependencyKeys = new[]
+        {
+            "sourceDependencyObjectIds",
+            "targetDependencyObjectIds",
+            "participantObjectIds",
+            "participantDependencyObjectIds"
+        };
+        foreach (var effect in continuousEffects)
+        {
+            foreach (var dependencyKey in dependencyKeys)
+            {
+                if (!effect.TryGetValue(dependencyKey, out var objectIdsValue))
+                {
+                    continue;
+                }
+
+                var objectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(objectIdsValue);
+                foreach (var hiddenObjectId in hiddenObjectIds)
+                {
+                    Assert.DoesNotContain(hiddenObjectId, objectIds);
+                }
+            }
+        }
     }
 
     private static Dictionary<string, object?> AssertSnapshotStaticAuraMetadata(
