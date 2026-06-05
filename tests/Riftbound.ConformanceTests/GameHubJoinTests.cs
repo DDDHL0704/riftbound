@@ -558,6 +558,130 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task MulliganDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "official-hub-mulligan-raw-idempotency";
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .Ready(roomId, "P1", "ready-official-p1");
+        var readyClients = new RecordingHubClients();
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+            .Ready(roomId, "P2", "ready-official-p2");
+
+        var startSnapshot = SnapshotFor(readyClients, "P1");
+        Assert.Equal(MatchPhases.Mulligan, Assert.IsType<string>(startSnapshot.Timing["phase"]));
+        var activePlayerId = startSnapshot.ActivePlayerId;
+        var secondPlayerId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "P2" : "P1";
+        var activeConnectionId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal)
+            ? "connection-1"
+            : "connection-2";
+        var activePrompt = PromptFor(readyClients, activePlayerId);
+        Assert.True(activePrompt.Actionable);
+        Assert.Contains("MULLIGAN", activePrompt.Actions);
+
+        var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
+        var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
+        var selectedObjectIds = activeHand.Take(1).ToArray();
+        Assert.Single(selectedObjectIds);
+        var mulligan = MulliganJson(selectedObjectIds);
+        var acceptedClients = new RecordingHubClients();
+        var readyJournalCount = journal.Entries.Count;
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, activePlayerId, "mulligan-same", mulligan);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "MULLIGAN_COMPLETED", StringComparison.Ordinal));
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(readyJournalCount + 1, acceptedJournalCount);
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
+        Assert.False(PromptFor(acceptedClients, activePlayerId).Actionable);
+        Assert.True(PromptFor(acceptedClients, secondPlayerId).Actionable);
+        var mulliganEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "mulligan-same", StringComparison.Ordinal));
+        Assert.Equal(activePlayerId, mulliganEntry.PlayerId);
+        Assert.Equal("MULLIGAN", mulliganEntry.CommandType);
+        Assert.NotNull(mulliganEntry.RawCommand);
+        Assert.Equal("MULLIGAN", mulliganEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(
+            selectedObjectIds,
+            mulliganEntry.RawCommand.Value.GetProperty("handObjectIds")
+                .EnumerateArray()
+                .Select(item => item.GetString() ?? string.Empty)
+                .ToArray());
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, activePlayerId, "mulligan-same", mulligan);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(
+            acceptedClients.GroupClient.Snapshots.Select(message => message.PlayerId).OrderBy(playerId => playerId, StringComparer.Ordinal).ToArray(),
+            replayClients.GroupClient.Snapshots.Select(message => message.PlayerId).OrderBy(playerId => playerId, StringComparer.Ordinal).ToArray());
+        Assert.Equal(
+            acceptedClients.GroupClient.Prompts.Select(message => message.PlayerId).OrderBy(playerId => playerId, StringComparer.Ordinal).ToArray(),
+            replayClients.GroupClient.Prompts.Select(message => message.PlayerId).OrderBy(playerId => playerId, StringComparer.Ordinal).ToArray());
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedMulligan = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "MULLIGAN",
+            handObjectIds = Array.Empty<string>(),
+            clientNote = "changed"
+        });
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, activePlayerId, "mulligan-same", changedMulligan);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } rawCommand
+            && rawCommand.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+
+        var stateClients = new RecordingHubClients();
+        await CreateHub(stateClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .RequestSnapshot(roomId, activePlayerId);
+        var activeStateSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
+        Assert.Equal(MatchPhases.Mulligan, Assert.IsType<string>(activeStateSnapshot.Timing["phase"]));
+        var activeStatePrompt = Assert.IsType<ActionPromptDto>(Assert.Single(stateClients.CallerClient.Prompts).Payload);
+        Assert.False(activeStatePrompt.Actionable);
+    }
+
+    [Fact]
     public async Task SubmitIntentUnsupportedCommandReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);

@@ -312,6 +312,47 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
+    public void LayerEngineBattlefieldStaticAuraMetadataDisappearsWhenSourceLeavesBattlefieldAcrossPlayerViews()
+    {
+        var before = BuildBattlefieldStaticAuraState(includeDefender: true);
+        Assert.Equal(2, BattlefieldStaticAuraEffects(before).Length);
+
+        var after = before with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(before.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = before.PlayerZones["P1"] with
+                {
+                    Battlefields = [BattlefieldAttackerObjectId],
+                    Graveyard = [BattlefieldSourceObjectId]
+                }
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(before.ObjectLocations, StringComparer.Ordinal)
+            {
+                [BattlefieldSourceObjectId] = new("P1", "GRAVEYARD")
+            }
+        };
+
+        Assert.Empty(BattlefieldStaticAuraEffects(after));
+        Assert.DoesNotContain(
+            after.ContinuousEffects,
+            effect => string.Equals(effect.EffectKind, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, BattlefieldSourceObjectId, StringComparison.Ordinal));
+
+        var snapshots = ResolutionResult.BuildSnapshots(after);
+        foreach (var snapshot in new[] { snapshots["P1"], snapshots["P2"] })
+        {
+            Assert.DoesNotContain(
+                ContinuousEffectViews(snapshot),
+                effect => string.Equals(effect["effectKind"] as string, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                    && string.Equals(effect["sourceObjectId"] as string, BattlefieldSourceObjectId, StringComparison.Ordinal));
+            AssertDoesNotExposeDependencyObjectId(snapshot, BattlefieldSourceObjectId);
+            AssertDoesNotExposeDependencyObjectId(snapshot, BattlefieldAttackerObjectId);
+            AssertDoesNotExposeDependencyObjectId(snapshot, BattlefieldDefenderObjectId);
+        }
+    }
+
+    [Fact]
     public void LayerEngineStaticAuraSourceOrderUsesPublicFieldOrderBeforeEffectId()
     {
         Assert.True(

@@ -20423,6 +20423,70 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentNullMaps()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var damageAssignment = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["isPending"] = true,
+            ["phase"] = "DAMAGE_ASSIGNMENT",
+            ["battleId"] = "battle-a",
+            ["battlefieldId"] = "battlefield-a",
+            ["assigningPlayerId"] = "alice",
+            ["damagePool"] = null,
+            ["legalTargets"] = null,
+            ["existingDamage"] = null,
+            ["lethalDamageThreshold"] = null,
+            ["requiredAssignments"] = Array.Empty<object?>()
+        };
+        timing["battle"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["isActive"] = true,
+            ["battleId"] = "battle-a",
+            ["battlefieldObjectId"] = "battlefield-a",
+            ["attackerObjectIds"] = Array.Empty<string>(),
+            ["defenderObjectIds"] = Array.Empty<string>(),
+            ["participantControllerIds"] = new Dictionary<string, object?>(StringComparer.Ordinal),
+            ["damageAssignment"] = damageAssignment
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment damage pool map is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment legal targets map is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment existing damage map is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battle damage assignment lethal damage threshold map is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattleDamageAssignmentMapPayloadShapeDrift()
     {
         var alice = PlayerView("alice", 0, 0);
