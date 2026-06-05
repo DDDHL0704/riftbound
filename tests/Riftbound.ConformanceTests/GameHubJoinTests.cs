@@ -759,6 +759,110 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SeedScenarioDuplicateClientIntentRawPayloadReplaysButChangedScenarioConflictsWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+            .JoinRoom("room-a", "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+            .JoinRoom("room-a", "P2");
+        var joinedJournalCount = journal.Entries.Count;
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(
+                acceptedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario("room-a", "P1", "basic-play", "seed-same");
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedEventsMessageCount = acceptedClients.GroupClient.EventMessages.Count;
+        var acceptedSnapshotCount = acceptedClients.GroupClient.Snapshots.Count;
+        var acceptedPromptCount = acceptedClients.GroupClient.Prompts.Count;
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(joinedJournalCount + 1, acceptedJournalCount);
+        Assert.Equal(1, acceptedEventsMessageCount);
+        Assert.Equal(2, acceptedSnapshotCount);
+        Assert.Equal(2, acceptedPromptCount);
+        var acceptedEventsMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedEventsMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        var seedEvent = Assert.Single(acceptedEvents);
+        Assert.Equal("DEV_SCENARIO_SEEDED", seedEvent.Kind);
+        Assert.Equal("basic-play", Assert.IsType<string>(seedEvent.Payload["scenarioId"]));
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(
+                replayClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario("room-a", "P1", "basic-play", "seed-same");
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        Assert.Equal(acceptedEventsMessageCount, replayClients.GroupClient.EventMessages.Count);
+        Assert.Equal(acceptedSnapshotCount, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedPromptCount, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        var replayEventsMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayEventsMessage.Type);
+        Assert.Equal(acceptedEventsMessage.ServerTick, replayEventsMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Description).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Description).ToArray());
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+
+        var conflictClients = new RecordingHubClients();
+        await CreateHub(
+                conflictClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario("room-a", "P1", "movement", "seed-same");
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+    }
+
+    [Fact]
     public async Task SeedScenarioBroadcastsDevSnapshotsAndPromptsInDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);

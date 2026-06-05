@@ -341,6 +341,59 @@ public sealed class LayerEngineTimestampDependencyTests
                 .ToArray());
     }
 
+    [Fact]
+    public void LayerEngineBattlefieldStaticAuraSourceOrderMetadataMatchesAuthoritativeStateAcrossPlayerViews()
+    {
+        var state = BuildBattlefieldSourceOrderState();
+        var authoritativeEffects = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.EffectKind, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, BattlefieldSharedUnitObjectId, StringComparison.Ordinal))
+            .OrderBy(effect => effect.Sequence)
+            .ToArray();
+        Assert.Equal(2, authoritativeEffects.Length);
+        Assert.Equal([1, 2], authoritativeEffects.Select(effect => effect.Sequence).ToArray());
+        Assert.Equal([1, 3], authoritativeEffects.Select(effect => effect.SourceOrder.GetValueOrDefault()).ToArray());
+        Assert.Equal(
+            [FieldFirstBattlefieldSourceObjectId, FieldLaterBattlefieldSourceObjectId],
+            authoritativeEffects.Select(effect => Assert.IsType<string>(effect.SourceObjectId)).ToArray());
+
+        var authoritativeSignatures = authoritativeEffects.Select(AuthoritativeOrderSignature).ToArray();
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+
+        Assert.Equal(authoritativeSignatures, SnapshotOrderSignatures(snapshots["P1"]));
+        Assert.Equal(authoritativeSignatures, SnapshotOrderSignatures(snapshots["P2"]));
+
+        static string AuthoritativeOrderSignature(ContinuousEffectState effect)
+        {
+            return string.Join(
+                "|",
+                effect.Sequence.ToString(),
+                effect.SourceOrder.GetValueOrDefault().ToString(),
+                Assert.IsType<string>(effect.SourceObjectId),
+                Assert.IsType<string>(effect.TargetObjectId));
+        }
+
+        static string SnapshotOrderSignature(Dictionary<string, object?> effect)
+        {
+            return string.Join(
+                "|",
+                Assert.IsType<int>(effect["sequence"]).ToString(),
+                Assert.IsType<int>(effect["sourceOrder"]).ToString(),
+                Assert.IsType<string>(effect["sourceObjectId"]),
+                Assert.IsType<string>(effect["targetObjectId"]));
+        }
+
+        static string[] SnapshotOrderSignatures(SnapshotDto snapshot)
+        {
+            return ContinuousEffectViews(snapshot)
+                .Where(effect => string.Equals(effect["effectKind"] as string, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                    && string.Equals(effect["targetObjectId"] as string, BattlefieldSharedUnitObjectId, StringComparison.Ordinal))
+                .OrderBy(effect => Assert.IsType<int>(effect["sequence"]))
+                .Select(SnapshotOrderSignature)
+                .ToArray();
+        }
+    }
+
     private static MatchState BuildMixedLayerState()
     {
         var cardObjects = BuildOrnnCardObjects(includeSecondPublicEquipment: false);
