@@ -6212,6 +6212,109 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueBlueSentinelDelayedResourceSourceVisibilityPayloadContextDrift()
+    {
+        const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1";
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["zones"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["mainDeckCount"] = 0,
+            ["runeDeckCount"] = 0,
+            ["hand"] = Array.Empty<string>(),
+            ["handHidden"] = 0,
+            ["base"] = Array.Empty<string>(),
+            ["battlefields"] = new[] { "source-1", "battlefield-1" },
+            ["battlefieldHiddenStandbyCount"] = 0,
+            ["graveyard"] = Array.Empty<string>(),
+            ["banished"] = Array.Empty<string>(),
+            ["legendZone"] = Array.Empty<string>(),
+            ["championZone"] = Array.Empty<string>()
+        };
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-1",
+                ["cardNo"] = P4ActivatedAbilityCatalog.BlueSentinelCardNo,
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.UnitCard },
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["zone"] = "BATTLEFIELD",
+                    ["battlefieldObjectId"] = "battlefield-1"
+                },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            ["battlefield-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "battlefield-1",
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { P6TokenFactoryCatalog.BattlefieldCardTag },
+                ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["playerId"] = "alice",
+                    ["zone"] = "BATTLEFIELD"
+                },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefields"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["battlefieldObjectId"] = "battlefield-1"
+                }
+            }
+        };
+        var trigger = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["triggerId"] = triggerId,
+            ["controllerId"] = "alice",
+            ["sourceObjectId"] = "HIDDEN",
+            ["sourceVisibility"] = "HIDDEN",
+            ["effectKind"] = "HIDDEN",
+            ["triggeredByEventKind"] = "BATTLEFIELD_HELD"
+        };
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[] { trigger };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Lanes = lanes,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource source visibility must be VISIBLE",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueBlueSentinelDelayedResourceFutureCapturedTurnContextDrift()
     {
         const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::3::source-1::battlefield-1";
@@ -11537,6 +11640,90 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceOriginBattlefieldStateContextDrift()
+    {
+        var alice = PlayerView("alice", 4, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["source-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "source-1",
+                ["cardNo"] = P4ActivatedAbilityCatalog.JhinCardNo,
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.UnitCard },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            ["battlefield-1"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "battlefield-1",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { P6TokenFactoryCatalog.BattlefieldCardTag },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            ["battlefield-2"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "battlefield-2",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { P6TokenFactoryCatalog.BattlefieldCardTag },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefields"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["battlefieldObjectId"] = "battlefield-1"
+                }
+            }
+        };
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = "JHIN_MOVE_RESOURCE::4::source-1::BATTLEFIELD:battlefield-2::BASE",
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = "source-1",
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+                ["triggeredByEventKind"] = "UNIT_MOVED_TO_BASE"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Lanes = lanes,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item jhin movement resource origin battlefield object id battlefield-2 is missing from battlefield states",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueJhinMovementResourceDestinationLocationContextDrift()
     {
         var alice = PlayerView("alice", 4, 0);
@@ -12032,6 +12219,87 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id non-battlefield-object is not a battlefield card",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueKogmawLastBreathBattlefieldObjectTagsContextDrift()
+    {
+        const string sourceObjectId = "source-1";
+        const string battlefieldObjectId = "battlefield-1";
+        const string triggerId = $"TRIGGER-stack-1-{sourceObjectId}-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::{battlefieldObjectId}";
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            [sourceObjectId] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = sourceObjectId,
+                ["cardNo"] = "OGN·190/298",
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.UnitCard },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            },
+            [battlefieldObjectId] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = battlefieldObjectId,
+                ["ownerId"] = "alice",
+                ["controllerId"] = "alice",
+                ["isFaceDown"] = false,
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
+        };
+        players["alice"] = alicePayload;
+        var lanes = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefields"] = new object?[]
+            {
+                new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["battlefieldObjectId"] = battlefieldObjectId
+                }
+            }
+        };
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["triggerId"] = triggerId,
+                ["controllerId"] = "alice",
+                ["sourceObjectId"] = sourceObjectId,
+                ["sourceVisibility"] = "VISIBLE",
+                ["effectKind"] = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                ["triggeredByEventKind"] = "UNIT_DESTROYED"
+            }
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Lanes = lanes,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-1 is missing from object tags",
                 StringComparison.Ordinal));
     }
 
