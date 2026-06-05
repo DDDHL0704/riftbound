@@ -9667,6 +9667,105 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitDeckAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate()
+    {
+        const string roomId = "p7-9-after-finished-submit-deck-redacts-sentinel";
+        const string clientIntentId = "intent-p7-9-after-finished-submit-deck-SECRET-RAW-clientIntentId";
+        const string sentinel = "SECRET-RAW-clientIntentId-after-finished-submit-deck";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-submit-deck-redacts-sentinel");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        Assert.Contains(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-GRAND-PLAZA",
+              "attackerObjectIds": ["P1-BATTLEFIELD-GRAND-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-GRAND-UNIT-001"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-submit-deck-redacts-sentinel-win", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleSnapshot = SnapshotFor(battleClients, "P2");
+        Assert.Equal("P2", battleSnapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(MatchStatuses.Finished, battleSnapshot.Timing["roomStatus"]);
+        var journalCountAfterFinished = journal.Entries.Count;
+
+        var afterFinishedClients = new RecordingHubClients();
+        var submitDeck = JsonDocument.Parse($$"""
+            {
+              "cmdType": "SUBMIT_DECK",
+              "clientIntentId": "{{sentinel}}",
+              "legendCardNo": "UNL-237/219",
+              "championCardNo": "UNL-055/219",
+              "mainDeck": [],
+              "runeDeck": [],
+              "battlefields": [],
+              "rawSecret": "{{sentinel}}",
+              "nested": {
+                "intentId": "{{clientIntentId}}",
+                "internalText": "match already finished SubmitIntent MatchFinished"
+              }
+            }
+            """).RootElement.Clone();
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, submitDeck);
+
+        var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
+        Assert.Equal("对局已经结束，不能提交卡组。", payload.Message);
+        Assert.DoesNotContain(clientIntentId, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(sentinel, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("intentId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("SUBMIT_DECK", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("raw", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("secret", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("match already finished", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("SubmitIntent", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("MatchFinished", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(afterFinishedClients.CallerClient.EventMessages);
+        Assert.Empty(afterFinishedClients.CallerClient.Snapshots);
+        Assert.Empty(afterFinishedClients.CallerClient.Prompts);
+        Assert.Empty(afterFinishedClients.GroupClient.EventMessages);
+        Assert.Empty(afterFinishedClients.GroupClient.Snapshots);
+        Assert.Empty(afterFinishedClients.GroupClient.Prompts);
+        Assert.Equal(journalCountAfterFinished + 1, journal.Entries.Count);
+        var rejectedEntry = journal.Entries[^1];
+        Assert.Equal(roomId, rejectedEntry.RoomId);
+        Assert.Equal("P1", rejectedEntry.PlayerId);
+        Assert.Equal(clientIntentId, rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.SubmitDeck, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal("对局已经结束，不能提交卡组。", rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(MatchStatuses.Finished, rejectedEntry.AuthoritativeState.Status);
+        Assert.Equal(["P1", "P2"], rejectedEntry.Snapshots.Keys.OrderBy(key => key, StringComparer.Ordinal).ToArray());
+        Assert.All(
+            rejectedEntry.Snapshots.Values,
+            snapshot => Assert.Equal(MatchStatuses.Finished, snapshot.Timing["roomStatus"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerRevealRecycleSeedOffersBattlefieldDestinationAndRecycles()
     {
         const string roomId = "p7-9-battlefield-conquer-reveal-recycle";

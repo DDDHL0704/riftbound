@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18NM/18NN/18NO GameHub/recovery/Ornn test bundle integrates three parallel worker-produced server test slices proving after-finished GameHub `SubmitIntent` with sentinel raw payload/client intent id values returns stable `MatchFinished`, redacts raw/client-intent/internal text, emits no caller/group event/snapshot/prompt broadcasts and does not grow the journal; proving spectator replay timing pending-payment `paymentResourceActions` list element-shape drift emits stable payload/list-invalid and authoritative mismatch diagnostics; and proving dynamic Ornn friendly-equipment removal recomputes authoritative/P1/P2 static-aura metadata without retaining the removed equipment while preserving the remaining participant. Runtime changed: no, test coverage only; tests changed in `GameHubJoinTests`, `MatchRecoveryTests` and `OrnnFriendlyEquipmentStaticPowerTests`. Validation passed: focused new tests `3/3`, touched class filter `1467/1467`, broader adjacent server filter `5392/5392`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7318/7318`, `git diff --cached --check`, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed. Worker source commits were `48c957a6`, `c3ad79bf` and `d246c1f0`; A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18NP/18NQ/18NR GameHub/recovery/Ornn test bundle integrates three parallel worker-produced server test slices proving spectator replay timing pending-payment `paymentChoices` list element-shape drift emits stable payload/list-invalid and authoritative mismatch diagnostics; proving after-finished GameHub `SUBMIT_DECK` with sentinel raw payload/client intent id values returns stable `MatchFinished`, redacts raw/client-intent/internal text from the user-visible error, emits no caller/group event/snapshot/prompt broadcasts and records a stable rejected journal entry; and proving dynamic Ornn last-friendly-equipment removal recomputes authoritative/P1/P2 static-aura metadata to omit participant fields and the removed equipment id. Runtime changed: no, test coverage only; tests changed in `MatchRecoveryTests`, `GameHubJoinTests` and `OrnnFriendlyEquipmentStaticPowerTests`. Validation passed: focused new tests `3/3`, touched class filter `1470/1470`, broader adjacent server filter `5395/5395`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7321/7321`, `git diff --cached --check`, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed. Worker source commits were `a1e72446`, `f97dcc32` and `dad67009`; A_MAIN corrected 18NQ during review and owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18NM/18NN/18NO; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 05:54 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18NP/18NQ/18NR; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 06:07 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-06 06:07 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, pending commit after validation at time of entry
+
+Write locks: closed for `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`, `tests/Riftbound.ConformanceTests/OrnnFriendlyEquipmentStaticPowerTests.cs`, current checkpoint/completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18NP_18NR_GAMEHUB_RECOVERY_ORNN_AUDIT.md`. Runtime validation code, matrix JSON, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18NP/18NQ/18NR integrated parallel worker output: `a1e72446` (spectator replay timing pending-payment payment-choice element shape), `f97dcc32` (GameHub after-finished submit-deck sentinel redaction/no-broadcast; A_MAIN corrected journal assertions) and `dad67009` (Ornn dynamic last-equipment removal metadata).
+
+Validation: focused new tests `3/3`; touched class filter `1470/1470`; broader adjacent server filter `5395/5395`; backend full `7321/7321` under no-DB environment; `git diff --cached --check`, `git diff --check`, anchored conflict-marker scan and matrix JSON parse passed before docs sync.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and can dispatch another non-overlapping parallel server group. Project remains **NOT READY**.
 
 ### 2026-06-06 05:54 A_MAIN
 
