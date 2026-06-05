@@ -20,6 +20,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     private const string FirstRuneObjectId = "P1-RUNE-1";
     private const string SecondRuneObjectId = "P1-RUNE-2";
     private const string VengeanceObjectId = "P1-SPELL-VENGEANCE";
+    private const string LegionQuartermasterObjectId = "P1-UNIT-LEGION-QUARTERMASTER";
 
     [Theory]
     [InlineData(OrnnCardNo)]
@@ -467,6 +468,78 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         Assert.Equal([FriendlyPlayedEquipmentObjectId], StringList(p2View, "participantDependencyObjectIds"));
         Assert.Equal(expectedResiduals, StringList(p1View, "deferredLayerEngineResiduals"));
         Assert.Equal(expectedResiduals, StringList(p2View, "deferredLayerEngineResiduals"));
+    }
+
+    [Fact]
+    public async Task OrnnDynamicEquipmentRemovalRefreshesStaticAuraMetadataAcrossPlayerViews()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnFieldState(
+            ornnPower: 6,
+            p1Hand: [LegionQuartermasterObjectId],
+            p1Base: [OrnnObjectId, FriendlyBaseEquipmentObjectId, SecondFriendlyBaseEquipmentObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 6),
+                [FriendlyBaseEquipmentObjectId] = Equipment(FriendlyBaseEquipmentObjectId, "P1", "P1"),
+                [SecondFriendlyBaseEquipmentObjectId] = Equipment(SecondFriendlyBaseEquipmentObjectId, "P1", "P1"),
+                [LegionQuartermasterObjectId] = Unit(LegionQuartermasterObjectId, "SFD·044/221", "P1", "P1")
+            });
+        var expectedResiduals = new[]
+        {
+            "timestamp ordering",
+            "dependency ordering",
+            "source ordering",
+            "keyword gain/loss layering",
+            "multiple equipment/static aura interactions",
+            "minimum-power layering",
+            "full official LayerEngine coverage"
+        };
+
+        var played = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-dynamic-metadata-remove-equipment", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(
+                LegionQuartermasterObjectId,
+                "SFD·044/221",
+                [],
+                OptionalCosts: [$"RETURN_FRIENDLY_EQUIPMENT:{SecondFriendlyBaseEquipmentObjectId}"]),
+            CancellationToken.None);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Contains(FriendlyBaseEquipmentObjectId, played.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(SecondFriendlyBaseEquipmentObjectId, played.State.PlayerZones["P1"].Base);
+        Assert.Contains(SecondFriendlyBaseEquipmentObjectId, played.State.PlayerZones["P1"].Hand);
+        Assert.Equal(5, played.State.CardObjects[OrnnObjectId].Power);
+        AssertSnapshotPower(played.Snapshots["P1"], OrnnObjectId, basePower: 5, effectivePower: 5);
+        AssertSnapshotPower(played.Snapshots["P2"], OrnnObjectId, basePower: 5, effectivePower: 5);
+
+        var staticAura = Assert.Single(
+            played.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal(OrnnObjectId, staticAura.TargetObjectId);
+        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal(4, staticAura.BasePower);
+        Assert.Equal(5, staticAura.EffectivePower);
+        Assert.Equal([FriendlyBaseEquipmentObjectId], staticAura.ParticipantObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.TargetDependencyObjectIds);
+        Assert.Equal([FriendlyBaseEquipmentObjectId], staticAura.ParticipantDependencyObjectIds);
+        Assert.DoesNotContain(SecondFriendlyBaseEquipmentObjectId, staticAura.ParticipantObjectIds ?? []);
+        Assert.DoesNotContain(SecondFriendlyBaseEquipmentObjectId, staticAura.ParticipantDependencyObjectIds ?? []);
+
+        var p1View = AssertSnapshotStaticAuraMetadata(played.Snapshots["P1"], staticAura, expectedResiduals);
+        var p2View = AssertSnapshotStaticAuraMetadata(played.Snapshots["P2"], staticAura, expectedResiduals);
+        Assert.Equal(StaticAuraMetadataSignature(p1View), StaticAuraMetadataSignature(p2View));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], StringList(p1View, "participantObjectIds"));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], StringList(p2View, "participantObjectIds"));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], StringList(p1View, "participantDependencyObjectIds"));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], StringList(p2View, "participantDependencyObjectIds"));
+        Assert.DoesNotContain(SecondFriendlyBaseEquipmentObjectId, StringList(p1View, "participantObjectIds"));
+        Assert.DoesNotContain(SecondFriendlyBaseEquipmentObjectId, StringList(p1View, "participantDependencyObjectIds"));
+        Assert.DoesNotContain(SecondFriendlyBaseEquipmentObjectId, StringList(p2View, "participantObjectIds"));
+        Assert.DoesNotContain(SecondFriendlyBaseEquipmentObjectId, StringList(p2View, "participantDependencyObjectIds"));
     }
 
     [Fact]
