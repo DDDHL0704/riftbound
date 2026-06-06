@@ -112,6 +112,35 @@ public sealed class RenataActivatedAbilityTests
     }
 
     [Fact]
+    public void RenataOpenMainPromptDoesNotTreatGenericTemporaryResourceAsBluePayment()
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-RENATA-GENERIC-PROMPT");
+        var state = BuildRenataState(P4ActivatedAbilityCatalog.RenataGlascCardNo, new RunePool(1, 0)) with
+        {
+            TemporaryPaymentResources = [temporaryResource]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+
+        Assert.DoesNotContain(
+            requirements,
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId,
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
+            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RenataOpenMainPromptExposesTypedBlueScoreRequirement()
     {
         var temporaryResource = TemporaryResource("MALZAHAR:TEMP-RENATA-SCORE-PROMPT");
