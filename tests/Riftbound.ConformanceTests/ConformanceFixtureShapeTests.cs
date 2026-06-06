@@ -1430,6 +1430,139 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperAssignCombatDamageUsesCommandFieldsOverVisibleDamageMetadata()
+    {
+        const string VisibleDamageMetadataAliases = """
+              "candidate": {
+                "metadata": {
+                  "battleId": "battle:VISIBLE",
+                  "battlefieldId": "BATTLEFIELD:VISIBLE",
+                  "assigningPlayerId": "P2",
+                  "damagePool": { "P1-VISIBLE-SOURCE": 7 },
+                  "legalTargets": ["P2-VISIBLE-TARGET"],
+                  "existingDamage": { "P2-VISIBLE-TARGET": 1 },
+                  "lethalDamageThreshold": { "P2-VISIBLE-TARGET": 4 },
+                  "requiredAssignments": [
+                    { "sourceObjectId": "P1-VISIBLE-SOURCE", "targetObjectId": "P2-VISIBLE-TARGET", "damage": 7 }
+                  ],
+                  "assignmentChoices": [
+                    { "sourceObjectId": "P1-VISIBLE-SOURCE", "targetObjectId": "P2-VISIBLE-TARGET", "damage": 7 }
+                  ],
+                  "battleParticipants": [
+                    { "objectId": "P1-VISIBLE-SOURCE", "battleId": "battle:VISIBLE", "battlefieldId": "BATTLEFIELD:VISIBLE" }
+                  ]
+                }
+              },
+              "assigningPlayerId": "P2",
+              "damagePool": { "P1-VISIBLE-SOURCE": 7 },
+              "legalTargets": ["P2-VISIBLE-TARGET"],
+              "existingDamage": { "P2-VISIBLE-TARGET": 1 },
+              "lethalDamageThreshold": { "P2-VISIBLE-TARGET": 4 },
+              "requiredAssignments": [
+                { "sourceObjectId": "P1-VISIBLE-SOURCE", "targetObjectId": "P2-VISIBLE-TARGET", "damage": 7 }
+              ],
+              "assignmentChoices": [
+                { "sourceObjectId": "P1-VISIBLE-SOURCE", "targetObjectId": "P2-VISIBLE-TARGET", "damage": 7 }
+              ],
+              "battleParticipants": [
+                { "objectId": "P1-VISIBLE-SOURCE", "battleId": "battle:VISIBLE", "battlefieldId": "BATTLEFIELD:VISIBLE" }
+              ]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "ASSIGN_COMBAT_DAMAGE",
+              "battleId": "battle:CURRENT",
+              "battlefieldId": "BATTLEFIELD:CURRENT",
+              "assignments": [
+                { "sourceObjectId": "P1-CURRENT-SOURCE", "targetObjectId": "P2-CURRENT-TARGET", "damage": 3 }
+              ],
+              {{VisibleDamageMetadataAliases}}
+            }
+            """);
+        var missingAssignments = Map($$"""
+            {
+              "cmdType": "ASSIGN_COMBAT_DAMAGE",
+              "battleId": "battle:CURRENT",
+              "battlefieldId": "BATTLEFIELD:CURRENT",
+              {{VisibleDamageMetadataAliases}}
+            }
+            """);
+        var nonArrayAssignments = Map($$"""
+            {
+              "cmdType": "ASSIGN_COMBAT_DAMAGE",
+              "battleId": "battle:CURRENT",
+              "battlefieldId": "BATTLEFIELD:CURRENT",
+              "assignments": { "sourceObjectId": "P1-CURRENT-SOURCE", "targetObjectId": "P2-CURRENT-TARGET", "damage": 3 },
+              {{VisibleDamageMetadataAliases}}
+            }
+            """);
+        var malformedAssignment = Map($$"""
+            {
+              "cmdType": "ASSIGN_COMBAT_DAMAGE",
+              "battleId": "battle:CURRENT",
+              "battlefieldId": "BATTLEFIELD:CURRENT",
+              "assignments": [
+                { "sourceObjectId": "P1-CURRENT-SOURCE", "targetObjectId": "P2-CURRENT-TARGET", "damage": "3" }
+              ],
+              {{VisibleDamageMetadataAliases}}
+            }
+            """);
+        var missingBattleFields = Map($$"""
+            {
+              "cmdType": "ASSIGN_COMBAT_DAMAGE",
+              "assignments": [
+                { "sourceObjectId": "P1-CURRENT-SOURCE", "targetObjectId": "P2-CURRENT-TARGET", "damage": 3 }
+              ],
+              {{VisibleDamageMetadataAliases}}
+            }
+            """);
+        var nonStringBattleFields = Map($$"""
+            {
+              "cmdType": "ASSIGN_COMBAT_DAMAGE",
+              "battleId": { "id": "battle:CURRENT" },
+              "battlefieldId": ["BATTLEFIELD:CURRENT"],
+              "assignments": [
+                { "sourceObjectId": "P1-CURRENT-SOURCE", "targetObjectId": "P2-CURRENT-TARGET", "damage": 3 }
+              ],
+              {{VisibleDamageMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("battle:CURRENT", command.BattleId);
+        Assert.Equal("BATTLEFIELD:CURRENT", command.BattlefieldId);
+        AssertCurrentAssignment(command);
+
+        foreach (var malformed in new[] { missingAssignments, nonArrayAssignments, malformedAssignment })
+        {
+            Assert.Equal("battle:CURRENT", malformed.BattleId);
+            Assert.Equal("BATTLEFIELD:CURRENT", malformed.BattlefieldId);
+            Assert.Null(malformed.Assignments);
+        }
+
+        foreach (var missingOrMalformedBattleFields in new[] { missingBattleFields, nonStringBattleFields })
+        {
+            Assert.Equal(string.Empty, missingOrMalformedBattleFields.BattleId);
+            Assert.Equal(string.Empty, missingOrMalformedBattleFields.BattlefieldId);
+            AssertCurrentAssignment(missingOrMalformedBattleFields);
+        }
+
+        static AssignCombatDamageCommand Map(string json)
+        {
+            return Assert.IsType<AssignCombatDamageCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+
+        static void AssertCurrentAssignment(AssignCombatDamageCommand command)
+        {
+            var assignment = Assert.Single(command.Assignments ?? []);
+            Assert.Equal("P1-CURRENT-SOURCE", assignment.SourceObjectId);
+            Assert.Equal("P2-CURRENT-TARGET", assignment.TargetObjectId);
+            Assert.Equal(3, assignment.Damage);
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperParsesChooseHandCardsPayloadAndPreservesMalformedListForStableValidation()
     {
         var command = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
