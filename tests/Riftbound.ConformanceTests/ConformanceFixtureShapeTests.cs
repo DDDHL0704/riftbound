@@ -719,6 +719,78 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperHideCardUsesCommandFieldsOverVisibleSourceMetadata()
+    {
+        const string VisibleHideCardMetadataAliases = """
+              "sourcePolicy": "implemented-payable-standby-card-only",
+              "destinationPolicy": "source-specific-server-filtered-standby-destinations",
+              "optionalCostPolicy": "source-specific-server-filtered-standby-costs",
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-HIDE-SOURCE",
+                  "cardNo": "VISIBLE-HIDE-CARD",
+                  "displayName": "Visible hide card",
+                  "destinationChoices": [{ "id": "VISIBLE_DESTINATION", "label": "Visible destination" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_HIDE_COST", "label": "Visible cost" }],
+                  "manaCost": 1,
+                  "composable": true,
+                  "unsupportedReason": null
+                }
+              ],
+              "sources": [{ "id": "P1-VISIBLE-HIDE-SOURCE" }],
+              "destinations": [{ "id": "VISIBLE_DESTINATION" }]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "HIDE_CARD",
+              "sourceObjectId": "P1-CURRENT-HIDE-SOURCE",
+              "cardNo": "CURRENT-HIDE-CARD",
+              "destination": "CURRENT_DESTINATION",
+              "optionalCosts": [" CURRENT_HIDE_COST ", { "id": "VISIBLE_HIDE_COST" }, null, " ", " CURRENT_HIDE_FREE "],
+              {{VisibleHideCardMetadataAliases}}
+            }
+            """);
+        var malformedCurrent = Map($$"""
+            {
+              "cmdType": "HIDE_CARD",
+              "sourceObjectId": { "id": "P1-CURRENT-HIDE-SOURCE" },
+              "cardNo": ["CURRENT-HIDE-CARD"],
+              "destination": { "id": "CURRENT_DESTINATION" },
+              "optionalCosts": { "0": "CURRENT_HIDE_COST" },
+              {{VisibleHideCardMetadataAliases}}
+            }
+            """);
+        var aliasOnly = Map($$"""
+            {
+              "cmdType": "HIDE_CARD",
+              {{VisibleHideCardMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("P1-CURRENT-HIDE-SOURCE", command.SourceObjectId);
+        Assert.Equal("CURRENT-HIDE-CARD", command.CardNo);
+        Assert.Equal("CURRENT_DESTINATION", command.Destination);
+        Assert.Equal(["CURRENT_HIDE_COST", "CURRENT_HIDE_FREE"], command.OptionalCosts);
+
+        Assert.Equal(string.Empty, malformedCurrent.SourceObjectId);
+        Assert.Equal(string.Empty, malformedCurrent.CardNo);
+        Assert.Equal(string.Empty, malformedCurrent.Destination);
+        Assert.Empty(malformedCurrent.OptionalCosts ?? []);
+
+        Assert.Equal(string.Empty, aliasOnly.SourceObjectId);
+        Assert.Equal(string.Empty, aliasOnly.CardNo);
+        Assert.Equal(string.Empty, aliasOnly.Destination);
+        Assert.Empty(aliasOnly.OptionalCosts ?? []);
+
+        static HideCardCommand Map(string json)
+        {
+            return Assert.IsType<HideCardCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperParsesRevealCardPayload()
     {
         var command = Assert.IsType<RevealCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
