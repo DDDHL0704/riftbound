@@ -404,6 +404,99 @@ public sealed class HoneyfruitResourceSkillTests
         Assert.Equal(RunePool.Empty, cleanup.State.RunePools["P1"]);
     }
 
+    [Fact]
+    public async Task HoneyfruitLevelSixGeneratedManaAndTemporaryPowerCombineWithRunePoolForLargerMixedCost()
+    {
+        var activated = await ResolveHoneyfruitAsync(WithExperience(BuildHoneyfruitPriorityState(), 6), [LevelSixChoice()]);
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        var temporaryResource = Assert.Single(activated.State.TemporaryPaymentResources);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var powerCost = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower + 1;
+        var powerChoice = $"SPEND_POWER:any:{powerCost}";
+        var pendingPayment = new PendingPaymentState(
+            "PAY-HONEYFRUIT-MIXED-GENERATED-PLUS-RUNE",
+            "TEST_PENDING_PAY_COST",
+            "P1",
+            manaCost: 1,
+            powerCost: powerCost,
+            legalPaymentChoiceIds: ["SPEND_MANA:1", powerChoice]);
+        var runePools = new Dictionary<string, RunePool>(activated.State.RunePools, StringComparer.Ordinal)
+        {
+            ["P1"] = new RunePool(activated.State.RunePools["P1"].Mana, 1)
+        };
+        var paymentState = activated.State with
+        {
+            PendingPayment = pendingPayment,
+            RunePools = runePools
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(paymentState)["P1"];
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var payCostCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(payCostCandidate.Metadata);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(
+            metadata["paymentResourceChoices"]);
+        Assert.Equal([resourceAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower, paymentResourcePowerByChoice[resourceAction]["power"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[resourceAction]["paymentOnly"]);
+
+        var paid = await new CoreRuleEngine().ResolveAsync(
+            paymentState,
+            new PlayerIntent("intent-honeyfruit-pay-mixed-generated-plus-rune", "P1", CommandTypes.PayCost),
+            new PayCostCommand(pendingPayment.PaymentId, pendingPayment.PaymentWindow, [resourceAction, "SPEND_MANA:1", powerChoice]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Empty(paid.State.TemporaryPaymentResources);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P1"]);
+        Assert.Equal(
+            ["TEMPORARY_PAYMENT_RESOURCE_SPENT", "TEMPORARY_PAYMENT_RESOURCE_CLEARED", "COST_PAID", "PAYMENT_WINDOW_CLOSED"],
+            paid.Events.Select(gameEvent => gameEvent.Kind));
+
+        var spentEvent = Assert.Single(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, spentEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, spentEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", spentEvent.Payload["playerId"]);
+        Assert.Equal(temporaryResource.ResourceId, spentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(HoneyfruitObjectId, spentEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.HoneyfruitResourceAbilityId, spentEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower, spentEvent.Payload["consumedPower"]);
+        Assert.Equal(0, spentEvent.Payload["remainingPower"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(spentEvent.Payload["allowedPaymentKinds"]));
+        Assert.Equal(true, spentEvent.Payload["paymentOnly"]);
+
+        var clearedEvent = Assert.Single(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, clearedEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, clearedEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", clearedEvent.Payload["playerId"]);
+        Assert.Equal(temporaryResource.ResourceId, clearedEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal(0, clearedEvent.Payload["remainingPowerBeforeCleanup"]);
+        Assert.Equal(true, clearedEvent.Payload["paymentOnly"]);
+
+        var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", costEvent.Payload["playerId"]);
+        Assert.Equal([resourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([resourceAction, "SPEND_MANA:1", powerChoice], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        Assert.Equal(["SPEND_MANA:1", powerChoice], Assert.IsType<string[]>(costEvent.Payload["legalPaymentChoiceIds"]));
+        Assert.Equal([temporaryResource.ResourceId], Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(1, costEvent.Payload["mana"]);
+        Assert.Equal(powerCost, costEvent.Payload["power"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower, costEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]));
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]));
+    }
+
     [Theory]
     [InlineData("duplicate-resource")]
     [InlineData("mana-only")]
