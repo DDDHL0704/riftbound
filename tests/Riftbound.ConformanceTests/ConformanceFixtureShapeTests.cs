@@ -1188,6 +1188,91 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperLegendActUsesCommandFieldsOverVisibleAbilityMetadata()
+    {
+        const string VisibleLegendMetadataAliases = """
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-LEGEND",
+                  "abilityId": "VISIBLE_LEGEND_ABILITY",
+                  "abilityChoices": [{ "id": "VISIBLE_LEGEND_ABILITY_CHOICE" }],
+                  "targetChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-LEGEND-TARGET" }] },
+                  "targetChoices": [{ "id": "P2-VISIBLE-LEGEND-TARGET" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_LEGEND_COST" }],
+                  "paymentResourceChoices": [{ "id": "VISIBLE_LEGEND_RESOURCE" }]
+                }
+              ],
+              "abilityChoices": [{ "id": "VISIBLE_LEGEND_ABILITY_CHOICE" }],
+              "targetChoices": [{ "id": "P2-VISIBLE-LEGEND-TARGET" }],
+              "optionalCostChoices": [{ "id": "VISIBLE_LEGEND_COST" }],
+              "paymentResourceChoices": [{ "id": "VISIBLE_LEGEND_RESOURCE" }]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "LEGEND_ACT",
+              "sourceObjectId": "P1-CURRENT-LEGEND",
+              "abilityId": "CURRENT_LEGEND_ABILITY",
+              "targetObjectIds": [" P2-CURRENT-LEGEND-TARGET "],
+              "optionalCosts": [" CURRENT_LEGEND_COST "],
+              {{VisibleLegendMetadataAliases}}
+            }
+            """);
+        var unreadableCurrent = Map($$"""
+            {
+              "cmdType": "LEGEND_ACT",
+              "sourceObjectId": "P1-CURRENT-LEGEND",
+              "abilityId": "CURRENT_LEGEND_ABILITY",
+              "targetObjectIds": ["P2-CURRENT-LEGEND-TARGET", null, { "id": "P2-UNREADABLE-LEGEND-TARGET" }, " "],
+              "optionalCosts": [false, " CURRENT_LEGEND_COST "],
+              {{VisibleLegendMetadataAliases}}
+            }
+            """);
+        var malformedCurrent = Map($$"""
+            {
+              "cmdType": "LEGEND_ACT",
+              "sourceObjectId": { "id": "P1-CURRENT-LEGEND" },
+              "abilityId": ["CURRENT_LEGEND_ABILITY"],
+              "targetObjectIds": { "0": "P2-CURRENT-LEGEND-TARGET" },
+              "optionalCosts": null,
+              {{VisibleLegendMetadataAliases}}
+            }
+            """);
+        var aliasOnly = Map($$"""
+            {
+              "cmdType": "LEGEND_ACT",
+              {{VisibleLegendMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("P1-CURRENT-LEGEND", command.SourceObjectId);
+        Assert.Equal("CURRENT_LEGEND_ABILITY", command.AbilityId);
+        Assert.Equal(["P2-CURRENT-LEGEND-TARGET"], command.TargetObjectIds);
+        Assert.Equal(["CURRENT_LEGEND_COST"], command.OptionalCosts);
+
+        Assert.Equal("P1-CURRENT-LEGEND", unreadableCurrent.SourceObjectId);
+        Assert.Equal("CURRENT_LEGEND_ABILITY", unreadableCurrent.AbilityId);
+        Assert.Equal(["P2-CURRENT-LEGEND-TARGET"], unreadableCurrent.TargetObjectIds);
+        Assert.Equal(["CURRENT_LEGEND_COST"], unreadableCurrent.OptionalCosts);
+
+        Assert.Equal(string.Empty, malformedCurrent.SourceObjectId);
+        Assert.Equal(string.Empty, malformedCurrent.AbilityId);
+        Assert.Empty(malformedCurrent.TargetObjectIds);
+        Assert.Empty(malformedCurrent.OptionalCosts ?? []);
+
+        Assert.Equal(string.Empty, aliasOnly.SourceObjectId);
+        Assert.Equal(string.Empty, aliasOnly.AbilityId);
+        Assert.Empty(aliasOnly.TargetObjectIds);
+        Assert.Empty(aliasOnly.OptionalCosts ?? []);
+
+        static LegendActCommand Map(string json)
+        {
+            return Assert.IsType<LegendActCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperDeclareBattleUsesCommandFieldsOverVisibleBattleMetadata()
     {
         var command = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
