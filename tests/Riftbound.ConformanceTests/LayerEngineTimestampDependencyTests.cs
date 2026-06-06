@@ -578,6 +578,137 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
+    public void LayerEngineBattlefieldStaticAuraParticipantOrderIsCanonicalWhenPublicBattlefieldZoneOrderDiffers()
+    {
+        Assert.True(
+            string.CompareOrdinal(BattlefieldAttackerObjectId, BattlefieldDefenderObjectId) < 0,
+            "The fixture keeps canonical object id order opposite to this public battlefield order.");
+
+        var state = BuildBattlefieldStaticAuraState(includeDefender: true);
+        state = state with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = state.PlayerZones["P1"] with
+                {
+                    Battlefields =
+                    [
+                        BattlefieldSourceObjectId,
+                        BattlefieldDefenderObjectId,
+                        HiddenEquipmentObjectId,
+                        BattlefieldAttackerObjectId,
+                        OtherBattlefieldObjectId,
+                        OtherBattlefieldUnitObjectId
+                    ]
+                },
+                ["P2"] = state.PlayerZones["P2"] with
+                {
+                    Battlefields = []
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+            {
+                [HiddenEquipmentObjectId] = Equipment(HiddenEquipmentObjectId, isFaceDown: true),
+                [OtherBattlefieldObjectId] = new(
+                    OtherBattlefieldObjectId,
+                    cardNo: "UNL-T01",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [OtherBattlefieldUnitObjectId] = Unit(OtherBattlefieldUnitObjectId, "P1", power: 4)
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [BattlefieldSourceObjectId] = new("P1", "BATTLEFIELD", BattlefieldSourceObjectId),
+                [BattlefieldDefenderObjectId] = new("P1", "BATTLEFIELD", BattlefieldSourceObjectId),
+                [HiddenEquipmentObjectId] = new("P1", "BATTLEFIELD", BattlefieldSourceObjectId),
+                [BattlefieldAttackerObjectId] = new("P1", "BATTLEFIELD", BattlefieldSourceObjectId),
+                [OtherBattlefieldObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId),
+                [OtherBattlefieldUnitObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId)
+            }
+        };
+
+        Assert.Equal(
+            [BattlefieldDefenderObjectId, BattlefieldAttackerObjectId],
+            state.PlayerZones["P1"].Battlefields
+                .Where(objectId => string.Equals(objectId, BattlefieldAttackerObjectId, StringComparison.Ordinal)
+                    || string.Equals(objectId, BattlefieldDefenderObjectId, StringComparison.Ordinal))
+                .ToArray());
+
+        var expectedParticipantObjectIds = new[] { BattlefieldAttackerObjectId, BattlefieldDefenderObjectId };
+        var effects = BattlefieldStaticAuraEffects(state);
+        Assert.Equal(
+            expectedParticipantObjectIds,
+            effects.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+
+        foreach (var aura in effects)
+        {
+            var targetObjectId = Assert.IsType<string>(aura.TargetObjectId);
+            Assert.Equal([BattlefieldSourceObjectId], aura.SourceDependencyObjectIds);
+            Assert.Equal([targetObjectId], aura.TargetDependencyObjectIds);
+            Assert.Equal(expectedParticipantObjectIds, aura.ParticipantObjectIds);
+            Assert.Equal(expectedParticipantObjectIds, aura.ParticipantDependencyObjectIds);
+            Assert.DoesNotContain(HiddenEquipmentObjectId, aura.ParticipantObjectIds ?? []);
+            Assert.DoesNotContain(HiddenEquipmentObjectId, aura.ParticipantDependencyObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldObjectId, aura.ParticipantObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldObjectId, aura.ParticipantDependencyObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldUnitObjectId, aura.ParticipantObjectIds ?? []);
+            Assert.DoesNotContain(OtherBattlefieldUnitObjectId, aura.ParticipantDependencyObjectIds ?? []);
+        }
+
+        var firstSnapshots = ResolutionResult.BuildSnapshots(state);
+        var secondSnapshots = ResolutionResult.BuildSnapshots(state);
+        var firstP1Signatures = SnapshotBattlefieldStaticAuraSignatures(
+            firstSnapshots["P1"],
+            effects,
+            expectedParticipantObjectIds);
+
+        Assert.Equal(
+            firstP1Signatures,
+            SnapshotBattlefieldStaticAuraSignatures(firstSnapshots["P2"], effects, expectedParticipantObjectIds));
+        Assert.Equal(
+            firstP1Signatures,
+            SnapshotBattlefieldStaticAuraSignatures(secondSnapshots["P1"], effects, expectedParticipantObjectIds));
+        Assert.Equal(
+            firstP1Signatures,
+            SnapshotBattlefieldStaticAuraSignatures(secondSnapshots["P2"], effects, expectedParticipantObjectIds));
+
+        static string[] SnapshotBattlefieldStaticAuraSignatures(
+            SnapshotDto snapshot,
+            ContinuousEffectState[] authoritativeEffects,
+            string[] expectedParticipantObjectIds)
+        {
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, HiddenEquipmentObjectId);
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, OtherBattlefieldObjectId);
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, OtherBattlefieldUnitObjectId);
+
+            var signatures = authoritativeEffects
+                .Select(effect =>
+                {
+                    var view = AssertStaticAuraSnapshotView(snapshot, effect);
+                    Assert.Equal(expectedParticipantObjectIds, StringList(view, "participantObjectIds"));
+                    Assert.Equal(expectedParticipantObjectIds, StringList(view, "participantDependencyObjectIds"));
+                    Assert.DoesNotContain(HiddenEquipmentObjectId, StringList(view, "participantObjectIds"));
+                    Assert.DoesNotContain(HiddenEquipmentObjectId, StringList(view, "participantDependencyObjectIds"));
+                    Assert.DoesNotContain(OtherBattlefieldObjectId, StringList(view, "participantObjectIds"));
+                    Assert.DoesNotContain(OtherBattlefieldObjectId, StringList(view, "participantDependencyObjectIds"));
+                    Assert.DoesNotContain(OtherBattlefieldUnitObjectId, StringList(view, "participantObjectIds"));
+                    Assert.DoesNotContain(OtherBattlefieldUnitObjectId, StringList(view, "participantDependencyObjectIds"));
+
+                    return StaticAuraSnapshotSignature(view);
+                })
+                .ToArray();
+            Assert.DoesNotContain(
+                signatures,
+                signature => signature.Contains(HiddenEquipmentObjectId, StringComparison.Ordinal)
+                    || signature.Contains(OtherBattlefieldObjectId, StringComparison.Ordinal)
+                    || signature.Contains(OtherBattlefieldUnitObjectId, StringComparison.Ordinal));
+
+            return signatures;
+        }
+    }
+
+    [Fact]
     public void LayerEngineBattlefieldStaticAuraParticipantMetadataUsesObjectLocationToIgnoreStaleBattlefieldZoneParticipantAcrossPlayerViews()
     {
         var state = BuildBattlefieldStaticAuraState(includeDefender: true);
