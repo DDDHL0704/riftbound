@@ -1916,7 +1916,8 @@ public sealed record MatchState
                     battlefield.CardNo,
                     ContinuousEffectStaticAuraCards.BattlefieldAllUnitsPowerPlusOneCardNo,
                     StringComparison.Ordinal)
-                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal))
+                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+                || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
             {
                 continue;
             }
@@ -1978,7 +1979,8 @@ public sealed record MatchState
             .SelectMany(entry => entry.Value.Battlefields)
             .Where(objectId => !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
                 && state.CardObjects.TryGetValue(objectId, out var participant)
-                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsObjectLocationCompatibleWithBattlefield(state, objectId, battlefieldObjectId))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
@@ -1994,7 +1996,8 @@ public sealed record MatchState
             .Distinct(StringComparer.Ordinal)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && !cardObject.IsFaceDown
-                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _))
+                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var location)
+                && IsPublicFieldObjectLocationCompatible(state, objectId, location.Zone))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
     }
@@ -2006,7 +2009,10 @@ public sealed record MatchState
         foreach (var playerId in state.PlayerZones.Keys.OrderBy(playerId => playerId, StringComparer.Ordinal))
         {
             var zones = state.PlayerZones[playerId];
-            foreach (var objectId in zones.Base.Concat(zones.Battlefields))
+            foreach (var objectId in zones.Base
+                .Where(objectId => IsPublicFieldObjectLocationCompatible(state, objectId, "BASE"))
+                .Concat(zones.Battlefields
+                    .Where(objectId => IsPublicFieldObjectLocationCompatible(state, objectId, "BATTLEFIELD"))))
             {
                 if (sourceOrders.ContainsKey(objectId)
                     || !state.CardObjects.TryGetValue(objectId, out var cardObject)
@@ -2020,6 +2026,30 @@ public sealed record MatchState
         }
 
         return sourceOrders;
+    }
+
+    private static bool IsObjectLocationCompatibleWithBattlefield(
+        MatchState state,
+        string objectId,
+        string battlefieldObjectId)
+    {
+        if (!state.ObjectLocations.TryGetValue(objectId, out var location))
+        {
+            return true;
+        }
+
+        return string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && (string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+                || string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal));
+    }
+
+    private static bool IsPublicFieldObjectLocationCompatible(
+        MatchState state,
+        string objectId,
+        string zone)
+    {
+        return !state.ObjectLocations.TryGetValue(objectId, out var location)
+            || string.Equals(location.Zone, zone, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> ControlledPublicFieldEquipmentObjectIds(MatchState state, string controllerId)

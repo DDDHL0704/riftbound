@@ -958,6 +958,8 @@ public sealed class LayerEngineTimestampDependencyTests
 
         var aura = Assert.Single(authoritativeEffects);
 
+        Assert.Equal(1, aura.Sequence);
+        Assert.Equal(2, aura.SourceOrder.GetValueOrDefault());
         Assert.Equal(FieldLaterBattlefieldSourceObjectId, aura.SourceObjectId);
         Assert.Equal(BattlefieldSharedUnitObjectId, aura.TargetObjectId);
         Assert.Equal([FieldLaterBattlefieldSourceObjectId], aura.SourceDependencyObjectIds);
