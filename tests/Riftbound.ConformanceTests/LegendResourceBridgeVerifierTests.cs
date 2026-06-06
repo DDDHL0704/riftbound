@@ -374,6 +374,122 @@ public sealed class LegendResourceBridgeVerifierTests
 
     [Theory]
     [MemberData(nameof(SuccessProfiles))]
+    public async Task LegendResourceBridgeDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation(BridgeProfile profile)
+    {
+        var state = BuildSuccessState(profile);
+        var command = new LegendActCommand(profile.SourceObjectId, profile.AbilityId, [], []);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        AssertLegendActPrompt(state, profile);
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.LegendAct, prompt.Actions);
+        var legendCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.LegendAct, StringComparison.Ordinal));
+        Assert.True(legendCandidate.Enabled);
+        Assert.Contains(
+            legendCandidate.Sources ?? [],
+            source => string.Equals(source.Id, profile.SourceObjectId, StringComparison.Ordinal));
+        var rawCommand = PromptScopedRawCommand(CommandTypes.LegendAct, prompt);
+        const string clientIntentId = "intent-legend-resource-bridge-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.True(accepted.State.CardObjects[profile.SourceObjectId].IsExhausted);
+        Assert.Equal(1, CountEvents(accepted.Events, ResourceEventKind(profile)));
+        AssertResourceGainedEvent(accepted.Events, profile);
+        Assert.Equal(0, CountEvents(accepted.Events, "COST_PAID"));
+        Assert.Null(accepted.State.PendingPayment);
+        Assert.Equal(state.PendingTaskQueue.Phase, accepted.State.PendingTaskQueue.Phase);
+        Assert.Equal(state.PendingTaskQueue.ActiveTaskId, accepted.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(state.PendingTaskQueue.Tasks, accepted.State.PendingTaskQueue.Tasks);
+        AssertNoLegendActPromptForSource(accepted.State, profile);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.LegendAct, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.LegendAct, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.True(replay.State.CardObjects[profile.SourceObjectId].IsExhausted);
+        Assert.Equal(1, CountEvents(replay.Events, ResourceEventKind(profile)));
+        Assert.Equal(0, CountEvents(replay.Events, "COST_PAID"));
+        Assert.Null(replay.State.PendingPayment);
+        Assert.Equal(accepted.State.RunePools["P1"], replay.State.RunePools["P1"]);
+        Assert.Equal(accepted.State.StackItems, replay.State.StackItems);
+        Assert.Equal(accepted.State.PendingTaskQueue.Phase, replay.State.PendingTaskQueue.Phase);
+        Assert.Equal(accepted.State.PendingTaskQueue.ActiveTaskId, replay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(accepted.State.PendingTaskQueue.Tasks, replay.State.PendingTaskQueue.Tasks);
+        AssertNoLegendActPromptForSource(replay.State, profile);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = PromptScopedRawCommand(CommandTypes.LegendAct, prompt, "changed-payload");
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.True(conflict.State.CardObjects[profile.SourceObjectId].IsExhausted);
+        Assert.Null(conflict.State.PendingPayment);
+        Assert.Equal(accepted.State.RunePools["P1"], conflict.State.RunePools["P1"]);
+        Assert.Equal(accepted.State.StackItems, conflict.State.StackItems);
+        Assert.Equal(accepted.State.PendingTaskQueue.Phase, conflict.State.PendingTaskQueue.Phase);
+        Assert.Equal(accepted.State.PendingTaskQueue.ActiveTaskId, conflict.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(accepted.State.PendingTaskQueue.Tasks, conflict.State.PendingTaskQueue.Tasks);
+        AssertNoLegendActPromptForSource(conflict.State, profile);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [MemberData(nameof(SuccessProfiles))]
     public async Task LegendResourceBridgeRejectsHandwrittenIllegalAbilityWithoutMutation(BridgeProfile profile)
     {
         var state = BuildSuccessState(profile);
@@ -521,13 +637,27 @@ public sealed class LegendResourceBridgeVerifierTests
         return events.Count(gameEvent => string.Equals(gameEvent.Kind, kind, StringComparison.Ordinal));
     }
 
-    private static JsonElement PromptScopedRawCommand(string cmdType, ActionPromptDto prompt)
+    private static JsonElement PromptScopedRawCommand(
+        string cmdType,
+        ActionPromptDto prompt,
+        string? clientNote = null)
     {
+        if (clientNote is null)
+        {
+            return JsonSerializer.SerializeToElement(new
+            {
+                cmdType,
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick
+            });
+        }
+
         return JsonSerializer.SerializeToElement(new
         {
             cmdType,
             promptId = prompt.PromptId,
-            snapshotTick = prompt.SnapshotTick
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
         });
     }
 
@@ -749,6 +879,17 @@ public sealed class LegendResourceBridgeVerifierTests
             },
             CardObjects = cardObjects
         };
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 
     public sealed record BridgeProfile(
