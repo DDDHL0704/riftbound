@@ -1570,7 +1570,8 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentPayCostWindowUsesPromptStampAndClosesRuntimeSlice()
     {
         const string roomId = "pay-cost-window-core";
-        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .JoinRoom(roomId, "P1");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
@@ -1590,6 +1591,8 @@ public sealed class GameHubJoinTests
         Assert.True(prompt.Actionable);
         Assert.Equal(["PAY_COST", "SURRENDER"], prompt.Actions);
         Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
+        Assert.True(prompt.SnapshotTick.HasValue);
         var candidate = Assert.Single(
             prompt.Candidates ?? [],
             promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
@@ -1598,23 +1601,105 @@ public sealed class GameHubJoinTests
         Assert.Equal("TEST_PAYMENT", Assert.IsType<string>(metadata["paymentWindow"]));
         var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
         Assert.Contains(choices, choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
+        var seedJournalCount = journal.Entries.Count;
+        var seededEntry = Assert.Single(journal.Entries);
+        var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
+        var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
+        var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
 
         var stalePromptClients = new RecordingHubClients();
+        var stalePromptId = $"{prompt.PromptId}:stale";
+        var stalePromptPayCost = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = "PAY-3A-MANA-1",
+            paymentWindow = "TEST_PAYMENT",
+            paymentChoiceIds = new[] { "SPEND_MANA:1" },
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+
         await CreateHub(stalePromptClients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-prompt", JsonSerializer.SerializeToElement(new
-            {
-                cmdType = "PAY_COST",
-                paymentId = "PAY-3A-MANA-1",
-                paymentWindow = "TEST_PAYMENT",
-                paymentChoiceIds = new[] { "SPEND_MANA:1" },
-                promptId = $"{prompt.PromptId}:stale",
-                snapshotTick = prompt.SnapshotTick
-            }));
+            .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-prompt", stalePromptPayCost);
 
         var stalePromptError = Assert.Single(stalePromptClients.CallerClient.Errors);
-        Assert.Equal(ErrorCodes.PromptExpired, Assert.IsType<ErrorDto>(stalePromptError.Payload).Code);
+        var stalePromptPayload = Assert.IsType<ErrorDto>(stalePromptError.Payload);
+        Assert.Equal(ErrorCodes.PromptExpired, stalePromptPayload.Code);
         Assert.Empty(stalePromptClients.GroupClient.EventMessages);
         Assert.Empty(stalePromptClients.GroupClient.Snapshots);
+        Assert.Empty(stalePromptClients.GroupClient.Prompts);
+        Assert.Empty(stalePromptClients.CallerClient.Snapshots);
+        Assert.Empty(stalePromptClients.CallerClient.Prompts);
+        Assert.Equal(seedJournalCount + 1, journal.Entries.Count);
+        var rejectedEntry = journal.Entries[^1];
+        Assert.Equal(roomId, rejectedEntry.RoomId);
+        Assert.Equal("P1", rejectedEntry.PlayerId);
+        Assert.Equal("intent-pay-cost-stale-prompt", rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.PayCost, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal(stalePromptPayload.Message, rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(seededStateHash, MatchStateHasher.Hash(rejectedEntry.AuthoritativeState));
+        Assert.Equal(seededPromptsHash, MatchStateHasher.HashValue(rejectedEntry.Prompts));
+        Assert.Equal(seededSnapshotsHash, MatchStateHasher.HashValue(rejectedEntry.Snapshots));
+        Assert.True(rejectedEntry.RawCommand.HasValue);
+        var rejectedRawCommand = rejectedEntry.RawCommand.Value;
+        Assert.Equal(CommandTypes.PayCost, rejectedRawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("PAY-3A-MANA-1", rejectedRawCommand.GetProperty("paymentId").GetString());
+        Assert.Equal("TEST_PAYMENT", rejectedRawCommand.GetProperty("paymentWindow").GetString());
+        Assert.Equal(
+            ["SPEND_MANA:1"],
+            rejectedRawCommand.GetProperty("paymentChoiceIds")
+                .EnumerateArray()
+                .Select(choice => choice.GetString() ?? string.Empty)
+                .ToArray());
+        Assert.Equal(stalePromptId, rejectedRawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick.Value, rejectedRawCommand.GetProperty("snapshotTick").GetInt64());
+
+        var stalePromptJournalCount = journal.Entries.Count;
+        var stalePromptReplayClients = new RecordingHubClients();
+        await CreateHub(stalePromptReplayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-prompt", stalePromptPayCost);
+
+        var stalePromptReplayError = Assert.Single(stalePromptReplayClients.CallerClient.Errors);
+        var stalePromptReplayPayload = Assert.IsType<ErrorDto>(stalePromptReplayError.Payload);
+        Assert.Equal(ErrorCodes.PromptExpired, stalePromptReplayPayload.Code);
+        Assert.Equal(stalePromptPayload.Message, stalePromptReplayPayload.Message);
+        Assert.Empty(stalePromptReplayClients.GroupClient.EventMessages);
+        Assert.Empty(stalePromptReplayClients.GroupClient.Snapshots);
+        Assert.Empty(stalePromptReplayClients.GroupClient.Prompts);
+        Assert.Empty(stalePromptReplayClients.CallerClient.Snapshots);
+        Assert.Empty(stalePromptReplayClients.CallerClient.Prompts);
+        Assert.Equal(stalePromptJournalCount, journal.Entries.Count);
+
+        var stalePromptConflictClients = new RecordingHubClients();
+        var changedStalePromptPayCost = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = "PAY-3A-MANA-1",
+            paymentWindow = "TEST_PAYMENT",
+            paymentChoiceIds = new[] { "SPEND_MANA:2" },
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-stale-prompt"
+        });
+
+        await CreateHub(stalePromptConflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-prompt", changedStalePromptPayCost);
+
+        var stalePromptConflictError = Assert.Single(stalePromptConflictClients.CallerClient.Errors);
+        var stalePromptConflictPayload = Assert.IsType<ErrorDto>(stalePromptConflictError.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, stalePromptConflictPayload.Code);
+        Assert.Empty(stalePromptConflictClients.GroupClient.EventMessages);
+        Assert.Empty(stalePromptConflictClients.GroupClient.Snapshots);
+        Assert.Empty(stalePromptConflictClients.GroupClient.Prompts);
+        Assert.Empty(stalePromptConflictClients.CallerClient.Snapshots);
+        Assert.Empty(stalePromptConflictClients.CallerClient.Prompts);
+        Assert.Equal(stalePromptJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-stale-prompt", StringComparison.Ordinal));
 
         var staleSnapshotClients = new RecordingHubClients();
         await CreateHub(staleSnapshotClients, new RecordingGroupManager(), "connection-1", registry)
