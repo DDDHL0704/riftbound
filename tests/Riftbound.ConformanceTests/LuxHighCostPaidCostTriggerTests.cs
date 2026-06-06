@@ -103,6 +103,58 @@ public sealed class LuxHighCostPaidCostTriggerTests
     }
 
     [Fact]
+    public void LuxPaidCostLowerPrintedSpellPromptExposesOnlySpellshieldEnemyBattlefieldTarget()
+    {
+        var state = BuildLuxPaidCostState(
+            LowerPrintedSpellObjectId,
+            LowerPrintedSpellCardNo,
+            mana: 5,
+            includeSpellshieldTarget: true,
+            includeDeck: true);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Equal([LowerPrintedSpellObjectId], (playCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+
+        var candidateTargetIds = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(playCandidate.Targets)
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal([SpellshieldTargetObjectId], candidateTargetIds);
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, LowerPrintedSpellObjectId, StringComparison.Ordinal));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var metadataTargetIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal([SpellshieldTargetObjectId], metadataTargetIds);
+
+        foreach (var illegalTargetId in new[]
+        {
+            LuxUnitObjectId,
+            LuxLegendObjectId,
+            HiddenDrawObjectId,
+            HighPrintedSpellObjectId
+        })
+        {
+            Assert.DoesNotContain(illegalTargetId, candidateTargetIds);
+            Assert.DoesNotContain(illegalTargetId, metadataTargetIds);
+        }
+    }
+
+    [Fact]
     public async Task LuxPaidCostPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
