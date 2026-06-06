@@ -14040,8 +14040,30 @@ public sealed class MatchSession : IMatchSession
                 throw new MatchSessionException(ErrorCodes.MatchFinished, "对局已经结束，不能准备。");
             }
 
+            var startedTick = state.Tick;
+            var startedEventSequence = lastEventSequence;
             if (TryRejectStalePrompt(state, normalizedPlayerId, rawCommand, out var promptRejection))
             {
+                var completedEventSequence = startedEventSequence + promptRejection.Events.Count;
+                await journal.RecordAsync(new MatchJournalEntry(
+                        RoomId,
+                        normalizedPlayerId,
+                        normalizedIntentId,
+                        "READY",
+                        rawCommand,
+                        startedTick,
+                        promptRejection.State.Tick,
+                        startedEventSequence,
+                        completedEventSequence,
+                        promptRejection.Accepted,
+                        promptRejection.ErrorMessage,
+                        promptRejection.State,
+                        promptRejection.Events,
+                        promptRejection.Snapshots,
+                        promptRejection.Prompts,
+                        DateTimeOffset.UtcNow),
+                    cancellationToken).ConfigureAwait(false);
+                lastEventSequence = completedEventSequence;
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, promptRejection);
                 return promptRejection;
             }
@@ -14059,8 +14081,6 @@ public sealed class MatchSession : IMatchSession
                 return current;
             }
 
-            var startedTick = state.Tick;
-            var startedEventSequence = lastEventSequence;
             if (!state.PlayerDecklists.ContainsKey(normalizedPlayerId)
                 && (!options.AllowLegacyReadyWithoutDeck || state.PlayerDecklists.Count > 0))
             {
