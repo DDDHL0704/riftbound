@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18TL/18TM/18TN stale raw rejected-cache breadth integrates a parallel worktree batch proving rejected stale prompt-scoped raw simple Tempered optional-attach `PLAY_CARD`, Ancient Stele resource-conversion `ACTIVATE_ABILITY`, and Jhin movement-triggered resource-skill `ACTIVATE_ABILITY` replay exact duplicate rejected results without journal growth, while changed raw payloads with the same rejected `clientIntentId` return `CLIENT_INTENT_CONFLICT` without state, prompt, snapshot, stack, temporary-resource, session projection or journal drift as applicable. Runtime changed: no, server test coverage only. Tests changed in `TemperedEquipmentOptionalAttachTests`, `ResourceConversionEquipmentResourceSkillTests` and `JhinMovementResourceSkillTests`. Validation passed: focused changed tests `51/51`, first adjacent server filter `3802/3802`, broader adjacent server filter `6489/6489`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7422/7422`, plus diff checks, conflict-marker scan and matrix JSON parse before docs sync. Worker/worktree source commits were `4b9e4b7a` (18TL, cherry-picked as `0e6ac92e`), `8e8e8085` (18TM, cherry-picked as `27e4435e`) and `28c3de9c` (18TN, cherry-picked as `23e53a06`). A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18TO/18TP/18TQ stale raw rejected-cache breadth integrates a parallel worktree batch proving rejected stale prompt-scoped raw Gold Token `ACTIVATE_ABILITY`, Malzahar resource-skill `ACTIVATE_ABILITY`, and Rage Sigil typed reaction-resource `ACTIVATE_ABILITY` replay exact duplicate rejected results without journal growth, while changed raw payloads with the same rejected `clientIntentId` return `CLIENT_INTENT_CONFLICT` without state, prompt, snapshot, stack, temporary-resource, session projection or journal drift as applicable. Runtime changed: no, server test coverage only. Tests changed in `GoldTokenResourceSkillTests`, `MalzaharResourceSkillTests` and `RageSigilResourceSkillTests`. Validation passed: focused changed tests `80/80`, first adjacent server filter `3752/3752`, broader adjacent server filter `6439/6439`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7425/7425`, plus diff checks, conflict-marker scan and matrix JSON parse before docs sync. Worker/worktree source commits were `945ba438` (18TO, cherry-picked as `d814a060`), `2adc76e2` (18TP, cherry-picked as `3c01906d`) and `44bb3ccf` (18TQ, cherry-picked as `15463475`). A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18TL/18TM/18TN; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 20:53 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18TO/18TP/18TQ; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 21:09 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-06 21:09 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, pending docs/checkpoint commit after validation at time of entry
+
+Write locks: closed for `tests/Riftbound.ConformanceTests/GoldTokenResourceSkillTests.cs`, `tests/Riftbound.ConformanceTests/MalzaharResourceSkillTests.cs`, `tests/Riftbound.ConformanceTests/RageSigilResourceSkillTests.cs`, current checkpoint/completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18TO_18TQ_STALE_RAW_CACHE_AUDIT.md`. Runtime validation code, matrix JSON, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18TO/18TP/18TQ integrated parallel worktree output: `945ba438` -> `d814a060` (Gold Token ACTIVATE_ABILITY stale prompt replay/cache conflict guard), `2adc76e2` -> `3c01906d` (Malzahar resource-skill ACTIVATE_ABILITY stale prompt replay/cache conflict guard) and `44bb3ccf` -> `15463475` (Rage Sigil typed reaction-resource ACTIVATE_ABILITY stale prompt replay/cache conflict guard). Runtime changed: no, server test coverage only.
+
+Validation: focused changed tests `80/80`; first adjacent server filter `3752/3752`; broader adjacent server filter `6439/6439`; backend full `7425/7425` under no-DB environment; `git diff --check`, range diff check, anchored conflict-marker scan and matrix JSON parse passed before docs sync. DOC_MATRIX_CURRENT was clean at `17bde0c3` when checked from A_MAIN.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and can dispatch another non-overlapping parallel server group. Project remains **NOT READY**.
 
 ### 2026-06-06 20:53 A_MAIN
 
