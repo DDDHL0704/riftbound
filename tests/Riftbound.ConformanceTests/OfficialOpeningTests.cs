@@ -8541,8 +8541,8 @@ public sealed class OfficialOpeningTests
             turnDrawnObjectIds);
 
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
-        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
-        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
         var journalEntryCountBeforeReplay = journal.Entries.Count;
         var stalePromptReplay = await session.SubmitAsync(
             activePlayerId,
@@ -8556,8 +8556,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal("行动窗口已过期，请按最新提示重新提交。", stalePromptReplay.ErrorMessage);
         Assert.Empty(stalePromptReplay.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(stalePromptReplay.State));
-        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(stalePromptReplay.Prompts));
-        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(stalePromptReplay.Snapshots));
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(stalePromptReplay.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(stalePromptReplay.Snapshots));
         Assert.Equal(accepted.State.Tick, stalePromptReplay.State.Tick);
         Assert.Equal(accepted.State.RngCursor, stalePromptReplay.State.RngCursor);
         AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
@@ -8587,8 +8587,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.State.Tick, rejectedJournalEntry.CompletedTick);
         Assert.Equal(accepted.State.Tick, rejectedJournalEntry.AuthoritativeState.Tick);
         Assert.Equal(accepted.State.RngCursor, rejectedJournalEntry.AuthoritativeState.RngCursor);
-        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
-        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
         Assert.True(rejectedJournalEntry.RawCommand.HasValue);
         Assert.Equal(CommandTypes.Mulligan, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
         Assert.Equal(
@@ -8655,8 +8655,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal("该客户端行动编号已用于其他命令。", conflict.ErrorMessage);
         Assert.Empty(conflict.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
-        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
-        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
         Assert.Equal(accepted.State.Tick, conflict.State.Tick);
         Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
         AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
