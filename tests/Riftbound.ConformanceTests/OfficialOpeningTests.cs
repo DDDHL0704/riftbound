@@ -7784,10 +7784,13 @@ public sealed class OfficialOpeningTests
     [Fact]
     public async Task OfficialReadyStalePromptReplayAfterMulliganStartsRejectsWithoutMutation()
     {
+        const string acceptedClientIntentId = "ready-p2-stale-prompt-accepted";
+        const string staleClientIntentId = "ready-p2-stale-prompt-replay";
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
-        var session = new MatchSession("official-ready-stale-prompt-room", new CoreRuleEngine());
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession("official-ready-stale-prompt-room", new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
@@ -7813,7 +7816,7 @@ public sealed class OfficialOpeningTests
 
         var accepted = await session.ReadyAsync(
             "P2",
-            "ready-p2-stale-prompt-accepted",
+            acceptedClientIntentId,
             rawCommand,
             CancellationToken.None);
 
@@ -7833,11 +7836,15 @@ public sealed class OfficialOpeningTests
         Assert.False(accepted.Prompts[secondPlayerId].Actionable);
         Assert.DoesNotContain("READY", accepted.Prompts["P2"].Actions);
         AssertOfficialReadyMulliganPromptQueueAudit(accepted, activePlayerId, secondPlayerId);
+        Assert.Equal(4, journal.Entries.Count);
 
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var journalEntryCountBeforeReplay = journal.Entries.Count;
         var replay = await session.ReadyAsync(
             "P2",
-            "ready-p2-stale-prompt-replay",
+            staleClientIntentId,
             rawCommand,
             CancellationToken.None);
 
@@ -7846,6 +7853,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal("行动窗口已过期，请按最新提示重新提交。", replay.ErrorMessage);
         Assert.Empty(replay.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(accepted.State.Tick, replay.State.Tick);
         Assert.Equal(accepted.State.RngCursor, replay.State.RngCursor);
         Assert.Equal(accepted.State.ReadyPlayerIds, replay.State.ReadyPlayerIds);
@@ -7860,6 +7869,88 @@ public sealed class OfficialOpeningTests
         Assert.False(replay.Prompts[secondPlayerId].Actionable);
         Assert.DoesNotContain("READY", replay.Prompts["P2"].Actions);
         AssertOfficialReadyMulliganPromptQueueAudit(replay, activePlayerId, secondPlayerId);
+
+        Assert.Equal(journalEntryCountBeforeReplay + 1, journal.Entries.Count);
+        var rejectedJournalEntry = Assert.Single(journal.Entries.Skip(journalEntryCountBeforeReplay));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
+        Assert.Equal("official-ready-stale-prompt-room", rejectedJournalEntry.RoomId);
+        Assert.Equal("P2", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal("READY", rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal("READY", rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replayPromptsHash = MatchStateHasher.HashValue(replay.Prompts);
+        var replaySnapshotsHash = MatchStateHasher.HashValue(replay.Snapshots);
+        var journalEntryCountAfterReplay = journal.Entries.Count;
+        var duplicateReplay = await session.ReadyAsync(
+            "P2",
+            staleClientIntentId,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(replay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(replay.State.RngCursor, duplicateReplay.State.RngCursor);
+        Assert.Equal(replay.State.ReadyPlayerIds, duplicateReplay.State.ReadyPlayerIds);
+        Assert.Equal(replay.State.PlayerZones[activePlayerId].Hand, duplicateReplay.State.PlayerZones[activePlayerId].Hand);
+        Assert.Equal(replay.State.PlayerZones[secondPlayerId].Hand, duplicateReplay.State.PlayerZones[secondPlayerId].Hand);
+        Assert.Equal(replay.State.PlayerZones[activePlayerId].MainDeck, duplicateReplay.State.PlayerZones[activePlayerId].MainDeck);
+        Assert.Equal(replay.State.PlayerZones[secondPlayerId].MainDeck, duplicateReplay.State.PlayerZones[secondPlayerId].MainDeck);
+        Assert.Equal(replay.State.MulliganCompletedPlayerIds, duplicateReplay.State.MulliganCompletedPlayerIds);
+        Assert.Equal(replay.State.OpeningSecondActionPlayerId, duplicateReplay.State.OpeningSecondActionPlayerId);
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.True(duplicateReplay.Prompts[activePlayerId].Actionable);
+        Assert.Contains("MULLIGAN", duplicateReplay.Prompts[activePlayerId].Actions);
+        Assert.False(duplicateReplay.Prompts[secondPlayerId].Actionable);
+        Assert.DoesNotContain("READY", duplicateReplay.Prompts["P2"].Actions);
+        AssertOfficialReadyMulliganPromptQueueAudit(duplicateReplay, activePlayerId, secondPlayerId);
+        Assert.Equal(journalEntryCountAfterReplay, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(session, "P2");
+        var p1PromptBeforeConflict = JsonSerializer.Serialize(session.PromptFor("P1"));
+        var p2PromptBeforeConflict = JsonSerializer.Serialize(session.PromptFor("P2"));
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "READY",
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await Assert.ThrowsAsync<MatchSessionException>(() =>
+            session.ReadyAsync(
+                "P2",
+                staleClientIntentId,
+                changedRawCommand,
+                CancellationToken.None).AsTask());
+
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.Message);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(session, "P2"));
+        Assert.Equal(p1PromptBeforeConflict, JsonSerializer.Serialize(session.PromptFor("P1")));
+        Assert.Equal(p2PromptBeforeConflict, JsonSerializer.Serialize(session.PromptFor("P2")));
+        Assert.Equal(journalEntryCountAfterReplay, journal.Entries.Count);
+        Assert.DoesNotContain(
+            journal.Entries,
+            entry => entry.RawCommand.HasValue
+                && entry.RawCommand.Value.TryGetProperty("clientNote", out var clientNote)
+                && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
