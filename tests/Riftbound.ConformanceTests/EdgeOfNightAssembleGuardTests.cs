@@ -400,6 +400,86 @@ public sealed class EdgeOfNightAssembleGuardTests
     }
 
     [Fact]
+    public void EdgeOfNightDirectPlayMainActionPlayCardPromptExposesNoTargetChoices()
+    {
+        var state = BuildEdgeOfNightPlayState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled
+                && (candidate.Sources ?? []).Any(source =>
+                    string.Equals(source.Id, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal)));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal));
+
+        var invalidTargetObjectIds = new[]
+        {
+            "P1-UNIT-ASSEMBLE-TARGET",
+            "P2-UNIT-ASSEMBLE-TARGET",
+            "P1-FACE-DOWN-STANDBY-UNIT",
+            "P1-BATTLEFIELD-EQUIPMENT",
+            "P1-BATTLEFIELD-SPELL",
+            "P1-BATTLEFIELD-RUNE"
+        };
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+
+        var metadataTargetIds = new List<string>();
+        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true
+            && rawSourceRequirements is not null)
+        {
+            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                    rawSourceRequirements)
+                .ToArray();
+            foreach (var sourceRequirement in sourceRequirements.Where(requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal)))
+            {
+                if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
+                    || rawTargetChoicesByIndex is null)
+                {
+                    continue;
+                }
+
+                var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                    rawTargetChoicesByIndex);
+                foreach (var rawTargetChoices in targetChoicesByIndex.Values)
+                {
+                    if (rawTargetChoices is null)
+                    {
+                        continue;
+                    }
+
+                    metadataTargetIds.AddRange(Assert
+                        .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                        .Select(choice => choice.Id));
+                }
+            }
+        }
+
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
+        }
+    }
+
+    [Fact]
     public async Task EdgeOfNightPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
