@@ -26338,6 +26338,153 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsCombatAssignmentElementShapeDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-assignment-nonarray-missing-battle",
+                CommandTypes.AssignCombatDamage,
+                RawJson("""
+                    {
+                      "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                      "battlefieldId": "battlefield-1",
+                      "assignments": true
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "assignments payload is not an array"),
+            new RecoveredCommand(
+                "alice",
+                "intent-assignment-nonobject-malformed-battlefield",
+                CommandTypes.AssignCombatDamage,
+                RawJson("""
+                    {
+                      "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                      "battleId": "battle-1",
+                      "battlefieldId": [],
+                      "assignments": [true]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "assignment item is not an object"),
+            new RecoveredCommand(
+                "alice",
+                "intent-assignment-blank-fields-missing-damage",
+                CommandTypes.AssignCombatDamage,
+                RawJson("""
+                    {
+                      "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                      "battleId": " ",
+                      "assignments": [
+                        {
+                          "sourceObjectId": " ",
+                          "targetObjectId": ""
+                        }
+                      ]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "assignment fields are blank"),
+            new RecoveredCommand(
+                "alice",
+                "intent-assignment-noninteger-damage",
+                CommandTypes.AssignCombatDamage,
+                RawJson("""
+                    {
+                      "cmdType": "ASSIGN_COMBAT_DAMAGE",
+                      "battleId": "battle-1",
+                      "battlefieldId": "battlefield-1",
+                      "assignments": [
+                        {
+                          "sourceObjectId": "attacker-1",
+                          "targetObjectId": "defender-1",
+                          "damage": 1.5
+                        }
+                      ]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "assignment damage is not an integer")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-nonarray-missing-battle raw ASSIGN_COMBAT_DAMAGE battleId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-nonarray-missing-battle raw ASSIGN_COMBAT_DAMAGE assignments must be an array",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-nonobject-malformed-battlefield raw ASSIGN_COMBAT_DAMAGE battlefieldId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-nonobject-malformed-battlefield raw ASSIGN_COMBAT_DAMAGE assignments[0] must be an object",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-blank-fields-missing-damage raw ASSIGN_COMBAT_DAMAGE battleId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-blank-fields-missing-damage raw ASSIGN_COMBAT_DAMAGE battlefieldId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-blank-fields-missing-damage raw ASSIGN_COMBAT_DAMAGE assignments[0].sourceObjectId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-blank-fields-missing-damage raw ASSIGN_COMBAT_DAMAGE assignments[0].targetObjectId is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-blank-fields-missing-damage raw ASSIGN_COMBAT_DAMAGE assignments[0].damage is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-assignment-noninteger-damage raw ASSIGN_COMBAT_DAMAGE assignments[0].damage is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsCombatAssignmentPropertyNameDrift()
     {
         var commands = new[]
