@@ -2685,7 +2685,8 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentRejectsStalePromptStamp()
     {
         const string roomId = "prompt-stamp-expired-core";
-        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .JoinRoom(roomId, "P1");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
@@ -2703,31 +2704,118 @@ public sealed class GameHubJoinTests
         Assert.Empty(seedClients.CallerClient.Errors);
         var prompt = PromptFor(seedClients, "P1");
         Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
+        Assert.True(prompt.SnapshotTick.HasValue);
+        var seedJournalCount = journal.Entries.Count;
+        var seededEntry = Assert.Single(journal.Entries);
+        var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
+        var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
+        var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
 
         var staleClients = new RecordingHubClients();
+        var stalePromptId = $"{prompt.PromptId}:stale";
+        var stalePlayCard = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PlayCard,
+            sourceObjectId = "P1-SPELL-BULLET-TIME",
+            cardNo = "OGN·268/298",
+            targetObjectIds = Array.Empty<string>(),
+            optionalCosts = new[] { "SPEND_POWER:red:2" },
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick.Value
+        });
         await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "intent-stale-prompt-stamp", JsonSerializer.SerializeToElement(new
-            {
-                cmdType = "PLAY_CARD",
-                sourceObjectId = "P1-SPELL-BULLET-TIME",
-                cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
-                optionalCosts = new[] { "SPEND_POWER:red:2" },
-                promptId = $"{prompt.PromptId}:stale",
-                snapshotTick = prompt.SnapshotTick
-            }));
+            .SubmitIntent(roomId, "P1", "intent-stale-prompt-stamp", stalePlayCard);
 
         var error = Assert.Single(staleClients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.PromptExpired, payload.Code);
         Assert.Empty(staleClients.GroupClient.EventMessages);
+        Assert.Empty(staleClients.GroupClient.Snapshots);
+        Assert.Empty(staleClients.GroupClient.Prompts);
+        Assert.Empty(staleClients.CallerClient.EventMessages);
+        Assert.Empty(staleClients.CallerClient.Snapshots);
+        Assert.Empty(staleClients.CallerClient.Prompts);
+        Assert.Equal(seedJournalCount + 1, journal.Entries.Count);
+        var rejectedEntry = journal.Entries[^1];
+        Assert.Equal(roomId, rejectedEntry.RoomId);
+        Assert.Equal("P1", rejectedEntry.PlayerId);
+        Assert.Equal("intent-stale-prompt-stamp", rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.PlayCard, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal(payload.Message, rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(seededStateHash, MatchStateHasher.Hash(rejectedEntry.AuthoritativeState));
+        Assert.Equal(seededPromptsHash, MatchStateHasher.HashValue(rejectedEntry.Prompts));
+        Assert.Equal(seededSnapshotsHash, MatchStateHasher.HashValue(rejectedEntry.Snapshots));
+        Assert.True(rejectedEntry.RawCommand.HasValue);
+        var rejectedRawCommand = rejectedEntry.RawCommand.Value;
+        Assert.Equal(CommandTypes.PlayCard, rejectedRawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("P1-SPELL-BULLET-TIME", rejectedRawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal("OGN·268/298", rejectedRawCommand.GetProperty("cardNo").GetString());
+        Assert.Equal(
+            ["SPEND_POWER:red:2"],
+            rejectedRawCommand.GetProperty("optionalCosts")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.Equal(stalePromptId, rejectedRawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick.Value, rejectedRawCommand.GetProperty("snapshotTick").GetInt64());
+
+        var staleJournalCount = journal.Entries.Count;
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-stale-prompt-stamp", stalePlayCard);
+
+        var replayError = Assert.Single(replayClients.CallerClient.Errors);
+        var replayPayload = Assert.IsType<ErrorDto>(replayError.Payload);
+        Assert.Equal(ErrorCodes.PromptExpired, replayPayload.Code);
+        Assert.Equal(payload.Message, replayPayload.Message);
+        Assert.Empty(replayClients.GroupClient.EventMessages);
+        Assert.Empty(replayClients.GroupClient.Snapshots);
+        Assert.Empty(replayClients.GroupClient.Prompts);
+        Assert.Empty(replayClients.CallerClient.EventMessages);
+        Assert.Empty(replayClients.CallerClient.Snapshots);
+        Assert.Empty(replayClients.CallerClient.Prompts);
+        Assert.Equal(staleJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedStalePlayCard = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PlayCard,
+            sourceObjectId = "P1-SPELL-BULLET-TIME",
+            cardNo = "OGN·268/298",
+            targetObjectIds = Array.Empty<string>(),
+            optionalCosts = new[] { "SPEND_POWER:red:1" },
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick.Value,
+            clientNote = "changed-stale-prompt"
+        });
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-stale-prompt-stamp", changedStalePlayCard);
+
+        var conflictError = Assert.Single(conflictClients.CallerClient.Errors);
+        var conflictPayload = Assert.IsType<ErrorDto>(conflictError.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflictPayload.Code);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(staleJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-stale-prompt", StringComparison.Ordinal));
     }
 
     [Fact]
     public async Task SubmitIntentRejectsStaleSnapshotTickWithMatchingPromptId()
     {
         const string roomId = "prompt-stamp-stale-snapshot-core";
-        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .JoinRoom(roomId, "P1");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
@@ -2746,24 +2834,109 @@ public sealed class GameHubJoinTests
         var prompt = PromptFor(seedClients, "P1");
         Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
         Assert.True(prompt.SnapshotTick.HasValue);
+        var seedJournalCount = journal.Entries.Count;
+        var seededEntry = Assert.Single(journal.Entries);
+        var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
+        var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
+        var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
 
         var staleClients = new RecordingHubClients();
+        var staleSnapshotTick = prompt.SnapshotTick.Value + 1;
+        var stalePlayCard = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PlayCard,
+            sourceObjectId = "P1-SPELL-BULLET-TIME",
+            cardNo = "OGN·268/298",
+            targetObjectIds = Array.Empty<string>(),
+            optionalCosts = new[] { "SPEND_POWER:red:2" },
+            promptId = prompt.PromptId,
+            snapshotTick = staleSnapshotTick
+        });
         await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "intent-stale-snapshot-stamp", JsonSerializer.SerializeToElement(new
-            {
-                cmdType = "PLAY_CARD",
-                sourceObjectId = "P1-SPELL-BULLET-TIME",
-                cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
-                optionalCosts = new[] { "SPEND_POWER:red:2" },
-                promptId = prompt.PromptId,
-                snapshotTick = prompt.SnapshotTick.Value + 1
-            }));
+            .SubmitIntent(roomId, "P1", "intent-stale-snapshot-stamp", stalePlayCard);
 
         var error = Assert.Single(staleClients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.PromptExpired, payload.Code);
         Assert.Empty(staleClients.GroupClient.EventMessages);
+        Assert.Empty(staleClients.GroupClient.Snapshots);
+        Assert.Empty(staleClients.GroupClient.Prompts);
+        Assert.Empty(staleClients.CallerClient.EventMessages);
+        Assert.Empty(staleClients.CallerClient.Snapshots);
+        Assert.Empty(staleClients.CallerClient.Prompts);
+        Assert.Equal(seedJournalCount + 1, journal.Entries.Count);
+        var rejectedEntry = journal.Entries[^1];
+        Assert.Equal(roomId, rejectedEntry.RoomId);
+        Assert.Equal("P1", rejectedEntry.PlayerId);
+        Assert.Equal("intent-stale-snapshot-stamp", rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.PlayCard, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal(payload.Message, rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(seededStateHash, MatchStateHasher.Hash(rejectedEntry.AuthoritativeState));
+        Assert.Equal(seededPromptsHash, MatchStateHasher.HashValue(rejectedEntry.Prompts));
+        Assert.Equal(seededSnapshotsHash, MatchStateHasher.HashValue(rejectedEntry.Snapshots));
+        Assert.True(rejectedEntry.RawCommand.HasValue);
+        var rejectedRawCommand = rejectedEntry.RawCommand.Value;
+        Assert.Equal(CommandTypes.PlayCard, rejectedRawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("P1-SPELL-BULLET-TIME", rejectedRawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal("OGN·268/298", rejectedRawCommand.GetProperty("cardNo").GetString());
+        Assert.Equal(
+            ["SPEND_POWER:red:2"],
+            rejectedRawCommand.GetProperty("optionalCosts")
+                .EnumerateArray()
+                .Select(choice => Assert.IsType<string>(choice.GetString()))
+                .ToArray());
+        Assert.Equal(prompt.PromptId, rejectedRawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(staleSnapshotTick, rejectedRawCommand.GetProperty("snapshotTick").GetInt64());
+
+        var staleJournalCount = journal.Entries.Count;
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-stale-snapshot-stamp", stalePlayCard);
+
+        var replayError = Assert.Single(replayClients.CallerClient.Errors);
+        var replayPayload = Assert.IsType<ErrorDto>(replayError.Payload);
+        Assert.Equal(ErrorCodes.PromptExpired, replayPayload.Code);
+        Assert.Equal(payload.Message, replayPayload.Message);
+        Assert.Empty(replayClients.GroupClient.EventMessages);
+        Assert.Empty(replayClients.GroupClient.Snapshots);
+        Assert.Empty(replayClients.GroupClient.Prompts);
+        Assert.Empty(replayClients.CallerClient.EventMessages);
+        Assert.Empty(replayClients.CallerClient.Snapshots);
+        Assert.Empty(replayClients.CallerClient.Prompts);
+        Assert.Equal(staleJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedStalePlayCard = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PlayCard,
+            sourceObjectId = "P1-SPELL-BULLET-TIME",
+            cardNo = "OGN·268/298",
+            targetObjectIds = Array.Empty<string>(),
+            optionalCosts = new[] { "SPEND_POWER:red:1" },
+            promptId = prompt.PromptId,
+            snapshotTick = staleSnapshotTick,
+            clientNote = "changed-stale-snapshot"
+        });
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-stale-snapshot-stamp", changedStalePlayCard);
+
+        var conflictError = Assert.Single(conflictClients.CallerClient.Errors);
+        var conflictPayload = Assert.IsType<ErrorDto>(conflictError.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflictPayload.Code);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(staleJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-stale-snapshot", StringComparison.Ordinal));
     }
 
     [Fact]
