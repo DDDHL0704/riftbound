@@ -1103,6 +1103,108 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperDeclareBattleUsesCommandFieldsOverVisibleBattleMetadata()
+    {
+        var command = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-CURRENT",
+              "attackerObjectIds": [" P1-CURRENT-ATTACKER "],
+              "defenderObjectIds": [" P2-CURRENT-DEFENDER "],
+              "optionalCosts": [" COMBAT_ASSIGNMENT "],
+              "battlefieldTargetObjectIds": [" P2-CURRENT-BATTLEFIELD-TARGET "],
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-SOURCE",
+                  "attackerChoicesByIndex": { "0": [{ "id": "P1-VISIBLE-ATTACKER" }] },
+                  "targetChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-TARGET" }] },
+                  "defenderChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-DEFENDER" }] },
+                  "battlefieldChoices": [{ "id": "BATTLEFIELD:P1-VISIBLE" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_COST" }]
+                }
+              ]
+            }
+            """).RootElement));
+        var unreadableCurrent = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-CURRENT",
+              "attackerObjectIds": ["P1-CURRENT-ATTACKER", null, { "id": "P1-UNREADABLE-ATTACKER" }, " "],
+              "defenderObjectIds": [false, " P2-CURRENT-DEFENDER "],
+              "optionalCosts": [7, " COMBAT_ASSIGNMENT "],
+              "battlefieldTargetObjectIds": [{ "id": "P2-UNREADABLE-BATTLEFIELD-TARGET" }, " P2-CURRENT-BATTLEFIELD-TARGET "],
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-SOURCE",
+                  "attackerChoicesByIndex": { "0": [{ "id": "P1-VISIBLE-ATTACKER" }] },
+                  "targetChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-TARGET" }] },
+                  "defenderChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-DEFENDER" }] },
+                  "battlefieldChoices": [{ "id": "BATTLEFIELD:P1-VISIBLE" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_COST" }]
+                }
+              ]
+            }
+            """).RootElement));
+        var malformedCurrent = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-CURRENT",
+              "attackerObjectIds": "P1-CURRENT-ATTACKER",
+              "defenderObjectIds": { "0": "P2-CURRENT-DEFENDER" },
+              "optionalCosts": null,
+              "battlefieldTargetObjectIds": { "ids": ["P2-CURRENT-BATTLEFIELD-TARGET"] },
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-SOURCE",
+                  "attackerChoicesByIndex": { "0": [{ "id": "P1-VISIBLE-ATTACKER" }] },
+                  "targetChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-TARGET" }] },
+                  "defenderChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-DEFENDER" }] },
+                  "battlefieldChoices": [{ "id": "BATTLEFIELD:P1-VISIBLE" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_COST" }]
+                }
+              ]
+            }
+            """).RootElement));
+        var aliasOnly = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-SOURCE",
+                  "attackerChoicesByIndex": { "0": [{ "id": "P1-VISIBLE-ATTACKER" }] },
+                  "targetChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-TARGET" }] },
+                  "defenderChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-DEFENDER" }] },
+                  "battlefieldChoices": [{ "id": "BATTLEFIELD:P1-VISIBLE" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_COST" }]
+                }
+              ]
+            }
+            """).RootElement));
+
+        Assert.Equal("BATTLEFIELD:P1-CURRENT", command.BattlefieldId);
+        Assert.Equal(["P1-CURRENT-ATTACKER"], command.AttackerObjectIds);
+        Assert.Equal(["P2-CURRENT-DEFENDER"], command.DefenderObjectIds);
+        Assert.Equal(["COMBAT_ASSIGNMENT"], command.OptionalCosts);
+        Assert.Equal(["P2-CURRENT-BATTLEFIELD-TARGET"], command.BattlefieldTargetObjectIds);
+
+        Assert.Equal(["P1-CURRENT-ATTACKER"], unreadableCurrent.AttackerObjectIds);
+        Assert.Equal(["P2-CURRENT-DEFENDER"], unreadableCurrent.DefenderObjectIds);
+        Assert.Equal(["COMBAT_ASSIGNMENT"], unreadableCurrent.OptionalCosts);
+        Assert.Equal(["P2-CURRENT-BATTLEFIELD-TARGET"], unreadableCurrent.BattlefieldTargetObjectIds);
+
+        Assert.Empty(malformedCurrent.AttackerObjectIds ?? []);
+        Assert.Empty(malformedCurrent.DefenderObjectIds ?? []);
+        Assert.Empty(malformedCurrent.OptionalCosts ?? []);
+        Assert.Empty(malformedCurrent.BattlefieldTargetObjectIds ?? []);
+
+        Assert.Equal(string.Empty, aliasOnly.BattlefieldId);
+        Assert.Empty(aliasOnly.AttackerObjectIds ?? []);
+        Assert.Empty(aliasOnly.DefenderObjectIds ?? []);
+        Assert.Empty(aliasOnly.OptionalCosts ?? []);
+        Assert.Empty(aliasOnly.BattlefieldTargetObjectIds ?? []);
+    }
+
+    [Fact]
     public void GameCommandMapperPreservesMalformedP0PayloadsForStableValidation()
     {
         var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
