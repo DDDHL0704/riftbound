@@ -461,6 +461,45 @@ public sealed class JhinMovementResourceSkillTests
     }
 
     [Fact]
+    public async Task JhinGeneratedResourceDoesNotLeakPromptMetadataForManaOnlyPayment()
+    {
+        var moved = await MoveJhinAsync(BuildJhinBaseState());
+        var activated = await ActivateJhinAsync(moved.State, optionalCosts: [JhinTriggerChoice(moved.State)]);
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana, activated.State.RunePools["P1"].Mana);
+
+        var temporaryResource = Assert.Single(activated.State.TemporaryPaymentResources);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var pendingPayment = new PendingPaymentState(
+            "PAY-JHIN-MANA-ONLY",
+            "TEST_PENDING_PAY_COST",
+            "P1",
+            manaCost: 1,
+            legalPaymentChoiceIds: ["SPEND_MANA:1"]);
+        var paymentState = activated.State with { PendingPayment = pendingPayment };
+
+        var prompt = ResolutionResult.BuildPrompts(paymentState)["P1"];
+
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, prompt.Actions);
+        var payCostCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(payCostCandidate.Metadata);
+        var paymentChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Equal(["SPEND_MANA:1"], paymentChoices.Select(choice => choice.Id).ToArray());
+        Assert.DoesNotContain(paymentChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["paymentResourceActionIds"]));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Empty(paymentResourcePowerByChoice);
+        Assert.DoesNotContain(resourceAction, paymentResourcePowerByChoice.Keys);
+        Assert.Equal(temporaryResource, Assert.Single(paymentState.TemporaryPaymentResources));
+        Assert.Equal(pendingPayment, paymentState.PendingPayment);
+    }
+
+    [Fact]
     public async Task JhinGeneratedResourcesExpireAtTurnEndWhenUnused()
     {
         var moved = await MoveJhinAsync(BuildJhinBaseState());
