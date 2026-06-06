@@ -78,6 +78,77 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
     }
 
     [Fact]
+    public void ReksaiAttackRevealMainActionPlayCardPromptExposesNoTargetChoicesForNoTargetUnitPlay()
+    {
+        var state = BuildReksaiState(ReksaiPrimaryCardNo);
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, ReksaiObjectId, StringComparison.Ordinal)));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, ReksaiObjectId, StringComparison.Ordinal));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var fixtureObjectId in new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-REKSAI",
+            "P1-FACE-DOWN-STANDBY-REKSAI",
+            "P2-UNIT-REKSAI",
+            ReksaiObjectId
+        })
+        {
+            Assert.DoesNotContain(fixtureObjectId, targetIds);
+        }
+
+        if (playCandidate.Metadata is null
+            || !playCandidate.Metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload)
+            || sourceRequirementsPayload is null)
+        {
+            return;
+        }
+
+        var reksaiSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                sourceRequirementsPayload)
+            .Where(requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, ReksaiObjectId, StringComparison.Ordinal))
+            .ToArray();
+
+        foreach (var sourceRequirement in reksaiSourceRequirements)
+        {
+            if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
+                || targetChoicesPayload is null)
+            {
+                continue;
+            }
+
+            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                targetChoicesPayload);
+            Assert.All(targetChoicesByIndex.Values, choices =>
+            {
+                if (choices is null)
+                {
+                    return;
+                }
+
+                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices));
+            });
+        }
+    }
+
+    [Fact]
     public async Task ReksaiAttackRevealPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
