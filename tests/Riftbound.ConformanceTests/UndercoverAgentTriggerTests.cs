@@ -215,7 +215,7 @@ public sealed class UndercoverAgentTriggerTests
         Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
 
         Assert.Equal(2, journal.Entries.Count);
-        var rejectedJournalEntry = Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        var rejectedJournalEntry = Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(pending.State.RoomId, rejectedJournalEntry.RoomId);
         Assert.Equal("P1", rejectedJournalEntry.PlayerId);
         Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
