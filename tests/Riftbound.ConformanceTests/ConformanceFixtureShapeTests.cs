@@ -2583,7 +2583,7 @@ public sealed class ConformanceFixtureShapeTests
 
         AssertRejectedWithoutMutation(cachedReplay, ErrorCodes.PromptExpired);
         Assert.Equal(stale.ErrorMessage, cachedReplay.ErrorMessage);
-        Assert.Equal(1, journal.Entries.Count);
+        Assert.Same(rejectedEntry, Assert.Single(journal.Entries));
 
         var conflict = await session.SubmitAsync(
             "P1",
@@ -2593,7 +2593,7 @@ public sealed class ConformanceFixtureShapeTests
             CancellationToken.None);
 
         AssertRejectedWithoutMutation(conflict, ErrorCodes.ClientIntentConflict);
-        Assert.Equal(1, journal.Entries.Count);
+        Assert.Same(rejectedEntry, Assert.Single(journal.Entries));
         Assert.DoesNotContain(
             journal.Entries,
             entry => entry.RawCommand.HasValue
