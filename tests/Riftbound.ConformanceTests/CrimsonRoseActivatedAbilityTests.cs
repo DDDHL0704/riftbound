@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -217,6 +218,190 @@ public sealed class CrimsonRoseActivatedAbilityTests
     }
 
     [Fact]
+    public async Task CrimsonRoseEnemySpellshieldStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var state = BuildCrimsonRoseState(mana: 1, experience: 3);
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Equal([CrimsonRoseObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        var command = CrimsonRoseCommand([EnemySpellshieldUnitObjectId]);
+        var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
+        var changedStaleRawCommand = PromptScopedActivateAbilityRawCommandWithClientNote(command, prompt, "changed-payload");
+        const string acceptedClientIntentId = "intent-crimson-rose-before-stale-prompt-replay";
+        const string staleClientIntentId = "intent-crimson-rose-stale-prompt-replay";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            acceptedClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "EQUIPMENT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(0, accepted.State.RunePools["P1"].Mana);
+        Assert.Equal(0, accepted.State.PlayerExperience["P1"]);
+        Assert.True(accepted.State.CardObjects[CrimsonRoseObjectId].IsExhausted);
+        Assert.True(accepted.State.CardObjects[EnemySpellshieldUnitObjectId].IsExhausted);
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), accepted.State.ObjectLocations[CrimsonRoseObjectId]);
+        Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "P2-MAIN"), accepted.State.ObjectLocations[EnemySpellshieldUnitObjectId]);
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        Assert.Contains(CommandTypes.PassPriority, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].Actions);
+        var acceptedStackItem = Assert.Single(accepted.State.StackItems);
+        Assert.Equal(CrimsonRoseObjectId, acceptedStackItem.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind, acceptedStackItem.EffectKind);
+        Assert.Equal([EnemySpellshieldUnitObjectId], acceptedStackItem.TargetObjectIds);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(CrimsonRoseObjectId, acceptedJournalEntry.RawCommand.Value.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, acceptedJournalEntry.RawCommand.Value.GetProperty("abilityId").GetString());
+        Assert.Equal(
+            [EnemySpellshieldUnitObjectId],
+            acceptedJournalEntry.RawCommand.Value.GetProperty("targetObjectIds").EnumerateArray().Select(target => target.GetString()!).ToArray());
+        Assert.Empty(acceptedJournalEntry.RawCommand.Value.GetProperty("optionalCosts").EnumerateArray());
+        Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(0, replay.State.RunePools["P1"].Mana);
+        Assert.Equal(0, replay.State.PlayerExperience["P1"]);
+        Assert.True(replay.State.CardObjects[CrimsonRoseObjectId].IsExhausted);
+        Assert.True(replay.State.CardObjects[EnemySpellshieldUnitObjectId].IsExhausted);
+        Assert.Equal(accepted.State.ObjectLocations[CrimsonRoseObjectId], replay.State.ObjectLocations[CrimsonRoseObjectId]);
+        Assert.Equal(accepted.State.ObjectLocations[EnemySpellshieldUnitObjectId], replay.State.ObjectLocations[EnemySpellshieldUnitObjectId]);
+        Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
+        Assert.Equal("P1", replay.State.PriorityPlayerId);
+        Assert.Contains(CommandTypes.PassPriority, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].Actions);
+        var replayStackItem = Assert.Single(replay.State.StackItems);
+        Assert.Equal(acceptedStackItem.StackItemId, replayStackItem.StackItemId);
+        Assert.Equal(CrimsonRoseObjectId, replayStackItem.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind, replayStackItem.EffectKind);
+        Assert.Equal([EnemySpellshieldUnitObjectId], replayStackItem.TargetObjectIds);
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(CrimsonRoseObjectId, rejectedJournalEntry.RawCommand.Value.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId, rejectedJournalEntry.RawCommand.Value.GetProperty("abilityId").GetString());
+        Assert.Equal(
+            [EnemySpellshieldUnitObjectId],
+            rejectedJournalEntry.RawCommand.Value.GetProperty("targetObjectIds").EnumerateArray().Select(target => target.GetString()!).ToArray());
+        Assert.Empty(rejectedJournalEntry.RawCommand.Value.GetProperty("optionalCosts").EnumerateArray());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+        var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(replay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(0, duplicateReplay.State.RunePools["P1"].Mana);
+        Assert.Equal(0, duplicateReplay.State.PlayerExperience["P1"]);
+        Assert.True(duplicateReplay.State.CardObjects[CrimsonRoseObjectId].IsExhausted);
+        Assert.True(duplicateReplay.State.CardObjects[EnemySpellshieldUnitObjectId].IsExhausted);
+        Assert.Equal(accepted.State.ObjectLocations[CrimsonRoseObjectId], duplicateReplay.State.ObjectLocations[CrimsonRoseObjectId]);
+        Assert.Equal(accepted.State.ObjectLocations[EnemySpellshieldUnitObjectId], duplicateReplay.State.ObjectLocations[EnemySpellshieldUnitObjectId]);
+        Assert.Equal(TimingStates.NeutralClosed, duplicateReplay.State.TimingState);
+        Assert.Equal("P1", duplicateReplay.State.PriorityPlayerId);
+        Assert.Equal(accepted.State.StackItems, duplicateReplay.State.StackItems);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(0, conflict.State.RunePools["P1"].Mana);
+        Assert.Equal(0, conflict.State.PlayerExperience["P1"]);
+        Assert.True(conflict.State.CardObjects[CrimsonRoseObjectId].IsExhausted);
+        Assert.True(conflict.State.CardObjects[EnemySpellshieldUnitObjectId].IsExhausted);
+        Assert.Equal(accepted.State.ObjectLocations[CrimsonRoseObjectId], conflict.State.ObjectLocations[CrimsonRoseObjectId]);
+        Assert.Equal(accepted.State.ObjectLocations[EnemySpellshieldUnitObjectId], conflict.State.ObjectLocations[EnemySpellshieldUnitObjectId]);
+        Assert.Equal(TimingStates.NeutralClosed, conflict.State.TimingState);
+        Assert.Equal("P1", conflict.State.PriorityPlayerId);
+        Assert.Equal(accepted.State.StackItems, conflict.State.StackItems);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CrimsonRoseStackPassPassReadiesTargetAndKeepsSourceInBaseExhausted()
     {
         var engine = new CoreRuleEngine();
@@ -372,6 +557,40 @@ public sealed class CrimsonRoseActivatedAbilityTests
             P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
             targetObjectIds,
             optionalCosts);
+    }
+
+    private static JsonElement PromptScopedActivateAbilityRawCommand(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private static JsonElement PromptScopedActivateAbilityRawCommandWithClientNote(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        });
     }
 
     private static async Task AssertRejectedNoMutationAsync(
@@ -681,5 +900,16 @@ public sealed class CrimsonRoseActivatedAbilityTests
         }
 
         return next;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
