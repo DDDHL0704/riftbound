@@ -271,6 +271,91 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
+    public async Task PlayCardGenericPowerShortfallQuotesAndCommitsTwoTemporaryPaymentResourcesWhenNeitherAlonePaysCost()
+    {
+        var firstTemporaryResource = TemporaryResource("MALZAHAR:TEMP-PLAY-COMBINE-A", remainingPower: 1);
+        var secondTemporaryResource = TemporaryResource("MALZAHAR:TEMP-PLAY-COMBINE-B", remainingPower: 1);
+        var firstResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(firstTemporaryResource.ResourceId);
+        var secondResourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(secondTemporaryResource.ResourceId);
+        var state = BulletTimeState(new RunePool(1, 0)) with
+        {
+            TemporaryPaymentResources = [firstTemporaryResource, secondTemporaryResource]
+        };
+
+        var sourceRequirement = AssertSinglePlayCardSourceRequirement(state);
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]);
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:2", StringComparison.Ordinal));
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, firstResourceAction, StringComparison.Ordinal));
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, secondResourceAction, StringComparison.Ordinal));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["paymentResourceChoices"]);
+        Assert.Equal([firstResourceAction, secondResourceAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(1, paymentResourcePowerByChoice[firstResourceAction]["power"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[firstResourceAction]["paymentOnly"]);
+        Assert.Equal(firstTemporaryResource.ResourceId, paymentResourcePowerByChoice[firstResourceAction]["temporaryPaymentResourceId"]);
+        Assert.Equal(1, paymentResourcePowerByChoice[secondResourceAction]["power"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[secondResourceAction]["paymentOnly"]);
+        Assert.Equal(secondTemporaryResource.ResourceId, paymentResourcePowerByChoice[secondResourceAction]["temporaryPaymentResourceId"]);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-play-card-two-temporary-payment-resources", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BULLET-TIME",
+                "OGN·268/298",
+                [],
+                OptionalCosts: [firstResourceAction, secondResourceAction, "SPEND_POWER:2"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(
+            [
+                "CARD_PLAYED",
+                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
+                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
+                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
+                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
+                "COST_PAID",
+                "STACK_ITEM_ADDED"
+            ],
+            result.Events.Select(evt => evt.Kind));
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal(2, stackItem.DamageAmount);
+
+        var spentEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(
+            [firstTemporaryResource.ResourceId, secondTemporaryResource.ResourceId],
+            spentEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["temporaryPaymentResourceId"])).ToArray());
+        Assert.All(spentEvents, gameEvent => Assert.Equal(1, gameEvent.Payload["consumedPower"]));
+        Assert.All(spentEvents, gameEvent => Assert.Equal(0, gameEvent.Payload["remainingPower"]));
+
+        var clearedEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(
+            [firstTemporaryResource.ResourceId, secondTemporaryResource.ResourceId],
+            clearedEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["temporaryPaymentResourceId"])).ToArray());
+        Assert.All(clearedEvents, gameEvent => Assert.Equal(0, gameEvent.Payload["remainingPowerBeforeCleanup"]));
+
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(["SPEND_POWER:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal([firstResourceAction, secondResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal(
+            [firstTemporaryResource.ResourceId, secondTemporaryResource.ResourceId],
+            Assert.IsType<string[]>(costEvent.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(2, costEvent.Payload["genericPower"]);
+        Assert.Equal(2, costEvent.Payload["temporaryPaymentResourcePower"]);
+        Assert.Equal(0, costEvent.Payload["remainingPower"]);
+    }
+
+    [Fact]
     public async Task PlayCardRejectsInsufficientTemporaryPaymentResourceWithoutMutation()
     {
         var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PLAY-INSUFFICIENT", remainingPower: 1);
