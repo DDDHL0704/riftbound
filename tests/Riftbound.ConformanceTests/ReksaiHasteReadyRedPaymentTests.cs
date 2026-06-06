@@ -45,7 +45,20 @@ public sealed class ReksaiHasteReadyRedPaymentTests
                 [GreenRuneObjectId] = RuneCard(GreenRuneObjectId, RuneTrait.Green)
             });
 
-        var sourceRequirement = PlayCardSourceRequirement(state, cardNo);
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, ReksaiObjectId, StringComparison.Ordinal));
+        Assert.Empty(playCandidate.Targets ?? []);
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["cardNo"] as string, cardNo, StringComparison.Ordinal));
 
         Assert.Equal(ReksaiObjectId, sourceRequirement["sourceObjectId"]);
         Assert.Equal(cardNo, sourceRequirement["cardNo"]);
@@ -53,6 +66,8 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         Assert.Equal(3, sourceRequirement["minimumManaCost"]);
         Assert.Equal(0, sourceRequirement["minTargetCount"]);
         Assert.Equal(0, sourceRequirement["maxTargetCount"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]));
         Assert.Equal(1, sourceRequirement["hasteReadyPowerCost"]);
         Assert.Equal(RuneTrait.Red, sourceRequirement["hasteReadyPowerTrait"]);
 
@@ -60,6 +75,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
         Assert.Single(optionalCostChoices, choice => string.Equals(choice.Id, HasteOptionalCostNames.HasteReady, StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, ReksaiObjectId, StringComparison.Ordinal));
 
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
