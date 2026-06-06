@@ -78,6 +78,62 @@ public sealed class DravenKeywordUnitGuardTests
     }
 
     [Fact]
+    public void DravenKeywordUnitMainActionPlayCardPromptExposesNoTargetChoices()
+    {
+        var state = BuildDravenState(DravenPrimaryCardNo);
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, DravenObjectId, StringComparison.Ordinal)));
+        Assert.True(playCandidate.Enabled);
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        Assert.DoesNotContain("P1-TARGET-UNIT", targetIds);
+        Assert.DoesNotContain("P1-BASE-DRAVEN", targetIds);
+        Assert.DoesNotContain("P1-FACE-DOWN-STANDBY-DRAVEN", targetIds);
+        Assert.DoesNotContain("P2-UNIT-DRAVEN", targetIds);
+        Assert.DoesNotContain(DravenObjectId, targetIds);
+
+        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true
+            && rawSourceRequirements is IEnumerable<IReadOnlyDictionary<string, object?>> sourceRequirements)
+        {
+            var sourceRequirement = sourceRequirements.FirstOrDefault(requirement =>
+                requirement.TryGetValue("sourceObjectId", out var rawSourceObjectId)
+                && string.Equals(rawSourceObjectId as string, DravenObjectId, StringComparison.Ordinal));
+            if (sourceRequirement is not null
+                && sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
+                && rawTargetChoicesByIndex is not null)
+            {
+                var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(rawTargetChoicesByIndex);
+                var targetChoiceIds = new List<string>();
+                foreach (var rawTargetChoices in choicesByIndex.Values)
+                {
+                    if (rawTargetChoices is null)
+                    {
+                        continue;
+                    }
+
+                    var targetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices);
+                    targetChoiceIds.AddRange(targetChoices.Select(choice => choice.Id));
+                }
+
+                Assert.Empty(targetChoiceIds);
+            }
+        }
+    }
+
+    [Fact]
     public async Task DravenKeywordUnitPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
