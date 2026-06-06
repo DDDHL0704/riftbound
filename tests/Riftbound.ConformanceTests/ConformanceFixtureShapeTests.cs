@@ -1027,6 +1027,41 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperPayCostPrefersCurrentPaymentChoiceIdsOverVisiblePaymentChoices()
+    {
+        var command = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PAY_COST",
+              "paymentId": "PAY-1",
+              "paymentWindow": "TEST_PAYMENT",
+              "paymentChoiceIds": [" SPEND_MANA:1 ", " DECLINE "],
+              "paymentChoices": ["SPEND_POWER:any:1"]
+            }
+            """).RootElement));
+        var malformedCurrent = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PAY_COST",
+              "paymentId": "PAY-1",
+              "paymentWindow": "TEST_PAYMENT",
+              "paymentChoiceIds": ["SPEND_MANA:1", null],
+              "paymentChoices": ["SPEND_POWER:any:1"]
+            }
+            """).RootElement));
+        var aliasOnly = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PAY_COST",
+              "paymentId": "PAY-1",
+              "paymentWindow": "TEST_PAYMENT",
+              "paymentChoices": ["SPEND_POWER:any:1"]
+            }
+            """).RootElement));
+
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], command.PaymentChoiceIds);
+        Assert.Null(malformedCurrent.PaymentChoiceIds);
+        Assert.Null(aliasOnly.PaymentChoiceIds);
+    }
+
+    [Fact]
     public void GameCommandMapperPreservesMalformedP0PayloadsForStableValidation()
     {
         var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
