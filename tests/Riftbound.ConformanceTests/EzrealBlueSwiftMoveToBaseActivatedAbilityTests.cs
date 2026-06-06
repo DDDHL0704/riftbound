@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -147,6 +148,186 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         Assert.Equal("EZREAL_BLUE_SWIFT_MOVE_TO_BASE", moveEvent.Payload["movementPermission"]);
         Assert.Equal("BASE", moveEvent.Payload["destinationZone"]);
         Assert.True(Assert.IsType<bool>(moveEvent.Payload["swift"]));
+    }
+
+    [Fact]
+    public async Task EzrealActivationStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var state = BuildEzrealSwiftState(
+            P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo,
+            new RunePool(0, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Blue] = 1
+            }));
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Equal([EzrealObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        var command = EzrealCommand();
+        var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
+        var changedStaleRawCommand = PromptScopedActivateAbilityRawCommandWithClientNote(command, prompt, "changed-payload");
+        const string acceptedClientIntentId = "intent-ezreal-before-stale-prompt-replay";
+        const string staleClientIntentId = "intent-ezreal-stale-prompt-replay";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            acceptedClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
+        Assert.Contains(EzrealObjectId, accepted.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(EzrealObjectId, accepted.State.PlayerZones["P1"].Base);
+        Assert.Equal("BATTLEFIELD", accepted.State.ObjectLocations[EzrealObjectId].Zone);
+        Assert.Equal(BattlefieldObjectId, accepted.State.ObjectLocations[EzrealObjectId].BattlefieldObjectId);
+        Assert.False(accepted.State.CardObjects[EzrealObjectId].IsExhausted);
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        Assert.Contains(CommandTypes.PassPriority, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].Actions);
+        var acceptedStackItem = Assert.Single(accepted.State.StackItems);
+        Assert.Equal(P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityEffectKind, acceptedStackItem.EffectKind);
+        Assert.Empty(acceptedStackItem.TargetObjectIds);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var acceptedSessionPromptHash = MatchStateHasher.HashValue(session.PromptFor("P1"));
+        var acceptedSessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        Assert.Equal(acceptedSessionPromptHash, MatchStateHasher.HashValue(accepted.Prompts["P1"]));
+        Assert.Equal(acceptedSessionSnapshotHash, MatchStateHasher.HashValue(accepted.Snapshots["P1"]));
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        AssertPromptScopedActivateAbilityRawCommand(acceptedJournalEntry.RawCommand.Value, command, prompt);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(acceptedSessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedSessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(new RunePool(0, 0), replay.State.RunePools["P1"]);
+        Assert.Equal(accepted.State.PlayerZones["P1"].Battlefields, replay.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(accepted.State.PlayerZones["P1"].Base, replay.State.PlayerZones["P1"].Base);
+        Assert.Contains(EzrealObjectId, replay.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(EzrealObjectId, replay.State.PlayerZones["P1"].Base);
+        Assert.Equal("BATTLEFIELD", replay.State.ObjectLocations[EzrealObjectId].Zone);
+        Assert.Equal(BattlefieldObjectId, replay.State.ObjectLocations[EzrealObjectId].BattlefieldObjectId);
+        Assert.False(replay.State.CardObjects[EzrealObjectId].IsExhausted);
+        Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
+        Assert.Equal("P1", replay.State.PriorityPlayerId);
+        Assert.Equal(accepted.State.StackItems, replay.State.StackItems);
+        Assert.Contains(CommandTypes.PassPriority, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].Actions);
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.CommandType);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedJournalEntry.RawCommand.Value));
+        AssertPromptScopedActivateAbilityRawCommand(rejectedJournalEntry.RawCommand.Value, command, prompt);
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+        var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(replay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(acceptedSessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedSessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(new RunePool(0, 0), duplicateReplay.State.RunePools["P1"]);
+        Assert.Equal(accepted.State.PlayerZones["P1"].Battlefields, duplicateReplay.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(accepted.State.PlayerZones["P1"].Base, duplicateReplay.State.PlayerZones["P1"].Base);
+        Assert.Equal("BATTLEFIELD", duplicateReplay.State.ObjectLocations[EzrealObjectId].Zone);
+        Assert.Equal(BattlefieldObjectId, duplicateReplay.State.ObjectLocations[EzrealObjectId].BattlefieldObjectId);
+        Assert.False(duplicateReplay.State.CardObjects[EzrealObjectId].IsExhausted);
+        Assert.Equal(TimingStates.NeutralClosed, duplicateReplay.State.TimingState);
+        Assert.Equal("P1", duplicateReplay.State.PriorityPlayerId);
+        Assert.Equal(accepted.State.StackItems, duplicateReplay.State.StackItems);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(acceptedSessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedSessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(new RunePool(0, 0), conflict.State.RunePools["P1"]);
+        Assert.Equal(accepted.State.PlayerZones["P1"].Battlefields, conflict.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(accepted.State.PlayerZones["P1"].Base, conflict.State.PlayerZones["P1"].Base);
+        Assert.Equal("BATTLEFIELD", conflict.State.ObjectLocations[EzrealObjectId].Zone);
+        Assert.Equal(BattlefieldObjectId, conflict.State.ObjectLocations[EzrealObjectId].BattlefieldObjectId);
+        Assert.False(conflict.State.CardObjects[EzrealObjectId].IsExhausted);
+        Assert.Equal(TimingStates.NeutralClosed, conflict.State.TimingState);
+        Assert.Equal("P1", conflict.State.PriorityPlayerId);
+        Assert.Equal(accepted.State.StackItems, conflict.State.StackItems);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -323,6 +504,58 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
             P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
             targetObjectIds ?? [],
             optionalCosts);
+    }
+
+    private static JsonElement PromptScopedActivateAbilityRawCommand(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private static JsonElement PromptScopedActivateAbilityRawCommandWithClientNote(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        });
+    }
+
+    private static void AssertPromptScopedActivateAbilityRawCommand(
+        JsonElement rawCommand,
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        Assert.Equal(CommandTypes.ActivateAbility, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(command.SourceObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(command.AbilityId, rawCommand.GetProperty("abilityId").GetString());
+        Assert.Equal(
+            command.TargetObjectIds,
+            rawCommand.GetProperty("targetObjectIds").EnumerateArray().Select(target => target.GetString()!).ToArray());
+        Assert.Equal(
+            command.OptionalCosts ?? [],
+            rawCommand.GetProperty("optionalCosts").EnumerateArray().Select(optionalCost => optionalCost.GetString()!).ToArray());
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
     private static async Task AssertRejectedNoMutationAsync(
@@ -665,5 +898,16 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         next[firstPlayerId] = firstZones;
         next[secondPlayerId] = secondZones;
         return next;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
