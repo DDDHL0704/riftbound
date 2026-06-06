@@ -292,6 +292,75 @@ public sealed class UndercoverAgentTriggerTests
             .ToArray());
         Assert.Equal(prompt.PromptId, rejectedEntry.RawCommand.Value.GetProperty("promptId").GetString());
         Assert.Equal(prompt.SnapshotTick, rejectedEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+
+        var cachedReplay = await session.SubmitAsync(
+            "P1",
+            replayClientIntentId,
+            GameCommandJsonMapper.Map(rawCommand),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.False(cachedReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, cachedReplay.ErrorCode);
+        Assert.Empty(cachedReplay.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(cachedReplay.State));
+        Assert.Equal(accepted.State.Tick, cachedReplay.State.Tick);
+        Assert.Equal(postAcceptedPromptsHash, MatchStateHasher.HashValue(cachedReplay.Prompts));
+        Assert.Equal(postAcceptedSnapshotsHash, MatchStateHasher.HashValue(cachedReplay.Snapshots));
+        AssertNoMutation(accepted.State, cachedReplay.State);
+        Assert.Null(cachedReplay.State.PendingHandChoice);
+        Assert.Equal(acceptedHand, cachedReplay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(acceptedGraveyard, cachedReplay.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(acceptedMainDeck, cachedReplay.State.PlayerZones["P1"].MainDeck);
+        Assert.NotEqual(PromptTypes.HandChoice, cachedReplay.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.HandChoice, cachedReplay.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, cachedReplay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, cachedReplay.Prompts["P2"].Actions);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.ChooseHandCards,
+            choiceId = command.ChoiceId,
+            choiceWindow = command.ChoiceWindow,
+            chosenObjectIds = command.ChosenObjectIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            replayClientIntentId,
+            GameCommandJsonMapper.Map(changedRawCommand),
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(postAcceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(postAcceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        AssertNoMutation(accepted.State, conflict.State);
+        Assert.Null(conflict.State.PendingHandChoice);
+        Assert.Equal(acceptedHand, conflict.State.PlayerZones["P1"].Hand);
+        Assert.Equal(acceptedGraveyard, conflict.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(acceptedMainDeck, conflict.State.PlayerZones["P1"].MainDeck);
+        Assert.NotEqual(PromptTypes.HandChoice, conflict.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.HandChoice, conflict.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, conflict.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, conflict.Prompts["P2"].Actions);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
