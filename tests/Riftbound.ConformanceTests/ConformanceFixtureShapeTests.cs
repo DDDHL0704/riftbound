@@ -352,6 +352,53 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("battle:BF-1", Assert.IsType<string>(startBattleTask["battleId"]));
     }
 
+    [Fact]
+    public void BattleDeclarationPromptDoesNotLeakSelectionShapeToWaitingPlayer()
+    {
+        var state = PromptViewContestedBattlefieldState(
+            TimingStates.NeutralOpen,
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("BF-1")]);
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var activePrompt = prompts["P1"];
+        var waitingPrompt = prompts["P2"];
+        var activeView = Assert.IsType<PromptViewDto>(activePrompt.View);
+        var waitingView = Assert.IsType<PromptViewDto>(waitingPrompt.View);
+
+        Assert.True(activePrompt.Actionable);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], activePrompt.Actions);
+        Assert.Equal(PromptTypes.BattleDeclaration, activeView.Type);
+        Assert.Equal("BF-1", activeView.RelatedBattlefieldId);
+        Assert.Equal("battle:BF-1", activeView.RelatedBattleId);
+        Assert.Null(activeView.RelatedSpellDuelId);
+
+        Assert.False(waitingPrompt.Actionable);
+        Assert.Equal(["WAIT", "SURRENDER"], waitingPrompt.Actions);
+        Assert.Null(waitingView.MinSelection);
+        Assert.Null(waitingView.MaxSelection);
+        Assert.Null(waitingView.Metadata);
+
+        var waitingCandidates = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptCandidateDto>>(waitingPrompt.Candidates);
+        Assert.Equal(["WAIT", "SURRENDER"], waitingCandidates.Select(candidate => candidate.Action).ToArray());
+        Assert.Equal([false, true], waitingCandidates.Select(candidate => candidate.Enabled).ToArray());
+        Assert.All(waitingCandidates, candidate =>
+        {
+            Assert.Null(candidate.Sources);
+            Assert.Null(candidate.Targets);
+            Assert.Null(candidate.Destinations);
+            Assert.Null(candidate.Modes);
+            Assert.Null(candidate.OptionalCosts);
+            Assert.Null(candidate.Metadata);
+        });
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
+        var startBattleTask = Assert.Single(battlefieldTasks, task =>
+            string.Equals(Assert.IsType<string>(task["kind"]), "START_BATTLE", StringComparison.Ordinal));
+        Assert.Equal("BF-1", Assert.IsType<string>(startBattleTask["battlefieldObjectId"]));
+        Assert.Equal("battle:BF-1", Assert.IsType<string>(startBattleTask["battleId"]));
+    }
+
     private static MatchState PromptViewContestedBattlefieldState(
         string timingState,
         string activePlayerId = "P1",
