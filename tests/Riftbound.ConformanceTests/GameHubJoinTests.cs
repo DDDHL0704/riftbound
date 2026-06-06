@@ -9667,6 +9667,109 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task DeclareBattleAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate()
+    {
+        const string roomId = "p7-9-after-finished-declare-battle-redacts-sentinel";
+        const string clientIntentId = "intent-p7-9-after-finished-declare-battle-SECRET-RAW-clientIntentId";
+        const string sentinel = "SECRET-RAW-clientIntentId-after-finished-declare-battle";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-declare-battle-redacts-sentinel");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        Assert.Contains(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-GRAND-PLAZA",
+              "attackerObjectIds": ["P1-BATTLEFIELD-GRAND-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-GRAND-UNIT-001"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-declare-battle-redacts-sentinel-win", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var p1FinishedSnapshotHash = MatchStateHasher.HashValue(SnapshotFor(battleClients, "P1"));
+        var battleSnapshot = SnapshotFor(battleClients, "P2");
+        var p2FinishedSnapshotHash = MatchStateHasher.HashValue(battleSnapshot);
+        Assert.Equal("P2", battleSnapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(MatchStatuses.Finished, battleSnapshot.Timing["roomStatus"]);
+        var journalCountAfterFinished = journal.Entries.Count;
+
+        var afterFinishedClients = new RecordingHubClients();
+        var declareBattleAfterFinished = JsonDocument.Parse($$"""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "clientIntentId": "{{clientIntentId}}",
+              "battlefieldId": "P2-BATTLEFIELD-GRAND-PLAZA",
+              "attackerObjectIds": ["P1-BATTLEFIELD-GRAND-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-GRAND-UNIT-001"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT", "raw-secret-internal-debug-cost"],
+              "clientIntent": "{{clientIntentId}}",
+              "sentinel": "{{sentinel}}",
+              "rawSecret": "{{sentinel}} raw secret internal debug DECLARE_BATTLE SubmitIntent MatchFinished",
+              "nested": {
+                "intentId": "{{clientIntentId}}",
+                "clientIntentId": "{{clientIntentId}}",
+                "clientIntent": "{{clientIntentId}}",
+                "sentinel": "{{sentinel}}",
+                "raw": "nested raw secret DECLARE_BATTLE",
+                "internal": "nested internal SubmitIntent MatchFinished",
+                "debug": "nested debug raw secret internal"
+              }
+            }
+            """).RootElement.Clone();
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, declareBattleAfterFinished);
+
+        var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
+        Assert.Equal("对局已经结束，不能继续提交行动。", payload.Message);
+        Assert.DoesNotContain(clientIntentId, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(sentinel, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("clientIntent", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("sentinel", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("intentId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("DECLARE_BATTLE", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("raw", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("secret", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("internal", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("debug", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("SubmitIntent", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("MatchFinished", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(ErrorCodes.MatchFinished, payload.Message, StringComparison.Ordinal);
+        Assert.Empty(afterFinishedClients.CallerClient.EventMessages);
+        Assert.Empty(afterFinishedClients.CallerClient.Snapshots);
+        Assert.Empty(afterFinishedClients.CallerClient.Prompts);
+        Assert.Empty(afterFinishedClients.GroupClient.EventMessages);
+        Assert.Empty(afterFinishedClients.GroupClient.Snapshots);
+        Assert.Empty(afterFinishedClients.GroupClient.Prompts);
+        Assert.Empty(afterFinishedClients.GroupClient.Errors);
+        Assert.Equal(journalCountAfterFinished, journal.Entries.Count);
+
+        var session = await registry.GetOrCreateAsync(roomId, default);
+        Assert.Equal(p1FinishedSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2FinishedSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+    }
+
+    [Fact]
     public async Task PlayCardAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate()
     {
         const string roomId = "p7-9-after-finished-play-card-redacts-sentinel";
