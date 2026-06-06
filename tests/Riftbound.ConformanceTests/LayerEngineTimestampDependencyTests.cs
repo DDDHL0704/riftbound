@@ -456,6 +456,61 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
+    public void LayerEngineBattlefieldStaticAuraParticipantMetadataUsesObjectLocationToIgnoreStaleBattlefieldZoneParticipantAcrossPlayerViews()
+    {
+        var state = BuildBattlefieldStaticAuraState(includeDefender: true);
+        state = state with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+            {
+                [BattlefieldDefenderObjectId] = new("P2", "GRAVEYARD")
+            }
+        };
+
+        Assert.Contains(BattlefieldDefenderObjectId, state.PlayerZones["P2"].Battlefields);
+        Assert.Equal("GRAVEYARD", state.ObjectLocations[BattlefieldDefenderObjectId].Zone);
+
+        var aura = Assert.Single(BattlefieldStaticAuraEffects(state));
+        Assert.Equal(BattlefieldAttackerObjectId, aura.TargetObjectId);
+        Assert.Equal([BattlefieldSourceObjectId], aura.SourceDependencyObjectIds);
+        Assert.Equal([BattlefieldAttackerObjectId], aura.TargetDependencyObjectIds);
+        Assert.Equal([BattlefieldAttackerObjectId], aura.ParticipantObjectIds);
+        Assert.Equal([BattlefieldAttackerObjectId], aura.ParticipantDependencyObjectIds);
+        Assert.DoesNotContain(BattlefieldDefenderObjectId, aura.SourceDependencyObjectIds ?? []);
+        Assert.DoesNotContain(BattlefieldDefenderObjectId, aura.TargetDependencyObjectIds ?? []);
+        Assert.DoesNotContain(BattlefieldDefenderObjectId, aura.ParticipantObjectIds ?? []);
+        Assert.DoesNotContain(BattlefieldDefenderObjectId, aura.ParticipantDependencyObjectIds ?? []);
+
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var p1View = AssertBattlefieldStaticAuraSnapshotIgnoresStaleBattlefieldParticipant(snapshots["P1"]);
+        var p2View = AssertBattlefieldStaticAuraSnapshotIgnoresStaleBattlefieldParticipant(snapshots["P2"]);
+        Assert.Equal(StaticAuraSnapshotSignature(p1View), StaticAuraSnapshotSignature(p2View));
+
+        static Dictionary<string, object?> AssertBattlefieldStaticAuraSnapshotIgnoresStaleBattlefieldParticipant(
+            SnapshotDto snapshot)
+        {
+            var effectView = Assert.Single(
+                ContinuousEffectViews(snapshot),
+                effect => string.Equals(
+                    effect["effectKind"] as string,
+                    "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                    StringComparison.Ordinal));
+            Assert.Equal(BattlefieldAttackerObjectId, Assert.IsType<string>(effectView["targetObjectId"]));
+            Assert.Equal([BattlefieldSourceObjectId], StringList(effectView, "sourceDependencyObjectIds"));
+            Assert.Equal([BattlefieldAttackerObjectId], StringList(effectView, "targetDependencyObjectIds"));
+            Assert.Equal([BattlefieldAttackerObjectId], StringList(effectView, "participantObjectIds"));
+            Assert.Equal([BattlefieldAttackerObjectId], StringList(effectView, "participantDependencyObjectIds"));
+            Assert.DoesNotContain(BattlefieldDefenderObjectId, StringList(effectView, "sourceDependencyObjectIds"));
+            Assert.DoesNotContain(BattlefieldDefenderObjectId, StringList(effectView, "targetDependencyObjectIds"));
+            Assert.DoesNotContain(BattlefieldDefenderObjectId, StringList(effectView, "participantObjectIds"));
+            Assert.DoesNotContain(BattlefieldDefenderObjectId, StringList(effectView, "participantDependencyObjectIds"));
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, BattlefieldDefenderObjectId);
+
+            return effectView;
+        }
+    }
+
+    [Fact]
     public void LayerEngineBattlefieldStaticAuraTargetDependenciesDisappearWhenParticipantLeavesBattlefieldAcrossPlayerViews()
     {
         var before = BuildBattlefieldStaticAuraState(includeDefender: true);
