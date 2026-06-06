@@ -50431,6 +50431,207 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task RevealCardReactionDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string sourceObjectId = "P1-FACEDOWN-OGN-TEEMO-REACTION-RAW-DUPLICATE";
+        var command = new RevealCardCommand(
+            sourceObjectId,
+            "OGN·121/298",
+            [],
+            Mode: "STANDBY_REACTION",
+            OptionalCosts: ["STANDBY_REVEAL_0"],
+            Destination: "STACK");
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    isFaceDown: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    manaCost: 2,
+                    cardNo: "OGN·121/298")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("P1", "BASE")
+            }
+        };
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
+        Assert.Contains(CommandTypes.RevealCard, prompt.Actions);
+        var rawCommand = PromptScopedRawCommand(CommandTypes.RevealCard, prompt);
+        const string clientIntentId = "intent-p4-reveal-card-reaction-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["CARD_REVEALED", "CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
+        Assert.Empty(accepted.State.PlayerZones["P1"].Base);
+        Assert.Equal(1, accepted.State.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal("P1", accepted.State.ActivePlayerId);
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        Assert.Equal("STACK", accepted.State.ObjectLocations[sourceObjectId].Zone);
+        var revealedCard = accepted.State.CardObjects[sourceObjectId];
+        Assert.False(revealedCard.IsFaceDown);
+        Assert.Equal(2, revealedCard.Power);
+        Assert.Equal(2, revealedCard.ManaCost);
+        Assert.Equal("OGN·121/298", revealedCard.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], revealedCard.Tags);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE", $"STACK-1-{sourceObjectId}"], accepted.State.StackItems.Select(item => item.StackItemId));
+        var acceptedStackItem = accepted.State.StackItems[1];
+        Assert.Equal("P1", acceptedStackItem.ControllerId);
+        Assert.Equal(sourceObjectId, acceptedStackItem.SourceObjectId);
+        Assert.Equal("OGN_TEEMO_STANDBY_DEFEND_REVEAL_PLAY_UNIT", acceptedStackItem.EffectKind);
+        Assert.Equal("OGN·121/298", acceptedStackItem.CardNo);
+        Assert.Empty(acceptedStackItem.TargetObjectIds);
+        Assert.Equal(["STANDBY_REVEAL_0"], acceptedStackItem.OptionalCosts);
+        Assert.DoesNotContain(CommandTypes.RevealCard, accepted.Prompts["P1"].Actions);
+        AssertRevealCardReactionStackPriorityPromptQueueAudit(accepted, sourceObjectId);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.RevealCard, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.RevealCard, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(["CARD_REVEALED", "CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), replay.State.RunePools["P1"]);
+        Assert.Empty(replay.State.PlayerZones["P1"].Base);
+        Assert.Equal(1, replay.State.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal("P1", replay.State.ActivePlayerId);
+        Assert.Equal(TimingStates.NeutralClosed, replay.State.TimingState);
+        Assert.Equal("P1", replay.State.PriorityPlayerId);
+        Assert.Equal("STACK", replay.State.ObjectLocations[sourceObjectId].Zone);
+        var replayRevealedCard = replay.State.CardObjects[sourceObjectId];
+        Assert.False(replayRevealedCard.IsFaceDown);
+        Assert.Equal(2, replayRevealedCard.Power);
+        Assert.Equal(2, replayRevealedCard.ManaCost);
+        Assert.Equal("OGN·121/298", replayRevealedCard.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], replayRevealedCard.Tags);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE", $"STACK-1-{sourceObjectId}"], replay.State.StackItems.Select(item => item.StackItemId));
+        var replayStackItem = replay.State.StackItems[1];
+        Assert.Equal(acceptedStackItem.StackItemId, replayStackItem.StackItemId);
+        Assert.Equal(sourceObjectId, replayStackItem.SourceObjectId);
+        Assert.Equal("OGN_TEEMO_STANDBY_DEFEND_REVEAL_PLAY_UNIT", replayStackItem.EffectKind);
+        Assert.Equal("OGN·121/298", replayStackItem.CardNo);
+        Assert.Empty(replayStackItem.TargetObjectIds);
+        Assert.Equal(["STANDBY_REVEAL_0"], replayStackItem.OptionalCosts);
+        Assert.DoesNotContain(CommandTypes.RevealCard, replay.Prompts["P1"].Actions);
+        AssertRevealCardReactionStackPriorityPromptQueueAudit(replay, sourceObjectId);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.RevealCard,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(new RunePool(0, 0), conflict.State.RunePools["P1"]);
+        Assert.Empty(conflict.State.PlayerZones["P1"].Base);
+        Assert.Equal(1, conflict.State.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal("P1", conflict.State.ActivePlayerId);
+        Assert.Equal(TimingStates.NeutralClosed, conflict.State.TimingState);
+        Assert.Equal("P1", conflict.State.PriorityPlayerId);
+        Assert.Equal("STACK", conflict.State.ObjectLocations[sourceObjectId].Zone);
+        var conflictRevealedCard = conflict.State.CardObjects[sourceObjectId];
+        Assert.False(conflictRevealedCard.IsFaceDown);
+        Assert.Equal(2, conflictRevealedCard.Power);
+        Assert.Equal(2, conflictRevealedCard.ManaCost);
+        Assert.Equal("OGN·121/298", conflictRevealedCard.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], conflictRevealedCard.Tags);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE", $"STACK-1-{sourceObjectId}"], conflict.State.StackItems.Select(item => item.StackItemId));
+        var conflictStackItem = conflict.State.StackItems[1];
+        Assert.Equal(acceptedStackItem.StackItemId, conflictStackItem.StackItemId);
+        Assert.Equal(sourceObjectId, conflictStackItem.SourceObjectId);
+        Assert.Equal("OGN_TEEMO_STANDBY_DEFEND_REVEAL_PLAY_UNIT", conflictStackItem.EffectKind);
+        Assert.Equal("OGN·121/298", conflictStackItem.CardNo);
+        Assert.Empty(conflictStackItem.TargetObjectIds);
+        Assert.Equal(["STANDBY_REVEAL_0"], conflictStackItem.OptionalCosts);
+        Assert.DoesNotContain(CommandTypes.RevealCard, conflict.Prompts["P1"].Actions);
+        AssertRevealCardReactionStackPriorityPromptQueueAudit(conflict, sourceObjectId);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task RevealCardReactionStalePromptReplayAfterCardMovesToStackRejectsWithoutMutation()
     {
         const string sourceObjectId = "P1-FACEDOWN-OGN-TEEMO-REACTION-STALE-PROMPT";
