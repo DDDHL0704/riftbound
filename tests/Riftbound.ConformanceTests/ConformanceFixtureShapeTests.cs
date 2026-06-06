@@ -1767,6 +1767,37 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperChooseHandCardsUsesCurrentFieldsOverVisibleChoiceMetadata()
+    {
+        var command = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-CURRENT-1",
+              "choiceWindow": "HAND_CHOICE:CURRENT",
+              "chosenObjectIds": [" P1-HAND-CURRENT ", " P1-HAND-SECOND "],
+              "choosingPlayerId": "P2",
+              "requiredCount": 1,
+              "maxCount": 2,
+              "handChoices": ["P1-HAND-VISIBLE-TOP"],
+              "reason": "VISIBLE_PROMPT_REASON",
+              "effectKind": "VISIBLE_EFFECT_KIND",
+              "candidate": {
+                "action": "CHOOSE_HAND_CARDS",
+                "metadata": {
+                  "choiceId": "CHOICE-VISIBLE-METADATA",
+                  "choiceWindow": "HAND_CHOICE:VISIBLE_METADATA",
+                  "handChoices": ["P1-HAND-VISIBLE-METADATA"]
+                }
+              }
+            }
+            """).RootElement));
+
+        Assert.Equal("CHOICE-CURRENT-1", command.ChoiceId);
+        Assert.Equal("HAND_CHOICE:CURRENT", command.ChoiceWindow);
+        Assert.Equal(["P1-HAND-CURRENT", "P1-HAND-SECOND"], command.ChosenObjectIds);
+    }
+
+    [Fact]
     public void GameCommandMapperActivateAbilityUsesCommandFieldsOverVisibleAbilityMetadata()
     {
         const string VisibleAbilityMetadataAliases = """
