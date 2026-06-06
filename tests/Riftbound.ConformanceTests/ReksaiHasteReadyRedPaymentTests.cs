@@ -82,6 +82,58 @@ public sealed class ReksaiHasteReadyRedPaymentTests
     }
 
     [Fact]
+    public void PromptDoesNotExposeGenericTemporaryResourceForTypedRedHasteReadyPayment()
+    {
+        const string genericTempResourceId = "MALZAHAR:TEMP-REKSAI-PROMPT";
+        var genericTempAction = PaymentCostRules.TemporaryPaymentResourceActionId(genericTempResourceId);
+        var redRecycleAction = $"RECYCLE_RUNE:{RedRuneObjectId}";
+        var state = BuildReksaiState(
+            ReksaiCardNo,
+            new RunePool(4, 0),
+            baseObjectIds: [RedRuneObjectId, GreenRuneObjectId],
+            extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [RedRuneObjectId] = RuneCard(RedRuneObjectId, RuneTrait.Red),
+                [GreenRuneObjectId] = RuneCard(GreenRuneObjectId, RuneTrait.Green)
+            }) with
+            {
+                TemporaryPaymentResources =
+                [
+                    new TemporaryPaymentResourceState(
+                        genericTempResourceId,
+                        "P1",
+                        "P1-MALZAHAR",
+                        "TEST_GENERIC_TEMP",
+                        "PLAY_CARD",
+                        generatedPower: 1,
+                        remainingPower: 1,
+                        allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind])
+                ]
+            };
+
+        var sourceRequirement = PlayCardSourceRequirement(state, ReksaiCardNo);
+
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .ToArray();
+        Assert.Equal([redRecycleAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.DoesNotContain(paymentResourceChoices, choice => string.Equals(choice.Id, genericTempAction, StringComparison.Ordinal));
+
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.DoesNotContain(genericTempAction, paymentResourcePowerByChoice.Keys);
+        var redChoicePower = Assert.Single(paymentResourcePowerByChoice);
+        Assert.Equal(redRecycleAction, redChoicePower.Key);
+        Assert.Equal(RuneTrait.Red, redChoicePower.Value["trait"]);
+
+        var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            sourceRequirement["availablePowerByTraitWithPaymentResources"]);
+        var availableTrait = Assert.Single(availablePowerByTraitWithPaymentResources);
+        Assert.Equal(RuneTrait.Red, availableTrait.Key);
+        Assert.Equal(1, availableTrait.Value);
+    }
+
+    [Fact]
     public void PromptDoesNotOfferHasteReadyOrGreenRecycleForWrongTraitShortfall()
     {
         var state = BuildReksaiState(
