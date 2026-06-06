@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -183,6 +184,143 @@ public sealed class ResourceConversionEquipmentResourceSkillTests
         var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
         Assert.Equal(P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction, powerEvent.Payload["resourceRestriction"]);
         Assert.Equal("mana-to-generic-power", powerEvent.Payload["conversionKind"]);
+    }
+
+    [Fact]
+    public async Task AncientSteleResourceConversionStalePromptReplayUsesRejectedCacheWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var state = BuildPriorityState(new RunePool(3, 0));
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Contains(activateCandidate.Sources ?? [], source => string.Equals(source.Id, AncientSteleObjectId, StringComparison.Ordinal));
+
+        var command = Command(
+            AncientSteleObjectId,
+            P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId,
+            optionalCosts: ["CONVERT_MANA_TO_GENERIC_POWER:2"]);
+        var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
+        var changedStaleRawCommand = PromptScopedActivateAbilityRawCommandWithClientNote(command, prompt, "changed-payload");
+        const string acceptedClientIntentId = "intent-ancient-stele-before-stale-prompt-replay";
+        const string staleClientIntentId = "intent-ancient-stele-stale-prompt-replay";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            acceptedClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(
+            ["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "POWER_GAINED"],
+            accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var acceptedTemporaryResourceId = AssertAncientSteleAcceptedEffects(accepted, expectedTemporaryResourceCount: 1);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var acceptedSessionPromptHash = MatchStateHasher.HashValue(session.PromptFor("P1"));
+        var acceptedSessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        Assert.Equal(acceptedSessionPromptHash, MatchStateHasher.HashValue(accepted.Prompts["P1"]));
+        Assert.Equal(acceptedSessionSnapshotHash, MatchStateHasher.HashValue(accepted.Snapshots["P1"]));
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        AssertPromptScopedActivateAbilityRawCommand(acceptedJournalEntry.RawCommand.Value, command, prompt);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(acceptedSessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedSessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(acceptedTemporaryResourceId, AssertAncientSteleAcceptedEffects(replay, expectedTemporaryResourceCount: 1));
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        AssertPromptScopedActivateAbilityRawCommand(rejectedJournalEntry.RawCommand.Value, command, prompt);
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+        var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(replay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(acceptedTemporaryResourceId, AssertAncientSteleAcceptedEffects(duplicateReplay, expectedTemporaryResourceCount: 1));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(acceptedTemporaryResourceId, AssertAncientSteleAcceptedEffects(conflict, expectedTemporaryResourceCount: 1));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -444,6 +582,100 @@ public sealed class ResourceConversionEquipmentResourceSkillTests
         return new ActivateAbilityCommand(sourceObjectId, abilityId, targetObjectIds ?? [], optionalCosts);
     }
 
+    private static JsonElement PromptScopedActivateAbilityRawCommand(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private static JsonElement PromptScopedActivateAbilityRawCommandWithClientNote(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        });
+    }
+
+    private static void AssertPromptScopedActivateAbilityRawCommand(
+        JsonElement rawCommand,
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        Assert.Equal(CommandTypes.ActivateAbility, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(command.SourceObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(command.AbilityId, rawCommand.GetProperty("abilityId").GetString());
+        Assert.Equal(
+            command.TargetObjectIds,
+            rawCommand.GetProperty("targetObjectIds").EnumerateArray().Select(target => target.GetString()!).ToArray());
+        Assert.Equal(
+            command.OptionalCosts ?? [],
+            rawCommand.GetProperty("optionalCosts").EnumerateArray().Select(optionalCost => optionalCost.GetString()!).ToArray());
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
+    }
+
+    private static string AssertAncientSteleAcceptedEffects(
+        ResolutionResult result,
+        int expectedTemporaryResourceCount)
+    {
+        Assert.True(result.State.CardObjects[AncientSteleObjectId].IsExhausted);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Equal([PendingStackItemId], result.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        Assert.Equal(expectedTemporaryResourceCount, result.State.TemporaryPaymentResources.Count);
+        var temporaryResource = Assert.Single(result.State.TemporaryPaymentResources);
+        Assert.Equal("P1", temporaryResource.OwnerPlayerId);
+        Assert.Equal(AncientSteleObjectId, temporaryResource.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, temporaryResource.AbilityId);
+        Assert.Equal("ACTIVATE_ABILITY", temporaryResource.PaymentWindow);
+        Assert.Equal(2, temporaryResource.GeneratedPower);
+        Assert.Equal(2, temporaryResource.RemainingPower);
+        Assert.Empty(temporaryResource.GeneratedPowerByTrait);
+        Assert.Empty(temporaryResource.RemainingPowerByTrait);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], temporaryResource.AllowedPaymentKinds);
+
+        if (result.Events.Count > 0)
+        {
+            var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+            Assert.Equal("P1", powerEvent.Payload["playerId"]);
+            Assert.Equal(AncientSteleObjectId, powerEvent.Payload["sourceObjectId"]);
+            Assert.Equal(P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, powerEvent.Payload["abilityId"]);
+            Assert.Equal(true, powerEvent.Payload["paymentOnly"]);
+            Assert.Equal(2, powerEvent.Payload["generatedPower"]);
+            Assert.Equal(2, powerEvent.Payload["power"]);
+            Assert.Equal(2, powerEvent.Payload["remainingPower"]);
+            Assert.Equal(P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction, powerEvent.Payload["resourceRestriction"]);
+            Assert.Equal("temporary-payment-resource-ledger", powerEvent.Payload["restrictionLifecycle"]);
+            Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
+            Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(powerEvent.Payload["allowedPaymentKinds"]));
+            Assert.Equal("mana-to-generic-power", powerEvent.Payload["conversionKind"]);
+        }
+
+        return temporaryResource.ResourceId;
+    }
+
     private static MatchState BuildInvalidState(string caseName)
     {
         var state = BuildPriorityState(new RunePool(3, 3));
@@ -589,5 +821,16 @@ public sealed class ResourceConversionEquipmentResourceSkillTests
         var next = cardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         next[objectId] = replacement;
         return next;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
