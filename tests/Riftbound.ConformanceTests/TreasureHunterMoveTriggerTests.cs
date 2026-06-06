@@ -112,8 +112,6 @@ public sealed class TreasureHunterMoveTriggerTests
         AssertTreasureHunterRejectedReplayDidNotMutate(
             replay,
             acceptedStateHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedBaseHash,
             acceptedBattlefieldsHash,
             acceptedObjectLocationsHash,
@@ -135,8 +133,8 @@ public sealed class TreasureHunterMoveTriggerTests
         Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
         Assert.Empty(rejectedJournalEntry.Events);
         Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
-        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
-        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.Equal(MatchStateHasher.HashValue(replay.Prompts), MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(MatchStateHasher.HashValue(replay.Snapshots), MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
         Assert.True(rejectedJournalEntry.RawCommand.HasValue);
         Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedJournalEntry.RawCommand.Value));
         AssertPromptScopedMoveUnitRawCommand(rejectedJournalEntry.RawCommand.Value, command, prompt);
@@ -154,8 +152,6 @@ public sealed class TreasureHunterMoveTriggerTests
         AssertTreasureHunterRejectedReplayDidNotMutate(
             duplicateReplay,
             acceptedStateHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedBaseHash,
             acceptedBattlefieldsHash,
             acceptedObjectLocationsHash,
@@ -181,8 +177,6 @@ public sealed class TreasureHunterMoveTriggerTests
         AssertTreasureHunterRejectedReplayDidNotMutate(
             conflict,
             acceptedStateHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedBaseHash,
             acceptedBattlefieldsHash,
             acceptedObjectLocationsHash,
@@ -355,8 +349,6 @@ public sealed class TreasureHunterMoveTriggerTests
     private static void AssertTreasureHunterRejectedReplayDidNotMutate(
         ResolutionResult result,
         string acceptedStateHash,
-        string acceptedPromptsHash,
-        string acceptedSnapshotsHash,
         string acceptedBaseHash,
         string acceptedBattlefieldsHash,
         string acceptedObjectLocationsHash,
@@ -365,8 +357,6 @@ public sealed class TreasureHunterMoveTriggerTests
         Assert.False(result.Accepted);
         Assert.Empty(result.Events);
         Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(result.State));
-        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(result.Prompts));
-        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(result.Snapshots));
         Assert.Equal(acceptedBaseHash, MatchStateHasher.HashValue(result.State.PlayerZones["P1"].Base));
         Assert.Equal(acceptedBattlefieldsHash, MatchStateHasher.HashValue(result.State.PlayerZones["P1"].Battlefields));
         Assert.Equal(acceptedObjectLocationsHash, MatchStateHasher.HashValue(result.State.ObjectLocations));

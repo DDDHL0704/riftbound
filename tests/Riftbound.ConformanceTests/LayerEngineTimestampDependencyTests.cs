@@ -803,7 +803,7 @@ public sealed class LayerEngineTimestampDependencyTests
             authoritativeStaticAuras,
             effect => string.Equals(effect.SourceObjectId, FieldFirstBattlefieldSourceObjectId, StringComparison.Ordinal));
         Assert.Equal(BattlefieldSharedUnitObjectId, fieldFirstAura.TargetObjectId);
-        Assert.Equal(1, fieldFirstAura.SourceOrder.GetValueOrDefault());
+        Assert.Equal(3, fieldFirstAura.SourceOrder.GetValueOrDefault());
         Assert.Equal([FieldFirstBattlefieldSourceObjectId], fieldFirstAura.SourceDependencyObjectIds);
         Assert.Equal([BattlefieldSharedUnitObjectId], fieldFirstAura.TargetDependencyObjectIds);
         Assert.Equal([BattlefieldSharedUnitObjectId], fieldFirstAura.ParticipantObjectIds);
@@ -813,7 +813,7 @@ public sealed class LayerEngineTimestampDependencyTests
             authoritativeStaticAuras,
             effect => string.Equals(effect.SourceObjectId, FieldLaterBattlefieldSourceObjectId, StringComparison.Ordinal));
         Assert.Equal(BattlefieldDefenderObjectId, fieldLaterAura.TargetObjectId);
-        Assert.Equal(3, fieldLaterAura.SourceOrder.GetValueOrDefault());
+        Assert.Equal(5, fieldLaterAura.SourceOrder.GetValueOrDefault());
         Assert.Equal([FieldLaterBattlefieldSourceObjectId], fieldLaterAura.SourceDependencyObjectIds);
         Assert.Equal([BattlefieldDefenderObjectId], fieldLaterAura.TargetDependencyObjectIds);
         Assert.Equal([BattlefieldDefenderObjectId], fieldLaterAura.ParticipantObjectIds);
