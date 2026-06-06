@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -169,6 +170,177 @@ public sealed class ShadowActivatedAbilityTests
         Assert.False(responseP2Pass.State.BattleState.IsActive);
         Assert.Empty(responseP2Pass.State.StackItems);
         Assert.Contains(responseP2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task ShadowBattleResponseActivationStalePromptReplayAfterStackPriorityStartsRejectsWithoutMutation()
+    {
+        var opened = await OpenNaturalShadowBattleResponseAsync(mana: 1, power: 1);
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(opened.State, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
+        Assert.Equal(BattlefieldObjectId, prompt.View?.RelatedBattlefieldId);
+        Assert.Equal($"battle:{BattlefieldObjectId}", prompt.View?.RelatedBattleId);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Contains(
+            activateCandidate.Sources ?? [],
+            source => string.Equals(source.Id, ShadowObjectId, StringComparison.Ordinal));
+        var command = ShadowCommand();
+        var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
+        var changedRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt, "changed-payload");
+        const string acceptedIntentId = "intent-shadow-battle-response-before-stale-prompt-replay";
+        const string staleIntentId = "intent-shadow-battle-response-stale-prompt-replay";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            acceptedIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(accepted.State.CardObjects[ShadowObjectId].IsExhausted);
+        Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
+        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal("P1", accepted.State.PriorityPlayerId);
+        Assert.True(accepted.State.BattleState.IsActive);
+        Assert.Equal(BattlefieldObjectId, accepted.State.BattleState.BattlefieldObjectId);
+        Assert.DoesNotContain("STUNNED", accepted.State.CardObjects[EnemyAttackerObjectId].UntilEndOfTurnEffects);
+        var stackItem = Assert.Single(accepted.State.StackItems);
+        Assert.Equal(ShadowObjectId, stackItem.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunAbilityEffectKind, stackItem.EffectKind);
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowCardNo, stackItem.CardNo);
+        Assert.Equal([EnemyAttackerObjectId], stackItem.TargetObjectIds);
+        Assert.Contains(CommandTypes.PassPriority, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].Actions);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(opened.State.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(ShadowObjectId, acceptedJournalEntry.RawCommand.Value.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunAbilityId, acceptedJournalEntry.RawCommand.Value.GetProperty("abilityId").GetString());
+        Assert.Equal(
+            [EnemyAttackerObjectId],
+            acceptedJournalEntry.RawCommand.Value.GetProperty("targetObjectIds").EnumerateArray()
+                .Select(target => target.GetString() ?? string.Empty)
+                .ToArray());
+        Assert.Empty(acceptedJournalEntry.RawCommand.Value.GetProperty("optionalCosts").EnumerateArray());
+        Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+
+        void AssertRejectedNoMutation(ResolutionResult result)
+        {
+            Assert.Empty(result.Events);
+            Assert.Equal(acceptedHash, MatchStateHasher.Hash(result.State));
+            Assert.Equal(accepted.State.Tick, result.State.Tick);
+            Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(result.Prompts));
+            Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(result.Snapshots));
+            Assert.True(result.State.CardObjects[ShadowObjectId].IsExhausted);
+            Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+            Assert.Equal(accepted.State.PlayerZones["P1"].Battlefields, result.State.PlayerZones["P1"].Battlefields);
+            Assert.Equal(accepted.State.PlayerZones["P2"].Battlefields, result.State.PlayerZones["P2"].Battlefields);
+            Assert.Equal(accepted.State.ObjectLocations[ShadowObjectId], result.State.ObjectLocations[ShadowObjectId]);
+            Assert.Equal(accepted.State.ObjectLocations[EnemyAttackerObjectId], result.State.ObjectLocations[EnemyAttackerObjectId]);
+            Assert.Equal(accepted.State.StackItems, result.State.StackItems);
+            Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+            Assert.Equal("P1", result.State.PriorityPlayerId);
+            Assert.True(result.State.BattleState.IsActive);
+            Assert.Equal(BattlefieldObjectId, result.State.BattleState.BattlefieldObjectId);
+            Assert.DoesNotContain("STUNNED", result.State.CardObjects[EnemyAttackerObjectId].UntilEndOfTurnEffects);
+            Assert.Contains(CommandTypes.PassPriority, result.Prompts["P1"].Actions);
+            Assert.DoesNotContain(CommandTypes.ActivateAbility, result.Prompts["P1"].Actions);
+        }
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        AssertRejectedNoMutation(replay);
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(opened.State.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(ShadowObjectId, rejectedJournalEntry.RawCommand.Value.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunAbilityId, rejectedJournalEntry.RawCommand.Value.GetProperty("abilityId").GetString());
+        Assert.Equal(
+            [EnemyAttackerObjectId],
+            rejectedJournalEntry.RawCommand.Value.GetProperty("targetObjectIds").EnumerateArray()
+                .Select(target => target.GetString() ?? string.Empty)
+                .ToArray());
+        Assert.Empty(rejectedJournalEntry.RawCommand.Value.GetProperty("optionalCosts").EnumerateArray());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(accepted.State.Tick, rejectedJournalEntry.StartedTick);
+        Assert.Equal(replay.State.Tick, rejectedJournalEntry.CompletedTick);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var duplicateRejected = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateRejected.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateRejected.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateRejected.ErrorMessage);
+        AssertRejectedNoMutation(duplicateRejected);
+        Assert.Equal(2, journal.Entries.Count);
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        AssertRejectedNoMutation(conflict);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Theory]
@@ -592,6 +764,38 @@ public sealed class ShadowActivatedAbilityTests
             optionalCosts);
     }
 
+    private static JsonElement PromptScopedActivateAbilityRawCommand(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt,
+        string? clientNote = null)
+    {
+        if (clientNote is null)
+        {
+            return JsonSerializer.SerializeToElement(new
+            {
+                cmdType = command.CmdType,
+                sourceObjectId = command.SourceObjectId,
+                abilityId = command.AbilityId,
+                targetObjectIds = command.TargetObjectIds,
+                optionalCosts = command.OptionalCosts ?? [],
+                promptId = prompt.PromptId,
+                snapshotTick = prompt.SnapshotTick
+            });
+        }
+
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        });
+    }
+
     private static async Task AssertRejectedNoMutationAsync(
         MatchState state,
         ActivateAbilityCommand command,
@@ -990,5 +1194,16 @@ public sealed class ShadowActivatedAbilityTests
         }
 
         return next;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
