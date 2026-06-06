@@ -61,6 +61,42 @@ public sealed class ZhonyasHourglassGuardTests
     }
 
     [Fact]
+    public void ZhonyasHourglassMainActionPlayCardPromptExposesNoTargets()
+    {
+        var state = BuildZhonyasState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => candidate.Enabled
+                && string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, ZhonyasObjectId, StringComparison.Ordinal)));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var invalidTargetId in new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-ZHONYAS-HOURGLASS",
+            "P1-FACE-DOWN-STANDBY-ZHONYAS",
+            "P2-EQUIPMENT-ZHONYAS-HOURGLASS",
+            ZhonyasObjectId
+        })
+        {
+            Assert.DoesNotContain(invalidTargetId, targetIds);
+        }
+
+        AssertZhonyasTargetChoicesByIndexAbsentOrEmpty(playCandidate);
+    }
+
+    [Fact]
     public async Task ZhonyasHourglassPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
@@ -313,6 +349,31 @@ public sealed class ZhonyasHourglassGuardTests
         Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
         Assert.True(prompt.SnapshotTick.HasValue);
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
+    }
+
+    private static void AssertZhonyasTargetChoicesByIndexAbsentOrEmpty(ActionPromptCandidateDto playCandidate)
+    {
+        if (playCandidate.Metadata is not { } metadata
+            || !metadata.TryGetValue("sourceRequirements", out var sourceRequirementsObject)
+            || sourceRequirementsObject is null)
+        {
+            return;
+        }
+
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            sourceRequirementsObject);
+        foreach (var zhonyasRequirement in sourceRequirements.Where(requirement =>
+            requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && string.Equals(sourceObjectId as string, ZhonyasObjectId, StringComparison.Ordinal)))
+        {
+            if (!zhonyasRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesByIndexObject)
+                || targetChoicesByIndexObject is null)
+            {
+                continue;
+            }
+
+            Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(targetChoicesByIndexObject));
+        }
     }
 
     private static StackItemState AssertZhonyasStackPriorityState(
