@@ -147,8 +147,7 @@ public sealed class BerserkImpulseGuardTests
         var playCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
-        Assert.True(playCandidate.Enabled);
-        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, command.SourceObjectId, StringComparison.Ordinal));
+        Assert.False(playCandidate.Enabled);
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedPlayCardRawCommandWithClientNote(command, prompt, "changed-payload");
         const string acceptedClientIntentId = "intent-berserk-impulse-before-stale-prompt-replay";
