@@ -471,6 +471,97 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     }
 
     [Fact]
+    public async Task OrnnDynamicEnemyEquipmentResolveDoesNotChangeStaticAuraParticipantMetadataAcrossPlayerViews()
+    {
+        var engine = new CoreRuleEngine();
+        var state = BuildOrnnFieldState(
+            ornnPower: 5,
+            p1Base: [OrnnObjectId, FriendlyBaseEquipmentObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 5),
+                [FriendlyBaseEquipmentObjectId] = Equipment(FriendlyBaseEquipmentObjectId, "P1", "P1"),
+                [EnemyEquipmentObjectId] = Equipment(
+                    EnemyEquipmentObjectId,
+                    "P2",
+                    "P2",
+                    cardNo: "SFD·046/221")
+            });
+        state = state with
+        {
+            TurnPlayerId = "P2",
+            ActivePlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(state.RunePools, StringComparer.Ordinal)
+            {
+                ["P2"] = new(6, 0)
+            },
+            PlayerZones = state.PlayerZones.ToDictionary(
+                entry => entry.Key,
+                entry => string.Equals(entry.Key, "P2", StringComparison.Ordinal)
+                    ? entry.Value with
+                    {
+                        Hand = [EnemyEquipmentObjectId]
+                    }
+                    : entry.Value,
+                StringComparer.Ordinal),
+            ObjectLocations = state.ObjectLocations
+                .Append(new KeyValuePair<string, ObjectLocationState>(
+                    EnemyEquipmentObjectId,
+                    new ObjectLocationState("P2", "HAND")))
+                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+        };
+        var expectedResiduals = new[]
+        {
+            "timestamp ordering",
+            "dependency ordering",
+            "source ordering",
+            "keyword gain/loss layering",
+            "multiple equipment/static aura interactions",
+            "minimum-power layering",
+            "full official LayerEngine coverage"
+        };
+
+        var played = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-dynamic-enemy-equipment-play", "P2", CommandTypes.PlayCard),
+            new PlayCardCommand(EnemyEquipmentObjectId, "SFD·046/221", []),
+            CancellationToken.None);
+        var resolved = await ResolveTopStackAfterP2PlayAsync(engine, played.State);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.True(resolved.Accepted, resolved.ErrorMessage);
+        Assert.Contains(EnemyEquipmentObjectId, resolved.State.PlayerZones["P2"].Base);
+        Assert.Contains(FriendlyBaseEquipmentObjectId, resolved.State.PlayerZones["P1"].Base);
+        Assert.Equal(5, resolved.State.CardObjects[OrnnObjectId].Power);
+        AssertSnapshotPower(resolved.Snapshots["P1"], OrnnObjectId, basePower: 5, effectivePower: 5);
+        AssertSnapshotPower(resolved.Snapshots["P2"], OrnnObjectId, basePower: 5, effectivePower: 5);
+
+        var staticAura = Assert.Single(
+            resolved.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal(OrnnObjectId, staticAura.TargetObjectId);
+        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal(4, staticAura.BasePower);
+        Assert.Equal(5, staticAura.EffectivePower);
+        Assert.Equal([FriendlyBaseEquipmentObjectId], staticAura.ParticipantObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], staticAura.TargetDependencyObjectIds);
+        Assert.Equal([FriendlyBaseEquipmentObjectId], staticAura.ParticipantDependencyObjectIds);
+        AssertStaticAuraDoesNotReferenceObjectIds(staticAura, [EnemyEquipmentObjectId]);
+
+        var p1View = AssertSnapshotStaticAuraMetadata(resolved.Snapshots["P1"], staticAura, expectedResiduals);
+        var p2View = AssertSnapshotStaticAuraMetadata(resolved.Snapshots["P2"], staticAura, expectedResiduals);
+        Assert.Equal(StaticAuraMetadataSignature(p1View), StaticAuraMetadataSignature(p2View));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], StringList(p1View, "participantObjectIds"));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], StringList(p2View, "participantObjectIds"));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], StringList(p1View, "participantDependencyObjectIds"));
+        Assert.Equal([FriendlyBaseEquipmentObjectId], StringList(p2View, "participantDependencyObjectIds"));
+        AssertSnapshotStaticAuraDoesNotReferenceObjectIds(p1View, [EnemyEquipmentObjectId]);
+        AssertSnapshotStaticAuraDoesNotReferenceObjectIds(p2View, [EnemyEquipmentObjectId]);
+    }
+
+    [Fact]
     public async Task OrnnDynamicEquipmentRemovalRefreshesStaticAuraMetadataAcrossPlayerViews()
     {
         var engine = new CoreRuleEngine();
@@ -916,6 +1007,24 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         return await engine.ResolveAsync(
             p1Pass.State,
             new PlayerIntent("intent-ornn-static-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+    }
+
+    private static async Task<ResolutionResult> ResolveTopStackAfterP2PlayAsync(
+        CoreRuleEngine engine,
+        MatchState state)
+    {
+        var p2Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-static-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+
+        return await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-ornn-static-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
     }
