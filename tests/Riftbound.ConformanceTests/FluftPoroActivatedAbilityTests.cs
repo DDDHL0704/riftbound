@@ -51,6 +51,31 @@ public sealed class FluftPoroActivatedAbilityTests
             requirement["targetChoicesByIndex"]));
     }
 
+    [Fact]
+    public void FluftPoroOpenMainPromptDoesNotExposeUnrelatedTemporaryPaymentResources()
+    {
+        var state = BuildFluftPoroState() with
+        {
+            TemporaryPaymentResources = [UnrelatedMalzaharTemporaryPaymentResource()]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
+                StringComparison.Ordinal));
+
+        Assert.Equal(FluftObjectId, requirement["sourceObjectId"]);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]));
+    }
+
     [Theory]
     [InlineData("source-base")]
     [InlineData("source-exhausted")]
@@ -491,6 +516,20 @@ public sealed class FluftPoroActivatedAbilityTests
             P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
             targetObjectIds ?? [],
             optionalCosts);
+    }
+
+    private static TemporaryPaymentResourceState UnrelatedMalzaharTemporaryPaymentResource()
+    {
+        return new TemporaryPaymentResourceState(
+            resourceId: "MALZAHAR:TEMP-FLUFT",
+            ownerPlayerId: "P1",
+            sourceObjectId: "P1-MALZAHAR",
+            abilityId: P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+            paymentWindow: "ACTIVATE_ABILITY",
+            generatedPower: 2,
+            remainingPower: 2,
+            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: 1);
     }
 
     private static JsonElement PromptScopedActivateAbilityRawCommand(
