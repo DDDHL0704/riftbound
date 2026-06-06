@@ -10440,6 +10440,76 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialFirstTurnSurrenderFreshOrderTriggersAfterMatchFinishedThrowsStableErrorWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var context = await BuildFinalMulliganFirstTurnAuditContext(
+            "official-first-turn-surrender-fresh-order-triggers-after-match-finished-room",
+            journal);
+
+        var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
+        Assert.True(firstTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        var journalEntryCountBeforeSurrender = journal.Entries.Count;
+
+        var accepted = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-surrender-before-fresh-order-triggers-after-match-finished",
+            new SurrenderCommand(),
+            PromptScopedBasicRawCommand(CommandTypes.Surrender, firstTurnPrompt),
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, accepted);
+        Assert.Equal(journalEntryCountBeforeSurrender + 1, journal.Entries.Count);
+        var acceptedStateHashBefore = MatchStateHasher.Hash(accepted.State);
+        var p1SnapshotBefore = SnapshotSignature(context.Session, "P1");
+        var p2SnapshotBefore = SnapshotSignature(context.Session, "P2");
+        var p1PromptBefore = JsonSerializer.Serialize(context.Session.PromptFor("P1"));
+        var p2PromptBefore = JsonSerializer.Serialize(context.Session.PromptFor("P2"));
+        var journalEntryCountBeforeFreshOrderTriggers = journal.Entries.Count;
+        var freshOrderTriggersClientIntentId = "fresh-order-triggers-after-first-turn-surrender-match-finished";
+
+        var rejected = await Assert.ThrowsAsync<MatchSessionException>(() =>
+            context.Session.SubmitAsync(
+                context.ActivePlayerId,
+                freshOrderTriggersClientIntentId,
+                new OrderTriggersCommand(OrderedTriggerIds: []),
+                RawCommandWithClientNote(CommandTypes.OrderTriggers, "fresh-order-triggers-after-match-finished"),
+                CancellationToken.None).AsTask());
+
+        Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
+        Assert.Equal("对局已经结束，不能继续提交行动。", rejected.Message);
+        Assert.Equal(journalEntryCountBeforeFreshOrderTriggers, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            string.Equals(
+                entry.ClientIntentId,
+                freshOrderTriggersClientIntentId,
+                StringComparison.Ordinal));
+
+        Assert.Equal(acceptedStateHashBefore, MatchStateHasher.Hash(accepted.State));
+        Assert.Equal(p1SnapshotBefore, SnapshotSignature(context.Session, "P1"));
+        Assert.Equal(p2SnapshotBefore, SnapshotSignature(context.Session, "P2"));
+        Assert.Equal(p1PromptBefore, JsonSerializer.Serialize(context.Session.PromptFor("P1")));
+        Assert.Equal(p2PromptBefore, JsonSerializer.Serialize(context.Session.PromptFor("P2")));
+
+        var rejectedView = new ResolutionResult(
+            false,
+            rejected.Message,
+            accepted.State,
+            [],
+            ResolutionResult.BuildSnapshots(accepted.State),
+            ResolutionResult.BuildPrompts(accepted.State),
+            rejected.Code);
+        Assert.Equal(ErrorCodes.MatchFinished, rejectedView.ErrorCode);
+        Assert.Equal("对局已经结束，不能继续提交行动。", rejectedView.ErrorMessage);
+        Assert.Empty(rejectedView.Events);
+        Assert.Equal(acceptedStateHashBefore, MatchStateHasher.Hash(rejectedView.State));
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, rejectedView, assertEvents: false);
+    }
+
+    [Fact]
     public async Task OfficialFirstTurnSurrenderFreshTapRuneAfterMatchFinishedThrowsStableErrorWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
