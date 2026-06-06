@@ -88,6 +88,41 @@ public sealed class IsolateMoveToBaseGuardTests
     }
 
     [Fact]
+    public void IsolateMainActionPlayCardPromptTargetsOnlyPublicEnemyBattlefieldUnit()
+    {
+        var state = BuildIsolateState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, IsolateObjectId, StringComparison.Ordinal));
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal([IsolateTargetObjectId], targetIds);
+        foreach (var invalidTargetObjectId in new[]
+        {
+            "P1-FRIENDLY-BATTLEFIELD-UNIT",
+            "P2-BASE-UNIT",
+            "P2-STALE-UNIT",
+            "P2-FACE-DOWN-STANDBY",
+            "P2-BATTLEFIELD-EQUIPMENT",
+            "P2-BATTLEFIELD-SPELL",
+            "P2-BATTLEFIELD-RUNE"
+        })
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+    }
+
+    [Fact]
     public async Task IsolatePlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
