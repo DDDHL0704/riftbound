@@ -158,6 +158,42 @@ public sealed class BlueSentinelResourceSkillTests
     }
 
     [Fact]
+    public async Task BlueSentinelDelayedResourceDoesNotLeakPromptMetadataForManaOnlyPayment()
+    {
+        var held = await ResolveHeldBattleAsync();
+        var trigger = Assert.Single(held.State.TriggerQueue);
+        var payment = new PendingPaymentState(
+            "PAY-BLUE-SENTINEL-MANA-ONLY",
+            "TEST_PENDING_PAY_COST",
+            "P2",
+            manaCost: 1,
+            legalPaymentChoiceIds: ["SPEND_MANA:1"]);
+        var paymentState = NextMainPaymentState(held.State, payment);
+        var delayedResourceAction = $"{P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix}{trigger.TriggerId}";
+
+        var prompt = ResolutionResult.BuildPrompts(paymentState)["P2"];
+
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, prompt.Actions);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var paymentChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Equal(["SPEND_MANA:1"], paymentChoices.Select(choice => choice.Id).ToArray());
+        var paymentResourceChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]);
+        Assert.Empty(paymentResourceChoices);
+        var paymentResourceActionIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["paymentResourceActionIds"]);
+        Assert.Empty(paymentResourceActionIds);
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Empty(paymentResourcePowerByChoice);
+        Assert.DoesNotContain(delayedResourceAction, paymentResourcePowerByChoice.Keys);
+        Assert.Equal(trigger, Assert.Single(paymentState.TriggerQueue));
+        Assert.Equal(payment, paymentState.PendingPayment);
+    }
+
+    [Fact]
     public async Task BlueSentinelStalePromptScopedPayCostReplayAfterWindowClosesUsesRejectedCache()
     {
         var acceptedClientIntentId = "intent-blue-sentinel-pay-generated-before-stale-replay";
