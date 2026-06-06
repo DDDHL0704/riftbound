@@ -167,8 +167,10 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal("IDLE", assembled.State.PendingTaskQueue.Phase);
         Assert.Empty(assembled.State.PendingTaskQueue.Tasks);
         var postAssembleHash = MatchStateHasher.Hash(assembled.State);
-        var postAssemblePromptsHash = MatchStateHasher.HashValue(assembled.Prompts);
-        var postAssembleSnapshotsHash = MatchStateHasher.HashValue(assembled.Snapshots);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(assembled.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(assembled.Snapshots);
+        var postAssembleAuthoritativePromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(assembled.State));
+        var postAssembleAuthoritativeSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(assembled.State));
         var acceptedJournalEntry = Assert.Single(journal.Entries);
         Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
         Assert.Equal("P1", acceptedJournalEntry.PlayerId);
@@ -178,8 +180,8 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Null(acceptedJournalEntry.ErrorMessage);
         Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], acceptedJournalEntry.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(postAssembleHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
-        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
-        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
         Assert.True(acceptedJournalEntry.RawCommand.HasValue);
         Assert.Equal(CommandTypes.AssembleEquipment, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
         Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
@@ -196,8 +198,8 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
         Assert.Empty(replay.Events);
         Assert.Equal(postAssembleHash, MatchStateHasher.Hash(replay.State));
-        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(replay.Prompts));
-        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(postAssembleAuthoritativePromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(postAssembleAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(assembled.State.RunePools["P1"], replay.State.RunePools["P1"]);
         Assert.Equal(assembled.State.PlayerZones["P1"].Base, replay.State.PlayerZones["P1"].Base);
         Assert.Equal(assembled.State.PlayerZones["P1"].Hand, replay.State.PlayerZones["P1"].Hand);
@@ -232,8 +234,8 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
         Assert.Empty(rejectedJournalEntry.Events);
         Assert.Equal(postAssembleHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
-        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
-        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.Equal(postAssembleAuthoritativePromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(postAssembleAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
         Assert.True(rejectedJournalEntry.RawCommand.HasValue);
         Assert.Equal(CommandTypes.AssembleEquipment, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
         Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
@@ -252,8 +254,8 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
         Assert.Empty(duplicateReplay.Events);
         Assert.Equal(postAssembleHash, MatchStateHasher.Hash(duplicateReplay.State));
-        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
-        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(postAssembleAuthoritativePromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(postAssembleAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
         Assert.Equal(assembled.State.RunePools["P1"], duplicateReplay.State.RunePools["P1"]);
         Assert.Equal(assembled.State.PlayerZones["P1"].Base, duplicateReplay.State.PlayerZones["P1"].Base);
         Assert.Equal(assembled.State.PlayerZones["P1"].Hand, duplicateReplay.State.PlayerZones["P1"].Hand);
@@ -281,8 +283,8 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
         Assert.Empty(conflict.Events);
         Assert.Equal(postAssembleHash, MatchStateHasher.Hash(conflict.State));
-        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
-        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(postAssembleAuthoritativePromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(postAssembleAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
         Assert.Equal(assembled.State.RunePools["P1"], conflict.State.RunePools["P1"]);
         Assert.Equal(assembled.State.PlayerZones["P1"].Base, conflict.State.PlayerZones["P1"].Base);
         Assert.Equal(assembled.State.PlayerZones["P1"].Hand, conflict.State.PlayerZones["P1"].Hand);
