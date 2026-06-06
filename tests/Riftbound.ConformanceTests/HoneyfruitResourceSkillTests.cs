@@ -130,9 +130,10 @@ public sealed class HoneyfruitResourceSkillTests
     [Fact]
     public async Task HoneyfruitLevelSixResourceStalePromptReplayAfterTemporaryLedgerRejectsWithoutMutation()
     {
+        var journal = new RecordingMatchJournal();
         var state = WithExperience(BuildHoneyfruitPriorityState(), 6);
         var command = HoneyfruitCommand(optionalCosts: [LevelSixChoice()]);
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
@@ -145,10 +146,19 @@ public sealed class HoneyfruitResourceSkillTests
             Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]),
             choice => string.Equals(choice.Id, LevelSixChoice(), StringComparison.Ordinal));
         var staleRawCommand = PromptScopedRawCommand(CommandTypes.ActivateAbility, prompt);
+        var changedStaleRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.ActivateAbility,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        const string acceptedClientIntentId = "intent-honeyfruit-level-six-before-stale-prompt-replay";
+        const string staleClientIntentId = "intent-honeyfruit-level-six-stale-prompt-replay";
 
         var gained = await session.SubmitAsync(
             "P1",
-            "intent-honeyfruit-level-six-before-stale-prompt-replay",
+            acceptedClientIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -171,10 +181,27 @@ public sealed class HoneyfruitResourceSkillTests
         Assert.DoesNotContain(gained.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
         AssertNoHoneyfruitPrompt(gained.State);
         var postGainHash = MatchStateHasher.Hash(gained.State);
+        var postGainPromptsHash = MatchStateHasher.HashValue(gained.Prompts);
+        var postGainSnapshotsHash = MatchStateHasher.HashValue(gained.Snapshots);
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(postGainHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(postGainPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(postGainSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
 
         var replay = await session.SubmitAsync(
             "P1",
-            "intent-honeyfruit-level-six-stale-prompt-replay",
+            staleClientIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -183,6 +210,8 @@ public sealed class HoneyfruitResourceSkillTests
         Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
         Assert.Empty(replay.Events);
         Assert.Equal(postGainHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(postGainPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(postGainSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(gained.State.RunePools["P1"], replay.State.RunePools["P1"]);
         Assert.True(replay.State.CardObjects[HoneyfruitObjectId].IsExhausted);
         Assert.Single(replay.State.TemporaryPaymentResources);
@@ -193,6 +222,79 @@ public sealed class HoneyfruitResourceSkillTests
         Assert.Equal(gained.State.PendingTaskQueue.Tasks, replay.State.PendingTaskQueue.Tasks);
         Assert.Null(replay.State.PendingPayment);
         AssertNoHoneyfruitPrompt(replay.State);
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(MatchStateHasher.Hash(replay.State), MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(MatchStateHasher.HashValue(replay.Prompts), MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(MatchStateHasher.HashValue(replay.Snapshots), MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(postGainHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(postGainPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(postGainSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(gained.State.RunePools["P1"], duplicateReplay.State.RunePools["P1"]);
+        Assert.True(duplicateReplay.State.CardObjects[HoneyfruitObjectId].IsExhausted);
+        Assert.Single(duplicateReplay.State.TemporaryPaymentResources);
+        Assert.Equal(gained.State.TemporaryPaymentResources, duplicateReplay.State.TemporaryPaymentResources);
+        Assert.Equal(gained.State.StackItems, duplicateReplay.State.StackItems);
+        Assert.Equal(gained.State.PendingTaskQueue.Phase, duplicateReplay.State.PendingTaskQueue.Phase);
+        Assert.Equal(gained.State.PendingTaskQueue.ActiveTaskId, duplicateReplay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(gained.State.PendingTaskQueue.Tasks, duplicateReplay.State.PendingTaskQueue.Tasks);
+        Assert.Null(duplicateReplay.State.PendingPayment);
+        AssertNoHoneyfruitPrompt(duplicateReplay.State);
+        Assert.Equal(2, journal.Entries.Count);
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(postGainHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(postGainPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(postGainSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(gained.State.RunePools["P1"], conflict.State.RunePools["P1"]);
+        Assert.True(conflict.State.CardObjects[HoneyfruitObjectId].IsExhausted);
+        Assert.Single(conflict.State.TemporaryPaymentResources);
+        Assert.Equal(gained.State.TemporaryPaymentResources, conflict.State.TemporaryPaymentResources);
+        Assert.Equal(gained.State.StackItems, conflict.State.StackItems);
+        Assert.Equal(gained.State.PendingTaskQueue.Phase, conflict.State.PendingTaskQueue.Phase);
+        Assert.Equal(gained.State.PendingTaskQueue.ActiveTaskId, conflict.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(gained.State.PendingTaskQueue.Tasks, conflict.State.PendingTaskQueue.Tasks);
+        Assert.Null(conflict.State.PendingPayment);
+        AssertNoHoneyfruitPrompt(conflict.State);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -447,6 +549,17 @@ public sealed class HoneyfruitResourceSkillTests
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick
         });
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 
     private static string LevelSixChoice()
