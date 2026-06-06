@@ -509,6 +509,45 @@ public sealed class MalzaharResourceSkillTests
     }
 
     [Fact]
+    public void MalzaharTemporaryPaymentResourceNotExposedForManaOnlyPayCostPrompt()
+    {
+        var pendingPayment = new PendingPaymentState(
+            "PAY-MANA-ONLY",
+            "TEST_PENDING_PAY_COST",
+            "P1",
+            manaCost: 1,
+            legalPaymentChoiceIds: ["SPEND_MANA:1"]);
+        var state = BuildStateWithTemporaryResource() with
+        {
+            PendingPayment = pendingPayment
+        };
+        var temporaryResource = Assert.Single(state.TemporaryPaymentResources);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var initialHash = MatchStateHasher.Hash(state);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, prompt.Actions);
+        var payCostCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(payCostCandidate.Metadata);
+        var paymentChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Equal(["SPEND_MANA:1"], paymentChoices.Select(choice => choice.Id).ToArray());
+        Assert.DoesNotContain(paymentChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["paymentResourceActionIds"]));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Empty(paymentResourcePowerByChoice);
+        Assert.DoesNotContain(resourceAction, paymentResourcePowerByChoice.Keys);
+        Assert.Equal(initialHash, MatchStateHasher.Hash(state));
+        Assert.Equal(temporaryResource, Assert.Single(state.TemporaryPaymentResources));
+        Assert.Equal(pendingPayment, state.PendingPayment);
+    }
+
+    [Fact]
     public async Task MalzaharTemporaryPaymentResourcePaysRuneCostAndCleansUpAtPaymentClose()
     {
         var state = BuildStateWithTemporaryResource() with
