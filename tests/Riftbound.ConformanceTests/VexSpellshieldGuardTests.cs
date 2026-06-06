@@ -74,6 +74,62 @@ public sealed class VexSpellshieldGuardTests
     }
 
     [Fact]
+    public void VexMainActionPlayCardPromptDoesNotExposeTargetChoicesForNoTargetUnitPlay()
+    {
+        var state = BuildVexState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, VexObjectId, StringComparison.Ordinal));
+        var targetCandidates = playCandidate.Targets ?? [];
+        var targetIds = targetCandidates.Select(target => target.Id).ToArray();
+        Assert.Empty(targetCandidates);
+        Assert.DoesNotContain(VexObjectId, targetIds);
+        Assert.DoesNotContain("P1-TARGET-UNIT", targetIds);
+        Assert.DoesNotContain("P1-BASE-VEX", targetIds);
+        Assert.DoesNotContain("P1-FACE-DOWN-STANDBY-VEX", targetIds);
+        Assert.DoesNotContain("P2-UNIT-VEX", targetIds);
+
+        if (playCandidate.Metadata is not null)
+        {
+            if (playCandidate.Metadata.TryGetValue("targetChoicesByIndex", out var rawCandidateTargetChoicesByIndex)
+                && rawCandidateTargetChoicesByIndex is not null)
+            {
+                AssertTargetChoicesByIndexEmpty(rawCandidateTargetChoicesByIndex);
+            }
+
+            if (playCandidate.Metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements)
+                && rawSourceRequirements is not null)
+            {
+                var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                    rawSourceRequirements);
+                foreach (var sourceRequirement in sourceRequirements.Where(requirement =>
+                    requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                    && string.Equals(sourceObjectId as string, VexObjectId, StringComparison.Ordinal)))
+                {
+                    if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
+                        || rawTargetChoicesByIndex is null)
+                    {
+                        continue;
+                    }
+
+                    AssertTargetChoicesByIndexEmpty(rawTargetChoicesByIndex);
+                }
+            }
+        }
+    }
+
+    [Fact]
     public async Task VexPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
@@ -264,6 +320,21 @@ public sealed class VexSpellshieldGuardTests
             || string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+    }
+
+    private static void AssertTargetChoicesByIndexEmpty(object rawTargetChoicesByIndex)
+    {
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            rawTargetChoicesByIndex);
+        Assert.All(targetChoicesByIndex, targetChoicesByIndexEntry =>
+        {
+            if (targetChoicesByIndexEntry.Value is null)
+            {
+                return;
+            }
+
+            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndexEntry.Value));
+        });
     }
 
     private static async Task<ResolutionResult> PlayVexAsync(
