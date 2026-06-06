@@ -791,6 +791,56 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperTapRuneUsesCommandFieldsOverVisibleSourceMetadata()
+    {
+        const string VisibleTapRuneMetadataAliases = """
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-TAP-RUNE",
+                  "sourceChoices": [{ "id": "P1-VISIBLE-TAP-RUNE", "label": "Visible source choice" }],
+                  "runeChoices": [{ "id": "P1-VISIBLE-TAP-RUNE", "label": "Visible rune choice" }],
+                  "paymentResourceChoices": [{ "id": "RECYCLE_RUNE:P1-VISIBLE-TAP-RUNE" }]
+                }
+              ],
+              "sources": [{ "id": "P1-VISIBLE-TAP-RUNE", "label": "Visible source" }],
+              "sourceChoices": [{ "id": "P1-VISIBLE-TAP-RUNE", "label": "Visible top-level source choice" }],
+              "runeChoices": [{ "id": "P1-VISIBLE-TAP-RUNE", "label": "Visible top-level rune choice" }],
+              "paymentResourceChoices": [{ "id": "RECYCLE_RUNE:P1-VISIBLE-TAP-RUNE" }]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "TAP_RUNE",
+              "sourceObjectId": "P1-CURRENT-TAP-RUNE",
+              {{VisibleTapRuneMetadataAliases}}
+            }
+            """);
+        var malformedCurrent = Map($$"""
+            {
+              "cmdType": "TAP_RUNE",
+              "sourceObjectId": { "id": "P1-CURRENT-TAP-RUNE" },
+              {{VisibleTapRuneMetadataAliases}}
+            }
+            """);
+        var aliasOnly = Map($$"""
+            {
+              "cmdType": "TAP_RUNE",
+              {{VisibleTapRuneMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("P1-CURRENT-TAP-RUNE", command.SourceObjectId);
+        Assert.Equal(string.Empty, malformedCurrent.SourceObjectId);
+        Assert.Equal(string.Empty, aliasOnly.SourceObjectId);
+
+        static TapRuneCommand Map(string json)
+        {
+            return Assert.IsType<TapRuneCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperParsesRevealCardPayload()
     {
         var command = Assert.IsType<RevealCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
