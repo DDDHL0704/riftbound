@@ -4882,7 +4882,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(PromptTypes.AssignCombatDamage, opened.Prompts["P1"].View?.Type);
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(opened.State, HiddenStandbyObjectId);
 
-        var session = new MatchSession(opened.State, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(opened.State, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
         var prompt = session.PromptFor("P1");
@@ -4897,10 +4898,12 @@ public sealed class BattleDamageAssignmentLifecycleTests
             BattlefieldObjectId,
             LegalAssignments());
         var staleRawCommand = PromptScopedAssignCombatDamageRawCommand(command, prompt);
+        const string acceptedIntentId = "intent-natural-assign-damage-before-stale-prompt-replay";
+        const string staleIntentId = "intent-natural-assign-damage-stale-prompt-replay";
 
         var assigned = await session.SubmitAsync(
             "P1",
-            "intent-natural-assign-damage-before-stale-prompt-replay",
+            acceptedIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -4925,13 +4928,37 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertNaturalAssignDamageNextContestPromptQueueAudit(assigned);
 
         var acceptedStateHash = MatchStateHasher.Hash(assigned.State);
+        var acceptedResultPromptsHash = MatchStateHasher.HashValue(assigned.Prompts);
+        var acceptedResultSnapshotsHash = MatchStateHasher.HashValue(assigned.Snapshots);
+        var postAssignedPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(assigned.State));
+        var postAssignedSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(assigned.State));
+        var p1SnapshotAfterAssigned = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var p2SnapshotAfterAssigned = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
         var acceptedStackItemIds = assigned.State.StackItems.Select(item => item.StackItemId).ToArray();
+        var acceptedTaskIds = assigned.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray();
+        var acceptedTaskKinds = assigned.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray();
+        var acceptedTaskBattlefields = assigned.State.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId).ToArray();
         var acceptedP1Battlefields = assigned.State.PlayerZones["P1"].Battlefields.ToArray();
         var acceptedP2Graveyard = assigned.State.PlayerZones["P2"].Graveyard.ToArray();
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(opened.State.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.AssignCombatDamage, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.Equal(assigned.Events.Select(gameEvent => gameEvent.Kind), acceptedJournalEntry.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedResultPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedResultSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.AssignCombatDamage, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
 
         var replay = await session.SubmitAsync(
             "P1",
-            "intent-natural-assign-damage-stale-prompt-replay",
+            staleIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -4941,11 +4968,16 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Empty(replay.Events);
         Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
         Assert.Equal(assigned.State.Tick, replay.State.Tick);
+        Assert.Equal(postAssignedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(postAssignedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.False(replay.State.BattleState.IsActive);
         Assert.Equal(TimingStates.SpellDuelOpen, replay.State.TimingState);
         Assert.Equal("SPELL_DUEL_TASKS", replay.State.PendingTaskQueue.Phase);
         Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", replay.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(acceptedStackItemIds, replay.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal(acceptedTaskIds, replay.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
+        Assert.Equal(acceptedTaskKinds, replay.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Equal(acceptedTaskBattlefields, replay.State.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId).ToArray());
         Assert.Equal(acceptedP1Battlefields, replay.State.PlayerZones["P1"].Battlefields.ToArray());
         Assert.Equal(acceptedP2Graveyard, replay.State.PlayerZones["P2"].Graveyard.ToArray());
         Assert.DoesNotContain(
@@ -4957,8 +4989,111 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", replay.Prompts["P1"].View?.RelatedSpellDuelId);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P2"].View?.Type);
+        Assert.Equal(p1SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(opened.State.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.AssignCombatDamage, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(postAssignedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(postAssignedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.AssignCombatDamage, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(replay.State, HiddenStandbyObjectId);
         AssertNaturalAssignDamageNextContestPromptQueueAudit(replay);
+
+        var duplicateRejected = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateRejected.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateRejected.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateRejected.ErrorMessage);
+        Assert.Empty(duplicateRejected.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(duplicateRejected.State));
+        Assert.Equal(assigned.State.Tick, duplicateRejected.State.Tick);
+        Assert.Equal(postAssignedPromptsHash, MatchStateHasher.HashValue(duplicateRejected.Prompts));
+        Assert.Equal(postAssignedSnapshotsHash, MatchStateHasher.HashValue(duplicateRejected.Snapshots));
+        Assert.False(duplicateRejected.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.SpellDuelOpen, duplicateRejected.State.TimingState);
+        Assert.Equal("SPELL_DUEL_TASKS", duplicateRejected.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", duplicateRejected.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(acceptedStackItemIds, duplicateRejected.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal(acceptedTaskIds, duplicateRejected.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
+        Assert.Equal(acceptedTaskKinds, duplicateRejected.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Equal(acceptedTaskBattlefields, duplicateRejected.State.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId).ToArray());
+        Assert.Equal(acceptedP1Battlefields, duplicateRejected.State.PlayerZones["P1"].Battlefields.ToArray());
+        Assert.Equal(acceptedP2Graveyard, duplicateRejected.State.PlayerZones["P2"].Graveyard.ToArray());
+        Assert.DoesNotContain(
+            duplicateRejected.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.SpellDuelFocus, duplicateRejected.Prompts["P1"].View?.Type);
+        Assert.Equal(NextBattlefieldObjectId, duplicateRejected.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", duplicateRejected.Prompts["P1"].View?.RelatedSpellDuelId);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, duplicateRejected.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, duplicateRejected.Prompts["P2"].View?.Type);
+        Assert.Equal(p1SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(duplicateRejected.State, HiddenStandbyObjectId);
+        AssertNaturalAssignDamageNextContestPromptQueueAudit(duplicateRejected);
+
+        var changedRawCommand = PromptScopedAssignCombatDamageRawCommandWithClientNote(command, prompt, "changed-payload");
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(assigned.State.Tick, conflict.State.Tick);
+        Assert.Equal(postAssignedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(postAssignedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.False(conflict.State.BattleState.IsActive);
+        Assert.Equal(TimingStates.SpellDuelOpen, conflict.State.TimingState);
+        Assert.Equal("SPELL_DUEL_TASKS", conflict.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", conflict.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(acceptedStackItemIds, conflict.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal(acceptedTaskIds, conflict.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
+        Assert.Equal(acceptedTaskKinds, conflict.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Equal(acceptedTaskBattlefields, conflict.State.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId).ToArray());
+        Assert.Equal(acceptedP1Battlefields, conflict.State.PlayerZones["P1"].Battlefields.ToArray());
+        Assert.Equal(acceptedP2Graveyard, conflict.State.PlayerZones["P2"].Graveyard.ToArray());
+        Assert.DoesNotContain(
+            conflict.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.SpellDuelFocus, conflict.Prompts["P1"].View?.Type);
+        Assert.Equal(NextBattlefieldObjectId, conflict.Prompts["P1"].View?.RelatedBattlefieldId);
+        Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", conflict.Prompts["P1"].View?.RelatedSpellDuelId);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, conflict.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, conflict.Prompts["P2"].View?.Type);
+        Assert.Equal(p1SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+        AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(conflict.State, HiddenStandbyObjectId);
+        AssertNaturalAssignDamageNextContestPromptQueueAudit(conflict);
     }
 
     [Fact]
