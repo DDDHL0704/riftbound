@@ -84,6 +84,71 @@ public sealed class OverchargedEnergyGuardTests
     }
 
     [Fact]
+    public void OverchargedEnergyMainActionPlayCardPromptDoesNotExposeTargetsForNoTargetSpell()
+    {
+        var state = BuildOverchargedEnergyState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => candidate.Enabled
+                && string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, OverchargedEnergyObjectId, StringComparison.Ordinal)));
+        Assert.Empty(playCandidate.Targets ?? []);
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+
+        var invalidTargetObjectIds = new[]
+        {
+            "P1-BASE-UNIT",
+            "P1-BATTLEFIELD-UNIT",
+            "P2-BATTLEFIELD-UNIT",
+            "P1-FACE-DOWN-STANDBY",
+            "P1-DIRTY-P2-CONTROLLED-BATTLEFIELD-UNIT",
+            "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+            OverchargedEnergyObjectId
+        };
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+
+        var metadataTargetIds = Array.Empty<string>();
+        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true)
+        {
+            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                    rawSourceRequirements)
+                .ToArray();
+            var sourceRequirement = sourceRequirements.SingleOrDefault(requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, OverchargedEnergyObjectId, StringComparison.Ordinal));
+
+            if (sourceRequirement is not null
+                && sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex))
+            {
+                var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                    rawTargetChoicesByIndex);
+                metadataTargetIds = targetChoicesByIndex.Values
+                    .SelectMany(rawTargetChoices => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices))
+                    .Select(choice => choice.Id)
+                    .ToArray();
+            }
+        }
+
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
+        }
+    }
+
+    [Fact]
     public async Task OverchargedEnergyPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
