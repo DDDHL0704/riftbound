@@ -162,16 +162,20 @@ public sealed class FluftPoroActivatedAbilityTests
     [Fact]
     public async Task FluftPoroActivationStalePromptReplayAfterStackPriorityStartsRejectsWithoutMutation()
     {
+        var journal = new RecordingMatchJournal();
         var state = BuildFluftPoroState();
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
         var command = FluftPoroCommand();
         var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var changedRawCommand = PromptScopedActivateAbilityRawCommandWithClientNote(command, prompt, "changed-payload");
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        const string acceptedIntentId = "intent-fluft-poro-before-stale-prompt-replay";
+        const string staleIntentId = "intent-fluft-poro-stale-action-prompt-replay";
 
         var accepted = await session.SubmitAsync(
             "P1",
-            "intent-fluft-poro-before-stale-prompt-replay",
+            acceptedIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -179,6 +183,8 @@ public sealed class FluftPoroActivatedAbilityTests
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
         var stackItem = Assert.Single(accepted.State.StackItems);
         Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityEffectKind, stackItem.EffectKind);
         Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroCardNo, stackItem.CardNo);
@@ -189,9 +195,28 @@ public sealed class FluftPoroActivatedAbilityTests
         Assert.DoesNotContain(CommandTypes.ActivateAbility, accepted.Prompts["P1"].Actions);
         AssertFluftPoroStackPriorityPromptQueueAudit(accepted);
 
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(FluftObjectId, acceptedJournalEntry.RawCommand.Value.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId, acceptedJournalEntry.RawCommand.Value.GetProperty("abilityId").GetString());
+        Assert.Empty(acceptedJournalEntry.RawCommand.Value.GetProperty("targetObjectIds").EnumerateArray());
+        Assert.Empty(acceptedJournalEntry.RawCommand.Value.GetProperty("optionalCosts").EnumerateArray());
+        Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+
         var replay = await session.SubmitAsync(
             "P1",
-            "intent-fluft-poro-stale-action-prompt-replay",
+            staleIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -200,6 +225,9 @@ public sealed class FluftPoroActivatedAbilityTests
         Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
         Assert.Empty(replay.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.True(replay.State.CardObjects[FluftObjectId].IsExhausted);
         Assert.Equal([FluftObjectId], replay.State.PlayerZones["P1"].Battlefields);
         var replayStackItem = Assert.Single(replay.State.StackItems);
@@ -213,6 +241,69 @@ public sealed class FluftPoroActivatedAbilityTests
         Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].Actions);
         Assert.DoesNotContain(replay.State.CardObjects.Values, card => string.Equals(card.CardNo, P4ActivatedAbilityCatalog.WarhawkTokenCardNo, StringComparison.Ordinal));
         AssertFluftPoroStackPriorityPromptQueueAudit(replay);
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(FluftObjectId, rejectedJournalEntry.RawCommand.Value.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId, rejectedJournalEntry.RawCommand.Value.GetProperty("abilityId").GetString());
+        Assert.Empty(rejectedJournalEntry.RawCommand.Value.GetProperty("targetObjectIds").EnumerateArray());
+        Assert.Empty(rejectedJournalEntry.RawCommand.Value.GetProperty("optionalCosts").EnumerateArray());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(accepted.State.Tick, rejectedJournalEntry.StartedTick);
+        Assert.Equal(replay.State.Tick, rejectedJournalEntry.CompletedTick);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var duplicateRejected = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateRejected.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateRejected.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateRejected.ErrorMessage);
+        Assert.Empty(duplicateRejected.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateRejected.State));
+        Assert.Equal(replay.State.Tick, duplicateRejected.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(duplicateRejected.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(duplicateRejected.Snapshots));
+        AssertFluftPoroStackPriorityPromptQueueAudit(duplicateRejected);
+        Assert.Equal(2, journal.Entries.Count);
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        AssertFluftPoroStackPriorityPromptQueueAudit(conflict);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     private static void AssertFluftPoroStackPriorityPromptQueueAudit(ResolutionResult result)
@@ -418,6 +509,24 @@ public sealed class FluftPoroActivatedAbilityTests
         });
     }
 
+    private static JsonElement PromptScopedActivateAbilityRawCommandWithClientNote(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        });
+    }
+
     private static async Task AssertRejectedNoMutationAsync(
         MatchState state,
         ActivateAbilityCommand command)
@@ -611,5 +720,16 @@ public sealed class FluftPoroActivatedAbilityTests
         var next = objectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         next[objectId] = replacement;
         return next;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
