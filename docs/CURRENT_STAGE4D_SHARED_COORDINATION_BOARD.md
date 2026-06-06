@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18UK/18UL/18UM/18UN stale raw rejected-cache breadth integrates a parallel worktree batch proving rejected stale prompt-scoped raw Vex spellshield unit `PLAY_CARD`, Zhonyas Hourglass equipment `PLAY_CARD`, Sfur Song equipment `PLAY_CARD`, and Time Gate equipment `PLAY_CARD` replay exact duplicate rejected results without journal growth, while changed raw payloads with the same rejected `clientIntentId` return `CLIENT_INTENT_CONFLICT` without state, prompt, snapshot, stack, hand/base, equipment object, session projection or journal drift as applicable. Runtime changed: no, server test coverage only. Tests changed in `VexSpellshieldGuardTests`, `ZhonyasHourglassGuardTests`, `SfurSongGuardTests` and `TimeGateGuardTests`. Validation passed: focused changed tests `28/28`, first adjacent server filter `865/865`, broader adjacent server filter `5210/5210`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7451/7451`, plus diff checks, conflict-marker scan and matrix JSON parse before docs sync. Worker/worktree source commits were `21cc9cc5` (18UK, cherry-picked and corrected by A_MAIN as `4f5bb661`), `07cb5ebe` (18UL, cherry-picked as `74e9689d`), `821b5acb` (18UM, cherry-picked as `9222052a`) and `c2f6826b` (18UN, cherry-picked as `a8003c82`). A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18UO/18UP/18UQ/18UR stale raw rejected-cache breadth integrates a parallel worktree batch proving rejected stale prompt-scoped raw Vex alt spellshield `PLAY_CARD`, Draven vanilla `PLAY_CARD`, Draven keyword-unit `PLAY_CARD`, and Giant Arm Kato `PLAY_CARD` replay exact duplicate rejected results without journal growth, while changed raw payloads with the same rejected `clientIntentId` return `CLIENT_INTENT_CONFLICT` without state, prompt, snapshot, stack, hand/base, target/session projection or journal drift as applicable. Runtime changed: no, server test coverage only. Tests changed in `VexAltSpellshieldGuardTests`, `DravenVanillaGuardTests`, `DravenKeywordUnitGuardTests` and `GiantArmKatoGuardTests`; A_MAIN added analyzer-only fix `d9e1189a` after xUnit2031 blocked two accepted assertion shapes. Validation passed: focused changed tests `31/31`, first adjacent server filter `406/406`, broader adjacent server filter `5214/5214`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7455/7455`, plus diff checks, conflict-marker scan and matrix JSON parse before docs sync. Worker/worktree source commits were `21da6db2` (18UO, cherry-picked as `1dde0e19`), `2d2d1ff6` (18UP, cherry-picked as `99b99fbd`), `e54740f5` (18UQ, cherry-picked as `75e96be1`) and replacement `424745b7` (18UR, cherry-picked as `a0f895d4`). A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18UK/18UL/18UM/18UN; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 23:37 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18UO/18UP/18UQ/18UR; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 23:58 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-06 23:58 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, pending docs/checkpoint commit after validation at time of entry
+
+Write locks: closed for `tests/Riftbound.ConformanceTests/VexAltSpellshieldGuardTests.cs`, `tests/Riftbound.ConformanceTests/DravenVanillaGuardTests.cs`, `tests/Riftbound.ConformanceTests/DravenKeywordUnitGuardTests.cs`, `tests/Riftbound.ConformanceTests/GiantArmKatoGuardTests.cs`, current checkpoint/completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18UO_18UR_STALE_RAW_CACHE_AUDIT.md`. Runtime validation code, matrix JSON, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18UO/18UP/18UQ/18UR integrated parallel worktree output: `21da6db2` -> `1dde0e19` (Vex alt spellshield PLAY_CARD stale prompt replay/cache conflict guard), `2d2d1ff6` -> `99b99fbd` (Draven vanilla PLAY_CARD stale prompt replay/cache conflict guard), `e54740f5` -> `75e96be1` (Draven keyword-unit PLAY_CARD stale prompt replay/cache conflict guard) and replacement `424745b7` -> `a0f895d4` (Giant Arm Kato PLAY_CARD stale prompt replay/cache conflict guard). A_MAIN added analyzer fix `d9e1189a`. Runtime changed: no, server test coverage only. One 18UR cwd incident was contained before replacement output was accepted.
+
+Validation: focused changed tests `31/31`; first adjacent server filter `406/406`; broader adjacent server filter `5214/5214`; backend full `7455/7455` under no-DB environment; `git diff --check`, range review, anchored conflict-marker scan and matrix JSON parse passed before docs sync. DOC_MATRIX_CURRENT was clean at `17bde0c3` when checked from A_MAIN.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and can dispatch another non-overlapping parallel server group. Project remains **NOT READY**.
 
 ### 2026-06-06 23:37 A_MAIN
 
