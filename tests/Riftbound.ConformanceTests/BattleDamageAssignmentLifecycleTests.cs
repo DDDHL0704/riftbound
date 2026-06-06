@@ -25,6 +25,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     private const string HeldScoreRecycleRuneObjectId = "P2-RUNE-HELD-SCORE-RESPONSE";
     private const string HeldScoreRecycleRuneDeckObjectId = "P2-RUNE-BOTTOM-HELD-SCORE-RESPONSE";
     private const string HeldScoreTemporaryResourceId = "MALZAHAR:TEMP-HELD-SCORE-RESPONSE";
+    private const string SecondHeldScoreTemporaryResourceId = "MALZAHAR:TEMP-HELD-SCORE-RESPONSE-SECOND";
     private const string IcevaleTrigger = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string PayOneMana = "SPEND_MANA:1";
@@ -3511,6 +3512,212 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
         Assert.Equal("P2", scoreGained.Payload["playerId"]);
         Assert.Equal(1, scoreGained.Payload["score"]);
+        Assert.Equal(1, p1Pass.State.PlayerScores["P2"]);
+        Assert.Equal(0, p1Pass.State.RunePools["P2"].Power);
+        Assert.Empty(p1Pass.State.TemporaryPaymentResources);
+        Assert.DoesNotContain(
+            p1Pass.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        Assert.False(p1Pass.State.BattleState.IsActive);
+        Assert.NotEqual(PromptTypes.AssignCombatDamage, p1Pass.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.BattleDeclaration, p1Pass.Prompts["P1"].View?.Type);
+    }
+
+    [Fact]
+    public async Task NaturalBattleResponseHeldScoreConsumesTwoTemporaryResourcesWhenScoreCostNeedsBoth()
+    {
+        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(HeldScoreTemporaryResourceId);
+        var secondTemporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(SecondHeldScoreTemporaryResourceId);
+        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", temporaryAction, secondTemporaryAction };
+        var baseState = BuildHeldScoreTemporaryPaymentResourceNaturalStartBattleState();
+        var secondTemporaryResource = new TemporaryPaymentResourceState(
+            SecondHeldScoreTemporaryResourceId,
+            ownerPlayerId: "P2",
+            sourceObjectId: "P2-TEMP-RESOURCE-SOURCE-SECOND",
+            abilityId: P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+            paymentWindow: "ACTIVATE_ABILITY",
+            generatedPower: 1,
+            remainingPower: 1,
+            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+            createdTick: 20);
+        var state = baseState with
+        {
+            RunePools = new Dictionary<string, RunePool>(baseState.RunePools, StringComparer.Ordinal)
+            {
+                ["P2"] = new(1, 2)
+            },
+            TemporaryPaymentResources = baseState.TemporaryPaymentResources
+                .Concat([secondTemporaryResource])
+                .ToArray()
+        };
+        var engine = new CoreRuleEngine();
+
+        var openedResponse = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-natural-two-temp-payment-context-declare-battle", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldObjectId,
+                [AttackerObjectId],
+                [BulwarkDefenderObjectId, ShadowObjectId],
+                OptionalCosts: optionalCosts),
+            CancellationToken.None);
+
+        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.True(openedResponse.State.BattleState.IsActive);
+        var openedDeclaration = Assert.Single(
+            openedResponse.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
+        var openedPriority = Assert.Single(
+            openedResponse.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(
+            openedResponse.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        AssertBattleResponseContextNotLeaked(openedResponse.State, "P2");
+
+        var p2Pass = await engine.ResolveAsync(
+            openedResponse.State,
+            new PlayerIntent("intent-natural-two-temp-payment-context-response-p2-pass", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Contains(
+            p2Pass.State.UntilEndOfTurnEffects,
+            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        Assert.Equal(2, p2Pass.State.TemporaryPaymentResources.Count);
+
+        var p1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-natural-two-temp-payment-context-response-p1-pass", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        var closedPriority = Assert.Single(
+            p1Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
+        var resumedDeclaration = p1Pass.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
+            .Last();
+        Assert.Equal(optionalCosts, StringList(resumedDeclaration.Payload["optionalCosts"]));
+
+        var heldIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        var spentIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["temporaryPaymentResourceId"] as string, HeldScoreTemporaryResourceId, StringComparison.Ordinal));
+        var spentEvent = p1Pass.Events[spentIndex];
+        Assert.Equal(HeldScoreTemporaryResourceId, spentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal("BATTLEFIELD_HELD", spentEvent.Payload["paymentWindow"]);
+        Assert.Equal("P2", spentEvent.Payload["playerId"]);
+        Assert.Equal("P2-TEMP-RESOURCE-SOURCE", spentEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, spentEvent.Payload["abilityId"]);
+        Assert.Equal(1, spentEvent.Payload["consumedPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["consumedPowerByTrait"]));
+        Assert.Equal(0, spentEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(spentEvent.Payload["remainingPowerByTrait"]));
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(spentEvent.Payload["allowedPaymentKinds"]));
+        Assert.Equal(true, spentEvent.Payload["paymentOnly"]);
+        var clearedIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["temporaryPaymentResourceId"] as string, HeldScoreTemporaryResourceId, StringComparison.Ordinal));
+        var clearedEvent = p1Pass.Events[clearedIndex];
+        Assert.Equal(HeldScoreTemporaryResourceId, clearedEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal("BATTLEFIELD_HELD", clearedEvent.Payload["paymentWindow"]);
+        Assert.Equal("P2", clearedEvent.Payload["playerId"]);
+        Assert.Equal(0, clearedEvent.Payload["remainingPowerBeforeCleanup"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(clearedEvent.Payload["remainingPowerByTraitBeforeCleanup"]));
+        Assert.Equal(true, clearedEvent.Payload["paymentOnly"]);
+
+        var secondSpentIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["temporaryPaymentResourceId"] as string, SecondHeldScoreTemporaryResourceId, StringComparison.Ordinal));
+        var secondSpentEvent = p1Pass.Events[secondSpentIndex];
+        Assert.Equal(SecondHeldScoreTemporaryResourceId, secondSpentEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal("BATTLEFIELD_HELD", secondSpentEvent.Payload["paymentWindow"]);
+        Assert.Equal("P2", secondSpentEvent.Payload["playerId"]);
+        Assert.Equal("P2-TEMP-RESOURCE-SOURCE-SECOND", secondSpentEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, secondSpentEvent.Payload["abilityId"]);
+        Assert.Equal(1, secondSpentEvent.Payload["consumedPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(secondSpentEvent.Payload["consumedPowerByTrait"]));
+        Assert.Equal(0, secondSpentEvent.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(secondSpentEvent.Payload["remainingPowerByTrait"]));
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(secondSpentEvent.Payload["allowedPaymentKinds"]));
+        Assert.Equal(true, secondSpentEvent.Payload["paymentOnly"]);
+        var secondClearedIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["temporaryPaymentResourceId"] as string, SecondHeldScoreTemporaryResourceId, StringComparison.Ordinal));
+        var secondClearedEvent = p1Pass.Events[secondClearedIndex];
+        Assert.Equal(SecondHeldScoreTemporaryResourceId, secondClearedEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal("BATTLEFIELD_HELD", secondClearedEvent.Payload["paymentWindow"]);
+        Assert.Equal("P2", secondClearedEvent.Payload["playerId"]);
+        Assert.Equal(0, secondClearedEvent.Payload["remainingPowerBeforeCleanup"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(secondClearedEvent.Payload["remainingPowerByTraitBeforeCleanup"]));
+        Assert.Equal(true, secondClearedEvent.Payload["paymentOnly"]);
+
+        var heldScoreIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        var heldScore = p1Pass.Events[heldScoreIndex];
+        Assert.Equal("P2", heldScore.Payload["playerId"]);
+        Assert.Equal(BattlefieldObjectId, heldScore.Payload["battlefieldId"]);
+        Assert.Equal(BattlefieldObjectId, heldScore.Payload["battlefieldObjectId"]);
+        Assert.Equal(4, heldScore.Payload["powerCost"]);
+        Assert.Equal(1, heldScore.Payload["amount"]);
+        Assert.Equal(1, heldScore.Payload["score"]);
+        var costPaidIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        var costPaid = p1Pass.Events[costPaidIndex];
+        Assert.Equal("BATTLEFIELD_HELD", costPaid.Payload["paymentWindow"]);
+        Assert.Equal("P2", costPaid.Payload["playerId"]);
+        Assert.Equal(BattlefieldObjectId, costPaid.Payload["sourceObjectId"]);
+        Assert.Equal([temporaryAction, secondTemporaryAction], Assert.IsType<string[]>(costPaid.Payload["paymentResourceActions"]));
+        Assert.Empty(Assert.IsType<string[]>(costPaid.Payload["recycledRuneObjectIds"]));
+        Assert.Equal([HeldScoreTemporaryResourceId, SecondHeldScoreTemporaryResourceId], Assert.IsType<string[]>(costPaid.Payload["temporaryPaymentResourceIds"]));
+        Assert.Equal(2, costPaid.Payload["temporaryPaymentResourcePower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaid.Payload["temporaryPaymentResourcePowerByTrait"]));
+        Assert.Equal(4, costPaid.Payload["genericPower"]);
+        Assert.Equal(4, costPaid.Payload["totalPowerCost"]);
+        Assert.Equal(0, costPaid.Payload["remainingPower"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaid.Payload["remainingPowerByTrait"]));
+        Assert.Equal(costPaid.Payload["paymentId"], spentEvent.Payload["paymentId"]);
+        Assert.Equal(costPaid.Payload["paymentId"], clearedEvent.Payload["paymentId"]);
+        Assert.Equal(costPaid.Payload["paymentId"], secondSpentEvent.Payload["paymentId"]);
+        Assert.Equal(costPaid.Payload["paymentId"], secondClearedEvent.Payload["paymentId"]);
+        var scoreGainedIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        var scoreGained = p1Pass.Events[scoreGainedIndex];
+        Assert.Equal("P2", scoreGained.Payload["playerId"]);
+        Assert.Equal(BattlefieldObjectId, scoreGained.Payload["sourceObjectId"]);
+        Assert.Equal(1, scoreGained.Payload["score"]);
+        var battleClosedIndex = EventIndex(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
+
+        Assert.True(heldIndex < heldScoreIndex);
+        Assert.True(heldIndex < spentIndex);
+        Assert.True(spentIndex < clearedIndex);
+        Assert.True(clearedIndex < secondSpentIndex);
+        Assert.True(secondSpentIndex < secondClearedIndex);
+        Assert.True(secondClearedIndex < costPaidIndex);
+        Assert.True(heldScoreIndex < costPaidIndex);
+        Assert.True(costPaidIndex < scoreGainedIndex);
+        Assert.True(scoreGainedIndex < battleClosedIndex);
+
         Assert.Equal(1, p1Pass.State.PlayerScores["P2"]);
         Assert.Equal(0, p1Pass.State.RunePools["P2"].Power);
         Assert.Empty(p1Pass.State.TemporaryPaymentResources);
