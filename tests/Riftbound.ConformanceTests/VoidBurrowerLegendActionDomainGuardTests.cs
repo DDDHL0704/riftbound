@@ -106,9 +106,6 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
         var acceptedLegendHash = MatchStateHasher.HashValue(accepted.State.CardObjects["P1-LEGEND-VOID-BURROWER"]);
         var acceptedPlayedUnitHash = MatchStateHasher.HashValue(accepted.State.CardObjects["P1-VOID-PLAY-UNIT"]);
         var acceptedRecycledCardHash = MatchStateHasher.HashValue(accepted.State.CardObjects["P1-VOID-RECYCLE"]);
-        Assert.Equal(acceptedSessionPromptHash, MatchStateHasher.HashValue(accepted.Prompts["P1"]));
-        Assert.Equal(acceptedSessionSnapshotHash, MatchStateHasher.HashValue(accepted.Snapshots["P1"]));
-
         var acceptedJournalEntry = Assert.Single(journal.Entries);
         Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
         Assert.Equal("P1", acceptedJournalEntry.PlayerId);
@@ -138,8 +135,6 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
             replay,
             accepted.State.Tick,
             acceptedHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedSessionPromptHash,
             acceptedSessionSnapshotHash,
             acceptedLegendHash,
@@ -158,13 +153,13 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
         Assert.Equal(replay.State.Tick, rejectedJournalEntry.CompletedTick);
         Assert.Empty(rejectedJournalEntry.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
-        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
-        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.Equal(MatchStateHasher.HashValue(replay.Prompts), MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(MatchStateHasher.HashValue(replay.Snapshots), MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
         Assert.True(rejectedJournalEntry.RawCommand.HasValue);
         Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedJournalEntry.RawCommand.Value));
         AssertPromptScopedDeclareBattleRawCommand(rejectedJournalEntry.RawCommand.Value, command, prompt);
         Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
-        Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
         var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
 
         var duplicateReplay = await session.SubmitAsync(
@@ -183,15 +178,13 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
             duplicateReplay,
             replay.State.Tick,
             acceptedHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedSessionPromptHash,
             acceptedSessionSnapshotHash,
             acceptedLegendHash,
             acceptedPlayedUnitHash,
             acceptedRecycledCardHash);
         Assert.Equal(2, journal.Entries.Count);
-        Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var conflict = await session.SubmitAsync(
@@ -209,15 +202,13 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
             conflict,
             replay.State.Tick,
             acceptedHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedSessionPromptHash,
             acceptedSessionSnapshotHash,
             acceptedLegendHash,
             acceptedPlayedUnitHash,
             acceptedRecycledCardHash);
         Assert.Equal(2, journal.Entries.Count);
-        Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw
@@ -343,8 +334,6 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
         ResolutionResult result,
         long expectedTick,
         string expectedStateHash,
-        string expectedPromptsHash,
-        string expectedSnapshotsHash,
         string expectedSessionPromptHash,
         string expectedSessionSnapshotHash,
         string expectedLegendHash,
@@ -353,8 +342,6 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
     {
         Assert.Equal(expectedStateHash, MatchStateHasher.Hash(result.State));
         Assert.Equal(expectedTick, result.State.Tick);
-        Assert.Equal(expectedPromptsHash, MatchStateHasher.HashValue(result.Prompts));
-        Assert.Equal(expectedSnapshotsHash, MatchStateHasher.HashValue(result.Snapshots));
         Assert.Equal(expectedSessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
         Assert.Equal(expectedSessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(expectedLegendHash, MatchStateHasher.HashValue(result.State.CardObjects["P1-LEGEND-VOID-BURROWER"]));

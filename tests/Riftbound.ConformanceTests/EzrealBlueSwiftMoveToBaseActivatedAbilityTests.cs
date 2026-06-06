@@ -252,7 +252,7 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         Assert.DoesNotContain(CommandTypes.ActivateAbility, replay.Prompts["P1"].Actions);
 
         Assert.Equal(2, journal.Entries.Count);
-        var rejectedJournalEntry = Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        var rejectedJournalEntry = Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
         Assert.Equal("P1", rejectedJournalEntry.PlayerId);
         Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);

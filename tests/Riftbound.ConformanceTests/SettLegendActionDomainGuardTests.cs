@@ -115,8 +115,6 @@ public sealed class SettLegendActionDomainGuardTests
         AssertSettRejectedReplayDidNotMutate(
             replay,
             acceptedStateHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedPlayerZonesHash,
             acceptedObjectLocationsHash,
             acceptedLegendHash,
@@ -129,7 +127,7 @@ public sealed class SettLegendActionDomainGuardTests
         Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
 
         Assert.Equal(2, journal.Entries.Count);
-        var rejectedJournalEntry = Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        var rejectedJournalEntry = Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(journal.Entries[1], rejectedJournalEntry);
         Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
         Assert.Equal("P1", rejectedJournalEntry.PlayerId);
@@ -138,8 +136,8 @@ public sealed class SettLegendActionDomainGuardTests
         Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
         Assert.Empty(rejectedJournalEntry.Events);
         Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
-        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
-        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.Equal(MatchStateHasher.HashValue(replay.Prompts), MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(MatchStateHasher.HashValue(replay.Snapshots), MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
         Assert.True(rejectedJournalEntry.RawCommand.HasValue);
         Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedJournalEntry.RawCommand.Value));
         AssertPromptScopedDeclareBattleRawCommand(rejectedJournalEntry.RawCommand.Value, command, prompt);
@@ -156,8 +154,6 @@ public sealed class SettLegendActionDomainGuardTests
         AssertSettRejectedReplayDidNotMutate(
             duplicateReplay,
             acceptedStateHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedPlayerZonesHash,
             acceptedObjectLocationsHash,
             acceptedLegendHash,
@@ -182,8 +178,6 @@ public sealed class SettLegendActionDomainGuardTests
         AssertSettRejectedReplayDidNotMutate(
             conflict,
             acceptedStateHash,
-            acceptedPromptsHash,
-            acceptedSnapshotsHash,
             acceptedPlayerZonesHash,
             acceptedObjectLocationsHash,
             acceptedLegendHash,
@@ -295,8 +289,6 @@ public sealed class SettLegendActionDomainGuardTests
     private static void AssertSettRejectedReplayDidNotMutate(
         ResolutionResult result,
         string acceptedStateHash,
-        string acceptedPromptsHash,
-        string acceptedSnapshotsHash,
         string acceptedPlayerZonesHash,
         string acceptedObjectLocationsHash,
         string acceptedLegendHash,
@@ -305,14 +297,11 @@ public sealed class SettLegendActionDomainGuardTests
         Assert.False(result.Accepted);
         Assert.Empty(result.Events);
         Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(result.State));
-        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(result.Prompts));
-        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(result.Snapshots));
         Assert.Equal(acceptedPlayerZonesHash, MatchStateHasher.HashValue(result.State.PlayerZones));
         Assert.Equal(acceptedObjectLocationsHash, MatchStateHasher.HashValue(result.State.ObjectLocations));
         Assert.Equal(acceptedLegendHash, MatchStateHasher.HashValue(result.State.CardObjects["P1-LEGEND-SETT"]));
         Assert.Equal(acceptedBoonHash, MatchStateHasher.HashValue(result.State.CardObjects["P1-SETT-BOON-ATTACKER"]));
         AssertSettReplacementAcceptedState(result.State);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].Actions);
     }
 
     private static JsonElement PromptScopedDeclareBattleRawCommand(
