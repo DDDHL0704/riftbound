@@ -2845,6 +2845,121 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task OrderTriggersStaleRawPromptAfterStackPriorityStartsRecordsRejectedJournalWithoutMutation()
+    {
+        const string acceptedClientIntentId = "intent-apnap-order-stale-raw-first";
+        const string replayClientIntentId = "intent-apnap-order-stale-raw-replay";
+        var journal = new RecordingMatchJournal();
+        var state = BuildP0ContractBattleInitialApnapTriggerQueueState();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.OrderTriggers, prompt.View?.Type);
+        Assert.Contains(CommandTypes.OrderTriggers, prompt.Actions);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var orderedTriggerIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
+
+        var command = new OrderTriggersCommand(OrderedTriggerIds: orderedTriggerIds);
+        var staleRawCommand = PromptScopedOrderTriggersRawCommand(command, prompt);
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            acceptedClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["TRIGGERS_ORDERED", "TRIGGERS_MOVED_TO_STACK"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Empty(accepted.State.TriggerQueue);
+        Assert.Equal(
+            ["ordered-TRIGGER-BATTLE-ATTACKER", "ordered-TRIGGER-BATTLE-DEFENDER"],
+            accepted.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", accepted.State.StackItems[^1].StackItemId);
+        Assert.Equal("P2", accepted.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, accepted.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, accepted.Prompts["P2"].Actions);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedResultPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedResultSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var postAcceptedPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var postAcceptedSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            replayClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Equal("行动窗口已过期，请按最新提示重新提交。", replay.ErrorMessage);
+        Assert.Empty(replay.Events);
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(postAcceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(postAcceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Empty(replay.State.TriggerQueue);
+        Assert.Equal(
+            ["ordered-TRIGGER-BATTLE-ATTACKER", "ordered-TRIGGER-BATTLE-DEFENDER"],
+            replay.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", replay.State.StackItems[^1].StackItemId);
+        Assert.Equal("P2", replay.State.PriorityPlayerId);
+        Assert.Equal(PromptTypes.StackPriority, replay.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, replay.Prompts["P2"].Actions);
+
+        var orderTriggerEntries = journal.Entries
+            .Where(entry => string.Equals(entry.CommandType, CommandTypes.OrderTriggers, StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(2, orderTriggerEntries.Length);
+        var acceptedEntry = Assert.Single(orderTriggerEntries, entry => entry.Accepted);
+        var rejectedEntry = Assert.Single(orderTriggerEntries, entry => !entry.Accepted);
+
+        Assert.Equal(state.RoomId, acceptedEntry.RoomId);
+        Assert.Equal("P1", acceptedEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.OrderTriggers, acceptedEntry.CommandType);
+        Assert.True(acceptedEntry.Accepted);
+        Assert.Null(acceptedEntry.ErrorMessage);
+        Assert.Equal(accepted.Events.Select(gameEvent => gameEvent.Kind), acceptedEntry.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(acceptedEntry.AuthoritativeState));
+        Assert.Equal(acceptedResultPromptsHash, MatchStateHasher.HashValue(acceptedEntry.Prompts));
+        Assert.Equal(acceptedResultSnapshotsHash, MatchStateHasher.HashValue(acceptedEntry.Snapshots));
+
+        Assert.Equal(state.RoomId, rejectedEntry.RoomId);
+        Assert.Equal("P1", rejectedEntry.PlayerId);
+        Assert.Equal(replayClientIntentId, rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.OrderTriggers, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(rejectedEntry.AuthoritativeState));
+        Assert.Equal(postAcceptedPromptsHash, MatchStateHasher.HashValue(rejectedEntry.Prompts));
+        Assert.Equal(postAcceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedEntry.Snapshots));
+        Assert.True(rejectedEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.OrderTriggers, rejectedEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(
+            orderedTriggerIds.ToArray(),
+            rejectedEntry.RawCommand.Value.GetProperty("orderedTriggerIds")
+                .EnumerateArray()
+                .Select(element => element.GetString() ?? string.Empty)
+                .ToArray());
+        Assert.Equal(prompt.PromptId, rejectedEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+    }
+
+    [Fact]
     public async Task OrderTriggersDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
