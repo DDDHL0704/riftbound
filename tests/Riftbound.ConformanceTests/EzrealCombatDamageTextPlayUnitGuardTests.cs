@@ -79,6 +79,60 @@ public sealed class EzrealCombatDamageTextPlayUnitGuardTests
     }
 
     [Fact]
+    public void EzrealPlayCardPromptExposesNoTargetChoicesForNoTargetUnitPlay()
+    {
+        var state = BuildEzrealState(EzrealPrimaryCardNo);
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, EzrealObjectId, StringComparison.Ordinal)));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var invalidTargetId in new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-EZREAL",
+            "P1-FACE-DOWN-STANDBY-EZREAL",
+            "P2-UNIT-EZREAL",
+            EzrealObjectId
+        })
+        {
+            Assert.DoesNotContain(invalidTargetId, targetIds);
+        }
+
+        if (playCandidate.Metadata is { } metadata)
+        {
+            AssertTargetChoicesByIndexAbsentOrEmpty(metadata);
+
+            if (metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements)
+                && rawSourceRequirements is not null)
+            {
+                var sourceRequirements = Assert.IsAssignableFrom<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(rawSourceRequirements);
+                var ezrealSourceRequirement = sourceRequirements.SingleOrDefault(requirement =>
+                    requirement.TryGetValue("sourceObjectId", out var rawSourceObjectId)
+                    && string.Equals(rawSourceObjectId as string, EzrealObjectId, StringComparison.Ordinal));
+
+                if (ezrealSourceRequirement is not null)
+                {
+                    AssertTargetChoicesByIndexAbsentOrEmpty(ezrealSourceRequirement);
+                }
+            }
+        }
+    }
+
+    [Fact]
     public async Task EzrealPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
@@ -386,6 +440,26 @@ public sealed class EzrealCombatDamageTextPlayUnitGuardTests
         Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
         Assert.True(prompt.SnapshotTick.HasValue);
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
+    }
+
+    private static void AssertTargetChoicesByIndexAbsentOrEmpty(IReadOnlyDictionary<string, object?> metadata)
+    {
+        if (!metadata.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
+            || rawTargetChoicesByIndex is null)
+        {
+            return;
+        }
+
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(rawTargetChoicesByIndex);
+        Assert.All(targetChoicesByIndex.Values, choices =>
+        {
+            if (choices is null)
+            {
+                return;
+            }
+
+            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices));
+        });
     }
 
     private static StackItemState AssertEzrealStackPriorityState(
