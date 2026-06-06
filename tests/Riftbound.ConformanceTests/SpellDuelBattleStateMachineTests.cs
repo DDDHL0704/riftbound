@@ -363,6 +363,194 @@ public sealed class SpellDuelBattleStateMachineTests
     }
 
     [Fact]
+    public async Task PassFocusSecondPlayerClosingSpellDuelStalePromptReplayRecordsRejectedJournalWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var state = MultiContestSpellDuelState(lethalFirstDefender: true);
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var p1Prompt = session.PromptFor("P1");
+        Assert.True(p1Prompt.Actionable);
+        Assert.Equal(PromptTypes.SpellDuelFocus, p1Prompt.View?.Type);
+        Assert.Equal("BF-A", p1Prompt.View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", p1Prompt.View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, p1Prompt.Actions);
+
+        var p1Pass = await session.SubmitAsync(
+            "P1",
+            "intent-pass-focus-to-second-player-before-close",
+            new PassFocusCommand(),
+            PromptScopedRawCommand(CommandTypes.PassFocus, p1Prompt),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.Null(p1Pass.ErrorCode);
+        Assert.Equal(["FOCUS_PASSED"], p1Pass.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(TimingStates.SpellDuelOpen, p1Pass.State.TimingState);
+        Assert.Equal("P2", p1Pass.State.FocusPlayerId);
+        Assert.Equal(["P1"], p1Pass.State.PassedFocusPlayerIds);
+        Assert.Equal("BF-A", p1Pass.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, p1Pass.Prompts["P2"].View?.Type);
+        Assert.Equal("BF-A", p1Pass.Prompts["P2"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", p1Pass.Prompts["P2"].View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, p1Pass.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, p1Pass.Prompts["P1"].Actions);
+        Assert.Single(journal.Entries);
+
+        var p2Prompt = session.PromptFor("P2");
+        Assert.True(p2Prompt.Actionable);
+        Assert.Equal(PromptTypes.SpellDuelFocus, p2Prompt.View?.Type);
+        Assert.Equal("BF-A", p2Prompt.View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", p2Prompt.View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, p2Prompt.Actions);
+
+        var command = new PassFocusCommand();
+        var staleRawCommand = PromptScopedRawCommand(CommandTypes.PassFocus, p2Prompt);
+        const string acceptedIntentId = "intent-p2-close-first-spell-duel-before-stale-raw-journal";
+        const string staleIntentId = "intent-stale-p2-close-first-spell-duel-raw-journal";
+
+        var accepted = await session.SubmitAsync(
+            "P2",
+            acceptedIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Contains("P2-A", accepted.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain("P2-A", accepted.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains(BattlefieldTaskMarkers.SpellDuelCompleted("BF-A"), accepted.State.UntilEndOfTurnEffects);
+        Assert.Equal(TimingStates.SpellDuelOpen, accepted.State.TimingState);
+        Assert.Equal("P2", accepted.State.FocusPlayerId);
+        Assert.Empty(accepted.State.PassedFocusPlayerIds);
+        Assert.Equal("BF-B", accepted.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("task:start-spell-duel:BF-B", accepted.State.PendingTaskQueue.ActiveTaskId);
+        Assert.DoesNotContain(
+            accepted.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.BattlefieldObjectId, "BF-A", StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.SpellDuelFocus, accepted.Prompts["P2"].View?.Type);
+        Assert.Equal("BF-B", accepted.Prompts["P2"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-B", accepted.Prompts["P2"].View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, accepted.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, accepted.Prompts["P1"].Actions);
+
+        var focusPassed = accepted.Events[EventIndex(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal))];
+        Assert.Equal("P2", focusPassed.Payload["playerId"]);
+        Assert.Equal("P2", focusPassed.Payload["focusPlayerId"]);
+        var spellDuelClosed = accepted.Events[EventIndex(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal))];
+        Assert.Equal("P1", spellDuelClosed.Payload["turnPlayerId"]);
+        Assert.Equal(["BF-A"], StringList(spellDuelClosed.Payload["completedBattlefieldObjectIds"]));
+        var destroyed = accepted.Events[EventIndex(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-A", StringComparison.Ordinal))];
+        Assert.Equal("SPELL_DUEL_CLEANUP", destroyed.Payload["sourceObjectId"]);
+        Assert.Equal("P2", destroyed.Payload["ownerPlayerId"]);
+        Assert.Equal("P1", destroyed.Payload["destroyedByPlayerId"]);
+        Assert.Equal("GRAVEYARD", destroyed.Payload["destinationZone"]);
+        Assert.Equal("LETHAL_DAMAGE", destroyed.Payload["reason"]);
+        var contested = accepted.Events[EventIndex(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-B", StringComparison.Ordinal))];
+        Assert.Equal("P2", contested.Payload["playerId"]);
+        Assert.Equal("P2", contested.Payload["causedByPlayerId"]);
+        Assert.Equal(["P1", "P2"], StringList(contested.Payload["participantControllerIds"]));
+        Assert.Equal(["P1-B", "P2-B"], StringList(contested.Payload["participantObjectIds"]));
+        var started = accepted.Events[EventIndex(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-B", StringComparison.Ordinal))];
+        Assert.Equal("task:start-spell-duel:BF-B", started.Payload["taskId"]);
+        Assert.Equal("BATTLEFIELD_CONTESTED", started.Payload["reason"]);
+        Assert.Equal("P2", started.Payload["playerId"]);
+        Assert.Equal("P2", started.Payload["focusPlayerId"]);
+        Assert.Equal("P2", started.Payload["causedByPlayerId"]);
+        Assert.Equal(["P1", "P2"], StringList(started.Payload["participantControllerIds"]));
+        Assert.Equal(["P1-B", "P2-B"], StringList(started.Payload["participantObjectIds"]));
+
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var p1SnapshotAfterAccepted = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var p2SnapshotAfterAccepted = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
+
+        Assert.Equal(2, journal.Entries.Count);
+        var acceptedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P2", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.PassFocus, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.PassFocus, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(p2Prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(p2Prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+
+        var replay = await session.SubmitAsync(
+            "P2",
+            staleIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(TimingStates.SpellDuelOpen, replay.State.TimingState);
+        Assert.Equal("P2", replay.State.FocusPlayerId);
+        Assert.Empty(replay.State.PassedFocusPlayerIds);
+        Assert.Equal("BF-B", replay.State.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("task:start-spell-duel:BF-B", replay.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.SpellDuelFocus, replay.Prompts["P2"].View?.Type);
+        Assert.Equal("BF-B", replay.Prompts["P2"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-B", replay.Prompts["P2"].View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, replay.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, replay.Prompts["P1"].Actions);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+
+        Assert.Equal(3, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[2];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P2", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.PassFocus, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.PassFocus, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(p2Prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(p2Prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(accepted.State.Tick, rejectedJournalEntry.StartedTick);
+        Assert.Equal(replay.State.Tick, rejectedJournalEntry.CompletedTick);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(TimingStates.SpellDuelOpen, rejectedJournalEntry.AuthoritativeState.TimingState);
+        Assert.Equal("P2", rejectedJournalEntry.AuthoritativeState.FocusPlayerId);
+        Assert.Empty(rejectedJournalEntry.AuthoritativeState.PassedFocusPlayerIds);
+        Assert.Equal("BF-B", rejectedJournalEntry.AuthoritativeState.SpellDuelState.BattlefieldObjectId);
+        Assert.Equal("task:start-spell-duel:BF-B", rejectedJournalEntry.AuthoritativeState.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.Equal(PromptTypes.SpellDuelFocus, rejectedJournalEntry.Prompts["P2"].View?.Type);
+        Assert.Equal("BF-B", rejectedJournalEntry.Prompts["P2"].View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-B", rejectedJournalEntry.Prompts["P2"].View?.RelatedSpellDuelId);
+        Assert.Contains(CommandTypes.PassFocus, rejectedJournalEntry.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, rejectedJournalEntry.Prompts["P1"].Actions);
+    }
+
+    [Fact]
     public async Task PassFocusClosingSpellDuelDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
