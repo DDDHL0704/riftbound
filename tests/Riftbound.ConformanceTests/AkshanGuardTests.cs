@@ -334,6 +334,29 @@ public sealed class AkshanGuardTests
     }
 
     [Fact]
+    public void AkshanOrangeStealPromptDoesNotQuoteGenericTemporaryResourceInPlayCardWindow()
+    {
+        var state = BuildAkshanStealState(orangePower: 1, includeOrangeRune: true) with
+        {
+            TemporaryPaymentResources = [GenericTemporaryPlayCardPaymentResource()]
+        };
+
+        var requirement = AkshanSourceRequirement(state);
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                requirement["optionalCostChoices"])
+            .ToArray();
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                requirement["paymentResourceChoices"])
+            .ToArray();
+
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, StealCost(EnemyWeaponObjectId), StringComparison.Ordinal));
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, RecycleOrangeRuneCost(), StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            paymentResourceChoices,
+            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task AkshanOrangeStealNonWeaponMovesAndControlsWithoutAttach()
     {
         var engine = new CoreRuleEngine();
@@ -977,6 +1000,20 @@ public sealed class AkshanGuardTests
     private static string RecycleOrangeRuneCost()
     {
         return $"RECYCLE_RUNE:{OrangeRuneObjectId}";
+    }
+
+    private static TemporaryPaymentResourceState GenericTemporaryPlayCardPaymentResource()
+    {
+        return new TemporaryPaymentResourceState(
+            "MALZAHAR:TEMP-AKSHAN-PLAY-CARD",
+            "P1",
+            "P1-MALZAHAR",
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+            "PLAY_CARD",
+            2,
+            2,
+            [PaymentCostRules.RuneCostPaymentKind],
+            1);
     }
 
     private static CardObjectState Rune(string objectId, string trait)
