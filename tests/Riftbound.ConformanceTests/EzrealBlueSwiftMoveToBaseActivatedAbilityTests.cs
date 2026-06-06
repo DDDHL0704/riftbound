@@ -93,6 +93,34 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         Assert.Equal(RuneTrait.Blue, paymentResourcePowerByChoice[$"RECYCLE_RUNE:{BlueRuneObjectId}"]["trait"]);
     }
 
+    [Fact]
+    public void PromptDoesNotExposeEzrealSwiftMoveRequirementWithOnlyGenericTemporaryResource()
+    {
+        var state = BuildEzrealSwiftState(P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo, RunePool.Empty) with
+        {
+            TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-EZREAL-GENERIC-ONLY")]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+
+        Assert.DoesNotContain(
+            requirements,
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
+            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData(P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo)]
     [InlineData(P4ActivatedAbilityCatalog.EzrealBlueSwiftAltCardNo)]
