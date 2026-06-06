@@ -273,6 +273,68 @@ public sealed class BoardTaskQueueFoundationTests
     }
 
     [Fact]
+    public void StateBasedCleanupWaitingPromptsHideOrdinaryActionsButKeepQueueAuditSnapshots()
+    {
+        var state = CleanupPriorityContestState();
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var ordinaryActions = new[]
+        {
+            CommandTypes.PlayCard,
+            CommandTypes.ActivateAbility,
+            CommandTypes.AssembleEquipment,
+            CommandTypes.MoveUnit,
+            CommandTypes.DeclareBattle,
+            CommandTypes.HideCard,
+            CommandTypes.RevealCard,
+            CommandTypes.TapRune,
+            CommandTypes.RecycleRune,
+            CommandTypes.LegendAct,
+            CommandTypes.EndTurn,
+            CommandTypes.PassPriority,
+            CommandTypes.PassFocus
+        };
+
+        foreach (var playerId in new[] { "P1", "P2" })
+        {
+            var prompt = prompts[playerId];
+            Assert.Equal(playerId, prompt.PlayerId);
+            Assert.False(prompt.Actionable);
+            Assert.Equal(PromptTypes.TaskQueue, prompt.View?.Type);
+            Assert.Equal(["WAIT", CommandTypes.Surrender], prompt.Actions);
+            Assert.DoesNotContain(prompt.Actions, action => ordinaryActions.Contains(action, StringComparer.Ordinal));
+            Assert.NotNull(prompt.Candidates);
+            Assert.Equal(prompt.Actions, prompt.Candidates!.Select(candidate => candidate.Action).ToArray());
+            Assert.DoesNotContain(
+                prompt.Candidates,
+                candidate => ordinaryActions.Contains(candidate.Action, StringComparer.Ordinal));
+
+            var queue = Assert.IsType<Dictionary<string, object?>>(snapshots[playerId].Timing["pendingTaskQueue"]);
+            Assert.True(Assert.IsType<bool>(queue["hasTasks"]));
+            Assert.True(Assert.IsType<bool>(queue["isBlocking"]));
+            Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(queue["phase"]));
+            Assert.Equal("cleanup:lethal:P1-LETHAL-CONTESTER", Assert.IsType<string>(queue["activeTaskId"]));
+            var queueTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(queue["tasks"]);
+            Assert.Equal(
+                [
+                    "cleanup:lethal:P1-LETHAL-CONTESTER",
+                    "cleanup:battlefield-contested:BF-CONTEST",
+                    "task:start-spell-duel:BF-CONTEST",
+                    "task:start-battle:BF-CONTEST"
+                ],
+                queueTasks.Select(task => Assert.IsType<string>(task["taskId"])).ToArray());
+            Assert.Equal(
+                ["DESTROY_LETHAL_UNIT", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
+                queueTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
+            var queueMetadata = Assert.IsType<Dictionary<string, object?>>(queue["metadata"]);
+            Assert.Equal(4, Assert.IsType<int>(queueMetadata["taskCount"]));
+            Assert.Equal(
+                ["DESTROY_LETHAL_UNIT"],
+                Assert.IsAssignableFrom<IReadOnlyList<string>>(queueMetadata["stateBasedTaskKinds"]));
+        }
+    }
+
+    [Fact]
     public async Task StackResolutionMoveToBaseCanRemoveContestAndReturnQueueToIdle()
     {
         var state = StackMoveToBaseContestState();
