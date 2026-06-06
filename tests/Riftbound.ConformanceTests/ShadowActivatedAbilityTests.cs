@@ -71,6 +71,38 @@ public sealed class ShadowActivatedAbilityTests
     }
 
     [Fact]
+    public void ShadowBattleResponsePromptQuotesTemporaryGenericPowerWhenShortOnePower()
+    {
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-SHADOW-PROMPT");
+        var state = BuildShadowState(
+            mana: 1,
+            power: 0,
+            temporaryPaymentResources: [TemporaryResource("MALZAHAR:TEMP-SHADOW-PROMPT")]);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                StringComparison.Ordinal));
+
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            requirement["paymentResourceChoices"]);
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            requirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(2, paymentResourcePowerByChoice[resourceAction]["power"]);
+        Assert.Equal(true, paymentResourcePowerByChoice[resourceAction]["paymentOnly"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(paymentResourcePowerByChoice[resourceAction]["powerByTrait"]));
+    }
+
+    [Fact]
     public async Task NaturalStartBattleOpensBattleResponsePriorityAndExposesShadowPrompt()
     {
         var opened = await OpenNaturalShadowBattleResponseAsync(mana: 1, power: 1);
