@@ -287,6 +287,83 @@ public sealed class SwitcherooGuardTests
             && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void SwitcherooMainActionPlayCardPromptOnlyExposesLegalBattlefieldUnitTargetsAndSelections()
+    {
+        var state = BuildSwitcherooState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidates = (prompt.Candidates ?? [])
+            .Where(candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal))
+            .ToArray();
+        var playCandidate = Assert.Single(playCandidates);
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-SPELL-SWITCHEROO", StringComparison.Ordinal));
+
+        string[] legalUnitTargetIds =
+        [
+            "P1-BATTLEFIELD-UNIT",
+            "P2-BATTLEFIELD-UNIT"
+        ];
+        string[] filteredTargetIds =
+        [
+            "P2-BATTLEFIELD-EQUIPMENT",
+            "P2-BATTLEFIELD-SPELL",
+            "P2-BATTLEFIELD-RUNE",
+            "P2-FACE-DOWN-STANDBY",
+            "P1-BASE-UNIT",
+            "UNKNOWN-TARGET"
+        ];
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+
+        Assert.Equal(legalUnitTargetIds, targetIds.OrderBy(id => id, StringComparer.Ordinal).ToArray());
+        foreach (var filteredTargetId in filteredTargetIds)
+        {
+            Assert.DoesNotContain(filteredTargetId, targetIds);
+        }
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-SPELL-SWITCHEROO", StringComparison.Ordinal));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Equal(["0", "1"], choicesByIndex.Keys.OrderBy(key => key, StringComparer.Ordinal).ToArray());
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        var secondTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["1"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        foreach (var choiceIds in new[] { firstTargetChoiceIds, secondTargetChoiceIds })
+        {
+            Assert.Equal(legalUnitTargetIds, choiceIds.OrderBy(id => id, StringComparer.Ordinal).ToArray());
+            foreach (var filteredTargetId in filteredTargetIds)
+            {
+                Assert.DoesNotContain(filteredTargetId, choiceIds);
+            }
+        }
+
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.False(Assert.IsType<bool>(sourceRequirement["allowsRepeatedTargets"]));
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
+            sourceRequirement["legalTargetSelections"]));
+    }
+
     [Theory]
     [InlineData("P1-SPELL-SWITCHEROO", "P1-BATTLEFIELD-UNIT", "P1-BATTLEFIELD-UNIT", 2, ErrorCodes.InvalidTarget)]
     [InlineData("P1-SPELL-SWITCHEROO", "P1-BASE-UNIT", "P2-BATTLEFIELD-UNIT", 2, ErrorCodes.InvalidTarget)]
