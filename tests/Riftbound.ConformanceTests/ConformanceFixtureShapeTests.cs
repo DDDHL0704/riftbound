@@ -3526,43 +3526,132 @@ public sealed class ConformanceFixtureShapeTests
     [Fact]
     public async Task OrderTriggersPromptStampRejectsStaleEnvelopeWithoutChangingState()
     {
+        const string staleClientIntentId = "intent-order-stale-prompt";
+        const string matchingClientIntentId = "intent-order-matching-prompt";
+        var journal = new RecordingMatchJournal();
         var state = BuildP0ContractTriggerQueueState();
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
         var prompt = session.PromptFor("P1");
+        var command = new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]);
+        var stalePromptId = $"{prompt.PromptId}:stale";
+        var staleRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.OrderTriggers,
+            orderedTriggerIds = command.OrderedTriggerIds,
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+        var matchingRawCommand = PromptScopedOrderTriggersRawCommand(command, prompt);
+        var initialStateHash = MatchStateHasher.Hash(state);
+        var initialPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(state));
+        var initialSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(state));
 
         var stale = await session.SubmitAsync(
             "P1",
-            "intent-order-stale-prompt",
-            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]),
-            JsonSerializer.SerializeToElement(new
-            {
-                cmdType = CommandTypes.OrderTriggers,
-                orderedTriggerIds = new[] { "TRIGGER-2", "TRIGGER-1" },
-                promptId = $"{prompt.PromptId}:stale",
-                snapshotTick = prompt.SnapshotTick
-            }),
+            staleClientIntentId,
+            command,
+            staleRawCommand,
             CancellationToken.None);
 
-        Assert.False(stale.Accepted);
-        Assert.Equal(ErrorCodes.PromptExpired, stale.ErrorCode);
-        Assert.Equal(state.Tick, stale.State.Tick);
-        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], stale.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
-        Assert.Empty(stale.Events);
+        AssertRejectedWithoutMutation(stale, ErrorCodes.PromptExpired);
+        Assert.Equal("行动窗口已过期，请按最新提示重新提交。", stale.ErrorMessage);
+
+        Assert.Single(journal.Entries);
+        var rejectedEntry = Assert.Single(journal.Entries, entry => !entry.Accepted);
+        Assert.Equal(state.RoomId, rejectedEntry.RoomId);
+        Assert.Equal("P1", rejectedEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.OrderTriggers, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal(stale.ErrorMessage, rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(state.Tick, rejectedEntry.StartedTick);
+        Assert.Equal(stale.State.Tick, rejectedEntry.CompletedTick);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(rejectedEntry.AuthoritativeState));
+        Assert.Equal(initialPromptsHash, MatchStateHasher.HashValue(rejectedEntry.Prompts));
+        Assert.Equal(initialSnapshotsHash, MatchStateHasher.HashValue(rejectedEntry.Snapshots));
+        Assert.True(rejectedEntry.RawCommand.HasValue);
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedEntry.RawCommand.Value));
+        Assert.Equal(CommandTypes.OrderTriggers, rejectedEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(
+            command.OrderedTriggerIds.ToArray(),
+            rejectedEntry.RawCommand.Value.GetProperty("orderedTriggerIds")
+                .EnumerateArray()
+                .Select(element => element.GetString() ?? string.Empty)
+                .ToArray());
+        Assert.Equal(stalePromptId, rejectedEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+
+        var cachedReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(cachedReplay, ErrorCodes.PromptExpired);
+        Assert.Equal(stale.ErrorMessage, cachedReplay.ErrorMessage);
+        Assert.Same(rejectedEntry, Assert.Single(journal.Entries));
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.OrderTriggers,
+            orderedTriggerIds = command.OrderedTriggerIds,
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+
+        var conflict = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await session.SubmitAsync(
+                "P1",
+                staleClientIntentId,
+                command,
+                changedRawCommand,
+                CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
+        Assert.Same(rejectedEntry, Assert.Single(journal.Entries));
+        Assert.DoesNotContain(
+            journal.Entries,
+            entry => entry.RawCommand.HasValue
+                && entry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var postConflictReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(postConflictReplay, ErrorCodes.PromptExpired);
+        Assert.Equal(stale.ErrorMessage, postConflictReplay.ErrorMessage);
+        Assert.Same(rejectedEntry, Assert.Single(journal.Entries));
 
         var matching = await session.SubmitAsync(
             "P1",
-            "intent-order-matching-prompt",
-            new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]),
-            JsonSerializer.SerializeToElement(new
-            {
-                cmdType = CommandTypes.OrderTriggers,
-                orderedTriggerIds = new[] { "TRIGGER-2", "TRIGGER-1" },
-                promptId = prompt.PromptId,
-                snapshotTick = prompt.SnapshotTick
-            }),
+            matchingClientIntentId,
+            command,
+            matchingRawCommand,
             CancellationToken.None);
 
         Assert.True(matching.Accepted, matching.ErrorMessage);
+        Assert.Equal(2, journal.Entries.Count);
+        var acceptedEntry = Assert.Single(journal.Entries, entry => entry.Accepted);
+        Assert.Equal(matchingClientIntentId, acceptedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.OrderTriggers, acceptedEntry.CommandType);
+
+        void AssertRejectedWithoutMutation(ResolutionResult result, string expectedErrorCode)
+        {
+            Assert.False(result.Accepted);
+            Assert.Equal(expectedErrorCode, result.ErrorCode);
+            Assert.Equal(state.Tick, result.State.Tick);
+            Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
+            Assert.Equal(initialPromptsHash, MatchStateHasher.HashValue(result.Prompts));
+            Assert.Equal(initialSnapshotsHash, MatchStateHasher.HashValue(result.Snapshots));
+            Assert.Equal(["TRIGGER-1", "TRIGGER-2"], result.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray());
+            Assert.Empty(result.Events);
+        }
     }
 
     [Fact]
