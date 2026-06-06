@@ -1103,6 +1103,91 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperActivateAbilityUsesCommandFieldsOverVisibleAbilityMetadata()
+    {
+        const string VisibleAbilityMetadataAliases = """
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-SOURCE",
+                  "abilityId": "VISIBLE_ABILITY",
+                  "abilityChoices": [{ "id": "VISIBLE_ABILITY_CHOICE" }],
+                  "targetChoicesByIndex": { "0": [{ "id": "P2-VISIBLE-TARGET" }] },
+                  "targetChoices": [{ "id": "P2-VISIBLE-TARGET" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_COST" }],
+                  "paymentResourceChoices": [{ "id": "VISIBLE_RESOURCE" }]
+                }
+              ],
+              "abilityChoices": [{ "id": "VISIBLE_ABILITY_CHOICE" }],
+              "targetChoices": [{ "id": "P2-VISIBLE-TARGET" }],
+              "optionalCostChoices": [{ "id": "VISIBLE_COST" }],
+              "paymentResourceChoices": [{ "id": "VISIBLE_RESOURCE" }]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "ACTIVATE_ABILITY",
+              "sourceObjectId": "P1-CURRENT-SOURCE",
+              "abilityId": "CURRENT_ABILITY",
+              "targetObjectIds": [" P2-CURRENT-TARGET "],
+              "optionalCosts": [" CURRENT_COST "],
+              {{VisibleAbilityMetadataAliases}}
+            }
+            """);
+        var unreadableCurrent = Map($$"""
+            {
+              "cmdType": "ACTIVATE_ABILITY",
+              "sourceObjectId": "P1-CURRENT-SOURCE",
+              "abilityId": "CURRENT_ABILITY",
+              "targetObjectIds": ["P2-CURRENT-TARGET", null, { "id": "P2-UNREADABLE-TARGET" }, " "],
+              "optionalCosts": [false, " CURRENT_COST "],
+              {{VisibleAbilityMetadataAliases}}
+            }
+            """);
+        var malformedCurrent = Map($$"""
+            {
+              "cmdType": "ACTIVATE_ABILITY",
+              "sourceObjectId": { "id": "P1-CURRENT-SOURCE" },
+              "abilityId": ["CURRENT_ABILITY"],
+              "targetObjectIds": { "0": "P2-CURRENT-TARGET" },
+              "optionalCosts": null,
+              {{VisibleAbilityMetadataAliases}}
+            }
+            """);
+        var aliasOnly = Map($$"""
+            {
+              "cmdType": "ACTIVATE_ABILITY",
+              {{VisibleAbilityMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("P1-CURRENT-SOURCE", command.SourceObjectId);
+        Assert.Equal("CURRENT_ABILITY", command.AbilityId);
+        Assert.Equal(["P2-CURRENT-TARGET"], command.TargetObjectIds);
+        Assert.Equal(["CURRENT_COST"], command.OptionalCosts);
+
+        Assert.Equal("P1-CURRENT-SOURCE", unreadableCurrent.SourceObjectId);
+        Assert.Equal("CURRENT_ABILITY", unreadableCurrent.AbilityId);
+        Assert.Equal(["P2-CURRENT-TARGET"], unreadableCurrent.TargetObjectIds);
+        Assert.Equal(["CURRENT_COST"], unreadableCurrent.OptionalCosts);
+
+        Assert.Equal(string.Empty, malformedCurrent.SourceObjectId);
+        Assert.Equal(string.Empty, malformedCurrent.AbilityId);
+        Assert.Empty(malformedCurrent.TargetObjectIds);
+        Assert.Empty(malformedCurrent.OptionalCosts ?? []);
+
+        Assert.Equal(string.Empty, aliasOnly.SourceObjectId);
+        Assert.Equal(string.Empty, aliasOnly.AbilityId);
+        Assert.Empty(aliasOnly.TargetObjectIds);
+        Assert.Empty(aliasOnly.OptionalCosts ?? []);
+
+        static ActivateAbilityCommand Map(string json)
+        {
+            return Assert.IsType<ActivateAbilityCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperDeclareBattleUsesCommandFieldsOverVisibleBattleMetadata()
     {
         var command = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
