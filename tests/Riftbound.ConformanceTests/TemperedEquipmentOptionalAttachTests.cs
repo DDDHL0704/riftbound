@@ -40,6 +40,49 @@ public sealed class TemperedEquipmentOptionalAttachTests
     }
 
     [Fact]
+    public void TemperedAttachPromptChoiceIsIsolatedFromOpponentPrompt()
+    {
+        var state = BuildTemperedState();
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var p1Prompt = prompts["P1"];
+        var p2Prompt = prompts["P2"];
+
+        Assert.True(p1Prompt.Actionable);
+        Assert.Contains(CommandTypes.PlayCard, p1Prompt.Actions);
+        Assert.Equal(state.Tick, p1Prompt.SnapshotTick);
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, SentinelObjectId, StringComparison.Ordinal));
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var requirement = Assert.Single(
+            sourceRequirements,
+            entry => string.Equals(entry["sourceObjectId"] as string, SentinelObjectId, StringComparison.Ordinal));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            requirement["optionalCostChoices"]);
+        Assert.Equal(
+            [TemperedAttachCost(SpinningAxeObjectId)],
+            optionalCostChoices.Select(choice => choice.Id).ToArray());
+
+        Assert.False(p2Prompt.Actionable);
+        Assert.Equal(state.Tick, p2Prompt.SnapshotTick);
+        Assert.DoesNotContain(CommandTypes.PlayCard, p2Prompt.Actions);
+        Assert.DoesNotContain(
+            p2Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        var p2PromptJson = JsonSerializer.Serialize(p2Prompt);
+        Assert.DoesNotContain(CommandTypes.PlayCard, p2PromptJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("optionalCostChoices", p2PromptJson, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task LegalTemperedOptionalAttachAttachesAfterBothPlayersPass()
     {
         var engine = new CoreRuleEngine();
