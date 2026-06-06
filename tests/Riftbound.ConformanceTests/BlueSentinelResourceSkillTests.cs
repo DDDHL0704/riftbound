@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -156,6 +157,169 @@ public sealed class BlueSentinelResourceSkillTests
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task BlueSentinelStalePromptScopedPayCostReplayAfterWindowClosesUsesRejectedCache()
+    {
+        var acceptedClientIntentId = "intent-blue-sentinel-pay-generated-before-stale-replay";
+        var staleClientIntentId = "intent-blue-sentinel-pay-generated-stale-replay";
+        var journal = new RecordingMatchJournal();
+        var held = await ResolveHeldBattleAsync();
+        var trigger = Assert.Single(held.State.TriggerQueue);
+        var payment = PendingRunePayment();
+        var session = new MatchSession(
+            NextMainPaymentState(held.State, payment),
+            new CoreRuleEngine(),
+            journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P2");
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, prompt.Actions);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var resourceActions = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]);
+        var resourceAction = Assert.Single(resourceActions);
+        Assert.Equal(
+            $"{P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix}{trigger.TriggerId}",
+            resourceAction.Id);
+        var command = new PayCostCommand(
+            payment.PaymentId,
+            payment.PaymentWindow,
+            [resourceAction.Id, "SPEND_POWER:any:1"]);
+        var staleRawCommand = PromptScopedPayCostRawCommand(command, prompt);
+        var changedStaleRawCommand = PromptScopedPayCostRawCommandWithClientNote(
+            command,
+            prompt,
+            "changed-payload");
+
+        var paid = await session.SubmitAsync(
+            "P2",
+            acceptedClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.ErrorCode);
+        Assert.Equal(
+            [
+                "TRIGGER_RESOLVED",
+                "ABILITY_ACTIVATED",
+                "POWER_GAINED",
+                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
+                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
+                "COST_PAID",
+                "PAYMENT_WINDOW_CLOSED"
+            ],
+            paid.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Empty(paid.State.TriggerQueue);
+        Assert.Empty(paid.State.TemporaryPaymentResources);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P2"]);
+        AssertNoPayCostPrompt(paid.Prompts["P2"]);
+        var postPaymentStateHash = MatchStateHasher.Hash(paid.State);
+        var postPaymentAuthoritativePromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(paid.State));
+        var postPaymentAuthoritativeSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(paid.State));
+        var postPaymentP1SessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var postPaymentP2SessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
+
+        var replay = await session.SubmitAsync(
+            "P2",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(postPaymentStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(postPaymentAuthoritativePromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(postPaymentAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(postPaymentP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(postPaymentP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Null(replay.State.PendingPayment);
+        Assert.Empty(replay.State.TriggerQueue);
+        Assert.Empty(replay.State.TemporaryPaymentResources);
+        Assert.Equal(RunePool.Empty, replay.State.RunePools["P2"]);
+        AssertNoPayCostPrompt(replay.Prompts["P2"]);
+
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(2, journal.Entries.Count(entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal)));
+        var rejectedEntry = Assert.Single(
+            journal.Entries,
+            entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal) && !entry.Accepted);
+        Assert.Equal(held.State.RoomId, rejectedEntry.RoomId);
+        Assert.Equal("P2", rejectedEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.PayCost, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(postPaymentStateHash, MatchStateHasher.Hash(rejectedEntry.AuthoritativeState));
+        Assert.Equal(postPaymentAuthoritativePromptsHash, MatchStateHasher.HashValue(rejectedEntry.Prompts));
+        Assert.Equal(postPaymentAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(rejectedEntry.Snapshots));
+        Assert.True(rejectedEntry.RawCommand.HasValue);
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedEntry.RawCommand.Value));
+        AssertPayCostRawCommand(rejectedEntry.RawCommand.Value, command, prompt);
+        Assert.False(rejectedEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+        var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P2",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(postPaymentStateHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(postPaymentAuthoritativePromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(postPaymentAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(postPaymentP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(postPaymentP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Null(duplicateReplay.State.PendingPayment);
+        Assert.Empty(duplicateReplay.State.TriggerQueue);
+        Assert.Empty(duplicateReplay.State.TemporaryPaymentResources);
+        Assert.Equal(RunePool.Empty, duplicateReplay.State.RunePools["P2"]);
+        AssertNoPayCostPrompt(duplicateReplay.Prompts["P2"]);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+
+        var conflict = await session.SubmitAsync(
+            "P2",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(postPaymentStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(postPaymentAuthoritativePromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(postPaymentAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(postPaymentP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(postPaymentP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Null(conflict.State.PendingPayment);
+        Assert.Empty(conflict.State.TriggerQueue);
+        Assert.Empty(conflict.State.TemporaryPaymentResources);
+        Assert.Equal(RunePool.Empty, conflict.State.RunePools["P2"]);
+        AssertNoPayCostPrompt(conflict.Prompts["P2"]);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData("wrong-main-phase")]
     [InlineData("late-next-main-window")]
@@ -262,6 +426,59 @@ public sealed class BlueSentinelResourceSkillTests
         };
     }
 
+    private static void AssertNoPayCostPrompt(ActionPromptDto prompt)
+    {
+        Assert.DoesNotContain(CommandTypes.PayCost, prompt.Actions);
+        Assert.DoesNotContain(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+    }
+
+    private static JsonElement PromptScopedPayCostRawCommand(PayCostCommand command, ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = command.PaymentId,
+            paymentWindow = command.PaymentWindow,
+            paymentChoiceIds = command.PaymentChoiceIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private static JsonElement PromptScopedPayCostRawCommandWithClientNote(
+        PayCostCommand command,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = command.PaymentId,
+            paymentWindow = command.PaymentWindow,
+            paymentChoiceIds = command.PaymentChoiceIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        });
+    }
+
+    private static void AssertPayCostRawCommand(
+        JsonElement rawCommand,
+        PayCostCommand command,
+        ActionPromptDto prompt)
+    {
+        Assert.Equal(CommandTypes.PayCost, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(command.PaymentId, rawCommand.GetProperty("paymentId").GetString());
+        Assert.Equal(command.PaymentWindow, rawCommand.GetProperty("paymentWindow").GetString());
+        Assert.Equal(
+            command.PaymentChoiceIds,
+            rawCommand.GetProperty("paymentChoiceIds").EnumerateArray().Select(choice => choice.GetString()!).ToArray());
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
+    }
+
     private static MatchState BuildHeldBattleState()
     {
         return new MatchState(
@@ -336,5 +553,16 @@ public sealed class BlueSentinelResourceSkillTests
         var next = objectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         next[objectId] = replacement;
         return next;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
