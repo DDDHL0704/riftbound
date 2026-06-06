@@ -403,6 +403,59 @@ public sealed class SfdSigilResourceSkillTests
         }
     }
 
+    [Fact]
+    public async Task SfdSigilTemporaryTypedResourceDoesNotExposeManaOnlyPromptResourceChoices()
+    {
+        var profile = P4ActivatedAbilityCatalog.GetSfdSigilTypedResourceProfiles()
+            .First(profile => !string.Equals(
+                profile.AbilityId,
+                P4ActivatedAbilityCatalog.RageSigilResourceAbilityId,
+                StringComparison.Ordinal));
+        var resourceState = (await ResolveSigilAsync(BuildSigilPriorityState([profile]), profile)).State;
+        var temporaryResource = Assert.Single(resourceState.TemporaryPaymentResources);
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var pendingPayment = new PendingPaymentState(
+            "PAY-MANA-1",
+            "TEST_PENDING_PAY_COST",
+            "P1",
+            manaCost: 1,
+            legalPaymentChoiceIds: ["SPEND_MANA:1"]);
+        var state = resourceState with
+        {
+            PendingPayment = pendingPayment
+        };
+        var stateHash = MatchStateHasher.Hash(state);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        Assert.Equal(stateHash, MatchStateHasher.Hash(state));
+        Assert.Equal(resourceState.TemporaryPaymentResources, state.TemporaryPaymentResources);
+        Assert.Equal(temporaryResource, Assert.Single(state.TemporaryPaymentResources));
+        Assert.NotNull(state.PendingPayment);
+        var actualPendingPayment = state.PendingPayment!;
+        Assert.Equal("PAY-MANA-1", actualPendingPayment.PaymentId);
+        Assert.Equal("TEST_PENDING_PAY_COST", actualPendingPayment.PaymentWindow);
+        Assert.Equal("P1", actualPendingPayment.PlayerId);
+        Assert.Equal(1, actualPendingPayment.ManaCost);
+        Assert.Equal(0, actualPendingPayment.PowerCost);
+        Assert.Empty(actualPendingPayment.PowerCostByTrait);
+        Assert.Equal(["SPEND_MANA:1"], actualPendingPayment.LegalPaymentChoiceIds);
+        Assert.Empty(actualPendingPayment.PaymentResourceActionIds);
+
+        var payCostCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(payCostCandidate.Metadata);
+        var paymentChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Contains(paymentChoices, choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
+        Assert.DoesNotContain(paymentChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["paymentResourceActionIds"]));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Empty(paymentResourcePowerByChoice);
+    }
+
     [Theory]
     [MemberData(nameof(RemainingSfdSigilProfiles))]
     public async Task SfdSigilTemporaryTypedResourceRejectsWrongColorAndManaOnlyWithoutMutation(P4SigilTypedResourceProfile profile)
