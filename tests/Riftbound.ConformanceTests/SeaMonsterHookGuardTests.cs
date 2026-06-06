@@ -61,6 +61,32 @@ public sealed class SeaMonsterHookGuardTests
     }
 
     [Fact]
+    public void SeaMonsterHookMainActionPlayCardPromptExposesNoTargetChoices()
+    {
+        var state = BuildSeaMonsterHookState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, SeaMonsterHookObjectId, StringComparison.Ordinal));
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        Assert.DoesNotContain("P1-TARGET-UNIT", targetIds);
+        Assert.DoesNotContain("P1-BASE-SEA-MONSTER-HOOK", targetIds);
+        Assert.DoesNotContain("P1-FACE-DOWN-STANDBY-SEA-MONSTER-HOOK", targetIds);
+        Assert.DoesNotContain("P2-EQUIPMENT-SEA-MONSTER-HOOK", targetIds);
+    }
+
+    [Fact]
     public async Task SeaMonsterHookPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
