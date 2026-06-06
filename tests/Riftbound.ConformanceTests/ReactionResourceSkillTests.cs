@@ -117,6 +117,70 @@ public sealed class ReactionResourceSkillTests
     }
 
     [Fact]
+    public async Task DragonSoulSageGeneratedManaPaysLaterManaCostAndSecondPayCostRejectsWithoutMutation()
+    {
+        var gained = await ResolveDragonSoulSageAsync(BuildDragonSoulSagePriorityState());
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+        Assert.Equal(P4ActivatedAbilityCatalog.DragonSoulSageGeneratedMana, gained.State.RunePools["P1"].Mana);
+
+        var pendingPayment = new PendingPaymentState(
+            "PAY-DRAGON-SOUL-SAGE-MANA-1",
+            "TEST_PENDING_MANA_PAY_COST",
+            "P1",
+            manaCost: P4ActivatedAbilityCatalog.DragonSoulSageGeneratedMana,
+            legalPaymentChoiceIds: [$"SPEND_MANA:{P4ActivatedAbilityCatalog.DragonSoulSageGeneratedMana}"]);
+        var paymentState = gained.State with
+        {
+            PendingPayment = pendingPayment
+        };
+        var command = new PayCostCommand(
+            pendingPayment.PaymentId,
+            pendingPayment.PaymentWindow,
+            pendingPayment.LegalPaymentChoiceIds);
+        var engine = new CoreRuleEngine();
+
+        var paid = await engine.ResolveAsync(
+            paymentState,
+            new PlayerIntent("intent-dragon-soul-sage-pay-generated-mana", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.ErrorCode);
+        Assert.Equal(paymentState.Tick + 1, paid.State.Tick);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Empty(paid.State.TemporaryPaymentResources);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P1"]);
+        Assert.Equal(["COST_PAID", "PAYMENT_WINDOW_CLOSED"], paid.Events.Select(gameEvent => gameEvent.Kind));
+
+        var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, costEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.DragonSoulSageGeneratedMana, costEvent.Payload["mana"]);
+        Assert.Equal(pendingPayment.LegalPaymentChoiceIds, Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+
+        var paymentWindowClosedEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, paymentWindowClosedEvent.Payload["paymentWindow"]);
+        Assert.Equal("P1", paymentWindowClosedEvent.Payload["playerId"]);
+
+        var paidStateHash = MatchStateHasher.Hash(paid.State);
+        var duplicate = await engine.ResolveAsync(
+            paid.State,
+            new PlayerIntent("intent-dragon-soul-sage-pay-generated-mana-duplicate", "P1", CommandTypes.PayCost),
+            command,
+            CancellationToken.None);
+
+        Assert.False(duplicate.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, duplicate.ErrorCode);
+        Assert.Empty(duplicate.Events);
+        Assert.Equal(paidStateHash, MatchStateHasher.Hash(duplicate.State));
+        Assert.Null(duplicate.State.PendingPayment);
+        Assert.Empty(duplicate.State.TemporaryPaymentResources);
+        Assert.Equal(RunePool.Empty, duplicate.State.RunePools["P1"]);
+    }
+
+    [Fact]
     public async Task DragonSoulSageReactionResourceStalePromptReplayAfterManaGainRejectsWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
