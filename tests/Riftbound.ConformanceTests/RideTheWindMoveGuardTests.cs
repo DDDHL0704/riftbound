@@ -216,6 +216,68 @@ public sealed class RideTheWindMoveGuardTests
             && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void RideTheWindMainActionPlayCardPromptListsOnlyLegalFriendlyPublicBattlefieldUnitTarget()
+    {
+        var state = BuildRideTheWindState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var invalidTargetObjectIds = new[]
+        {
+            "P2-ENEMY-BATTLEFIELD-UNIT",
+            "P1-BASE-UNIT",
+            "P1-STALE-UNIT",
+            "P1-FACE-DOWN-STANDBY",
+            "P1-BATTLEFIELD-EQUIPMENT",
+            "P1-BATTLEFIELD-SPELL",
+            "P1-BATTLEFIELD-RUNE"
+        };
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, RideTheWindObjectId, StringComparison.Ordinal));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal([RideTheWindTargetObjectId], targetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+
+        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var sourceRequirementsValue) == true)
+        {
+            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                    sourceRequirementsValue)
+                .ToArray();
+            var sourceRequirement = Assert.Single(
+                sourceRequirements,
+                requirement => string.Equals(requirement["sourceObjectId"] as string, RideTheWindObjectId, StringComparison.Ordinal));
+            if (sourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesByIndexValue))
+            {
+                var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                    targetChoicesByIndexValue);
+                Assert.True(choicesByIndex.TryGetValue("0", out var firstTargetChoicesValue));
+                var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(firstTargetChoicesValue)
+                    .Select(choice => choice.Id)
+                    .ToArray();
+
+                Assert.Equal([RideTheWindTargetObjectId], firstTargetChoiceIds);
+                foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+                {
+                    Assert.DoesNotContain(invalidTargetObjectId, firstTargetChoiceIds);
+                }
+            }
+        }
+    }
+
     [Theory]
     [InlineData("P2-ENEMY-BATTLEFIELD-UNIT")]
     [InlineData("P1-BASE-UNIT")]
