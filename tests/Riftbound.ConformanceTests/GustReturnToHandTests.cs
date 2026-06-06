@@ -43,6 +43,57 @@ public sealed class GustReturnToHandTests
             && string.Equals(gameEvent.Payload["ownerPlayerId"] as string, "P2", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void GustMainActionPlayCardPromptTargetListOnlyExposesLegalPublicSmallBattlefieldUnit()
+    {
+        var state = BuildGustState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, GustObjectId, StringComparison.Ordinal));
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal([GustTargetObjectId], targetIds);
+        Assert.DoesNotContain("P2-LARGE-BATTLEFIELD-UNIT", targetIds);
+        Assert.DoesNotContain("P2-BASE-UNIT", targetIds);
+        Assert.DoesNotContain("P2-STALE-UNIT", targetIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", targetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", targetIds);
+        Assert.DoesNotContain("P2-HAND-KEEP", targetIds);
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, GustObjectId, StringComparison.Ordinal));
+        if (sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawChoicesByIndex))
+        {
+            var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(rawChoicesByIndex);
+            var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+                .Select(choice => choice.Id)
+                .ToArray();
+
+            Assert.Equal([GustTargetObjectId], firstTargetChoiceIds);
+            Assert.DoesNotContain("P2-LARGE-BATTLEFIELD-UNIT", firstTargetChoiceIds);
+            Assert.DoesNotContain("P2-BASE-UNIT", firstTargetChoiceIds);
+            Assert.DoesNotContain("P2-STALE-UNIT", firstTargetChoiceIds);
+            Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", firstTargetChoiceIds);
+            Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", firstTargetChoiceIds);
+            Assert.DoesNotContain("P2-HAND-KEEP", firstTargetChoiceIds);
+        }
+    }
+
     [Theory]
     [InlineData("P2-LARGE-BATTLEFIELD-UNIT")]
     [InlineData("P2-BASE-UNIT")]
