@@ -65,6 +65,71 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         Assert.DoesNotContain("P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT", damageTargetIds);
     }
 
+    [Fact]
+    public void FirestormPlayCardPromptDoesNotExposeExplicitTargets()
+    {
+        var state = BuildFirestormState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, FirestormObjectId, StringComparison.Ordinal));
+        var targetCandidates = playCandidate.Targets ?? [];
+        var targetIds = targetCandidates.Select(target => target.Id).ToArray();
+        Assert.Empty(targetCandidates);
+        Assert.DoesNotContain("P2-FIRESTORM-BATTLEFIELD-UNIT-001", targetIds);
+        Assert.DoesNotContain("P2-FIRESTORM-BATTLEFIELD-UNIT-002", targetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", targetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", targetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", targetIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", targetIds);
+        Assert.DoesNotContain("P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT", targetIds);
+        Assert.DoesNotContain("P2-BASE-UNIT", targetIds);
+        Assert.DoesNotContain("P1-FRIENDLY-BATTLEFIELD-UNIT", targetIds);
+
+        if (playCandidate.Metadata is not null)
+        {
+            Assert.DoesNotContain("targetChoicesByIndex", playCandidate.Metadata.Keys);
+            if (playCandidate.Metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements)
+                && rawSourceRequirements is not null)
+            {
+                var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                    rawSourceRequirements);
+                foreach (var sourceRequirement in sourceRequirements.Where(requirement =>
+                    requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                    && string.Equals(sourceObjectId as string, FirestormObjectId, StringComparison.Ordinal)))
+                {
+                    if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
+                        || rawTargetChoicesByIndex is null)
+                    {
+                        continue;
+                    }
+
+                    var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                        rawTargetChoicesByIndex);
+                    Assert.All(targetChoicesByIndex, targetChoicesByIndexEntry =>
+                    {
+                        if (targetChoicesByIndexEntry.Value is null)
+                        {
+                            return;
+                        }
+
+                        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndexEntry.Value));
+                    });
+                }
+            }
+        }
+    }
+
     [Theory]
     [InlineData("P2-FIRESTORM-BATTLEFIELD-UNIT-001")]
     [InlineData("P2-BATTLEFIELD-EQUIPMENT")]
