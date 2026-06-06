@@ -10510,6 +10510,76 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialFirstTurnSurrenderFreshChooseHandCardsAfterMatchFinishedThrowsStableErrorWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var context = await BuildFinalMulliganFirstTurnAuditContext(
+            "official-first-turn-surrender-fresh-choose-hand-cards-after-match-finished-room",
+            journal);
+
+        var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
+        Assert.True(firstTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        var journalEntryCountBeforeSurrender = journal.Entries.Count;
+
+        var accepted = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-surrender-before-fresh-choose-hand-cards-after-match-finished",
+            new SurrenderCommand(),
+            PromptScopedBasicRawCommand(CommandTypes.Surrender, firstTurnPrompt),
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, accepted);
+        Assert.Equal(journalEntryCountBeforeSurrender + 1, journal.Entries.Count);
+        var acceptedStateHashBefore = MatchStateHasher.Hash(accepted.State);
+        var p1SnapshotBefore = SnapshotSignature(context.Session, "P1");
+        var p2SnapshotBefore = SnapshotSignature(context.Session, "P2");
+        var p1PromptBefore = JsonSerializer.Serialize(context.Session.PromptFor("P1"));
+        var p2PromptBefore = JsonSerializer.Serialize(context.Session.PromptFor("P2"));
+        var journalEntryCountBeforeFreshChooseHandCards = journal.Entries.Count;
+        var freshChooseHandCardsClientIntentId = "fresh-choose-hand-cards-after-first-turn-surrender-match-finished";
+
+        var rejected = await Assert.ThrowsAsync<MatchSessionException>(() =>
+            context.Session.SubmitAsync(
+                context.ActivePlayerId,
+                freshChooseHandCardsClientIntentId,
+                new ChooseHandCardsCommand("missing-choice", "missing-window", []),
+                RawCommandWithClientNote(CommandTypes.ChooseHandCards, "fresh-choose-hand-cards-after-match-finished"),
+                CancellationToken.None).AsTask());
+
+        Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
+        Assert.Equal("对局已经结束，不能继续提交行动。", rejected.Message);
+        Assert.Equal(journalEntryCountBeforeFreshChooseHandCards, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            string.Equals(
+                entry.ClientIntentId,
+                freshChooseHandCardsClientIntentId,
+                StringComparison.Ordinal));
+
+        Assert.Equal(acceptedStateHashBefore, MatchStateHasher.Hash(accepted.State));
+        Assert.Equal(p1SnapshotBefore, SnapshotSignature(context.Session, "P1"));
+        Assert.Equal(p2SnapshotBefore, SnapshotSignature(context.Session, "P2"));
+        Assert.Equal(p1PromptBefore, JsonSerializer.Serialize(context.Session.PromptFor("P1")));
+        Assert.Equal(p2PromptBefore, JsonSerializer.Serialize(context.Session.PromptFor("P2")));
+
+        var rejectedView = new ResolutionResult(
+            false,
+            rejected.Message,
+            accepted.State,
+            [],
+            ResolutionResult.BuildSnapshots(accepted.State),
+            ResolutionResult.BuildPrompts(accepted.State),
+            rejected.Code);
+        Assert.Equal(ErrorCodes.MatchFinished, rejectedView.ErrorCode);
+        Assert.Equal("对局已经结束，不能继续提交行动。", rejectedView.ErrorMessage);
+        Assert.Empty(rejectedView.Events);
+        Assert.Equal(acceptedStateHashBefore, MatchStateHasher.Hash(rejectedView.State));
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, rejectedView, assertEvents: false);
+    }
+
+    [Fact]
     public async Task OfficialFirstTurnSurrenderFreshTapRuneAfterMatchFinishedThrowsStableErrorWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
