@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18YG/18YH/18YI/18YJ/18YK play-card no-target prompt breadth accepted five parallel server-test shards, proving Overcharged Energy, Hunt, Rek'Sai no-optional, Rek'Sai attack-reveal and Ezreal combat text direct `PLAY_CARD` prompts expose no target choices. Runtime changed: no, server test coverage only. Tests changed in `OverchargedEnergyGuardTests`, `HuntReadyGuardTests`, `ReksaiNoOptionalHasteOverwhelmGuardTests`, `ReksaiAttackRevealPlayUnitGuardTests` and `EzrealCombatDamageTextPlayUnitGuardTests`. A_MAIN kept workers patch-only, validated focused worktrees, corrected the Ezreal metadata assertion to the current dictionary shape, and accepted worker source commits `e33b2d9a`, `1df03ac5`, `f6c612f1`, `7fb06426` and `dc2c3f4b` as `9dc27393`, `968b70f7`, `3d8696cc`, `733c6c92` and `7ae46941`. Validation passed: baseline `52/52`, main changed-class filter `57/57`, adjacent no-target/prompt guard filter `149/149`, backend full `7570/7570`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18YL/18YM/18YN/18YO/18YP/18YQ prompt target breadth accepted six parallel server-test shards, proving Berserk Impulse disabled `PLAY_CARD` prompts do not leak hidden/illegal targets, Secret Art: Mercy and Lux expose only legal prompt targets, and Akshan, Jhin movement resource and Rek'Sai haste-ready no-target prompts expose empty target choices / metadata. Runtime changed: no, server test coverage only. Tests changed in `BerserkImpulseGuardTests`, `SecretArtMercyBoonGuardTests`, `AkshanGuardTests`, `JhinMovementResourceSkillTests`, `ReksaiHasteReadyRedPaymentTests` and `LuxHighCostPaidCostTriggerTests`. A_MAIN kept workers patch-only, validated focused worktrees, corrected the Rek'Sai optional-cost assertion to the current prompt contract, and accepted worker source commits `8c798d23`, `e81332b6`, `6facf288`, `ab90def3`, `c4421aaf` and `f18bee85` as `0b57b42b`, `8ded068b`, `fc8d4995`, `a347836d`, `5f7fdc40` and `932f23f5`. Validation passed: baseline `96/96`, main changed-class filter `98/98`, adjacent prompt/action filter `1194/1194`, backend full `7572/7572`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18YG/18YH/18YI/18YJ/18YK; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18YL/18YM/18YN/18YO/18YP/18YQ; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-07 06:26 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-07 07:54 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at `932f23f5` before docs checkpoint
+
+Write locks: A_MAIN owns the current test/docs checkpoint. Runtime validation code, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18YL/18YM/18YN/18YO/18YP/18YQ prompt target breadth accepted. Dedicated audit doc: `docs/CURRENT_STAGE4D_18YL_18YQ_PROMPT_TARGET_AUDIT.md`.
+
+Validation: baseline `96/96`; worktree focused `15/15`, `13/13`, `29/29`, `16/16`, `20/20`, `5/5`; main changed-class `98/98`; adjacent prompt/action `1194/1194`; backend full `7572/7572`.
+
+Requested action: future parallel workers should stay patch-only unless given the explicit conformance csproj command, and must target disjoint prompt/runtime/mapper surfaces after re-reading this board. Project remains **NOT READY**.
 
 ### 2026-06-07 07:26 A_MAIN
 
