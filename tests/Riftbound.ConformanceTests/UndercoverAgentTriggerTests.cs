@@ -161,6 +161,140 @@ public sealed class UndercoverAgentTriggerTests
     }
 
     [Fact]
+    public async Task UndercoverAgentHandChoiceStaleRawPromptAfterWindowClosesRecordsRejectedJournalWithoutMutation()
+    {
+        const string acceptedClientIntentId = "intent-undercover-hand-choice-stale-raw-first";
+        const string replayClientIntentId = "intent-undercover-hand-choice-stale-raw-replay";
+        var pending = await ResolveUndercoverAgentTriggerAsync(
+            new CoreRuleEngine(),
+            BuildUndercoverAgentDestroyedState(["P1-HAND-001", "P1-HAND-002", "P1-HAND-003"]));
+        var choice = pending.State.PendingHandChoice!;
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(pending.State, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.HandChoice, prompt.View?.Type);
+        Assert.Contains(CommandTypes.ChooseHandCards, prompt.Actions);
+
+        var command = new ChooseHandCardsCommand(
+            choice.ChoiceId,
+            choice.ChoiceWindow,
+            ["P1-HAND-001", "P1-HAND-002"]);
+        var rawCommand = PromptScopedChooseHandCardsRawCommand(command, prompt);
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            acceptedClientIntentId,
+            GameCommandJsonMapper.Map(rawCommand),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Null(accepted.State.PendingHandChoice);
+        Assert.Equal(["P1-HAND-003", "P1-DRAW-001", "P1-DRAW-002"], accepted.State.PlayerZones["P1"].Hand);
+        Assert.Contains("P1-HAND-001", accepted.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P1-HAND-002", accepted.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, accepted.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)));
+        Assert.Equal(2, DrawnCardCount(accepted.Events));
+        Assert.Contains(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "HAND_CHOICE_RESOLVED", StringComparison.Ordinal));
+        Assert.NotEqual(PromptTypes.HandChoice, accepted.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.HandChoice, accepted.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, accepted.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, accepted.Prompts["P2"].Actions);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedResultPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedResultSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var postAcceptedPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var postAcceptedSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var p1SnapshotAfterAccepted = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var p2SnapshotAfterAccepted = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
+        var acceptedHand = accepted.State.PlayerZones["P1"].Hand.ToArray();
+        var acceptedGraveyard = accepted.State.PlayerZones["P1"].Graveyard.ToArray();
+        var acceptedMainDeck = accepted.State.PlayerZones["P1"].MainDeck.ToArray();
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            replayClientIntentId,
+            GameCommandJsonMapper.Map(rawCommand),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(postAcceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(postAcceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        AssertNoMutation(accepted.State, replay.State);
+        Assert.Null(replay.State.PendingHandChoice);
+        Assert.Equal(acceptedHand, replay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(acceptedGraveyard, replay.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(acceptedMainDeck, replay.State.PlayerZones["P1"].MainDeck);
+        Assert.NotEqual(PromptTypes.HandChoice, replay.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.HandChoice, replay.Prompts["P2"].View?.Type);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.ChooseHandCards, replay.Prompts["P2"].Actions);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+
+        var handChoiceEntries = journal.Entries
+            .Where(entry => string.Equals(entry.CommandType, CommandTypes.ChooseHandCards, StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(2, handChoiceEntries.Length);
+        var acceptedEntry = Assert.Single(handChoiceEntries, entry => entry.Accepted);
+        var rejectedEntry = Assert.Single(handChoiceEntries, entry => !entry.Accepted);
+
+        Assert.Equal(pending.State.RoomId, acceptedEntry.RoomId);
+        Assert.Equal("P1", acceptedEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ChooseHandCards, acceptedEntry.CommandType);
+        Assert.True(acceptedEntry.Accepted);
+        Assert.Null(acceptedEntry.ErrorMessage);
+        Assert.Equal(accepted.Events.Select(gameEvent => gameEvent.Kind), acceptedEntry.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(acceptedEntry.AuthoritativeState));
+        Assert.Equal(acceptedResultPromptsHash, MatchStateHasher.HashValue(acceptedEntry.Prompts));
+        Assert.Equal(acceptedResultSnapshotsHash, MatchStateHasher.HashValue(acceptedEntry.Snapshots));
+        Assert.True(acceptedEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ChooseHandCards, acceptedEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(choice.ChoiceId, acceptedEntry.RawCommand.Value.GetProperty("choiceId").GetString());
+        Assert.Equal(choice.ChoiceWindow, acceptedEntry.RawCommand.Value.GetProperty("choiceWindow").GetString());
+        Assert.Equal(["P1-HAND-001", "P1-HAND-002"], acceptedEntry.RawCommand.Value.GetProperty("chosenObjectIds")
+            .EnumerateArray()
+            .Select(element => element.GetString() ?? string.Empty)
+            .ToArray());
+        Assert.Equal(prompt.PromptId, acceptedEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, acceptedEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+
+        Assert.Equal(pending.State.RoomId, rejectedEntry.RoomId);
+        Assert.Equal("P1", rejectedEntry.PlayerId);
+        Assert.Equal(replayClientIntentId, rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ChooseHandCards, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(rejectedEntry.AuthoritativeState));
+        Assert.Equal(postAcceptedPromptsHash, MatchStateHasher.HashValue(rejectedEntry.Prompts));
+        Assert.Equal(postAcceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedEntry.Snapshots));
+        Assert.True(rejectedEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.ChooseHandCards, rejectedEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(choice.ChoiceId, rejectedEntry.RawCommand.Value.GetProperty("choiceId").GetString());
+        Assert.Equal(choice.ChoiceWindow, rejectedEntry.RawCommand.Value.GetProperty("choiceWindow").GetString());
+        Assert.Equal(["P1-HAND-001", "P1-HAND-002"], rejectedEntry.RawCommand.Value.GetProperty("chosenObjectIds")
+            .EnumerateArray()
+            .Select(element => element.GetString() ?? string.Empty)
+            .ToArray());
+        Assert.Equal(prompt.PromptId, rejectedEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+    }
+
+    [Fact]
     public async Task UndercoverAgentHandChoiceDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         var pending = await ResolveUndercoverAgentTriggerAsync(
