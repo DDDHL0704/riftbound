@@ -53,6 +53,38 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task HubMessagesCarryProtocolVersionsOnJoinSnapshotPromptAndError()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var joinClients = new RecordingHubClients();
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+
+        var joinMessage = Assert.Single(joinClients.CallerClient.JoinedMessages);
+        var snapshotMessage = Assert.Single(joinClients.CallerClient.Snapshots);
+        var promptMessage = Assert.Single(joinClients.CallerClient.Prompts);
+        Assert.Equal(MessageType.JOIN, joinMessage.Type);
+        Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+        Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+        AssertProtocolDefaults(joinMessage);
+        AssertProtocolDefaults(snapshotMessage);
+        AssertProtocolDefaults(promptMessage);
+
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+
+        var errorClients = new RecordingHubClients();
+        await CreateHub(errorClients, new RecordingGroupManager(), "connection-3", registry)
+            .JoinRoom("room-a", "charlie");
+
+        var errorMessage = Assert.Single(errorClients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, errorMessage.Type);
+        AssertProtocolDefaults(errorMessage);
+        var error = Assert.IsType<ErrorDto>(errorMessage.Payload);
+        Assert.Equal(ErrorCodes.RoomFull, error.Code);
+    }
+
+    [Fact]
     public async Task JoinRoomRejectsThirdPlayerWithError()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
@@ -13584,6 +13616,12 @@ public sealed class GameHubJoinTests
     private static Dictionary<string, object?> PlayerView(SnapshotDto snapshot, string playerId)
     {
         return Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
+    }
+
+    private static void AssertProtocolDefaults(WsServerMessage message)
+    {
+        Assert.Equal(ProtocolDefaults.ProtocolVersion, message.ProtocolVersion);
+        Assert.Equal(ProtocolDefaults.SchemaVersion, message.SchemaVersion);
     }
 
     private static Dictionary<string, object?> ZoneView(Dictionary<string, object?> player)
