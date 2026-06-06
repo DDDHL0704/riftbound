@@ -86,6 +86,33 @@ public sealed class ReprimandReturnToHandGuardTests
     }
 
     [Fact]
+    public void ReprimandMainActionPlayCardPromptTargetsOnlyPublicBattlefieldUnits()
+    {
+        var state = BuildReprimandState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, ReprimandObjectId, StringComparison.Ordinal));
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal([ReprimandTargetObjectId], targetIds);
+        Assert.DoesNotContain("P2-BASE-UNIT", targetIds);
+        Assert.DoesNotContain("P2-STALE-UNIT", targetIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", targetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", targetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", targetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", targetIds);
+    }
+
+    [Fact]
     public async Task ReprimandPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
