@@ -1049,6 +1049,93 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
+    public void LayerEngineBattlefieldStaticAuraSourceOrderDependencyMetadataUsesObjectLocationToIgnoreStaleBattlefieldZoneParticipantAcrossPlayerViews()
+    {
+        var before = BuildBattlefieldSourceOrderState();
+        var beforeEffects = before.ContinuousEffects
+            .Where(effect => string.Equals(effect.EffectKind, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, BattlefieldSharedUnitObjectId, StringComparison.Ordinal))
+            .OrderBy(effect => effect.Sequence)
+            .ToArray();
+
+        Assert.Equal(2, beforeEffects.Length);
+        Assert.Equal(
+            [FieldFirstBattlefieldSourceObjectId, FieldLaterBattlefieldSourceObjectId],
+            beforeEffects.Select(effect => Assert.IsType<string>(effect.SourceObjectId)).ToArray());
+
+        var after = before with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(before.ObjectLocations, StringComparer.Ordinal)
+            {
+                [FieldFirstBattlefieldSourceObjectId] = new("P1", "BATTLEFIELD", FieldFirstBattlefieldSourceObjectId),
+                [BattlefieldSharedUnitObjectId] = new("P1", "GRAVEYARD"),
+                [FieldLaterBattlefieldSourceObjectId] = new("P1", "BATTLEFIELD", FieldLaterBattlefieldSourceObjectId)
+            }
+        };
+
+        Assert.Contains(BattlefieldSharedUnitObjectId, after.PlayerZones["P1"].Battlefields);
+        Assert.Equal("GRAVEYARD", after.ObjectLocations[BattlefieldSharedUnitObjectId].Zone);
+        Assert.Equal(
+            FieldFirstBattlefieldSourceObjectId,
+            after.ObjectLocations[FieldFirstBattlefieldSourceObjectId].BattlefieldObjectId);
+        Assert.Equal(
+            FieldLaterBattlefieldSourceObjectId,
+            after.ObjectLocations[FieldLaterBattlefieldSourceObjectId].BattlefieldObjectId);
+
+        var authoritativeEffects = after.ContinuousEffects
+            .Where(effect => string.Equals(effect.EffectKind, "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE", StringComparison.Ordinal))
+            .OrderBy(effect => effect.Sequence)
+            .ToArray();
+        var authoritativeEffectSignatures = authoritativeEffects
+            .Select(effect => string.Join(
+                "|",
+                effect.EffectId ?? string.Empty,
+                effect.SourceObjectId ?? string.Empty,
+                effect.TargetObjectId ?? string.Empty,
+                string.Join(",", effect.SourceDependencyObjectIds ?? []),
+                string.Join(",", effect.TargetDependencyObjectIds ?? []),
+                string.Join(",", effect.ParticipantObjectIds ?? []),
+                string.Join(",", effect.ParticipantDependencyObjectIds ?? []),
+                string.Join(",", effect.DeferredLayerEngineResiduals ?? [])))
+            .ToArray();
+
+        Assert.Empty(authoritativeEffects);
+        Assert.DoesNotContain(
+            authoritativeEffectSignatures,
+            signature => signature.Contains(BattlefieldSharedUnitObjectId, StringComparison.Ordinal));
+
+        var snapshots = ResolutionResult.BuildSnapshots(after);
+        foreach (var snapshot in new[] { snapshots["P1"], snapshots["P2"] })
+        {
+            var effectViews = ContinuousEffectViews(snapshot)
+                .Where(effect => string.Equals(
+                    effect["effectKind"] as string,
+                    "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                    StringComparison.Ordinal))
+                .OrderBy(effect => Assert.IsType<int>(effect["sequence"]))
+                .ToArray();
+            var snapshotEffectSignatures = effectViews
+                .Select(effect => string.Join(
+                    "|",
+                    effect["effectId"] as string ?? string.Empty,
+                    effect["sourceObjectId"] as string ?? string.Empty,
+                    effect["targetObjectId"] as string ?? string.Empty,
+                    string.Join(",", StringList(effect, "sourceDependencyObjectIds")),
+                    string.Join(",", StringList(effect, "targetDependencyObjectIds")),
+                    string.Join(",", StringList(effect, "participantObjectIds")),
+                    string.Join(",", StringList(effect, "participantDependencyObjectIds")),
+                    string.Join(",", StringList(effect, "deferredLayerEngineResiduals"))))
+                .ToArray();
+
+            Assert.Empty(effectViews);
+            Assert.DoesNotContain(
+                snapshotEffectSignatures,
+                signature => signature.Contains(BattlefieldSharedUnitObjectId, StringComparison.Ordinal));
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, BattlefieldSharedUnitObjectId);
+        }
+    }
+
+    [Fact]
     public void LayerEngineBattlefieldStaticAuraSourceOrderDependencyMetadataExcludesRemovedSourceAndOtherBattlefieldAcrossPlayerViews()
     {
         var before = BuildBattlefieldSourceOrderState();
