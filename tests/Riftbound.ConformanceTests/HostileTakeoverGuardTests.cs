@@ -109,6 +109,44 @@ public sealed class HostileTakeoverGuardTests
     }
 
     [Fact]
+    public void HostileTakeoverMainActionPlayCardPromptListsOnlyLegalEnemyBattlefieldUnitTarget()
+    {
+        var journal = new RecordingMatchJournal();
+        var state = BuildHostileTakeoverState();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, HostileTakeoverObjectId, StringComparison.Ordinal));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal([HostileTakeoverTargetObjectId], targetIds);
+        foreach (var invalidTargetObjectId in new[]
+        {
+            "P1-FRIENDLY-BATTLEFIELD-UNIT",
+            "P2-BASE-UNIT",
+            "P2-STALE-UNIT",
+            "P2-FACE-DOWN-STANDBY",
+            "P2-BATTLEFIELD-EQUIPMENT",
+            "P2-BATTLEFIELD-SPELL",
+            "P2-BATTLEFIELD-RUNE",
+            "P2-HAND-UNIT"
+        })
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+    }
+
+    [Fact]
     public async Task HostileTakeoverPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
