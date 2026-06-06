@@ -656,4 +656,15 @@ public sealed class SwitcherooGuardTests
         Assert.Equal(4, state.CardObjects["P1-BASE-UNIT"].Power);
         Assert.Equal(0, state.CardObjects["P1-BASE-UNIT"].UntilEndOfTurnPowerModifier);
     }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
+    }
 }
