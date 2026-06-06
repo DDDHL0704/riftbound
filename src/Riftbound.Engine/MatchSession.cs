@@ -8992,6 +8992,7 @@ internal static class ActionPromptBuilder
 
         return PromptTargetCandidateIds(state, playerId, targetScope, targetIndex)
             .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex)
+                && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
                 && IsPromptSpiritFireTargetAllowed(state, behavior, objectId))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
@@ -9141,6 +9142,7 @@ internal static class ActionPromptBuilder
                     targetObjectIds[targetIndex],
                     targetScope,
                     targetIndex)
+                || !IsPromptPlayCardTargetAllowed(state, playerId, behavior, targetObjectIds[targetIndex], targetIndex)
                 || !IsPromptSpiritFireTargetAllowed(state, behavior, targetObjectIds[targetIndex]))
             {
                 return false;
@@ -9284,7 +9286,7 @@ internal static class ActionPromptBuilder
         {
             CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
                 || IsPromptEquipmentObject(state, objectId),
-            CardTargetScopes.AnyUnit => IsPromptFieldUnitObject(state, objectId),
+            CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
             CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId),
             CardTargetScopes.FriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
@@ -9307,7 +9309,7 @@ internal static class ActionPromptBuilder
                 ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
                 : IsPromptStackSpellItem(state, objectId),
             CardTargetScopes.AnyUnitThenFriendlyMainDeckCard => targetIndex == 0
-                ? IsPromptFieldUnitObject(state, objectId)
+                ? IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
                 : false,
             CardTargetScopes.FriendlyBattlefieldUnit => IsPromptControlledBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
@@ -9340,14 +9342,16 @@ internal static class ActionPromptBuilder
     {
         return !string.IsNullOrWhiteSpace(objectId)
             && IsPromptKnownCardObject(state, objectId)
-            && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+            && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            && IsPromptFieldObjectControlledByZonePlayer(state, objectId);
     }
 
     private static bool IsPromptBaseObject(MatchState state, string objectId)
     {
         return !string.IsNullOrWhiteSpace(objectId)
             && IsPromptKnownCardObject(state, objectId)
-            && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
+            && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal))
+            && IsPromptFieldObjectControlledByZonePlayer(state, objectId);
     }
 
     private static bool IsPromptFieldUnitObject(MatchState state, string objectId)
@@ -9361,6 +9365,83 @@ internal static class ActionPromptBuilder
             && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal);
     }
 
+    private static bool IsPromptFieldObjectControlledByZonePlayer(MatchState state, string objectId)
+    {
+        return TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.PlayerId);
+    }
+
+    private static bool IsPromptFieldUnitObjectControlledByZonePlayer(MatchState state, string objectId)
+    {
+        return IsPromptFieldUnitObject(state, objectId)
+            && IsPromptFieldObjectControlledByZonePlayer(state, objectId);
+    }
+
+    private static bool IsPromptPlayCardTargetAllowed(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string objectId,
+        int targetIndex)
+    {
+        return IsPromptEffectSpecificTargetAllowed(state, playerId, behavior, objectId)
+            && IsPromptTargetRequiredTagAllowed(state, objectId, behavior)
+            && IsPromptTargetForbiddenTagAllowed(state, objectId, behavior);
+    }
+
+    private static bool IsPromptEffectSpecificTargetAllowed(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string objectId)
+    {
+        if (PromptEffectRequiresVisibleFieldUnitTarget(behavior))
+        {
+            return IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId);
+        }
+
+        if (string.Equals(behavior.EffectKind, "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE", StringComparison.Ordinal))
+        {
+            return IsPromptEnemyBattlefieldObject(state, playerId, objectId)
+                && IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId);
+        }
+
+        return true;
+    }
+
+    private static bool PromptEffectRequiresVisibleFieldUnitTarget(CardBehaviorDefinition behavior)
+    {
+        return string.Equals(behavior.EffectKind, "BATTLE_OR_FLIGHT_MOVE_BATTLEFIELD_UNIT_TO_BASE", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "GUST_RETURN_BATTLEFIELD_UNIT_POWER_3_OR_LESS_TO_HAND", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "HUNT_THE_WEAK_DESTROY_BATTLEFIELD_UNIT_POWER_3_OR_LESS", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "RIDE_THE_WIND_MOVE_FRIENDLY_BATTLEFIELD_UNIT_TO_BASE_READY", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "CHARM_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "ISOLATE_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE_NO_DRAW", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "VENGEANCE_DESTROY_UNIT", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT", StringComparison.Ordinal)
+            || string.Equals(behavior.EffectKind, "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS", StringComparison.Ordinal);
+    }
+
+    private static bool IsPromptTargetRequiredTagAllowed(
+        MatchState state,
+        string objectId,
+        CardBehaviorDefinition behavior)
+    {
+        return string.IsNullOrWhiteSpace(behavior.TargetRequiredTag)
+            || PromptCardObjectHasTags(state.CardObjects, objectId, behavior.TargetRequiredTag);
+    }
+
+    private static bool IsPromptTargetForbiddenTagAllowed(
+        MatchState state,
+        string objectId,
+        CardBehaviorDefinition behavior)
+    {
+        return string.IsNullOrWhiteSpace(behavior.TargetForbiddenTag)
+            || !PromptCardObjectHasTags(state.CardObjects, objectId, behavior.TargetForbiddenTag);
+    }
+
     private static bool IsPromptSpiritFireTargetAllowed(
         MatchState state,
         CardBehaviorDefinition behavior,
@@ -9372,7 +9453,7 @@ internal static class ActionPromptBuilder
         }
 
         return IsPromptBattlefieldObject(state, objectId)
-            && IsPromptFieldUnitObject(state, objectId)
+            && IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
             && TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.PlayerId);
