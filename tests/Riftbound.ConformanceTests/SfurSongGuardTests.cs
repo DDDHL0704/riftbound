@@ -61,6 +61,67 @@ public sealed class SfurSongGuardTests
     }
 
     [Fact]
+    public void SfurSongMainActionPlayCardPromptDoesNotExposeTargetsForEquipmentPlay()
+    {
+        var state = BuildSfurSongState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, SfurSongObjectId, StringComparison.Ordinal));
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+
+        var invalidTargetObjectIds = new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-SFUR-SONG",
+            "P1-FACE-DOWN-STANDBY-SFUR-SONG",
+            "P2-EQUIPMENT-SFUR-SONG"
+        };
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+
+        var metadataTargetIds = Array.Empty<string>();
+        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true)
+        {
+            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                    rawSourceRequirements)
+                .ToArray();
+            var sourceRequirement = Assert.Single(
+                sourceRequirements,
+                requirement => string.Equals(requirement["sourceObjectId"] as string, SfurSongObjectId, StringComparison.Ordinal));
+
+            if (sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex))
+            {
+                var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                    rawTargetChoicesByIndex);
+                metadataTargetIds = targetChoicesByIndex.Values
+                    .SelectMany(rawTargetChoices => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices))
+                    .Select(choice => choice.Id)
+                    .ToArray();
+            }
+        }
+
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
+        }
+    }
+
+    [Fact]
     public async Task SfurSongPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
