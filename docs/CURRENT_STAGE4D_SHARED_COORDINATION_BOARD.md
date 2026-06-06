@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18WF/18WG/18WH/18WI/18WJ resource/task boundary breadth partially accepted four effective shards, proving LegendResourceBridge generated-resource PayCost replay boundaries, ResourceConversion Hextech invalid temporary-resource payload no-mutation behavior, Dragon Soul Sage generated-mana later PayCost and duplicate rejection, and BoardTaskQueue state-based-cleanup waiting-prompt redaction with snapshot queue audit fields. Runtime changed: no, server test coverage only. Tests changed in `LegendResourceBridgeVerifierTests`, `ResourceConversionEquipmentSkillTests`, `ReactionResourceSkillTests` and `BoardTaskQueueFoundationTests`. 18WI accidentally patched main and was accepted as A_MAIN commit `1b470c18` after assertion narrowing; 18WF accidentally patched main then removed its Blue Sentinel block and was excluded. Validation passed: focused LegendResourceBridge `117/117`, ResourceConversionEquipment `24/24`, ReactionResource `17/17`, BoardTaskQueue `14/14`, combined effective changed tests `172/172`, adjacent/broader server filter `5555/5555`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7517/7517`, plus diff checks before docs sync. Worker/worktree source commits accepted were `8ceef4febb32f3c9854084cad609f24d0de77e10` (18WH, cherry-picked as `3fcd09b9`), `ae00c60bf466023c4453f77bf91a46dc03216a95` (18WG, cherry-picked as `29aa1247`) and `ac170c5ea7422b493afe828691f193d39542bd8b` (18WJ, cherry-picked as `28352fd6`). A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18XH/18XI/18XJ/18XK/18XL play-card prompt target breadth accepted one runtime prompt-target fix plus five parallel server-test shards, proving Hostile Takeover, Reprimand, Megashark Cannon, First Mate and Charm main-action `PLAY_CARD` prompts expose only legal server-filtered target choices. Runtime changed: yes, `ActionPromptBuilder` now applies effect-specific target semantics, required/forbidden target tags and zone-player control consistency to prompt target choices. Tests changed in `HostileTakeoverGuardTests`, `ReprimandReturnToHandGuardTests`, `EnemyBattlefieldUnitTargetScopeGuardTests`, `AnyUnitTargetScopeGuardTests` and `CharmMoveToBaseGuardTests`. 18XI and 18XK first exposed real runtime prompt gaps on old worktrees; A_MAIN fixed them as `6485e682` before accepting worker source commits `4badf6ac`, `749d988e`, `4c47588a`, `248d9ee6` and `f50d44bf` as `e57bccac`, `a06dbe33`, `3e4975b0`, `bd45ca37` and `a75e3988`. Validation passed: baseline `54/54`, main changed-class filter `59/59`, adjacent target/guard filter `164/164`, backend full `7545/7545`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18WF/18WG/18WH/18WI/18WJ; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18XH/18XI/18XJ/18XK/18XL; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-07 03:22 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-07 05:34 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, pending docs/checkpoint commit after validation at time of entry
+
+Write locks: closed for `src/Riftbound.Engine/MatchSession.cs`, `tests/Riftbound.ConformanceTests/HostileTakeoverGuardTests.cs`, `tests/Riftbound.ConformanceTests/ReprimandReturnToHandGuardTests.cs`, `tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs`, `tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs`, `tests/Riftbound.ConformanceTests/CharmMoveToBaseGuardTests.cs`, completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18XH_18XL_PLAY_CARD_PROMPT_TARGET_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18XH/18XI/18XJ/18XK/18XL accepted one runtime prompt-target fix plus five parallel prompt-target test shards. A_MAIN commit `6485e682` fixed play-card prompt target filtering after 18XI and 18XK exposed runtime prompt gaps. Worker source commits `4badf6ac`, `749d988e`, `4c47588a`, `248d9ee6` and `f50d44bf` were cherry-picked as `e57bccac`, `a06dbe33`, `3e4975b0`, `bd45ca37` and `a75e3988`. Runtime changed: yes, prompt target generation only.
+
+Validation: pre-dispatch target-class baseline `54/54`; main changed-class filter `59/59`; adjacent target/guard filter `164/164`; backend full `7545/7545` under the current no-DB environment. DOC_MATRIX_CURRENT remained clean at `17bde0c3` when checked before this batch.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and should keep patch-only workers with disjoint write scopes. Project remains **NOT READY**.
 
 ### 2026-06-07 03:22 A_MAIN
 
