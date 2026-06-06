@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18PX/18PY/18PZ GameHub/mapper/official test bundle integrates a parallel worktree batch proving raw `PAY_COST` after a finished GameHub match returns stable redacted `MatchFinished` without caller/group broadcasts, group errors, journal growth or snapshot mutation; proving `PLAY_CARD` maps only current command fields and does not backfill from visible card/source/target/cost/destination metadata aliases; and proving fresh official `DECLARE_BATTLE` after first-turn surrender has finished the match throws stable `MatchFinished` without journal, prompt or snapshot mutation. Runtime changed: no, test coverage only. Tests changed in `GameHubJoinTests`, `ConformanceFixtureShapeTests` and `OfficialOpeningTests`. Validation passed: focused new tests `3/3`, touched class filter `911/911`, broader adjacent server filter `5471/5471`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7381/7381`, plus diff checks, conflict-marker scan and matrix JSON parse. Worker/worktree source commits were `f9277dda`, `afad87c6` and `66685647`; A_MAIN reviewed and owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18QA/18QB/18QC GameHub/mapper/official test bundle integrates a parallel worktree batch proving raw `ORDER_TRIGGERS` after a finished GameHub match returns stable redacted `MatchFinished` without caller/group broadcasts, group errors, journal growth or snapshot mutation; proving `ASSIGN_COMBAT_DAMAGE` maps only current battle id, battlefield id and assignments command fields and does not backfill from visible battle/damage metadata aliases; and proving fresh official `PAY_COST` after first-turn surrender has finished the match throws stable `MatchFinished` without journal, prompt or snapshot mutation. Runtime changed: no, test coverage only. Tests changed in `GameHubJoinTests`, `ConformanceFixtureShapeTests` and `OfficialOpeningTests`. Validation passed: focused new tests `3/3`, touched class filter `914/914`, broader adjacent server filter `5474/5474`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7384/7384`, plus diff checks, conflict-marker scan and matrix JSON parse. Worker/worktree source commits were `7c2f1b7`, `d1d74c75` and `2b972190`; A_MAIN reviewed and owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -71,6 +71,22 @@ Use this file as a lightweight message board:
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-06 12:56 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, pending docs/checkpoint commit after validation at time of entry
+
+Write locks: closed for `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`, `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`, `tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs`, current checkpoint/completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18QA_18QC_GAMEHUB_MAPPER_OFFICIAL_AUDIT.md`. Runtime validation code, matrix JSON, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18QA/18QB/18QC integrated parallel worktree output: `7c2f1b7` (GameHub after-finished raw `ORDER_TRIGGERS` redaction/no-broadcast/no-mutation guard), `d1d74c75` (`ASSIGN_COMBAT_DAMAGE` mapper current command fields over visible battle/damage metadata aliases) and `2b972190` (official first-turn surrender finished-match fresh `PAY_COST` guard).
+
+Validation: focused new tests `3/3`; touched class filter `914/914`; broader adjacent server filter `5474/5474`; backend full `7384/7384` under no-DB environment; `git diff --check`, range diff check, anchored conflict-marker scan and matrix JSON parse passed before docs sync.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and can dispatch another non-overlapping parallel server group. Project remains **NOT READY**.
 
 ### 2026-06-06 12:38 A_MAIN
 
