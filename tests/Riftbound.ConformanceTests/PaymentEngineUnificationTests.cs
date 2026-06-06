@@ -1386,6 +1386,16 @@ public sealed class PaymentEngineUnificationTests
             "TEST_PENDING_PAY_COST",
             [paymentResourceAction, paymentChoiceId]);
         var staleRawCommand = PromptScopedPayCostRawCommand(command, prompt);
+        var changedStaleRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = command.PaymentId,
+            paymentWindow = command.PaymentWindow,
+            paymentChoiceIds = command.PaymentChoiceIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
 
         var paid = await session.SubmitAsync(
             "P1",
@@ -1470,6 +1480,54 @@ public sealed class PaymentEngineUnificationTests
             rejectedEntry.RawCommand.Value.GetProperty("paymentChoiceIds").EnumerateArray().Select(choice => choice.GetString()!).ToArray());
         Assert.Equal(prompt.PromptId, rejectedEntry.RawCommand.Value.GetProperty("promptId").GetString());
         Assert.Equal(prompt.SnapshotTick, rejectedEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(postPaymentStateHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(postPaymentAuthoritativePromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(postPaymentAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Null(duplicateReplay.State.PendingPayment);
+        Assert.Empty(duplicateReplay.State.TemporaryPaymentResources);
+        AssertNoPayCostPrompt(duplicateReplay.State);
+        Assert.Equal(RunePool.Empty, duplicateReplay.State.RunePools["P1"]);
+        Assert.Empty(duplicateReplay.State.StackItems);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(2, journal.Entries.Count(entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal)));
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(postPaymentStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(postPaymentAuthoritativePromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(postPaymentAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Null(conflict.State.PendingPayment);
+        Assert.Empty(conflict.State.TemporaryPaymentResources);
+        AssertNoPayCostPrompt(conflict.State);
+        Assert.Equal(RunePool.Empty, conflict.State.RunePools["P1"]);
+        Assert.Empty(conflict.State.StackItems);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(2, journal.Entries.Count(entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal)));
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
