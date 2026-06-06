@@ -79,6 +79,62 @@ public sealed class AkshanGuardTests
     }
 
     [Fact]
+    public void AkshanMainActionPlayCardPromptDoesNotExposeTargetsForNoTargetUnitPlay()
+    {
+        var state = BuildAkshanPromptStateWithEnemyEquipment();
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate =>
+                string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, AkshanObjectId, StringComparison.Ordinal)));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, AkshanObjectId, StringComparison.Ordinal));
+
+        var invalidTargetObjectIds = new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-AKSHAN",
+            "P1-FACE-DOWN-STANDBY-AKSHAN",
+            EnemyWeaponObjectId,
+            EnemyNonWeaponObjectId
+        };
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+
+        var requirement = AkshanSourceRequirement(state, AkshanObjectId, AkshanCardNo);
+        Assert.Equal(AkshanObjectId, requirement["sourceObjectId"]);
+        Assert.Equal(AkshanCardNo, requirement["cardNo"]);
+        Assert.Equal(0, Assert.IsType<int>(requirement["minTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(requirement["maxTargetCount"]));
+
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            requirement["targetChoicesByIndex"]);
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .Where(rawTargetChoices => rawTargetChoices is not null)
+            .SelectMany(rawTargetChoices => Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                .Select(choice => choice.Id))
+            .ToArray();
+        Assert.Empty(targetChoicesByIndex);
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
+        }
+    }
+
+    [Fact]
     public async Task AkshanPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
@@ -704,6 +760,14 @@ public sealed class AkshanGuardTests
 
     private static IReadOnlyDictionary<string, object?> AkshanSourceRequirement(MatchState state)
     {
+        return AkshanSourceRequirement(state, AkshanObjectId, AkshanCardNo);
+    }
+
+    private static IReadOnlyDictionary<string, object?> AkshanSourceRequirement(
+        MatchState state,
+        string sourceObjectId,
+        string cardNo)
+    {
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
             prompt.Candidates ?? [],
@@ -713,7 +777,8 @@ public sealed class AkshanGuardTests
             metadata["sourceRequirements"]);
         return Assert.Single(
             sourceRequirements,
-            entry => string.Equals(entry["sourceObjectId"] as string, AkshanObjectId, StringComparison.Ordinal));
+            entry => string.Equals(entry["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(entry["cardNo"] as string, cardNo, StringComparison.Ordinal));
     }
 
     private static async Task<ResolutionResult> PlayAndResolveAkshanStealAsync(
@@ -942,6 +1007,26 @@ public sealed class AkshanGuardTests
                     ownerId: "P1",
                     controllerId: "P1")
             });
+    }
+
+    private static MatchState BuildAkshanPromptStateWithEnemyEquipment()
+    {
+        var state = BuildAkshanState();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p2Zones = playerZones["P2"];
+        playerZones["P2"] = p2Zones with
+        {
+            Base = [.. p2Zones.Base, EnemyWeaponObjectId, EnemyNonWeaponObjectId]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[EnemyWeaponObjectId] = Equipment(EnemyWeaponObjectId, "P2", "P2", weapon: true);
+        cardObjects[EnemyNonWeaponObjectId] = Equipment(EnemyNonWeaponObjectId, "P2", "P2", weapon: false);
+
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
     }
 
     private static CardObjectState Akshan(
