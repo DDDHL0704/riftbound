@@ -68,6 +68,57 @@ public sealed class AnyUnitTargetScopeGuardTests
     }
 
     [Fact]
+    public void FirstMateMainActionPlayCardPromptExposesOnlyPublicFieldUnitTargets()
+    {
+        var state = BuildFirstMateState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-UNIT-FIRST-MATE", StringComparison.Ordinal));
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal(["P1-BASE-UNIT", "P2-BATTLEFIELD-UNIT"], targetIds);
+
+        string[] invalidTargetObjectIds =
+        [
+            "P1-BATTLEFIELD-EQUIPMENT",
+            "P1-BATTLEFIELD-SPELL",
+            "P1-BATTLEFIELD-RUNE",
+            "P1-FACE-DOWN-STANDBY",
+            "P1-FACE-UP-STANDBY",
+            "P1-DIRTY-P2-CONTROLLED-BATTLEFIELD-UNIT",
+            "P1-HAND-UNIT",
+            "P1-STALE-UNIT"
+        ];
+        Assert.All(invalidTargetObjectIds, objectId => Assert.DoesNotContain(objectId, targetIds));
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        var firstMateRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => requirement["sourceObjectId"] is string sourceObjectId
+                && string.Equals(sourceObjectId, "P1-UNIT-FIRST-MATE", StringComparison.Ordinal));
+        Assert.Equal(CardTargetScopes.AnyUnit, Assert.IsType<string>(firstMateRequirement["targetScope"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            firstMateRequirement["targetChoicesByIndex"]);
+        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            targetChoicesByIndex["0"]);
+        var firstMateTargetIds = firstTargetChoices.Select(choice => choice.Id).ToArray();
+        Assert.Equal(["P1-BASE-UNIT", "P2-BATTLEFIELD-UNIT"], firstMateTargetIds);
+        Assert.All(invalidTargetObjectIds, objectId => Assert.DoesNotContain(objectId, firstMateTargetIds));
+    }
+
+    [Fact]
     public async Task AnyUnitScopeRejectsNonUnitWhenBehaviorDoesNotRequireUnitTag()
     {
         var state = BuildCurtainRisesState();
