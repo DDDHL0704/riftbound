@@ -161,6 +161,54 @@ public sealed class LegendResourceBridgeVerifierTests
 
     [Theory]
     [MemberData(nameof(SuccessProfiles))]
+    public async Task LegendResourceBridgeGeneratedResourcePaysMatchingCostOnceThenRejectsReplayWithoutMutation(BridgeProfile profile)
+    {
+        var gained = await ResolveLegendActAsync(BuildSuccessState(profile), profile);
+        Assert.True(gained.Accepted, gained.ErrorMessage);
+        var paysMana = string.Equals(profile.ResourceKind, "mana", StringComparison.Ordinal);
+        var paymentChoiceId = paysMana ? "SPEND_MANA:1" : "SPEND_POWER:1";
+        var pendingPayment = new PendingPaymentState(
+            $"LEGEND-RESOURCE-BOUNDARY-PAY-{profile.SourceObjectId}",
+            "LEGEND_RESOURCE_PAYMENT",
+            "P1",
+            manaCost: paysMana ? 1 : 0,
+            powerCost: paysMana ? 0 : 1,
+            legalPaymentChoiceIds: [paymentChoiceId],
+            reason: "LEGEND_GENERATED_RESOURCE_BOUNDARY");
+        var paymentState = gained.State with
+        {
+            PendingPayment = pendingPayment
+        };
+
+        var paid = await PayCostAsync(paymentState, pendingPayment, [paymentChoiceId], profile, "boundary-first");
+
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(paid.ErrorCode);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(RunePool.Empty, paid.State.RunePools["P1"]);
+        Assert.True(paid.State.CardObjects[profile.SourceObjectId].IsExhausted);
+        var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(paysMana ? 1 : 0, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(paysMana ? 0 : 1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costEvent.Payload[paysMana ? "remainingMana" : "remainingPower"]);
+        Assert.Equal([paymentChoiceId], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var closedEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(pendingPayment.PaymentId, closedEvent.Payload["paymentId"]);
+        Assert.Equal(pendingPayment.PaymentWindow, closedEvent.Payload["paymentWindow"]);
+        var afterPaymentHash = MatchStateHasher.Hash(paid.State);
+
+        var duplicate = await PayCostAsync(paid.State, pendingPayment, [paymentChoiceId], profile, "boundary-duplicate");
+
+        AssertRejectedNoMutation(duplicate, afterPaymentHash);
+        Assert.Null(duplicate.State.PendingPayment);
+        Assert.Equal(RunePool.Empty, duplicate.State.RunePools["P1"]);
+        Assert.True(duplicate.State.CardObjects[profile.SourceObjectId].IsExhausted);
+        Assert.Equal(0, CountEvents(duplicate.Events, "COST_PAID"));
+        Assert.Equal(0, CountEvents(duplicate.Events, "PAYMENT_WINDOW_CLOSED"));
+    }
+
+    [Theory]
+    [MemberData(nameof(SuccessProfiles))]
     public async Task LegendResourceBridgeGeneratedResourceUsesRunePoolEndTurnCleanupLifecycle(BridgeProfile profile)
     {
         var gained = await ResolveLegendActAsync(BuildSuccessState(profile), profile);
