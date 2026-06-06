@@ -47,6 +47,49 @@ public sealed class ArmedAssaulterHasteTemperedTests
     }
 
     [Fact]
+    public void PlayCardPromptKeepsHasteTemperedOptionalCostOrderAndP2Isolation()
+    {
+        var state = BuildArmedAssaulterState(mana: 7, redPower: 1);
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var p1Prompt = prompts["P1"];
+        var p2Prompt = prompts["P2"];
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        var requirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            requirement => string.Equals(requirement["sourceObjectId"] as string, ArmedAssaulterObjectId, StringComparison.Ordinal));
+        var optionalCostChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                requirement["optionalCostChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.True(p1Prompt.Actionable);
+        Assert.Contains(CommandTypes.PlayCard, p1Prompt.Actions);
+        Assert.Equal(
+            [TemperedAttachCost(SpinningAxeObjectId), TemperedAttachCost(SecondSpinningAxeObjectId), HasteOptionalCostNames.HasteReady],
+            optionalCostChoiceIds);
+        Assert.False(p2Prompt.Actionable);
+        Assert.DoesNotContain(CommandTypes.PlayCard, p2Prompt.Actions);
+        Assert.DoesNotContain(
+            p2Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            p2Prompt.Candidates ?? [],
+            candidate => candidate.OptionalCosts is { Count: > 0 }
+                || (candidate.Metadata is IReadOnlyDictionary<string, object?> p2Metadata
+                    && p2Metadata.TryGetValue("sourceRequirements", out var rawRequirements)
+                    && rawRequirements is IEnumerable<IReadOnlyDictionary<string, object?>> sourceRequirements
+                    && sourceRequirements.Any(sourceRequirement =>
+                        sourceRequirement.TryGetValue("optionalCostChoices", out var rawOptionalCostChoices)
+                        && rawOptionalCostChoices is IEnumerable<ActionPromptChoiceDto> optionalCostChoices
+                        && optionalCostChoices.Any())));
+        Assert.Equal(state.Tick, p2Prompt.SnapshotTick);
+    }
+
+    [Fact]
     public async Task LegalBothCostsPayHasteAndAttachAfterResolution()
     {
         var engine = new CoreRuleEngine();
