@@ -563,6 +563,125 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperPlayCardUsesCommandFieldsOverVisibleCardMetadata()
+    {
+        const string VisiblePlayCardMetadataAliases = """
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-PLAY-SOURCE",
+                  "cardNo": "VISIBLE-PLAY-CARD",
+                  "mode": "VISIBLE_MODE",
+                  "destination": "VISIBLE_DESTINATION",
+                  "targetObjectIds": ["P2-VISIBLE-TARGET"],
+                  "sourceChoices": [{ "id": "P1-VISIBLE-NESTED-SOURCE", "label": "Visible nested source" }],
+                  "cards": [
+                    {
+                      "sourceObjectId": "P1-VISIBLE-NESTED-CARD-SOURCE",
+                      "cardNo": "VISIBLE-NESTED-CARD",
+                      "targetObjectIds": ["P2-VISIBLE-NESTED-CARD-TARGET"],
+                      "mode": "VISIBLE_NESTED_CARD_MODE",
+                      "destination": "VISIBLE_NESTED_CARD_DESTINATION"
+                    }
+                  ],
+                  "cardChoices": [
+                    {
+                      "id": "VISIBLE_NESTED_CARD_CHOICE",
+                      "sourceObjectId": "P1-VISIBLE-NESTED-CARD-CHOICE-SOURCE",
+                      "cardNo": "VISIBLE-NESTED-CARD-CHOICE",
+                      "targetObjectIds": ["P2-VISIBLE-NESTED-CARD-CHOICE-TARGET"]
+                    }
+                  ],
+                  "targetChoices": [{ "id": "P2-VISIBLE-NESTED-TARGET", "label": "Visible nested target" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_NESTED_COST", "label": "Visible nested cost" }],
+                  "destinations": [{ "id": "VISIBLE_NESTED_DESTINATION", "label": "Visible nested destination" }],
+                  "destinationChoices": [{ "id": "VISIBLE_NESTED_DESTINATION_CHOICE", "label": "Visible nested destination choice" }]
+                }
+              ],
+              "sources": [{ "id": "P1-VISIBLE-PLAY-SOURCE", "label": "Visible source" }],
+              "sourceChoices": [{ "id": "P1-VISIBLE-TOP-SOURCE", "label": "Visible top-level source" }],
+              "cards": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-TOP-CARD-SOURCE",
+                  "cardNo": "VISIBLE-TOP-CARD",
+                  "targetObjectIds": ["P2-VISIBLE-TOP-CARD-TARGET"],
+                  "mode": "VISIBLE_TOP_CARD_MODE",
+                  "destination": "VISIBLE_TOP_CARD_DESTINATION"
+                }
+              ],
+              "cardChoices": [
+                {
+                  "id": "VISIBLE_TOP_CARD_CHOICE",
+                  "sourceObjectId": "P1-VISIBLE-TOP-CARD-CHOICE-SOURCE",
+                  "cardNo": "VISIBLE-TOP-CARD-CHOICE",
+                  "targetObjectIds": ["P2-VISIBLE-TOP-CARD-CHOICE-TARGET"]
+                }
+              ],
+              "targetChoices": [{ "id": "P2-VISIBLE-TOP-TARGET", "label": "Visible top-level target" }],
+              "optionalCostChoices": [{ "id": "VISIBLE_TOP_COST", "label": "Visible top-level cost" }],
+              "destinations": [{ "id": "VISIBLE_TOP_DESTINATION", "label": "Visible top-level destination" }],
+              "destinationChoices": [{ "id": "VISIBLE_TOP_DESTINATION_CHOICE", "label": "Visible top-level destination choice" }]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-CURRENT-PLAY-SOURCE",
+              "cardNo": "CURRENT-PLAY-CARD",
+              "targetObjectIds": [" P2-CURRENT-TARGET ", "P2-CURRENT-TARGET-2"],
+              "mode": "CURRENT_MODE",
+              "optionalCosts": [" CURRENT_COST ", " CURRENT_FREE "],
+              "destination": "CURRENT_DESTINATION",
+              {{VisiblePlayCardMetadataAliases}}
+            }
+            """);
+        var malformedCurrent = Map($$"""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": { "id": "P1-CURRENT-PLAY-SOURCE" },
+              "cardNo": ["CURRENT-PLAY-CARD"],
+              "targetObjectIds": { "0": "P2-CURRENT-TARGET" },
+              "mode": { "id": "CURRENT_MODE" },
+              "optionalCosts": { "0": "CURRENT_COST" },
+              "destination": { "id": "CURRENT_DESTINATION" },
+              {{VisiblePlayCardMetadataAliases}}
+            }
+            """);
+        var aliasOnly = Map($$"""
+            {
+              "cmdType": "PLAY_CARD",
+              {{VisiblePlayCardMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("P1-CURRENT-PLAY-SOURCE", command.SourceObjectId);
+        Assert.Equal("CURRENT-PLAY-CARD", command.CardNo);
+        Assert.Equal(["P2-CURRENT-TARGET", "P2-CURRENT-TARGET-2"], command.TargetObjectIds);
+        Assert.Equal("CURRENT_MODE", command.Mode);
+        Assert.Equal(["CURRENT_COST", "CURRENT_FREE"], command.OptionalCosts);
+        Assert.Equal("CURRENT_DESTINATION", command.Destination);
+
+        Assert.Equal(string.Empty, malformedCurrent.SourceObjectId);
+        Assert.Equal(string.Empty, malformedCurrent.CardNo);
+        Assert.Empty(malformedCurrent.TargetObjectIds);
+        Assert.Equal(string.Empty, malformedCurrent.Mode);
+        Assert.Empty(malformedCurrent.OptionalCosts ?? []);
+        Assert.Equal(string.Empty, malformedCurrent.Destination);
+
+        Assert.Equal(string.Empty, aliasOnly.SourceObjectId);
+        Assert.Equal(string.Empty, aliasOnly.CardNo);
+        Assert.Empty(aliasOnly.TargetObjectIds);
+        Assert.Equal(string.Empty, aliasOnly.Mode);
+        Assert.Empty(aliasOnly.OptionalCosts ?? []);
+        Assert.Equal(string.Empty, aliasOnly.Destination);
+
+        static PlayCardCommand Map(string json)
+        {
+            return Assert.IsType<PlayCardCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperTrimsAndDropsUnreadableEntriesForNonStrictTextArrays()
     {
         var playCard = Assert.IsType<PlayCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
