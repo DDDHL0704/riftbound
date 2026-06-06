@@ -3532,12 +3532,13 @@ public sealed class ConformanceFixtureShapeTests
         var state = BuildP0ContractTriggerQueueState();
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         var prompt = session.PromptFor("P1");
-        var command = new OrderTriggersCommand(OrderedTriggerIds: ["TRIGGER-2", "TRIGGER-1"]);
+        var orderedTriggerIds = new[] { "TRIGGER-2", "TRIGGER-1" };
+        var command = new OrderTriggersCommand(OrderedTriggerIds: orderedTriggerIds);
         var stalePromptId = $"{prompt.PromptId}:stale";
         var staleRawCommand = JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.OrderTriggers,
-            orderedTriggerIds = command.OrderedTriggerIds,
+            orderedTriggerIds,
             promptId = stalePromptId,
             snapshotTick = prompt.SnapshotTick
         });
@@ -3574,7 +3575,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedEntry.RawCommand.Value));
         Assert.Equal(CommandTypes.OrderTriggers, rejectedEntry.RawCommand.Value.GetProperty("cmdType").GetString());
         Assert.Equal(
-            command.OrderedTriggerIds.ToArray(),
+            orderedTriggerIds,
             rejectedEntry.RawCommand.Value.GetProperty("orderedTriggerIds")
                 .EnumerateArray()
                 .Select(element => element.GetString() ?? string.Empty)
@@ -3602,15 +3603,14 @@ public sealed class ConformanceFixtureShapeTests
             clientNote = "changed-payload"
         });
 
-        var conflict = await Assert.ThrowsAsync<MatchSessionException>(async () =>
-            await session.SubmitAsync(
-                "P1",
-                staleClientIntentId,
-                command,
-                changedRawCommand,
-                CancellationToken.None));
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
 
-        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
+        AssertRejectedWithoutMutation(conflict, ErrorCodes.ClientIntentConflict);
         Assert.Same(rejectedEntry, Assert.Single(journal.Entries));
         Assert.DoesNotContain(
             journal.Entries,
