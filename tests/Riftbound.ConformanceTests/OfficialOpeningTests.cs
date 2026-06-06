@@ -490,10 +490,12 @@ public sealed class OfficialOpeningTests
     [Fact]
     public async Task SubmitDeckStalePromptReplayAfterReadyPromptStartsRejectsWithoutMutation()
     {
+        const string staleClientIntentId = "submit-p2-stale-prompt-replay";
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
-        var session = new MatchSession("official-submit-deck-stale-prompt-room", new CoreRuleEngine());
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession("official-submit-deck-stale-prompt-room", new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
@@ -504,6 +506,7 @@ public sealed class OfficialOpeningTests
             RawCommand("SUBMIT_DECK"),
             CancellationToken.None);
         Assert.True(p1Submit.Accepted, p1Submit.ErrorMessage);
+        Assert.Single(journal.Entries);
 
         var prompt = p1Submit.Prompts["P2"];
         Assert.True(prompt.Actionable);
@@ -528,11 +531,15 @@ public sealed class OfficialOpeningTests
         Assert.True(accepted.Prompts["P2"].Actionable);
         Assert.Equal(["READY"], accepted.Prompts["P2"].Actions);
         AssertOfficialSubmitDeckBothReadyPromptQueueAudit(accepted, p1Deck, p2Deck);
+        Assert.Equal(2, journal.Entries.Count);
 
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var journalEntryCountBeforeReplay = journal.Entries.Count;
         var replay = await session.SubmitDeckAsync(
             "P2",
-            "submit-p2-stale-prompt-replay",
+            staleClientIntentId,
             ToSubmitCommand(p2Deck),
             rawCommand,
             CancellationToken.None);
@@ -542,6 +549,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal("行动窗口已过期，请按最新提示重新提交。", replay.ErrorMessage);
         Assert.Empty(replay.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(accepted.State.Tick, replay.State.Tick);
         Assert.Equal(accepted.State.PlayerDecklists["P1"].MainDeck, replay.State.PlayerDecklists["P1"].MainDeck);
         Assert.Equal(accepted.State.PlayerDecklists["P2"].MainDeck, replay.State.PlayerDecklists["P2"].MainDeck);
@@ -552,6 +561,76 @@ public sealed class OfficialOpeningTests
         Assert.True(replay.Prompts["P2"].Actionable);
         Assert.Equal(["READY"], replay.Prompts["P2"].Actions);
         AssertOfficialSubmitDeckBothReadyPromptQueueAudit(replay, p1Deck, p2Deck);
+
+        Assert.Equal(journalEntryCountBeforeReplay + 1, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[^1];
+        Assert.Equal("official-submit-deck-stale-prompt-room", rejectedJournalEntry.RoomId);
+        Assert.Equal("P2", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal("SUBMIT_DECK", rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal("SUBMIT_DECK", rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+
+        var replayPromptsHash = MatchStateHasher.HashValue(replay.Prompts);
+        var replaySnapshotsHash = MatchStateHasher.HashValue(replay.Snapshots);
+        var journalEntryCountAfterReplay = journal.Entries.Count;
+        var duplicateReplay = await session.SubmitDeckAsync(
+            "P2",
+            staleClientIntentId,
+            ToSubmitCommand(p2Deck),
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(replay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        AssertOfficialSubmitDeckBothReadyPromptQueueAudit(duplicateReplay, p1Deck, p2Deck);
+        Assert.Equal(journalEntryCountAfterReplay, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(session, "P2");
+        var p1PromptBeforeConflict = JsonSerializer.Serialize(session.PromptFor("P1"));
+        var p2PromptBeforeConflict = JsonSerializer.Serialize(session.PromptFor("P2"));
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "SUBMIT_DECK",
+            legendCardNo = p2Deck.LegendCardNo,
+            championCardNo = p2Deck.ChampionCardNo,
+            mainDeck = p2Deck.MainDeck,
+            runeDeck = p2Deck.RuneDeck,
+            battlefields = p2Deck.Battlefields,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await Assert.ThrowsAsync<MatchSessionException>(() =>
+            session.SubmitDeckAsync(
+                "P2",
+                staleClientIntentId,
+                ToSubmitCommand(p2Deck),
+                changedRawCommand,
+                CancellationToken.None).AsTask());
+
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.Message);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(session, "P2"));
+        Assert.Equal(p1PromptBeforeConflict, JsonSerializer.Serialize(session.PromptFor("P1")));
+        Assert.Equal(p2PromptBeforeConflict, JsonSerializer.Serialize(session.PromptFor("P2")));
+        Assert.Equal(journalEntryCountAfterReplay, journal.Entries.Count);
     }
 
     [Fact]
