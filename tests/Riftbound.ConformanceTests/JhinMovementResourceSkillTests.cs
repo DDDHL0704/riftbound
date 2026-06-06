@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -144,6 +145,188 @@ public sealed class JhinMovementResourceSkillTests
         Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
         Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(powerEvent.Payload["allowedPaymentKinds"]));
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task JhinMovementResourceSkillStalePromptReplayUsesRejectedCacheWithoutMutation()
+    {
+        var moved = await MoveJhinAsync(BuildJhinBaseState());
+        Assert.True(moved.Accepted, moved.ErrorMessage);
+        var trigger = Assert.Single(moved.State.TriggerQueue);
+        var triggerChoice = JhinTriggerChoice(moved.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(moved.State, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Equal([JhinObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        var command = JhinCommand(optionalCosts: [triggerChoice]);
+        var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
+        var changedStaleRawCommand = PromptScopedActivateAbilityRawCommandWithClientNote(command, prompt, "changed-payload");
+        const string acceptedClientIntentId = "intent-jhin-resource-before-stale-prompt-replay";
+        const string staleClientIntentId = "intent-jhin-resource-stale-prompt-replay";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            acceptedClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Empty(accepted.State.StackItems);
+        Assert.Empty(accepted.State.TriggerQueue);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana, accepted.State.RunePools["P1"].Mana);
+        Assert.Equal(0, accepted.State.RunePools["P1"].Power);
+        var acceptedTemporaryResource = AssertSingleJhinTemporaryResource(accepted.State);
+        Assert.Equal(
+            ["TRIGGER_RESOLVED", "ABILITY_ACTIVATED", "MANA_GAINED", "POWER_GAINED"],
+            accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.DoesNotContain(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        var triggerResolvedEvent = Assert.Single(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal(trigger.TriggerId, triggerResolvedEvent.Payload["triggerId"]);
+        var activatedEvent = Assert.Single(accepted.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal(trigger.TriggerId, activatedEvent.Payload["movementTriggerId"]);
+        Assert.Equal("no-ordinary-stack-item", activatedEvent.Payload["stackPolicy"]);
+        Assert.Equal(acceptedTemporaryResource.ResourceId, activatedEvent.Payload["temporaryPaymentResourceId"]);
+        var manaEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+        Assert.Equal(JhinObjectId, manaEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, manaEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana, manaEvent.Payload["manaAfter"]);
+        var powerEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(JhinObjectId, powerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, powerEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, powerEvent.Payload["remainingPower"]);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var acceptedAuthoritativePromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var acceptedAuthoritativeSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var acceptedP1SessionPromptHash = MatchStateHasher.HashValue(session.PromptFor("P1"));
+        var acceptedP2SessionPromptHash = MatchStateHasher.HashValue(session.PromptFor("P2"));
+        var acceptedP1SessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var acceptedP2SessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(moved.State.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        AssertPromptScopedJhinRawCommand(acceptedJournalEntry.RawCommand.Value, prompt, [triggerChoice]);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedAuthoritativePromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(acceptedP1SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedP2SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(acceptedP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(acceptedP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(accepted.State.RunePools["P1"], replay.State.RunePools["P1"]);
+        Assert.Equal(accepted.State.TemporaryPaymentResources, replay.State.TemporaryPaymentResources);
+        AssertSingleJhinTemporaryResource(replay.State);
+        Assert.Empty(replay.State.StackItems);
+        Assert.Empty(replay.State.TriggerQueue);
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(moved.State.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedAuthoritativePromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedJournalEntry.RawCommand.Value));
+        AssertPromptScopedJhinRawCommand(rejectedJournalEntry.RawCommand.Value, prompt, [triggerChoice]);
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+        var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(replay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(acceptedAuthoritativePromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(acceptedAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(acceptedP1SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedP2SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(acceptedP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(acceptedP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(accepted.State.RunePools["P1"], duplicateReplay.State.RunePools["P1"]);
+        Assert.Equal(accepted.State.TemporaryPaymentResources, duplicateReplay.State.TemporaryPaymentResources);
+        AssertSingleJhinTemporaryResource(duplicateReplay.State);
+        Assert.Empty(duplicateReplay.State.StackItems);
+        Assert.Empty(duplicateReplay.State.TriggerQueue);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedAuthoritativePromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedAuthoritativeSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(acceptedP1SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedP2SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(acceptedP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(acceptedP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(accepted.State.RunePools["P1"], conflict.State.RunePools["P1"]);
+        Assert.Equal(accepted.State.TemporaryPaymentResources, conflict.State.TemporaryPaymentResources);
+        AssertSingleJhinTemporaryResource(conflict.State);
+        Assert.Empty(conflict.State.StackItems);
+        Assert.Empty(conflict.State.TriggerQueue);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -394,10 +577,72 @@ public sealed class JhinMovementResourceSkillTests
             optionalCosts);
     }
 
+    private static JsonElement PromptScopedActivateAbilityRawCommand(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private static JsonElement PromptScopedActivateAbilityRawCommandWithClientNote(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        });
+    }
+
     private static string JhinTriggerChoice(MatchState state)
     {
         var trigger = Assert.Single(state.TriggerQueue);
         return $"{P4ActivatedAbilityCatalog.JhinMoveTriggerOptionalCostPrefix}{trigger.TriggerId}";
+    }
+
+    private static TemporaryPaymentResourceState AssertSingleJhinTemporaryResource(MatchState state)
+    {
+        var temporaryResource = Assert.Single(state.TemporaryPaymentResources);
+        Assert.Equal("P1", temporaryResource.OwnerPlayerId);
+        Assert.Equal(JhinObjectId, temporaryResource.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, temporaryResource.AbilityId);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, temporaryResource.GeneratedPower);
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, temporaryResource.RemainingPower);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], temporaryResource.AllowedPaymentKinds);
+        return temporaryResource;
+    }
+
+    private static void AssertPromptScopedJhinRawCommand(
+        JsonElement rawCommand,
+        ActionPromptDto prompt,
+        IReadOnlyList<string> optionalCosts)
+    {
+        Assert.Equal(CommandTypes.ActivateAbility, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(JhinObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, rawCommand.GetProperty("abilityId").GetString());
+        Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
+        Assert.Equal(
+            optionalCosts,
+            rawCommand.GetProperty("optionalCosts").EnumerateArray().Select(cost => cost.GetString()!).ToArray());
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
     private static async Task AssertRejectedNoMutationAsync(
@@ -520,5 +765,16 @@ public sealed class JhinMovementResourceSkillTests
         var next = objectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         next[objectId] = replacement;
         return next;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
