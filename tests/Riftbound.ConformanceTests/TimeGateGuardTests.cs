@@ -61,6 +61,77 @@ public sealed class TimeGateGuardTests
     }
 
     [Fact]
+    public void TimeGateMainActionPlayCardPromptExposesNoTargetChoicesForNoTargetEquipmentPlay()
+    {
+        var state = BuildTimeGateState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, TimeGateObjectId, StringComparison.Ordinal)));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, TimeGateObjectId, StringComparison.Ordinal));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var fixtureObjectId in new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-TIME-GATE",
+            "P1-FACE-DOWN-STANDBY-TIME-GATE",
+            "P2-EQUIPMENT-TIME-GATE",
+            TimeGateObjectId
+        })
+        {
+            Assert.DoesNotContain(fixtureObjectId, targetIds);
+        }
+
+        if (playCandidate.Metadata is null
+            || !playCandidate.Metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload)
+            || sourceRequirementsPayload is null)
+        {
+            return;
+        }
+
+        var timeGateSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                sourceRequirementsPayload)
+            .Where(requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, TimeGateObjectId, StringComparison.Ordinal))
+            .ToArray();
+
+        foreach (var sourceRequirement in timeGateSourceRequirements)
+        {
+            if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
+                || targetChoicesPayload is null)
+            {
+                continue;
+            }
+
+            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                targetChoicesPayload);
+            Assert.All(targetChoicesByIndex.Values, choices =>
+            {
+                if (choices is null)
+                {
+                    return;
+                }
+
+                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices));
+            });
+        }
+    }
+
+    [Fact]
     public async Task TimeGatePlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
