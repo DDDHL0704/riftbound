@@ -9387,7 +9387,8 @@ internal static class ActionPromptBuilder
     {
         return IsPromptEffectSpecificTargetAllowed(state, playerId, behavior, objectId)
             && IsPromptTargetRequiredTagAllowed(state, objectId, behavior)
-            && IsPromptTargetForbiddenTagAllowed(state, objectId, behavior);
+            && IsPromptTargetForbiddenTagAllowed(state, objectId, behavior)
+            && IsPromptTargetPowerAllowed(state, objectId, behavior);
     }
 
     private static bool IsPromptEffectSpecificTargetAllowed(
@@ -9440,6 +9441,20 @@ internal static class ActionPromptBuilder
     {
         return string.IsNullOrWhiteSpace(behavior.TargetForbiddenTag)
             || !PromptCardObjectHasTags(state.CardObjects, objectId, behavior.TargetForbiddenTag);
+    }
+
+    private static bool IsPromptTargetPowerAllowed(
+        MatchState state,
+        string objectId,
+        CardBehaviorDefinition behavior)
+    {
+        var maxTargetPower = behavior.MaxTargetPower > 0
+            ? behavior.MaxTargetPower
+            : behavior.MaxTotalTargetPower;
+        return maxTargetPower <= 0
+            || (state.CardObjects.TryGetValue(objectId, out var targetState)
+                && targetState.Power > 0
+                && targetState.Power <= maxTargetPower);
     }
 
     private static bool IsPromptSpiritFireTargetAllowed(
@@ -9629,17 +9644,40 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardTargetChoices(MatchState state, string playerId)
     {
         var choices = PlayablePlayCardBehaviors(state, playerId)
-            .SelectMany(behavior =>
-            {
-                var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
-                var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
-                return Enumerable.Range(0, maxTargetCount)
-                    .SelectMany(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex));
-            })
+            .SelectMany(behavior => PlayCardTopLevelTargetChoicesForBehavior(state, playerId, behavior))
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
         return choices.Length == 0 ? null : choices;
+    }
+
+    private static IEnumerable<ActionPromptChoiceDto> PlayCardTopLevelTargetChoicesForBehavior(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
+        var choicesByIndex = Enumerable.Range(0, maxTargetCount)
+            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex))
+            .ToArray();
+        var choiceIdsByIndex = choicesByIndex
+            .Select(choices => choices
+                .Select(choice => choice.Id)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray())
+            .ToArray();
+        if (!PlayCardHasServerTargetSelectionConstraint(state, playerId, behavior, choiceIdsByIndex))
+        {
+            return choicesByIndex.SelectMany(choices => choices);
+        }
+
+        var legalTargetIds = PlayCardLegalTargetSelections(state, playerId, behavior)
+            .SelectMany(selection => selection)
+            .ToHashSet(StringComparer.Ordinal);
+        return choicesByIndex
+            .SelectMany(choices => choices)
+            .Where(choice => legalTargetIds.Contains(choice.Id));
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? DestinationsFor(
