@@ -250,6 +250,37 @@ public sealed class JaxTemperedOptionalAttachTests
     }
 
     [Fact]
+    public async Task JaxTemperedWeaponAttachPaymentPromptIsIsolatedToController()
+    {
+        var opened = await OpenJaxTemperedPaymentAsync(new CoreRuleEngine());
+        AssertJaxPaymentOpen(opened);
+
+        var p1Prompt = opened.Prompts["P1"];
+        Assert.True(p1Prompt.Actionable);
+        Assert.Equal(PromptTypes.PayCost, p1Prompt.View?.Type);
+        Assert.Contains(CommandTypes.PayCost, p1Prompt.Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, p1Prompt.Actions);
+
+        var p1PayCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(p1PayCandidate.Metadata);
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Equal([PayOneMana, Decline], choices.Select(choice => choice.Id).ToArray());
+        Assert.False(metadata.ContainsKey("sourceRequirements"));
+        Assert.False(metadata.ContainsKey("optionalCostChoices"));
+
+        var p2Prompt = opened.Prompts["P2"];
+        Assert.False(p2Prompt.Actionable);
+        Assert.Equal(opened.State.Tick, p2Prompt.SnapshotTick);
+        Assert.DoesNotContain(CommandTypes.PayCost, p2Prompt.Actions);
+        Assert.DoesNotContain(CommandTypes.PlayCard, p2Prompt.Actions);
+        Assert.DoesNotContain(
+            p2Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task JaxTemperedWeaponAttachPaymentDeclineClosesWithoutDraw()
     {
         var engine = new CoreRuleEngine();
