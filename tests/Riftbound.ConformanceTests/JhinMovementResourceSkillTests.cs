@@ -51,6 +51,7 @@ public sealed class JhinMovementResourceSkillTests
             candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
         Assert.True(activateCandidate.Enabled);
         Assert.Equal([JhinObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Empty(activateCandidate.Targets ?? []);
 
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
         var requirement = Assert.Single(
@@ -61,15 +62,21 @@ public sealed class JhinMovementResourceSkillTests
         Assert.True(Assert.IsType<bool>(requirement["resourceSkill"]));
         Assert.True(Assert.IsType<bool>(requirement["paymentOnly"]));
         Assert.True(Assert.IsType<bool>(requirement["movementTriggered"]));
+        Assert.Equal(0, requirement["minTargetCount"]);
+        Assert.Equal(0, requirement["maxTargetCount"]);
         Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana, requirement["generatedMana"]);
         Assert.Equal(P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower, requirement["generatedPower"]);
         Assert.Equal("server-captured-movement-trigger-open-main", requirement["timingPolicy"]);
         Assert.Equal("no-ordinary-stack-item", requirement["stackPolicy"]);
         Assert.True(Assert.IsType<bool>(requirement["generatedResourceCannotBeTargetedAsResponse"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            requirement["targetChoicesByIndex"]));
         var optionalCostChoices = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]);
         var requiredOptionalCosts = Assert.IsAssignableFrom<string[]>(requirement["requiredOptionalCosts"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]));
         var triggerChoice = Assert.Single(optionalCostChoices);
         Assert.Equal($"{P4ActivatedAbilityCatalog.JhinMoveTriggerOptionalCostPrefix}{trigger.TriggerId}", triggerChoice.Id);
+        Assert.Equal("server-owned Jhin movement trigger context", triggerChoice.Reason);
         Assert.Equal([triggerChoice.Id], requiredOptionalCosts);
 
         AssertNoJhinResourceSkill(moved.Prompts["P2"]);
