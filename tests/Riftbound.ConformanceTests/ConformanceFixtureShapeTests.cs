@@ -814,6 +814,94 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperRevealCardUsesCommandFieldsOverVisibleSourceMetadata()
+    {
+        const string VisibleRevealCardMetadataAliases = """
+              "sourcePolicy": "face-down-standby-card-only",
+              "modePolicy": "source-specific-server-filtered-standby-reveal-mode",
+              "destinationPolicy": "source-specific-server-filtered-standby-reveal-destination",
+              "optionalCostPolicy": "source-specific-required-standby-reveal-cost",
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-REVEAL-SOURCE",
+                  "cardNo": "VISIBLE-REVEAL-CARD",
+                  "displayName": "Visible reveal card",
+                  "mode": "VISIBLE_REVEAL_MODE",
+                  "modeLabel": "Visible reveal mode",
+                  "destinationChoices": [{ "id": "VISIBLE_DESTINATION", "label": "Visible destination" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_REVEAL_COST", "label": "Visible cost" }],
+                  "requiredOptionalCosts": ["VISIBLE_REVEAL_COST"],
+                  "composable": true,
+                  "unsupportedReason": null
+                }
+              ],
+              "sources": [{ "id": "P1-VISIBLE-REVEAL-SOURCE", "label": "Visible reveal source" }],
+              "targets": [{ "id": "P2-VISIBLE-REVEAL-TARGET", "label": "Visible target" }],
+              "destinations": [{ "id": "VISIBLE_DESTINATION", "label": "Visible destination" }],
+              "modes": [{ "id": "VISIBLE_REVEAL_MODE", "label": "Visible reveal mode" }]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "REVEAL_CARD",
+              "sourceObjectId": "P1-CURRENT-REVEAL-SOURCE",
+              "cardNo": "CURRENT-REVEAL-CARD",
+              "targetObjectIds": [" P2-CURRENT-REVEAL-TARGET ", { "id": "P2-VISIBLE-REVEAL-TARGET" }, null, " ", " P2-CURRENT-REVEAL-TARGET-2 "],
+              "mode": "CURRENT_REVEAL_MODE",
+              "optionalCosts": [" CURRENT_REVEAL_COST ", { "id": "VISIBLE_REVEAL_COST" }, null, " ", " CURRENT_REVEAL_FREE "],
+              "destination": "CURRENT_DESTINATION",
+              {{VisibleRevealCardMetadataAliases}}
+            }
+            """);
+        var malformedCurrent = Map($$"""
+            {
+              "cmdType": "REVEAL_CARD",
+              "sourceObjectId": { "id": "P1-CURRENT-REVEAL-SOURCE" },
+              "cardNo": ["CURRENT-REVEAL-CARD"],
+              "targetObjectIds": { "0": "P2-CURRENT-REVEAL-TARGET" },
+              "mode": { "id": "CURRENT_REVEAL_MODE" },
+              "optionalCosts": { "0": "CURRENT_REVEAL_COST" },
+              "destination": ["CURRENT_DESTINATION"],
+              {{VisibleRevealCardMetadataAliases}}
+            }
+            """);
+        var aliasOnly = Map($$"""
+            {
+              "cmdType": "REVEAL_CARD",
+              "optionalCosts": [{ "id": "VISIBLE_REVEAL_COST", "label": "Visible cost" }],
+              {{VisibleRevealCardMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("P1-CURRENT-REVEAL-SOURCE", command.SourceObjectId);
+        Assert.Equal("CURRENT-REVEAL-CARD", command.CardNo);
+        Assert.Equal(["P2-CURRENT-REVEAL-TARGET", "P2-CURRENT-REVEAL-TARGET-2"], command.TargetObjectIds);
+        Assert.Equal("CURRENT_REVEAL_MODE", command.Mode);
+        Assert.Equal(["CURRENT_REVEAL_COST", "CURRENT_REVEAL_FREE"], command.OptionalCosts);
+        Assert.Equal("CURRENT_DESTINATION", command.Destination);
+
+        Assert.Equal(string.Empty, malformedCurrent.SourceObjectId);
+        Assert.Equal(string.Empty, malformedCurrent.CardNo);
+        Assert.Empty(malformedCurrent.TargetObjectIds);
+        Assert.Equal(string.Empty, malformedCurrent.Mode);
+        Assert.Empty(malformedCurrent.OptionalCosts ?? []);
+        Assert.Equal(string.Empty, malformedCurrent.Destination);
+
+        Assert.Equal(string.Empty, aliasOnly.SourceObjectId);
+        Assert.Equal(string.Empty, aliasOnly.CardNo);
+        Assert.Empty(aliasOnly.TargetObjectIds);
+        Assert.Equal(string.Empty, aliasOnly.Mode);
+        Assert.Empty(aliasOnly.OptionalCosts ?? []);
+        Assert.Equal(string.Empty, aliasOnly.Destination);
+
+        static RevealCardCommand Map(string json)
+        {
+            return Assert.IsType<RevealCardCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperParsesMoveUnitPayload()
     {
         var command = Assert.IsType<MoveUnitCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
