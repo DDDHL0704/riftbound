@@ -117,12 +117,13 @@ public sealed class EdgeOfNightAssembleGuardTests
     [Fact]
     public async Task EdgeOfNightAssembleStalePromptReplayAfterEquipmentAttachesRejectsWithoutMutation()
     {
+        var journal = new RecordingMatchJournal();
         var state = BuildEdgeOfNightState();
         var command = new AssembleEquipmentCommand(
             "P1-EQUIPMENT-EDGE-OF-NIGHT",
             "P1-UNIT-ASSEMBLE-TARGET",
             ["ASSEMBLE_PURPLE"]);
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
@@ -138,10 +139,19 @@ public sealed class EdgeOfNightAssembleGuardTests
             assembleCandidate.Sources ?? [],
             source => string.Equals(source.Id, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal));
         var staleRawCommand = PromptScopedRawCommand(CommandTypes.AssembleEquipment, prompt);
+        var changedStaleRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.AssembleEquipment,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        const string firstClientIntentId = "intent-edge-of-night-assemble-before-stale-prompt-replay";
+        const string staleClientIntentId = "intent-edge-of-night-assemble-stale-prompt-replay";
 
         var assembled = await session.SubmitAsync(
             "P1",
-            "intent-edge-of-night-assemble-before-stale-prompt-replay",
+            firstClientIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -157,10 +167,27 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal("IDLE", assembled.State.PendingTaskQueue.Phase);
         Assert.Empty(assembled.State.PendingTaskQueue.Tasks);
         var postAssembleHash = MatchStateHasher.Hash(assembled.State);
+        var postAssemblePromptsHash = MatchStateHasher.HashValue(assembled.Prompts);
+        var postAssembleSnapshotsHash = MatchStateHasher.HashValue(assembled.Snapshots);
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(firstClientIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.AssembleEquipment, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], acceptedJournalEntry.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(postAssembleHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.AssembleEquipment, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
 
         var replay = await session.SubmitAsync(
             "P1",
-            "intent-edge-of-night-assemble-stale-prompt-replay",
+            staleClientIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -169,6 +196,8 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
         Assert.Empty(replay.Events);
         Assert.Equal(postAssembleHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(assembled.State.RunePools["P1"], replay.State.RunePools["P1"]);
         Assert.Equal(assembled.State.PlayerZones["P1"].Base, replay.State.PlayerZones["P1"].Base);
         Assert.Equal(assembled.State.PlayerZones["P1"].Hand, replay.State.PlayerZones["P1"].Hand);
@@ -192,6 +221,87 @@ public sealed class EdgeOfNightAssembleGuardTests
                 replayAssembleCandidate.Sources ?? [],
                 source => string.Equals(source.Id, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal));
         }
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.AssembleEquipment, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(postAssembleHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.AssembleEquipment, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(postAssembleHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(assembled.State.RunePools["P1"], duplicateReplay.State.RunePools["P1"]);
+        Assert.Equal(assembled.State.PlayerZones["P1"].Base, duplicateReplay.State.PlayerZones["P1"].Base);
+        Assert.Equal(assembled.State.PlayerZones["P1"].Hand, duplicateReplay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            assembled.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].AttachedToObjectId,
+            duplicateReplay.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].AttachedToObjectId);
+        Assert.True(duplicateReplay.State.CardObjects["P1-FACE-DOWN-EDGE-OF-NIGHT"].IsFaceDown);
+        Assert.Null(duplicateReplay.State.CardObjects["P1-FACE-DOWN-EDGE-OF-NIGHT"].CardNo);
+        Assert.True(duplicateReplay.State.CardObjects["P1-FACE-DOWN-STANDBY-UNIT"].IsFaceDown);
+        Assert.Null(duplicateReplay.State.CardObjects["P1-FACE-DOWN-STANDBY-UNIT"].CardNo);
+        Assert.Null(duplicateReplay.State.PendingPayment);
+        Assert.Empty(duplicateReplay.State.StackItems);
+        Assert.Equal(assembled.State.PendingTaskQueue.Phase, duplicateReplay.State.PendingTaskQueue.Phase);
+        Assert.Equal(assembled.State.PendingTaskQueue.Tasks, duplicateReplay.State.PendingTaskQueue.Tasks);
+        Assert.Equal(2, journal.Entries.Count);
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(postAssembleHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(postAssemblePromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(postAssembleSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(assembled.State.RunePools["P1"], conflict.State.RunePools["P1"]);
+        Assert.Equal(assembled.State.PlayerZones["P1"].Base, conflict.State.PlayerZones["P1"].Base);
+        Assert.Equal(assembled.State.PlayerZones["P1"].Hand, conflict.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            assembled.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].AttachedToObjectId,
+            conflict.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].AttachedToObjectId);
+        Assert.True(conflict.State.CardObjects["P1-FACE-DOWN-EDGE-OF-NIGHT"].IsFaceDown);
+        Assert.Null(conflict.State.CardObjects["P1-FACE-DOWN-EDGE-OF-NIGHT"].CardNo);
+        Assert.True(conflict.State.CardObjects["P1-FACE-DOWN-STANDBY-UNIT"].IsFaceDown);
+        Assert.Null(conflict.State.CardObjects["P1-FACE-DOWN-STANDBY-UNIT"].CardNo);
+        Assert.Null(conflict.State.PendingPayment);
+        Assert.Empty(conflict.State.StackItems);
+        Assert.Equal(assembled.State.PendingTaskQueue.Phase, conflict.State.PendingTaskQueue.Phase);
+        Assert.Equal(assembled.State.PendingTaskQueue.Tasks, conflict.State.PendingTaskQueue.Tasks);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Theory]
@@ -350,6 +460,17 @@ public sealed class EdgeOfNightAssembleGuardTests
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick
         });
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 
     private static MatchState BuildEdgeOfNightState(int purplePower = 1)
