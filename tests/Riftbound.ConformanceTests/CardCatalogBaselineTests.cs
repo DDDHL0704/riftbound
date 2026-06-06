@@ -119,6 +119,55 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task ImplementedBehaviorSpecsReferenceOfficialCardsAndStayWithinFunctionalUnits()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var officialCardNos = catalog.Cards
+            .Select(card => card.CardNo)
+            .ToHashSet(StringComparer.Ordinal);
+        var unitByCardNo = units
+            .SelectMany(unit => unit.Cards.Select(card => new KeyValuePair<string, FunctionalUnit>(card.CardNo, unit)))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var implementedSpecs = specs
+            .Where(spec => string.Equals(spec.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal))
+            .OrderBy(spec => spec.CardNo, StringComparer.Ordinal)
+            .ToArray();
+
+        var missingImplementationReferences = implementedSpecs
+            .Where(spec => string.IsNullOrWhiteSpace(spec.ImplementedByCardNo)
+                || !officialCardNos.Contains(spec.ImplementedByCardNo!))
+            .Select(spec => $"{spec.CardNo}->{(string.IsNullOrWhiteSpace(spec.ImplementedByCardNo) ? "<missing>" : spec.ImplementedByCardNo)}")
+            .ToArray();
+        Assert.Empty(missingImplementationReferences);
+
+        var missingImplementedEffectKinds = implementedSpecs
+            .Where(spec => string.IsNullOrWhiteSpace(spec.ImplementedEffectKind))
+            .Select(spec => spec.CardNo)
+            .ToArray();
+        Assert.Empty(missingImplementedEffectKinds);
+
+        var mismatchedFunctionalUnitIds = implementedSpecs
+            .Where(spec => unitByCardNo.TryGetValue(spec.CardNo, out var unit)
+                && !string.Equals(spec.FunctionalUnitId, unit.Id, StringComparison.Ordinal))
+            .Select(spec => $"{spec.CardNo}:{spec.FunctionalUnitId}")
+            .ToArray();
+        Assert.Empty(mismatchedFunctionalUnitIds);
+
+        var crossUnitDuplicateImplementationReferences = implementedSpecs
+            .Where(spec => !string.IsNullOrWhiteSpace(spec.ImplementedByCardNo)
+                && unitByCardNo.TryGetValue(spec.CardNo, out var specUnit)
+                && specUnit.Size > 1
+                && unitByCardNo.TryGetValue(spec.ImplementedByCardNo!, out var implementationUnit)
+                && !string.Equals(specUnit.Id, implementationUnit.Id, StringComparison.Ordinal))
+            .Select(spec => $"{spec.CardNo}->{spec.ImplementedByCardNo}")
+            .ToArray();
+        Assert.Empty(crossUnitDuplicateImplementationReferences);
+    }
+
+    [Fact]
     public async Task KeywordCoverageReportExposesDeferredKeywordFamilies()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
