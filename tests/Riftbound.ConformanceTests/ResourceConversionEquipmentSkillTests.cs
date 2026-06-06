@@ -466,6 +466,27 @@ public sealed class ResourceConversionEquipmentResourceSkillTests
             && string.Equals(gameEvent.Payload["conversionKind"] as string, "generic-power-to-mana", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task HextechAnomalyRejectsTemporaryPaymentResourcePayloadWithoutBoundaryMutation()
+    {
+        var state = BuildInvalidState("hextech-temporary-resource");
+        var command = Command(
+            HextechAnomalyObjectId,
+            P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId,
+            optionalCosts: ["TEMP_PAYMENT_RESOURCE:ANY"]);
+        var initialRunePool = state.RunePools["P1"];
+        var initialStackItemIds = state.StackItems.Select(stackItem => stackItem.StackItemId).ToArray();
+        var initialPendingTaskQueueHash = MatchStateHasher.HashValue(state.PendingTaskQueue);
+
+        var result = await AssertRejectedNoMutationAsync(state, command, ErrorCodes.InvalidTarget);
+
+        Assert.False(result.State.CardObjects[HextechAnomalyObjectId].IsExhausted);
+        Assert.Equal(initialRunePool, result.State.RunePools["P1"]);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(initialStackItemIds, result.State.StackItems.Select(stackItem => stackItem.StackItemId).ToArray());
+        Assert.Equal(initialPendingTaskQueueHash, MatchStateHasher.HashValue(result.State.PendingTaskQueue));
+    }
+
     [Theory]
     [InlineData("ancient-missing")]
     [InlineData("ancient-zero")]
@@ -555,7 +576,7 @@ public sealed class ResourceConversionEquipmentResourceSkillTests
             CancellationToken.None);
     }
 
-    private static async Task AssertRejectedNoMutationAsync(
+    private static async Task<ResolutionResult> AssertRejectedNoMutationAsync(
         MatchState state,
         ActivateAbilityCommand command,
         string expectedErrorCode)
@@ -571,6 +592,7 @@ public sealed class ResourceConversionEquipmentResourceSkillTests
         Assert.Equal(expectedErrorCode, result.ErrorCode);
         Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
         Assert.Empty(result.Events);
+        return result;
     }
 
     private static ActivateAbilityCommand Command(
