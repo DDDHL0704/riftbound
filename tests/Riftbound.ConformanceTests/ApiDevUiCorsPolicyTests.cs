@@ -5,12 +5,17 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class ApiDevUiCorsPolicyTests
 {
-    [Fact]
-    public void DevelopmentCorsAllowsLoopbackViteFallbackPort()
+    [Theory]
+    [InlineData("http://127.0.0.1:5173")]
+    [InlineData("http://127.0.0.1:5179")]
+    [InlineData("http://localhost:5175")]
+    [InlineData("http://[::1]:5173")]
+    [InlineData("http://[::1]:5179")]
+    public void DevelopmentCorsAllowsLoopbackViteFallbackPorts(string origin)
     {
         var allowed = DevUiCorsPolicy.IsAllowedOrigin(
-            "http://127.0.0.1:5175",
-            DevUiCorsPolicy.DefaultOrigins,
+            origin,
+            [],
             allowLoopbackViteFallback: true);
 
         Assert.True(allowed);
@@ -27,14 +32,28 @@ public sealed class ApiDevUiCorsPolicyTests
         Assert.False(allowed);
     }
 
-    [Fact]
-    public void DevelopmentCorsRejectsNonLoopbackOrigins()
+    [Theory]
+    [InlineData("https://127.0.0.1:5175")]
+    [InlineData("http://127.0.0.1:5180")]
+    [InlineData("http://example.com:5175")]
+    public void DevelopmentCorsRejectsOriginsOutsideLoopbackFallback(string origin)
     {
         var allowed = DevUiCorsPolicy.IsAllowedOrigin(
-            "http://example.com:5175",
-            DevUiCorsPolicy.DefaultOrigins,
+            origin,
+            [],
             allowLoopbackViteFallback: true);
 
         Assert.False(allowed);
+    }
+
+    [Fact]
+    public void ConfiguredOriginsAllowCaseInsensitiveMatches()
+    {
+        var allowed = DevUiCorsPolicy.IsAllowedOrigin(
+            "HTTP://LOCALHOST:5173",
+            DevUiCorsPolicy.DefaultOrigins,
+            allowLoopbackViteFallback: false);
+
+        Assert.True(allowed);
     }
 }
