@@ -70,6 +70,70 @@ public sealed class GiantArmKatoGuardTests
     }
 
     [Fact]
+    public void GiantArmKatoMainActionPlayCardPromptDoesNotExposeTargetsForNoTargetUnitPlay()
+    {
+        var state = BuildGiantArmKatoState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate =>
+                string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, GiantArmKatoObjectId, StringComparison.Ordinal)));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, GiantArmKatoObjectId, StringComparison.Ordinal));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var fixtureObjectId in new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-GIANT-ARM-KATO",
+            "P1-FACE-DOWN-STANDBY-GIANT-ARM-KATO",
+            "P2-UNIT-GIANT-ARM-KATO",
+            GiantArmKatoObjectId
+        })
+        {
+            Assert.DoesNotContain(fixtureObjectId, targetIds);
+        }
+
+        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var sourceRequirementsPayload) != true
+            || sourceRequirementsPayload is null)
+        {
+            return;
+        }
+
+        var giantArmKatoSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                sourceRequirementsPayload)
+            .Where(requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, GiantArmKatoObjectId, StringComparison.Ordinal))
+            .ToArray();
+        if (giantArmKatoSourceRequirements.Length == 0)
+        {
+            return;
+        }
+
+        var giantArmKatoSourceRequirement = Assert.Single(giantArmKatoSourceRequirements);
+        if (giantArmKatoSourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
+            && targetChoicesPayload is not null)
+        {
+            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                targetChoicesPayload);
+            Assert.All(targetChoicesByIndex.Values, choices =>
+                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices)));
+        }
+    }
+
+    [Fact]
     public async Task GiantArmKatoPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
