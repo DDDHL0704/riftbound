@@ -8,12 +8,15 @@ namespace Riftbound.ConformanceTests;
 public sealed class LuxResourceSkillTests
 {
     private const string LuxObjectId = "P1-LUX";
+    private const string SecondLuxObjectId = "P1-LUX-TWO";
     private const string SpellObjectId = "P1-SPELL-BULLET-TIME";
     private const string EnemyObjectId = "P2-LUX-TEST-UNIT";
     private const string BulletTimeCardNo = "OGN·268/298";
+    private const string EvolutionDayCardNo = "OGN·114/298";
     private const string ArenaCouncilorCardNo = "UNL-001/219";
 
-    private static string LuxResourceAction => $"{P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix}{LuxObjectId}";
+    private static string LuxResourceAction => LuxResourceActionFor(LuxObjectId);
+    private static string SecondLuxResourceAction => LuxResourceActionFor(SecondLuxObjectId);
 
     [Fact]
     public void CatalogExposesLuxSpellOnlyResourceSkill()
@@ -129,6 +132,126 @@ public sealed class LuxResourceSkillTests
         Assert.Equal(1, costEvent.Payload["luxSpellOnlyConsumedMana"]);
         Assert.Equal(1, costEvent.Payload["luxSpellOnlyRemainingMana"]);
         Assert.Equal(0, costEvent.Payload["remainingMana"]);
+    }
+
+    [Fact]
+    public async Task LuxSpellOnlyResourceUsesTwoReadyLuxSourcesForLargeSpellShortfallAndCleansEachInlineResource()
+    {
+        var state = BuildPlayState(cardNo: EvolutionDayCardNo, mana: 2, includeSecondLux: true);
+        var luxResourceActions = new[] { LuxResourceAction, SecondLuxResourceAction };
+        var luxSourceObjectIds = new[] { LuxObjectId, SecondLuxObjectId };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-lux-two-spell-only-resources", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(
+                SpellObjectId,
+                EvolutionDayCardNo,
+                [],
+                OptionalCosts: luxResourceActions),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.True(result.State.CardObjects[LuxObjectId].IsExhausted);
+        Assert.True(result.State.CardObjects[SecondLuxObjectId].IsExhausted);
+        Assert.Empty(result.State.TemporaryPaymentResources);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal(SpellObjectId, stackItem.SourceObjectId);
+        Assert.Equal(EvolutionDayCardNo, stackItem.CardNo);
+        Assert.Equal(
+            [
+                "CARD_PLAYED",
+                "ABILITY_ACTIVATED",
+                "UNIT_EXHAUSTED",
+                "MANA_GAINED",
+                "ABILITY_ACTIVATED",
+                "UNIT_EXHAUSTED",
+                "MANA_GAINED",
+                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
+                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
+                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
+                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
+                "COST_PAID",
+                "STACK_ITEM_ADDED"
+            ],
+            result.Events.Select(gameEvent => gameEvent.Kind));
+
+        var activatedEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(luxSourceObjectIds, activatedEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])).ToArray());
+        Assert.All(activatedEvents, gameEvent =>
+        {
+            Assert.Equal(P4ActivatedAbilityCatalog.LuxResourceAbilityId, gameEvent.Payload["abilityId"]);
+            Assert.Equal("no-ordinary-stack-item", gameEvent.Payload["stackPolicy"]);
+            Assert.Equal(true, gameEvent.Payload["generatedResourceCannotBeTargetedAsResponse"]);
+        });
+
+        var manaEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(luxSourceObjectIds, manaEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])).ToArray());
+        Assert.All(manaEvents, gameEvent =>
+        {
+            Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, gameEvent.Payload["mana"]);
+            Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, gameEvent.Payload["generatedMana"]);
+            Assert.Equal(true, gameEvent.Payload["paymentOnly"]);
+            Assert.Equal(true, gameEvent.Payload["spellOnly"]);
+            Assert.Equal(P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction, gameEvent.Payload["resourceRestriction"]);
+        });
+        Assert.Equal([4, 6], manaEvents.Select(gameEvent => Assert.IsType<int>(gameEvent.Payload["manaAfter"])).ToArray());
+
+        var spendEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(luxSourceObjectIds, spendEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])).ToArray());
+        Assert.All(spendEvents, gameEvent =>
+        {
+            Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, gameEvent.Payload["consumedMana"]);
+            Assert.Equal(0, gameEvent.Payload["remainingMana"]);
+            Assert.Equal(true, gameEvent.Payload["paymentOnly"]);
+            Assert.Equal(true, gameEvent.Payload["spellOnly"]);
+            Assert.Equal(P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction, gameEvent.Payload["resourceRestriction"]);
+        });
+
+        var cleanupEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(luxSourceObjectIds, cleanupEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])).ToArray());
+        Assert.All(cleanupEvents, gameEvent =>
+        {
+            Assert.Equal(0, gameEvent.Payload["remainingManaBeforeCleanup"]);
+            Assert.Equal(true, gameEvent.Payload["paymentOnly"]);
+            Assert.Equal(true, gameEvent.Payload["spellOnly"]);
+        });
+
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(6, costEvent.Payload["baseMana"]);
+        Assert.Equal(6, costEvent.Payload["mana"]);
+        Assert.Equal(luxResourceActions, Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal(luxResourceActions, Assert.IsType<string[]>(costEvent.Payload["luxSpellOnlyResourceActions"]));
+        Assert.Equal(luxSourceObjectIds, Assert.IsType<string[]>(costEvent.Payload["luxSpellOnlyResourceSourceObjectIds"]));
+        Assert.Equal(2 * P4ActivatedAbilityCatalog.LuxGeneratedMana, costEvent.Payload["luxSpellOnlyGeneratedMana"]);
+        Assert.Equal(2 * P4ActivatedAbilityCatalog.LuxGeneratedMana, costEvent.Payload["luxSpellOnlyConsumedMana"]);
+        Assert.Equal(0, costEvent.Payload["luxSpellOnlyRemainingMana"]);
+        Assert.Equal(0, costEvent.Payload["remainingMana"]);
+
+        var nonSpellState = BuildPlayState(cardNo: ArenaCouncilorCardNo, mana: 2, includeSecondLux: true);
+        var nonSpellInitialHash = MatchStateHasher.Hash(nonSpellState);
+        var nonSpellResult = await new CoreRuleEngine().ResolveAsync(
+            nonSpellState,
+            new PlayerIntent("intent-lux-two-spell-only-resources-non-spell", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(
+                SpellObjectId,
+                ArenaCouncilorCardNo,
+                [],
+                OptionalCosts: luxResourceActions),
+            CancellationToken.None);
+
+        Assert.False(nonSpellResult.Accepted);
+        Assert.Empty(nonSpellResult.Events);
+        Assert.Equal(nonSpellInitialHash, MatchStateHasher.Hash(nonSpellResult.State));
     }
 
     [Fact]
@@ -323,12 +446,38 @@ public sealed class LuxResourceSkillTests
     private static MatchState BuildPlayState(
         string cardNo = BulletTimeCardNo,
         int mana = 0,
-        CardObjectState? luxOverride = null)
+        CardObjectState? luxOverride = null,
+        bool includeSecondLux = false,
+        CardObjectState? secondLuxOverride = null)
     {
-        var sourceCard = string.Equals(cardNo, ArenaCouncilorCardNo, StringComparison.Ordinal)
-            ? ArenaCouncilorCard()
-            : BulletTimeCard();
+        var sourceCard = cardNo switch
+        {
+            ArenaCouncilorCardNo => ArenaCouncilorCard(),
+            EvolutionDayCardNo => EvolutionDayCard(),
+            _ => BulletTimeCard()
+        };
         var lux = luxOverride ?? LuxCard();
+        var p1Base = includeSecondLux
+            ? new[] { LuxObjectId, SecondLuxObjectId }
+            : [LuxObjectId];
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [SpellObjectId] = sourceCard,
+            [LuxObjectId] = lux,
+            [EnemyObjectId] = EnemyUnit()
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            [SpellObjectId] = new("P1", "HAND"),
+            [LuxObjectId] = new("P1", "BASE"),
+            [EnemyObjectId] = new("P2", "BATTLEFIELD", "P2-MAIN")
+        };
+        if (includeSecondLux)
+        {
+            cardObjects[SecondLuxObjectId] = secondLuxOverride ?? LuxCard(SecondLuxObjectId);
+            objectLocations[SecondLuxObjectId] = new("P1", "BASE");
+        }
+
         return new MatchState(
             roomId: "lux-resource-skill-test",
             tick: 40,
@@ -354,7 +503,7 @@ public sealed class LuxResourceSkillTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Hand = [SpellObjectId],
-                    Base = [LuxObjectId]
+                    Base = p1Base
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
@@ -366,18 +515,8 @@ public sealed class LuxResourceSkillTests
                 ["P1"] = 0,
                 ["P2"] = 0
             },
-            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                [SpellObjectId] = sourceCard,
-                [LuxObjectId] = lux,
-                [EnemyObjectId] = EnemyUnit()
-            },
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-            {
-                [SpellObjectId] = new("P1", "HAND"),
-                [LuxObjectId] = new("P1", "BASE"),
-                [EnemyObjectId] = new("P2", "BATTLEFIELD", "P2-MAIN")
-            });
+            cardObjects: cardObjects,
+            objectLocations: objectLocations);
     }
 
     private static JsonElement PromptScopedPlayCardRawCommand(
@@ -511,16 +650,32 @@ public sealed class LuxResourceSkillTests
             controllerId: "P1");
     }
 
-    private static CardObjectState LuxCard()
+    private static CardObjectState EvolutionDayCard()
     {
         return new CardObjectState(
-            LuxObjectId,
+            SpellObjectId,
+            cardNo: EvolutionDayCardNo,
+            tags: [CardObjectTags.SpellCard],
+            manaCost: 6,
+            ownerId: "P1",
+            controllerId: "P1");
+    }
+
+    private static CardObjectState LuxCard(string objectId = LuxObjectId)
+    {
+        return new CardObjectState(
+            objectId,
             cardNo: P4ActivatedAbilityCatalog.LuxCardNo,
             power: 2,
             tags: [CardObjectTags.UnitCard],
             manaCost: 3,
             ownerId: "P1",
             controllerId: "P1");
+    }
+
+    private static string LuxResourceActionFor(string sourceObjectId)
+    {
+        return $"{P4ActivatedAbilityCatalog.LuxSpellOnlyResourceActionPrefix}{sourceObjectId}";
     }
 
     private static CardObjectState EnemyUnit()
