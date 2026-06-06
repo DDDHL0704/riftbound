@@ -4457,32 +4457,135 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertRejectedNoMutation(state, wrongBattlefield, ErrorCodes.PhaseNotAllowed);
         AssertRejectedNoMutation(state, invalidTarget, ErrorCodes.InvalidTarget);
 
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
         var prompt = session.PromptFor("P1");
+        var command = new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, legalAssignments);
+        var stalePromptId = $"{prompt.PromptId}:stale";
+        var staleRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.AssignCombatDamage,
+            battleId = $"battle:{BattlefieldObjectId}",
+            battlefieldId = BattlefieldObjectId,
+            assignments = legalAssignments.Select(assignment => new
+            {
+                assignment.SourceObjectId,
+                assignment.TargetObjectId,
+                assignment.Damage
+            }),
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+        const string staleClientIntentId = "intent-natural-assign-stale-prompt";
+        var stateHash = MatchStateHasher.Hash(state);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(state));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(state));
+
         var stale = await session.SubmitAsync(
             "P1",
-            "intent-natural-assign-stale-prompt",
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, legalAssignments),
-            JsonSerializer.SerializeToElement(new
-            {
-                cmdType = CommandTypes.AssignCombatDamage,
-                battleId = $"battle:{BattlefieldObjectId}",
-                battlefieldId = BattlefieldObjectId,
-                assignments = legalAssignments.Select(assignment => new
-                {
-                    assignment.SourceObjectId,
-                    assignment.TargetObjectId,
-                    assignment.Damage
-                }),
-                promptId = $"{prompt.PromptId}:stale",
-                snapshotTick = prompt.SnapshotTick
-            }),
+            staleClientIntentId,
+            command,
+            staleRawCommand,
             CancellationToken.None);
 
         Assert.False(stale.Accepted);
         Assert.Equal(ErrorCodes.PromptExpired, stale.ErrorCode);
         Assert.Empty(stale.Events);
-        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(stale.State));
+        Assert.Equal(state.Tick, stale.State.Tick);
+        Assert.Equal(stateHash, MatchStateHasher.Hash(stale.State));
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(stale.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(stale.Snapshots));
+
+        var rejectedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.AssignCombatDamage, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(stale.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Equal(state.Tick, rejectedJournalEntry.StartedTick);
+        Assert.Equal(stale.State.Tick, rejectedJournalEntry.CompletedTick);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(stateHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        var rejectedRawCommand = rejectedJournalEntry.RawCommand.Value;
+        Assert.Equal(CommandTypes.AssignCombatDamage, rejectedRawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal($"battle:{BattlefieldObjectId}", rejectedRawCommand.GetProperty("battleId").GetString());
+        Assert.Equal(BattlefieldObjectId, rejectedRawCommand.GetProperty("battlefieldId").GetString());
+        Assert.Equal(stalePromptId, rejectedRawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedRawCommand.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedRawCommand.TryGetProperty("clientNote", out _));
+
+        var rejectedRawAssignments = rejectedRawCommand.GetProperty("assignments").EnumerateArray().ToArray();
+        Assert.Equal(legalAssignments.Count, rejectedRawAssignments.Length);
+        for (var assignmentIndex = 0; assignmentIndex < legalAssignments.Count; assignmentIndex++)
+        {
+            var expectedAssignment = legalAssignments[assignmentIndex];
+            var rejectedRawAssignment = rejectedRawAssignments[assignmentIndex];
+            Assert.Equal(
+                expectedAssignment.SourceObjectId,
+                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.SourceObjectId)).GetString());
+            Assert.Equal(
+                expectedAssignment.TargetObjectId,
+                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.TargetObjectId)).GetString());
+            Assert.Equal(
+                expectedAssignment.Damage,
+                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.Damage)).GetInt32());
+        }
+
+        var duplicateRejected = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateRejected.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateRejected.ErrorCode);
+        Assert.Equal(stale.ErrorMessage, duplicateRejected.ErrorMessage);
+        Assert.Empty(duplicateRejected.Events);
+        Assert.Equal(state.Tick, duplicateRejected.State.Tick);
+        Assert.Equal(stateHash, MatchStateHasher.Hash(duplicateRejected.State));
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(duplicateRejected.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(duplicateRejected.Snapshots));
+        Assert.Single(journal.Entries);
+
+        var changedStaleRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.AssignCombatDamage,
+            battleId = $"battle:{BattlefieldObjectId}",
+            battlefieldId = BattlefieldObjectId,
+            assignments = legalAssignments.Select(assignment => new
+            {
+                assignment.SourceObjectId,
+                assignment.TargetObjectId,
+                assignment.Damage
+            }),
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(state.Tick, conflict.State.Tick);
+        Assert.Equal(stateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
