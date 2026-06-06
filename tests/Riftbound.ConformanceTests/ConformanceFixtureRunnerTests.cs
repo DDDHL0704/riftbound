@@ -5833,7 +5833,8 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1")
             }
         };
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
         var command = new TapRuneCommand(runeObjectId);
@@ -5846,15 +5847,18 @@ public sealed class ConformanceFixtureRunnerTests
             string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
         var staleRawCommand = PromptScopedRawCommand(CommandTypes.TapRune, prompt);
+        const string acceptedClientIntentId = "intent-basic-rune-tap-before-stale-prompt-replay";
+        const string staleClientIntentId = "intent-basic-rune-tap-stale-prompt-replay";
 
         var accepted = await session.SubmitAsync(
             "P1",
-            "intent-basic-rune-tap-before-stale-prompt-replay",
+            acceptedClientIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
         Assert.Equal(["RUNE_TAPPED", "MANA_GAINED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(1, accepted.State.RunePools["P1"].Mana);
         Assert.True(accepted.State.CardObjects[runeObjectId].IsExhausted);
@@ -5863,11 +5867,32 @@ public sealed class ConformanceFixtureRunnerTests
             string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
         AssertTapRuneOrdinaryMainPromptQueueAudit(accepted, runeObjectId);
-        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var p1SnapshotAfterAccepted = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var p2SnapshotAfterAccepted = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.TapRune, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.TapRune, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
 
         var replay = await session.SubmitAsync(
             "P1",
-            "intent-basic-rune-tap-stale-prompt-replay",
+            staleClientIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -5875,7 +5900,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(replay.Accepted);
         Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
         Assert.Empty(replay.Events);
-        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(1, replay.State.RunePools["P1"].Mana);
         Assert.True(replay.State.CardObjects[runeObjectId].IsExhausted);
         Assert.Equal("BASE", replay.State.ObjectLocations[runeObjectId].Zone);
@@ -5883,6 +5911,88 @@ public sealed class ConformanceFixtureRunnerTests
             string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
         AssertTapRuneOrdinaryMainPromptQueueAudit(replay, runeObjectId);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = Assert.Single(journal.Entries, entry => !entry.Accepted);
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.TapRune, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.TapRune, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var duplicateRejected = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateRejected.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateRejected.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateRejected.ErrorMessage);
+        Assert.Empty(duplicateRejected.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(duplicateRejected.State));
+        Assert.Equal(replay.State.Tick, duplicateRejected.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(duplicateRejected.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(duplicateRejected.Snapshots));
+        Assert.Equal(1, duplicateRejected.State.RunePools["P1"].Mana);
+        Assert.True(duplicateRejected.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal("BASE", duplicateRejected.State.ObjectLocations[runeObjectId].Zone);
+        Assert.DoesNotContain(duplicateRejected.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
+        AssertTapRuneOrdinaryMainPromptQueueAudit(duplicateRejected, runeObjectId);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.TapRune,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(1, conflict.State.RunePools["P1"].Mana);
+        Assert.True(conflict.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal("BASE", conflict.State.ObjectLocations[runeObjectId].Zone);
+        Assert.DoesNotContain(conflict.Prompts["P1"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal)
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal)));
+        AssertTapRuneOrdinaryMainPromptQueueAudit(conflict, runeObjectId);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
