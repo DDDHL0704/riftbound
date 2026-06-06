@@ -1021,6 +1021,85 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperMoveUnitUsesCommandFieldsOverVisibleMovementMetadata()
+    {
+        const string VisibleMoveUnitMetadataAliases = """
+              "sourcePolicy": "implemented-movable-unit-only",
+              "destinationPolicy": "source-specific-server-filtered-movement-destinations",
+              "optionalCostPolicy": "source-specific-server-filtered-movement-costs",
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-MOVE-SOURCE",
+                  "origin": "VISIBLE_ORIGIN",
+                  "destination": "VISIBLE_DESTINATION",
+                  "displayName": "Visible move unit",
+                  "movementChoices": [{ "id": "VISIBLE_MOVEMENT", "label": "Visible movement" }],
+                  "originChoices": [{ "id": "VISIBLE_ORIGIN", "label": "Visible origin" }],
+                  "destinationChoices": [{ "id": "VISIBLE_DESTINATION", "label": "Visible destination" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_MOVE_COST", "label": "Visible cost" }],
+                  "requiredOptionalCosts": ["VISIBLE_MOVE_COST"],
+                  "composable": true,
+                  "unsupportedReason": null
+                }
+              ],
+              "sources": [{ "id": "P1-VISIBLE-MOVE-SOURCE", "label": "Visible source" }],
+              "sourceChoices": [{ "id": "P1-VISIBLE-MOVE-SOURCE", "label": "Visible source choice" }],
+              "movementChoices": [{ "id": "VISIBLE_MOVEMENT", "sourceObjectId": "P1-VISIBLE-MOVE-SOURCE" }],
+              "originChoices": [{ "id": "VISIBLE_ORIGIN", "label": "Visible origin choice" }],
+              "destinationChoices": [{ "id": "VISIBLE_DESTINATION", "label": "Visible destination choice" }],
+              "optionalCostChoices": [{ "id": "VISIBLE_MOVE_COST", "label": "Visible cost choice" }]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": "P1-CURRENT-MOVE-SOURCE",
+              "origin": "CURRENT_ORIGIN",
+              "destination": "CURRENT_DESTINATION",
+              "optionalCosts": [" CURRENT_MOVE_ROAM ", { "id": "VISIBLE_MOVE_COST" }, null, " ", " CURRENT_MOVE_SHIFT "],
+              {{VisibleMoveUnitMetadataAliases}}
+            }
+            """);
+        var malformedCurrent = Map($$"""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": { "id": "P1-CURRENT-MOVE-SOURCE" },
+              "origin": ["CURRENT_ORIGIN"],
+              "destination": { "id": "CURRENT_DESTINATION" },
+              "optionalCosts": { "0": "CURRENT_MOVE_ROAM" },
+              {{VisibleMoveUnitMetadataAliases}}
+            }
+            """);
+        var aliasOnly = Map($$"""
+            {
+              "cmdType": "MOVE_UNIT",
+              {{VisibleMoveUnitMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("P1-CURRENT-MOVE-SOURCE", command.SourceObjectId);
+        Assert.Equal("CURRENT_ORIGIN", command.Origin);
+        Assert.Equal("CURRENT_DESTINATION", command.Destination);
+        Assert.Equal(["CURRENT_MOVE_ROAM", "CURRENT_MOVE_SHIFT"], command.OptionalCosts);
+
+        Assert.Equal(string.Empty, malformedCurrent.SourceObjectId);
+        Assert.Equal(string.Empty, malformedCurrent.Origin);
+        Assert.Equal(string.Empty, malformedCurrent.Destination);
+        Assert.Empty(malformedCurrent.OptionalCosts ?? []);
+
+        Assert.Equal(string.Empty, aliasOnly.SourceObjectId);
+        Assert.Equal(string.Empty, aliasOnly.Origin);
+        Assert.Equal(string.Empty, aliasOnly.Destination);
+        Assert.Empty(aliasOnly.OptionalCosts ?? []);
+
+        static MoveUnitCommand Map(string json)
+        {
+            return Assert.IsType<MoveUnitCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperParsesAssembleEquipmentPayload()
     {
         var command = Assert.IsType<AssembleEquipmentCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
