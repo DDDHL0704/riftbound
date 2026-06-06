@@ -346,8 +346,9 @@ public sealed class BoardTaskQueueFoundationTests
     [Fact]
     public async Task StackPriorityStalePromptReplayAfterNextStackItemStartsRejectsWithoutMutation()
     {
+        var journal = new RecordingMatchJournal();
         var state = TwoStackPriorityState();
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
@@ -356,10 +357,13 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.Equal("STACK-BATTLE-OR-FLIGHT", prompt.View?.RelatedStackItemId);
         Assert.Contains(CommandTypes.PassPriority, prompt.Actions);
         var staleRawCommand = PromptScopedRawCommand(CommandTypes.PassPriority, prompt);
+        var changedRawCommand = PromptScopedRawCommandWithClientNote(CommandTypes.PassPriority, prompt, "changed-payload");
+        const string acceptedIntentId = "intent-stack-priority-first-item-before-stale-prompt-replay";
+        const string staleIntentId = "intent-stack-priority-stale-first-item-prompt-replay";
 
         var accepted = await session.SubmitAsync(
             "P1",
-            "intent-stack-priority-first-item-before-stale-prompt-replay",
+            acceptedIntentId,
             new PassPriorityCommand(),
             staleRawCommand,
             CancellationToken.None);
@@ -377,10 +381,29 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.Equal("STACK-FOLLOWUP-NOOP", accepted.Prompts["P1"].View?.RelatedStackItemId);
         Assert.Contains(CommandTypes.PassPriority, accepted.Prompts["P1"].Actions);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        AssertStackPriorityNextItemPromptQueueAudit(accepted);
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.PassPriority, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.Equal(
+            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "UNIT_MOVED_TO_BASE"],
+            acceptedJournalEntry.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        AssertPromptScopedRawCommand(acceptedJournalEntry.RawCommand.Value, CommandTypes.PassPriority, prompt);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
 
         var replay = await session.SubmitAsync(
             "P1",
-            "intent-stack-priority-stale-first-item-prompt-replay",
+            staleIntentId,
             new PassPriorityCommand(),
             staleRawCommand,
             CancellationToken.None);
@@ -389,6 +412,8 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
         Assert.Empty(replay.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         remainingStackItem = Assert.Single(replay.State.StackItems);
         Assert.Equal("STACK-FOLLOWUP-NOOP", remainingStackItem.StackItemId);
         Assert.Equal("P1", replay.State.PriorityPlayerId);
@@ -398,8 +423,64 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.Equal("STACK-FOLLOWUP-NOOP", replay.Prompts["P1"].View?.RelatedStackItemId);
         Assert.Contains(CommandTypes.PassPriority, replay.Prompts["P1"].Actions);
 
-        AssertStackPriorityNextItemPromptQueueAudit(accepted);
         AssertStackPriorityNextItemPromptQueueAudit(replay);
+        var replayHash = MatchStateHasher.Hash(replay.State);
+        var replayPromptsHash = MatchStateHasher.HashValue(replay.Prompts);
+        var replaySnapshotsHash = MatchStateHasher.HashValue(replay.Snapshots);
+
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.PassPriority, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        AssertPromptScopedRawCommand(rejectedJournalEntry.RawCommand.Value, CommandTypes.PassPriority, prompt);
+        Assert.Equal(replayHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+
+        var duplicateRejected = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            new PassPriorityCommand(),
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateRejected.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateRejected.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateRejected.ErrorMessage);
+        Assert.Empty(duplicateRejected.Events);
+        Assert.Equal(replayHash, MatchStateHasher.Hash(duplicateRejected.State));
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(duplicateRejected.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(duplicateRejected.Snapshots));
+        Assert.Equal(replay.State.Tick, duplicateRejected.State.Tick);
+        AssertStackPriorityNextItemPromptQueueAudit(duplicateRejected);
+        Assert.Equal(2, journal.Entries.Count);
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            new PassPriorityCommand(),
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(replayHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        AssertStackPriorityNextItemPromptQueueAudit(conflict);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -1836,6 +1917,32 @@ public sealed class BoardTaskQueueFoundationTests
             ["snapshotTick"] = prompt.SnapshotTick
         }));
         return document.RootElement.Clone();
+    }
+
+    private static JsonElement PromptScopedRawCommandWithClientNote(
+        string cmdType,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(new Dictionary<string, object?>
+        {
+            ["cmdType"] = cmdType,
+            ["promptId"] = prompt.PromptId,
+            ["snapshotTick"] = prompt.SnapshotTick,
+            ["clientNote"] = clientNote
+        }));
+        return document.RootElement.Clone();
+    }
+
+    private static void AssertPromptScopedRawCommand(
+        JsonElement rawCommand,
+        string cmdType,
+        ActionPromptDto prompt)
+    {
+        Assert.Equal(cmdType, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rawCommand.TryGetProperty("clientNote", out _));
     }
 
     private static JsonElement PromptScopedMoveUnitRawCommand(
