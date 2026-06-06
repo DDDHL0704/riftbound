@@ -94,6 +94,41 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
     }
 
     [Fact]
+    public void MaduliOpenMainPromptDoesNotTreatGenericTemporaryResourceAsPurplePayment()
+    {
+        var state = BuildMaduliState(RunePool.Empty) with
+        {
+            TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-MADULI-GENERIC-ONLY")]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidates = (prompt.Candidates ?? [])
+            .Where(candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal))
+            .ToArray();
+        if (activateCandidates.Length == 0)
+        {
+            Assert.Empty(activateCandidates);
+            return;
+        }
+
+        var activateCandidate = Assert.Single(activateCandidates);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+
+        Assert.DoesNotContain(
+            requirements,
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
+            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task MaduliCommandPaysPurpleCreatesStackAndResolutionMovesToTargetBattlefield()
     {
         var engine = new CoreRuleEngine();
