@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18YB/18YC/18YD/18YE/18YF play-card no-target prompt breadth accepted five parallel server-test shards, proving Vex Alt, Giant Arm Kato, Draven keyword unit, Zhonya's Hourglass and Time Gate direct `PLAY_CARD` prompts expose no target choices. Runtime changed: no, server test coverage only. Tests changed in `VexAltSpellshieldGuardTests`, `GiantArmKatoGuardTests`, `DravenKeywordUnitGuardTests`, `ZhonyasHourglassGuardTests` and `TimeGateGuardTests`. A_MAIN kept workers patch-only, validated focused worktrees, and accepted worker source commits `436f207b`, `e629d0a2`, `253945ee`, `631b141b` and `857a0651` as `fd9b0712`, `5ca7e75a`, `2dc2d260`, `97d91ef2` and `1d14b97f`. Validation passed: baseline `37/37`, main changed-class filter `42/42`, adjacent no-target/prompt guard filter `131/131`, backend full `7565/7565`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18YG/18YH/18YI/18YJ/18YK play-card no-target prompt breadth accepted five parallel server-test shards, proving Overcharged Energy, Hunt, Rek'Sai no-optional, Rek'Sai attack-reveal and Ezreal combat text direct `PLAY_CARD` prompts expose no target choices. Runtime changed: no, server test coverage only. Tests changed in `OverchargedEnergyGuardTests`, `HuntReadyGuardTests`, `ReksaiNoOptionalHasteOverwhelmGuardTests`, `ReksaiAttackRevealPlayUnitGuardTests` and `EzrealCombatDamageTextPlayUnitGuardTests`. A_MAIN kept workers patch-only, validated focused worktrees, corrected the Ezreal metadata assertion to the current dictionary shape, and accepted worker source commits `e33b2d9a`, `1df03ac5`, `f6c612f1`, `7fb06426` and `dc2c3f4b` as `9dc27393`, `968b70f7`, `3d8696cc`, `733c6c92` and `7ae46941`. Validation passed: baseline `52/52`, main changed-class filter `57/57`, adjacent no-target/prompt guard filter `149/149`, backend full `7570/7570`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18YB/18YC/18YD/18YE/18YF; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18YG/18YH/18YI/18YJ/18YK; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-07 06:26 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-07 07:26 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, `7ae46941` before the pending docs/checkpoint commit
+
+Write locks: closed for `tests/Riftbound.ConformanceTests/OverchargedEnergyGuardTests.cs`, `tests/Riftbound.ConformanceTests/HuntReadyGuardTests.cs`, `tests/Riftbound.ConformanceTests/ReksaiNoOptionalHasteOverwhelmGuardTests.cs`, `tests/Riftbound.ConformanceTests/ReksaiAttackRevealPlayUnitGuardTests.cs`, `tests/Riftbound.ConformanceTests/EzrealCombatDamageTextPlayUnitGuardTests.cs`, completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18YG_18YK_PLAY_CARD_PROMPT_TARGET_AUDIT.md`. Runtime validation code, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18YG/18YH/18YI/18YJ/18YK accepted five parallel no-target prompt test shards. Worker source commits `e33b2d9a`, `1df03ac5`, `f6c612f1`, `7fb06426` and `dc2c3f4b` were cherry-picked as `9dc27393`, `968b70f7`, `3d8696cc`, `733c6c92` and `7ae46941`. Runtime changed: no, server test coverage only.
+
+Validation: pre-dispatch target-class baseline `52/52`; worktree focused `13/13`, `12/12`, `10/10`, `10/10`, `12/12`; main changed-class filter `57/57`; adjacent no-target/prompt guard filter `149/149`; backend full `7570/7570` under the current no-DB environment. DOC_MATRIX_CURRENT remained clean at `17bde0c3` when checked before checkpoint.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and should keep multiple patch-only workers with disjoint write scopes. Project remains **NOT READY**.
 
 ### 2026-06-07 07:07 A_MAIN
 
