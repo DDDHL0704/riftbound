@@ -199,8 +199,9 @@ public sealed class BattlefieldContestBattleTaskGuardTests
     [Fact]
     public async Task DeclareBattleStalePromptReplayAfterNextSpellDuelStartsRejectsWithoutMutation()
     {
+        var journal = new RecordingMatchJournal();
         var state = BuildImmediateBattleNextContestState(includeCleanupBlocker: false);
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
         var command = new DeclareBattleCommand(
@@ -214,10 +215,13 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.Equal("BF-1", prompt.View?.RelatedBattlefieldId);
         Assert.Contains(CommandTypes.DeclareBattle, prompt.Actions);
         var staleRawCommand = PromptScopedDeclareBattleRawCommand(command, prompt);
+        var changedRawCommand = PromptScopedDeclareBattleRawCommandWithClientNote(command, prompt, "changed-payload");
+        const string acceptedIntentId = "intent-valid-start-battle-before-stale-prompt-replay";
+        const string staleIntentId = "intent-valid-start-battle-stale-battle-prompt-replay";
 
         var accepted = await session.SubmitAsync(
             "P1",
-            "intent-valid-start-battle-before-stale-prompt-replay",
+            acceptedIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -238,10 +242,25 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.DoesNotContain(CommandTypes.DeclareBattle, accepted.Prompts["P1"].Actions);
         AssertImmediateDeclareBattleNextSpellDuelPromptQueueAudit(accepted);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.DeclareBattle, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        AssertDeclareBattleRawCommand(acceptedJournalEntry.RawCommand.Value, prompt);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
 
         var replay = await session.SubmitAsync(
             "P1",
-            "intent-valid-start-battle-stale-battle-prompt-replay",
+            staleIntentId,
             command,
             staleRawCommand,
             CancellationToken.None);
@@ -250,6 +269,8 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
         Assert.Empty(replay.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.False(replay.State.BattleState.IsActive);
         Assert.Equal(TimingStates.SpellDuelOpen, replay.State.TimingState);
         Assert.Equal("P1", replay.State.FocusPlayerId);
@@ -263,6 +284,65 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.DoesNotContain("P2-DEFENDER-VALID", replay.State.PlayerZones["P2"].Battlefields);
         Assert.Equal("P1", replay.State.CardObjects["BF-1"].ControllerId);
         AssertImmediateDeclareBattleNextSpellDuelPromptQueueAudit(replay);
+
+        var replayHash = MatchStateHasher.Hash(replay.State);
+        var replayPromptsHash = MatchStateHasher.HashValue(replay.Prompts);
+        var replaySnapshotsHash = MatchStateHasher.HashValue(replay.Snapshots);
+        Assert.Equal(2, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.DeclareBattle, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        AssertDeclareBattleRawCommand(rejectedJournalEntry.RawCommand.Value, prompt);
+        Assert.Equal(accepted.State.Tick, rejectedJournalEntry.StartedTick);
+        Assert.Equal(replay.State.Tick, rejectedJournalEntry.CompletedTick);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(replayHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(replayHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(replay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        AssertImmediateDeclareBattleNextSpellDuelPromptQueueAudit(duplicateReplay);
+        Assert.Equal(2, journal.Entries.Count);
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(replayHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        AssertImmediateDeclareBattleNextSpellDuelPromptQueueAudit(conflict);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -981,5 +1061,55 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             snapshotTick = prompt.SnapshotTick
         }));
         return document.RootElement.Clone();
+    }
+
+    private static JsonElement PromptScopedDeclareBattleRawCommandWithClientNote(
+        DeclareBattleCommand command,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            cmdType = CommandTypes.DeclareBattle,
+            battlefieldId = command.BattlefieldId,
+            attackerObjectIds = command.AttackerObjectIds,
+            defenderObjectIds = command.DefenderObjectIds,
+            optionalCosts = command.OptionalCosts,
+            battlefieldTargetObjectIds = command.BattlefieldTargetObjectIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        }));
+        return document.RootElement.Clone();
+    }
+
+    private static void AssertDeclareBattleRawCommand(JsonElement rawCommand, ActionPromptDto prompt)
+    {
+        Assert.Equal(CommandTypes.DeclareBattle, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal("BF-1", rawCommand.GetProperty("battlefieldId").GetString());
+        Assert.Equal(
+            ["P1-ATTACKER-VALID"],
+            rawCommand.GetProperty("attackerObjectIds").EnumerateArray().Select(value => value.GetString()!).ToArray());
+        Assert.Equal(
+            ["P2-DEFENDER-VALID"],
+            rawCommand.GetProperty("defenderObjectIds").EnumerateArray().Select(value => value.GetString()!).ToArray());
+        Assert.Equal(
+            ["COMBAT_ASSIGNMENT"],
+            rawCommand.GetProperty("optionalCosts").EnumerateArray().Select(value => value.GetString()!).ToArray());
+        Assert.Equal(JsonValueKind.Null, rawCommand.GetProperty("battlefieldTargetObjectIds").ValueKind);
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rawCommand.TryGetProperty("clientNote", out _));
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
