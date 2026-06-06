@@ -9906,6 +9906,72 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialFirstTurnSurrenderFreshTapRuneAfterMatchFinishedThrowsStableErrorWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var context = await BuildFinalMulliganFirstTurnAuditContext(
+            "official-first-turn-surrender-fresh-tap-rune-after-match-finished-room",
+            journal);
+
+        var firstTurnPrompt = context.Accepted.Prompts[context.ActivePlayerId];
+        Assert.True(firstTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
+        Assert.Contains(CommandTypes.Surrender, firstTurnPrompt.Actions);
+        var journalEntryCountBeforeSurrender = journal.Entries.Count;
+
+        var accepted = await context.Session.SubmitAsync(
+            context.ActivePlayerId,
+            "first-turn-surrender-before-fresh-tap-rune-after-match-finished",
+            new SurrenderCommand(),
+            PromptScopedBasicRawCommand(CommandTypes.Surrender, firstTurnPrompt),
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, accepted);
+        Assert.Equal(journalEntryCountBeforeSurrender + 1, journal.Entries.Count);
+        var activeSnapshotBefore = SnapshotSignature(context.Session, context.ActivePlayerId);
+        var secondSnapshotBefore = SnapshotSignature(context.Session, context.SecondPlayerId);
+        var activePromptBefore = JsonSerializer.Serialize(context.Session.PromptFor(context.ActivePlayerId));
+        var secondPromptBefore = JsonSerializer.Serialize(context.Session.PromptFor(context.SecondPlayerId));
+        var journalEntryCountBeforeFreshTapRune = journal.Entries.Count;
+
+        var rejected = await Assert.ThrowsAsync<MatchSessionException>(() =>
+            context.Session.SubmitAsync(
+                context.ActivePlayerId,
+                "fresh-tap-rune-after-first-turn-surrender-match-finished",
+                new TapRuneCommand("missing-rune-after-finished"),
+                RawCommandWithClientNote(CommandTypes.TapRune, "fresh-tap-rune-after-match-finished"),
+                CancellationToken.None).AsTask());
+
+        Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
+        Assert.Equal("对局已经结束，不能继续提交行动。", rejected.Message);
+        Assert.Equal(journalEntryCountBeforeFreshTapRune, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            string.Equals(
+                entry.ClientIntentId,
+                "fresh-tap-rune-after-first-turn-surrender-match-finished",
+                StringComparison.Ordinal));
+
+        Assert.Equal(activeSnapshotBefore, SnapshotSignature(context.Session, context.ActivePlayerId));
+        Assert.Equal(secondSnapshotBefore, SnapshotSignature(context.Session, context.SecondPlayerId));
+        Assert.Equal(activePromptBefore, JsonSerializer.Serialize(context.Session.PromptFor(context.ActivePlayerId)));
+        Assert.Equal(secondPromptBefore, JsonSerializer.Serialize(context.Session.PromptFor(context.SecondPlayerId)));
+
+        var rejectedView = new ResolutionResult(
+            false,
+            rejected.Message,
+            accepted.State,
+            [],
+            ResolutionResult.BuildSnapshots(accepted.State),
+            ResolutionResult.BuildPrompts(accepted.State),
+            rejected.Code);
+        Assert.Equal(ErrorCodes.MatchFinished, rejectedView.ErrorCode);
+        Assert.Equal("对局已经结束，不能继续提交行动。", rejectedView.ErrorMessage);
+        Assert.Empty(rejectedView.Events);
+        AssertOfficialFirstTurnSurrenderMatchFinishedPromptQueueAudit(context, rejectedView, assertEvents: false);
+    }
+
+    [Fact]
     public async Task OfficialFirstTurnSurrenderDuplicateClientIntentReplaysExactRawButRejectsChangedRawPayload()
     {
         var journal = new RecordingMatchJournal();
