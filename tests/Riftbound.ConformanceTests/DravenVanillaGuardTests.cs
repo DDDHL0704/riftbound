@@ -78,6 +78,79 @@ public sealed class DravenVanillaGuardTests
     }
 
     [Fact]
+    public void DravenMainActionPlayCardPromptExposesNoTargetChoicesForVanillaUnitPlay()
+    {
+        var state = BuildDravenState(DravenPrimaryCardNo);
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, DravenObjectId, StringComparison.Ordinal));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var fixtureObjectId in new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-DRAVEN",
+            "P1-FACE-DOWN-STANDBY-DRAVEN",
+            "P2-UNIT-DRAVEN"
+        })
+        {
+            Assert.DoesNotContain(fixtureObjectId, targetIds);
+        }
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        if (!metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload)
+            || sourceRequirementsPayload is null)
+        {
+            return;
+        }
+
+        var dravenSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                sourceRequirementsPayload)
+            .Where(requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, DravenObjectId, StringComparison.Ordinal))
+            .ToArray();
+        if (dravenSourceRequirements.Length == 0)
+        {
+            return;
+        }
+
+        var dravenSourceRequirement = Assert.Single(dravenSourceRequirements);
+        if (dravenSourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
+            && targetChoicesPayload is not null)
+        {
+            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                targetChoicesPayload);
+            Assert.All(targetChoicesByIndex.Values, choices =>
+                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices)));
+        }
+
+        if (dravenSourceRequirement.TryGetValue("minTargetCount", out var minTargetCount)
+            && minTargetCount is not null)
+        {
+            Assert.Equal(0, Assert.IsType<int>(minTargetCount));
+        }
+
+        if (dravenSourceRequirement.TryGetValue("maxTargetCount", out var maxTargetCount)
+            && maxTargetCount is not null)
+        {
+            Assert.Equal(0, Assert.IsType<int>(maxTargetCount));
+        }
+    }
+
+    [Fact]
     public async Task DravenPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
