@@ -1062,6 +1062,47 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperChooseHandCardsPrefersCurrentChosenObjectIdsOverVisibleHandChoices()
+    {
+        var command = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-UNDERCOVER-1",
+              "choiceWindow": "HAND_CHOICE:UNDERCOVER_AGENT",
+              "chosenObjectIds": [" P1-HAND-CURRENT ", " P1-HAND-SECOND "],
+              "handChoices": ["P1-HAND-VISIBLE"]
+            }
+            """).RootElement));
+        var malformedCurrent = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-UNDERCOVER-1",
+              "choiceWindow": "HAND_CHOICE:UNDERCOVER_AGENT",
+              "chosenObjectIds": ["P1-HAND-CURRENT", null],
+              "handChoices": ["P1-HAND-VISIBLE"]
+            }
+            """).RootElement));
+        var aliasOnly = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-UNDERCOVER-1",
+              "choiceWindow": "HAND_CHOICE:UNDERCOVER_AGENT",
+              "handChoices": ["P1-HAND-VISIBLE"]
+            }
+            """).RootElement));
+
+        foreach (var chooseHandCards in new[] { command, malformedCurrent, aliasOnly })
+        {
+            Assert.Equal("CHOICE-UNDERCOVER-1", chooseHandCards.ChoiceId);
+            Assert.Equal("HAND_CHOICE:UNDERCOVER_AGENT", chooseHandCards.ChoiceWindow);
+        }
+
+        Assert.Equal(["P1-HAND-CURRENT", "P1-HAND-SECOND"], command.ChosenObjectIds);
+        Assert.Null(malformedCurrent.ChosenObjectIds);
+        Assert.Null(aliasOnly.ChosenObjectIds);
+    }
+
+    [Fact]
     public void GameCommandMapperPreservesMalformedP0PayloadsForStableValidation()
     {
         var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
