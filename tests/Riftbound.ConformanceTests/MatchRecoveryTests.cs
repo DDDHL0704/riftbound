@@ -107586,6 +107586,83 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentRequiredAssignmentItemObjectRegistryDrift()
+    {
+        var authoritativeState = BattleDamageAssignmentState();
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var damageAssignment = Assert.IsType<Dictionary<string, object?>>(battle["damageAssignment"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var requiredAssignments = Assert.IsAssignableFrom<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(
+            damageAssignment["requiredAssignments"])
+            .Select(entry => entry.ToDictionary(item => item.Key, item => item.Value, StringComparer.Ordinal))
+            .ToArray();
+        var attackerAssignment = Assert.Single(
+            requiredAssignments,
+            assignment => string.Equals(
+                Assert.IsType<string>(assignment["sourceObjectId"]),
+                "attacker-a",
+                StringComparison.Ordinal));
+        attackerAssignment["sourceObjectId"] = "missing-required-source";
+        attackerAssignment["legalTargetObjectIds"] = new[]
+        {
+            "defender-a",
+            "missing-required-target"
+        };
+        damageAssignment["requiredAssignments"] = requiredAssignments;
+        battle["damageAssignment"] = damageAssignment;
+        timing["battle"] = battle;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment item source object id missing-required-source is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment item legal target object id missing-required-target is missing from object registry",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentObjectReferencesOutsideRegistry()
     {
         var authoritativeState = BattleDamageAssignmentState();
