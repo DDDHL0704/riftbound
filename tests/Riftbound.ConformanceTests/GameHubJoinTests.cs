@@ -10114,6 +10114,162 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ChooseHandCardsAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate()
+    {
+        const string roomId = "p7-9-after-finished-choose-hand-cards-redacts-sentinel";
+        const string clientIntentId = "intent-p7-9-after-finished-choose-hand-cards-SECRET-RAW-clientIntentId";
+        const string sentinel = "SECRET-RAW-clientIntentId-after-finished-choose-hand-cards";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-choose-hand-cards-redacts-sentinel");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        Assert.Contains(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-GRAND-PLAZA",
+              "attackerObjectIds": ["P1-BATTLEFIELD-GRAND-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-GRAND-UNIT-001"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-choose-hand-cards-redacts-sentinel-win", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var p1FinishedSnapshotHash = MatchStateHasher.HashValue(SnapshotFor(battleClients, "P1"));
+        var battleSnapshot = SnapshotFor(battleClients, "P2");
+        var p2FinishedSnapshotHash = MatchStateHasher.HashValue(battleSnapshot);
+        Assert.Equal("P2", battleSnapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(MatchStatuses.Finished, battleSnapshot.Timing["roomStatus"]);
+        var journalCountAfterFinished = journal.Entries.Count;
+
+        var afterFinishedClients = new RecordingHubClients();
+        var chooseHandCardsAfterFinished = JsonDocument.Parse($$"""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "clientIntentId": "{{clientIntentId}}",
+              "choiceId": "{{sentinel}}-choiceId",
+              "choiceWindow": "HAND_CHOICE:{{sentinel}}-choiceWindow",
+              "chosenObjectIds": ["{{sentinel}}-chosen-object-001", "{{clientIntentId}}-chosen-object-002"],
+              "handChoiceId": "{{sentinel}}-legacy-handChoiceId",
+              "handChoiceWindow": "{{sentinel}}-legacy-handChoiceWindow",
+              "selectedObjectIds": ["{{sentinel}}-legacy-selected-object"],
+              "chosenCardIds": ["{{clientIntentId}}-alias-chosen-card"],
+              "handChoices": [
+                {
+                  "objectId": "{{sentinel}}-hand-choice-object",
+                  "cardNo": "OGN-178/298",
+                  "clientIntent": "{{clientIntentId}}",
+                  "rawSecret": "{{sentinel}} hand choice raw secret internal debug CHOOSE_HAND_CARDS SubmitIntent MatchFinished ErrorCodes.MatchFinished"
+                }
+              ],
+              "choosingPlayerId": "{{sentinel}}-choosing-player",
+              "requiredCount": 2,
+              "maxCount": 2,
+              "reason": "{{sentinel}} raw hand-choice reason CHOOSE_HAND_CARDS SubmitIntent MatchFinished",
+              "effectKind": "{{sentinel}} raw hand-choice effectKind",
+              "clientIntent": "{{clientIntentId}}",
+              "sentinel": "{{sentinel}}",
+              "command": "raw command CHOOSE_HAND_CARDS SubmitIntent MatchFinished ErrorCodes.MatchFinished",
+              "rawSecret": "{{sentinel}} raw secret internal debug CHOOSE_HAND_CARDS SubmitIntent MatchFinished ErrorCodes.MatchFinished",
+              "nested": {
+                "intentId": "{{clientIntentId}}",
+                "clientIntentId": "{{clientIntentId}}",
+                "clientIntent": "{{clientIntentId}}",
+                "choiceId": "{{sentinel}}-nested-choiceId",
+                "choiceWindow": "HAND_CHOICE:{{sentinel}}-nested-choiceWindow",
+                "chosenObjectIds": ["{{sentinel}}-nested-chosen-object"],
+                "handChoiceId": "{{sentinel}}-nested-legacy-handChoiceId",
+                "handChoiceWindow": "{{sentinel}}-nested-legacy-handChoiceWindow",
+                "selectedObjectIds": ["{{sentinel}}-nested-selected-object"],
+                "chosenCardIds": ["{{clientIntentId}}-nested-chosen-card"],
+                "handChoices": [
+                  {
+                    "objectId": "{{sentinel}}-nested-hand-choice-object",
+                    "secret": "{{sentinel}} nested hand choice secret"
+                  }
+                ],
+                "choosingPlayerId": "{{sentinel}}-nested-choosing-player",
+                "requiredCount": 1,
+                "maxCount": 2,
+                "reason": "nested raw hand-choice reason CHOOSE_HAND_CARDS",
+                "effectKind": "nested raw hand-choice effectKind",
+                "sentinel": "{{sentinel}}",
+                "command": "nested raw command CHOOSE_HAND_CARDS",
+                "raw": "nested raw secret CHOOSE_HAND_CARDS",
+                "secret": "nested secret {{sentinel}}",
+                "internal": "nested internal SubmitIntent MatchFinished ErrorCodes.MatchFinished",
+                "debug": "nested debug raw secret internal"
+              }
+            }
+            """).RootElement.Clone();
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, chooseHandCardsAfterFinished);
+
+        var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
+        Assert.Equal("对局已经结束，不能继续提交行动。", payload.Message);
+        Assert.DoesNotContain(clientIntentId, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(sentinel, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("clientIntent", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("sentinel", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("intentId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("choiceId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("choiceWindow", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("chosenObjectIds", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("handChoiceId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("handChoiceWindow", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("selectedObjectIds", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("chosenCardIds", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("handChoices", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("choosingPlayerId", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("requiredCount", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("maxCount", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("reason", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("effectKind", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("CHOOSE_HAND_CARDS", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("HAND_CHOICE", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("command", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("raw", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("secret", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("internal", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("debug", payload.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("SubmitIntent", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("MatchFinished", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(ErrorCodes.MatchFinished, payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("ErrorCodes.MatchFinished", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(afterFinishedClients.CallerClient.EventMessages);
+        Assert.Empty(afterFinishedClients.CallerClient.Snapshots);
+        Assert.Empty(afterFinishedClients.CallerClient.Prompts);
+        Assert.Empty(afterFinishedClients.GroupClient.EventMessages);
+        Assert.Empty(afterFinishedClients.GroupClient.Snapshots);
+        Assert.Empty(afterFinishedClients.GroupClient.Prompts);
+        Assert.Empty(afterFinishedClients.GroupClient.Errors);
+        Assert.Equal(journalCountAfterFinished, journal.Entries.Count);
+
+        var session = await registry.GetOrCreateAsync(roomId, default);
+        Assert.Equal(p1FinishedSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2FinishedSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+    }
+
+    [Fact]
     public async Task PlayCardAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate()
     {
         const string roomId = "p7-9-after-finished-play-card-redacts-sentinel";
