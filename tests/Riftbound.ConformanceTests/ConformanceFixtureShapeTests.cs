@@ -938,6 +938,79 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperAssembleEquipmentUsesCommandFieldsOverVisibleEquipmentMetadata()
+    {
+        const string VisibleAssembleEquipmentMetadataAliases = """
+              "sourcePolicy": "implemented-payable-equipment-only",
+              "targetPolicy": "source-specific-server-filtered-assemble-targets",
+              "optionalCostPolicy": "source-specific-server-filtered-assemble-costs",
+              "sourceRequirements": [
+                {
+                  "sourceObjectId": "P1-VISIBLE-ASSEMBLE-SOURCE",
+                  "equipmentCardNo": "VISIBLE-ASSEMBLE-CARD",
+                  "displayName": "Visible assemble equipment",
+                  "targetChoices": [{ "id": "P1-VISIBLE-ASSEMBLE-TARGET", "label": "Visible target" }],
+                  "equipmentChoices": [{ "id": "P1-VISIBLE-ASSEMBLE-SOURCE", "label": "Visible equipment" }],
+                  "optionalCostChoices": [{ "id": "VISIBLE_ASSEMBLE_COST", "label": "Visible cost" }],
+                  "requiredOptionalCosts": ["VISIBLE_ASSEMBLE_COST"],
+                  "powerCost": 1,
+                  "composable": true,
+                  "unsupportedReason": null
+                }
+              ],
+              "sources": [{ "id": "P1-VISIBLE-ASSEMBLE-SOURCE", "label": "Visible source" }],
+              "targets": [{ "id": "P1-VISIBLE-ASSEMBLE-TARGET", "label": "Visible target" }],
+              "targetChoices": [{ "id": "P1-VISIBLE-ASSEMBLE-TARGET", "label": "Visible target choice" }],
+              "equipmentChoices": [{ "id": "P1-VISIBLE-ASSEMBLE-SOURCE", "label": "Visible equipment choice" }],
+              "optionalCostChoices": [{ "id": "VISIBLE_ASSEMBLE_COST", "label": "Visible cost choice" }]
+            """;
+
+        var command = Map($$"""
+            {
+              "cmdType": "ASSEMBLE_EQUIPMENT",
+              "sourceObjectId": "P1-CURRENT-ASSEMBLE-SOURCE",
+              "targetObjectId": "P1-CURRENT-ASSEMBLE-TARGET",
+              "optionalCosts": [" CURRENT_ASSEMBLE_RED ", { "id": "VISIBLE_ASSEMBLE_COST" }, null, " ", " CURRENT_ASSEMBLE_FREE "],
+              {{VisibleAssembleEquipmentMetadataAliases}}
+            }
+            """);
+        var malformedCurrent = Map($$"""
+            {
+              "cmdType": "ASSEMBLE_EQUIPMENT",
+              "sourceObjectId": { "id": "P1-CURRENT-ASSEMBLE-SOURCE" },
+              "targetObjectId": ["P1-CURRENT-ASSEMBLE-TARGET"],
+              "optionalCosts": { "0": "CURRENT_ASSEMBLE_RED" },
+              {{VisibleAssembleEquipmentMetadataAliases}}
+            }
+            """);
+        var aliasOnly = Map($$"""
+            {
+              "cmdType": "ASSEMBLE_EQUIPMENT",
+              "optionalCosts": [{ "id": "VISIBLE_ASSEMBLE_COST", "label": "Visible cost" }],
+              {{VisibleAssembleEquipmentMetadataAliases}}
+            }
+            """);
+
+        Assert.Equal("P1-CURRENT-ASSEMBLE-SOURCE", command.SourceObjectId);
+        Assert.Equal("P1-CURRENT-ASSEMBLE-TARGET", command.TargetObjectId);
+        Assert.Equal(["CURRENT_ASSEMBLE_RED", "CURRENT_ASSEMBLE_FREE"], command.OptionalCosts);
+
+        Assert.Equal(string.Empty, malformedCurrent.SourceObjectId);
+        Assert.Equal(string.Empty, malformedCurrent.TargetObjectId);
+        Assert.Empty(malformedCurrent.OptionalCosts ?? []);
+
+        Assert.Equal(string.Empty, aliasOnly.SourceObjectId);
+        Assert.Equal(string.Empty, aliasOnly.TargetObjectId);
+        Assert.Empty(aliasOnly.OptionalCosts ?? []);
+
+        static AssembleEquipmentCommand Map(string json)
+        {
+            return Assert.IsType<AssembleEquipmentCommand>(
+                GameCommandJsonMapper.Map(JsonDocument.Parse(json).RootElement));
+        }
+    }
+
+    [Fact]
     public void GameCommandMapperParsesDeclareBattlePayload()
     {
         var command = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
