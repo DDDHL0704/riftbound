@@ -2485,66 +2485,154 @@ public sealed class ConformanceFixtureShapeTests
     [Fact]
     public async Task AssignCombatDamagePromptStampRejectsStaleEnvelopeWithoutChangingState()
     {
+        const string staleClientIntentId = "intent-assign-damage-stale-prompt";
         var state = BuildP0ContractBattleState();
-        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
         var prompt = session.PromptFor("P1");
+        var assignments = new[]
+        {
+            new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
+            new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+        };
+        var rawAssignments = new[]
+        {
+            new { sourceObjectId = "P1-ATTACKER", targetObjectId = "P2-DEFENDER", damage = 2 },
+            new { sourceObjectId = "P2-DEFENDER", targetObjectId = "P1-ATTACKER", damage = 2 }
+        };
+        var command = new AssignCombatDamageCommand(
+            "battle:BATTLEFIELD:P1-MAIN",
+            "BATTLEFIELD:P1-MAIN",
+            assignments);
+        var stalePromptId = $"{prompt.PromptId}:stale";
+        var staleRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.AssignCombatDamage,
+            battleId = "battle:BATTLEFIELD:P1-MAIN",
+            battlefieldId = "BATTLEFIELD:P1-MAIN",
+            assignments = rawAssignments,
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+        var changedStaleRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.AssignCombatDamage,
+            battleId = "battle:BATTLEFIELD:P1-MAIN",
+            battlefieldId = "BATTLEFIELD:P1-MAIN",
+            assignments = rawAssignments,
+            promptId = stalePromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var matchingRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.AssignCombatDamage,
+            battleId = "battle:BATTLEFIELD:P1-MAIN",
+            battlefieldId = "BATTLEFIELD:P1-MAIN",
+            assignments = rawAssignments,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+        var initialStateHash = MatchStateHasher.Hash(state);
+        var initialPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(state));
+        var initialSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(state));
+        var initialP1SessionPromptHash = MatchStateHasher.HashValue(session.PromptFor("P1"));
+        var initialP2SessionPromptHash = MatchStateHasher.HashValue(session.PromptFor("P2"));
+        var initialP1SessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var initialP2SessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
 
         var stale = await session.SubmitAsync(
             "P1",
-            "intent-assign-damage-stale-prompt",
-            new AssignCombatDamageCommand(
-                "battle:BATTLEFIELD:P1-MAIN",
-                "BATTLEFIELD:P1-MAIN",
-                [
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
-                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
-                ]),
-            JsonSerializer.SerializeToElement(new
-            {
-                cmdType = CommandTypes.AssignCombatDamage,
-                battleId = "battle:BATTLEFIELD:P1-MAIN",
-                battlefieldId = "BATTLEFIELD:P1-MAIN",
-                assignments = new[]
-                {
-                    new { sourceObjectId = "P1-ATTACKER", targetObjectId = "P2-DEFENDER", damage = 2 },
-                    new { sourceObjectId = "P2-DEFENDER", targetObjectId = "P1-ATTACKER", damage = 2 }
-                },
-                promptId = $"{prompt.PromptId}:stale",
-                snapshotTick = prompt.SnapshotTick
-            }),
+            staleClientIntentId,
+            command,
+            staleRawCommand,
             CancellationToken.None);
 
-        Assert.False(stale.Accepted);
-        Assert.Equal(ErrorCodes.PromptExpired, stale.ErrorCode);
-        Assert.Equal(state.Tick, stale.State.Tick);
-        Assert.Empty(stale.Events);
+        AssertRejectedWithoutMutation(stale, ErrorCodes.PromptExpired);
+        Assert.Equal("行动窗口已过期，请按最新提示重新提交。", stale.ErrorMessage);
+        var assignDamageEntries = journal.Entries
+            .Where(entry => string.Equals(entry.CommandType, CommandTypes.AssignCombatDamage, StringComparison.Ordinal))
+            .ToArray();
+        Assert.Single(journal.Entries);
+        Assert.Single(assignDamageEntries);
+        var rejectedEntry = Assert.Single(assignDamageEntries, entry => !entry.Accepted);
+        Assert.Equal(state.RoomId, rejectedEntry.RoomId);
+        Assert.Equal("P1", rejectedEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.AssignCombatDamage, rejectedEntry.CommandType);
+        Assert.False(rejectedEntry.Accepted);
+        Assert.Equal(stale.ErrorMessage, rejectedEntry.ErrorMessage);
+        Assert.Empty(rejectedEntry.Events);
+        Assert.Equal(state.Tick, rejectedEntry.StartedTick);
+        Assert.Equal(stale.State.Tick, rejectedEntry.CompletedTick);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(rejectedEntry.AuthoritativeState));
+        Assert.Equal(initialPromptsHash, MatchStateHasher.HashValue(rejectedEntry.Prompts));
+        Assert.Equal(initialSnapshotsHash, MatchStateHasher.HashValue(rejectedEntry.Snapshots));
+        Assert.True(rejectedEntry.RawCommand.HasValue);
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedEntry.RawCommand.Value));
+        Assert.Equal(CommandTypes.AssignCombatDamage, rejectedEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(stalePromptId, rejectedEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rejectedEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+
+        var cachedReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(cachedReplay, ErrorCodes.PromptExpired);
+        Assert.Equal(stale.ErrorMessage, cachedReplay.ErrorMessage);
+        Assert.Equal(1, journal.Entries.Count);
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(conflict, ErrorCodes.ClientIntentConflict);
+        Assert.Equal(1, journal.Entries.Count);
+        Assert.DoesNotContain(
+            journal.Entries,
+            entry => entry.RawCommand.HasValue
+                && entry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var matching = await session.SubmitAsync(
             "P1",
             "intent-assign-damage-matching-prompt",
-            new AssignCombatDamageCommand(
-                "battle:BATTLEFIELD:P1-MAIN",
-                "BATTLEFIELD:P1-MAIN",
-                [
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
-                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
-                ]),
-            JsonSerializer.SerializeToElement(new
-            {
-                cmdType = CommandTypes.AssignCombatDamage,
-                battleId = "battle:BATTLEFIELD:P1-MAIN",
-                battlefieldId = "BATTLEFIELD:P1-MAIN",
-                assignments = new[]
-                {
-                    new { sourceObjectId = "P1-ATTACKER", targetObjectId = "P2-DEFENDER", damage = 2 },
-                    new { sourceObjectId = "P2-DEFENDER", targetObjectId = "P1-ATTACKER", damage = 2 }
-                },
-                promptId = prompt.PromptId,
-                snapshotTick = prompt.SnapshotTick
-            }),
+            command,
+            matchingRawCommand,
             CancellationToken.None);
 
         Assert.True(matching.Accepted, matching.ErrorMessage);
+        Assert.Equal(2, journal.Entries.Count);
+
+        void AssertRejectedWithoutMutation(ResolutionResult result, string expectedErrorCode)
+        {
+            Assert.False(result.Accepted);
+            Assert.Equal(expectedErrorCode, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(state.Tick, result.State.Tick);
+            Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
+            Assert.Equal(initialPromptsHash, MatchStateHasher.HashValue(result.Prompts));
+            Assert.Equal(initialSnapshotsHash, MatchStateHasher.HashValue(result.Snapshots));
+            Assert.Equal(initialP1SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+            Assert.Equal(initialP2SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P2")));
+            Assert.Equal(initialP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+            Assert.Equal(initialP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+            Assert.True(result.State.BattleState.IsActive);
+            Assert.Equal(state.BattleState.BattleId, result.State.BattleState.BattleId);
+            Assert.Equal(state.BattleState.BattlefieldObjectId, result.State.BattleState.BattlefieldObjectId);
+            Assert.Equal(state.BattleState.AttackerObjectIds, result.State.BattleState.AttackerObjectIds);
+            Assert.Equal(state.BattleState.DefenderObjectIds, result.State.BattleState.DefenderObjectIds);
+            Assert.Equal(
+                state.BattleState.ParticipantControllerIds.OrderBy(entry => entry.Key).ToArray(),
+                result.State.BattleState.ParticipantControllerIds.OrderBy(entry => entry.Key).ToArray());
+            Assert.Equal(prompt.PromptId, session.PromptFor("P1").PromptId);
+            Assert.Equal(prompt.SnapshotTick, session.PromptFor("P1").SnapshotTick);
+        }
     }
 
     [Fact]
