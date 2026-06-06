@@ -46774,6 +46774,155 @@ public sealed class ConformanceFixtureRunnerTests
         AssertHideCardOrdinaryMainPromptQueueAudit(replay, sourceObjectId);
     }
 
+    [Fact]
+    public async Task HideCardDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string sourceObjectId = "P1-HAND-OGN-TEEMO-RAW-DUPLICATE";
+        var command = new HideCardCommand(
+            sourceObjectId,
+            "OGN·121/298",
+            "STANDBY",
+            ["STANDBY_A"]);
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"])
+            }
+        };
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.HideCard, prompt.Actions);
+        var rawCommand = PromptScopedRawCommand(CommandTypes.HideCard, prompt);
+        const string clientIntentId = "intent-hide-card-raw-idempotency";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Null(accepted.ErrorCode);
+        Assert.Equal(["COST_PAID", "CARD_HIDDEN"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
+        Assert.Empty(accepted.State.PlayerZones["P1"].Hand);
+        Assert.Equal([sourceObjectId], accepted.State.PlayerZones["P1"].Base);
+        var hiddenCard = accepted.State.CardObjects[sourceObjectId];
+        Assert.True(hiddenCard.IsFaceDown);
+        Assert.Equal(2, hiddenCard.Power);
+        Assert.Equal(2, hiddenCard.ManaCost);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], hiddenCard.Tags);
+        Assert.Empty(accepted.State.StackItems);
+        var hiddenEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
+        Assert.DoesNotContain("power", hiddenEvent.Payload.Keys);
+        Assert.DoesNotContain("tags", hiddenEvent.Payload.Keys);
+        Assert.DoesNotContain("manaCost", hiddenEvent.Payload.Keys);
+        Assert.DoesNotContain(CommandTypes.HideCard, accepted.Prompts["P1"].Actions);
+        AssertHideCardOrdinaryMainPromptQueueAudit(accepted, sourceObjectId);
+        var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var currentPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(accepted.State));
+        var currentSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(accepted.State));
+        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
+        Assert.Equal("P1", journalEntry.PlayerId);
+        Assert.Equal(CommandTypes.HideCard, journalEntry.CommandType);
+        Assert.True(journalEntry.Accepted);
+        Assert.True(journalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.HideCard, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            rawCommand,
+            CancellationToken.None);
+
+        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.Null(replay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(["COST_PAID", "CARD_HIDDEN"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(new RunePool(0, 0), replay.State.RunePools["P1"]);
+        Assert.Empty(replay.State.PlayerZones["P1"].Hand);
+        Assert.Equal([sourceObjectId], replay.State.PlayerZones["P1"].Base);
+        var replayHiddenCard = replay.State.CardObjects[sourceObjectId];
+        Assert.True(replayHiddenCard.IsFaceDown);
+        Assert.Equal(2, replayHiddenCard.Power);
+        Assert.Equal(2, replayHiddenCard.ManaCost);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], replayHiddenCard.Tags);
+        Assert.Empty(replay.State.StackItems);
+        Assert.DoesNotContain(CommandTypes.HideCard, replay.Prompts["P1"].Actions);
+        AssertHideCardOrdinaryMainPromptQueueAudit(replay, sourceObjectId);
+        Assert.Single(journal.Entries);
+
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.HideCard,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(currentPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(currentSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(new RunePool(0, 0), conflict.State.RunePools["P1"]);
+        Assert.Empty(conflict.State.PlayerZones["P1"].Hand);
+        Assert.Equal([sourceObjectId], conflict.State.PlayerZones["P1"].Base);
+        var conflictHiddenCard = conflict.State.CardObjects[sourceObjectId];
+        Assert.True(conflictHiddenCard.IsFaceDown);
+        Assert.Equal(2, conflictHiddenCard.Power);
+        Assert.Equal(2, conflictHiddenCard.ManaCost);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], conflictHiddenCard.Tags);
+        Assert.Empty(conflict.State.StackItems);
+        AssertHideCardOrdinaryMainPromptQueueAudit(conflict, sourceObjectId);
+        Assert.Single(journal.Entries);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+    }
+
     private static void AssertHideCardOrdinaryMainPromptQueueAudit(ResolutionResult result, string sourceObjectId)
     {
         Assert.Equal("P1", result.State.ActivePlayerId);
