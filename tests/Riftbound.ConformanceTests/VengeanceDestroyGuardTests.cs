@@ -47,6 +47,46 @@ public sealed class VengeanceDestroyGuardTests
     }
 
     [Fact]
+    public void VengeanceMainActionPlayCardPromptTargetListOnlyExposesLegalPublicUnits()
+    {
+        var state = BuildVengeanceState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-SPELL-VENGEANCE", StringComparison.Ordinal));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal(4, targetIds.Length);
+        Assert.Contains("P2-BATTLEFIELD-UNIT", targetIds);
+        Assert.Contains("P2-BASE-UNIT", targetIds);
+        Assert.Contains("P1-BATTLEFIELD-UNIT", targetIds);
+        Assert.Contains("P1-BASE-UNIT", targetIds);
+        foreach (var invalidTargetObjectId in new[]
+        {
+            "P2-STALE-UNIT",
+            "P2-FACE-DOWN-STANDBY",
+            "P2-BATTLEFIELD-EQUIPMENT",
+            "P2-BASE-EQUIPMENT",
+            "P2-BATTLEFIELD-SPELL",
+            "P2-BATTLEFIELD-RUNE",
+            "P2-HAND-UNIT"
+        })
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+    }
+
+    [Fact]
     public async Task VengeancePlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
