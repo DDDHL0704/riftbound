@@ -19,6 +19,7 @@ public sealed class LayerEngineTimestampDependencyTests
     private const string FieldFirstBattlefieldSourceObjectId = "P1-BATTLEFIELD-Z-SOURCE";
     private const string FieldLaterBattlefieldSourceObjectId = "P1-BATTLEFIELD-A-SOURCE";
     private const string BattlefieldSharedUnitObjectId = "P1-BATTLEFIELD-SOURCE-ORDER-UNIT";
+    private const string PowerLedgerLegacyTargetObjectId = "P1-UNIT-POWER-LEDGER-LEGACY-REMAINDER";
 
     [Fact]
     public void LayerEngineContinuousEffectSequenceIsStableForMixedPowerAndStaticAuraState()
@@ -51,6 +52,127 @@ public sealed class LayerEngineTimestampDependencyTests
                 && string.Equals(effect.TargetObjectId, OrnnObjectId, StringComparison.Ordinal))
             .ToArray();
         Assert.Equal([1, 2], powerEffects.Select(effect => effect.AppliedOrder.GetValueOrDefault()).ToArray());
+    }
+
+    [Fact]
+    public void LayerEnginePowerModifierLedgerLegacyRemainderSnapshotsAreDeterministicAcrossPlayersAndBuilds()
+    {
+        var state = BuildPowerModifierLedgerLegacyRemainderState();
+        var authoritativePowerEffects = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, PowerLedgerLegacyTargetObjectId, StringComparison.Ordinal))
+            .OrderBy(effect => effect.Sequence)
+            .ToArray();
+
+        Assert.Equal(3, authoritativePowerEffects.Length);
+        Assert.Equal(
+            [
+                "LEDGER_REMAINDER_FIRST_PLUS_THREE",
+                "LEDGER_REMAINDER_SECOND_MINUS_TWO",
+                "LEGACY_UNTRACKED_POWER_MODIFIER"
+            ],
+            authoritativePowerEffects.Select(effect => effect.EffectKind).ToArray());
+        Assert.Equal(new int?[] { 1, 2, null }, authoritativePowerEffects.Select(effect => effect.AppliedOrder).ToArray());
+
+        var firstSnapshots = ResolutionResult.BuildSnapshots(state);
+        var secondSnapshots = ResolutionResult.BuildSnapshots(state);
+        var firstP1Signatures = PowerModifierSnapshotSignatures(firstSnapshots["P1"]);
+
+        Assert.Equal(firstP1Signatures, PowerModifierSnapshotSignatures(firstSnapshots["P2"]));
+        Assert.Equal(firstP1Signatures, PowerModifierSnapshotSignatures(secondSnapshots["P1"]));
+        Assert.Equal(firstP1Signatures, PowerModifierSnapshotSignatures(secondSnapshots["P2"]));
+
+        var p1Views = PowerModifierSnapshotViews(firstSnapshots["P1"]);
+        Assert.Equal(
+            [
+                "LEDGER_REMAINDER_FIRST_PLUS_THREE",
+                "LEDGER_REMAINDER_SECOND_MINUS_TWO",
+                "LEGACY_UNTRACKED_POWER_MODIFIER"
+            ],
+            p1Views.Select(effect => Assert.IsType<string>(effect["effectKind"])).ToArray());
+
+        var trackedViews = p1Views.Take(2).ToArray();
+        Assert.Equal([3, -2], trackedViews.Select(effect => Assert.IsType<int>(effect["requestedPowerDelta"])).ToArray());
+        Assert.Equal([3, -2], trackedViews.Select(effect => Assert.IsType<int>(effect["appliedPowerDelta"])).ToArray());
+        Assert.Equal([0, 1], trackedViews.Select(effect => Assert.IsType<int>(effect["minimumPower"])).ToArray());
+        Assert.Equal([7, 5], trackedViews.Select(effect => Assert.IsType<int>(effect["resultingPower"])).ToArray());
+        Assert.Equal([1, 2], trackedViews.Select(effect => Assert.IsType<int>(effect["appliedOrder"])).ToArray());
+
+        var legacyRemainderView = p1Views[2];
+        Assert.Equal("FOUNDATION_ONLY", Assert.IsType<string>(legacyRemainderView["layerEngineStatus"]));
+        Assert.Equal("LEGACY_UNTRACKED_POWER_MODIFIER", Assert.IsType<string>(legacyRemainderView["effectKind"]));
+        Assert.Equal(
+            "MatchState.ContinuousEffects.LegacyRemainder",
+            Assert.IsType<string>(legacyRemainderView["sourcePath"]));
+        Assert.NotEmpty(StringList(legacyRemainderView, "deferredLayerEngineResiduals"));
+        Assert.Null(legacyRemainderView["sourceObjectId"]);
+        Assert.False(legacyRemainderView.ContainsKey("sourceCardNo"));
+        Assert.False(legacyRemainderView.ContainsKey("requestedPowerDelta"));
+        Assert.False(legacyRemainderView.ContainsKey("appliedPowerDelta"));
+        Assert.False(legacyRemainderView.ContainsKey("minimumPower"));
+        Assert.False(legacyRemainderView.ContainsKey("resultingPower"));
+        Assert.False(legacyRemainderView.ContainsKey("appliedOrder"));
+
+        static Dictionary<string, object?>[] PowerModifierSnapshotViews(SnapshotDto snapshot)
+        {
+            var views = ContinuousEffectViews(snapshot)
+                .Where(effect => string.Equals(effect["layer"] as string, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                    && string.Equals(effect["targetObjectId"] as string, PowerLedgerLegacyTargetObjectId, StringComparison.Ordinal))
+                .OrderBy(effect => Assert.IsType<int>(effect["sequence"]))
+                .ToArray();
+
+            Assert.Equal(3, views.Length);
+            Assert.Equal(
+                Enumerable.Range(1, views.Length).ToArray(),
+                views.Select(effect => Assert.IsType<int>(effect["sequence"])).ToArray());
+
+            return views;
+        }
+
+        static string[] PowerModifierSnapshotSignatures(SnapshotDto snapshot)
+        {
+            return PowerModifierSnapshotViews(snapshot)
+                .Select(effect => string.Join(
+                    "|",
+                    Assert.IsType<int>(effect["sequence"]).ToString(),
+                    Assert.IsType<string>(effect["effectId"]),
+                    Assert.IsType<string>(effect["scope"]),
+                    Assert.IsType<string>(effect["layer"]),
+                    Assert.IsType<string>(effect["duration"]),
+                    Assert.IsType<string>(effect["targetObjectId"]),
+                    effect["sourceObjectId"] as string ?? string.Empty,
+                    Assert.IsType<int>(effect["powerDelta"]).ToString(),
+                    Assert.IsType<int>(effect["basePower"]).ToString(),
+                    Assert.IsType<int>(effect["effectivePower"]).ToString(),
+                    OptionalString(effect, "effectKind"),
+                    OptionalString(effect, "sourceCardNo"),
+                    OptionalString(effect, "sourcePath"),
+                    OptionalString(effect, "layerEngineStatus"),
+                    OptionalInt(effect, "requestedPowerDelta"),
+                    OptionalInt(effect, "appliedPowerDelta"),
+                    OptionalInt(effect, "minimumPower"),
+                    OptionalInt(effect, "resultingPower"),
+                    OptionalInt(effect, "appliedOrder"),
+                    OptionalStringList(effect, "deferredLayerEngineResiduals")))
+                .ToArray();
+        }
+
+        static string OptionalString(Dictionary<string, object?> view, string key)
+        {
+            return view.TryGetValue(key, out var value) ? value as string ?? string.Empty : string.Empty;
+        }
+
+        static string OptionalInt(Dictionary<string, object?> view, string key)
+        {
+            return view.TryGetValue(key, out var value) ? Assert.IsType<int>(value).ToString() : string.Empty;
+        }
+
+        static string OptionalStringList(Dictionary<string, object?> view, string key)
+        {
+            return view.TryGetValue(key, out var value)
+                ? string.Join(",", Assert.IsAssignableFrom<IReadOnlyList<string>>(value))
+                : string.Empty;
+        }
     }
 
     [Fact]
@@ -1545,6 +1667,68 @@ public sealed class LayerEngineTimestampDependencyTests
         return BuildOrnnState(
             p1Base: [OrnnObjectId, PublicEquipmentObjectId, HiddenEquipmentObjectId],
             cardObjects: cardObjects);
+    }
+
+    private static MatchState BuildPowerModifierLedgerLegacyRemainderState()
+    {
+        var playerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+        {
+            ["P1"] = PlayerZones.Empty with
+            {
+                Base = [PowerLedgerLegacyTargetObjectId]
+            },
+            ["P2"] = PlayerZones.Empty
+        };
+
+        return BaseState("layer-engine-power-ledger-legacy-remainder") with
+        {
+            PlayerZones = playerZones,
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [PowerLedgerLegacyTargetObjectId] = new(
+                    PowerLedgerLegacyTargetObjectId,
+                    cardNo: "TEST-18VT-UNIT",
+                    power: 10,
+                    untilEndOfTurnPowerModifier: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    untilEndOfTurnPowerModifiers:
+                    [
+                        new PowerModifierLedgerEntry(
+                            "POWER:P1-UNIT-POWER-LEDGER-LEGACY-REMAINDER:SECOND_MINUS_TWO",
+                            "LEDGER_REMAINDER_SECOND_MINUS_TWO",
+                            "UNTIL_END_OF_TURN",
+                            PowerLedgerLegacyTargetObjectId,
+                            "P1-SPELL-LEDGER-SECOND",
+                            "TEST-18VT-SECOND",
+                            -2,
+                            7,
+                            5,
+                            "LayerEngineTimestampDependencyTests.LegacyRemainder.Second",
+                            -2,
+                            1,
+                            5,
+                            2),
+                        new PowerModifierLedgerEntry(
+                            "POWER:P1-UNIT-POWER-LEDGER-LEGACY-REMAINDER:FIRST_PLUS_THREE",
+                            "LEDGER_REMAINDER_FIRST_PLUS_THREE",
+                            "UNTIL_END_OF_TURN",
+                            PowerLedgerLegacyTargetObjectId,
+                            "P1-SPELL-LEDGER-FIRST",
+                            "TEST-18VT-FIRST",
+                            3,
+                            4,
+                            7,
+                            "LayerEngineTimestampDependencyTests.LegacyRemainder.First",
+                            3,
+                            0,
+                            7,
+                            1)
+                    ])
+            },
+            ObjectLocations = ObjectLocationsForZones(playerZones)
+        };
     }
 
     private static MatchState BuildOrnnState(
