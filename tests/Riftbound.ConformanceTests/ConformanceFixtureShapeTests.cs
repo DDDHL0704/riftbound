@@ -1003,6 +1003,30 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperOrderTriggersPrefersCurrentOrderedTriggerIdsOverLegacyTriggerIds()
+    {
+        var command = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "orderedTriggerIds": [" TRIGGER-CURRENT-2 ", " TRIGGER-CURRENT-1 "],
+              "triggerIds": ["TRIGGER-LEGACY-1", "TRIGGER-LEGACY-2"]
+            }
+            """).RootElement));
+        var malformedCurrent = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "orderedTriggerIds": ["TRIGGER-CURRENT-2", null],
+              "triggerIds": ["TRIGGER-LEGACY-1", "TRIGGER-LEGACY-2"]
+            }
+            """).RootElement));
+
+        Assert.Equal(["TRIGGER-CURRENT-2", "TRIGGER-CURRENT-1"], command.TriggerIds);
+        Assert.Equal(["TRIGGER-CURRENT-2", "TRIGGER-CURRENT-1"], command.OrderedTriggerIds);
+        Assert.Null(malformedCurrent.TriggerIds);
+        Assert.Null(malformedCurrent.OrderedTriggerIds);
+    }
+
+    [Fact]
     public void GameCommandMapperPreservesMalformedP0PayloadsForStableValidation()
     {
         var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
