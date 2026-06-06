@@ -26449,6 +26449,141 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsChooseHandCardsRawPayloadPropertyAndListDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-choice-invalid-chosen-items",
+                CommandTypes.ChooseHandCards,
+                RawJson("""
+                    {
+                      "cmdType": "CHOOSE_HAND_CARDS",
+                      "choiceId": "choice-1",
+                      "choiceWindow": "CHOOSE_HAND_CARDS",
+                      "chosenObjectIds": ["", null, 7]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed chosen object list"),
+            new RecoveredCommand(
+                "alice",
+                "intent-choice-duplicate-properties",
+                CommandTypes.ChooseHandCards,
+                RawJson("""
+                    {
+                      "cmdType": "CHOOSE_HAND_CARDS",
+                      "choiceId": "choice-1",
+                      "choiceId": "choice-2",
+                      "choiceWindow": "CHOOSE_HAND_CARDS",
+                      "chosenObjectIds": ["object-1"],
+                      "chosenObjectIds": ["object-2"]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "duplicate choice raw properties"),
+            new RecoveredCommand(
+                "alice",
+                "intent-choice-trimmed-property",
+                CommandTypes.ChooseHandCards,
+                RawJson("""
+                    {
+                      "cmdType": "CHOOSE_HAND_CARDS",
+                      "choiceId": "choice-1",
+                      " choiceWindow ": "CHOOSE_HAND_CARDS",
+                      "chosenObjectIds": ["object-1"]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "trimmed choice window property"),
+            new RecoveredCommand(
+                "alice",
+                "intent-choice-value-trim",
+                CommandTypes.ChooseHandCards,
+                RawJson("""
+                    {
+                      "cmdType": "CHOOSE_HAND_CARDS",
+                      "choiceId": " choice-1 ",
+                      "choiceWindow": " CHOOSE_HAND_CARDS ",
+                      "chosenObjectIds": [" object-1 "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "trimmed choice values")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-invalid-chosen-items raw CHOOSE_HAND_CARDS chosenObjectIds[0] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-invalid-chosen-items raw CHOOSE_HAND_CARDS chosenObjectIds[1] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-invalid-chosen-items raw CHOOSE_HAND_CARDS chosenObjectIds[2] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-duplicate-properties raw command property choiceId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-duplicate-properties raw command property chosenObjectIds appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-trimmed-property raw command property choiceWindow has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-value-trim raw CHOOSE_HAND_CARDS choiceId choice-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-value-trim raw CHOOSE_HAND_CARDS choiceWindow CHOOSE_HAND_CARDS has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-choice-value-trim raw CHOOSE_HAND_CARDS chosenObjectIds[0] object-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsCombatAssignmentElementShapeDrift()
     {
         var commands = new[]
