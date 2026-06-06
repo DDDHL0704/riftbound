@@ -730,6 +730,152 @@ public sealed class LayerEngineTimestampDependencyTests
     }
 
     [Fact]
+    public void LayerEngineMixedObjectAndBattlefieldStaticAuraDependencySnapshotsAreDeterministicAcrossPlayersAndBuilds()
+    {
+        var objectState = BuildMixedLayerState();
+        var sourceOrderState = BuildBattlefieldSourceOrderState();
+        var cardObjects = new Dictionary<string, CardObjectState>(objectState.CardObjects, StringComparer.Ordinal);
+        foreach (var cardObject in sourceOrderState.CardObjects)
+        {
+            cardObjects[cardObject.Key] = cardObject.Value;
+        }
+
+        var state = objectState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(objectState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = objectState.PlayerZones["P1"] with
+                {
+                    Battlefields =
+                    [
+                        FieldFirstBattlefieldSourceObjectId,
+                        BattlefieldSharedUnitObjectId,
+                        FieldLaterBattlefieldSourceObjectId,
+                        OtherBattlefieldObjectId,
+                        OtherBattlefieldUnitObjectId
+                    ]
+                },
+                ["P2"] = objectState.PlayerZones["P2"] with
+                {
+                    Battlefields = [BattlefieldDefenderObjectId]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(cardObjects, StringComparer.Ordinal)
+            {
+                [OtherBattlefieldObjectId] = new(
+                    OtherBattlefieldObjectId,
+                    cardNo: "UNL·T01",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [OtherBattlefieldUnitObjectId] = Unit(OtherBattlefieldUnitObjectId, "P1", power: 4),
+                [BattlefieldDefenderObjectId] = Unit(BattlefieldDefenderObjectId, "P2", power: 3)
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(objectState.ObjectLocations, StringComparer.Ordinal)
+            {
+                [FieldFirstBattlefieldSourceObjectId] = new("P1", "BATTLEFIELD", FieldFirstBattlefieldSourceObjectId),
+                [BattlefieldSharedUnitObjectId] = new("P1", "BATTLEFIELD", FieldFirstBattlefieldSourceObjectId),
+                [FieldLaterBattlefieldSourceObjectId] = new("P1", "BATTLEFIELD", FieldLaterBattlefieldSourceObjectId),
+                [BattlefieldDefenderObjectId] = new("P2", "BATTLEFIELD", FieldLaterBattlefieldSourceObjectId),
+                [OtherBattlefieldObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId),
+                [OtherBattlefieldUnitObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId)
+            }
+        };
+
+        var authoritativeStaticAuras = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && (string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal)
+                    || string.Equals(effect.SourceObjectId, FieldFirstBattlefieldSourceObjectId, StringComparison.Ordinal)
+                    || string.Equals(effect.SourceObjectId, FieldLaterBattlefieldSourceObjectId, StringComparison.Ordinal)))
+            .OrderBy(effect => effect.Sequence)
+            .ToArray();
+
+        Assert.Equal(3, authoritativeStaticAuras.Length);
+        var ornnAura = Assert.Single(
+            authoritativeStaticAuras,
+            effect => string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+        Assert.Equal([OrnnObjectId], ornnAura.SourceDependencyObjectIds);
+        Assert.Equal([OrnnObjectId], ornnAura.TargetDependencyObjectIds);
+        Assert.Equal([PublicEquipmentObjectId], ornnAura.ParticipantObjectIds);
+        Assert.Equal([PublicEquipmentObjectId], ornnAura.ParticipantDependencyObjectIds);
+
+        var fieldFirstAura = Assert.Single(
+            authoritativeStaticAuras,
+            effect => string.Equals(effect.SourceObjectId, FieldFirstBattlefieldSourceObjectId, StringComparison.Ordinal));
+        Assert.Equal(BattlefieldSharedUnitObjectId, fieldFirstAura.TargetObjectId);
+        Assert.Equal(1, fieldFirstAura.SourceOrder.GetValueOrDefault());
+        Assert.Equal([FieldFirstBattlefieldSourceObjectId], fieldFirstAura.SourceDependencyObjectIds);
+        Assert.Equal([BattlefieldSharedUnitObjectId], fieldFirstAura.TargetDependencyObjectIds);
+        Assert.Equal([BattlefieldSharedUnitObjectId], fieldFirstAura.ParticipantObjectIds);
+        Assert.Equal([BattlefieldSharedUnitObjectId], fieldFirstAura.ParticipantDependencyObjectIds);
+
+        var fieldLaterAura = Assert.Single(
+            authoritativeStaticAuras,
+            effect => string.Equals(effect.SourceObjectId, FieldLaterBattlefieldSourceObjectId, StringComparison.Ordinal));
+        Assert.Equal(BattlefieldDefenderObjectId, fieldLaterAura.TargetObjectId);
+        Assert.Equal(3, fieldLaterAura.SourceOrder.GetValueOrDefault());
+        Assert.Equal([FieldLaterBattlefieldSourceObjectId], fieldLaterAura.SourceDependencyObjectIds);
+        Assert.Equal([BattlefieldDefenderObjectId], fieldLaterAura.TargetDependencyObjectIds);
+        Assert.Equal([BattlefieldDefenderObjectId], fieldLaterAura.ParticipantObjectIds);
+        Assert.Equal([BattlefieldDefenderObjectId], fieldLaterAura.ParticipantDependencyObjectIds);
+
+        foreach (var aura in authoritativeStaticAuras)
+        {
+            AssertDoesNotMentionObjectId(aura, HiddenEquipmentObjectId);
+            AssertDoesNotMentionObjectId(aura, OtherBattlefieldObjectId);
+            AssertDoesNotMentionObjectId(aura, OtherBattlefieldUnitObjectId);
+        }
+
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.TargetObjectId, OtherBattlefieldUnitObjectId, StringComparison.Ordinal)
+                || string.Equals(effect.SourceObjectId, OtherBattlefieldObjectId, StringComparison.Ordinal));
+
+        var firstSnapshots = ResolutionResult.BuildSnapshots(state);
+        var secondSnapshots = ResolutionResult.BuildSnapshots(state);
+        var firstP1ContinuousEffectSignatures = SnapshotContinuousEffectSignatures(firstSnapshots["P1"]);
+        var firstP1StaticAuraSignatures = SnapshotStaticAuraSignatures(firstSnapshots["P1"], authoritativeStaticAuras);
+
+        Assert.Equal(firstP1ContinuousEffectSignatures, SnapshotContinuousEffectSignatures(firstSnapshots["P2"]));
+        Assert.Equal(firstP1ContinuousEffectSignatures, SnapshotContinuousEffectSignatures(secondSnapshots["P1"]));
+        Assert.Equal(firstP1ContinuousEffectSignatures, SnapshotContinuousEffectSignatures(secondSnapshots["P2"]));
+        Assert.Equal(firstP1StaticAuraSignatures, SnapshotStaticAuraSignatures(firstSnapshots["P2"], authoritativeStaticAuras));
+        Assert.Equal(firstP1StaticAuraSignatures, SnapshotStaticAuraSignatures(secondSnapshots["P1"], authoritativeStaticAuras));
+        Assert.Equal(firstP1StaticAuraSignatures, SnapshotStaticAuraSignatures(secondSnapshots["P2"], authoritativeStaticAuras));
+
+        static void AssertDoesNotMentionObjectId(ContinuousEffectState aura, string objectId)
+        {
+            Assert.DoesNotContain(objectId, aura.SourceDependencyObjectIds ?? []);
+            Assert.DoesNotContain(objectId, aura.TargetDependencyObjectIds ?? []);
+            Assert.DoesNotContain(objectId, aura.ParticipantObjectIds ?? []);
+            Assert.DoesNotContain(objectId, aura.ParticipantDependencyObjectIds ?? []);
+        }
+
+        static string[] SnapshotContinuousEffectSignatures(SnapshotDto snapshot)
+        {
+            var views = ContinuousEffectViews(snapshot);
+            Assert.Equal(
+                Enumerable.Range(1, views.Count).ToArray(),
+                views.Select(effect => Assert.IsType<int>(effect["sequence"])).ToArray());
+
+            return views.Select(EffectSignature).ToArray();
+        }
+
+        static string[] SnapshotStaticAuraSignatures(
+            SnapshotDto snapshot,
+            ContinuousEffectState[] authoritativeStaticAuras)
+        {
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, HiddenEquipmentObjectId);
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, OtherBattlefieldObjectId);
+            AssertDoesNotExposeDependencyOrParticipantObjectId(snapshot, OtherBattlefieldUnitObjectId);
+
+            return authoritativeStaticAuras
+                .Select(effect => StaticAuraSnapshotSignature(AssertStaticAuraSnapshotView(snapshot, effect)))
+                .ToArray();
+        }
+    }
+
+    [Fact]
     public void LayerEngineBattlefieldStaticAuraSourceOrderDependencyMetadataTracksReorderedPublicFieldOrderAcrossPlayerViews()
     {
         var lexicalSourceObjectIds = new[] { FieldFirstBattlefieldSourceObjectId, FieldLaterBattlefieldSourceObjectId }
