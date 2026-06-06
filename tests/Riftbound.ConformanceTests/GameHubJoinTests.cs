@@ -1298,6 +1298,179 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task OrderTriggersDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "gamehub-order-triggers-raw-idempotency";
+        const string clientIntentId = "order-triggers-same";
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(BuildGameHubOrderTriggersState(roomId), new CoreRuleEngine(), journal);
+        var registry = new FixedMatchSessionRegistry(session);
+
+        var promptClients = new RecordingHubClients();
+        await CreateHub(promptClients, new RecordingGroupManager(), "connection-1", registry)
+            .RequestSnapshot(roomId, "P1");
+
+        Assert.Empty(promptClients.CallerClient.Errors);
+        var prompt = Assert.IsType<ActionPromptDto>(Assert.Single(promptClients.CallerClient.Prompts).Payload);
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.OrderTriggers, prompt.View?.Type);
+        Assert.Contains(CommandTypes.OrderTriggers, prompt.Actions);
+        Assert.NotNull(prompt.PromptId);
+        Assert.True(prompt.SnapshotTick.HasValue);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var orderedTriggerIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
+        Assert.Equal(["TRIGGER-BATTLE-DEFENDER", "TRIGGER-BATTLE-ATTACKER"], orderedTriggerIds);
+
+        var orderTriggers = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.OrderTriggers,
+            orderedTriggerIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+        var seededJournalCount = journal.Entries.Count;
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, orderTriggers);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        Assert.Equal(
+            ["TRIGGERS_ORDERED", "TRIGGERS_MOVED_TO_STACK"],
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        var acceptedOrderedEvent = Assert.Single(
+            acceptedEvents,
+            gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_ORDERED", StringComparison.Ordinal));
+        Assert.Equal(orderedTriggerIds.ToArray(), Assert.IsType<string[]>(acceptedOrderedEvent.Payload["orderedTriggerIds"]));
+        var acceptedMovedEvent = Assert.Single(
+            acceptedEvents,
+            gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_MOVED_TO_STACK", StringComparison.Ordinal));
+        Assert.Equal("ordered-TRIGGER-BATTLE-DEFENDER", Assert.IsType<string>(acceptedMovedEvent.Payload["topStackItemId"]));
+        Assert.Equal("P2", Assert.IsType<string>(acceptedMovedEvent.Payload["nextPriorityPlayerId"]));
+        Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
+        var acceptedP1Snapshot = SnapshotFor(acceptedClients, "P1");
+        var acceptedP2Snapshot = SnapshotFor(acceptedClients, "P2");
+        var acceptedP1SnapshotHash = MatchStateHasher.HashValue(acceptedP1Snapshot);
+        var acceptedP2SnapshotHash = MatchStateHasher.HashValue(acceptedP2Snapshot);
+        Assert.Equal(acceptedP1Snapshot.Tick, acceptedP2Snapshot.Tick);
+        var acceptedP1Prompt = PromptFor(acceptedClients, "P1");
+        var acceptedP2Prompt = PromptFor(acceptedClients, "P2");
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, acceptedP1Prompt.Actions);
+        Assert.DoesNotContain(CommandTypes.OrderTriggers, acceptedP2Prompt.Actions);
+        Assert.Equal(PromptTypes.StackPriority, acceptedP2Prompt.View?.Type);
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptActions = acceptedClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(acceptedPrompt => acceptedPrompt.PlayerId, StringComparer.Ordinal)
+            .Select(acceptedPrompt => string.Join("|", acceptedPrompt.Actions))
+            .ToArray();
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(seededJournalCount + 1, acceptedJournalCount);
+        var orderTriggerEntry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, clientIntentId, StringComparison.Ordinal));
+        Assert.Equal(roomId, orderTriggerEntry.RoomId);
+        Assert.Equal("P1", orderTriggerEntry.PlayerId);
+        Assert.Equal(CommandTypes.OrderTriggers, orderTriggerEntry.CommandType);
+        Assert.NotNull(orderTriggerEntry.RawCommand);
+        Assert.Equal(CommandTypes.OrderTriggers, orderTriggerEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(
+            orderedTriggerIds,
+            orderTriggerEntry.RawCommand.Value.GetProperty("orderedTriggerIds")
+                .EnumerateArray()
+                .Select(item => item.GetString() ?? string.Empty)
+                .ToArray());
+        Assert.False(orderTriggerEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, orderTriggers);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        var replayOrderedEvent = Assert.Single(
+            replayEvents,
+            gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_ORDERED", StringComparison.Ordinal));
+        Assert.Equal(
+            Assert.IsType<string[]>(acceptedOrderedEvent.Payload["orderedTriggerIds"]),
+            Assert.IsType<string[]>(replayOrderedEvent.Payload["orderedTriggerIds"]));
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(acceptedP1SnapshotHash, MatchStateHasher.HashValue(SnapshotFor(replayClients, "P1")));
+        Assert.Equal(acceptedP2SnapshotHash, MatchStateHasher.HashValue(SnapshotFor(replayClients, "P2")));
+        var replayPromptActions = replayClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(replayPrompt => replayPrompt.PlayerId, StringComparer.Ordinal)
+            .Select(replayPrompt => string.Join("|", replayPrompt.Actions))
+            .ToArray();
+        Assert.Equal(acceptedPromptActions, replayPromptActions);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        var changedOrderTriggers = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.OrderTriggers,
+            orderedTriggerIds,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed"
+        });
+
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, changedOrderTriggers);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } rawCommand
+            && rawCommand.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+        Assert.Equal(acceptedP1SnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(acceptedP2SnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+    }
+
+    [Fact]
     public async Task SubmitIntentUnsupportedCommandReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
@@ -13052,6 +13225,60 @@ public sealed class GameHubJoinTests
             || allowedColors.Contains(color));
     }
 
+    private static MatchState BuildGameHubOrderTriggersState(string roomId)
+    {
+        return new MatchState(
+            roomId,
+            12,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-ORDER-SOURCE"] = new(
+                    "P1-ORDER-SOURCE",
+                    cardNo: "TEST-P1-TRIGGER",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-ORDER-SOURCE"] = new(
+                    "P2-ORDER-SOURCE",
+                    cardNo: "TEST-P2-TRIGGER",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "TRIGGER-BATTLE-ATTACKER",
+                    "P1",
+                    "P1-ORDER-SOURCE",
+                    "BATTLE_INITIAL_ATTACKER_REPRESENTATIVE",
+                    "BATTLE_INITIAL_STACK"),
+                new TriggerQueueItemState(
+                    "TRIGGER-BATTLE-DEFENDER",
+                    "P2",
+                    "P2-ORDER-SOURCE",
+                    "BATTLE_INITIAL_DEFENDER_REPRESENTATIVE",
+                    "BATTLE_INITIAL_STACK")
+            ]);
+    }
+
     private static GameHub CreateHub(
         RecordingHubClients clients,
         RecordingGroupManager groups,
@@ -13225,6 +13452,14 @@ public sealed class GameHubJoinTests
 
         public override void Abort()
         {
+        }
+    }
+
+    private sealed class FixedMatchSessionRegistry(IMatchSession session) : IMatchSessionRegistry
+    {
+        public ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken)
+        {
+            return ValueTask.FromResult(session);
         }
     }
 
