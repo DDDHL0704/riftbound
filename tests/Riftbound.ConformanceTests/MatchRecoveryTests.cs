@@ -26338,6 +26338,117 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsOrderTriggersRawPayloadPropertyAndListDrift()
+    {
+        var commands = new[]
+        {
+            new RecoveredCommand(
+                "alice",
+                "intent-order-invalid-ordered-items",
+                CommandTypes.OrderTriggers,
+                RawJson("""
+                    {
+                      "cmdType": "ORDER_TRIGGERS",
+                      "orderedTriggerIds": ["trigger-1", "", null, 7]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "malformed ordered trigger list"),
+            new RecoveredCommand(
+                "alice",
+                "intent-order-duplicate-ordered-property",
+                CommandTypes.OrderTriggers,
+                RawJson("""
+                    {
+                      "cmdType": "ORDER_TRIGGERS",
+                      "orderedTriggerIds": ["trigger-1"],
+                      "orderedTriggerIds": ["trigger-2"]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "duplicate ordered trigger property"),
+            new RecoveredCommand(
+                "alice",
+                "intent-order-trimmed-property",
+                CommandTypes.OrderTriggers,
+                RawJson("""
+                    {
+                      "cmdType": "ORDER_TRIGGERS",
+                      " orderedTriggerIds ": ["trigger-1"]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "trimmed ordered trigger property"),
+            new RecoveredCommand(
+                "alice",
+                "intent-order-triggerids-value-trim",
+                CommandTypes.OrderTriggers,
+                RawJson("""
+                    {
+                      "cmdType": "ORDER_TRIGGERS",
+                      "triggerIds": [" trigger-1 "]
+                    }
+                    """),
+                0,
+                0,
+                0,
+                0,
+                false,
+                "trimmed trigger id value")
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            commands,
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal));
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-order-invalid-ordered-items raw ORDER_TRIGGERS orderedTriggerIds[1] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-order-invalid-ordered-items raw ORDER_TRIGGERS orderedTriggerIds[2] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-order-invalid-ordered-items raw ORDER_TRIGGERS orderedTriggerIds[3] is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-order-duplicate-ordered-property raw command property orderedTriggerIds appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-order-trimmed-property raw command property orderedTriggerIds has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "command intent-order-triggerids-value-trim raw ORDER_TRIGGERS triggerIds[0] trigger-1 has surrounding whitespace",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsCombatAssignmentElementShapeDrift()
     {
         var commands = new[]
