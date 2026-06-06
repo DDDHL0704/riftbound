@@ -336,6 +336,33 @@ public sealed class SecretArtMercyBoonGuardTests
         var playCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Equal(
+            ["P1-SPELL-SECRET-ART-MERCY"],
+            (playCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        string[] legalTargetIds =
+        [
+            "P1-FRIENDLY-CUSTOM-UNIT",
+            "P1-FRIENDLY-SPELLSHIELD-UNIT",
+            "P1-FRIENDLY-UNIT"
+        ];
+        string[] filteredTargetIds =
+        [
+            "P2-ENEMY-UNIT",
+            "P1-FRIENDLY-EQUIPMENT",
+            "P1-FRIENDLY-SPELL",
+            "P1-FRIENDLY-RUNE",
+            "P1-FACE-DOWN-STANDBY",
+            "P1-STALE-UNIT"
+        ];
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+
+        Assert.Equal(legalTargetIds, targetIds.OrderBy(id => id, StringComparer.Ordinal).ToArray());
+        foreach (var filteredTargetId in filteredTargetIds)
+        {
+            Assert.DoesNotContain(filteredTargetId, targetIds);
+        }
+
         var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
                 metadata["sourceRequirements"])
@@ -352,12 +379,11 @@ public sealed class SecretArtMercyBoonGuardTests
             .Select(choice => choice.Id)
             .ToArray();
 
-        Assert.Contains("P1-FRIENDLY-UNIT", targetChoiceIds);
-        Assert.Contains("P1-FRIENDLY-CUSTOM-UNIT", targetChoiceIds);
-        Assert.DoesNotContain("P1-FRIENDLY-EQUIPMENT", targetChoiceIds);
-        Assert.DoesNotContain("P1-FRIENDLY-SPELL", targetChoiceIds);
-        Assert.DoesNotContain("P1-FRIENDLY-RUNE", targetChoiceIds);
-        Assert.DoesNotContain("P1-FACE-DOWN-STANDBY", targetChoiceIds);
+        Assert.Equal(legalTargetIds, targetChoiceIds.OrderBy(id => id, StringComparer.Ordinal).ToArray());
+        foreach (var filteredTargetId in filteredTargetIds)
+        {
+            Assert.DoesNotContain(filteredTargetId, targetChoiceIds);
+        }
     }
 
     private static async Task<ResolutionResult> PlaySecretArtMercyAsync(
