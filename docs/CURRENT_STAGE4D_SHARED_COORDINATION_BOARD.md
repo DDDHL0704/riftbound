@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18OQ/18OR/18OS mapper/GameHub/recovery test bundle integrates a parallel worktree batch proving `PAY_COST.paymentChoiceIds` mapper precedence over visible prompt metadata alias `paymentChoices`; proving raw `SURRENDER` after a finished GameHub match returns stable redacted `MatchFinished` without caller/group broadcasts, journal growth or snapshot mutation; and proving spectator replay timing `battle.damageAssignment.requiredAssignments[]` reports missing object-registry diagnostics for missing source/legal-target object ids. Runtime changed: no, test coverage only. Tests changed in `ConformanceFixtureShapeTests`, `GameHubJoinTests` and `MatchRecoveryTests`. Validation passed: focused new tests `3/3`, touched class filter `1588/1588`, broader adjacent server filter `5385/5385`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7348/7348`, plus diff checks, conflict-marker scan and matrix JSON parse. Worker/worktree source commits were `1d691355`, `0c2a7ed8` and `55ab75cc`; A_MAIN reviewed and owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18OT/18OU/18OV mapper/GameHub/LayerEngine test bundle integrates a parallel worktree batch proving `CHOOSE_HAND_CARDS.chosenObjectIds` mapper precedence over visible prompt metadata alias `handChoices`; proving raw `PLAY_CARD` after a finished GameHub match returns stable redacted `MatchFinished` without caller/group broadcasts, group errors, journal growth or snapshot mutation; and proving battlefield static-aura participant metadata honors `ObjectLocations` over stale battlefield zone membership across authoritative state and P1/P2 snapshots. Runtime changed: no, test coverage only. Tests changed in `ConformanceFixtureShapeTests`, `GameHubJoinTests` and `LayerEngineTimestampDependencyTests`. Validation passed: focused new tests `3/3`, touched class filter `313/313`, broader adjacent server filter `5420/5420`, backend full via tracked `Riftbound.slnx` under the current no-DB environment `7351/7351`, plus diff checks, conflict-marker scan and matrix JSON parse. Worker/worktree source commits were `d28ae8c6`, `ed24ead2` and `6dbfc7c4`; A_MAIN reviewed and owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18OQ/18OR/18OS; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 09:11 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/test checkpoint is Stage 4D-18OT/18OU/18OV; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-06 09:30 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-06 09:30 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main`, pending docs/checkpoint commit after validation at time of entry
+
+Write locks: closed for `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`, `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`, `tests/Riftbound.ConformanceTests/LayerEngineTimestampDependencyTests.cs`, current checkpoint/completion/P0/P1/dispatch docs, shared board and `docs/CURRENT_STAGE4D_18OT_18OV_MAPPER_GAMEHUB_LAYER_AUDIT.md`. Runtime validation code, matrix JSON, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18OT/18OU/18OV integrated parallel worktree output: `d28ae8c6` (mapper `CHOOSE_HAND_CARDS.chosenObjectIds` over visible `handChoices` alias), `ed24ead2` (GameHub after-finished raw `PLAY_CARD` redaction/no-broadcast/no-mutation guard) and `6dbfc7c4` (LayerEngine battlefield static-aura stale participant object-location filtering across player views).
+
+Validation: focused new tests `3/3`; touched class filter `313/313`; broader adjacent server filter `5420/5420`; backend full `7351/7351` under no-DB environment; `git diff --check`, range diff check, anchored conflict-marker scan and matrix JSON parse passed before docs sync.
+
+Requested action: none for DOC_MATRIX. Next A_MAIN batch must re-read this board and can dispatch another non-overlapping parallel server group. Project remains **NOT READY**.
 
 ### 2026-06-06 09:11 A_MAIN
 
