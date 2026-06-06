@@ -67,6 +67,79 @@ public sealed class HuntReadyGuardTests
     }
 
     [Fact]
+    public void HuntMainActionPlayCardPromptExposesNoTargetChoices()
+    {
+        const string huntObjectId = "P1-SPELL-HUNT";
+        var state = BuildHuntState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
+                && candidate.Enabled
+                && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, huntObjectId, StringComparison.Ordinal)));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, huntObjectId, StringComparison.Ordinal));
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var fixtureObjectId in new[]
+        {
+            "P1-BASE-UNIT",
+            "P1-BATTLEFIELD-UNIT",
+            "P2-BATTLEFIELD-UNIT",
+            "P1-FACE-DOWN-STANDBY",
+            "P1-DIRTY-P2-CONTROLLED-BATTLEFIELD-UNIT",
+            MaduliObjectId,
+            huntObjectId
+        })
+        {
+            Assert.DoesNotContain(fixtureObjectId, targetIds);
+        }
+
+        if (playCandidate.Metadata is null)
+        {
+            return;
+        }
+
+        if (playCandidate.Metadata.TryGetValue("targetChoicesByIndex", out var candidateTargetChoicesPayload)
+            && candidateTargetChoicesPayload is not null)
+        {
+            AssertEmptyTargetChoicesByIndex(candidateTargetChoicesPayload);
+        }
+
+        if (!playCandidate.Metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload)
+            || sourceRequirementsPayload is null)
+        {
+            return;
+        }
+
+        var huntSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                sourceRequirementsPayload)
+            .Where(requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, huntObjectId, StringComparison.Ordinal))
+            .ToArray();
+        foreach (var sourceRequirement in huntSourceRequirements)
+        {
+            if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
+                || targetChoicesPayload is null)
+            {
+                continue;
+            }
+
+            AssertEmptyTargetChoicesByIndex(targetChoicesPayload);
+        }
+    }
+
+    [Fact]
     public async Task HuntPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
@@ -365,6 +438,20 @@ public sealed class HuntReadyGuardTests
         }
 
         return stackItem;
+    }
+
+    private static void AssertEmptyTargetChoicesByIndex(object targetChoicesPayload)
+    {
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(targetChoicesPayload);
+        Assert.All(targetChoicesByIndex.Values, choices =>
+        {
+            if (choices is null)
+            {
+                return;
+            }
+
+            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices));
+        });
     }
 
     private static void AssertRejectedWithoutMutation(MatchState initialState, ResolutionResult result)
