@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -140,6 +141,162 @@ public sealed class RageSigilResourceSkillTests
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["powerByTrait"]);
         Assert.Equal(1, powerByTrait[RuneTrait.Red]);
         Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["remainingPowerByTrait"])[RuneTrait.Red]);
+    }
+
+    [Fact]
+    public async Task RageSigilResourceSkillStalePromptReplayUsesRejectedCacheWithoutMutation()
+    {
+        var journal = new RecordingMatchJournal();
+        var state = BuildRageSigilPriorityState();
+        var session = new MatchSession(state, new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.True(activateCandidate.Enabled);
+        Assert.Contains(
+            activateCandidate.Sources ?? [],
+            source => string.Equals(source.Id, RageSigilObjectId, StringComparison.Ordinal));
+
+        var command = RageSigilCommand();
+        var staleRawCommand = PromptScopedActivateAbilityRawCommand(command, prompt);
+        var changedStaleRawCommand = PromptScopedActivateAbilityRawCommandWithClientNote(
+            command,
+            prompt,
+            "changed-payload");
+        const string acceptedClientIntentId = "intent-rage-sigil-before-stale-prompt-replay";
+        const string staleClientIntentId = "intent-rage-sigil-stale-prompt-replay";
+
+        var accepted = await session.SubmitAsync(
+            "P1",
+            acceptedClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.Equal(1, accepted.State.Tick);
+        var acceptedTemporaryResourceId = AssertRageSigilAcceptedEffects(accepted, expectEvents: true);
+        var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var acceptedP1SessionPromptHash = MatchStateHasher.HashValue(session.PromptFor("P1"));
+        var acceptedP2SessionPromptHash = MatchStateHasher.HashValue(session.PromptFor("P2"));
+        var acceptedP1SessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P1"));
+        var acceptedP2SessionSnapshotHash = MatchStateHasher.HashValue(session.SnapshotFor("P2"));
+        Assert.Equal(acceptedP1SessionPromptHash, MatchStateHasher.HashValue(accepted.Prompts["P1"]));
+        Assert.Equal(acceptedP2SessionPromptHash, MatchStateHasher.HashValue(accepted.Prompts["P2"]));
+        Assert.Equal(acceptedP1SessionSnapshotHash, MatchStateHasher.HashValue(accepted.Snapshots["P1"]));
+        Assert.Equal(acceptedP2SessionSnapshotHash, MatchStateHasher.HashValue(accepted.Snapshots["P2"]));
+
+        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
+        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
+        Assert.Equal(acceptedClientIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, acceptedJournalEntry.CommandType);
+        Assert.True(acceptedJournalEntry.Accepted);
+        Assert.Null(acceptedJournalEntry.ErrorMessage);
+        Assert.True(acceptedJournalEntry.RawCommand.HasValue);
+        AssertPromptScopedActivateAbilityRawCommand(acceptedJournalEntry.RawCommand.Value, command, prompt);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
+
+        var replay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Empty(replay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(accepted.State.Tick, replay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
+        Assert.Equal(acceptedP1SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedP2SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(acceptedP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(acceptedP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(accepted.State.TemporaryPaymentResources, replay.State.TemporaryPaymentResources);
+        Assert.Equal(acceptedTemporaryResourceId, AssertRageSigilAcceptedEffects(replay, expectEvents: false));
+
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(1, journal.Entries.Count(entry => !entry.Accepted));
+        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
+        Assert.Equal("P1", rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.ActivateAbility, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(replay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedJournalEntry.RawCommand.Value));
+        AssertPromptScopedActivateAbilityRawCommand(rejectedJournalEntry.RawCommand.Value, command, prompt);
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+        var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var duplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            staleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Empty(duplicateReplay.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(replay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        Assert.Equal(acceptedP1SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedP2SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(acceptedP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(acceptedP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(accepted.State.TemporaryPaymentResources, duplicateReplay.State.TemporaryPaymentResources);
+        Assert.Equal(acceptedTemporaryResourceId, AssertRageSigilAcceptedEffects(duplicateReplay, expectEvents: false));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+
+        var conflict = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            changedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(replay.State.Tick, conflict.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(acceptedP1SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(acceptedP2SessionPromptHash, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(acceptedP1SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(acceptedP2SessionSnapshotHash, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(accepted.State.TemporaryPaymentResources, conflict.State.TemporaryPaymentResources);
+        Assert.Equal(acceptedTemporaryResourceId, AssertRageSigilAcceptedEffects(conflict, expectEvents: false));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } entryRaw
+            && entryRaw.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
     }
 
     [Theory]
@@ -383,6 +540,157 @@ public sealed class RageSigilResourceSkillTests
             optionalCosts);
     }
 
+    private static JsonElement PromptScopedActivateAbilityRawCommand(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private static JsonElement PromptScopedActivateAbilityRawCommandWithClientNote(
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt,
+        string clientNote)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = command.CmdType,
+            sourceObjectId = command.SourceObjectId,
+            abilityId = command.AbilityId,
+            targetObjectIds = command.TargetObjectIds,
+            optionalCosts = command.OptionalCosts ?? [],
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote
+        });
+    }
+
+    private static void AssertPromptScopedActivateAbilityRawCommand(
+        JsonElement rawCommand,
+        ActivateAbilityCommand command,
+        ActionPromptDto prompt)
+    {
+        Assert.Equal(CommandTypes.ActivateAbility, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(command.SourceObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(command.AbilityId, rawCommand.GetProperty("abilityId").GetString());
+        Assert.Equal(
+            command.TargetObjectIds,
+            rawCommand.GetProperty("targetObjectIds").EnumerateArray().Select(target => target.GetString()!).ToArray());
+        Assert.Equal(
+            command.OptionalCosts ?? [],
+            rawCommand.GetProperty("optionalCosts").EnumerateArray().Select(optionalCost => optionalCost.GetString()!).ToArray());
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
+    }
+
+    private static string AssertRageSigilAcceptedEffects(
+        ResolutionResult result,
+        bool expectEvents)
+    {
+        Assert.True(result.State.CardObjects[RageSigilObjectId].IsExhausted);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.Equal([PendingStackItemId], result.State.StackItems.Select(item => item.StackItemId).ToArray());
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.Empty(result.State.PassedPriorityPlayerIds);
+        Assert.Null(result.State.PendingPayment);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        var temporaryResource = Assert.Single(result.State.TemporaryPaymentResources);
+        Assert.Equal("P1", temporaryResource.OwnerPlayerId);
+        Assert.Equal(RageSigilObjectId, temporaryResource.SourceObjectId);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, temporaryResource.AbilityId);
+        Assert.Equal(CommandTypes.ActivateAbility, temporaryResource.PaymentWindow);
+        Assert.Equal(0, temporaryResource.GeneratedPower);
+        Assert.Equal(0, temporaryResource.RemainingPower);
+        Assert.Equal(1, temporaryResource.GeneratedPowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, temporaryResource.RemainingPowerByTrait[RuneTrait.Red]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], temporaryResource.AllowedPaymentKinds);
+
+        if (!expectEvents)
+        {
+            Assert.Empty(result.Events);
+            return temporaryResource.ResourceId;
+        }
+
+        Assert.Equal(
+            ["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "POWER_GAINED"],
+            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+
+        var activatedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Equal("P1", activatedEvent.Payload["playerId"]);
+        Assert.Equal(RageSigilObjectId, activatedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilCardNo, activatedEvent.Payload["cardNo"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, activatedEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityEffectKind, activatedEvent.Payload["effectKind"]);
+        Assert.Equal(CommandTypes.ActivateAbility, activatedEvent.Payload["paymentWindow"]);
+        var paymentId = Assert.IsType<string>(activatedEvent.Payload["paymentId"]);
+        Assert.True(Assert.IsType<bool>(activatedEvent.Payload["resourceSkill"]));
+        Assert.True(Assert.IsType<bool>(activatedEvent.Payload["reactionSpeed"]));
+        Assert.True(Assert.IsType<bool>(activatedEvent.Payload["paymentOnly"]));
+        Assert.True(Assert.IsType<bool>(activatedEvent.Payload["typedPaymentOnlyResource"]));
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction, activatedEvent.Payload["resourceRestriction"]);
+        Assert.Equal("STACK_PRIORITY_REACTION", activatedEvent.Payload["timingContext"]);
+        Assert.Equal(temporaryResource.ResourceId, activatedEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(activatedEvent.Payload["allowedPaymentKinds"]));
+        Assert.Equal("temporary-payment-resource-ledger", activatedEvent.Payload["resourceLifecycle"]);
+        var activatedPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(activatedEvent.Payload["generatedPowerByTrait"]);
+        Assert.Equal(1, activatedPowerByTrait[RuneTrait.Red]);
+
+        var exhaustedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Equal("P1", exhaustedEvent.Payload["playerId"]);
+        Assert.Equal(RageSigilObjectId, exhaustedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(RageSigilObjectId, exhaustedEvent.Payload["targetObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, exhaustedEvent.Payload["abilityId"]);
+        Assert.Equal(CommandTypes.ActivateAbility, exhaustedEvent.Payload["paymentWindow"]);
+        Assert.Equal(paymentId, exhaustedEvent.Payload["paymentId"]);
+        Assert.False(Assert.IsType<bool>(exhaustedEvent.Payload["wasExhausted"]));
+        Assert.True(Assert.IsType<bool>(exhaustedEvent.Payload["isExhausted"]));
+        Assert.True(Assert.IsType<bool>(exhaustedEvent.Payload["resourceSkill"]));
+        Assert.True(Assert.IsType<bool>(exhaustedEvent.Payload["reactionSpeed"]));
+        Assert.True(Assert.IsType<bool>(exhaustedEvent.Payload["paymentOnly"]));
+        Assert.True(Assert.IsType<bool>(exhaustedEvent.Payload["typedPaymentOnlyResource"]));
+        Assert.Equal("STACK_PRIORITY_REACTION", exhaustedEvent.Payload["timingContext"]);
+
+        var powerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P1", powerEvent.Payload["playerId"]);
+        Assert.Equal(RageSigilObjectId, powerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilCardNo, powerEvent.Payload["cardNo"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityId, powerEvent.Payload["abilityId"]);
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilResourceAbilityEffectKind, powerEvent.Payload["effectKind"]);
+        Assert.Equal(CommandTypes.ActivateAbility, powerEvent.Payload["paymentWindow"]);
+        Assert.Equal(paymentId, powerEvent.Payload["paymentId"]);
+        Assert.True(Assert.IsType<bool>(powerEvent.Payload["resourceSkill"]));
+        Assert.True(Assert.IsType<bool>(powerEvent.Payload["reactionSpeed"]));
+        Assert.True(Assert.IsType<bool>(powerEvent.Payload["paymentOnly"]));
+        Assert.True(Assert.IsType<bool>(powerEvent.Payload["typedPaymentOnlyResource"]));
+        Assert.Equal(P4ActivatedAbilityCatalog.RageSigilTypedResourceRestriction, powerEvent.Payload["resourceRestriction"]);
+        Assert.Equal("temporary-payment-resource-ledger", powerEvent.Payload["restrictionLifecycle"]);
+        Assert.Equal("STACK_PRIORITY_REACTION", powerEvent.Payload["timingContext"]);
+        Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
+        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], Assert.IsType<string[]>(powerEvent.Payload["allowedPaymentKinds"]));
+        var generatedPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["generatedPowerByTrait"]);
+        Assert.Equal(1, generatedPowerByTrait[RuneTrait.Red]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["powerByTrait"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Red]);
+        var remainingPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(powerEvent.Payload["remainingPowerByTrait"]);
+        Assert.Equal(1, remainingPowerByTrait[RuneTrait.Red]);
+
+        return temporaryResource.ResourceId;
+    }
+
     private static MatchState BuildInvalidTimingState(string caseName)
     {
         var state = BuildRageSigilPriorityState();
@@ -570,5 +878,16 @@ public sealed class RageSigilResourceSkillTests
         var next = objectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         next[objectId] = replacement;
         return next;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }
