@@ -150,7 +150,7 @@ public sealed class GiantArmKatoGuardTests
         Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
 
         Assert.Equal(2, journal.Entries.Count);
-        var rejectedJournalEntry = Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        var rejectedJournalEntry = Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
         Assert.Equal("P1", rejectedJournalEntry.PlayerId);
         Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
@@ -188,7 +188,7 @@ public sealed class GiantArmKatoGuardTests
         Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
         Assert.Equal(2, journal.Entries.Count);
-        Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var conflict = await session.SubmitAsync(
@@ -211,7 +211,7 @@ public sealed class GiantArmKatoGuardTests
         Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
         Assert.Equal(2, journal.Entries.Count);
-        Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw

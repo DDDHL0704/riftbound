@@ -181,7 +181,7 @@ public sealed class DravenVanillaGuardTests
         Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(rejectedJournalEntry.RawCommand.Value));
         AssertPromptScopedPlayCardRawCommand(rejectedJournalEntry.RawCommand.Value, prompt);
         Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
-        Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
         var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
 
         var duplicateReplay = await session.SubmitAsync(
@@ -208,7 +208,7 @@ public sealed class DravenVanillaGuardTests
         Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
         Assert.Equal(2, journal.Entries.Count);
-        Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var conflict = await session.SubmitAsync(
@@ -234,7 +234,7 @@ public sealed class DravenVanillaGuardTests
         Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
         Assert.Equal(2, journal.Entries.Count);
-        Assert.Single(journal.Entries.Where(entry => !entry.Accepted));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
         Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw
