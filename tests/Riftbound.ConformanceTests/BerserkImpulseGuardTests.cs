@@ -148,6 +148,65 @@ public sealed class BerserkImpulseGuardTests
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.False(playCandidate.Enabled);
+        var hiddenOrIllegalTargetObjectIds = new[]
+        {
+            "P2-TOP-UNIT",
+            "P2-SECOND-UNIT",
+            "P2-TOP-SPELL",
+            "P2-TOP-EQUIPMENT",
+            "P2-TOP-RUNE",
+            "P2-TOP-FACE-DOWN-UNIT"
+        };
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        foreach (var targetObjectId in hiddenOrIllegalTargetObjectIds)
+        {
+            Assert.DoesNotContain(targetObjectId, targetIds);
+        }
+
+        var metadataTargetIds = new List<string>();
+        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true
+            && rawSourceRequirements is not null)
+        {
+            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                    rawSourceRequirements)
+                .ToArray();
+            foreach (var sourceRequirement in sourceRequirements)
+            {
+                if (sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
+                    && rawTargetChoicesByIndex is not null)
+                {
+                    var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                        rawTargetChoicesByIndex);
+                    foreach (var rawTargetChoices in targetChoicesByIndex.Values)
+                    {
+                        if (rawTargetChoices is null)
+                        {
+                            continue;
+                        }
+
+                        metadataTargetIds.AddRange(Assert
+                            .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                            .Select(choice => choice.Id));
+                    }
+                }
+
+                if (sourceRequirement.TryGetValue("legalTargetSelections", out var rawLegalTargetSelections)
+                    && rawLegalTargetSelections is not null)
+                {
+                    foreach (var legalTargetSelection in Assert
+                        .IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(rawLegalTargetSelections))
+                    {
+                        metadataTargetIds.AddRange(legalTargetSelection);
+                    }
+                }
+            }
+        }
+
+        foreach (var targetObjectId in hiddenOrIllegalTargetObjectIds)
+        {
+            Assert.DoesNotContain(targetObjectId, metadataTargetIds);
+        }
+
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedPlayCardRawCommandWithClientNote(command, prompt, "changed-payload");
         const string acceptedClientIntentId = "intent-berserk-impulse-before-stale-prompt-replay";
