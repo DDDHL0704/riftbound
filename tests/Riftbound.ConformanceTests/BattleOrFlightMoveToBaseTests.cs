@@ -70,6 +70,50 @@ public sealed class BattleOrFlightMoveToBaseTests
     }
 
     [Fact]
+    public void BattleOrFlightMainActionPlayCardPromptOnlyExposesLegalPublicBattlefieldUnitTarget()
+    {
+        var state = BuildBattleOrFlightState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, BattleOrFlightObjectId, StringComparison.Ordinal));
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal([BattleOrFlightTargetObjectId], targetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", targetIds);
+        Assert.DoesNotContain("P2-BASE-UNIT", targetIds);
+        Assert.DoesNotContain("P2-STALE-UNIT", targetIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", targetIds);
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, BattleOrFlightObjectId, StringComparison.Ordinal));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal([BattleOrFlightTargetObjectId], firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BASE-UNIT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-STALE-UNIT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", firstTargetChoiceIds);
+    }
+
+    [Fact]
     public async Task BattleOrFlightPlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
