@@ -8462,10 +8462,13 @@ public sealed class OfficialOpeningTests
     [Fact]
     public async Task OfficialFirstMulliganStalePromptReplayAfterFirstTurnStartsRejectsWithoutMutation()
     {
+        const string roomId = "official-first-mulligan-first-turn-stale-prompt-room";
+        const string staleClientIntentId = "mulligan-active-first-turn-stale-prompt-replay";
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
-        var session = new MatchSession("official-first-mulligan-first-turn-stale-prompt-room", new CoreRuleEngine());
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(roomId, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
@@ -8538,9 +8541,12 @@ public sealed class OfficialOpeningTests
             turnDrawnObjectIds);
 
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var journalEntryCountBeforeReplay = journal.Entries.Count;
         var stalePromptReplay = await session.SubmitAsync(
             activePlayerId,
-            "mulligan-active-first-turn-stale-prompt-replay",
+            staleClientIntentId,
             new MulliganCommand(activeSelectedObjectIds),
             activeRawCommand,
             CancellationToken.None);
@@ -8550,6 +8556,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal("行动窗口已过期，请按最新提示重新提交。", stalePromptReplay.ErrorMessage);
         Assert.Empty(stalePromptReplay.Events);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(stalePromptReplay.State));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(stalePromptReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(stalePromptReplay.Snapshots));
         Assert.Equal(accepted.State.Tick, stalePromptReplay.State.Tick);
         Assert.Equal(accepted.State.RngCursor, stalePromptReplay.State.RngCursor);
         AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
@@ -8563,6 +8571,115 @@ public sealed class OfficialOpeningTests
             calledRuneObjectIds,
             turnDrawnObjectIds,
             assertEvents: false);
+
+        Assert.Equal(journalEntryCountBeforeReplay + 1, journal.Entries.Count);
+        var rejectedJournalEntry = Assert.Single(journal.Entries.Skip(journalEntryCountBeforeReplay));
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
+        Assert.Equal(roomId, rejectedJournalEntry.RoomId);
+        Assert.Equal(activePlayerId, rejectedJournalEntry.PlayerId);
+        Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
+        Assert.Equal(CommandTypes.Mulligan, rejectedJournalEntry.CommandType);
+        Assert.False(rejectedJournalEntry.Accepted);
+        Assert.Equal(stalePromptReplay.ErrorMessage, rejectedJournalEntry.ErrorMessage);
+        Assert.Empty(rejectedJournalEntry.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(rejectedJournalEntry.AuthoritativeState));
+        Assert.Equal(accepted.State.Tick, rejectedJournalEntry.StartedTick);
+        Assert.Equal(accepted.State.Tick, rejectedJournalEntry.CompletedTick);
+        Assert.Equal(accepted.State.Tick, rejectedJournalEntry.AuthoritativeState.Tick);
+        Assert.Equal(accepted.State.RngCursor, rejectedJournalEntry.AuthoritativeState.RngCursor);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
+        Assert.True(rejectedJournalEntry.RawCommand.HasValue);
+        Assert.Equal(CommandTypes.Mulligan, rejectedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(
+            activeSelectedObjectIds,
+            rejectedJournalEntry.RawCommand.Value.GetProperty("handObjectIds").EnumerateArray().Select(element => element.GetString()).ToArray());
+        Assert.Equal(activePrompt.PromptId, rejectedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(activePrompt.SnapshotTick, rejectedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replayEvents = JsonSerializer.Serialize(stalePromptReplay.Events);
+        var replayPromptsHash = MatchStateHasher.HashValue(stalePromptReplay.Prompts);
+        var replaySnapshotsHash = MatchStateHasher.HashValue(stalePromptReplay.Snapshots);
+        var journalEntryCountAfterReplay = journal.Entries.Count;
+        var duplicateReplay = await session.SubmitAsync(
+            activePlayerId,
+            staleClientIntentId,
+            new MulliganCommand(activeSelectedObjectIds),
+            activeRawCommand,
+            CancellationToken.None);
+
+        Assert.False(duplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, duplicateReplay.ErrorCode);
+        Assert.Equal(stalePromptReplay.ErrorMessage, duplicateReplay.ErrorMessage);
+        Assert.Equal(replayEvents, JsonSerializer.Serialize(duplicateReplay.Events));
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(duplicateReplay.State));
+        Assert.Equal(stalePromptReplay.State.Tick, duplicateReplay.State.Tick);
+        Assert.Equal(stalePromptReplay.State.RngCursor, duplicateReplay.State.RngCursor);
+        Assert.Equal(replayPromptsHash, MatchStateHasher.HashValue(duplicateReplay.Prompts));
+        Assert.Equal(replaySnapshotsHash, MatchStateHasher.HashValue(duplicateReplay.Snapshots));
+        AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
+            duplicateReplay,
+            activePlayerId,
+            secondPlayerId,
+            activeSelectedObjectIds,
+            activeDrawnObjectIds,
+            secondSelectedObjectIds,
+            secondDrawnObjectIds,
+            calledRuneObjectIds,
+            turnDrawnObjectIds,
+            assertEvents: false);
+        Assert.Equal(journalEntryCountAfterReplay, journal.Entries.Count);
+
+        var p1SnapshotBeforeConflict = SnapshotSignature(session, "P1");
+        var p2SnapshotBeforeConflict = SnapshotSignature(session, "P2");
+        var p1PromptBeforeConflict = JsonSerializer.Serialize(session.PromptFor("P1"));
+        var p2PromptBeforeConflict = JsonSerializer.Serialize(session.PromptFor("P2"));
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.Mulligan,
+            handObjectIds = activeSelectedObjectIds,
+            promptId = activePrompt.PromptId,
+            snapshotTick = activePrompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
+        var conflict = await session.SubmitAsync(
+            activePlayerId,
+            staleClientIntentId,
+            new MulliganCommand(activeSelectedObjectIds),
+            changedRawCommand,
+            CancellationToken.None);
+
+        Assert.False(conflict.Accepted);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.ErrorCode);
+        Assert.Equal("该客户端行动编号已用于其他命令。", conflict.ErrorMessage);
+        Assert.Empty(conflict.Events);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(conflict.State));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
+        Assert.Equal(accepted.State.Tick, conflict.State.Tick);
+        Assert.Equal(accepted.State.RngCursor, conflict.State.RngCursor);
+        AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
+            conflict,
+            activePlayerId,
+            secondPlayerId,
+            activeSelectedObjectIds,
+            activeDrawnObjectIds,
+            secondSelectedObjectIds,
+            secondDrawnObjectIds,
+            calledRuneObjectIds,
+            turnDrawnObjectIds,
+            assertEvents: false);
+        Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(session, "P1"));
+        Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(session, "P2"));
+        Assert.Equal(p1PromptBeforeConflict, JsonSerializer.Serialize(session.PromptFor("P1")));
+        Assert.Equal(p2PromptBeforeConflict, JsonSerializer.Serialize(session.PromptFor("P2")));
+        Assert.Equal(journalEntryCountAfterReplay, journal.Entries.Count);
+        Assert.DoesNotContain(
+            journal.Entries,
+            entry => entry.RawCommand.HasValue
+                && entry.RawCommand.Value.TryGetProperty("clientNote", out var clientNote)
+                && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
 
         var unstampedReplay = await session.SubmitAsync(
             activePlayerId,
