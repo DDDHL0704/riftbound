@@ -1055,6 +1055,55 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
+    public void PendingPayCostManaOnlyPromptDoesNotExposeGenericTemporaryPaymentResource()
+    {
+        var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-MANA-ONLY-PROMPT");
+        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
+        var pendingPayment = new PendingPaymentState(
+            "PENDING-PAY-COST-MANA-ONLY-1",
+            "TEST_PENDING_PAY_COST",
+            "P1",
+            manaCost: 1,
+            legalPaymentChoiceIds: ["SPEND_MANA:1"],
+            reason: "PENDING_PAY_COST_MANA_ONLY_PROMPT_TEST");
+        var state = PendingGenericPayCostTemporaryResourceState(temporaryResource) with
+        {
+            PendingPayment = pendingPayment,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var paymentChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
+        Assert.Equal(["SPEND_MANA:1"], paymentChoices.Select(choice => choice.Id).ToArray());
+        Assert.DoesNotContain(paymentChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"]);
+        Assert.Empty(paymentResourceChoices);
+        var paymentResourceActionIds = Assert.IsType<string[]>(metadata["paymentResourceActionIds"]);
+        Assert.Empty(paymentResourceActionIds);
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            metadata["paymentResourcePowerByChoice"]);
+        Assert.Empty(paymentResourcePowerByChoice);
+        Assert.Equal(pendingPayment, state.PendingPayment);
+        var actualTemporaryResource = Assert.Single(state.TemporaryPaymentResources);
+        Assert.Equal(temporaryResource.ResourceId, actualTemporaryResource.ResourceId);
+        Assert.Equal(temporaryResource.OwnerPlayerId, actualTemporaryResource.OwnerPlayerId);
+        Assert.Equal(temporaryResource.SourceObjectId, actualTemporaryResource.SourceObjectId);
+        Assert.Equal(temporaryResource.AbilityId, actualTemporaryResource.AbilityId);
+        Assert.Equal(temporaryResource.PaymentWindow, actualTemporaryResource.PaymentWindow);
+        Assert.Equal(temporaryResource.RemainingPower, actualTemporaryResource.RemainingPower);
+        Assert.Equal(temporaryResource.AllowedPaymentKinds, actualTemporaryResource.AllowedPaymentKinds);
+    }
+
+    [Fact]
     public async Task PendingPayCostCommitsGenericTemporaryPaymentResourceThroughPaymentPlan()
     {
         var temporaryResource = TemporaryResource("MALZAHAR:TEMP-PENDING-PAY-COST-COMMIT");
