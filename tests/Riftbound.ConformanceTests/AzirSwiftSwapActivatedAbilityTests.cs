@@ -110,6 +110,34 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
     }
 
     [Fact]
+    public void PromptDoesNotTreatGenericTemporaryResourceAsAzirGreenPayment()
+    {
+        var state = BuildAzirState(P4ActivatedAbilityCatalog.AzirCardNo, RunePool.Empty) with
+        {
+            TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-AZIR-GENERIC-ONLY")]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+
+        Assert.DoesNotContain(
+            requirements,
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
+            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void PromptExposesImplementedAzirArmamentReattachChoicesByTarget()
     {
         var state = BuildAzirStateWithArmaments();
