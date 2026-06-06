@@ -61,6 +61,32 @@ public sealed class CrimsonRoseActivatedAbilityTests
     }
 
     [Fact]
+    public void CrimsonRoseExperienceOnlyReadyUnitPromptHidesUnrelatedTemporaryPaymentResource()
+    {
+        var state = BuildCrimsonRoseState(mana: 1, experience: 3) with
+        {
+            TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-CRIMSON")]
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+
+        var activateCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Equal([CrimsonRoseObjectId], (activateCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
+        var requirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
+                StringComparison.Ordinal));
+
+        Assert.Equal(CrimsonRoseObjectId, requirement["sourceObjectId"]);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]));
+    }
+
+    [Fact]
     public void CrimsonRoseReadyUnitPromptHidesGatekeeperMaduliCannotBecomeActiveTarget()
     {
         var state = AddFriendlyMaduli(BuildCrimsonRoseState(mana: 1, experience: 3));
@@ -857,6 +883,20 @@ public sealed class CrimsonRoseActivatedAbilityTests
             cardNo: $"RUNE-{trait}",
             ownerId: "P1",
             controllerId: "P1");
+    }
+
+    private static TemporaryPaymentResourceState GenericTemporaryResource(string resourceId)
+    {
+        return new TemporaryPaymentResourceState(
+            resourceId,
+            "P1",
+            "P1-MALZAHAR",
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
+            "ACTIVATE_ABILITY",
+            2,
+            2,
+            [PaymentCostRules.RuneCostPaymentKind],
+            1);
     }
 
     private static IReadOnlyDictionary<string, CardObjectState> ReplaceCardObject(
