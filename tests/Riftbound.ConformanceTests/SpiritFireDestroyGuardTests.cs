@@ -55,6 +55,77 @@ public sealed class SpiritFireDestroyGuardTests
     }
 
     [Fact]
+    public void SpiritFireMatchSessionMainActionPromptOnlyExposesLegalTargetCandidates()
+    {
+        var state = BuildSpiritFireState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-SPELL-SPIRIT-FIRE", StringComparison.Ordinal));
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-SPELL-SPIRIT-FIRE", StringComparison.Ordinal));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        var legalTargetSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
+                sourceRequirement["legalTargetSelections"])
+            .ToArray();
+        string[] legalTargets =
+        [
+            "P2-SPIRIT-FIRE-UNIT-001",
+            "P2-SPIRIT-FIRE-UNIT-002"
+        ];
+        string[] filteredTargets =
+        [
+            "P2-SPIRIT-FIRE-KEEPER-001",
+            "P2-BATTLEFIELD-EQUIPMENT",
+            "P2-BATTLEFIELD-SPELL",
+            "P2-BATTLEFIELD-RUNE",
+            "P2-FACE-DOWN-STANDBY",
+            "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+            "P2-BASE-UNIT",
+            "P1-HAND-UNIT"
+        ];
+
+        foreach (var legalTarget in legalTargets)
+        {
+            Assert.Contains(legalTarget, targetIds);
+            Assert.Contains(legalTarget, firstTargetChoiceIds);
+        }
+
+        foreach (var filteredTarget in filteredTargets)
+        {
+            Assert.DoesNotContain(filteredTarget, targetIds);
+            Assert.DoesNotContain(filteredTarget, firstTargetChoiceIds);
+            Assert.DoesNotContain(legalTargetSelections, selection =>
+                selection.Contains(filteredTarget, StringComparer.Ordinal));
+        }
+
+        Assert.Contains(legalTargetSelections, selection =>
+            selection.Count == legalTargets.Length
+            && legalTargets.All(target => selection.Contains(target, StringComparer.Ordinal)));
+    }
+
+    [Fact]
     public async Task SpiritFirePlayCardStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
