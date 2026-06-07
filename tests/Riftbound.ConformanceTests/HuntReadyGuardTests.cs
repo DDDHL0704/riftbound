@@ -104,38 +104,36 @@ public sealed class HuntReadyGuardTests
             Assert.DoesNotContain(fixtureObjectId, targetIds);
         }
 
-        if (playCandidate.Metadata is null)
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        if (metadata.TryGetValue("targetChoicesByIndex", out var candidateTargetChoicesPayload))
         {
-            return;
-        }
-
-        if (playCandidate.Metadata.TryGetValue("targetChoicesByIndex", out var candidateTargetChoicesPayload)
-            && candidateTargetChoicesPayload is not null)
-        {
+            Assert.NotNull(candidateTargetChoicesPayload);
             AssertEmptyTargetChoicesByIndex(candidateTargetChoicesPayload);
         }
 
-        if (!playCandidate.Metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload)
-            || sourceRequirementsPayload is null)
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload));
+        Assert.NotNull(sourceRequirementsPayload);
+
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                sourceRequirementsPayload)
+            .ToArray();
+        var huntSourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, huntObjectId, StringComparison.Ordinal));
+        Assert.True(huntSourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload));
+        Assert.NotNull(targetChoicesPayload);
+        AssertEmptyTargetChoicesByIndex(targetChoicesPayload);
+
+        if (huntSourceRequirement.TryGetValue("minTargetCount", out var minTargetCount))
         {
-            return;
+            Assert.Equal(0, Assert.IsType<int>(minTargetCount));
         }
 
-        var huntSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                sourceRequirementsPayload)
-            .Where(requirement =>
-                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                && string.Equals(sourceObjectId as string, huntObjectId, StringComparison.Ordinal))
-            .ToArray();
-        foreach (var sourceRequirement in huntSourceRequirements)
+        if (huntSourceRequirement.TryGetValue("maxTargetCount", out var maxTargetCount))
         {
-            if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
-                || targetChoicesPayload is null)
-            {
-                continue;
-            }
-
-            AssertEmptyTargetChoicesByIndex(targetChoicesPayload);
+            Assert.Equal(0, Assert.IsType<int>(maxTargetCount));
         }
     }
 
