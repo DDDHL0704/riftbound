@@ -119,28 +119,40 @@ public sealed class OverchargedEnergyGuardTests
             Assert.DoesNotContain(invalidTargetObjectId, targetIds);
         }
 
-        var metadataTargetIds = Array.Empty<string>();
-        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true)
-        {
-            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                    rawSourceRequirements)
-                .ToArray();
-            var sourceRequirement = sourceRequirements.SingleOrDefault(requirement =>
-                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                && string.Equals(sourceObjectId as string, OverchargedEnergyObjectId, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements));
+        Assert.NotNull(rawSourceRequirements);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                rawSourceRequirements)
+            .ToArray();
+        var sourceRequirement = Assert.Single(sourceRequirements, requirement =>
+            requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && string.Equals(sourceObjectId as string, OverchargedEnergyObjectId, StringComparison.Ordinal)
+            && requirement.TryGetValue("cardNo", out var cardNo)
+            && string.Equals(cardNo as string, OverchargedEnergyCardNo, StringComparison.Ordinal));
+        Assert.Equal(OverchargedEnergyObjectId, sourceRequirement["sourceObjectId"]);
+        Assert.Equal(OverchargedEnergyCardNo, sourceRequirement["cardNo"]);
+        Assert.True(sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex));
+        Assert.NotNull(rawTargetChoicesByIndex);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            rawTargetChoicesByIndex);
+        Assert.Empty(targetChoicesByIndex);
 
-            if (sourceRequirement is not null
-                && sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex))
-            {
-                var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                    rawTargetChoicesByIndex);
-                metadataTargetIds = targetChoicesByIndex.Values
-                    .SelectMany(rawTargetChoices => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices))
-                    .Select(choice => choice.Id)
-                    .ToArray();
-            }
+        var exposesMinTargetCount = sourceRequirement.TryGetValue("minTargetCount", out var rawMinTargetCount);
+        var exposesMaxTargetCount = sourceRequirement.TryGetValue("maxTargetCount", out var rawMaxTargetCount);
+        if (exposesMinTargetCount || exposesMaxTargetCount)
+        {
+            Assert.True(exposesMinTargetCount);
+            Assert.True(exposesMaxTargetCount);
+            Assert.Equal(0, Assert.IsType<int>(rawMinTargetCount));
+            Assert.Equal(0, Assert.IsType<int>(rawMaxTargetCount));
         }
 
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .Where(rawTargetChoices => rawTargetChoices is not null)
+            .SelectMany(rawTargetChoices => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices))
+            .Select(choice => choice.Id)
+            .ToArray();
         Assert.Empty(metadataTargetIds);
         foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
