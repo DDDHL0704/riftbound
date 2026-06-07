@@ -77,21 +77,22 @@ public sealed class GustReturnToHandTests
         var sourceRequirement = Assert.Single(
             sourceRequirements,
             requirement => string.Equals(requirement["sourceObjectId"] as string, GustObjectId, StringComparison.Ordinal));
-        if (sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawChoicesByIndex))
-        {
-            var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(rawChoicesByIndex);
-            var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-                .Select(choice => choice.Id)
-                .ToArray();
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Equal(["0"], choicesByIndex.Keys.OrderBy(key => key, StringComparer.Ordinal).ToArray());
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
 
-            Assert.Equal([GustTargetObjectId], firstTargetChoiceIds);
-            Assert.DoesNotContain("P2-LARGE-BATTLEFIELD-UNIT", firstTargetChoiceIds);
-            Assert.DoesNotContain("P2-BASE-UNIT", firstTargetChoiceIds);
-            Assert.DoesNotContain("P2-STALE-UNIT", firstTargetChoiceIds);
-            Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", firstTargetChoiceIds);
-            Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", firstTargetChoiceIds);
-            Assert.DoesNotContain("P2-HAND-KEEP", firstTargetChoiceIds);
-        }
+        Assert.Equal([GustTargetObjectId], firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-LARGE-BATTLEFIELD-UNIT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BASE-UNIT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-STALE-UNIT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-HAND-KEEP", firstTargetChoiceIds);
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
     }
 
     [Theory]
