@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18ZX/18ZY/18ZZ/190A/190B/190C/190D raw reconnect mapper recovery breadth accepted seven server-test shards covering board-task reconnect owner visibility, spell-duel reconnect owner hidden-standby visibility plus non-focus prompt shape, reordered raw `SUBMIT_DECK` duplicate-intent replay canonicality, reordered stale raw `PLAY_CARD` rejected-cache canonicality for Megashark Cannon, reordered raw `DECLARE_BATTLE` duplicate-intent replay canonicality, authoritative temporary-payment-resource blank allowed-payment-kind recovery diagnostics, and strict P0 mapper duplicate-id preservation plus order-trigger choice ordering. Runtime changed: no, server test coverage only. A_MAIN direct bundle `f3228b31` plus source commits `472799a9` and `99837cdf` were accepted as `0253184a` and `8c486404`. The failed 190C negative `CreatedTick` candidate was not integrated. Validation passed: focused `8/8`, changed-class `5146/5146`, adjacent raw/reconnect/recovery/mapper `5365/5365`, backend full `7575/7575`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-191A/191B/191C/191D/191E/191F/191G raw mapper recovery breadth accepted seven isolated server-test shards covering reordered stale raw replay canonicality for Void Burrower `DECLARE_BATTLE`, Tempered optional attach `PLAY_CARD`, Charm `PLAY_CARD`, Firestorm `PLAY_CARD`, missing raw `PAY_COST` `paymentWindow` recovery diagnostics, hub-level reordered raw `SUBMIT_DECK` duplicate replay, and opening mapper text-array normalization for `SUBMIT_DECK` / `MULLIGAN`. Runtime changed: no, server test coverage only. Source commits `e0a49a46`, `0114f80a`, `9debfed2`, `656b4c13`, `56be7a82`, `c9c44df7` and `a34af6d7` were accepted as `67394432`, `b5567fea`, `2c173114`, `1992439f`, `01cf55ad`, `d70969b5` and `266a192c`. Validation passed: focused `7/7`, changed-class `1665/1665`, adjacent raw/replay/recovery/mapper/GameHub/shape `2020/2020`, backend full `7577/7577`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18ZX/18ZY/18ZZ/190A/190B/190C/190D; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-191A/191B/191C/191D/191E/191F/191G; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-07 06:26 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-07 10:39 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at `266a192c` before docs checkpoint
+
+Write locks: A_MAIN owns the current test/docs checkpoint. Runtime validation code, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-191A/191B/191C/191D/191E/191F/191G raw mapper recovery breadth accepted. Dedicated audit doc: `docs/CURRENT_STAGE4D_191A_191G_RAW_MAPPER_RECOVERY_AUDIT.md`. Accepted source commits: `e0a49a46`, `0114f80a`, `9debfed2`, `656b4c13`, `56be7a82`, `c9c44df7`, `a34af6d7`. Main commits: `67394432`, `b5567fea`, `2c173114`, `1992439f`, `01cf55ad`, `d70969b5`, `266a192c`.
+
+Validation: worktree focused `1/1` each; main focused `7/7`; changed-class `1665/1665`; adjacent raw/replay/recovery/mapper/GameHub/shape `2020/2020`; backend full `7577/7577`.
+
+Requested action: future workers should `cd` into their assigned worktree before checking `pwd`, stay patch-only, and continue only with disjoint raw/reconnect/recovery/mapper/GameHub or another verified audit surface after re-reading this board. Project remains **NOT READY**.
 
 ### 2026-06-07 10:15 A_MAIN
 
