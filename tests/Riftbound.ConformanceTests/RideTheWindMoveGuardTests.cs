@@ -252,29 +252,25 @@ public sealed class RideTheWindMoveGuardTests
             Assert.DoesNotContain(invalidTargetObjectId, targetIds);
         }
 
-        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var sourceRequirementsValue) == true)
-        {
-            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                    sourceRequirementsValue)
-                .ToArray();
-            var sourceRequirement = Assert.Single(
-                sourceRequirements,
-                requirement => string.Equals(requirement["sourceObjectId"] as string, RideTheWindObjectId, StringComparison.Ordinal));
-            if (sourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesByIndexValue))
-            {
-                var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                    targetChoicesByIndexValue);
-                Assert.True(choicesByIndex.TryGetValue("0", out var firstTargetChoicesValue));
-                var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(firstTargetChoicesValue)
-                    .Select(choice => choice.Id)
-                    .ToArray();
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Contains("sourceRequirements", metadata.Keys);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal(RideTheWindObjectId, sourceRequirement["sourceObjectId"]);
+        Assert.Contains("targetChoicesByIndex", sourceRequirement.Keys);
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Equal(["0"], choicesByIndex.Keys.ToArray());
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
 
-                Assert.Equal([RideTheWindTargetObjectId], firstTargetChoiceIds);
-                foreach (var invalidTargetObjectId in invalidTargetObjectIds)
-                {
-                    Assert.DoesNotContain(invalidTargetObjectId, firstTargetChoiceIds);
-                }
-            }
+        Assert.Equal([RideTheWindTargetObjectId], firstTargetChoiceIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, firstTargetChoiceIds);
         }
     }
 
