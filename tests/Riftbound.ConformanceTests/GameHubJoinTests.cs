@@ -128,8 +128,22 @@ public sealed class GameHubJoinTests
         Assert.Equal(join.Seat, reconnect.Seat);
         Assert.StartsWith("rt_", reconnect.ReconnectToken, StringComparison.Ordinal);
         Assert.NotEqual(join.ReconnectToken, reconnect.ReconnectToken);
-        Assert.Single(reconnectClients.CallerClient.Snapshots);
-        Assert.Single(reconnectClients.CallerClient.Prompts);
+
+        var reconnectSnapshotMessage = Assert.Single(reconnectClients.CallerClient.Snapshots);
+        var reconnectPromptMessage = Assert.Single(reconnectClients.CallerClient.Prompts);
+        Assert.Equal(MessageType.SNAPSHOT, reconnectSnapshotMessage.Type);
+        Assert.Equal(MessageType.PROMPT, reconnectPromptMessage.Type);
+        Assert.Equal("alice", reconnectSnapshotMessage.PlayerId);
+        Assert.Equal("alice", reconnectPromptMessage.PlayerId);
+        Assert.Empty(reconnectClients.GroupClient.Snapshots);
+        Assert.Empty(reconnectClients.GroupClient.Prompts);
+
+        var reconnectSnapshotJson = JsonSerializer.Serialize(reconnectSnapshotMessage);
+        var reconnectPromptJson = JsonSerializer.Serialize(reconnectPromptMessage);
+        Assert.DoesNotContain(join.ReconnectToken, reconnectSnapshotJson, StringComparison.Ordinal);
+        Assert.DoesNotContain(reconnect.ReconnectToken, reconnectSnapshotJson, StringComparison.Ordinal);
+        Assert.DoesNotContain(join.ReconnectToken, reconnectPromptJson, StringComparison.Ordinal);
+        Assert.DoesNotContain(reconnect.ReconnectToken, reconnectPromptJson, StringComparison.Ordinal);
     }
 
     [Fact]
