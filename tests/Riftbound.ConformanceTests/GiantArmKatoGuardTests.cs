@@ -93,43 +93,54 @@ public sealed class GiantArmKatoGuardTests
 
         var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
         Assert.Empty(targetIds);
-        foreach (var fixtureObjectId in new[]
+        var invalidTargetObjectIds = new[]
         {
             "P1-TARGET-UNIT",
             "P1-BASE-GIANT-ARM-KATO",
             "P1-FACE-DOWN-STANDBY-GIANT-ARM-KATO",
             "P2-UNIT-GIANT-ARM-KATO",
             GiantArmKatoObjectId
-        })
+        };
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
-            Assert.DoesNotContain(fixtureObjectId, targetIds);
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
         }
 
-        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var sourceRequirementsPayload) != true
-            || sourceRequirementsPayload is null)
-        {
-            return;
-        }
-
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Contains("sourceRequirements", metadata.Keys);
         var giantArmKatoSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                sourceRequirementsPayload)
+                metadata["sourceRequirements"])
             .Where(requirement =>
                 requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
                 && string.Equals(sourceObjectId as string, GiantArmKatoObjectId, StringComparison.Ordinal))
             .ToArray();
-        if (giantArmKatoSourceRequirements.Length == 0)
+        var giantArmKatoSourceRequirement = Assert.Single(giantArmKatoSourceRequirements);
+
+        if (giantArmKatoSourceRequirement.TryGetValue("minTargetCount", out var minTargetCount))
         {
-            return;
+            Assert.Equal(0, Assert.IsType<int>(minTargetCount));
         }
 
-        var giantArmKatoSourceRequirement = Assert.Single(giantArmKatoSourceRequirements);
-        if (giantArmKatoSourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
-            && targetChoicesPayload is not null)
+        if (giantArmKatoSourceRequirement.TryGetValue("maxTargetCount", out var maxTargetCount))
         {
-            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                targetChoicesPayload);
-            Assert.All(targetChoicesByIndex.Values, choices =>
-                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices)));
+            Assert.Equal(0, Assert.IsType<int>(maxTargetCount));
+        }
+
+        Assert.Contains("targetChoicesByIndex", giantArmKatoSourceRequirement.Keys);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            giantArmKatoSourceRequirement["targetChoicesByIndex"]);
+        Assert.All(targetChoicesByIndex.Values, choices =>
+            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices)));
+
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .SelectMany(choices => Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices)
+                .Select(choice => choice.Id))
+            .ToArray();
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
         }
     }
 
