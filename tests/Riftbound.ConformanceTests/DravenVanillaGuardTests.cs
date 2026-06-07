@@ -96,57 +96,59 @@ public sealed class DravenVanillaGuardTests
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, DravenObjectId, StringComparison.Ordinal));
 
-        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
-        Assert.Empty(targetIds);
-        foreach (var fixtureObjectId in new[]
+        var invalidTargetObjectIds = new[]
         {
             "P1-TARGET-UNIT",
             "P1-BASE-DRAVEN",
             "P1-FACE-DOWN-STANDBY-DRAVEN",
             "P2-UNIT-DRAVEN"
-        })
+        };
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
-            Assert.DoesNotContain(fixtureObjectId, targetIds);
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
         }
 
+        Assert.NotNull(playCandidate.Metadata);
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
-        if (!metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload)
-            || sourceRequirementsPayload is null)
-        {
-            return;
-        }
-
-        var dravenSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                sourceRequirementsPayload)
-            .Where(requirement =>
-                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                && string.Equals(sourceObjectId as string, DravenObjectId, StringComparison.Ordinal))
+        Assert.Contains("sourceRequirements", metadata.Keys);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
             .ToArray();
-        if (dravenSourceRequirements.Length == 0)
-        {
-            return;
-        }
+        var dravenSourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, DravenObjectId, StringComparison.Ordinal));
 
-        var dravenSourceRequirement = Assert.Single(dravenSourceRequirements);
-        if (dravenSourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
-            && targetChoicesPayload is not null)
-        {
-            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                targetChoicesPayload);
-            Assert.All(targetChoicesByIndex.Values, choices =>
-                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices)));
-        }
-
-        if (dravenSourceRequirement.TryGetValue("minTargetCount", out var minTargetCount)
-            && minTargetCount is not null)
+        if (dravenSourceRequirement.TryGetValue("minTargetCount", out var minTargetCount))
         {
             Assert.Equal(0, Assert.IsType<int>(minTargetCount));
         }
 
-        if (dravenSourceRequirement.TryGetValue("maxTargetCount", out var maxTargetCount)
-            && maxTargetCount is not null)
+        if (dravenSourceRequirement.TryGetValue("maxTargetCount", out var maxTargetCount))
         {
             Assert.Equal(0, Assert.IsType<int>(maxTargetCount));
+        }
+
+        Assert.Contains("targetChoicesByIndex", dravenSourceRequirement.Keys);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            dravenSourceRequirement["targetChoicesByIndex"]);
+        Assert.All(targetChoicesByIndex.Values, choices =>
+            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices)));
+
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .Where(rawTargetChoices => rawTargetChoices is not null)
+            .SelectMany(rawTargetChoices => Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                .Select(choice => choice.Id))
+            .ToArray();
+
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
         }
     }
 
