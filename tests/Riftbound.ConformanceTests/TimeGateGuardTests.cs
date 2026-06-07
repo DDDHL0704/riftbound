@@ -81,53 +81,59 @@ public sealed class TimeGateGuardTests
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, TimeGateObjectId, StringComparison.Ordinal));
 
-        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
-        Assert.Empty(targetIds);
-        foreach (var fixtureObjectId in new[]
+        var fixtureObjectIds = new[]
         {
             "P1-TARGET-UNIT",
             "P1-BASE-TIME-GATE",
             "P1-FACE-DOWN-STANDBY-TIME-GATE",
             "P2-EQUIPMENT-TIME-GATE",
             TimeGateObjectId
-        })
+        };
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var fixtureObjectId in fixtureObjectIds)
         {
             Assert.DoesNotContain(fixtureObjectId, targetIds);
         }
 
-        if (playCandidate.Metadata is null
-            || !playCandidate.Metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload)
-            || sourceRequirementsPayload is null)
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload));
+        Assert.NotNull(sourceRequirementsPayload);
+
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                sourceRequirementsPayload)
+            .ToArray();
+        var timeGateSourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, TimeGateObjectId, StringComparison.Ordinal));
+
+        Assert.True(timeGateSourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload));
+        Assert.NotNull(targetChoicesPayload);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            targetChoicesPayload);
+        Assert.All(targetChoicesByIndex.Values, choicesPayload =>
         {
-            return;
+            Assert.NotNull(choicesPayload);
+            var choiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesPayload)
+                .Select(choice => choice.Id)
+                .ToArray();
+            Assert.Empty(choiceIds);
+            foreach (var fixtureObjectId in fixtureObjectIds)
+            {
+                Assert.DoesNotContain(fixtureObjectId, choiceIds);
+            }
+        });
+
+        if (timeGateSourceRequirement.TryGetValue("minTargetCount", out var minTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(minTargetCount));
         }
 
-        var timeGateSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                sourceRequirementsPayload)
-            .Where(requirement =>
-                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                && string.Equals(sourceObjectId as string, TimeGateObjectId, StringComparison.Ordinal))
-            .ToArray();
-
-        foreach (var sourceRequirement in timeGateSourceRequirements)
+        if (timeGateSourceRequirement.TryGetValue("maxTargetCount", out var maxTargetCount))
         {
-            if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
-                || targetChoicesPayload is null)
-            {
-                continue;
-            }
-
-            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                targetChoicesPayload);
-            Assert.All(targetChoicesByIndex.Values, choices =>
-            {
-                if (choices is null)
-                {
-                    return;
-                }
-
-                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices));
-            });
+            Assert.Equal(0, Assert.IsType<int>(maxTargetCount));
         }
     }
 
