@@ -1420,6 +1420,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(["TRIGGER-2", "TRIGGER-1"], orderTriggers.TriggerIds);
         Assert.Equal(["TRIGGER-2", "TRIGGER-1"], orderTriggers.OrderedTriggerIds);
         Assert.Equal(["TRIGGER-1", "TRIGGER-2"], legacyOrderTriggers.TriggerIds);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], legacyOrderTriggers.OrderedTriggerIds);
     }
 
     [Fact]
