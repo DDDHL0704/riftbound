@@ -290,6 +290,7 @@ public sealed class FluftPoroActivatedAbilityTests
         Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Prompts));
         Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(rejectedJournalEntry.Snapshots));
         Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+        var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
 
         var duplicateRejected = await session.SubmitAsync(
             "P1",
@@ -308,6 +309,7 @@ public sealed class FluftPoroActivatedAbilityTests
         Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(duplicateRejected.Snapshots));
         AssertFluftPoroStackPriorityPromptQueueAudit(duplicateRejected);
         Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var conflict = await session.SubmitAsync(
             "P1",
@@ -325,6 +327,7 @@ public sealed class FluftPoroActivatedAbilityTests
         Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
         AssertFluftPoroStackPriorityPromptQueueAudit(conflict);
         Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw
             && entryRaw.TryGetProperty("clientNote", out var clientNote)
