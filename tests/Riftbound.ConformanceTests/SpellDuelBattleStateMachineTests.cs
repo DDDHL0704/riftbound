@@ -1441,6 +1441,11 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
         Assert.Equal("task:start-spell-duel:BF-A", Assert.IsType<string>(queue["activeTaskId"]));
         Assert.Equal("P1", snapshot.Timing["focusPlayerId"]);
+        var snapshotJson = JsonSerializer.Serialize(snapshot);
+        var promptJson = JsonSerializer.Serialize(prompt);
+        Assert.Contains("task:start-spell-duel:BF-A", snapshotJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", snapshotJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("P2-HIDDEN-STANDBY", promptJson, StringComparison.Ordinal);
         var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
         var activeTask = Assert.Single(battlefieldTasks, task =>
             string.Equals(task["kind"] as string, "START_SPELL_DUEL", StringComparison.Ordinal)
