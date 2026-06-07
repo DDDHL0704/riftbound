@@ -110,6 +110,28 @@ public sealed class ReprimandReturnToHandGuardTests
         Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", targetIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", targetIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", targetIds);
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Contains("sourceRequirements", metadata.Keys);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, ReprimandObjectId, StringComparison.Ordinal));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal([ReprimandTargetObjectId], firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BASE-UNIT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-STALE-UNIT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", firstTargetChoiceIds);
     }
 
     [Fact]
