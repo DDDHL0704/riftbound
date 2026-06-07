@@ -73,7 +73,12 @@ public sealed class ZenithBladeStunGuardTests
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, ZenithBladeObjectId, StringComparison.Ordinal));
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
+        var reorderedStaleRawCommand = ReorderedPromptScopedPlayCardRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedPlayCardRawCommandWithClientNote(command, prompt, "changed-payload");
+        Assert.NotEqual(staleRawCommand.GetRawText(), reorderedStaleRawCommand.GetRawText());
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(reorderedStaleRawCommand));
+        AssertPromptScopedPlayCardRawCommand(reorderedStaleRawCommand, prompt, assertPropertyOrder: false);
+        Assert.False(reorderedStaleRawCommand.TryGetProperty("clientNote", out _));
         const string acceptedClientIntentId = "intent-zenith-blade-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-zenith-blade-stale-prompt-replay";
 
@@ -156,6 +161,34 @@ public sealed class ZenithBladeStunGuardTests
         Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
         Assert.Single(journal.Entries, entry => !entry.Accepted);
         var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var reorderedDuplicateReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            reorderedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(reorderedDuplicateReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, reorderedDuplicateReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, reorderedDuplicateReplay.ErrorMessage);
+        Assert.Empty(reorderedDuplicateReplay.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(reorderedDuplicateReplay.State));
+        Assert.Equal(replay.State.Tick, reorderedDuplicateReplay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(reorderedDuplicateReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(reorderedDuplicateReplay.Snapshots));
+        Assert.Equal(acceptedStackHash, MatchStateHasher.HashValue(reorderedDuplicateReplay.State.StackItems));
+        Assert.Equal(acceptedP1HandHash, MatchStateHasher.HashValue(reorderedDuplicateReplay.State.PlayerZones["P1"].Hand));
+        Assert.Equal(acceptedP1GraveyardHash, MatchStateHasher.HashValue(reorderedDuplicateReplay.State.PlayerZones["P1"].Graveyard));
+        Assert.Equal(acceptedP2BattlefieldsHash, MatchStateHasher.HashValue(reorderedDuplicateReplay.State.PlayerZones["P2"].Battlefields));
+        AssertZenithBladeStackPriorityState(reorderedDuplicateReplay, acceptedStackItem);
+        Assert.Equal(p1PromptAfterAccepted, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(p2PromptAfterAccepted, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var duplicateReplay = await session.SubmitAsync(
             "P1",
@@ -345,6 +378,22 @@ public sealed class ZenithBladeStunGuardTests
         });
     }
 
+    private static JsonElement ReorderedPromptScopedPlayCardRawCommand(
+        PlayCardCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            snapshotTick = prompt.SnapshotTick,
+            promptId = prompt.PromptId,
+            optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
+            targetObjectIds = command.TargetObjectIds,
+            cardNo = command.CardNo,
+            cardObjectId = command.SourceObjectId,
+            cmdType = CommandTypes.PlayCard
+        });
+    }
+
     private static JsonElement PromptScopedPlayCardRawCommandWithClientNote(
         PlayCardCommand command,
         ActionPromptDto prompt,
@@ -365,11 +414,31 @@ public sealed class ZenithBladeStunGuardTests
 
     private static void AssertPromptScopedPlayCardRawCommand(
         JsonElement rawCommand,
-        ActionPromptDto prompt)
+        ActionPromptDto prompt,
+        bool assertPropertyOrder = true)
     {
-        Assert.Equal(
-            ["cmdType", "cardObjectId", "cardNo", "targetObjectIds", "optionalCosts", "promptId", "snapshotTick"],
-            rawCommand.EnumerateObject().Select(property => property.Name).ToArray());
+        var expectedPropertyNames = new[]
+        {
+            "cmdType",
+            "cardObjectId",
+            "cardNo",
+            "targetObjectIds",
+            "optionalCosts",
+            "promptId",
+            "snapshotTick"
+        };
+        var actualPropertyNames = rawCommand.EnumerateObject().Select(property => property.Name).ToArray();
+        if (assertPropertyOrder)
+        {
+            Assert.Equal(expectedPropertyNames, actualPropertyNames);
+        }
+        else
+        {
+            Assert.Equal(
+                expectedPropertyNames.OrderBy(propertyName => propertyName, StringComparer.Ordinal).ToArray(),
+                actualPropertyNames.OrderBy(propertyName => propertyName, StringComparer.Ordinal).ToArray());
+        }
+
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
         Assert.Equal(ZenithBladeObjectId, rawCommand.GetProperty("cardObjectId").GetString());
         Assert.Equal(ZenithBladeCardNo, rawCommand.GetProperty("cardNo").GetString());
