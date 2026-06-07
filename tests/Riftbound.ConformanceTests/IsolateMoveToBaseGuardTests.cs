@@ -163,7 +163,12 @@ public sealed class IsolateMoveToBaseGuardTests
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, IsolateObjectId, StringComparison.Ordinal));
         Assert.Contains(playCandidate.Targets ?? [], target => string.Equals(target.Id, IsolateTargetObjectId, StringComparison.Ordinal));
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
+        var reorderedStaleRawCommand = ReorderedPromptScopedPlayCardRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedPlayCardRawCommandWithClientNote(command, prompt, "changed-payload");
+        Assert.NotEqual(staleRawCommand.GetRawText(), reorderedStaleRawCommand.GetRawText());
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(reorderedStaleRawCommand));
+        AssertPromptScopedPlayCardRawCommand(reorderedStaleRawCommand, prompt);
+        Assert.False(reorderedStaleRawCommand.TryGetProperty("clientNote", out _));
         const string acceptedClientIntentId = "intent-isolate-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-isolate-stale-prompt-replay";
 
@@ -237,6 +242,29 @@ public sealed class IsolateMoveToBaseGuardTests
         AssertPromptScopedPlayCardRawCommand(rejectedJournalEntry.RawCommand.Value, prompt);
         Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
         var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var reorderedDuplicateRejected = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            reorderedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(reorderedDuplicateRejected.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, reorderedDuplicateRejected.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, reorderedDuplicateRejected.ErrorMessage);
+        Assert.Empty(reorderedDuplicateRejected.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(reorderedDuplicateRejected.State));
+        Assert.Equal(replay.State.Tick, reorderedDuplicateRejected.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(reorderedDuplicateRejected.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(reorderedDuplicateRejected.Snapshots));
+        AssertIsolateStackPriorityState(reorderedDuplicateRejected, acceptedStackItem);
+        Assert.Equal(p1PromptAfterAccepted, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(p2PromptAfterAccepted, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var duplicateRejected = await session.SubmitAsync(
             "P1",
@@ -316,6 +344,22 @@ public sealed class IsolateMoveToBaseGuardTests
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private static JsonElement ReorderedPromptScopedPlayCardRawCommand(
+        PlayCardCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            snapshotTick = prompt.SnapshotTick,
+            promptId = prompt.PromptId,
+            optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
+            targetObjectIds = command.TargetObjectIds,
+            cardNo = command.CardNo,
+            cardObjectId = command.SourceObjectId,
+            cmdType = CommandTypes.PlayCard
         });
     }
 
