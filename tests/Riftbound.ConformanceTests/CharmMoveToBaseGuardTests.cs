@@ -112,6 +112,27 @@ public sealed class CharmMoveToBaseGuardTests
         Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", targetIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", targetIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", targetIds);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Contains("sourceRequirements", metadata.Keys);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var charmRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, CharmObjectId, StringComparison.Ordinal));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            charmRequirement["targetChoicesByIndex"]);
+        var metadataTargetIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Equal([CharmTargetObjectId], metadataTargetIds);
+        Assert.DoesNotContain("P1-FRIENDLY-BATTLEFIELD-UNIT", metadataTargetIds);
+        Assert.DoesNotContain("P2-BASE-UNIT", metadataTargetIds);
+        Assert.DoesNotContain("P2-STALE-UNIT", metadataTargetIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", metadataTargetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", metadataTargetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", metadataTargetIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", metadataTargetIds);
     }
 
     [Fact]
