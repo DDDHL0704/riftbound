@@ -604,6 +604,137 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitDeckDuplicateClientIntentReorderedRawPayloadReplaysButChangedRawConflictsWithoutMutation()
+    {
+        const string roomId = "official-hub-submit-deck-reordered-raw-idempotency";
+        const string clientIntentId = "submit-deck-same";
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var raw = SubmitDeckJson(p1Deck);
+        var reordered = JsonSerializer.SerializeToElement(new
+        {
+            battlefields = p1Deck.Battlefields,
+            runeDeck = p1Deck.RuneDeck,
+            mainDeck = p1Deck.MainDeck,
+            championCardNo = p1Deck.ChampionCardNo,
+            legendCardNo = p1Deck.LegendCardNo,
+            cmdType = "SUBMIT_DECK"
+        });
+        var changed = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "SUBMIT_DECK",
+            legendCardNo = p1Deck.LegendCardNo,
+            championCardNo = p1Deck.ChampionCardNo,
+            mainDeck = p1Deck.MainDeck,
+            runeDeck = p1Deck.RuneDeck,
+            battlefields = p1Deck.Battlefields,
+            clientNote = "changed"
+        });
+
+        Assert.NotEqual(raw.GetRawText(), reordered.GetRawText());
+        Assert.Equal(MatchStateHasher.HashValue(raw), MatchStateHasher.HashValue(reordered));
+        Assert.NotEqual(MatchStateHasher.HashValue(raw), MatchStateHasher.HashValue(changed));
+
+        var acceptedClients = new RecordingHubClients();
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, raw);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
+        var acceptedEvents = EventsFor(acceptedClients);
+        Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
+        var acceptedMessageType = acceptedMessage.Type;
+        var acceptedServerTick = acceptedMessage.ServerTick;
+        var acceptedEventKinds = acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray();
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptActions = acceptedClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
+            .Select(prompt => string.Join("|", prompt.Actions))
+            .ToArray();
+        var acceptedJournalCount = journal.Entries.Count;
+        Assert.Equal(1, acceptedJournalCount);
+        var submitEntry = Assert.Single(journal.Entries);
+        Assert.Equal(roomId, submitEntry.RoomId);
+        Assert.Equal("P1", submitEntry.PlayerId);
+        Assert.Equal("SUBMIT_DECK", submitEntry.CommandType);
+        Assert.Equal(clientIntentId, submitEntry.ClientIntentId);
+        Assert.NotNull(submitEntry.RawCommand);
+        Assert.Equal("SUBMIT_DECK", submitEntry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.False(submitEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, reordered);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(acceptedMessageType, replayMessage.Type);
+        Assert.Equal(acceptedServerTick, replayMessage.ServerTick);
+        var replayEvents = EventsFor(replayClients);
+        Assert.Equal(
+            acceptedEventKinds,
+            replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        var replayPromptActions = replayClients.GroupClient.Prompts
+            .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
+            .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
+            .Select(prompt => string.Join("|", prompt.Actions))
+            .ToArray();
+        Assert.Equal(acceptedPromptActions, replayPromptActions);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+
+        var conflictClients = new RecordingHubClients();
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", clientIntentId, changed);
+
+        var error = Assert.Single(conflictClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
+        Assert.Empty(conflictClients.GroupClient.EventMessages);
+        Assert.Empty(conflictClients.GroupClient.Snapshots);
+        Assert.Empty(conflictClients.GroupClient.Prompts);
+        Assert.Empty(conflictClients.CallerClient.EventMessages);
+        Assert.Empty(conflictClients.CallerClient.Snapshots);
+        Assert.Empty(conflictClients.CallerClient.Prompts);
+        Assert.Equal(acceptedJournalCount, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
+            entry.RawCommand is { } rawCommand
+            && rawCommand.TryGetProperty("clientNote", out var clientNote)
+            && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task SurrenderDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         const string roomId = "official-hub-surrender-raw-idempotency";
