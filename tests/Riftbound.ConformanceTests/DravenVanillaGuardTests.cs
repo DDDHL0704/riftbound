@@ -175,7 +175,13 @@ public sealed class DravenVanillaGuardTests
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, DravenObjectId, StringComparison.Ordinal));
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
+        var reorderedStaleRawCommand = ReorderedPromptScopedPlayCardRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedPlayCardRawCommandWithClientNote(command, prompt, "changed-payload");
+        Assert.NotEqual(staleRawCommand.GetRawText(), reorderedStaleRawCommand.GetRawText());
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(reorderedStaleRawCommand));
+        AssertPromptScopedPlayCardRawCommand(staleRawCommand, prompt);
+        AssertPromptScopedPlayCardRawCommand(reorderedStaleRawCommand, prompt, assertPropertyOrder: false);
+        Assert.False(reorderedStaleRawCommand.TryGetProperty("clientNote", out _));
         Assert.Equal(8, changedStaleRawCommand.EnumerateObject().Count());
         Assert.Equal("changed-payload", changedStaleRawCommand.GetProperty("clientNote").GetString());
         const string acceptedClientIntentId = "intent-draven-before-stale-prompt-replay";
@@ -258,6 +264,33 @@ public sealed class DravenVanillaGuardTests
         Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
         Assert.Single(journal.Entries, entry => !entry.Accepted);
         var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var reorderedReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            reorderedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(reorderedReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, reorderedReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, reorderedReplay.ErrorMessage);
+        Assert.Empty(reorderedReplay.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(reorderedReplay.State));
+        Assert.Equal(replay.State.Tick, reorderedReplay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(reorderedReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(reorderedReplay.Snapshots));
+        Assert.Equal(acceptedStackHash, MatchStateHasher.HashValue(reorderedReplay.State.StackItems));
+        Assert.Equal(acceptedHandHash, MatchStateHasher.HashValue(reorderedReplay.State.PlayerZones["P1"].Hand));
+        Assert.Equal(acceptedBaseHash, MatchStateHasher.HashValue(reorderedReplay.State.PlayerZones["P1"].Base));
+        AssertDravenStackPriorityState(reorderedReplay, acceptedStackItem);
+        Assert.Equal(p1PromptAfterAccepted, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(p2PromptAfterAccepted, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var duplicateReplay = await session.SubmitAsync(
             "P1",
@@ -396,6 +429,22 @@ public sealed class DravenVanillaGuardTests
         });
     }
 
+    private static JsonElement ReorderedPromptScopedPlayCardRawCommand(
+        PlayCardCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            snapshotTick = prompt.SnapshotTick,
+            optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
+            promptId = prompt.PromptId,
+            targetObjectIds = command.TargetObjectIds,
+            cardNo = command.CardNo,
+            cmdType = CommandTypes.PlayCard,
+            cardObjectId = command.SourceObjectId
+        });
+    }
+
     private static JsonElement PromptScopedPlayCardRawCommandWithClientNote(
         PlayCardCommand command,
         ActionPromptDto prompt,
@@ -416,9 +465,26 @@ public sealed class DravenVanillaGuardTests
 
     private static void AssertPromptScopedPlayCardRawCommand(
         JsonElement rawCommand,
-        ActionPromptDto prompt)
+        ActionPromptDto prompt,
+        bool assertPropertyOrder = true)
     {
-        Assert.Equal(7, rawCommand.EnumerateObject().Count());
+        var properties = rawCommand.EnumerateObject().ToArray();
+        Assert.Equal(7, properties.Length);
+        if (assertPropertyOrder)
+        {
+            Assert.Equal(
+                [
+                    "cmdType",
+                    "cardObjectId",
+                    "cardNo",
+                    "targetObjectIds",
+                    "optionalCosts",
+                    "promptId",
+                    "snapshotTick"
+                ],
+                properties.Select(property => property.Name).ToArray());
+        }
+
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
         Assert.Equal(DravenObjectId, rawCommand.GetProperty("cardObjectId").GetString());
         Assert.Equal(DravenPrimaryCardNo, rawCommand.GetProperty("cardNo").GetString());
