@@ -325,22 +325,41 @@ public sealed class SpiritFireDestroyGuardTests
             requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-SPELL-SPIRIT-FIRE", StringComparison.Ordinal));
         var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-            .Select(choice => choice.Id)
-            .ToArray();
+        Assert.Equal(4, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.Contains("0", choicesByIndex.Keys);
+        Assert.Equal(["0", "1", "2", "3"], choicesByIndex.Keys.OrderBy(index => index, StringComparer.Ordinal).ToArray());
         var legalTargetSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
                 sourceRequirement["legalTargetSelections"])
             .ToArray();
+        string[] legalTargetIds =
+        [
+            "P2-SPIRIT-FIRE-UNIT-001",
+            "P2-SPIRIT-FIRE-UNIT-002"
+        ];
+        string[] invalidTargetIds =
+        [
+            "P2-SPIRIT-FIRE-KEEPER-001",
+            "P2-BATTLEFIELD-EQUIPMENT",
+            "P2-BATTLEFIELD-SPELL",
+            "P2-BATTLEFIELD-RUNE",
+            "P2-FACE-DOWN-STANDBY",
+            "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+            "P2-BASE-UNIT",
+            "P1-HAND-UNIT"
+        ];
 
-        Assert.Contains("P2-SPIRIT-FIRE-UNIT-001", firstTargetChoiceIds);
-        Assert.Contains("P2-SPIRIT-FIRE-UNIT-002", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-BASE-UNIT", firstTargetChoiceIds);
-        Assert.DoesNotContain("P1-HAND-UNIT", firstTargetChoiceIds);
+        foreach (var choicesByIndexEntry in choicesByIndex)
+        {
+            var targetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndexEntry.Value)
+                .Select(choice => choice.Id)
+                .ToArray();
+
+            Assert.Equal(legalTargetIds, targetChoiceIds);
+            foreach (var invalidTargetId in invalidTargetIds)
+            {
+                Assert.DoesNotContain(invalidTargetId, targetChoiceIds);
+            }
+        }
 
         Assert.Contains(legalTargetSelections, selection =>
             selection.SequenceEqual(["P2-SPIRIT-FIRE-UNIT-001", "P2-SPIRIT-FIRE-UNIT-002"]));
