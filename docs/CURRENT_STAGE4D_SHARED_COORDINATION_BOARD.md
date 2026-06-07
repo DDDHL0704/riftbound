@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18YX/18YY/18YZ/18ZA/18ZB/18ZC raw-command and reconnect breadth accepted six parallel server-test shards, proving mapper legacy `triggerIds` ordered-id parity, caller-only reconnect token redaction, board-task and spell-duel reconnect hidden-standby redaction, Undercover Agent raw-command property-order replay, and Fluft Poro stale replay journal hash stability. Runtime changed: no, server test coverage only. Tests changed in `ConformanceFixtureShapeTests`, `GameHubJoinTests`, `BoardTaskQueueFoundationTests`, `SpellDuelBattleStateMachineTests`, `UndercoverAgentTriggerTests` and `FluftPoroActivatedAbilityTests`. A_MAIN kept workers patch-only, validated focused worktrees, and accepted worker source commits `14db8ee3`, `88c925b5`, `5d443682`, `64b940ec`, `a5c06184` and `46d022c3` as `4a405406`, `f3d610c8`, `011215bf`, `94332c0a`, `64b669b0` and `d1587b14`. Validation passed: baseline `6/6`, main changed-class filter `386/386`, adjacent raw/reconnect/recovery filter `1524/1524`, backend full `7572/7572`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18ZD/18ZE/18ZF/18ZG/18ZH/18ZI/18ZJ/18ZK/18ZL/18ZM/18ZN prompt metadata breadth accepted eleven parallel server-test shards across two consecutive batches, proving mandatory `sourceRequirements[*].targetChoicesByIndex` metadata for target-bearing Gust, Ride the Wind, Firestorm, Reflections and Spirit Fire prompts, plus empty no-target metadata for Berserk Impulse, Rek'Sai no-optional, Edge of Night, Sfur Song, Vex Alt and Hunt. Runtime changed: no, server test coverage only. Tests changed in eleven guard files. A_MAIN kept workers patch-only, validated focused worktrees, corrected 18ZI after focused validation showed empty `sourceRequirements`, and accepted worker source commits `7f7543e7`, `0775d641`, `0840aab7`, `8303dad3`, `3fd987a5`, `ddd0266b`, `4826d2b9`, `6fe1d348`, `0c18eddc`, `75d5b2e6` and `332f13cf` as `d339cc63`, `9a5b7a28`, `358dd54b`, `31072854`, `990c0c9e`, `bf6336eb`, `f643efd0`, `5cd5e0e4`, `192d5d59`, `42e47a05` and `d549348a`. Validation passed: baselines `5/5` and `7/7`, main changed-class filter `74/74`, adjacent prompt/action filter `3063/3063`, backend full `7572/7572`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18YX/18YY/18YZ/18ZA/18ZB/18ZC; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18ZD/18ZE/18ZF/18ZG/18ZH/18ZI/18ZJ/18ZK/18ZL/18ZM/18ZN; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-07 06:26 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-07 09:12 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at `d549348a` before docs checkpoint
+
+Write locks: A_MAIN owns the current test/docs checkpoint. Runtime validation code, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18ZD/18ZE/18ZF/18ZG/18ZH/18ZI/18ZJ/18ZK/18ZL/18ZM/18ZN prompt metadata breadth accepted. Dedicated audit doc: `docs/CURRENT_STAGE4D_18ZD_18ZN_PROMPT_METADATA_AUDIT.md`.
+
+Validation: baselines `5/5` and `7/7`; worktree focused passes including corrected Berserk `1/1`; main changed-class `74/74`; adjacent prompt/action `3063/3063`; backend full `7572/7572`.
+
+Requested action: future parallel workers should stay patch-only unless given the explicit conformance csproj command, and must target disjoint prompt/runtime/mapper/recovery surfaces after re-reading this board. Queued optional prompt-metadata candidates include Overcharged Energy, Vex, Draven, Time Gate, Giant Arm Kato, Draven keyword, Rek'Sai attack-reveal, Zhonyas and Ezreal combat text. Project remains **NOT READY**.
 
 ### 2026-06-07 08:31 A_MAIN
 
