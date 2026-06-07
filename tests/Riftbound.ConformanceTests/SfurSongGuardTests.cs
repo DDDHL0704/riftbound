@@ -93,27 +93,29 @@ public sealed class SfurSongGuardTests
             Assert.DoesNotContain(invalidTargetObjectId, targetIds);
         }
 
-        var metadataTargetIds = Array.Empty<string>();
-        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true)
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, SfurSongObjectId, StringComparison.Ordinal));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Empty(targetChoicesByIndex);
+        if (sourceRequirement.TryGetValue("minTargetCount", out var rawMinTargetCount))
         {
-            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                    rawSourceRequirements)
-                .ToArray();
-            var sourceRequirement = Assert.Single(
-                sourceRequirements,
-                requirement => string.Equals(requirement["sourceObjectId"] as string, SfurSongObjectId, StringComparison.Ordinal));
-
-            if (sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex))
-            {
-                var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                    rawTargetChoicesByIndex);
-                metadataTargetIds = targetChoicesByIndex.Values
-                    .SelectMany(rawTargetChoices => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices))
-                    .Select(choice => choice.Id)
-                    .ToArray();
-            }
+            Assert.Equal(0, Assert.IsType<int>(rawMinTargetCount));
+        }
+        if (sourceRequirement.TryGetValue("maxTargetCount", out var rawMaxTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(rawMaxTargetCount));
         }
 
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .SelectMany(rawTargetChoices => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices))
+            .Select(choice => choice.Id)
+            .ToArray();
         Assert.Empty(metadataTargetIds);
         foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
