@@ -173,7 +173,12 @@ public sealed class VexAltSpellshieldGuardTests
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, VexAltObjectId, StringComparison.Ordinal));
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
+        var reorderedStaleRawCommand = ReorderedPromptScopedPlayCardRawCommand(command, prompt);
         var changedStaleRawCommand = PromptScopedPlayCardRawCommandWithClientNote(command, prompt, "changed-payload");
+        Assert.NotEqual(staleRawCommand.GetRawText(), reorderedStaleRawCommand.GetRawText());
+        Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(reorderedStaleRawCommand));
+        AssertPromptScopedPlayCardRawCommand(reorderedStaleRawCommand, prompt, assertPropertyOrder: false);
+        Assert.False(reorderedStaleRawCommand.TryGetProperty("clientNote", out _));
         const string acceptedClientIntentId = "intent-vex-alt-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-vex-alt-stale-prompt-replay";
 
@@ -247,6 +252,29 @@ public sealed class VexAltSpellshieldGuardTests
         AssertPromptScopedPlayCardRawCommand(rejectedJournalEntry.RawCommand.Value, prompt);
         Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
         var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var reorderedReplay = await session.SubmitAsync(
+            "P1",
+            staleClientIntentId,
+            command,
+            reorderedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(reorderedReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, reorderedReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, reorderedReplay.ErrorMessage);
+        Assert.Empty(reorderedReplay.Events);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(reorderedReplay.State));
+        Assert.Equal(replay.State.Tick, reorderedReplay.State.Tick);
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(reorderedReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(reorderedReplay.Snapshots));
+        AssertVexAltStackPriorityState(reorderedReplay, acceptedStackItem);
+        Assert.Equal(p1PromptAfterAccepted, MatchStateHasher.HashValue(session.PromptFor("P1")));
+        Assert.Equal(p2PromptAfterAccepted, MatchStateHasher.HashValue(session.PromptFor("P2")));
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var duplicateReplay = await session.SubmitAsync(
             "P1",
@@ -375,6 +403,22 @@ public sealed class VexAltSpellshieldGuardTests
         });
     }
 
+    private static JsonElement ReorderedPromptScopedPlayCardRawCommand(
+        PlayCardCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            snapshotTick = prompt.SnapshotTick,
+            promptId = prompt.PromptId,
+            optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
+            targetObjectIds = command.TargetObjectIds,
+            cardNo = command.CardNo,
+            cardObjectId = command.SourceObjectId,
+            cmdType = CommandTypes.PlayCard
+        });
+    }
+
     private static JsonElement PromptScopedPlayCardRawCommandWithClientNote(
         PlayCardCommand command,
         ActionPromptDto prompt,
@@ -395,11 +439,16 @@ public sealed class VexAltSpellshieldGuardTests
 
     private static void AssertPromptScopedPlayCardRawCommand(
         JsonElement rawCommand,
-        ActionPromptDto prompt)
+        ActionPromptDto prompt,
+        bool assertPropertyOrder = true)
     {
-        Assert.Equal(
-            ["cmdType", "cardObjectId", "cardNo", "targetObjectIds", "optionalCosts", "promptId", "snapshotTick"],
-            rawCommand.EnumerateObject().Select(property => property.Name).ToArray());
+        if (assertPropertyOrder)
+        {
+            Assert.Equal(
+                ["cmdType", "cardObjectId", "cardNo", "targetObjectIds", "optionalCosts", "promptId", "snapshotTick"],
+                rawCommand.EnumerateObject().Select(property => property.Name).ToArray());
+        }
+
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
         Assert.Equal(VexAltObjectId, rawCommand.GetProperty("cardObjectId").GetString());
         Assert.Equal(VexAltCardNo, rawCommand.GetProperty("cardNo").GetString());
