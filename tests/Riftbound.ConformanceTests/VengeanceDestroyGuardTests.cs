@@ -65,13 +65,14 @@ public sealed class VengeanceDestroyGuardTests
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-SPELL-VENGEANCE", StringComparison.Ordinal));
 
-        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
-        Assert.Equal(4, targetIds.Length);
-        Assert.Contains("P2-BATTLEFIELD-UNIT", targetIds);
-        Assert.Contains("P2-BASE-UNIT", targetIds);
-        Assert.Contains("P1-BATTLEFIELD-UNIT", targetIds);
-        Assert.Contains("P1-BASE-UNIT", targetIds);
-        foreach (var invalidTargetObjectId in new[]
+        var legalPublicUnitIds = new[]
+        {
+            "P2-BATTLEFIELD-UNIT",
+            "P2-BASE-UNIT",
+            "P1-BATTLEFIELD-UNIT",
+            "P1-BASE-UNIT"
+        };
+        var invalidTargetObjectIds = new[]
         {
             "P2-STALE-UNIT",
             "P2-FACE-DOWN-STANDBY",
@@ -80,9 +81,43 @@ public sealed class VengeanceDestroyGuardTests
             "P2-BATTLEFIELD-SPELL",
             "P2-BATTLEFIELD-RUNE",
             "P2-HAND-UNIT"
-        })
+        };
+
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Equal(legalPublicUnitIds.Length, targetIds.Length);
+        foreach (var legalPublicUnitId in legalPublicUnitIds)
+        {
+            Assert.Contains(legalPublicUnitId, targetIds);
+        }
+
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
             Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.ContainsKey("sourceRequirements"));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-SPELL-VENGEANCE", StringComparison.Ordinal));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var metadataTargetIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal(legalPublicUnitIds.Length, metadataTargetIds.Length);
+        foreach (var legalPublicUnitId in legalPublicUnitIds)
+        {
+            Assert.Contains(legalPublicUnitId, metadataTargetIds);
+        }
+
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
         }
     }
 
