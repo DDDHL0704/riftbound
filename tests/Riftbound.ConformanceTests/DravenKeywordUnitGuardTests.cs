@@ -97,39 +97,59 @@ public sealed class DravenKeywordUnitGuardTests
                 && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, DravenObjectId, StringComparison.Ordinal)));
         Assert.True(playCandidate.Enabled);
 
+        var invalidTargetIds = new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-DRAVEN",
+            "P1-FACE-DOWN-STANDBY-DRAVEN",
+            "P2-UNIT-DRAVEN",
+            DravenObjectId
+        };
         var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
         Assert.Empty(targetIds);
-        Assert.DoesNotContain("P1-TARGET-UNIT", targetIds);
-        Assert.DoesNotContain("P1-BASE-DRAVEN", targetIds);
-        Assert.DoesNotContain("P1-FACE-DOWN-STANDBY-DRAVEN", targetIds);
-        Assert.DoesNotContain("P2-UNIT-DRAVEN", targetIds);
-        Assert.DoesNotContain(DravenObjectId, targetIds);
-
-        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true
-            && rawSourceRequirements is IEnumerable<IReadOnlyDictionary<string, object?>> sourceRequirements)
+        foreach (var invalidTargetId in invalidTargetIds)
         {
-            var sourceRequirement = sourceRequirements.FirstOrDefault(requirement =>
-                requirement.TryGetValue("sourceObjectId", out var rawSourceObjectId)
-                && string.Equals(rawSourceObjectId as string, DravenObjectId, StringComparison.Ordinal));
-            if (sourceRequirement is not null
-                && sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
-                && rawTargetChoicesByIndex is not null)
-            {
-                var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(rawTargetChoicesByIndex);
-                var targetChoiceIds = new List<string>();
-                foreach (var rawTargetChoices in choicesByIndex.Values)
-                {
-                    if (rawTargetChoices is null)
-                    {
-                        continue;
-                    }
+            Assert.DoesNotContain(invalidTargetId, targetIds);
+        }
 
-                    var targetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices);
-                    targetChoiceIds.AddRange(targetChoices.Select(choice => choice.Id));
-                }
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                rawSourceRequirements)
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => requirement.TryGetValue("sourceObjectId", out var rawSourceObjectId)
+                && string.Equals(rawSourceObjectId as string, DravenObjectId, StringComparison.Ordinal)
+                && requirement.TryGetValue("cardNo", out var rawCardNo)
+                && string.Equals(rawCardNo as string, DravenPrimaryCardNo, StringComparison.Ordinal));
+        Assert.True(sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            rawTargetChoicesByIndex);
+        var metadataTargetChoiceIds = new List<string>();
+        foreach (var rawTargetChoices in choicesByIndex.Values)
+        {
+            var targetChoices = Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                .ToArray();
+            Assert.Empty(targetChoices);
+            metadataTargetChoiceIds.AddRange(targetChoices.Select(choice => choice.Id));
+        }
 
-                Assert.Empty(targetChoiceIds);
-            }
+        Assert.Empty(metadataTargetChoiceIds);
+        foreach (var invalidTargetId in invalidTargetIds)
+        {
+            Assert.DoesNotContain(invalidTargetId, metadataTargetChoiceIds);
+        }
+
+        if (sourceRequirement.TryGetValue("minTargetCount", out var rawMinTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(rawMinTargetCount));
+        }
+
+        if (sourceRequirement.TryGetValue("maxTargetCount", out var rawMaxTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(rawMaxTargetCount));
         }
     }
 
