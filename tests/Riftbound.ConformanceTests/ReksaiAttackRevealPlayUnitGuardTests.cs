@@ -100,51 +100,59 @@ public sealed class ReksaiAttackRevealPlayUnitGuardTests
 
         var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
         Assert.Empty(targetIds);
-        foreach (var fixtureObjectId in new[]
+        var invalidTargetObjectIds = new[]
         {
             "P1-TARGET-UNIT",
             "P1-BASE-REKSAI",
             "P1-FACE-DOWN-STANDBY-REKSAI",
             "P2-UNIT-REKSAI",
             ReksaiObjectId
-        })
+        };
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
-            Assert.DoesNotContain(fixtureObjectId, targetIds);
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
         }
 
-        if (playCandidate.Metadata is null
-            || !playCandidate.Metadata.TryGetValue("sourceRequirements", out var sourceRequirementsPayload)
-            || sourceRequirementsPayload is null)
-        {
-            return;
-        }
-
-        var reksaiSourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                sourceRequirementsPayload)
-            .Where(requirement =>
-                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                && string.Equals(sourceObjectId as string, ReksaiObjectId, StringComparison.Ordinal))
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Contains("sourceRequirements", metadata.Keys);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
             .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, ReksaiObjectId, StringComparison.Ordinal)
+                && requirement.TryGetValue("cardNo", out var cardNo)
+                && string.Equals(cardNo as string, ReksaiPrimaryCardNo, StringComparison.Ordinal));
+        Assert.Equal(ReksaiObjectId, sourceRequirement["sourceObjectId"]);
+        Assert.Equal(ReksaiPrimaryCardNo, sourceRequirement["cardNo"]);
 
-        foreach (var sourceRequirement in reksaiSourceRequirements)
+        if (sourceRequirement.TryGetValue("minTargetCount", out var minTargetCount))
         {
-            if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesPayload)
-                || targetChoicesPayload is null)
-            {
-                continue;
-            }
+            Assert.Equal(0, Assert.IsType<int>(minTargetCount));
+        }
 
-            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                targetChoicesPayload);
-            Assert.All(targetChoicesByIndex.Values, choices =>
-            {
-                if (choices is null)
-                {
-                    return;
-                }
+        if (sourceRequirement.TryGetValue("maxTargetCount", out var maxTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(maxTargetCount));
+        }
 
-                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices));
-            });
+        Assert.Contains("targetChoicesByIndex", sourceRequirement.Keys);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.All(targetChoicesByIndex.Values, rawTargetChoices =>
+            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)));
+
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .SelectMany(rawTargetChoices => Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                .Select(choice => choice.Id))
+            .ToArray();
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
         }
     }
 
