@@ -31157,6 +31157,36 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(replay.State.BattleState.IsActive);
         Assert.Single(journal.Entries);
 
+        var reorderedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            optionalCosts = new[] { "COMBAT_ASSIGNMENT" },
+            defenderObjectIds = new[] { "P2-UNIT-1" },
+            attackerObjectIds = new[] { "P1-UNIT-1" },
+            battlefieldId = "BF-1",
+            snapshotTick = prompt.SnapshotTick,
+            promptId = prompt.PromptId,
+            cmdType = CommandTypes.DeclareBattle
+        });
+        var reorderedReplay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            command,
+            reorderedRawCommand,
+            CancellationToken.None);
+
+        Assert.True(reorderedReplay.Accepted, reorderedReplay.ErrorMessage);
+        Assert.Null(reorderedReplay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(reorderedReplay.State));
+        Assert.Equal(accepted.State.Tick, reorderedReplay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(reorderedReplay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(reorderedReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(reorderedReplay.Snapshots));
+        Assert.DoesNotContain("P2-UNIT-1", reorderedReplay.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P2-UNIT-1", reorderedReplay.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal("IDLE", reorderedReplay.State.PendingTaskQueue.Phase);
+        Assert.False(reorderedReplay.State.BattleState.IsActive);
+        Assert.Single(journal.Entries);
+
         var changedRawCommand = JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.DeclareBattle,

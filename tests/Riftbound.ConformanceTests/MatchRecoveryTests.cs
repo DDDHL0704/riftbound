@@ -36685,6 +36685,9 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state temporary payment resource temp-1 allowed payment kind power is duplicated", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state temporary payment resource temp-1 allowed payment kind is required", StringComparison.Ordinal));
     }
 
     [Fact]

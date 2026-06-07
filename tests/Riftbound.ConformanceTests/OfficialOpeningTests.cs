@@ -443,7 +443,22 @@ public sealed class OfficialOpeningTests
         var session = new MatchSession("official-submit-deck-raw-intent-room", new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        var rawCommand = RawCommand("SUBMIT_DECK");
+        var prompt = session.PromptFor("P1");
+        Assert.True(prompt.Actionable);
+        Assert.Equal(["SUBMIT_DECK"], prompt.Actions);
+        var rawCommand = PromptScopedSubmitDeckRawCommand(decklist, prompt);
+        var reorderedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            snapshotTick = prompt.SnapshotTick,
+            promptId = prompt.PromptId,
+            battlefields = decklist.Battlefields,
+            runeDeck = decklist.RuneDeck,
+            mainDeck = decklist.MainDeck,
+            championCardNo = decklist.ChampionCardNo,
+            legendCardNo = decklist.LegendCardNo,
+            cmdType = "SUBMIT_DECK"
+        });
+        Assert.NotEqual(rawCommand.GetRawText(), reorderedRawCommand.GetRawText());
 
         var accepted = await session.SubmitDeckAsync(
             "P1",
@@ -456,6 +471,9 @@ public sealed class OfficialOpeningTests
         Assert.Equal(1, accepted.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal)));
         Assert.Single(journal.Entries);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(accepted.Snapshots);
+        var acceptedEventKinds = accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray();
 
         var replay = await session.SubmitDeckAsync(
             "P1",
@@ -466,24 +484,61 @@ public sealed class OfficialOpeningTests
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
         Assert.Equal(accepted.State.Tick, replay.State.Tick);
-        Assert.Equal(accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray(), replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(acceptedEventKinds, replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Single(journal.Entries);
+
+        var journalEntryCountAfterExactReplay = journal.Entries.Count;
+        var reorderedReplay = await session.SubmitDeckAsync(
+            "P1",
+            "submit-p1-raw-intent",
+            ToSubmitCommand(decklist),
+            reorderedRawCommand,
+            CancellationToken.None);
+
+        Assert.True(reorderedReplay.Accepted, reorderedReplay.ErrorMessage);
+        Assert.Equal(replay.Accepted, reorderedReplay.Accepted);
+        Assert.Equal(replay.ErrorCode, reorderedReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, reorderedReplay.ErrorMessage);
+        Assert.Equal(acceptedHash, MatchStateHasher.Hash(reorderedReplay.State));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(reorderedReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(reorderedReplay.Snapshots));
+        Assert.Equal(replay.State.Tick, reorderedReplay.State.Tick);
+        Assert.Equal(replay.Events.Select(gameEvent => gameEvent.Kind).ToArray(), reorderedReplay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(journalEntryCountAfterExactReplay, journal.Entries.Count);
 
         var p1SnapshotBeforeConflict = SnapshotSignature(session, "P1");
         var p2SnapshotBeforeConflict = SnapshotSignature(session, "P2");
+        var p1PromptBeforeConflict = JsonSerializer.Serialize(session.PromptFor("P1"));
+        var p2PromptBeforeConflict = JsonSerializer.Serialize(session.PromptFor("P2"));
+        var changedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "SUBMIT_DECK",
+            legendCardNo = decklist.LegendCardNo,
+            championCardNo = decklist.ChampionCardNo,
+            mainDeck = decklist.MainDeck,
+            runeDeck = decklist.RuneDeck,
+            battlefields = decklist.Battlefields,
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick,
+            clientNote = "changed-payload"
+        });
         var conflict = await Assert.ThrowsAsync<MatchSessionException>(() =>
             session.SubmitDeckAsync(
                 "P1",
                 "submit-p1-raw-intent",
                 ToSubmitCommand(decklist),
-                RawCommandWithClientNote("SUBMIT_DECK", "changed-payload"),
+                changedRawCommand,
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
         Assert.Equal("该客户端行动编号已用于其他命令。", conflict.Message);
         Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(session, "P1"));
         Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(session, "P2"));
+        Assert.Equal(p1PromptBeforeConflict, JsonSerializer.Serialize(session.PromptFor("P1")));
+        Assert.Equal(p2PromptBeforeConflict, JsonSerializer.Serialize(session.PromptFor("P2")));
         Assert.Single(journal.Entries);
     }
 

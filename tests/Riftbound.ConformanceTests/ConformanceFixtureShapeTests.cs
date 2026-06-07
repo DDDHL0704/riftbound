@@ -1715,6 +1715,46 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperStrictP0TextArraysPreserveDuplicateIdsForServerValidation()
+    {
+        var payCost = Assert.IsType<PayCostCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PAY_COST",
+              "paymentId": "PAY-1",
+              "paymentWindow": "TEST_PAYMENT",
+              "paymentChoiceIds": ["SPEND_MANA:1", "SPEND_MANA:1", "DECLINE", "SPEND_MANA:1"]
+            }
+            """).RootElement));
+        var orderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "orderedTriggerIds": ["TRIGGER-2", "TRIGGER-2", "TRIGGER-1"]
+            }
+            """).RootElement));
+        var legacyOrderTriggers = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ORDER_TRIGGERS",
+              "triggerIds": ["TRIGGER-1", "TRIGGER-1", "TRIGGER-2"]
+            }
+            """).RootElement));
+        var chooseHandCards = Assert.IsType<ChooseHandCardsCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "CHOOSE_HAND_CARDS",
+              "choiceId": "CHOICE-UNDERCOVER-1",
+              "choiceWindow": "HAND_CHOICE:UNDERCOVER_AGENT",
+              "chosenObjectIds": ["P1-HAND-UNDERCOVER", "P1-HAND-UNDERCOVER", "P1-HAND-SECOND"]
+            }
+            """).RootElement));
+
+        Assert.Equal(["SPEND_MANA:1", "SPEND_MANA:1", "DECLINE", "SPEND_MANA:1"], payCost.PaymentChoiceIds);
+        Assert.Equal(["TRIGGER-2", "TRIGGER-2", "TRIGGER-1"], orderTriggers.TriggerIds);
+        Assert.Equal(["TRIGGER-2", "TRIGGER-2", "TRIGGER-1"], orderTriggers.OrderedTriggerIds);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-1", "TRIGGER-2"], legacyOrderTriggers.TriggerIds);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-1", "TRIGGER-2"], legacyOrderTriggers.OrderedTriggerIds);
+        Assert.Equal(["P1-HAND-UNDERCOVER", "P1-HAND-UNDERCOVER", "P1-HAND-SECOND"], chooseHandCards.ChosenObjectIds);
+    }
+
+    [Fact]
     public void GameCommandMapperOrderTriggersPrefersCurrentOrderedTriggerIdsOverLegacyTriggerIds()
     {
         var command = Assert.IsType<OrderTriggersCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
@@ -2749,16 +2789,21 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("P1", Assert.IsType<string>(metadata["orderingPlayerId"]));
         Assert.Equal(["TRIGGER-1", "TRIGGER-2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["triggerIds"]));
         Assert.Equal(["TRIGGER-1", "TRIGGER-2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]));
-        Assert.NotEmpty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["triggerChoices"]));
+        var triggerChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["triggerChoices"]).ToArray();
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], triggerChoices.Select(choice => choice.Id).ToArray());
         var triggers = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["triggers"]);
         Assert.Contains(triggers, trigger =>
             string.Equals(trigger["triggerId"] as string, "TRIGGER-1", StringComparison.Ordinal)
             && string.Equals(trigger["controllerId"] as string, "P1", StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(trigger["visibleText"] as string));
         var constraints = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["legalOrderingConstraints"]);
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(constraints["mustContainExactly"]));
         Assert.True(Assert.IsType<bool>(constraints["noDuplicates"]));
         Assert.True(Assert.IsType<bool>(constraints["preserveControllerBlocks"]));
         Assert.Equal("APNAP_CONTROLLER_BLOCKS_CONSERVATIVE", Assert.IsType<string>(constraints["orderingPolicy"]));
+        var controllerBlock = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(constraints["controllerBlockOrder"]));
+        Assert.Equal("P1", Assert.IsType<string>(controllerBlock["controllerId"]));
+        Assert.Equal(["TRIGGER-1", "TRIGGER-2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(controllerBlock["triggerIds"]));
 
         var p2Prompt = prompts["P2"];
         Assert.False(p2Prompt.Actionable);
