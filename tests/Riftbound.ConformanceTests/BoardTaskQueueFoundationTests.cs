@@ -773,6 +773,81 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.DoesNotContain("P1-STANDBY-ILLEGAL-001", prompt.Reason, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task ReconnectWithPendingCleanupTaskPreservesOwnerVisibilityAndPromptRedaction()
+    {
+        const string hiddenStandbyObjectId = "P1-STANDBY-ILLEGAL-001";
+        var session = new MatchSession("board-task-reconnect-owner-visibility-room", new CoreRuleEngine());
+        var p1Join = session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        var seed = await session.SeedScenarioAsync(
+            "P1",
+            "seed-board-task-reconnect-owner-visibility",
+            "battlefield-illegal-standby",
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "DEV_SEED_SCENARIO",
+                scenarioId = "battlefield-illegal-standby"
+            }),
+            CancellationToken.None);
+
+        Assert.True(seed.Accepted, seed.ErrorMessage);
+        var reconnect = session.ReconnectPlayer("P1", p1Join.ReconnectToken);
+        var snapshot = session.SnapshotFor("P1");
+        var prompt = session.PromptFor("P1");
+        var snapshotJson = JsonSerializer.Serialize(snapshot);
+        var promptJson = JsonSerializer.Serialize(prompt);
+
+        Assert.Equal("P1", reconnect.PlayerId);
+        Assert.Equal("P1", reconnect.Seat);
+        Assert.Equal(p1Join.ReconnectToken, reconnect.ReconnectToken);
+        Assert.Contains(hiddenStandbyObjectId, snapshotJson, StringComparison.Ordinal);
+
+        var battlefields = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Lanes["battlefields"]);
+        var battlefield = Assert.Single(battlefields);
+        Assert.Equal("P2", Assert.IsType<string>(battlefield["controllerId"]));
+        var battlefieldObjectId = Assert.IsType<string>(battlefield["battlefieldObjectId"]);
+        Assert.Equal([hiddenStandbyObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(battlefield["standbyObjectIds"]));
+        Assert.Equal(1, Assert.IsType<int>(battlefield["standbySlotCount"]));
+        Assert.Equal(1, Assert.IsType<int>(battlefield["faceDownStandbyCount"]));
+        Assert.Equal(0, Assert.IsType<int>(battlefield["hiddenStandbyCount"]));
+        Assert.Equal(
+            ["REMOVE_ILLEGAL_STANDBY"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(battlefield["pendingTaskKinds"]));
+        var standbySlot = Assert.Single(Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(battlefield["standbySlots"]));
+        Assert.True(Assert.IsType<bool>(standbySlot["visible"]));
+        Assert.Equal("VISIBLE", Assert.IsType<string>(standbySlot["state"]));
+        Assert.Equal(hiddenStandbyObjectId, Assert.IsType<string>(standbySlot["objectId"]));
+
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
+        Assert.True(Assert.IsType<bool>(taskQueue["hasTasks"]));
+        Assert.True(Assert.IsType<bool>(taskQueue["isBlocking"]));
+        var cleanupTaskId = Assert.IsType<string>(taskQueue["activeTaskId"]);
+        Assert.StartsWith("cleanup:illegal-standby:", cleanupTaskId, StringComparison.Ordinal);
+        Assert.Contains(hiddenStandbyObjectId, cleanupTaskId, StringComparison.Ordinal);
+        var task = Assert.Single(Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]));
+        Assert.Equal(cleanupTaskId, Assert.IsType<string>(task["taskId"]));
+        Assert.Equal("REMOVE_ILLEGAL_STANDBY", Assert.IsType<string>(task["kind"]));
+        Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", Assert.IsType<string>(task["reason"]));
+        Assert.Equal("P1", Assert.IsType<string>(task["playerId"]));
+        Assert.Equal(battlefieldObjectId, Assert.IsType<string>(task["battlefieldObjectId"]));
+        Assert.Equal(hiddenStandbyObjectId, Assert.IsType<string>(task["objectId"]));
+        Assert.DoesNotContain("hiddenObject", task.Keys);
+        Assert.DoesNotContain("hiddenObjectKind", task.Keys);
+
+        Assert.False(prompt.Actionable);
+        Assert.Equal(PromptTypes.TaskQueue, prompt.View?.Type);
+        Assert.Equal(["WAIT", "SURRENDER"], prompt.Actions);
+        Assert.NotNull(prompt.Candidates);
+        Assert.Equal(prompt.Actions, prompt.Candidates!.Select(candidate => candidate.Action).ToArray());
+        Assert.Contains("待命清理", prompt.Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("REMOVE_ILLEGAL_STANDBY", promptJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("BATTLEFIELD_CONTROL_CLEANUP", promptJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("cleanup:illegal-standby", promptJson, StringComparison.Ordinal);
+        Assert.DoesNotContain(hiddenStandbyObjectId, promptJson, StringComparison.Ordinal);
+    }
+
     private static void AssertReconnectIllegalStandbyRedactionAudit(
         PlayerSessionDto reconnect,
         string reconnectToken,
