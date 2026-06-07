@@ -524,6 +524,15 @@ public sealed class UndercoverAgentTriggerTests
             choice.ChoiceWindow,
             ["P1-HAND-001", "P1-HAND-002"]);
         var rawCommand = PromptScopedChooseHandCardsRawCommand(command, prompt);
+        var reorderedRawCommand = JsonSerializer.SerializeToElement(new
+        {
+            snapshotTick = prompt.SnapshotTick,
+            promptId = prompt.PromptId,
+            chosenObjectIds = command.ChosenObjectIds,
+            choiceWindow = command.ChoiceWindow,
+            choiceId = command.ChoiceId,
+            cmdType = CommandTypes.ChooseHandCards
+        });
         var changedRawCommand = JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.ChooseHandCards,
@@ -545,6 +554,16 @@ public sealed class UndercoverAgentTriggerTests
             .ToArray());
         Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
         Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
+        Assert.NotEqual(rawCommand.GetRawText(), reorderedRawCommand.GetRawText());
+        Assert.Equal(CommandTypes.ChooseHandCards, reorderedRawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(choice.ChoiceId, reorderedRawCommand.GetProperty("choiceId").GetString());
+        Assert.Equal(choice.ChoiceWindow, reorderedRawCommand.GetProperty("choiceWindow").GetString());
+        Assert.Equal(["P1-HAND-001", "P1-HAND-002"], reorderedRawCommand.GetProperty("chosenObjectIds")
+            .EnumerateArray()
+            .Select(element => element.GetString() ?? string.Empty)
+            .ToArray());
+        Assert.Equal(prompt.PromptId, reorderedRawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(prompt.SnapshotTick, reorderedRawCommand.GetProperty("snapshotTick").GetInt64());
 
         var accepted = await session.SubmitAsync(
             "P1",
@@ -613,6 +632,31 @@ public sealed class UndercoverAgentTriggerTests
         Assert.Equal(acceptedMainDeck, replay.State.PlayerZones["P1"].MainDeck);
         Assert.NotEqual(PromptTypes.HandChoice, replay.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.HandChoice, replay.Prompts["P2"].View?.Type);
+        Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
+        Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
+        Assert.Single(journal.Entries);
+
+        var reorderedReplay = await session.SubmitAsync(
+            "P1",
+            clientIntentId,
+            GameCommandJsonMapper.Map(reorderedRawCommand),
+            reorderedRawCommand,
+            CancellationToken.None);
+
+        Assert.True(reorderedReplay.Accepted, reorderedReplay.ErrorMessage);
+        Assert.Null(reorderedReplay.ErrorCode);
+        Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(reorderedReplay.State));
+        Assert.Equal(accepted.State.Tick, reorderedReplay.State.Tick);
+        Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(reorderedReplay.Events));
+        Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(reorderedReplay.Prompts));
+        Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(reorderedReplay.Snapshots));
+        AssertNoMutation(accepted.State, reorderedReplay.State);
+        Assert.Null(reorderedReplay.State.PendingHandChoice);
+        Assert.Equal(acceptedHand, reorderedReplay.State.PlayerZones["P1"].Hand);
+        Assert.Equal(acceptedGraveyard, reorderedReplay.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(acceptedMainDeck, reorderedReplay.State.PlayerZones["P1"].MainDeck);
+        Assert.NotEqual(PromptTypes.HandChoice, reorderedReplay.Prompts["P1"].View?.Type);
+        Assert.NotEqual(PromptTypes.HandChoice, reorderedReplay.Prompts["P2"].View?.Type);
         Assert.Equal(p1SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(p2SnapshotAfterAccepted, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
         Assert.Single(journal.Entries);
