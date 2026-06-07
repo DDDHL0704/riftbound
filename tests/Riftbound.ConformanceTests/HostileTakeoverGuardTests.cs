@@ -128,6 +128,22 @@ public sealed class HostileTakeoverGuardTests
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, HostileTakeoverObjectId, StringComparison.Ordinal));
 
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.ContainsKey("sourceRequirements"));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, HostileTakeoverObjectId, StringComparison.Ordinal));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var metadataTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal([HostileTakeoverTargetObjectId], metadataTargetChoiceIds);
+
         var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
         Assert.Equal([HostileTakeoverTargetObjectId], targetIds);
         foreach (var invalidTargetObjectId in new[]
@@ -143,6 +159,7 @@ public sealed class HostileTakeoverGuardTests
         })
         {
             Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetChoiceIds);
         }
     }
 
