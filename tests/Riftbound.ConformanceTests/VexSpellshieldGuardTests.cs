@@ -91,41 +91,62 @@ public sealed class VexSpellshieldGuardTests
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
                 && candidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, VexObjectId, StringComparison.Ordinal));
+        var invalidTargetObjectIds = new[]
+        {
+            VexObjectId,
+            "P1-TARGET-UNIT",
+            "P1-BASE-VEX",
+            "P1-FACE-DOWN-STANDBY-VEX",
+            "P2-UNIT-VEX"
+        };
         var targetCandidates = playCandidate.Targets ?? [];
         var targetIds = targetCandidates.Select(target => target.Id).ToArray();
         Assert.Empty(targetCandidates);
-        Assert.DoesNotContain(VexObjectId, targetIds);
-        Assert.DoesNotContain("P1-TARGET-UNIT", targetIds);
-        Assert.DoesNotContain("P1-BASE-VEX", targetIds);
-        Assert.DoesNotContain("P1-FACE-DOWN-STANDBY-VEX", targetIds);
-        Assert.DoesNotContain("P2-UNIT-VEX", targetIds);
-
-        if (playCandidate.Metadata is not null)
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
-            if (playCandidate.Metadata.TryGetValue("targetChoicesByIndex", out var rawCandidateTargetChoicesByIndex)
-                && rawCandidateTargetChoicesByIndex is not null)
-            {
-                AssertTargetChoicesByIndexEmpty(rawCandidateTargetChoicesByIndex);
-            }
+            Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+        }
 
-            if (playCandidate.Metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements)
-                && rawSourceRequirements is not null)
-            {
-                var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                    rawSourceRequirements);
-                foreach (var sourceRequirement in sourceRequirements.Where(requirement =>
-                    requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                    && string.Equals(sourceObjectId as string, VexObjectId, StringComparison.Ordinal)))
-                {
-                    if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
-                        || rawTargetChoicesByIndex is null)
-                    {
-                        continue;
-                    }
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        if (metadata.TryGetValue("targetChoicesByIndex", out var rawCandidateTargetChoicesByIndex)
+            && rawCandidateTargetChoicesByIndex is not null)
+        {
+            Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                rawCandidateTargetChoicesByIndex));
+        }
 
-                    AssertTargetChoicesByIndexEmpty(rawTargetChoicesByIndex);
-                }
-            }
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements));
+        Assert.NotNull(rawSourceRequirements);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                rawSourceRequirements)
+            .ToArray();
+        var sourceRequirement = Assert.Single(sourceRequirements, requirement =>
+            requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && string.Equals(sourceObjectId as string, VexObjectId, StringComparison.Ordinal));
+        Assert.True(sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex));
+        Assert.NotNull(rawTargetChoicesByIndex);
+        var targetChoicesByIndex = AssertTargetChoicesByIndexEmpty(rawTargetChoicesByIndex);
+
+        var exposesMinTargetCount = sourceRequirement.TryGetValue("minTargetCount", out var rawMinTargetCount);
+        var exposesMaxTargetCount = sourceRequirement.TryGetValue("maxTargetCount", out var rawMaxTargetCount);
+        if (exposesMinTargetCount || exposesMaxTargetCount)
+        {
+            Assert.True(exposesMinTargetCount);
+            Assert.True(exposesMaxTargetCount);
+            Assert.Equal(0, Assert.IsType<int>(rawMinTargetCount));
+            Assert.Equal(0, Assert.IsType<int>(rawMaxTargetCount));
+        }
+
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .Where(rawTargetChoices => rawTargetChoices is not null)
+            .SelectMany(rawTargetChoices => Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices))
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
+        {
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
         }
     }
 
@@ -322,7 +343,7 @@ public sealed class VexSpellshieldGuardTests
             || string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
     }
 
-    private static void AssertTargetChoicesByIndexEmpty(object rawTargetChoicesByIndex)
+    private static IReadOnlyDictionary<string, object?> AssertTargetChoicesByIndexEmpty(object rawTargetChoicesByIndex)
     {
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             rawTargetChoicesByIndex);
@@ -335,6 +356,7 @@ public sealed class VexSpellshieldGuardTests
 
             Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndexEntry.Value));
         });
+        return targetChoicesByIndex;
     }
 
     private static async Task<ResolutionResult> PlayVexAsync(
