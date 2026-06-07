@@ -743,9 +743,16 @@ public sealed class BoardTaskQueueFoundationTests
         var reconnect = session.ReconnectPlayer("P2", p2Join.ReconnectToken);
         var snapshot = session.SnapshotFor("P2");
         var prompt = session.PromptFor("P2");
+        var snapshotJson = JsonSerializer.Serialize(snapshot);
+        var promptJson = JsonSerializer.Serialize(prompt);
         var taskQueue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
 
         AssertReconnectIllegalStandbyRedactionAudit(reconnect, p2Join.ReconnectToken, snapshot, prompt);
+        Assert.DoesNotContain("P1-STANDBY-ILLEGAL-001", snapshotJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("P1-STANDBY-ILLEGAL-001", promptJson, StringComparison.Ordinal);
+        Assert.Contains("hiddenStandbyCount", snapshotJson, StringComparison.Ordinal);
+        Assert.Contains("hiddenObjectKind", snapshotJson, StringComparison.Ordinal);
+        Assert.Contains("BATTLEFIELD_STANDBY", snapshotJson, StringComparison.Ordinal);
         Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
         Assert.True(Assert.IsType<bool>(taskQueue["hasTasks"]));
         Assert.True(Assert.IsType<bool>(taskQueue["isBlocking"]));
