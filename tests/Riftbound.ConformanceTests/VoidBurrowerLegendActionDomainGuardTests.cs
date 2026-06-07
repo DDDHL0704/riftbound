@@ -77,9 +77,13 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
         Assert.True(prompt.Actionable);
         Assert.Contains(CommandTypes.DeclareBattle, prompt.Actions);
         var staleRawCommand = PromptScopedDeclareBattleRawCommand(command, prompt);
+        var reorderedStaleRawCommand = ReorderedPromptScopedDeclareBattleRawCommand(command, prompt);
         var changedRawCommand = PromptScopedDeclareBattleRawCommandWithClientNote(command, prompt, "changed-payload");
         const string acceptedIntentId = "intent-void-burrower-before-stale-declare-battle-raw-replay";
         const string staleIntentId = "intent-void-burrower-stale-declare-battle-raw-replay";
+        Assert.NotEqual(staleRawCommand.GetRawText(), reorderedStaleRawCommand.GetRawText());
+        AssertPromptScopedDeclareBattleRawCommand(reorderedStaleRawCommand, command, prompt);
+        Assert.False(reorderedStaleRawCommand.TryGetProperty("clientNote", out _));
 
         var accepted = await session.SubmitAsync(
             "P1",
@@ -161,6 +165,31 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
         Assert.False(rejectedJournalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
         Assert.Single(journal.Entries, entry => !entry.Accepted);
         var journalHashAfterReplay = MatchStateHasher.HashValue(journal.Entries);
+
+        var reorderedReplay = await session.SubmitAsync(
+            "P1",
+            staleIntentId,
+            command,
+            reorderedStaleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(reorderedReplay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, reorderedReplay.ErrorCode);
+        Assert.Equal(replay.ErrorMessage, reorderedReplay.ErrorMessage);
+        Assert.Empty(reorderedReplay.Events);
+        AssertVoidBurrowerNoRejectedReplayDrift(
+            session,
+            reorderedReplay,
+            replay.State.Tick,
+            acceptedHash,
+            acceptedSessionPromptHash,
+            acceptedSessionSnapshotHash,
+            acceptedLegendHash,
+            acceptedPlayedUnitHash,
+            acceptedRecycledCardHash);
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Single(journal.Entries, entry => !entry.Accepted);
+        Assert.Equal(journalHashAfterReplay, MatchStateHasher.HashValue(journal.Entries));
 
         var duplicateReplay = await session.SubmitAsync(
             "P1",
@@ -286,6 +315,23 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
             battlefieldTargetObjectIds = command.BattlefieldTargetObjectIds,
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick
+        });
+    }
+
+    private static JsonElement ReorderedPromptScopedDeclareBattleRawCommand(
+        DeclareBattleCommand command,
+        ActionPromptDto prompt)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            snapshotTick = prompt.SnapshotTick,
+            promptId = prompt.PromptId,
+            battlefieldTargetObjectIds = command.BattlefieldTargetObjectIds,
+            optionalCosts = command.OptionalCosts,
+            defenderObjectIds = command.DefenderObjectIds,
+            attackerObjectIds = command.AttackerObjectIds,
+            battlefieldId = command.BattlefieldId,
+            cmdType = CommandTypes.DeclareBattle
         });
     }
 
