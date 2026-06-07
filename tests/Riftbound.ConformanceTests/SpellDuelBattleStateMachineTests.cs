@@ -1462,6 +1462,69 @@ public sealed class SpellDuelBattleStateMachineTests
     }
 
     [Fact]
+    public void ReconnectDuringSpellDuelTasksPreservesOwnerHiddenStandbyAndNonFocusPrompt()
+    {
+        var state = MultiContestSpellDuelState(includeOpponentHiddenStandby: true);
+        var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        var p2 = session.EnsurePlayer("P2");
+
+        var reconnect = session.ReconnectPlayer("P2", p2.ReconnectToken);
+        var snapshot = session.SnapshotFor("P2");
+        var prompt = session.PromptFor("P2");
+        var queue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+
+        Assert.Equal("P2", reconnect.PlayerId);
+        Assert.False(string.IsNullOrWhiteSpace(reconnect.ReconnectToken));
+        Assert.Equal("P1", snapshot.Timing["focusPlayerId"]);
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.Equal("task:start-spell-duel:BF-A", Assert.IsType<string>(queue["activeTaskId"]));
+
+        var ownerZones = ZoneView(PlayerView(snapshot, "P2"));
+        Assert.Contains("P2-HIDDEN-STANDBY", StringList(ownerZones["battlefields"]));
+        Assert.Equal(0, Assert.IsType<int>(ownerZones["battlefieldHiddenStandbyCount"]));
+
+        var ownerObjects = ObjectView(PlayerView(snapshot, "P2"));
+        var ownerHiddenStandby = Assert.IsType<Dictionary<string, object?>>(ownerObjects["P2-HIDDEN-STANDBY"]);
+        Assert.True(Assert.IsType<bool>(ownerHiddenStandby["isFaceDown"]));
+        Assert.Equal(1, Assert.IsType<int>(ownerHiddenStandby["power"]));
+        Assert.Equal("P2", Assert.IsType<string>(ownerHiddenStandby["ownerId"]));
+        Assert.Equal("P2", Assert.IsType<string>(ownerHiddenStandby["controllerId"]));
+        Assert.True(ownerHiddenStandby.ContainsKey("cardNo"));
+        var ownerHiddenTags = Assert.IsAssignableFrom<IReadOnlyList<string>>(ownerHiddenStandby["tags"]);
+        Assert.Contains(CardObjectTags.UnitCard, ownerHiddenTags);
+        Assert.Contains(CardObjectTags.Standby, ownerHiddenTags);
+
+        var battlefieldStates = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Lanes["battlefields"]);
+        var hiddenBattlefield = Assert.Single(battlefieldStates, battlefield =>
+            string.Equals(battlefield["battlefieldObjectId"] as string, "BF-HIDDEN", StringComparison.Ordinal));
+        Assert.Contains("P2-HIDDEN-STANDBY", StringList(hiddenBattlefield["standbyObjectIds"]));
+        Assert.Equal(0, Assert.IsType<int>(hiddenBattlefield["hiddenStandbyCount"]));
+        var standbySlots = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(hiddenBattlefield["standbySlots"]);
+        var ownerStandbySlot = Assert.Single(standbySlots, slot =>
+            string.Equals(slot["objectId"] as string, "P2-HIDDEN-STANDBY", StringComparison.Ordinal));
+        Assert.True(Assert.IsType<bool>(ownerStandbySlot["visible"]));
+        Assert.Equal("VISIBLE", Assert.IsType<string>(ownerStandbySlot["state"]));
+        Assert.True(Assert.IsType<bool>(ownerStandbySlot["isFaceDown"]));
+
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
+        var activeTask = Assert.Single(battlefieldTasks, task =>
+            string.Equals(task["kind"] as string, "START_SPELL_DUEL", StringComparison.Ordinal)
+            && string.Equals(task["status"] as string, "ACTIVE", StringComparison.Ordinal));
+        Assert.Equal("BF-A", Assert.IsType<string>(activeTask["battlefieldObjectId"]));
+        Assert.Equal("spell-duel:BF-A", Assert.IsType<string>(activeTask["spellDuelId"]));
+        Assert.Equal(["P1", "P2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantControllerIds"]));
+        Assert.Equal(["P1-A", "P2-A"], Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantObjectIds"]));
+
+        Assert.False(prompt.Actionable);
+        Assert.Equal(PromptTypes.SpellDuelFocus, prompt.View?.Type);
+        Assert.Equal("BF-A", prompt.View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-A", prompt.View?.RelatedSpellDuelId);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], prompt.Actions);
+        Assert.DoesNotContain(CommandTypes.PassFocus, prompt.Actions);
+    }
+
+    [Fact]
     public void ReconnectDuringBattleTasksPreservesBattleMetadataAndHiddenRedaction()
     {
         var state = StartBattleTaskState(includeOpponentHiddenStandby: true);
