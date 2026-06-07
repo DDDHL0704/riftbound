@@ -26313,6 +26313,11 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
+                "command intent-paycost-cmdtype-only raw PAY_COST paymentWindow is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
                 "command intent-paycost-cmdtype-only raw PAY_COST paymentChoiceIds must be an array",
                 StringComparison.Ordinal));
         Assert.Contains(
