@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-18YR/18YS/18YT/18YU/18YV/18YW prompt metadata breadth accepted six parallel server-test shards, proving Charm, Hostile Takeover, Isolate, Reprimand and Vengeance `PLAY_CARD` prompt metadata target choices match top-level legal target choices, and Sea Monster Hook no-target prompt metadata exposes an empty target-choice dictionary. Runtime changed: no, server test coverage only. Tests changed in `CharmMoveToBaseGuardTests`, `HostileTakeoverGuardTests`, `IsolateMoveToBaseGuardTests`, `ReprimandReturnToHandGuardTests`, `SeaMonsterHookGuardTests` and `VengeanceDestroyGuardTests`. A_MAIN kept workers patch-only, validated focused worktrees, and accepted worker source commits `c005b51b`, `87a4ef25`, `214abcf7`, `89517c92`, `c6c4723f` and `576661d1` as `fad866fb`, `dfca59ce`, `cba30012`, `631249e7`, `6f9f0f65` and `f05b3c85`. Validation passed: baseline `63/63`, main changed-class filter `63/63`, adjacent prompt/action filter `1098/1098`, backend full `7572/7572`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-18YX/18YY/18YZ/18ZA/18ZB/18ZC raw-command and reconnect breadth accepted six parallel server-test shards, proving mapper legacy `triggerIds` ordered-id parity, caller-only reconnect token redaction, board-task and spell-duel reconnect hidden-standby redaction, Undercover Agent raw-command property-order replay, and Fluft Poro stale replay journal hash stability. Runtime changed: no, server test coverage only. Tests changed in `ConformanceFixtureShapeTests`, `GameHubJoinTests`, `BoardTaskQueueFoundationTests`, `SpellDuelBattleStateMachineTests`, `UndercoverAgentTriggerTests` and `FluftPoroActivatedAbilityTests`. A_MAIN kept workers patch-only, validated focused worktrees, and accepted worker source commits `14db8ee3`, `88c925b5`, `5d443682`, `64b940ec`, `a5c06184` and `46d022c3` as `4a405406`, `f3d610c8`, `011215bf`, `94332c0a`, `64b669b0` and `d1587b14`. Validation passed: baseline `6/6`, main changed-class filter `386/386`, adjacent raw/reconnect/recovery filter `1524/1524`, backend full `7572/7572`. A_MAIN owns the main bundle. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18YR/18YS/18YT/18YU/18YV/18YW; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-18YX/18YY/18YZ/18ZA/18ZB/18ZC; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
 - `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-07 06:26 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-07 08:31 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at `d1587b14` before docs checkpoint
+
+Write locks: A_MAIN owns the current test/docs checkpoint. Runtime validation code, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-18YX/18YY/18YZ/18ZA/18ZB/18ZC raw-command and reconnect breadth accepted. Dedicated audit doc: `docs/CURRENT_STAGE4D_18YX_18ZC_RAW_RECONNECT_AUDIT.md`.
+
+Validation: baseline `6/6`; worktree focused `1/1` each; main changed-class `386/386`; adjacent raw/reconnect/recovery `1524/1524`; backend full `7572/7572`.
+
+Requested action: future parallel workers should stay patch-only unless given the explicit conformance csproj command, and must target disjoint prompt/runtime/mapper/recovery surfaces after re-reading this board. Queued prompt-metadata candidates include Gust, Ride the Wind, Firestorm, Reflections and Spirit Fire. Project remains **NOT READY**.
 
 ### 2026-06-07 08:10 A_MAIN
 
