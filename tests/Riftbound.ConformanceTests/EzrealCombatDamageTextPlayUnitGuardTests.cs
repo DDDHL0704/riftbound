@@ -98,37 +98,35 @@ public sealed class EzrealCombatDamageTextPlayUnitGuardTests
                 && candidate.Enabled
                 && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, EzrealObjectId, StringComparison.Ordinal)));
 
-        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
-        Assert.Empty(targetIds);
-        foreach (var invalidTargetId in new[]
+        var invalidTargetIds = new[]
         {
             "P1-TARGET-UNIT",
             "P1-BASE-EZREAL",
             "P1-FACE-DOWN-STANDBY-EZREAL",
             "P2-UNIT-EZREAL",
             EzrealObjectId
-        })
+        };
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                rawSourceRequirements)
+            .ToArray();
+        var ezrealSourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => requirement.TryGetValue("sourceObjectId", out var rawSourceObjectId)
+                && string.Equals(rawSourceObjectId as string, EzrealObjectId, StringComparison.Ordinal));
+        Assert.Equal(EzrealObjectId, ezrealSourceRequirement["sourceObjectId"]);
+        AssertZeroTargetCountIfExposed(ezrealSourceRequirement, "minTargetCount");
+        AssertZeroTargetCountIfExposed(ezrealSourceRequirement, "maxTargetCount");
+        var metadataTargetChoiceIds = AssertTargetChoicesByIndexPresentAndEmpty(ezrealSourceRequirement);
+
+        foreach (var invalidTargetId in invalidTargetIds)
         {
             Assert.DoesNotContain(invalidTargetId, targetIds);
-        }
-
-        if (playCandidate.Metadata is { } metadata)
-        {
-            AssertTargetChoicesByIndexAbsentOrEmpty(metadata);
-
-            if (metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements)
-                && rawSourceRequirements is not null)
-            {
-                var sourceRequirements = Assert.IsAssignableFrom<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(rawSourceRequirements);
-                var ezrealSourceRequirement = sourceRequirements.SingleOrDefault(requirement =>
-                    requirement.TryGetValue("sourceObjectId", out var rawSourceObjectId)
-                    && string.Equals(rawSourceObjectId as string, EzrealObjectId, StringComparison.Ordinal));
-
-                if (ezrealSourceRequirement is not null)
-                {
-                    AssertTargetChoicesByIndexAbsentOrEmpty(ezrealSourceRequirement);
-                }
-            }
+            Assert.DoesNotContain(invalidTargetId, metadataTargetChoiceIds);
         }
     }
 
@@ -442,24 +440,28 @@ public sealed class EzrealCombatDamageTextPlayUnitGuardTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static void AssertTargetChoicesByIndexAbsentOrEmpty(IReadOnlyDictionary<string, object?> metadata)
+    private static string[] AssertTargetChoicesByIndexPresentAndEmpty(IReadOnlyDictionary<string, object?> metadata)
     {
-        if (!metadata.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
-            || rawTargetChoicesByIndex is null)
-        {
-            return;
-        }
-
+        Assert.True(metadata.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex));
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(rawTargetChoicesByIndex);
-        Assert.All(targetChoicesByIndex.Values, choices =>
-        {
-            if (choices is null)
-            {
-                return;
-            }
+        var targetChoiceIds = targetChoicesByIndex.Values
+            .Where(choices => choices is not null)
+            .SelectMany(choices => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices))
+            .Select(choice => choice.Id)
+            .ToArray();
 
-            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choices));
-        });
+        Assert.Empty(targetChoiceIds);
+        return targetChoiceIds;
+    }
+
+    private static void AssertZeroTargetCountIfExposed(
+        IReadOnlyDictionary<string, object?> metadata,
+        string key)
+    {
+        if (metadata.TryGetValue(key, out var rawTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(rawTargetCount));
+        }
     }
 
     private static StackItemState AssertEzrealStackPriorityState(
