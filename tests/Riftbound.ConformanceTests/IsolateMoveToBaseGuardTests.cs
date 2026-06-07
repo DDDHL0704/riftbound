@@ -107,7 +107,22 @@ public sealed class IsolateMoveToBaseGuardTests
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, IsolateObjectId, StringComparison.Ordinal));
         var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
         Assert.Equal([IsolateTargetObjectId], targetIds);
-        foreach (var invalidTargetObjectId in new[]
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.ContainsKey("sourceRequirements"));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, IsolateObjectId, StringComparison.Ordinal));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var metadataTargetIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal([IsolateTargetObjectId], metadataTargetIds);
+        var invalidTargetObjectIds = new[]
         {
             "P1-FRIENDLY-BATTLEFIELD-UNIT",
             "P2-BASE-UNIT",
@@ -116,9 +131,11 @@ public sealed class IsolateMoveToBaseGuardTests
             "P2-BATTLEFIELD-EQUIPMENT",
             "P2-BATTLEFIELD-SPELL",
             "P2-BATTLEFIELD-RUNE"
-        })
+        };
+        foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
             Assert.DoesNotContain(invalidTargetObjectId, targetIds);
+            Assert.DoesNotContain(invalidTargetObjectId, metadataTargetIds);
         }
     }
 
