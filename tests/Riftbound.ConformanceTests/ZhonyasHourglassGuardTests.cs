@@ -79,21 +79,22 @@ public sealed class ZhonyasHourglassGuardTests
                 && string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal)
                 && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, ZhonyasObjectId, StringComparison.Ordinal)));
 
-        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
-        Assert.Empty(targetIds);
-        foreach (var invalidTargetId in new[]
+        var invalidTargetIds = new[]
         {
             "P1-TARGET-UNIT",
             "P1-BASE-ZHONYAS-HOURGLASS",
             "P1-FACE-DOWN-STANDBY-ZHONYAS",
             "P2-EQUIPMENT-ZHONYAS-HOURGLASS",
             ZhonyasObjectId
-        })
+        };
+        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(targetIds);
+        foreach (var invalidTargetId in invalidTargetIds)
         {
             Assert.DoesNotContain(invalidTargetId, targetIds);
         }
 
-        AssertZhonyasTargetChoicesByIndexAbsentOrEmpty(playCandidate);
+        AssertZhonyasTargetChoicesByIndexEmpty(playCandidate, invalidTargetIds);
     }
 
     [Fact]
@@ -351,28 +352,48 @@ public sealed class ZhonyasHourglassGuardTests
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
-    private static void AssertZhonyasTargetChoicesByIndexAbsentOrEmpty(ActionPromptCandidateDto playCandidate)
+    private static void AssertZhonyasTargetChoicesByIndexEmpty(
+        ActionPromptCandidateDto playCandidate,
+        IEnumerable<string> invalidTargetIds)
     {
-        if (playCandidate.Metadata is not { } metadata
-            || !metadata.TryGetValue("sourceRequirements", out var sourceRequirementsObject)
-            || sourceRequirementsObject is null)
-        {
-            return;
-        }
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var sourceRequirementsObject));
+        Assert.NotNull(sourceRequirementsObject);
 
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            sourceRequirementsObject);
-        foreach (var zhonyasRequirement in sourceRequirements.Where(requirement =>
-            requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-            && string.Equals(sourceObjectId as string, ZhonyasObjectId, StringComparison.Ordinal)))
-        {
-            if (!zhonyasRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesByIndexObject)
-                || targetChoicesByIndexObject is null)
-            {
-                continue;
-            }
+                sourceRequirementsObject)
+            .ToArray();
+        var zhonyasRequirement = Assert.Single(
+            sourceRequirements,
+            requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, ZhonyasObjectId, StringComparison.Ordinal));
 
-            Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(targetChoicesByIndexObject));
+        var exposesMinTargetCount = zhonyasRequirement.TryGetValue("minTargetCount", out var minTargetCount);
+        var exposesMaxTargetCount = zhonyasRequirement.TryGetValue("maxTargetCount", out var maxTargetCount);
+        if (exposesMinTargetCount || exposesMaxTargetCount)
+        {
+            Assert.True(exposesMinTargetCount);
+            Assert.True(exposesMaxTargetCount);
+            Assert.Equal(0, Assert.IsType<int>(minTargetCount));
+            Assert.Equal(0, Assert.IsType<int>(maxTargetCount));
+        }
+
+        Assert.True(zhonyasRequirement.TryGetValue("targetChoicesByIndex", out var targetChoicesByIndexObject));
+        Assert.NotNull(targetChoicesByIndexObject);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            targetChoicesByIndexObject);
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .Where(rawTargetChoices => rawTargetChoices is not null)
+            .SelectMany(rawTargetChoices => Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                .Select(choice => choice.Id))
+            .ToArray();
+        Assert.Empty(targetChoicesByIndex);
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetId in invalidTargetIds)
+        {
+            Assert.DoesNotContain(invalidTargetId, metadataTargetIds);
         }
     }
 
