@@ -280,13 +280,25 @@ public sealed class ReflectionsSwapGuardTests
             requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-SPELL-REFLECTIONS", StringComparison.Ordinal));
         var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             sourceRequirement["targetChoicesByIndex"]);
+        Assert.Equal(["0", "1"], choicesByIndex.Keys.OrderBy(index => index, StringComparer.Ordinal).ToArray());
         var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        var secondTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["1"])
             .Select(choice => choice.Id)
             .ToArray();
         var legalTargetSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
                 sourceRequirement["legalTargetSelections"])
             .ToArray();
 
+        if (sourceRequirement.TryGetValue("allowsRepeatedTargets", out var allowsRepeatedTargets))
+        {
+            Assert.False(Assert.IsType<bool>(allowsRepeatedTargets));
+        }
+
+        Assert.Equal(
+            firstTargetChoiceIds.OrderBy(choiceId => choiceId, StringComparer.Ordinal).ToArray(),
+            secondTargetChoiceIds.OrderBy(choiceId => choiceId, StringComparer.Ordinal).ToArray());
         Assert.Contains("P1-BASE-EPHEMERAL", firstTargetChoiceIds);
         Assert.Contains("P1-BATTLEFIELD-UNIT", firstTargetChoiceIds);
         Assert.DoesNotContain("P1-BASE-EQUIPMENT", firstTargetChoiceIds);
@@ -295,6 +307,14 @@ public sealed class ReflectionsSwapGuardTests
         Assert.DoesNotContain("P1-FACE-DOWN-STANDBY", firstTargetChoiceIds);
         Assert.DoesNotContain("P1-DIRTY-P2-CONTROLLED-BASE-UNIT", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-ENEMY-UNIT", firstTargetChoiceIds);
+        Assert.Contains("P1-BASE-EPHEMERAL", secondTargetChoiceIds);
+        Assert.Contains("P1-BATTLEFIELD-UNIT", secondTargetChoiceIds);
+        Assert.DoesNotContain("P1-BASE-EQUIPMENT", secondTargetChoiceIds);
+        Assert.DoesNotContain("P1-BASE-SPELL", secondTargetChoiceIds);
+        Assert.DoesNotContain("P1-BASE-RUNE", secondTargetChoiceIds);
+        Assert.DoesNotContain("P1-FACE-DOWN-STANDBY", secondTargetChoiceIds);
+        Assert.DoesNotContain("P1-DIRTY-P2-CONTROLLED-BASE-UNIT", secondTargetChoiceIds);
+        Assert.DoesNotContain("P2-ENEMY-UNIT", secondTargetChoiceIds);
 
         Assert.Contains(legalTargetSelections, selection =>
             selection.SequenceEqual(["P1-BASE-EPHEMERAL", "P1-BATTLEFIELD-UNIT"]));
