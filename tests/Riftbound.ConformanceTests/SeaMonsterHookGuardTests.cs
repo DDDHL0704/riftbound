@@ -79,11 +79,41 @@ public sealed class SeaMonsterHookGuardTests
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, SeaMonsterHookObjectId, StringComparison.Ordinal));
         var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        var invalidTargetIds = new[]
+        {
+            "P1-TARGET-UNIT",
+            "P1-BASE-SEA-MONSTER-HOOK",
+            "P1-FACE-DOWN-STANDBY-SEA-MONSTER-HOOK",
+            "P2-EQUIPMENT-SEA-MONSTER-HOOK"
+        };
         Assert.Empty(targetIds);
-        Assert.DoesNotContain("P1-TARGET-UNIT", targetIds);
-        Assert.DoesNotContain("P1-BASE-SEA-MONSTER-HOOK", targetIds);
-        Assert.DoesNotContain("P1-FACE-DOWN-STANDBY-SEA-MONSTER-HOOK", targetIds);
-        Assert.DoesNotContain("P2-EQUIPMENT-SEA-MONSTER-HOOK", targetIds);
+        foreach (var invalidTargetId in invalidTargetIds)
+        {
+            Assert.DoesNotContain(invalidTargetId, targetIds);
+        }
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            rawSourceRequirements);
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, SeaMonsterHookObjectId, StringComparison.Ordinal));
+        Assert.True(sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            rawTargetChoicesByIndex);
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .SelectMany(rawTargetChoices => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                .Select(choice => choice.Id))
+            .ToArray();
+
+        Assert.Empty(metadataTargetIds);
+        foreach (var invalidTargetId in invalidTargetIds)
+        {
+            Assert.DoesNotContain(invalidTargetId, metadataTargetIds);
+        }
+
+        Assert.Empty(targetChoicesByIndex);
     }
 
     [Fact]
