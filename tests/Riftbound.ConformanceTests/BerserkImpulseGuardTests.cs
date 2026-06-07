@@ -135,9 +135,11 @@ public sealed class BerserkImpulseGuardTests
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
+        const string berserkImpulseObjectId = "P1-SPELL-BERSERK-IMPULSE";
+        const string berserkImpulseCardNo = "OGN·025/298";
         var command = new PlayCardCommand(
-            "P1-SPELL-BERSERK-IMPULSE",
-            "OGN·025/298",
+            berserkImpulseObjectId,
+            berserkImpulseCardNo,
             ["P2-TOP-UNIT"]);
 
         var prompt = session.PromptFor("P1");
@@ -163,48 +165,30 @@ public sealed class BerserkImpulseGuardTests
             Assert.DoesNotContain(targetObjectId, targetIds);
         }
 
-        var metadataTargetIds = new List<string>();
-        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true
-            && rawSourceRequirements is not null)
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                rawSourceRequirements)
+            .ToArray();
+        Assert.Empty(sourceRequirements);
+
+        if (metadata.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex))
         {
-            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                    rawSourceRequirements)
+            var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                rawTargetChoicesByIndex);
+            Assert.Empty(targetChoicesByIndex);
+
+            var metadataTargetChoiceIds = targetChoicesByIndex.Values
+                .Where(rawTargetChoices => rawTargetChoices is not null)
+                .SelectMany(rawTargetChoices => Assert
+                    .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                    .Select(choice => choice.Id))
                 .ToArray();
-            foreach (var sourceRequirement in sourceRequirements)
+            Assert.Empty(metadataTargetChoiceIds);
+            foreach (var targetObjectId in hiddenOrIllegalTargetObjectIds)
             {
-                if (sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
-                    && rawTargetChoicesByIndex is not null)
-                {
-                    var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                        rawTargetChoicesByIndex);
-                    foreach (var rawTargetChoices in targetChoicesByIndex.Values)
-                    {
-                        if (rawTargetChoices is null)
-                        {
-                            continue;
-                        }
-
-                        metadataTargetIds.AddRange(Assert
-                            .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
-                            .Select(choice => choice.Id));
-                    }
-                }
-
-                if (sourceRequirement.TryGetValue("legalTargetSelections", out var rawLegalTargetSelections)
-                    && rawLegalTargetSelections is not null)
-                {
-                    foreach (var legalTargetSelection in Assert
-                        .IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(rawLegalTargetSelections))
-                    {
-                        metadataTargetIds.AddRange(legalTargetSelection);
-                    }
-                }
+                Assert.DoesNotContain(targetObjectId, metadataTargetChoiceIds);
             }
-        }
-
-        foreach (var targetObjectId in hiddenOrIllegalTargetObjectIds)
-        {
-            Assert.DoesNotContain(targetObjectId, metadataTargetIds);
         }
 
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
