@@ -112,39 +112,37 @@ public sealed class VexAltSpellshieldGuardTests
             Assert.DoesNotContain(invalidTargetObjectId, targetIds);
         }
 
-        var metadataTargetIds = new List<string>();
-        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true
-            && rawSourceRequirements is not null)
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.True(metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements));
+        Assert.NotNull(rawSourceRequirements);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                rawSourceRequirements)
+            .ToArray();
+        var sourceRequirement = Assert.Single(sourceRequirements, requirement =>
+            requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && string.Equals(sourceObjectId as string, VexAltObjectId, StringComparison.Ordinal));
+        Assert.True(sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex));
+        Assert.NotNull(rawTargetChoicesByIndex);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            rawTargetChoicesByIndex);
+        Assert.Empty(targetChoicesByIndex);
+
+        var exposesMinTargetCount = sourceRequirement.TryGetValue("minTargetCount", out var rawMinTargetCount);
+        var exposesMaxTargetCount = sourceRequirement.TryGetValue("maxTargetCount", out var rawMaxTargetCount);
+        if (exposesMinTargetCount || exposesMaxTargetCount)
         {
-            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                    rawSourceRequirements)
-                .ToArray();
-            foreach (var sourceRequirement in sourceRequirements.Where(requirement =>
-                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                && string.Equals(sourceObjectId as string, VexAltObjectId, StringComparison.Ordinal)))
-            {
-                if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
-                    || rawTargetChoicesByIndex is null)
-                {
-                    continue;
-                }
-
-                var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                    rawTargetChoicesByIndex);
-                foreach (var rawTargetChoices in targetChoicesByIndex.Values)
-                {
-                    if (rawTargetChoices is null)
-                    {
-                        continue;
-                    }
-
-                    metadataTargetIds.AddRange(Assert
-                        .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
-                        .Select(choice => choice.Id));
-                }
-            }
+            Assert.True(exposesMinTargetCount);
+            Assert.True(exposesMaxTargetCount);
+            Assert.Equal(0, Assert.IsType<int>(rawMinTargetCount));
+            Assert.Equal(0, Assert.IsType<int>(rawMaxTargetCount));
         }
 
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .Where(rawTargetChoices => rawTargetChoices is not null)
+            .SelectMany(rawTargetChoices => Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices))
+            .Select(choice => choice.Id)
+            .ToArray();
         Assert.Empty(metadataTargetIds);
         foreach (var invalidTargetObjectId in invalidTargetObjectIds)
         {
