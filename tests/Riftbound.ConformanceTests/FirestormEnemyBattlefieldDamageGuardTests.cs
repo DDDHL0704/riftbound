@@ -96,37 +96,30 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         Assert.DoesNotContain("P2-BASE-UNIT", targetIds);
         Assert.DoesNotContain("P1-FRIENDLY-BATTLEFIELD-UNIT", targetIds);
 
-        if (playCandidate.Metadata is not null)
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.DoesNotContain("targetChoicesByIndex", metadata.Keys);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var firestormRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, FirestormObjectId, StringComparison.Ordinal));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            firestormRequirement["targetChoicesByIndex"]);
+        Assert.Empty(targetChoicesByIndex);
+        if (firestormRequirement.TryGetValue("legalTargetSelections", out var rawLegalTargetSelections))
         {
-            Assert.DoesNotContain("targetChoicesByIndex", playCandidate.Metadata.Keys);
-            if (playCandidate.Metadata.TryGetValue("sourceRequirements", out var rawSourceRequirements)
-                && rawSourceRequirements is not null)
-            {
-                var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                    rawSourceRequirements);
-                foreach (var sourceRequirement in sourceRequirements.Where(requirement =>
-                    requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                    && string.Equals(sourceObjectId as string, FirestormObjectId, StringComparison.Ordinal)))
-                {
-                    if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
-                        || rawTargetChoicesByIndex is null)
-                    {
-                        continue;
-                    }
+            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(rawLegalTargetSelections));
+        }
 
-                    var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                        rawTargetChoicesByIndex);
-                    Assert.All(targetChoicesByIndex, targetChoicesByIndexEntry =>
-                    {
-                        if (targetChoicesByIndexEntry.Value is null)
-                        {
-                            return;
-                        }
+        if (firestormRequirement.TryGetValue("minTargetCount", out var rawMinTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(rawMinTargetCount));
+        }
 
-                        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndexEntry.Value));
-                    });
-                }
-            }
+        if (firestormRequirement.TryGetValue("maxTargetCount", out var rawMaxTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(rawMaxTargetCount));
         }
     }
 
