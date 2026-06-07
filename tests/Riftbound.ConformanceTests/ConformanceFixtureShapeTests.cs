@@ -756,6 +756,71 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperTrimsAndDropsUnreadableOpeningTextArrays()
+    {
+        var submitDeck = Assert.IsType<SubmitDeckCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "SUBMIT_DECK",
+              "legendCardNo": "OGN-LEGEND-AHRI",
+              "championCardNo": "OGN-CHAMPION-YASUO",
+              "mainDeck": ["  OGN-001  ", "", null, 7, false, { "cardNo": "ignored" }, ["nested"], "OGN-002"],
+              "runeDeck": ["  RUNE-RED  ", " ", null, 8, true, { "rune": "ignored" }, [], "RUNE-BLUE"],
+              "battlefields": ["  BATTLEFIELD-LEFT  ", "\t", null, 9, false, { "battlefield": "ignored" }, ["nested"], "BATTLEFIELD-RIGHT"]
+            }
+            """).RootElement));
+        var malformedDeck = Assert.IsType<SubmitDeckCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "SUBMIT_DECK",
+              "legendCardNo": "OGN-LEGEND-LUX",
+              "championCardNo": "OGN-CHAMPION-JINX",
+              "mainDeck": { "cardNo": "ignored" },
+              "runeDeck": "RUNE-IGNORED",
+              "battlefields": 10
+            }
+            """).RootElement));
+        var absentDeckArrays = Assert.IsType<SubmitDeckCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "SUBMIT_DECK",
+              "legendCardNo": "OGN-LEGEND-GAREN",
+              "championCardNo": "OGN-CHAMPION-VI"
+            }
+            """).RootElement));
+        var mulligan = Assert.IsType<MulliganCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "MULLIGAN",
+              "handObjectIds": ["  P1-HAND-001  ", "", null, 11, true, { "objectId": "ignored" }, ["nested"], "P1-HAND-002"]
+            }
+            """).RootElement));
+        var malformedMulligan = Assert.IsType<MulliganCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "MULLIGAN",
+              "handObjectIds": { "objectId": "ignored" }
+            }
+            """).RootElement));
+
+        Assert.Equal("OGN-LEGEND-AHRI", submitDeck.LegendCardNo);
+        Assert.Equal("OGN-CHAMPION-YASUO", submitDeck.ChampionCardNo);
+        Assert.Equal(new[] { "OGN-001", "OGN-002" }, submitDeck.MainDeck);
+        Assert.Equal(new[] { "RUNE-RED", "RUNE-BLUE" }, submitDeck.RuneDeck);
+        Assert.Equal(new[] { "BATTLEFIELD-LEFT", "BATTLEFIELD-RIGHT" }, submitDeck.Battlefields);
+
+        Assert.Equal("OGN-LEGEND-LUX", malformedDeck.LegendCardNo);
+        Assert.Equal("OGN-CHAMPION-JINX", malformedDeck.ChampionCardNo);
+        Assert.Empty(malformedDeck.MainDeck);
+        Assert.Empty(malformedDeck.RuneDeck);
+        Assert.Empty(malformedDeck.Battlefields);
+
+        Assert.Equal("OGN-LEGEND-GAREN", absentDeckArrays.LegendCardNo);
+        Assert.Equal("OGN-CHAMPION-VI", absentDeckArrays.ChampionCardNo);
+        Assert.Empty(absentDeckArrays.MainDeck);
+        Assert.Empty(absentDeckArrays.RuneDeck);
+        Assert.Empty(absentDeckArrays.Battlefields);
+
+        Assert.Equal(new[] { "P1-HAND-001", "P1-HAND-002" }, mulligan.HandObjectIds);
+        Assert.Empty(malformedMulligan.HandObjectIds);
+    }
+
+    [Fact]
     public void GameCommandMapperTrimsNonStrictArraysForAbilityLegendMovementAndEquipmentCommands()
     {
         var activateAbility = Assert.IsType<ActivateAbilityCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
