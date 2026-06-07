@@ -114,38 +114,38 @@ public sealed class ReksaiNoOptionalHasteOverwhelmGuardTests
             Assert.DoesNotContain(invalidTargetObjectId, targetIds);
         }
 
-        var metadataTargetIds = new List<string>();
-        if (playCandidate.Metadata?.TryGetValue("sourceRequirements", out var rawSourceRequirements) == true
-            && rawSourceRequirements is not null)
-        {
-            var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-                    rawSourceRequirements)
-                .ToArray();
-            foreach (var sourceRequirement in sourceRequirements.Where(requirement =>
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Contains("sourceRequirements", metadata.Keys);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement =>
                 requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                && string.Equals(sourceObjectId as string, ReksaiObjectId, StringComparison.Ordinal)))
-            {
-                if (!sourceRequirement.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex)
-                    || rawTargetChoicesByIndex is null)
-                {
-                    continue;
-                }
+                && string.Equals(sourceObjectId as string, ReksaiObjectId, StringComparison.Ordinal));
 
-                var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-                    rawTargetChoicesByIndex);
-                foreach (var rawTargetChoices in targetChoicesByIndex.Values)
-                {
-                    if (rawTargetChoices is null)
-                    {
-                        continue;
-                    }
-
-                    metadataTargetIds.AddRange(Assert
-                        .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
-                        .Select(choice => choice.Id));
-                }
-            }
+        if (sourceRequirement.TryGetValue("minTargetCount", out var minTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(minTargetCount));
         }
+
+        if (sourceRequirement.TryGetValue("maxTargetCount", out var maxTargetCount))
+        {
+            Assert.Equal(0, Assert.IsType<int>(maxTargetCount));
+        }
+
+        Assert.Contains("targetChoicesByIndex", sourceRequirement.Keys);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Empty(targetChoicesByIndex);
+
+        var metadataTargetIds = targetChoicesByIndex.Values
+            .Where(rawTargetChoices => rawTargetChoices is not null)
+            .SelectMany(rawTargetChoices => Assert
+                .IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(rawTargetChoices)
+                .Select(choice => choice.Id))
+            .ToArray();
 
         Assert.Empty(metadataTargetIds);
         foreach (var invalidTargetObjectId in invalidTargetObjectIds)
