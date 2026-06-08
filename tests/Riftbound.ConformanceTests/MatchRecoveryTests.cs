@@ -68882,6 +68882,192 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectKeyedMetadataListCanonicalityWithoutCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["battlefield-1", "participant-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new(
+                    "battlefield-1",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    cardNo: "OGN·294/298",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["participant-1"] = new(
+                    "participant-1",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "alice",
+                    controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["battlefield-1"] = new("alice", "BATTLEFIELD", "battlefield-1"),
+                ["participant-1"] = new("alice", "BATTLEFIELD", "battlefield-1")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToArray();
+        Assert.Single(continuousEffects);
+        var effect = Assert.IsType<Dictionary<string, object?>>(continuousEffects[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var effectId = Assert.IsType<string>(effect["effectId"]);
+        var participantObjectId = FirstStringListValue(effect, "participantObjectIds");
+        var sourceDependencyObjectId = FirstStringListValue(effect, "sourceDependencyObjectIds");
+        var targetDependencyObjectId = FirstStringListValue(effect, "targetDependencyObjectIds");
+        var participantDependencyObjectId = FirstStringListValue(effect, "participantDependencyObjectIds");
+        var deferredLayerEngineResidual = FirstStringListValue(effect, "deferredLayerEngineResiduals");
+        effect["participantObjectIds"] = new[] { $" {participantObjectId} " };
+        effect["sourceDependencyObjectIds"] = new[] { $" {sourceDependencyObjectId} " };
+        effect["targetDependencyObjectIds"] = new[] { $" {targetDependencyObjectId} " };
+        effect["participantDependencyObjectIds"] = new[] { $" {participantDependencyObjectId} " };
+        effect["deferredLayerEngineResiduals"] = new[] { $" {deferredLayerEngineResidual} " };
+        continuousEffects[0] = effect;
+        timing["continuousEffects"] = continuousEffects;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item participant object id {participantObjectId} has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item source dependency object id {sourceDependencyObjectId} has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item target dependency object id {targetDependencyObjectId} has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item participant dependency object id {participantDependencyObjectId} has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item deferred LayerEngine residual {deferredLayerEngineResidual} has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item participant object ids does not match authoritative state continuous effect participant object ids for effect id {effectId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item source dependency object ids does not match authoritative state continuous effect source dependency object ids for effect id {effectId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item target dependency object ids does not match authoritative state continuous effect target dependency object ids for effect id {effectId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item participant dependency object ids does not match authoritative state continuous effect participant dependency object ids for effect id {effectId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item deferred LayerEngine residuals does not match authoritative state continuous effect deferred LayerEngine residuals for effect id {effectId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect participant object ids disagree with authoritative state continuous effect participant object ids",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect source dependency object ids disagree with authoritative state continuous effect source dependency object ids",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect target dependency object ids disagree with authoritative state continuous effect target dependency object ids",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect participant dependency object ids disagree with authoritative state continuous effect participant dependency object ids",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect deferred LayerEngine residuals disagree with authoritative state continuous effect deferred LayerEngine residuals",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count",
+                StringComparison.Ordinal));
+
+        static string FirstStringListValue(IReadOnlyDictionary<string, object?> effect, string key)
+        {
+            var values = Assert.IsAssignableFrom<IEnumerable<object?>>(effect[key])
+                .ToList();
+            Assert.NotEmpty(values);
+            return Assert.IsType<string>(values[0]);
+        }
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectKeyedMetadataListCanonicalityWithCountMismatch()
     {
         var authoritativeState = new MatchState(
