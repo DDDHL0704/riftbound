@@ -118847,6 +118847,132 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceContextDriftWithCountMismatch()
+    {
+        const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1";
+        const string sourceObjectId = "source-1";
+        const string wrongSourceObjectId = "wrong-source";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId, wrongSourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(sourceObjectId, ownerId: "alice", controllerId: "alice"),
+                [wrongSourceObjectId] = new(wrongSourceObjectId, ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE"),
+                [wrongSourceObjectId] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind,
+                    "BATTLEFIELD_HELD")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToList();
+        var trigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        trigger["sourceObjectId"] = wrongSourceObjectId;
+        trigger["sourceVisibility"] = "VISIBLE";
+        trigger["effectKind"] = "WRONG_EFFECT";
+        trigger["triggeredByEventKind"] = "UNIT_DESTROYED";
+        triggerQueue[0] = trigger;
+        triggerQueue.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["triggerId"] = "trigger-extra",
+            ["controllerId"] = "alice",
+            ["sourceObjectId"] = sourceObjectId,
+            ["sourceVisibility"] = "VISIBLE",
+            ["effectKind"] = "LAST_BREATH",
+            ["triggeredByEventKind"] = "UNIT_DESTROYED"
+        });
+        timing["triggerQueue"] = triggerQueue.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-extra is not present in authoritative state trigger queue",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count 2 does not match authoritative state trigger queue count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceSourceCardContextDrift()
     {
         const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1";
