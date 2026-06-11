@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-205J recovery temporary payment resource generated power trait shape accepted one direct single-agent server-test shard covering spectator replay timing temporary payment resource keyed generated-power-trait payload-shape validation without a temporary payment resource count mismatch while keyed authoritative value lookup remains active. Runtime changed: no, server test coverage only. Main code commit `65e0009d`. Validation passed: focused `1/1`, changed-class `1638/1638`, adjacent recovery `1643/1643`, backend full `7913/7913`. A_MAIN owns the main bundle. Future runtime/server closure work remains in single A_MAIN mode with no new subagents or subagent worktrees unless explicitly changed. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-205K recovery temporary payment resource generated power trait value accepted one direct single-agent server-test shard covering spectator replay timing temporary payment resource keyed generated-power-trait value-mismatch validation without a temporary payment resource count mismatch while keyed authoritative value lookup remains active. Runtime changed: no, server test coverage only. Main code commit `ae74a92b`. Validation passed: focused `1/1`, changed-class `1639/1639`, adjacent recovery `1644/1644`, backend full `7914/7914`. A_MAIN owns the main bundle. Future runtime/server closure work remains in single A_MAIN mode with no new subagents or subagent worktrees unless explicitly changed. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -71,6 +71,22 @@ Use this file as a lightweight message board:
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-11 11:01 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at `ae74a92b` before docs checkpoint
+
+Write locks: A_MAIN owns the current test/docs checkpoint. Runtime validation code, matrix JSON, `PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-205K recovery temporary payment resource generated power trait value accepted. Dedicated audit doc: `docs/CURRENT_STAGE4D_205K_RECOVERY_TEMPORARY_PAYMENT_RESOURCE_GENERATED_POWER_TRAIT_VALUE_AUDIT.md`. Main code commit: `ae74a92b`. Push after the code commit succeeded.
+
+Validation: focused `1/1`; changed-class `1639/1639`; adjacent recovery `1644/1644`; backend full `7914/7914`; `git diff --check` and conflict-marker scan passed before docs sync.
+
+Requested action: continue single A_MAIN mode only. Do not create new subagents or subagent worktrees unless the user explicitly changes direction. Project remains **NOT READY**.
 
 ### 2026-06-11 10:54 A_MAIN
 
