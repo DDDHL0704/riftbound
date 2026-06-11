@@ -133219,6 +133219,128 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDriftWithCountMismatch()
+    {
+        const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+        const string sourceObjectId = "source-1";
+        const string destroyedObjectId = "destroyed-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Graveyard = [destroyedObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-068/219",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                [destroyedObjectId] = new(
+                    destroyedObjectId,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNIT-001",
+                    ownerId: "bob",
+                    controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE"),
+                [destroyedObjectId] = new("bob", "GRAVEYARD")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    triggerId,
+                    "alice",
+                    sourceObjectId,
+                    "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2",
+                    "UNIT_DESTROYED")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToList();
+        triggerQueue.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["triggerId"] = "trigger-extra",
+            ["controllerId"] = "alice",
+            ["sourceObjectId"] = sourceObjectId,
+            ["sourceVisibility"] = "VISIBLE",
+            ["effectKind"] = "LAST_BREATH",
+            ["triggeredByEventKind"] = "UNIT_DESTROYED"
+        });
+        timing["triggerQueue"] = triggerQueue.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-extra is not present in authoritative state trigger queue",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count 2 does not match authoritative state trigger queue count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDrift()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
