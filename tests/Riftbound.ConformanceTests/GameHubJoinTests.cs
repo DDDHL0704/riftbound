@@ -1867,6 +1867,60 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentMissingCommandTypePreservesUnknownRawPayloadInJournalWithoutBroadcast()
+    {
+        const string sentinel = "SECRET-RAW-missing-cmdtype";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+        var journalCountBeforeUnsupported = journal.Entries.Count;
+        var clients = new RecordingHubClients();
+        var cmd = JsonDocument.Parse($$"""
+            {
+                "clientNote": "{{sentinel}}",
+                "nested": {
+                    "audit": "{{sentinel}}"
+                }
+            }
+            """).RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-missing-cmdtype-raw", cmd);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
+        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        var errorJson = JsonSerializer.Serialize(error);
+        Assert.DoesNotContain("clientNote", errorJson, StringComparison.Ordinal);
+        Assert.DoesNotContain(sentinel, errorJson, StringComparison.Ordinal);
+        Assert.Empty(clients.CallerClient.EventMessages);
+        Assert.Empty(clients.CallerClient.Snapshots);
+        Assert.Empty(clients.CallerClient.Prompts);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+
+        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
+        var entry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "intent-missing-cmdtype-raw", StringComparison.Ordinal));
+        Assert.False(entry.Accepted);
+        Assert.Equal("UNKNOWN", entry.CommandType);
+        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
+        Assert.NotNull(entry.RawCommand);
+        var rawCommand = entry.RawCommand.Value;
+        Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
+        Assert.False(rawCommand.TryGetProperty("cmdType", out _));
+        Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
+        Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
+        Assert.Empty(entry.Events);
+    }
+
+    [Fact]
     public async Task SubmitIntentNonObjectCommandPreservesUnknownRawPayloadInJournalWithoutBroadcast()
     {
         const string sentinel = "SECRET-RAW-nonobject-command";
