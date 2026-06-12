@@ -143076,7 +143076,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourceFutureTickContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourceFutureTickContextDriftWithoutCountMismatch()
     {
         const string triggerId = "JHIN_MOVE_RESOURCE::3::source-1::BASE::BATTLEFIELD";
         const string forgedTriggerId = "JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD";
@@ -143169,6 +143169,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item jhin movement resource trigger tick 4 cannot be greater than current tick 3",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
