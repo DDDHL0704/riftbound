@@ -135760,7 +135760,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueIroncladVanguardLastBreathCreateRobotsContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueIroncladVanguardLastBreathCreateRobotsContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS";
         const string sourceObjectId = "source-1";
@@ -135859,6 +135859,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
