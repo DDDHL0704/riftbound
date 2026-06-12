@@ -140508,7 +140508,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourceContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourceContextDriftWithoutCountMismatch()
     {
         const string triggerId = "JHIN_MOVE_RESOURCE::3::source-1::BASE::BATTLEFIELD";
         const string sourceObjectId = "source-1";
@@ -140611,6 +140611,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
