@@ -136220,7 +136220,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
@@ -136319,6 +136319,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
