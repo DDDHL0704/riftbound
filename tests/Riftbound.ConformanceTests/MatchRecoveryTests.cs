@@ -124647,7 +124647,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceSourceControllerContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceSourceControllerContextDriftWithoutCountMismatch()
     {
         const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1";
         const string forgedTriggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::wrong-source::battlefield-1";
@@ -124759,6 +124759,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
