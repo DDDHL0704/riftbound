@@ -129830,7 +129830,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerSourceControllerContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerSourceControllerContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
         const string sourceObjectId = "source-1";
@@ -129924,6 +129924,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
