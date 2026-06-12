@@ -133934,7 +133934,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueUnsungHeroLastBreathPowerfulDrawContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueUnsungHeroLastBreathPowerfulDrawContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
         const string sourceObjectId = "source-1";
@@ -134033,6 +134033,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
