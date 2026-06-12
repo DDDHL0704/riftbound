@@ -134164,7 +134164,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueScoutingWarhawkLastBreathCallRuneSourceVisibilityPayloadContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueScoutingWarhawkLastBreathCallRuneSourceVisibilityPayloadContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
         const string sourceObjectId = "source-1";
@@ -134256,6 +134256,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
