@@ -137732,7 +137732,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceFieldZoneContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceFieldZoneContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
@@ -137822,6 +137822,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
