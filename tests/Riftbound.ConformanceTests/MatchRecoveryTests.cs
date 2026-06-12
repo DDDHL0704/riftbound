@@ -125623,7 +125623,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceStaleCapturedTurnContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceStaleCapturedTurnContextDriftWithoutCountMismatch()
     {
         const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1";
         const string forgedTriggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1";
@@ -125722,6 +125722,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item blue sentinel delayed resource captured turn number 1 cannot be earlier than previous turn 2 for current turn 3",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
