@@ -129170,7 +129170,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerStackContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerStackContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
         const string forgedTriggerId = "TRIGGER--TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
@@ -129258,6 +129258,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item teemo on-play self-power trigger id stack item id is required before TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
