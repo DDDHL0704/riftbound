@@ -132354,7 +132354,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueLoyalPoroLastBreathIsolatedSourceContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueLoyalPoroLastBreathIsolatedSourceContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-LOYAL_PORO_LAST_BREATH_DRAW_1";
         const string sourceObjectId = "source-1";
@@ -132428,6 +132428,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in authoritative state player zones base for controller id alice",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
