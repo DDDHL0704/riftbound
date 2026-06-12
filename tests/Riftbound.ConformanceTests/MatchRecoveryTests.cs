@@ -1978,6 +1978,76 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectMetadataPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["continuousEffects"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "effectId": "effect-1",
+                    "scope": "OBJECT",
+                    "layer": "POWER_MODIFIER",
+                    "duration": "UNTIL_END_OF_TURN",
+                    "targetObjectId": "target-1",
+                    "sourceObjectId": "source-1",
+                    "powerDelta": 2,
+                    "basePower": 3,
+                    "effectivePower": 5,
+                    "sequence": 0,
+                    "effectKind": "POWER_MODIFIER",
+                    "effectKind": "POWER_MODIFIER",
+                    " sourceCardNo ": "SRC-001",
+                    "sourcePath": "CoreRuleEngine.ApplyPowerModifier",
+                    "sourcePath": "CoreRuleEngine.ApplyPowerModifier",
+                    " layerEngineStatus ": "FOUNDATION_ONLY",
+                    "": true
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item property effectKind appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item property sourceCardNo has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item property sourcePath appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item property layerEngineStatus has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing continuous effect item property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
