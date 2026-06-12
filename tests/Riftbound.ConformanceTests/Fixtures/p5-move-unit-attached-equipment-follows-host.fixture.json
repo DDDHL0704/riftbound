@@ -151,7 +151,7 @@
           "ownerId": "P1",
           "controllerId": "P1",
           "power": 4,
-          "isExhausted": false,
+          "isExhausted": true,
           "tags": ["CARD_TYPE:UNIT"]
         },
         "P1-MOVE-EQUIPMENT-ATTACHED-001": {

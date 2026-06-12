@@ -52924,6 +52924,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-MOVE-FIELD-KEEPER", "P1-MOVE-UNIT-BASE-001"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.State.CardObjects["P1-MOVE-UNIT-BASE-001"].Power);
+        Assert.True(result.State.CardObjects["P1-MOVE-UNIT-BASE-001"].IsExhausted);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -53002,6 +53003,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(accepted.State.PlayerZones["P1"].Base);
         Assert.Equal([keeperObjectId, sourceObjectId], accepted.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, accepted.State.CardObjects[sourceObjectId].Power);
+        Assert.True(accepted.State.CardObjects[sourceObjectId].IsExhausted);
         Assert.Empty(accepted.State.StackItems);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEventsHash = MatchStateHasher.HashValue(accepted.Events);
@@ -53105,7 +53107,6 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-MOVE-UNIT-BATTLEFIELD-001",
                     cardNo: "SFD·125/221",
                     power: 3,
-                    isExhausted: true,
                     tags: [CardObjectTags.UnitCard])
             }
         };
@@ -53130,6 +53131,47 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(3, result.State.CardObjects["P1-MOVE-UNIT-BATTLEFIELD-001"].Power);
         Assert.True(result.State.CardObjects["P1-MOVE-UNIT-BATTLEFIELD-001"].IsExhausted);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandRejectsExhaustedSourceWithoutMutation()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EXHAUSTED-MOVE-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EXHAUSTED-MOVE-UNIT-001"] = new(
+                    "P1-EXHAUSTED-MOVE-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    isExhausted: true,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+        var hash = MatchStateHasher.Hash(state);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-exhausted-source", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-EXHAUSTED-MOVE-UNIT-001",
+                "BASE",
+                "BATTLEFIELD",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(hash, MatchStateHasher.Hash(result.State));
     }
 
     [Fact]
@@ -54069,7 +54111,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
-        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].IsExhausted);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].IsExhausted);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -54645,7 +54687,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.FinalState.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
-        Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].IsExhausted);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -54718,6 +54760,7 @@ public sealed class ConformanceFixtureRunnerTests
             ["P1-MOVE-FIELD-KEEPER", "P1-MOVE-UNIT-BASE-001"],
             result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.FinalState.CardObjects["P1-MOVE-UNIT-BASE-001"].Power);
+        Assert.True(result.FinalState.CardObjects["P1-MOVE-UNIT-BASE-001"].IsExhausted);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -55039,6 +55082,8 @@ public sealed class ConformanceFixtureRunnerTests
             result.FinalState.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].AttachedToObjectId);
         Assert.Equal("P1", result.FinalState.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].OwnerId);
         Assert.Equal("P1", result.FinalState.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].ControllerId);
+        Assert.True(result.FinalState.CardObjects["P1-MOVE-UNIT-ATTACHED-001"].IsExhausted);
+        Assert.False(result.FinalState.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].IsExhausted);
     }
 
     [Fact]
