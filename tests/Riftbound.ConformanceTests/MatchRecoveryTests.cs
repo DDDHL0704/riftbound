@@ -139818,7 +139818,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
         const string sourceObjectId = "source-1";
@@ -139917,6 +139917,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
