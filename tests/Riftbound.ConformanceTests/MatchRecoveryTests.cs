@@ -123930,7 +123930,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTriggeredEventKindDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTriggeredEventKindDriftWithoutCountMismatch()
     {
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -124016,6 +124016,21 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item triggered event kind FORGED_EVENT is invalid",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item triggered event kind FORGED_EVENT does not match authoritative state trigger queue triggered event kind UNIT_DESTROYED for trigger id trigger-1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
