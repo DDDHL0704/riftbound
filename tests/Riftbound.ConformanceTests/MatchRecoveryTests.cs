@@ -2217,6 +2217,82 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueComplementPropertyNameDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["triggerQueue"] = new object?[]
+        {
+            RawJson("""
+                {
+                    " triggerId ": "trigger-1",
+                    "triggerId": "trigger-1",
+                    "controllerId": "alice",
+                    "controllerId": "alice",
+                    " sourceObjectId ": "source-1",
+                    "sourceObjectId": "source-1",
+                    "sourceVisibility": "VISIBLE",
+                    "sourceVisibility": "VISIBLE",
+                    " effectKind ": "LAST_BREATH",
+                    "effectKind": "LAST_BREATH",
+                    "triggeredByEventKind": "OBJECT_DESTROYED",
+                    "triggeredByEventKind": "OBJECT_DESTROYED",
+                    "": true
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item property triggerId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item property controllerId appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item property sourceObjectId has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item property sourceVisibility appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item property effectKind has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item property triggeredByEventKind appears more than once",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing trigger queue item property name is required",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingContinuousEffectPropertyNameDrift()
     {
         var alice = PlayerView("alice", 0, 0);
