@@ -125165,7 +125165,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceSourceVisibilityPayloadContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueBlueSentinelDelayedResourceSourceVisibilityPayloadContextDriftWithoutCountMismatch()
     {
         const string triggerId = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1";
         const string sourceObjectId = "source-1";
@@ -125263,6 +125263,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item blue sentinel delayed resource source visibility must be VISIBLE",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
