@@ -129378,7 +129378,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerSourceCardContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerSourceCardContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
         const string sourceObjectId = "source-1";
@@ -129472,6 +129472,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
