@@ -135530,7 +135530,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueUndercoverAgentLastBreathContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueUndercoverAgentLastBreathContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
         const string sourceObjectId = "source-1";
@@ -135629,6 +135629,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
