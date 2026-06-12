@@ -135070,7 +135070,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueHonestBrokerLastBreathCreateGoldContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueHonestBrokerLastBreathCreateGoldContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
         const string sourceObjectId = "source-1";
@@ -135169,6 +135169,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
