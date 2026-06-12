@@ -132758,7 +132758,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathSourceVisibilityStateContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathSourceVisibilityStateContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
         const string sourceObjectId = "source-1";
@@ -132838,6 +132838,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
