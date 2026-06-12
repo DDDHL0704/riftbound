@@ -1706,6 +1706,57 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentUnsupportedCommandPreservesRawPayloadInJournalWithoutBroadcast()
+    {
+        const string sentinel = "SECRET-RAW-unsupported-payload";
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+        var journalCountBeforeUnsupported = journal.Entries.Count;
+        var clients = new RecordingHubClients();
+        var cmd = JsonDocument.Parse($$"""
+            {
+                "cmdType": "FLIP_TABLE",
+                "clientNote": "{{sentinel}}",
+                "nested": {
+                    "audit": "{{sentinel}}"
+                }
+            }
+            """).RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-unsupported-raw", cmd);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
+        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.DoesNotContain(sentinel, JsonSerializer.Serialize(error), StringComparison.Ordinal);
+        Assert.Empty(clients.CallerClient.EventMessages);
+        Assert.Empty(clients.CallerClient.Snapshots);
+        Assert.Empty(clients.CallerClient.Prompts);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+
+        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
+        var entry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.ClientIntentId, "intent-unsupported-raw", StringComparison.Ordinal));
+        Assert.False(entry.Accepted);
+        Assert.Equal("FLIP_TABLE", entry.CommandType);
+        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
+        Assert.NotNull(entry.RawCommand);
+        Assert.Equal("FLIP_TABLE", entry.RawCommand.Value.GetProperty("cmdType").GetString());
+        Assert.Equal(sentinel, entry.RawCommand.Value.GetProperty("clientNote").GetString());
+        Assert.Equal(sentinel, entry.RawCommand.Value.GetProperty("nested").GetProperty("audit").GetString());
+        Assert.Empty(entry.Events);
+    }
+
+    [Fact]
     public async Task SubmitIntentKnownP0ContractCommandsUseCoreValidationShell()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
