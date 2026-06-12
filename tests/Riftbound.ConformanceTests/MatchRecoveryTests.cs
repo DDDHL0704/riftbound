@@ -127217,7 +127217,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueOgsLuxHighCostSpellStackContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueOgsLuxHighCostSpellStackContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
         const string forgedTriggerId = "TRIGGER--source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3";
@@ -127305,6 +127305,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item ogs lux high cost spell trigger id stack item id is required before source object id source-1",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
