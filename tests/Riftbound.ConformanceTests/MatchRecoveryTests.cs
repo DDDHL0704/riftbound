@@ -169886,6 +169886,113 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryDuplicateIdsWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: RetainedResolutionCardObjects(),
+            objectLocations: RetainedResolutionObjectLocations(),
+            battlefieldResolutions:
+            [
+                RetainedBattlefieldResolutionState(0),
+                RetainedBattlefieldResolutionState(1)
+            ],
+            battleResolutions:
+            [
+                RetainedBattleResolutionState(0),
+                RetainedBattleResolutionState(1)
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldResolutionPayloads = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battlefieldResolutions"])
+            .ToArray();
+        Assert.Equal(2, battlefieldResolutionPayloads.Length);
+        var duplicateBattlefieldResolution = Assert.IsType<Dictionary<string, object?>>(battlefieldResolutionPayloads[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldResolutions"] = new object?[]
+        {
+            battlefieldResolutionPayloads[0],
+            duplicateBattlefieldResolution,
+            RetainedBattlefieldResolutionPayload(2)
+        };
+
+        var battleResolutionPayloads = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battleResolutions"])
+            .ToArray();
+        Assert.Equal(2, battleResolutionPayloads.Length);
+        var duplicateBattleResolution = Assert.IsType<Dictionary<string, object?>>(battleResolutionPayloads[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battleResolutions"] = new object?[]
+        {
+            battleResolutionPayloads[0],
+            duplicateBattleResolution,
+            RetainedBattleResolutionPayload(2)
+        };
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution count 3 does not match authoritative state battlefield resolution count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution item resolution id battlefield-resolution-0 is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution count 3 does not match authoritative state battle resolution count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution item resolution id battle-resolution-0 is duplicated",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingResolutionHistoryScalarMismatch()
     {
         var authoritativeState = new MatchState(
