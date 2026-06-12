@@ -128952,7 +128952,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
         const string sourceObjectId = "source-1";
@@ -129045,6 +129045,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
