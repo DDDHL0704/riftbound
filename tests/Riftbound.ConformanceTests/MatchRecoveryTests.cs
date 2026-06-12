@@ -133726,7 +133726,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathStackContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathStackContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
         const string forgedTriggerId = "TRIGGER--source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
@@ -133814,6 +133814,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item watchful sentinel last-breath draw trigger id stack item id is required before source object id source-1",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
