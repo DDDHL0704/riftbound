@@ -130050,7 +130050,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerSourceLocationContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueTeemoOnPlaySelfPowerSourceLocationContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3";
         const string sourceObjectId = "source-1";
@@ -130144,6 +130144,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in authoritative state object locations",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
