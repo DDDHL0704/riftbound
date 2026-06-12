@@ -140278,7 +140278,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionCreateMinionContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionCreateMinionContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
@@ -140377,6 +140377,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
