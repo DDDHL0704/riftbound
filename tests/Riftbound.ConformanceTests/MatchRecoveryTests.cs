@@ -89858,6 +89858,107 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueOrderPromptFieldAbsenceDriftWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        timing["orderingPlayerId"] = "alice";
+        timing["orderedTriggerIds"] = new[] { "trigger-1" };
+        timing["triggerIds"] = new[] { "trigger-1" };
+        timing["triggers"] = Array.Empty<object?>();
+        timing["triggerChoices"] = Array.Empty<object?>();
+        timing["legalOrderingConstraints"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["orderingPolicy"] = "APNAP_CONTROLLER_BLOCKS_CONSERVATIVE"
+        };
+        timing["triggeredByEventKind"] = "OBJECT_DESTROYED";
+        timing["orderingState"] = "PENDING_ORDER";
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToList();
+        Assert.Empty(triggerQueue);
+        triggerQueue.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["triggerId"] = "trigger-extra",
+            ["controllerId"] = "alice",
+            ["sourceObjectId"] = "source-extra",
+            ["sourceVisibility"] = "VISIBLE",
+            ["effectKind"] = "LAST_BREATH",
+            ["triggeredByEventKind"] = "OBJECT_DESTROYED"
+        });
+        timing["triggerQueue"] = triggerQueue.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Equal(
+            8,
+            errors.Count(error => error.Contains(
+                "spectator replay frame timing order-trigger prompt field",
+                StringComparison.Ordinal)));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing order-trigger prompt field orderingPlayerId must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing order-trigger prompt field legalOrderingConstraints must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing order-trigger prompt field orderingState must be absent",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count 1 does not match authoritative state trigger queue count 0",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingPayloadPropertyNameDrift()
     {
         const string sourceObjectId = "source-1";
