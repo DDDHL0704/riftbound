@@ -132158,7 +132158,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathSourcePowerContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathSourcePowerContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
         const string sourceObjectId = "source-1";
@@ -132233,6 +132233,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw source object id source-1 power 4 must be at least 5 in authoritative state object registry",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
