@@ -188,6 +188,41 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ReconnectWithInvalidTokenDoesNotJoinGroupsOrLeakSessionData()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var joinClients = new RecordingHubClients();
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
+
+        var clients = new RecordingHubClients();
+        var groups = new RecordingGroupManager();
+        await CreateHub(clients, groups, "connection-2", registry)
+            .Reconnect("room-a", " alice ", "wrong-token");
+
+        Assert.Empty(groups.Added);
+        Assert.Empty(clients.CallerClient.JoinedMessages);
+        Assert.Empty(clients.CallerClient.Snapshots);
+        Assert.Empty(clients.CallerClient.Prompts);
+        Assert.Empty(clients.GroupClient.JoinedMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, error.Type);
+        Assert.Equal("room-a", error.RoomId);
+        Assert.Equal("alice", error.PlayerId);
+        AssertProtocolDefaults(error);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.InvalidReconnectToken, payload.Code);
+        Assert.Equal("重连令牌无效。", payload.Message);
+
+        var errorJson = JsonSerializer.Serialize(error);
+        Assert.DoesNotContain(join.ReconnectToken, errorJson, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task RequestSnapshotSendsCurrentSnapshotAndPrompt()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
