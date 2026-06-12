@@ -131770,7 +131770,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathSourceEquipmentCardContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueStandardLastBreathSourceEquipmentCardContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
         const string sourceObjectId = "source-1";
@@ -131844,6 +131844,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 must not be an equipment card in authoritative state object registry",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
