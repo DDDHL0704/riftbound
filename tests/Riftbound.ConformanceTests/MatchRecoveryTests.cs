@@ -132548,7 +132548,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueSadPoroLastBreathNonIsolatedSourceContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueSadPoroLastBreathNonIsolatedSourceContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1";
         const string sourceObjectId = "source-1";
@@ -132630,6 +132630,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in authoritative state player zones base for controller id alice",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
