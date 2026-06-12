@@ -135300,7 +135300,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueMechanicalTricksterLastBreathCreateMinionsContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueMechanicalTricksterLastBreathCreateMinionsContextDriftWithoutCountMismatch()
     {
         const string triggerId = "TRIGGER-stack-1-source-1-MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
         const string sourceObjectId = "source-1";
@@ -135399,6 +135399,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
