@@ -142128,7 +142128,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourcePreciseBattlefieldStateContextDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueJhinMovementResourcePreciseBattlefieldStateContextDriftWithoutCountMismatch()
     {
         const string triggerId = "JHIN_MOVE_RESOURCE::3::source-1::BASE::BATTLEFIELD:battlefield-1";
         const string forgedTriggerId = "JHIN_MOVE_RESOURCE::3::source-1::BASE::BATTLEFIELD:battlefield-2";
@@ -142234,6 +142234,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
