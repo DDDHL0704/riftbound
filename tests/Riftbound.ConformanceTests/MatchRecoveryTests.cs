@@ -114295,6 +114295,210 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedHiddenSourceCanonicalizedDuplicateIdWithMissingAuthoritativeIdsWithoutCountMismatch()
+    {
+        const string battlefieldObjectId = "battlefield-a";
+        const string hiddenSourceObjectId = "hidden-source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, hiddenSourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "TEST-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [hiddenSourceObjectId] = new(
+                    hiddenSourceObjectId,
+                    power: 2,
+                    isFaceDown: true,
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [hiddenSourceObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId)
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-hidden-a",
+                    "alice",
+                    hiddenSourceObjectId,
+                    "AMBUSH_REVEALED",
+                    "BATTLEFIELD_HELD"),
+                new TriggerQueueItemState(
+                    "trigger-hidden-b",
+                    "alice",
+                    hiddenSourceObjectId,
+                    "AMBUSH_REVEALED",
+                    "BATTLEFIELD_HELD"),
+                new TriggerQueueItemState(
+                    "trigger-hidden-c",
+                    "alice",
+                    hiddenSourceObjectId,
+                    "AMBUSH_REVEALED",
+                    "BATTLEFIELD_HELD")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToArray();
+        Assert.Equal(3, triggerQueue.Length);
+        var firstTrigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var secondTrigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[1])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var thirdTrigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[2])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        Assert.Equal("trigger-hidden-a", Assert.IsType<string>(firstTrigger["triggerId"]));
+        Assert.Equal("trigger-hidden-b", Assert.IsType<string>(secondTrigger["triggerId"]));
+        Assert.Equal("trigger-hidden-c", Assert.IsType<string>(thirdTrigger["triggerId"]));
+        Assert.Equal("alice", Assert.IsType<string>(firstTrigger["controllerId"]));
+        Assert.Equal("alice", Assert.IsType<string>(secondTrigger["controllerId"]));
+        Assert.Equal("alice", Assert.IsType<string>(thirdTrigger["controllerId"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(firstTrigger["sourceObjectId"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(secondTrigger["sourceObjectId"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(thirdTrigger["sourceObjectId"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(firstTrigger["sourceVisibility"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(secondTrigger["sourceVisibility"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(thirdTrigger["sourceVisibility"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(firstTrigger["effectKind"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(secondTrigger["effectKind"]));
+        Assert.Equal("HIDDEN", Assert.IsType<string>(thirdTrigger["effectKind"]));
+        Assert.Equal("BATTLEFIELD_HELD", Assert.IsType<string>(firstTrigger["triggeredByEventKind"]));
+        Assert.Equal("BATTLEFIELD_HELD", Assert.IsType<string>(secondTrigger["triggeredByEventKind"]));
+        Assert.Equal("BATTLEFIELD_HELD", Assert.IsType<string>(thirdTrigger["triggeredByEventKind"]));
+
+        secondTrigger["triggerId"] = " trigger-hidden-a ";
+        secondTrigger["controllerId"] = "bob";
+        secondTrigger["triggeredByEventKind"] = "OBJECT_DESTROYED";
+        thirdTrigger["triggerId"] = "trigger-extra";
+        triggerQueue[1] = secondTrigger;
+        triggerQueue[2] = thirdTrigger;
+        timing["triggerQueue"] = triggerQueue;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-hidden-a has surrounding whitespace",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-hidden-a is duplicated",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-extra is not present in authoritative state trigger queue",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-hidden-b is required by authoritative state trigger queue",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-hidden-c is required by authoritative state trigger queue",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item controller id bob does not match authoritative state trigger queue controller id alice for trigger id trigger-hidden-a",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item triggered event kind OBJECT_DESTROYED does not match authoritative state trigger queue triggered event kind BATTLEFIELD_HELD for trigger id trigger-hidden-a",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue ids disagree with authoritative state trigger queue ids",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue controller ids disagree with authoritative state trigger queue controller ids",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-hidden-a is not present in authoritative state trigger queue",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id must not be redacted",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedHiddenSourceTriggerIdShapeWithCountMismatch()
     {
         const string battlefieldObjectId = "battlefield-a";
