@@ -570,6 +570,42 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+        var clients = new RecordingHubClients();
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", " alice ", "intent-pass-protocol-envelope", pass);
+
+        Assert.Empty(clients.CallerClient.Errors);
+        var eventsMessage = Assert.Single(clients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, eventsMessage.Type);
+        Assert.Equal("alice", eventsMessage.PlayerId);
+        AssertProtocolDefaults(eventsMessage);
+
+        Assert.NotEmpty(clients.GroupClient.Snapshots);
+        foreach (var snapshotMessage in clients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.NotEmpty(clients.GroupClient.Prompts);
+        foreach (var promptMessage in clients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+    }
+
+    [Fact]
     public async Task ReadyWrapperDuplicateClientIntentRawPayloadReplaysButSubmitIntentChangedRawConflictsWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
