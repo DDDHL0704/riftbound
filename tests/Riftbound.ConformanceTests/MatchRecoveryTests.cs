@@ -95114,7 +95114,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueMismatch()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueMismatchWithoutCountMismatch()
     {
         const string battlefieldObjectId = "battlefield-a";
         const string visibleSourceObjectId = "visible-source-1";
@@ -95255,6 +95255,11 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
+                StringComparison.Ordinal));
     }
 
     [Fact]
