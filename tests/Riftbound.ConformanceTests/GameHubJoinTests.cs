@@ -3459,6 +3459,46 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SeedScenarioMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+            .JoinRoom("room-a", "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+            .JoinRoom("room-a", "P2");
+        var clients = new RecordingHubClients();
+
+        await CreateHub(
+                clients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario("room-a", " P1 ", "basic-play", "seed-basic-play-protocol-envelope");
+
+        Assert.Empty(clients.CallerClient.Errors);
+        var eventsMessage = Assert.Single(clients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, eventsMessage.Type);
+        Assert.Equal("P1", eventsMessage.PlayerId);
+        AssertProtocolDefaults(eventsMessage);
+
+        Assert.Equal(2, clients.GroupClient.Snapshots.Count);
+        foreach (var snapshotMessage in clients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.Equal(2, clients.GroupClient.Prompts.Count);
+        foreach (var promptMessage in clients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+    }
+
+    [Fact]
     public async Task SeedScenarioBroadcastsDevSnapshotsAndPromptsInDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
