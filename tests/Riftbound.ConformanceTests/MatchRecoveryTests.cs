@@ -88248,6 +88248,123 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectStaticAuraParticipantDependencyObjectDriftWithCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["source-1", "equipment-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new(
+                    "source-1",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "SFD·085/221",
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["equipment-1"] = new(
+                    "equipment-1",
+                    tags: [CardObjectTags.EquipmentCard],
+                    cardNo: "SFD·022/221",
+                    ownerId: "alice",
+                    controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["source-1"] = new("alice", "BASE"),
+                ["equipment-1"] = new("alice", "BASE")
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
+            .ToList();
+        Assert.Single(continuousEffects);
+        var effect = Assert.IsType<Dictionary<string, object?>>(continuousEffects[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var extraEffect = effect.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var participantObjectIds = Assert.IsAssignableFrom<IEnumerable<object?>>(effect["participantObjectIds"])
+            .ToArray();
+        var participantObjectId = Assert.IsType<string>(Assert.Single(participantObjectIds));
+        var alternateDependencyObjectId = Assert.Single(
+            new[] { "source-1", "equipment-1" },
+            objectId => !string.Equals(objectId, participantObjectId, StringComparison.Ordinal));
+
+        Assert.Equal("STATIC_AURA", effect["layer"]);
+        Assert.True(effect.ContainsKey("participantDependencyObjectIds"));
+        effect["participantDependencyObjectIds"] = new[] { alternateDependencyObjectId };
+        extraEffect["effectId"] = "effect-extra";
+        extraEffect["sequence"] = 2;
+        continuousEffects[0] = effect;
+        continuousEffects.Add(extraEffect);
+        timing["continuousEffects"] = continuousEffects.ToArray();
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                $"spectator replay frame timing continuous effect item static aura participant dependency object id list must include participant object id {participantObjectId}",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item effect id effect-extra is not present in authoritative state continuous effects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectStaticAuraBattlefieldParticipantObjectDriftWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
