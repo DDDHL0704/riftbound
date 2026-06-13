@@ -95058,7 +95058,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueShapePayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueShapePayloadWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
             "room-a",
