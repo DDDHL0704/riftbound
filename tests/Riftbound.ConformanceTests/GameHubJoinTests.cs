@@ -213,6 +213,40 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ReconnectPersistsRotatedReconnectTokenHashWithoutPlaintext()
+    {
+        var playerStore = new RecordingMatchPlayerStore();
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            NoopMatchRecoveryStore.Instance,
+            playerStore);
+        var joinClients = new RecordingHubClients();
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
+
+        var reconnectClients = new RecordingHubClients();
+        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry)
+            .Reconnect("room-a", " alice ", join.ReconnectToken);
+        var reconnect = Assert.IsType<PlayerSessionDto>(
+            Assert.Single(reconnectClients.CallerClient.JoinedMessages).Payload);
+
+        Assert.NotEqual(join.ReconnectToken, reconnect.ReconnectToken);
+        Assert.Equal(2, playerStore.Saved.Count);
+        var initialSave = playerStore.Saved[0];
+        var rotatedSave = playerStore.Saved[1];
+        Assert.Equal("room-a", rotatedSave.RoomId);
+        Assert.Equal("alice", rotatedSave.PlayerId);
+        Assert.Equal("P1", rotatedSave.Seat);
+        Assert.Equal(ReconnectTokenHasher.Hash(join.ReconnectToken), initialSave.ReconnectTokenHash);
+        Assert.Equal(ReconnectTokenHasher.Hash(reconnect.ReconnectToken), rotatedSave.ReconnectTokenHash);
+        Assert.NotEqual(initialSave.ReconnectTokenHash, rotatedSave.ReconnectTokenHash);
+        Assert.DoesNotContain(join.ReconnectToken, rotatedSave.ReconnectTokenHash, StringComparison.Ordinal);
+        Assert.DoesNotContain(reconnect.ReconnectToken, rotatedSave.ReconnectTokenHash, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task ReconnectWithInvalidTokenReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
