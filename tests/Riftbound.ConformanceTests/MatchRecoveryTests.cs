@@ -94936,7 +94936,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueMissingPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueMissingPayloadWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -94989,10 +94989,15 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing trigger queue is required", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
+                StringComparison.Ordinal));
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueNullPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueNullPayloadWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -95045,6 +95050,11 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing trigger queue is required", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
+                StringComparison.Ordinal));
     }
 
     [Fact]
