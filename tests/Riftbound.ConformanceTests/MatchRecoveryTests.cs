@@ -125788,7 +125788,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueValueDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueValueDriftWithoutCountMismatch()
     {
         const string sourceObjectId1 = "source-1";
         const string sourceObjectId2 = "source-2";
@@ -125952,6 +125952,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue item triggered event kind is required",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
