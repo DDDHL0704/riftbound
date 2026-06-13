@@ -121890,6 +121890,139 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueSourceVisibilityShapeWithoutCountMismatch()
+    {
+        const string sourceObjectId = "visible-source-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = [sourceObjectId]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(sourceObjectId, ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new("alice", "BASE")
+            },
+            triggerQueue:
+            [
+                new TriggerQueueItemState(
+                    "trigger-visible",
+                    "alice",
+                    sourceObjectId,
+                    "LAST_BREATH",
+                    "OBJECT_DESTROYED")
+            ]);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var triggerQueue = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["triggerQueue"])
+            .ToArray();
+        Assert.Single(triggerQueue);
+        var trigger = Assert.IsType<Dictionary<string, object?>>(triggerQueue[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        Assert.Equal("trigger-visible", Assert.IsType<string>(trigger["triggerId"]));
+        Assert.Equal("alice", Assert.IsType<string>(trigger["controllerId"]));
+        Assert.Equal(sourceObjectId, Assert.IsType<string>(trigger["sourceObjectId"]));
+        Assert.Equal("VISIBLE", Assert.IsType<string>(trigger["sourceVisibility"]));
+        Assert.Equal("LAST_BREATH", Assert.IsType<string>(trigger["effectKind"]));
+        Assert.Equal("OBJECT_DESTROYED", Assert.IsType<string>(trigger["triggeredByEventKind"]));
+
+        trigger["sourceVisibility"] = new[] { "VISIBLE" };
+        triggerQueue[0] = trigger;
+        timing["triggerQueue"] = triggerQueue;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item source visibility is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item source visibility does not match authoritative state trigger queue source visibility VISIBLE for trigger id trigger-visible",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue source visibilities disagree with authoritative state trigger queue source visibilities",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue controller ids disagree with authoritative state trigger queue controller ids",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue source object ids disagree with authoritative state trigger queue source object ids",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue effect kinds disagree with authoritative state trigger queue effect kinds",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueEffectKindMissingFieldWithoutCountMismatch()
     {
         const string sourceObjectId = "visible-source-1";
