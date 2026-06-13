@@ -85136,7 +85136,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectDurationKnownValueDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectDurationKnownValueDriftWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -85204,22 +85204,14 @@ public sealed class MatchRecoveryTests
             entry => entry.Value,
             StringComparer.Ordinal);
         var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
-            .ToList();
+            .ToArray();
         Assert.Single(continuousEffects);
-        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
-        {
-            ["effectId"] = "effect-unknown-duration",
-            ["scope"] = "OBJECT",
-            ["layer"] = "POWER_MODIFIER",
-            ["duration"] = "UNKNOWN_DURATION",
-            ["targetObjectId"] = null,
-            ["sourceObjectId"] = null,
-            ["powerDelta"] = 0,
-            ["basePower"] = 0,
-            ["effectivePower"] = 0,
-            ["sequence"] = 2
-        });
-        timing["continuousEffects"] = continuousEffects.ToArray();
+        var effect = Assert.IsType<Dictionary<string, object?>>(continuousEffects[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+
+        effect["duration"] = "UNKNOWN_DURATION";
+        continuousEffects[0] = effect;
+        timing["continuousEffects"] = continuousEffects;
         spectatorReplayFrame = spectatorReplayFrame with
         {
             SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
@@ -85243,10 +85235,10 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing continuous effect item duration UNKNOWN_DURATION is invalid",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1",
+                "spectator replay frame timing continuous effect count",
                 StringComparison.Ordinal));
     }
 
