@@ -433,6 +433,27 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task RequestSnapshotMessagesCarryProtocolVersionsOnSnapshotAndPrompt()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+
+        var clients = new RecordingHubClients();
+        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry)
+            .RequestSnapshot("room-a", " alice ");
+
+        var snapshotMessage = Assert.Single(clients.CallerClient.Snapshots);
+        var promptMessage = Assert.Single(clients.CallerClient.Prompts);
+        Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+        Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+        Assert.Equal("alice", snapshotMessage.PlayerId);
+        Assert.Equal("alice", promptMessage.PlayerId);
+        AssertProtocolDefaults(snapshotMessage);
+        AssertProtocolDefaults(promptMessage);
+    }
+
+    [Fact]
     public async Task RequestSnapshotForUnknownPlayerReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
