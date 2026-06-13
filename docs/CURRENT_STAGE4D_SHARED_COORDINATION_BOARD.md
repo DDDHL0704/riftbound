@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-221D recovery spectator trigger-queue triggered-event-kind invalid-value/count-mismatch validation accepted one direct single-agent server-test shard covering triggerQueue triggered event kind invalid-value semantics with an extra-trigger count mismatch present. Runtime changed: no, server test coverage only. Main code commit `8037c1be`. Validation passed: focused `1/1`, changed-class `MatchRecoveryTests` `1922/1922`; adjacent recovery `MatchRecovery` `1927/1927`; backend full `8214/8214`. A_MAIN owns the main bundle. Future runtime/server closure work remains in single A_MAIN mode with no new subagents or subagent worktrees unless explicitly changed. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-221E recovery spectator trigger-queue source-object-id missing-field/count-mismatch validation accepted one direct single-agent server-test shard covering triggerQueue source object id missing-field semantics with an extra-trigger count mismatch present. Runtime changed: no, server test coverage only. Main code commit `f1caed77`. Validation passed: focused `1/1`, changed-class `MatchRecoveryTests` `1923/1923`; adjacent recovery `MatchRecovery` `1928/1928`; backend full `8215/8215`. A_MAIN owns the main bundle. Future runtime/server closure work remains in single A_MAIN mode with no new subagents or subagent worktrees unless explicitly changed. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,12 +65,28 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-221D; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-13 22:54 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; DOC_MATRIX_CURRENT source `4c999922` has already been integrated into main as `44eb06f4`, and source `7cb78f27` plus handoff `17bde0c3` are integrated; latest accepted server/runtime checkpoint is Stage 4D-221E; exact HEAD must still be checked before each batch / commit and `riftbound-dotnet.sln` remains locked if present.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-13 23:02 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-13 23:02 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` / `f1caed77` code, docs checkpoint in follow-up commit
+
+Write locks: Runtime validation code, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-221E recovery spectator trigger-queue source-object-id missing-field/count-mismatch validation accepted. A_MAIN added `RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueSourceObjectIdMissingFieldWithCountMismatch`, proving the required source object id diagnostic and authoritative source object id mismatch diagnostic are reported when `sourceObjectId` is removed, even with an extra spectator trigger also creating an unknown trigger-id diagnostic and a trigger-queue count mismatch. No subagent or new worktree was created. Project remains **NOT READY**.
+
+Validation: focused `1/1`; changed-class `MatchRecoveryTests` `1923/1923`; adjacent recovery `MatchRecovery` `1928/1928`; backend full `8215/8215`; `git diff --check` and anchored conflict-marker scan passed before docs sync.
+
+Requested action: Next executable server slice can continue recovery timing triggerQueue field-level count-mismatch coverage, continuousEffects remaining breadth, raw/reconnect/mapper/GameHub, or another higher-priority P0/P1 server audit surface after re-reading this board, implemented directly by A_MAIN. DOC_MATRIX_CURRENT remains clean at `17bde0c3`; no DOC_MATRIX action is requested.
 
 ### 2026-06-13 22:54 A_MAIN
 
