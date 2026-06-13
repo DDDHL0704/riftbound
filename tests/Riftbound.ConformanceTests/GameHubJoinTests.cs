@@ -247,6 +247,46 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ReconnectWithWhitespaceWrappedTokenRejoinsGroupsAndPersistsRotatedHash()
+    {
+        var playerStore = new RecordingMatchPlayerStore();
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            NoopMatchRecoveryStore.Instance,
+            playerStore);
+        var joinClients = new RecordingHubClients();
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
+
+        var reconnectClients = new RecordingHubClients();
+        var reconnectGroups = new RecordingGroupManager();
+        await CreateHub(reconnectClients, reconnectGroups, "connection-2", registry)
+            .Reconnect("room-a", " alice ", $" \t{join.ReconnectToken}\n ");
+
+        Assert.Contains(("connection-2", "room:room-a"), reconnectGroups.Added);
+        Assert.Contains(("connection-2", "room:room-a:player:alice"), reconnectGroups.Added);
+        var reconnectMessage = Assert.Single(reconnectClients.CallerClient.JoinedMessages);
+        Assert.Equal(MessageType.RECONNECT, reconnectMessage.Type);
+        Assert.Equal("room-a", reconnectMessage.RoomId);
+        Assert.Equal("alice", reconnectMessage.PlayerId);
+        var reconnect = Assert.IsType<PlayerSessionDto>(reconnectMessage.Payload);
+        Assert.Equal("alice", reconnect.PlayerId);
+        Assert.Equal("P1", reconnect.Seat);
+        Assert.NotEqual(join.ReconnectToken, reconnect.ReconnectToken);
+
+        var reconnectSnapshotMessage = Assert.Single(reconnectClients.CallerClient.Snapshots);
+        var reconnectPromptMessage = Assert.Single(reconnectClients.CallerClient.Prompts);
+        Assert.Equal("alice", reconnectSnapshotMessage.PlayerId);
+        Assert.Equal("alice", reconnectPromptMessage.PlayerId);
+
+        Assert.Equal(2, playerStore.Saved.Count);
+        Assert.Equal(ReconnectTokenHasher.Hash(join.ReconnectToken), playerStore.Saved[0].ReconnectTokenHash);
+        Assert.Equal(ReconnectTokenHasher.Hash(reconnect.ReconnectToken), playerStore.Saved[1].ReconnectTokenHash);
+    }
+
+    [Fact]
     public async Task ReconnectWithRotatedOldPersistedTokenDoesNotJoinGroupsOrLeakSessionData()
     {
         var playerStore = new RecordingMatchPlayerStore();
