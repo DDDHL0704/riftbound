@@ -85017,7 +85017,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectKnownValueDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectKnownValueDriftWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -85085,23 +85085,16 @@ public sealed class MatchRecoveryTests
             entry => entry.Value,
             StringComparer.Ordinal);
         var continuousEffects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"])
-            .ToList();
+            .ToArray();
         Assert.Single(continuousEffects);
-        continuousEffects.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
-        {
-            ["effectId"] = "effect-extra",
-            ["scope"] = "UNKNOWN_SCOPE",
-            ["layer"] = "UNKNOWN_LAYER",
-            ["duration"] = "UNTIL_END_OF_TURN",
-            ["targetObjectId"] = null,
-            ["sourceObjectId"] = null,
-            ["powerDelta"] = 0,
-            ["basePower"] = 0,
-            ["effectivePower"] = 0,
-            ["sequence"] = 2,
-            ["layerEngineStatus"] = "UNKNOWN_STATUS"
-        });
-        timing["continuousEffects"] = continuousEffects.ToArray();
+        var effect = Assert.IsType<Dictionary<string, object?>>(continuousEffects[0])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+
+        effect["scope"] = "UNKNOWN_SCOPE";
+        effect["layer"] = "UNKNOWN_LAYER";
+        effect["layerEngineStatus"] = "UNKNOWN_STATUS";
+        continuousEffects[0] = effect;
+        timing["continuousEffects"] = continuousEffects;
         spectatorReplayFrame = spectatorReplayFrame with
         {
             SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
@@ -85135,10 +85128,10 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing continuous effect item layer engine status UNKNOWN_STATUS is invalid",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1",
+                "spectator replay frame timing continuous effect count",
                 StringComparison.Ordinal));
     }
 
