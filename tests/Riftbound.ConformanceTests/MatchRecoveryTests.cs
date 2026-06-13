@@ -93443,7 +93443,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueOrderPromptFieldAbsenceDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueOrderPromptFieldAbsenceDriftWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -93522,6 +93522,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing order-trigger prompt field orderingState must be absent",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count",
                 StringComparison.Ordinal));
     }
 
