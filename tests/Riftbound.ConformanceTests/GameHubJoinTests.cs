@@ -147,6 +147,49 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ReconnectWithRotatedOldTokenDoesNotJoinGroupsOrLeakSessionData()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var joinClients = new RecordingHubClients();
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
+
+        var reconnectClients = new RecordingHubClients();
+        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry)
+            .Reconnect("room-a", "alice", join.ReconnectToken);
+        var reconnect = Assert.IsType<PlayerSessionDto>(
+            Assert.Single(reconnectClients.CallerClient.JoinedMessages).Payload);
+        Assert.NotEqual(join.ReconnectToken, reconnect.ReconnectToken);
+
+        var staleClients = new RecordingHubClients();
+        var staleGroups = new RecordingGroupManager();
+        await CreateHub(staleClients, staleGroups, "connection-3", registry)
+            .Reconnect("room-a", " alice ", join.ReconnectToken);
+
+        Assert.Empty(staleGroups.Added);
+        Assert.Empty(staleClients.CallerClient.JoinedMessages);
+        Assert.Empty(staleClients.CallerClient.Snapshots);
+        Assert.Empty(staleClients.CallerClient.Prompts);
+        Assert.Empty(staleClients.GroupClient.JoinedMessages);
+        Assert.Empty(staleClients.GroupClient.Snapshots);
+        Assert.Empty(staleClients.GroupClient.Prompts);
+
+        var error = Assert.Single(staleClients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, error.Type);
+        Assert.Equal("room-a", error.RoomId);
+        Assert.Equal("alice", error.PlayerId);
+        AssertProtocolDefaults(error);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.InvalidReconnectToken, payload.Code);
+        Assert.Equal("重连令牌无效。", payload.Message);
+
+        var errorJson = JsonSerializer.Serialize(error);
+        Assert.DoesNotContain(join.ReconnectToken, errorJson, StringComparison.Ordinal);
+        Assert.DoesNotContain(reconnect.ReconnectToken, errorJson, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task JoinRoomPersistsReconnectTokenHashWithoutPlaintext()
     {
         var playerStore = new RecordingMatchPlayerStore();
