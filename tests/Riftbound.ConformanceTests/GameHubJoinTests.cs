@@ -570,6 +570,64 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ReadyMessagesCarryProtocolVersionsOnReadyStartSnapshotsAndPrompts()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+
+        var aliceReadyClients = new RecordingHubClients();
+        await CreateHub(aliceReadyClients, new RecordingGroupManager(), "connection-1", registry)
+            .Ready("room-a", " alice ", "ready-alice-protocol-envelope");
+
+        Assert.Empty(aliceReadyClients.CallerClient.Errors);
+        var readyMessage = Assert.Single(aliceReadyClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.READY, readyMessage.Type);
+        Assert.Equal("alice", readyMessage.PlayerId);
+        AssertProtocolDefaults(readyMessage);
+
+        Assert.NotEmpty(aliceReadyClients.GroupClient.Snapshots);
+        foreach (var snapshotMessage in aliceReadyClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.NotEmpty(aliceReadyClients.GroupClient.Prompts);
+        foreach (var promptMessage in aliceReadyClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+
+        var bobReadyClients = new RecordingHubClients();
+        await CreateHub(bobReadyClients, new RecordingGroupManager(), "connection-2", registry)
+            .Ready("room-a", " bob ", "ready-bob-protocol-envelope");
+
+        Assert.Empty(bobReadyClients.CallerClient.Errors);
+        var startMessage = Assert.Single(bobReadyClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.START, startMessage.Type);
+        Assert.Equal("bob", startMessage.PlayerId);
+        AssertProtocolDefaults(startMessage);
+
+        Assert.NotEmpty(bobReadyClients.GroupClient.Snapshots);
+        foreach (var snapshotMessage in bobReadyClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.NotEmpty(bobReadyClients.GroupClient.Prompts);
+        foreach (var promptMessage in bobReadyClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+    }
+
+    [Fact]
     public async Task SubmitIntentMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
