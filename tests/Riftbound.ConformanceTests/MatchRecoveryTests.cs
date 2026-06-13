@@ -83348,7 +83348,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectListValueDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectListValueDriftWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -83505,6 +83505,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing continuous effect item deferred LayerEngine residual is required",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count",
                 StringComparison.Ordinal));
     }
 
