@@ -509,6 +509,32 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentPreStartMessagesCarryProtocolVersionsOnMatchNotStartedError()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        var clients = new RecordingHubClients();
+        var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", " alice ", "intent-before-ready-protocol-envelope", cmd);
+
+        var errorMessage = Assert.Single(clients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, errorMessage.Type);
+        Assert.Equal("room-a", errorMessage.RoomId);
+        Assert.Equal("alice", errorMessage.PlayerId);
+        AssertProtocolDefaults(errorMessage);
+        var payload = Assert.IsType<ErrorDto>(errorMessage.Payload);
+        Assert.Equal(ErrorCodes.MatchNotStarted, payload.Code);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+    }
+
+    [Fact]
     public async Task SubmitIntentWithoutClientIntentIdReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
