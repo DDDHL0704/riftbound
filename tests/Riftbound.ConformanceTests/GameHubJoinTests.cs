@@ -85,6 +85,30 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ReconnectMessagesCarryProtocolVersionsOnReconnectSnapshotAndPrompt()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var joinClients = new RecordingHubClients();
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
+
+        var reconnectClients = new RecordingHubClients();
+        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry)
+            .Reconnect("room-a", " alice ", join.ReconnectToken);
+
+        var reconnectMessage = Assert.Single(reconnectClients.CallerClient.JoinedMessages);
+        var snapshotMessage = Assert.Single(reconnectClients.CallerClient.Snapshots);
+        var promptMessage = Assert.Single(reconnectClients.CallerClient.Prompts);
+        Assert.Equal(MessageType.RECONNECT, reconnectMessage.Type);
+        Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+        Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+        AssertProtocolDefaults(reconnectMessage);
+        AssertProtocolDefaults(snapshotMessage);
+        AssertProtocolDefaults(promptMessage);
+    }
+
+    [Fact]
     public async Task JoinRoomRejectsThirdPlayerWithError()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
