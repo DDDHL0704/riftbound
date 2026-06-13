@@ -84533,7 +84533,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectScalarValueDrift()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingContinuousEffectScalarValueDriftWithoutCountMismatch()
     {
         var authoritativeState = new MatchState(
             "room-a",
@@ -84761,6 +84761,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing continuous effect item lifecycle is invalid",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count",
                 StringComparison.Ordinal));
     }
 
