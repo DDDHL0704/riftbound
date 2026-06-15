@@ -3208,11 +3208,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentSourceIds = BattleDamageAssignmentRequiredSourceIdsForPlayer(state, battle, assigningPlayerId);
-        var currentSourceIdSet = currentSourceIds.ToHashSet(StringComparer.Ordinal);
-        var currentAssignments = assignments
-            .Where(assignment => currentSourceIdSet.Contains(assignment.SourceObjectId))
-            .ToArray();
-        var validation = ValidateCombatDamageAssignmentsForSources(state, battle, currentAssignments, currentSourceIds);
+        var validation = ValidateCombatDamageAssignmentsForSources(state, battle, assignments, currentSourceIds);
         if (!validation.Accepted)
         {
             return RejectWithCorePrompts(
@@ -3223,32 +3219,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var acceptedAssignments = BattleDamageAssignmentLedgerFor(state, battle);
         var mergedAssignments = acceptedAssignments
-            .Concat(currentAssignments)
+            .Concat(assignments)
             .ToArray();
-        var includesFuturePlayerAssignments = currentAssignments.Length != assignments.Count;
-        if (includesFuturePlayerAssignments)
-        {
-            var fullBatchAssignments = acceptedAssignments
-                .Concat(assignments)
-                .ToArray();
-            var fullBatchValidation = ValidateCombatDamageAssignments(state, battle, fullBatchAssignments);
-            if (!fullBatchValidation.Accepted)
-            {
-                return RejectWithCorePrompts(
-                    state,
-                    fullBatchValidation.Message,
-                    fullBatchValidation.ErrorCode);
-            }
-
-            return CommitCombatDamageAssignments(
-                state,
-                intent,
-                battle,
-                fullBatchAssignments,
-                fullBatchValidation.DamagePool,
-                fullBatchValidation.LethalDamageThreshold);
-        }
-
         var nextAssigningPlayerId = BattleDamageAssigningPlayerId(state, battle, mergedAssignments);
         if (!string.IsNullOrWhiteSpace(nextAssigningPlayerId))
         {
@@ -3333,13 +3305,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<CombatDamageAssignmentDto> acceptedAssignments)
     {
         var attackingPlayerId = BattleAttackingPlayerId(state, battle);
-        var defendingPlayerId = BattleDefendingPlayerId(battle);
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
         if (string.IsNullOrWhiteSpace(attackingPlayerId))
         {
             return null;
         }
 
-        var attackerSourceIds = BattleDamageAssignmentRequiredSourceIdsForPlayer(state, battle, attackingPlayerId);
+        var attackerSourceIds = BattleDamageAssignmentRequiredSourceIdsForSide(state, battle, battle.AttackerObjectIds);
         if (attackerSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
         {
             return attackingPlayerId;
@@ -3347,7 +3319,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (!string.IsNullOrWhiteSpace(defendingPlayerId))
         {
-            var defenderSourceIds = BattleDamageAssignmentRequiredSourceIdsForPlayer(state, battle, defendingPlayerId);
+            var defenderSourceIds = BattleDamageAssignmentRequiredSourceIdsForSide(state, battle, battle.DefenderObjectIds);
             if (defenderSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, defenderSourceIds))
             {
                 return defendingPlayerId;
@@ -3376,12 +3348,42 @@ public sealed class CoreRuleEngine : IRuleEngine
             return [];
         }
 
+        var acceptedAssignments = BattleDamageAssignmentLedgerFor(state, battle);
+        var attackingPlayerId = BattleAttackingPlayerId(state, battle);
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
+        var attackerSourceIds = BattleDamageAssignmentRequiredSourceIdsForSide(state, battle, battle.AttackerObjectIds);
+        if (string.Equals(playerId, attackingPlayerId, StringComparison.Ordinal))
+        {
+            if (attackerSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
+            {
+                return attackerSourceIds;
+            }
+        }
+
+        var defenderSourceIds = BattleDamageAssignmentRequiredSourceIdsForSide(state, battle, battle.DefenderObjectIds);
+        if (string.Equals(playerId, defendingPlayerId, StringComparison.Ordinal))
+        {
+            if ((attackerSourceIds.Count == 0 || AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
+                && defenderSourceIds.Count > 0
+                && !AssignmentsCoverSources(state, battle, acceptedAssignments, defenderSourceIds))
+            {
+                return defenderSourceIds;
+            }
+        }
+
+        return [];
+    }
+
+    private static IReadOnlyList<string> BattleDamageAssignmentRequiredSourceIdsForSide(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<string> sideSourceObjectIds)
+    {
         var damagePool = BuildCombatDamagePool(state, battle);
         var legalTargets = BuildCombatDamageLegalTargets(state, battle);
-        return battle.AttackerObjectIds
-            .Concat(battle.DefenderObjectIds)
+        return sideSourceObjectIds
             .Where(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                && string.Equals(controllerId, playerId, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(controllerId)
                 && damagePool.TryGetValue(objectId, out var damage)
                 && damage > 0
                 && legalTargets.TryGetValue(objectId, out var targets)
@@ -3807,7 +3809,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         combatEvents.AddRange(lethalCleanup.Events);
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
 
-        var defendingPlayerId = BattleDefendingPlayerId(battle);
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
         string? resolvedBattleWinnerPlayerId = null;
         if (TryResolveBattleWinnerPlayerId(
                 playerZones,
@@ -4083,12 +4085,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StringComparer.Ordinal);
     }
 
-    private static string? BattleDefendingPlayerId(BattleState battle)
+    private static string? BattleDefendingPlayerId(MatchState state, BattleState battle)
     {
         var defenderControllerIds = battle.DefenderObjectIds
-            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                ? controllerId
-                : string.Empty)
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
+                : battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                    ? controllerId
+                    : string.Empty)
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
@@ -4098,10 +4102,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string? BattleAttackingPlayerId(MatchState state, BattleState battle)
     {
         var attackerControllerIds = battle.AttackerObjectIds
-            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                ? controllerId
-                : state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
+                : battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                    ? controllerId
                     : string.Empty)
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Distinct(StringComparer.Ordinal)
@@ -4111,7 +4115,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static string BattleResponsePriorityPlayerId(MatchState state, string fallbackPlayerId)
     {
-        var defendingPlayerId = BattleDefendingPlayerId(state.BattleState);
+        var defendingPlayerId = BattleDefendingPlayerId(state, state.BattleState);
         return !string.IsNullOrWhiteSpace(defendingPlayerId)
             ? defendingPlayerId
             : !string.IsNullOrWhiteSpace(fallbackPlayerId)

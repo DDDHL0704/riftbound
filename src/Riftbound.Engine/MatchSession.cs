@@ -2684,15 +2684,15 @@ public sealed record ResolutionResult(
     internal static string? BattleDamageAssigningPlayerId(MatchState state)
     {
         var battle = state.BattleState;
-        var attackingPlayerId = BattleAttackingPlayerId(battle);
-        var defendingPlayerId = BattleDefendingPlayerId(battle);
+        var attackingPlayerId = BattleAttackingPlayerId(state, battle);
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
         if (string.IsNullOrWhiteSpace(attackingPlayerId))
         {
             return null;
         }
 
         var acceptedAssignments = BattleDamageAssignmentLedgerFor(state, battle);
-        var attackerSourceIds = BattleDamageRequiredSourceIdsForPlayer(state, battle, attackingPlayerId);
+        var attackerSourceIds = BattleDamageRequiredSourceIdsForSide(state, battle, battle.AttackerObjectIds);
         if (attackerSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
         {
             return attackingPlayerId;
@@ -2700,7 +2700,7 @@ public sealed record ResolutionResult(
 
         if (!string.IsNullOrWhiteSpace(defendingPlayerId))
         {
-            var defenderSourceIds = BattleDamageRequiredSourceIdsForPlayer(state, battle, defendingPlayerId);
+            var defenderSourceIds = BattleDamageRequiredSourceIdsForSide(state, battle, battle.DefenderObjectIds);
             if (defenderSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, defenderSourceIds))
             {
                 return defendingPlayerId;
@@ -2720,11 +2720,42 @@ public sealed record ResolutionResult(
             return [];
         }
 
+        var acceptedAssignments = BattleDamageAssignmentLedgerFor(state, battle);
+        var attackingPlayerId = BattleAttackingPlayerId(state, battle);
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
+        var attackerSourceIds = BattleDamageRequiredSourceIdsForSide(state, battle, battle.AttackerObjectIds);
+        if (string.Equals(playerId, attackingPlayerId, StringComparison.Ordinal))
+        {
+            if (attackerSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
+            {
+                return attackerSourceIds;
+            }
+        }
+
+        var defenderSourceIds = BattleDamageRequiredSourceIdsForSide(state, battle, battle.DefenderObjectIds);
+        if (string.Equals(playerId, defendingPlayerId, StringComparison.Ordinal))
+        {
+            if ((attackerSourceIds.Count == 0 || AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
+                && defenderSourceIds.Count > 0
+                && !AssignmentsCoverSources(state, battle, acceptedAssignments, defenderSourceIds))
+            {
+                return defenderSourceIds;
+            }
+        }
+
+        return [];
+    }
+
+    private static IReadOnlyList<string> BattleDamageRequiredSourceIdsForSide(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<string> sideSourceObjectIds)
+    {
         var damagePool = BattleDamagePoolFor(state, battle);
         var legalTargets = BattleDamageLegalTargetsFor(state, battle);
-        return BattleParticipantObjectIds(battle)
+        return sideSourceObjectIds
             .Where(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                && string.Equals(controllerId, playerId, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(controllerId)
                 && damagePool.TryGetValue(objectId, out var damage)
                 && damage > 0
                 && legalTargets.TryGetValue(objectId, out var targets)
@@ -2765,24 +2796,28 @@ public sealed record ResolutionResult(
         return true;
     }
 
-    private static string? BattleAttackingPlayerId(BattleState battle)
+    private static string? BattleAttackingPlayerId(MatchState state, BattleState battle)
     {
         var attackerControllerIds = battle.AttackerObjectIds
-            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                ? controllerId
-                : string.Empty)
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                ? EffectiveFieldControllerId(state, objectId, cardObject)
+                : battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                    ? controllerId
+                    : string.Empty)
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
         return attackerControllerIds.Length == 1 ? attackerControllerIds[0] : null;
     }
 
-    private static string? BattleDefendingPlayerId(BattleState battle)
+    private static string? BattleDefendingPlayerId(MatchState state, BattleState battle)
     {
         var defenderControllerIds = battle.DefenderObjectIds
-            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                ? controllerId
-                : string.Empty)
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                ? EffectiveFieldControllerId(state, objectId, cardObject)
+                : battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                    ? controllerId
+                    : string.Empty)
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
