@@ -3333,7 +3333,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<CombatDamageAssignmentDto> acceptedAssignments)
     {
         var attackingPlayerId = BattleAttackingPlayerId(state, battle);
-        var defendingPlayerId = BattleDefendingPlayerId(battle);
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
         if (string.IsNullOrWhiteSpace(attackingPlayerId))
         {
             return null;
@@ -3378,10 +3378,22 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var damagePool = BuildCombatDamagePool(state, battle);
         var legalTargets = BuildCombatDamageLegalTargets(state, battle);
-        return battle.AttackerObjectIds
-            .Concat(battle.DefenderObjectIds)
+        var attackingPlayerId = BattleAttackingPlayerId(state, battle);
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
+        var sideSourceIds = new List<string>();
+        if (string.Equals(playerId, attackingPlayerId, StringComparison.Ordinal))
+        {
+            sideSourceIds.AddRange(battle.AttackerObjectIds);
+        }
+
+        if (string.Equals(playerId, defendingPlayerId, StringComparison.Ordinal))
+        {
+            sideSourceIds.AddRange(battle.DefenderObjectIds);
+        }
+
+        return sideSourceIds
             .Where(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                && string.Equals(controllerId, playerId, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(controllerId)
                 && damagePool.TryGetValue(objectId, out var damage)
                 && damage > 0
                 && legalTargets.TryGetValue(objectId, out var targets)
@@ -3807,7 +3819,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         combatEvents.AddRange(lethalCleanup.Events);
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
 
-        var defendingPlayerId = BattleDefendingPlayerId(battle);
+        var defendingPlayerId = BattleDefendingPlayerId(state, battle);
         string? resolvedBattleWinnerPlayerId = null;
         if (TryResolveBattleWinnerPlayerId(
                 playerZones,
@@ -4083,12 +4095,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StringComparer.Ordinal);
     }
 
-    private static string? BattleDefendingPlayerId(BattleState battle)
+    private static string? BattleDefendingPlayerId(MatchState state, BattleState battle)
     {
         var defenderControllerIds = battle.DefenderObjectIds
-            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                ? controllerId
-                : string.Empty)
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
+                : battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                    ? controllerId
+                    : string.Empty)
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
@@ -4098,10 +4112,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string? BattleAttackingPlayerId(MatchState state, BattleState battle)
     {
         var attackerControllerIds = battle.AttackerObjectIds
-            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                ? controllerId
-                : state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
+                : battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                    ? controllerId
                     : string.Empty)
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Distinct(StringComparer.Ordinal)
@@ -4111,7 +4125,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static string BattleResponsePriorityPlayerId(MatchState state, string fallbackPlayerId)
     {
-        var defendingPlayerId = BattleDefendingPlayerId(state.BattleState);
+        var defendingPlayerId = BattleDefendingPlayerId(state, state.BattleState);
         return !string.IsNullOrWhiteSpace(defendingPlayerId)
             ? defendingPlayerId
             : !string.IsNullOrWhiteSpace(fallbackPlayerId)
