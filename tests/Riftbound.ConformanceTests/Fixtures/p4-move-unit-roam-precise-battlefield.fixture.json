@@ -131,7 +131,7 @@
         "P1-BATTLEFIELD-SFD-YASUO": {
           "cardNo": "SFD·235/221",
           "power": 4,
-          "isExhausted": false,
+          "isExhausted": true,
           "tags": ["CARD_TYPE:UNIT", "游走"],
           "manaCost": 4
         }

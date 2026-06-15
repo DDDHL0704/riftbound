@@ -139,7 +139,7 @@
         "P1-UNIT-KRAKEN-HUNTER": {
           "power": 5,
           "tags": ["CARD_TYPE:UNIT", "强攻", "急速", "海盗"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

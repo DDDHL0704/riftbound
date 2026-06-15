@@ -139,7 +139,7 @@
         "P1-UNIT-MISS-FORTUNE-A": {
           "power": 5,
           "tags": ["CARD_TYPE:UNIT", "急速", "海盗", "游走"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

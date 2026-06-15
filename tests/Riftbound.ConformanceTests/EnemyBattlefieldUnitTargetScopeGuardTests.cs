@@ -275,6 +275,68 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
         Assert.DoesNotContain("P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT", firstTargetChoiceIds);
     }
 
+    [Fact]
+    public void AnyUnitPlayCardPromptTargetListOnlyExposesPublicFieldUnits()
+    {
+        var state = BuildAnyUnitTargetState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        Assert.Contains(CommandTypes.PlayCard, prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-SPELL-CLEAVE", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-SPELL-CLEAVE", StringComparison.Ordinal));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal(
+            ["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT", "P2-BASE-UNIT", "P2-BATTLEFIELD-UNIT"],
+            firstTargetChoiceIds);
+        Assert.DoesNotContain("P1-BATTLEFIELD-CARD", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-CARD", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-FACE-DOWN-UNIT", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-FACE-UP-STANDBY", firstTargetChoiceIds);
+    }
+
+    [Theory]
+    [InlineData("P1-BATTLEFIELD-CARD")]
+    [InlineData("P2-BATTLEFIELD-CARD")]
+    public async Task AnyUnitPlayCardRejectsPublicFieldNonUnitTargetsWithoutMutation(string targetObjectId)
+    {
+        var state = BuildAnyUnitTargetState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-cleave-non-unit-{targetObjectId}", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(
+                "P1-SPELL-CLEAVE",
+                "OGN·004/298",
+                [targetObjectId]),
+            CancellationToken.None);
+
+        AssertRejectedWithoutMutation(state, result, expectedMana: 1, expectedHand: ["P1-SPELL-CLEAVE"]);
+    }
+
     [Theory]
     [InlineData("P2-BATTLEFIELD-EQUIPMENT")]
     [InlineData("P2-BATTLEFIELD-SPELL")]
@@ -587,6 +649,68 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
                     manaCost: 3),
                 ["P2-BATTLEFIELD-EQUIPMENT"] = NonUnit("P2-BATTLEFIELD-EQUIPMENT", "SFD·139/221", CardObjectTags.EquipmentCard, "P2"),
                 ["P2-BATTLEFIELD-UNIT"] = Unit("P2-BATTLEFIELD-UNIT", ownerId: "P2", controllerId: "P2")
+            });
+    }
+
+    private static MatchState BuildAnyUnitTargetState()
+    {
+        return new MatchState(
+            roomId: "any-unit-target-scope-guard-test",
+            tick: 0,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: Seats(),
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CLEAVE"],
+                    Base = ["P1-BASE-UNIT"],
+                    Battlefields = ["P1-BATTLEFIELD-CARD", "P1-BATTLEFIELD-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT"],
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-CARD",
+                        "P2-BATTLEFIELD-UNIT",
+                        "P2-BATTLEFIELD-EQUIPMENT",
+                        "P2-BATTLEFIELD-SPELL",
+                        "P2-BATTLEFIELD-RUNE",
+                        "P2-FACE-DOWN-UNIT",
+                        "P2-FACE-UP-STANDBY"
+                    ]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-CLEAVE"] = NonUnit("P1-SPELL-CLEAVE", "OGN·004/298", CardObjectTags.SpellCard, "P1", manaCost: 1),
+                ["P1-BASE-UNIT"] = Unit("P1-BASE-UNIT"),
+                ["P1-BATTLEFIELD-CARD"] = NonUnit("P1-BATTLEFIELD-CARD", "OGN·275/298", "CARD_TYPE:BATTLEFIELD", "P1"),
+                ["P1-BATTLEFIELD-UNIT"] = Unit("P1-BATTLEFIELD-UNIT"),
+                ["P2-BASE-UNIT"] = Unit("P2-BASE-UNIT", ownerId: "P2", controllerId: "P2"),
+                ["P2-BATTLEFIELD-CARD"] = NonUnit("P2-BATTLEFIELD-CARD", "OGN·276/298", "CARD_TYPE:BATTLEFIELD", "P2"),
+                ["P2-BATTLEFIELD-UNIT"] = Unit("P2-BATTLEFIELD-UNIT", ownerId: "P2", controllerId: "P2"),
+                ["P2-BATTLEFIELD-EQUIPMENT"] = NonUnit("P2-BATTLEFIELD-EQUIPMENT", "SFD·139/221", CardObjectTags.EquipmentCard, "P2"),
+                ["P2-BATTLEFIELD-SPELL"] = NonUnit("P2-BATTLEFIELD-SPELL", "OGN·169/298", CardObjectTags.SpellCard, "P2"),
+                ["P2-BATTLEFIELD-RUNE"] = NonUnit("P2-BATTLEFIELD-RUNE", "RUNES·001", CardObjectTags.RuneCard, "P2"),
+                ["P2-FACE-DOWN-UNIT"] = Unit("P2-FACE-DOWN-UNIT", isFaceDown: true, ownerId: "P2", controllerId: "P2"),
+                ["P2-FACE-UP-STANDBY"] = Unit(
+                    "P2-FACE-UP-STANDBY",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P2",
+                    controllerId: "P2")
             });
     }
 

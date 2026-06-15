@@ -21,12 +21,57 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(["UNIT_MOVED_TO_BATTLEFIELD"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF-EMPTY"), result.State.ObjectLocations["P1-BASE-MOVER"]);
+        Assert.True(result.State.CardObjects["P1-BASE-MOVER"].IsExhausted);
         Assert.False(result.State.BattlefieldStates["BF-EMPTY"].Contested);
         Assert.Equal(["P1"], result.State.BattlefieldStates["BF-EMPTY"].OccupantControllerIds);
         Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
         Assert.Empty(result.State.PendingTaskQueue.Tasks);
 
         AssertBaseMoveEmptyBattlefieldAudit(result);
+    }
+
+    [Fact]
+    public async Task ExhaustedMoveUnitSourceIsRejectedAndHiddenFromMainActionPrompt()
+    {
+        var baseState = BaseMoveState(occupied: false);
+        var state = baseState with
+        {
+            CardObjects = baseState.CardObjects.ToDictionary(
+                entry => entry.Key,
+                entry => string.Equals(entry.Key, "P1-BASE-MOVER", StringComparison.Ordinal)
+                    ? entry.Value with { IsExhausted = true }
+                    : entry.Value,
+                StringComparer.Ordinal)
+        };
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.DoesNotContain(moveCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-BASE-MOVER", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            (moveCandidate.Metadata as IReadOnlyDictionary<string, object?>)?["sourceRequirements"] as IEnumerable<IReadOnlyDictionary<string, object?>> ?? [],
+            requirement =>
+                requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && string.Equals(sourceObjectId as string, "P1-BASE-MOVER", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-board-task-exhausted-source-move", "P1", CommandTypes.MoveUnit),
+            new MoveUnitCommand("P1-BASE-MOVER", "BASE", "BATTLEFIELD:BF-EMPTY", []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), result.State.ObjectLocations["P1-BASE-MOVER"]);
+        Assert.True(result.State.CardObjects["P1-BASE-MOVER"].IsExhausted);
     }
 
     [Fact]
@@ -2029,13 +2074,15 @@ public sealed class BoardTaskQueueFoundationTests
         string objectId,
         string playerId,
         int damage = 0,
-        int power = 3)
+        int power = 3,
+        bool isExhausted = false)
     {
         return new CardObjectState(
             objectId,
             cardNo: "SFD·125/221",
             damage: damage,
             power: power,
+            isExhausted: isExhausted,
             tags: [CardObjectTags.UnitCard],
             ownerId: playerId,
             controllerId: playerId);

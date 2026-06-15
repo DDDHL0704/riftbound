@@ -67,6 +67,7 @@
         "power": 2,
         "isAttacking": true,
         "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       }
@@ -195,7 +196,8 @@
           "untilEndOfTurnEffects": ["OVERWHELM_3"],
           "untilEndOfTurnPowerModifier": 3,
           "isAttacking": true,
-          "isExhausted": false
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
         }
       },
       "stackItems": []

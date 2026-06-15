@@ -139,7 +139,7 @@
         "P1-UNIT-BLAZING-DRAKE": {
           "power": 5,
           "tags": ["CARD_TYPE:UNIT", "急速", "龙"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

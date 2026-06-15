@@ -139,7 +139,7 @@
         "P1-UNIT-LEE-SIN-A": {
           "power": 6,
           "tags": ["CARD_TYPE:UNIT", "急速"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },
