@@ -1729,13 +1729,27 @@ public sealed class GameHubJoinTests
         Assert.Empty(replayClients.CallerClient.Errors);
         var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
         Assert.Equal(acceptedMessageType, replayMessage.Type);
+        Assert.Equal(MessageType.EVENTS, replayMessage.Type);
         Assert.Equal(acceptedServerTick, replayMessage.ServerTick);
+        AssertProtocolDefaults(replayMessage);
         var replayEvents = EventsFor(replayClients);
         Assert.Equal(
             acceptedEventKinds,
             replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
         Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+
         Assert.Equal(
             acceptedSnapshotPlayers,
             replayClients.GroupClient.Snapshots
