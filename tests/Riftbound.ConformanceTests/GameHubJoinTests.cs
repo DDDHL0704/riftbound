@@ -3895,6 +3895,14 @@ public sealed class GameHubJoinTests
         var acceptedEvents = EventsFor(acceptedClients);
         Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Contains(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
         var acceptedJournalCount = journal.Entries.Count;
         Assert.Equal(seededJournalCount + 1, acceptedJournalCount);
         var payEntry = Assert.Single(journal.Entries, entry =>
@@ -3919,17 +3927,43 @@ public sealed class GameHubJoinTests
 
         var replayClients = new RecordingHubClients();
         await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "pay-cost-same", payCost);
+            .SubmitIntent(roomId, " P1 ", "pay-cost-same", payCost);
 
         Assert.Empty(replayClients.CallerClient.Errors);
         var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
         Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal("P1", replayMessage.PlayerId);
         Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        AssertProtocolDefaults(replayMessage);
         Assert.Equal(
             acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
             EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
         Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
         Assert.Equal(acceptedJournalCount, journal.Entries.Count);
 
         var conflictClients = new RecordingHubClients();
