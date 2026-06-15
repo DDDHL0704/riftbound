@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Riftbound.CardCatalog;
@@ -297,6 +298,11 @@ public sealed record BattleState(
     IReadOnlyList<string> AttackerObjectIds,
     IReadOnlyList<string> DefenderObjectIds,
     IReadOnlyDictionary<string, string> ParticipantControllerIds);
+
+internal sealed record BattleDamageAssignmentLedger(
+    string BattleId,
+    string BattlefieldId,
+    IReadOnlyList<CombatDamageAssignmentDto> Assignments);
 
 internal static class BattleLifecycleIds
 {
@@ -853,6 +859,7 @@ public sealed record PendingHandChoiceState
 public sealed record MatchState
 {
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
+    private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
 
     public MatchState(
         string roomId,
@@ -1725,7 +1732,7 @@ public sealed record MatchState
     {
         var effects = new List<ContinuousEffectState>();
         foreach (var effectId in state.UntilEndOfTurnEffects
-            .Where(effectId => !effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal))
+            .Where(effectId => !IsInternalUntilEndOfTurnMarker(effectId))
             .OrderBy(effectId => effectId, StringComparer.Ordinal))
         {
             effects.Add(new ContinuousEffectState(
@@ -1833,6 +1840,12 @@ public sealed record MatchState
             .ThenBy(effect => effect.EffectId, StringComparer.Ordinal)
             .Select((effect, index) => effect with { Sequence = index + 1 })
             .ToArray();
+    }
+
+    private static bool IsInternalUntilEndOfTurnMarker(string effectId)
+    {
+        return effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal);
     }
 
     private static ContinuousEffectState ApplySourceOrder(
@@ -2398,6 +2411,7 @@ public sealed record ResolutionResult(
     private const int BaseWinningScore = 8;
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
+    private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
 
     public static ResolutionResult Rejected(
         MatchState state,
@@ -2670,6 +2684,89 @@ public sealed record ResolutionResult(
     internal static string? BattleDamageAssigningPlayerId(MatchState state)
     {
         var battle = state.BattleState;
+        var attackingPlayerId = BattleAttackingPlayerId(battle);
+        var defendingPlayerId = BattleDefendingPlayerId(battle);
+        if (string.IsNullOrWhiteSpace(attackingPlayerId))
+        {
+            return null;
+        }
+
+        var acceptedAssignments = BattleDamageAssignmentLedgerFor(state, battle);
+        var attackerSourceIds = BattleDamageRequiredSourceIdsForPlayer(state, battle, attackingPlayerId);
+        if (attackerSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
+        {
+            return attackingPlayerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(defendingPlayerId))
+        {
+            var defenderSourceIds = BattleDamageRequiredSourceIdsForPlayer(state, battle, defendingPlayerId);
+            if (defenderSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, defenderSourceIds))
+            {
+                return defendingPlayerId;
+            }
+        }
+
+        return null;
+    }
+
+    internal static IReadOnlyList<string> BattleDamageRequiredSourceIdsForPlayer(
+        MatchState state,
+        BattleState battle,
+        string? playerId)
+    {
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            return [];
+        }
+
+        var damagePool = BattleDamagePoolFor(state, battle);
+        var legalTargets = BattleDamageLegalTargetsFor(state, battle);
+        return BattleParticipantObjectIds(battle)
+            .Where(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                && string.Equals(controllerId, playerId, StringComparison.Ordinal)
+                && damagePool.TryGetValue(objectId, out var damage)
+                && damage > 0
+                && legalTargets.TryGetValue(objectId, out var targets)
+                && targets.Count > 0)
+            .ToArray();
+    }
+
+    internal static IReadOnlyList<CombatDamageAssignmentDto> BattleDamageAssignmentLedgerFor(
+        MatchState state,
+        BattleState battle)
+    {
+        return TryReadBattleDamageAssignmentLedger(state, battle, out var assignments)
+            ? assignments
+            : [];
+    }
+
+    private static bool AssignmentsCoverSources(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments,
+        IReadOnlyList<string> sourceObjectIds)
+    {
+        var damagePool = BattleDamagePoolFor(state, battle);
+        foreach (var sourceObjectId in sourceObjectIds)
+        {
+            var expectedDamage = damagePool.TryGetValue(sourceObjectId, out var damage)
+                ? damage
+                : 0;
+            var assignedDamage = assignments
+                .Where(assignment => string.Equals(assignment.SourceObjectId, sourceObjectId, StringComparison.Ordinal))
+                .Sum(assignment => assignment.Damage);
+            if (assignedDamage != expectedDamage)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static string? BattleAttackingPlayerId(BattleState battle)
+    {
         var attackerControllerIds = battle.AttackerObjectIds
             .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
                 ? controllerId
@@ -2678,6 +2775,60 @@ public sealed record ResolutionResult(
             .Distinct(StringComparer.Ordinal)
             .ToArray();
         return attackerControllerIds.Length == 1 ? attackerControllerIds[0] : null;
+    }
+
+    private static string? BattleDefendingPlayerId(BattleState battle)
+    {
+        var defenderControllerIds = battle.DefenderObjectIds
+            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                ? controllerId
+                : string.Empty)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return defenderControllerIds.Length == 1 ? defenderControllerIds[0] : null;
+    }
+
+    private static bool TryReadBattleDamageAssignmentLedger(
+        MatchState state,
+        BattleState battle,
+        out IReadOnlyList<CombatDamageAssignmentDto> assignments)
+    {
+        assignments = [];
+        var marker = state.UntilEndOfTurnEffects.FirstOrDefault(effectId =>
+            effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal));
+        if (string.IsNullOrWhiteSpace(marker))
+        {
+            return false;
+        }
+
+        try
+        {
+            var encoded = marker[BattleDamageAssignmentLedgerPrefix.Length..];
+            var json = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
+            var parsed = JsonSerializer.Deserialize<BattleDamageAssignmentLedger>(json);
+            if (parsed is null
+                || !string.Equals(parsed.BattleId, battle.BattleId, StringComparison.Ordinal)
+                || !string.Equals(parsed.BattlefieldId, battle.BattlefieldObjectId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            assignments = parsed.Assignments
+                .Where(assignment => !string.IsNullOrWhiteSpace(assignment.SourceObjectId)
+                    && !string.IsNullOrWhiteSpace(assignment.TargetObjectId)
+                    && assignment.Damage > 0)
+                .ToArray();
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     internal static IReadOnlyDictionary<string, int> BattleDamagePoolFor(MatchState state, BattleState battle)
@@ -11605,6 +11756,19 @@ internal static class ActionPromptBuilder
         var existingDamage = ResolutionResult.BattleExistingDamageFor(state, battle);
         var lethalDamageThreshold = ResolutionResult.BattleLethalDamageThresholdFor(state, battle);
         var requiredAssignments = ResolutionResult.BattleRequiredAssignmentsFor(state, battle);
+        var assigningSourceIds = ResolutionResult.BattleDamageRequiredSourceIdsForPlayer(state, battle, assigningPlayerId);
+        var assigningSourceSet = assigningSourceIds.ToHashSet(StringComparer.Ordinal);
+        var assignableDamagePool = damagePool
+            .Where(entry => assigningSourceSet.Contains(entry.Key))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var assignableLegalTargets = legalTargets
+            .Where(entry => assigningSourceSet.Contains(entry.Key))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var requiredAssignmentsForPrompt = requiredAssignments
+            .Where(requirement => requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && sourceObjectId is string source
+                && assigningSourceSet.Contains(source))
+            .ToArray();
         var battleParticipants = ResolutionResult.BattleParticipantObjectIds(battle)
             .Select(objectId => new Dictionary<string, object?>
             {
@@ -11617,9 +11781,9 @@ internal static class ActionPromptBuilder
                 ["damage"] = existingDamage.TryGetValue(objectId, out var damage) ? damage : 0
             })
             .ToArray();
-        var assignmentChoices = damagePool
-            .Where(entry => entry.Value > 0 && legalTargets.TryGetValue(entry.Key, out var targets) && targets.Count > 0)
-            .SelectMany(entry => legalTargets[entry.Key].Select(targetObjectId => new ActionPromptChoiceDto(
+        var assignmentChoices = assignableDamagePool
+            .Where(entry => entry.Value > 0 && assignableLegalTargets.TryGetValue(entry.Key, out var targets) && targets.Count > 0)
+            .SelectMany(entry => assignableLegalTargets[entry.Key].Select(targetObjectId => new ActionPromptChoiceDto(
                 $"{entry.Key}->{targetObjectId}",
                 $"{entry.Key} -> {targetObjectId}",
                 $"分配 {entry.Value} 点战斗伤害候选")))
@@ -11631,10 +11795,15 @@ internal static class ActionPromptBuilder
             ["battlefieldId"] = battle.BattlefieldObjectId,
             ["assigningPlayerId"] = assigningPlayerId,
             ["damagePool"] = damagePool,
-            ["legalTargets"] = legalTargets,
+            ["assignableDamagePool"] = assignableDamagePool,
+            ["assigningSourceObjectIds"] = assigningSourceIds,
+            ["legalTargets"] = assignableLegalTargets,
+            ["allLegalTargets"] = legalTargets,
             ["existingDamage"] = existingDamage,
             ["lethalDamageThreshold"] = lethalDamageThreshold,
-            ["requiredAssignments"] = requiredAssignments,
+            ["requiredAssignments"] = requiredAssignmentsForPrompt,
+            ["allRequiredAssignments"] = requiredAssignments,
+            ["submittedAssignments"] = ResolutionResult.BattleDamageAssignmentLedgerFor(state, battle),
             ["assignmentChoices"] = assignmentChoices,
             ["battleParticipants"] = battleParticipants,
             ["battleState"] = string.Equals(playerId, assigningPlayerId, StringComparison.Ordinal)
