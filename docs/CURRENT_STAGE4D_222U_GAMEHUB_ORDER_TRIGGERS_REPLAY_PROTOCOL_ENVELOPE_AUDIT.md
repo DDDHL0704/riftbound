@@ -40,7 +40,7 @@ This slice only validates protocol-envelope replay behavior for an already imple
 - Adjacent: `dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --no-restore --filter "FullyQualifiedName~Hub|FullyQualifiedName~protocol|FullyQualifiedName~OrderTriggers|FullyQualifiedName~Replay|FullyQualifiedName~Raw|FullyQualifiedName~ClientIntent|FullyQualifiedName~Development"` passed `2015/2015`.
 - Backend full: `dotnet test Riftbound.slnx --no-restore` passed `8260/8260`.
 - Mechanical: `git diff --check` passed and anchored conflict-marker scan over `docs src tests` found no matches before the code commit.
-- Standing merge source: `rule-audit-remaining-20260615` had no committed changes ahead of `main` during the pre-batch and pre-checkpoint checks for this slice; its docs-only untracked full-pass audit artifact was imported as `docs/CURRENT_RULE_AUDIT_FULL_PASS_2026-06-15.md` in the docs checkpoint.
+- Standing merge source: `rule-audit-remaining-20260615` had no committed changes ahead of `main` during the pre-batch and pre-checkpoint checks for this slice; its docs-only full-pass audit artifact was imported as `docs/CURRENT_RULE_AUDIT_FULL_PASS_2026-06-15.md`, then source commit `37f995b5` was merged before push.
 
 Note: validation used the project `.NET 10.0.100` runtime from `/Users/dinghaolin/.dotnet` with the same `DOTNET_ROOT`/PATH values as `scripts/dev-env.sh`; the script itself probes `psql`/`redis-cli`, which were not on this shell PATH.
 
