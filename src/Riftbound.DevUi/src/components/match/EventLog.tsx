@@ -79,6 +79,7 @@ const eventKindLabels: Record<string, string> = {
   MATCH_WON: "对局胜利",
   MULLIGAN_COMPLETED: "完成起手调度",
   MULLIGAN_PHASE_COMPLETED: "起手调度结束",
+  OBJECTS_READIED: "对象重置",
   OBJECT_TAG_ADDED: "添加对象标签",
   OFFICIAL_BATTLEFIELD_SELECTED: "选择官方战场",
   OFFICIAL_OPENING_STARTED: "正式开局开始",
