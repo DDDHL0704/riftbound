@@ -26457,6 +26457,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var turnPlayerId = state.TurnPlayerId;
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var readyResult = ReadyTurnPlayerObjectsAtTurnStart(playerZones, cardObjects, turnPlayerId);
         var ephemeralCleanupResult = DestroyEphemeralObjectsAtTurnStart(
             playerZones,
             cardObjects,
@@ -26545,7 +26546,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state,
                 calledRunes.Length,
                 drawResult,
-                ephemeralCleanupResult.Events
+                readyResult.Events
+                    .Concat(ephemeralCleanupResult.Events)
                     .Concat(battlefieldStartDamageResult.Events)
                     .Concat(battlefieldStartDrawResult.Events)
                     .Concat(firstTurnScoreResult.Events)
@@ -26611,6 +26613,53 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static TurnStartReadyResult ReadyTurnPlayerObjectsAtTurnStart(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string turnPlayerId)
+    {
+        if (!playerZones.TryGetValue(turnPlayerId, out var zones))
+        {
+            return TurnStartReadyResult.Empty;
+        }
+
+        var readiedObjectIds = zones.Base
+            .Concat(zones.Battlefields)
+            .Concat(zones.LegendZone)
+            .Concat(zones.ChampionZone)
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.IsExhausted
+                && !cardObject.IsFaceDown
+                && !P4ActivatedAbilityCatalog.CardCannotBecomeActive(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, turnPlayerId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        if (readiedObjectIds.Length == 0)
+        {
+            return TurnStartReadyResult.Empty;
+        }
+
+        foreach (var objectId in readiedObjectIds)
+        {
+            cardObjects[objectId] = cardObjects[objectId] with { IsExhausted = false };
+        }
+
+        return new TurnStartReadyResult(
+            [
+                new GameEvent(
+                    "OBJECTS_READIED",
+                    $"{turnPlayerId} 回合开始时重置横置对象",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = turnPlayerId,
+                        ["objectIds"] = readiedObjectIds,
+                        ["count"] = readiedObjectIds.Length,
+                        ["timing"] = MatchPhases.TurnStart
+                    })
+            ]);
     }
 
     private static bool TryGetJinxTurnStartDrawCardNo(
@@ -28533,6 +28582,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!cardObjects.TryGetValue(objectId, out var cardObject)
             || cardObject.IsFaceDown
+            || !HasVisibleUnitCardIdentity(cardObject)
             || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             || cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
@@ -29511,6 +29561,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return IsFieldObject(state.PlayerZones, objectId)
             && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+            && IsVisibleFieldUnitObject(state.CardObjects, objectId)
             && !CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
@@ -36510,6 +36561,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (location is null
             || !cardObjects.TryGetValue(objectId, out var objectState)
             || objectState.IsFaceDown
+            || !HasVisibleUnitCardIdentity(objectState)
             || objectState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || objectState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             || objectState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
@@ -36520,6 +36572,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return true;
+    }
+
+    private static bool HasVisibleUnitCardIdentity(CardObjectState cardObject)
+    {
+        if (cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return true;
+        }
+
+        return !HasExplicitNonUnitCardType(cardObject.Tags);
+    }
+
+    private static bool HasExplicitNonUnitCardType(IReadOnlyList<string> tags)
+    {
+        return tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            || tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal)
+            || tags.Contains("CARD_TYPE:LEGEND", StringComparer.Ordinal);
     }
 
     private static bool IsBattlefieldUnitObjectControlledByZonePlayer(
@@ -37603,6 +37674,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var hasteReadyOptionalCostPaid = IsHasteReadyOptionalCostPaidForPlayUnit(
             behavior,
             stackItem.OptionalCosts);
+        var exhaustsForUnpaidHasteReady = HasHasteReadyEntryCost(behavior) && !hasteReadyOptionalCostPaid;
         var crescentGuardReadyOptionalCostPaid = IsCrescentGuardReadyOptionalCostPaid(
             behavior,
             stackItem.OptionalCosts);
@@ -37612,7 +37684,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             IsExhausted = entersActiveFromMasterYiLevel
                 || crescentGuardReadyOptionalCostPaid
                     ? false
-                    : existingState.IsExhausted || (behavior.SourceUnitIsExhausted && !hasteReadyOptionalCostPaid),
+                    : existingState.IsExhausted || behavior.SourceUnitIsExhausted || exhaustsForUnpaidHasteReady,
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.UnitCard])
@@ -37656,6 +37728,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && optionalCosts.Count(optionalCost =>
                     TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
                     && !string.IsNullOrWhiteSpace(equipmentObjectId)) == 1);
+    }
+
+    private static bool HasHasteReadyEntryCost(CardBehaviorDefinition behavior)
+    {
+        return behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0;
     }
 
     private static void PlaySourceUnitToBattlefield(
@@ -42358,6 +42435,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> DestroyedUnitOwnerIds)
     {
         public static EphemeralCleanupResult Empty { get; } = new([], []);
+    }
+
+    private sealed record TurnStartReadyResult(IReadOnlyList<GameEvent> Events)
+    {
+        public static TurnStartReadyResult Empty { get; } = new([]);
     }
 
     private sealed record BattlefieldStartDamageResult(

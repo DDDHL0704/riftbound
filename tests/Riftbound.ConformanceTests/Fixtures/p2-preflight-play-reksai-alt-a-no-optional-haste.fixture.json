@@ -139,7 +139,7 @@
         "P1-UNIT-REKSAI-A": {
           "power": 3,
           "tags": ["CARD_TYPE:UNIT", "强攻", "急速"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

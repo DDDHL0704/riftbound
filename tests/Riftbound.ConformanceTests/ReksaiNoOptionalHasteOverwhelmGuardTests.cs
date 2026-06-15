@@ -63,7 +63,7 @@ public sealed class ReksaiNoOptionalHasteOverwhelmGuardTests
         Assert.Equal("P1", unit.ControllerId);
         Assert.Equal(3, unit.Power);
         Assert.Equal([CardObjectTags.UnitCard, "强攻", "急速"], unit.Tags);
-        Assert.False(unit.IsExhausted);
+        Assert.True(unit.IsExhausted);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-UNIT-REKSAI", StringComparison.Ordinal)
@@ -74,7 +74,10 @@ public sealed class ReksaiNoOptionalHasteOverwhelmGuardTests
             && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P1-UNIT-REKSAI", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["unitName"] as string, "雷克塞", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["destinationZone"] as string, "BASE", StringComparison.Ordinal)
-            && Assert.IsType<int>(gameEvent.Payload["power"]) == 3);
+            && Assert.IsType<int>(gameEvent.Payload["power"]) == 3
+            && gameEvent.Payload.TryGetValue("isExhausted", out var isExhausted)
+            && isExhausted is true
+            && !gameEvent.Payload.ContainsKey("hasteReadyOptionalCostPaid"));
     }
 
     [Fact]

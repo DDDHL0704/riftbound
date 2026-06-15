@@ -223,7 +223,7 @@
         "P1-UNIT-THOUSAND-TAILED-WATCHER": {
           "power": 7,
           "tags": ["CARD_TYPE:UNIT", "急速"],
-          "isExhausted": false
+          "isExhausted": true
         },
         "P2-BASE-THOUSAND-TAILED-WATCHER-TARGET-001": {
           "power": 2,

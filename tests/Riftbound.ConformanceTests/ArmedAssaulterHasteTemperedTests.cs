@@ -332,6 +332,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Contains(ArmedAssaulterObjectId, resolved.State.PlayerZones["P1"].Base);
+        Assert.True(resolved.State.CardObjects[ArmedAssaulterObjectId].IsExhausted);
         Assert.Equal(ArmedAssaulterObjectId, resolved.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
         var unitEvent = Assert.Single(resolved.Events, IsArmedAssaulterUnitPlayedEvent);
         Assert.Equal(resolved.State.CardObjects[ArmedAssaulterObjectId].IsExhausted, UnitEventIsExhausted(unitEvent));
@@ -371,6 +372,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Contains(ArmedAssaulterObjectId, resolved.State.PlayerZones["P1"].Base);
+        Assert.True(resolved.State.CardObjects[ArmedAssaulterObjectId].IsExhausted);
         Assert.Null(resolved.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
         var unitEvent = Assert.Single(resolved.Events, IsArmedAssaulterUnitPlayedEvent);
         Assert.Equal(resolved.State.CardObjects[ArmedAssaulterObjectId].IsExhausted, UnitEventIsExhausted(unitEvent));

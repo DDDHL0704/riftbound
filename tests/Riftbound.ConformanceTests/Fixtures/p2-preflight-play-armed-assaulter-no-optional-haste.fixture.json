@@ -139,7 +139,7 @@
         "P1-UNIT-ARMED-ASSAULTER": {
           "power": 6,
           "tags": ["CARD_TYPE:UNIT", "急速", "百炼"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

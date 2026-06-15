@@ -139,7 +139,7 @@
         "P1-UNIT-MR-ROOT": {
           "power": 1,
           "tags": ["CARD_TYPE:UNIT", "仙灵", "急速"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

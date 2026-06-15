@@ -187,7 +187,7 @@
         "P1-UNIT-JINX-A": {
           "power": 4,
           "tags": ["CARD_TYPE:UNIT", "强攻2", "急速"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

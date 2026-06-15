@@ -139,7 +139,7 @@
         "P1-UNIT-AZIR-A": {
           "power": 4,
           "tags": ["CARD_TYPE:UNIT", "急速", "鸟类"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },

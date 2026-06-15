@@ -8699,7 +8699,8 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-UNIT-CLEAVE-001"] = new(
                     "P2-UNIT-CLEAVE-001",
                     power: 2,
-                    isAttacking: false)
+                    isAttacking: false,
+                    tags: [CardObjectTags.UnitCard])
             }
         };
         var engine = new CoreRuleEngine();
@@ -14678,6 +14679,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);
         Assert.Equal(expectedTags.Split('|'), result.FinalState.CardObjects[sourceObjectId].Tags);
+        if (expectedTags.Split('|').Contains("急速", StringComparer.Ordinal))
+        {
+            Assert.True(result.FinalState.CardObjects[sourceObjectId].IsExhausted);
+        }
     }
 
     [Theory]

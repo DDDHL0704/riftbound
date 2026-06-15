@@ -139,7 +139,7 @@
         "P1-UNIT-RENGAR-A": {
           "power": 4,
           "tags": ["CARD_TYPE:UNIT", "强攻2", "急速", "法盾", "游走", "猫科"],
-          "isExhausted": false
+          "isExhausted": true
         }
       }
     },
