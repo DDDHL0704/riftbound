@@ -6,6 +6,8 @@ Status: accepted as a rule-audit merge into local `main`.
 
 Runtime changed: yes. Test coverage changed: yes.
 
+Superseded note: Stage 4D-223J removes the full-batch compatibility described below. Current `main` requires independent attacker and defender `ASSIGN_COMBAT_DAMAGE` steps when both sides have required positive-damage sources.
+
 ## Scope
 
 This checkpoint imports `codex/rule-audit-remaining-20260615` commit `15c9490e` through main merge commit `1de8a90e`.
