@@ -133,7 +133,7 @@
         "P1-MOVE-UNIT-BASE-001": {
           "cardNo": "SFD·125/221",
           "power": 4,
-          "isExhausted": false,
+          "isExhausted": true,
           "tags": ["CARD_TYPE:UNIT"]
         },
         "P1-MOVE-FIELD-KEEPER": {

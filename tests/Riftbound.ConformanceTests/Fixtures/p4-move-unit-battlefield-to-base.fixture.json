@@ -68,7 +68,7 @@
       "P1-MOVE-UNIT-BATTLEFIELD-001": {
         "cardNo": "SFD·125/221",
         "power": 3,
-        "isExhausted": true,
+        "isExhausted": false,
         "tags": ["CARD_TYPE:UNIT"]
       }
     }

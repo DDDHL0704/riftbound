@@ -5669,6 +5669,7 @@ internal static class ActionPromptBuilder
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown
+            && !cardObject.IsExhausted
             && !cardObject.IsAttacking
             && !cardObject.IsDefending;
     }
@@ -12518,7 +12519,7 @@ internal static class ActionPromptBuilder
             .ToArray();
         return new Dictionary<string, object?>
         {
-            ["sourcePolicy"] = "implemented-face-up-controlled-non-combat-unit",
+            ["sourcePolicy"] = "implemented-ready-face-up-controlled-non-combat-unit",
             ["destinationPolicy"] = "source-specific-server-filtered-destinations",
             ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
             ["sourceRequirements"] = sourceRequirements

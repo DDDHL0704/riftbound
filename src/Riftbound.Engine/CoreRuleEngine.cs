@@ -15157,6 +15157,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(battlefieldObjectId);
     }
 
+    private static void ExhaustMoveUnitSource(
+        Dictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId)
+    {
+        if (cardObjects.TryGetValue(sourceObjectId, out var sourceState))
+        {
+            cardObjects[sourceObjectId] = sourceState with { IsExhausted = true };
+        }
+    }
+
     private static ResolutionResult ResolveMoveUnit(
         MatchState state,
         PlayerIntent intent,
@@ -15277,6 +15287,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "横置单位不能通过标准移动移动。",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (sourceState.IsAttacking || sourceState.IsDefending)
         {
             return RejectWithCorePrompts(
@@ -15328,6 +15346,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originZone,
             destinationZone)).ToArray();
+        ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
             state,
             intent.PlayerId,
@@ -15576,6 +15595,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "横置单位不能通过标准移动移动。",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (sourceState.IsAttacking || sourceState.IsDefending)
         {
             return RejectWithCorePrompts(
@@ -15617,6 +15644,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             MoveUnitBaseZone,
             MoveUnitBattlefieldZone)).ToArray();
+        ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
             state,
             intent.PlayerId,
@@ -15793,6 +15821,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "横置单位不能通过标准移动移动。",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (sourceState.IsAttacking || sourceState.IsDefending)
         {
             return RejectWithCorePrompts(
@@ -15833,6 +15869,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originLocation,
             destinationLocation)).ToArray();
+        ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
             state,
             intent.PlayerId,
@@ -16036,6 +16073,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "横置单位不能通过标准移动移动。",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (sourceState.IsAttacking || sourceState.IsDefending)
         {
             return RejectWithCorePrompts(
@@ -16076,6 +16121,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originLocation,
             destinationLocation)).ToArray();
+        ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
             state,
             intent.PlayerId,
