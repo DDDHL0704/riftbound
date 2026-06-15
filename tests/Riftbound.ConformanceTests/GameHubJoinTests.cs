@@ -3814,6 +3814,87 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SeedScenarioReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+            .JoinRoom("room-a", "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+            .JoinRoom("room-a", "P2");
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(
+                acceptedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario("room-a", "P1", "basic-play", "seed-replay-protocol-envelope");
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedEventsMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        var acceptedEventKinds = EventsFor(acceptedClients)
+            .Select(gameEvent => gameEvent.Kind)
+            .ToArray();
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(
+                replayClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario("room-a", " P1 ", "basic-play", "seed-replay-protocol-envelope");
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayEventsMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayEventsMessage.Type);
+        Assert.Equal("P1", replayEventsMessage.PlayerId);
+        Assert.Equal(acceptedEventsMessage.ServerTick, replayEventsMessage.ServerTick);
+        AssertProtocolDefaults(replayEventsMessage);
+        Assert.Equal(
+            acceptedEventKinds,
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
+
+        Assert.Equal(2, replayClients.GroupClient.Snapshots.Count);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+
+        Assert.Equal(2, replayClients.GroupClient.Prompts.Count);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+    }
+
+    [Fact]
     public async Task SeedScenarioBroadcastsDevSnapshotsAndPromptsInDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
