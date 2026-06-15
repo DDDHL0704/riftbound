@@ -3218,6 +3218,36 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentDuplicateConflictMessagesCarryProtocolVersionsOnError()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-conflict-protocol-envelope", pass);
+        var clients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", " alice ", "intent-conflict-protocol-envelope", endTurn);
+
+        var errorMessage = Assert.Single(clients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, errorMessage.Type);
+        Assert.Equal("room-a", errorMessage.RoomId);
+        Assert.Equal("alice", errorMessage.PlayerId);
+        AssertProtocolDefaults(errorMessage);
+        var payload = Assert.IsType<ErrorDto>(errorMessage.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+    }
+
+    [Fact]
     public async Task PassWrapperDuplicateClientIntentRawPayloadReplaysButSubmitIntentChangedRawConflictsWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
