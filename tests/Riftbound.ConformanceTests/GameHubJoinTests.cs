@@ -4534,6 +4534,105 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task PlayCardReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
+    {
+        const string roomId = "p7-9-play-card-replay-protocol-envelope";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario(roomId, "P1", "typed-power-payment", "seed-p7-9-play-card-replay-protocol-envelope");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-SPELL-BULLET-TIME", StringComparison.Ordinal));
+        var playCard = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-BULLET-TIME",
+              "cardNo": "OGN·268/298",
+              "targetObjectIds": [],
+              "optionalCosts": ["SPEND_POWER:red:2"]
+            }
+            """).RootElement.Clone();
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "play-card-replay-protocol-envelope", playCard);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedEventsMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        var acceptedEventKinds = EventsFor(acceptedClients)
+            .Select(gameEvent => gameEvent.Kind)
+            .ToArray();
+        Assert.Contains(acceptedEventKinds, kind => string.Equals(kind, "COST_PAID", StringComparison.Ordinal));
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, " P1 ", "play-card-replay-protocol-envelope", playCard);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayEventsMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayEventsMessage.Type);
+        Assert.Equal("P1", replayEventsMessage.PlayerId);
+        Assert.Equal(acceptedEventsMessage.ServerTick, replayEventsMessage.ServerTick);
+        AssertProtocolDefaults(replayEventsMessage);
+        Assert.Equal(
+            acceptedEventKinds,
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
+
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+    }
+
+    [Fact]
     public async Task PlayCardDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         const string roomId = "p7-9-play-card-raw-idempotency";
