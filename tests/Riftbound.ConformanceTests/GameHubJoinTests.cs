@@ -7850,12 +7850,14 @@ public sealed class GameHubJoinTests
 
         var replayClients = new RecordingHubClients();
         await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "declare-battle-same", declareBattle);
+            .SubmitIntent(roomId, " P1 ", "declare-battle-same", declareBattle);
 
         Assert.Empty(replayClients.CallerClient.Errors);
         var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
         Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal("P1", replayMessage.PlayerId);
         Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        AssertProtocolDefaults(replayMessage);
         var replayEvents = EventsFor(replayClients);
         Assert.Equal(
             acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
@@ -7874,6 +7876,16 @@ public sealed class GameHubJoinTests
                 .Select(message => message.PlayerId)
                 .OrderBy(playerId => playerId, StringComparer.Ordinal)
                 .ToArray());
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            AssertProtocolDefaults(promptMessage);
+        }
+
         var replaySnapshot = SnapshotFor(replayClients, "P1");
         Assert.Equal(acceptedSnapshot.Tick, replaySnapshot.Tick);
         Assert.Empty(replaySnapshot.Stack);
