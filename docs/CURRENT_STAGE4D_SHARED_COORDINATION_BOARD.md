@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-222R GameHub LegendAct raw-command idempotent replay protocol-envelope versioning accepted one direct `main`-branch single-agent server-test shard by extending the existing `LEGEND_ACT` raw idempotency test to prove replayed group `EVENTS`, `SNAPSHOT` and `PROMPT` protocol/schema defaults, normalized replay player routing from `" P1 "` to `P1`, stable replayed event kinds, stable prompt actions, stable snapshot/prompt fanout and stable replay server tick. Runtime changed: no, server test coverage only. Main code commit `6993c587`. Validation passed: focused `1/1`, changed-class `GameHubJoinTests` `217/217`; adjacent Hub/protocol/LegendAct/Replay/Raw/ClientIntent/Development filter `2064/2064`; backend full `8259/8259`; `git diff --check` and anchored conflict-marker scan passed before code commit. A_MAIN owns the main bundle and is now continuing directly on local `main` per user request. Future runtime/server closure work remains in single A_MAIN mode with no new subagents unless explicitly changed. Core rule PDF gate is active: re-check `docs/CURRENT_CORE_RULE_PDF_READING_NOTES.md` and the relevant root PDF sections before rules-adjacent runtime/server work. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-222S GameHub HideCard raw-command idempotent replay protocol-envelope versioning accepted one direct `main`-branch single-agent server-test shard by extending the existing `HIDE_CARD` raw idempotency test to prove replayed group `EVENTS`, `SNAPSHOT` and `PROMPT` protocol/schema defaults, normalized replay player routing from `" P1 "` to `P1`, stable replayed event kinds, stable prompt actions, stable snapshot/prompt fanout and stable replay server tick. Runtime changed: no, server test coverage only. Main code commit `3e5f37fe`. Validation passed: focused `2/2`, changed-class `GameHubJoinTests` `217/217`; adjacent Hub/protocol/HideCard/Replay/Raw/ClientIntent/Development filter `2037/2037`; backend full `8259/8259`; `git diff --check` and anchored conflict-marker scan passed before code commit. A_MAIN owns the main bundle and is continuing directly on local `main` per user request. Future runtime/server closure work remains in single A_MAIN mode with no new subagents unless explicitly changed. Core rule PDF gate is active: re-check `docs/CURRENT_CORE_RULE_PDF_READING_NOTES.md` and the relevant root PDF sections before rules-adjacent runtime/server work. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -66,13 +66,29 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN_PRIMARY`: `/Users/dinghaolin/IdeaProjects/riftbound`, observed clean on 2026-06-15 11:41 CST on branch `codex/rule-audit-local2p-20260615` at local merge `d5d776e7`, behind latest pushed `origin/main`; its local-2p smoke content is already merged into the A_MAIN checkpoint line through `4545d2ce`.
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`, branch `main`, currently at code commit `6993c587` after Stage 4D-222R code commit; docs checkpoint is pending. A_MAIN will continue directly on this `main` worktree per user request.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`, branch `main`, currently at code commit `3e5f37fe` after Stage 4D-222S code commit; docs checkpoint is pending. A_MAIN will continue directly on this `main` worktree per user request.
 - `A_MAIN_222Q_ISOLATION`: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`, previous branch `codex/stage4d-222q-activate-ability-replay-protocol`, pushed through docs checkpoint `9ffc7926` after Stage 4D-222Q.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-15 11:41 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-15 12:01 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-15 12:01 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`
+
+Branch / commit: `main` / `3e5f37fe` code, docs checkpoint in follow-up commit
+
+Write locks: Runtime validation code, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked. This slice touched only `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs` plus docs.
+
+Status: Stage 4D-222S GameHub HideCard replay protocol-envelope versioning accepted. A_MAIN continued directly on local `main` per user request. A_MAIN extended `HideCardDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation`, proving an idempotent `HIDE_CARD` raw-command replay with the same raw command and same client intent id emits replayed group `EVENTS`, `SNAPSHOT` and `PROMPT` messages with default protocol/schema versions, normalized player identity, stable replayed event kinds, stable prompt actions, stable replayed snapshot/prompt player fanout and stable replayed server tick. Rule source checked through `docs/CURRENT_CORE_RULE_PDF_READING_NOTES.md`: latest core rules sections for hidden/private cards, face-down card backs and Standby face-down placement/play permissions. No subagent was created. DOC_MATRIX_CURRENT remains clean at `17bde0c3`. Project remains **NOT READY**.
+
+Validation: focused `2/2`; changed-class `GameHubJoinTests` `217/217`; adjacent Hub/protocol/HideCard/Replay/Raw/ClientIntent/Development filter `2037/2037`; backend full `8259/8259`; `git diff --check` and anchored conflict-marker scan passed before code commit.
+
+Requested action: After docs checkpoint validation and push, continue the next A_MAIN Stage 4D server/runtime validation slice directly on `main` with the PDF gate active. No DOC_MATRIX action is requested.
 
 ### 2026-06-15 11:52 A_MAIN
 
