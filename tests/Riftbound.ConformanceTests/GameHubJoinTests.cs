@@ -702,6 +702,48 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task ReadyReplayMessagesCarryProtocolVersionsOnReadySnapshotsAndPrompts()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .Ready("room-a", "alice", "ready-replay-protocol-envelope");
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedReadyMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .Ready("room-a", " alice ", "ready-replay-protocol-envelope");
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayReadyMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.READY, replayReadyMessage.Type);
+        Assert.Equal("alice", replayReadyMessage.PlayerId);
+        Assert.Equal(acceptedReadyMessage.ServerTick, replayReadyMessage.ServerTick);
+        AssertProtocolDefaults(replayReadyMessage);
+
+        Assert.NotEmpty(replayClients.GroupClient.Snapshots);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.NotEmpty(replayClients.GroupClient.Prompts);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+    }
+
+    [Fact]
     public async Task SubmitIntentMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
