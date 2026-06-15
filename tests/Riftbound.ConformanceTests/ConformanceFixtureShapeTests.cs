@@ -3853,14 +3853,27 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Contains(pass.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(PromptTypes.AssignCombatDamage, pass.Prompts["P1"].View?.Type);
 
-        var assign = await engine.ResolveAsync(
+        var attackerAssign = await engine.ResolveAsync(
             pass.State,
             new PlayerIntent("preflight-assign-damage", "P1", CommandTypes.AssignCombatDamage),
             new AssignCombatDamageCommand(
                 "battle:BATTLEFIELD:P1-MAIN",
                 "BATTLEFIELD:P1-MAIN",
                 [
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 3),
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 3)
+                ]),
+            CancellationToken.None);
+        Assert.True(attackerAssign.Accepted, attackerAssign.ErrorMessage);
+        Assert.True(attackerAssign.State.BattleState.IsActive);
+        Assert.Equal(PromptTypes.AssignCombatDamage, attackerAssign.Prompts["P2"].View?.Type);
+
+        var assign = await engine.ResolveAsync(
+            attackerAssign.State,
+            new PlayerIntent("preflight-assign-damage-defender", "P2", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
                     new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 1)
                 ]),
             CancellationToken.None);

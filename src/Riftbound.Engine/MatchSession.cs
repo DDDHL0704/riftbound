@@ -2692,7 +2692,7 @@ public sealed record ResolutionResult(
         }
 
         var acceptedAssignments = BattleDamageAssignmentLedgerFor(state, battle);
-        var attackerSourceIds = BattleDamageRequiredSourceIdsForPlayer(state, battle, attackingPlayerId);
+        var attackerSourceIds = BattleDamageRequiredSourceIdsForSide(state, battle, battle.AttackerObjectIds);
         if (attackerSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
         {
             return attackingPlayerId;
@@ -2700,7 +2700,7 @@ public sealed record ResolutionResult(
 
         if (!string.IsNullOrWhiteSpace(defendingPlayerId))
         {
-            var defenderSourceIds = BattleDamageRequiredSourceIdsForPlayer(state, battle, defendingPlayerId);
+            var defenderSourceIds = BattleDamageRequiredSourceIdsForSide(state, battle, battle.DefenderObjectIds);
             if (defenderSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, defenderSourceIds))
             {
                 return defendingPlayerId;
@@ -2720,22 +2720,40 @@ public sealed record ResolutionResult(
             return [];
         }
 
-        var damagePool = BattleDamagePoolFor(state, battle);
-        var legalTargets = BattleDamageLegalTargetsFor(state, battle);
+        var acceptedAssignments = BattleDamageAssignmentLedgerFor(state, battle);
         var attackingPlayerId = BattleAttackingPlayerId(state, battle);
         var defendingPlayerId = BattleDefendingPlayerId(state, battle);
-        var sideSourceIds = new List<string>();
+        var attackerSourceIds = BattleDamageRequiredSourceIdsForSide(state, battle, battle.AttackerObjectIds);
         if (string.Equals(playerId, attackingPlayerId, StringComparison.Ordinal))
         {
-            sideSourceIds.AddRange(battle.AttackerObjectIds);
+            if (attackerSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
+            {
+                return attackerSourceIds;
+            }
         }
 
+        var defenderSourceIds = BattleDamageRequiredSourceIdsForSide(state, battle, battle.DefenderObjectIds);
         if (string.Equals(playerId, defendingPlayerId, StringComparison.Ordinal))
         {
-            sideSourceIds.AddRange(battle.DefenderObjectIds);
+            if ((attackerSourceIds.Count == 0 || AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
+                && defenderSourceIds.Count > 0
+                && !AssignmentsCoverSources(state, battle, acceptedAssignments, defenderSourceIds))
+            {
+                return defenderSourceIds;
+            }
         }
 
-        return sideSourceIds
+        return [];
+    }
+
+    private static IReadOnlyList<string> BattleDamageRequiredSourceIdsForSide(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<string> sideSourceObjectIds)
+    {
+        var damagePool = BattleDamagePoolFor(state, battle);
+        var legalTargets = BattleDamageLegalTargetsFor(state, battle);
+        return sideSourceObjectIds
             .Where(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
                 && !string.IsNullOrWhiteSpace(controllerId)
                 && damagePool.TryGetValue(objectId, out var damage)

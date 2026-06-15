@@ -81,6 +81,90 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalAssignCombatDamageRequiresIndependentAttackerAndDefenderSteps()
+    {
+        var opened = await DeclareAssignmentBattleAsync(BuildNaturalStartBattleState());
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var engine = new CoreRuleEngine();
+
+        var defenderActsFirst = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-assign-defender-first", "P2", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                $"battle:{BattlefieldObjectId}",
+                BattlefieldObjectId,
+                [
+                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                    new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 1)
+                ]),
+            CancellationToken.None);
+        AssertRejectedNoMutation(opened.State, defenderActsFirst, ErrorCodes.PhaseNotAllowed);
+
+        var attackerSubmitsBothSides = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-assign-attacker-submits-both-sides", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                $"battle:{BattlefieldObjectId}",
+                BattlefieldObjectId,
+                LegalAssignments()),
+            CancellationToken.None);
+        AssertRejectedNoMutation(opened.State, attackerSubmitsBothSides, ErrorCodes.InvalidTarget);
+
+        var attackerStep = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-assign-attacker-step", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                $"battle:{BattlefieldObjectId}",
+                BattlefieldObjectId,
+                [
+                    new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 2),
+                    new CombatDamageAssignmentDto(AttackerObjectId, BackRowDefenderObjectId, 3)
+                ]),
+            CancellationToken.None);
+
+        Assert.True(attackerStep.Accepted, attackerStep.ErrorMessage);
+        Assert.True(attackerStep.State.BattleState.IsActive);
+        Assert.Equal(opened.State.Tick + 1, attackerStep.State.Tick);
+        Assert.Contains(attackerStep.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(attackerStep.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.True(attackerStep.Prompts["P2"].Actionable);
+        Assert.Equal(PromptTypes.AssignCombatDamage, attackerStep.Prompts["P2"].View?.Type);
+        Assert.False(attackerStep.Prompts["P1"].Actionable);
+
+        var attackerTriesDefenderStep = await engine.ResolveAsync(
+            attackerStep.State,
+            new PlayerIntent("intent-natural-assign-attacker-tries-defender-step", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                $"battle:{BattlefieldObjectId}",
+                BattlefieldObjectId,
+                [
+                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                    new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 1)
+                ]),
+            CancellationToken.None);
+        AssertRejectedNoMutation(attackerStep.State, attackerTriesDefenderStep, ErrorCodes.PhaseNotAllowed);
+
+        var defenderStep = await engine.ResolveAsync(
+            attackerStep.State,
+            new PlayerIntent("intent-natural-assign-defender-step", "P2", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                $"battle:{BattlefieldObjectId}",
+                BattlefieldObjectId,
+                [
+                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                    new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 1)
+                ]),
+            CancellationToken.None);
+
+        Assert.True(defenderStep.Accepted, defenderStep.ErrorMessage);
+        Assert.Equal(opened.State.Tick + 2, defenderStep.State.Tick);
+        Assert.False(defenderStep.State.BattleState.IsActive);
+        Assert.Contains(defenderStep.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_STEP_STARTED", StringComparison.Ordinal));
+        Assert.Contains(defenderStep.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNED", StringComparison.Ordinal));
+        Assert.Contains(defenderStep.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task NaturalAssignCombatDamageUsesKeywordPriorityWhenDefendersDeclaredOutOfOrder()
     {
         const string earlyBackRowObjectId = "P2-0-BACKROW";
@@ -4893,11 +4977,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
             BattlefieldObjectId,
             LegalAssignments());
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             opened.State,
-            new PlayerIntent("intent-natural-assign-accepted-replay-source", "P1", CommandTypes.AssignCombatDamage),
-            command,
-            CancellationToken.None);
+            LegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -4961,26 +5044,16 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var session = new MatchSession(opened.State, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        var prompt = session.PromptFor("P1");
-        Assert.True(prompt.Actionable);
-        Assert.Equal(PromptTypes.AssignCombatDamage, prompt.View?.Type);
-        Assert.Equal($"battle:{BattlefieldObjectId}", prompt.View?.RelatedBattleId);
-        Assert.Equal(BattlefieldObjectId, prompt.View?.RelatedBattlefieldId);
-        Assert.Contains(CommandTypes.AssignCombatDamage, prompt.Actions);
-
-        var command = new AssignCombatDamageCommand(
-            $"battle:{BattlefieldObjectId}",
-            BattlefieldObjectId,
-            LegalAssignments());
-        var rawCommand = PromptScopedAssignCombatDamageRawCommand(command, prompt);
+        const string attackerClientIntentId = "intent-natural-assign-damage-raw-idempotency-attacker";
         const string clientIntentId = "intent-natural-assign-damage-raw-idempotency";
-
-        var accepted = await session.SubmitAsync(
-            "P1",
-            clientIntentId,
-            command,
-            rawCommand,
-            CancellationToken.None);
+        var acceptedSteps = await SubmitAssignCombatDamageSessionInTwoStepsAsync(
+            session,
+            attackerClientIntentId,
+            clientIntentId);
+        var prompt = acceptedSteps.DefenderPrompt;
+        var command = acceptedSteps.DefenderCommand;
+        var rawCommand = acceptedSteps.DefenderRawCommand;
+        var accepted = acceptedSteps.DefenderStep;
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.False(accepted.State.BattleState.IsActive);
@@ -5004,14 +5077,15 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var acceptedP1Battlefields = accepted.State.PlayerZones["P1"].Battlefields.ToArray();
         var acceptedP2Battlefields = accepted.State.PlayerZones["P2"].Battlefields.ToArray();
         var acceptedP2Graveyard = accepted.State.PlayerZones["P2"].Graveyard.ToArray();
-        var journalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(2, journal.Entries.Count);
+        var journalEntry = Assert.Single(journal.Entries, entry => string.Equals(entry.ClientIntentId, clientIntentId, StringComparison.Ordinal));
         Assert.Equal(clientIntentId, journalEntry.ClientIntentId);
         Assert.Equal(CommandTypes.AssignCombatDamage, journalEntry.CommandType);
         Assert.True(journalEntry.RawCommand.HasValue);
         Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var replay = await session.SubmitAsync(
-            "P1",
+            "P2",
             clientIntentId,
             command,
             rawCommand,
@@ -5030,13 +5104,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", replay.Prompts["P1"].View?.RelatedSpellDuelId);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P2"].View?.Type);
-        Assert.Single(journal.Entries);
+        Assert.Equal(2, journal.Entries.Count);
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(replay.State, HiddenStandbyObjectId);
         AssertNaturalAssignDamageNextContestPromptQueueAudit(replay);
 
         var changedRawCommand = PromptScopedAssignCombatDamageRawCommandWithClientNote(command, prompt, "changed-payload");
         var conflict = await session.SubmitAsync(
-            "P1",
+            "P2",
             clientIntentId,
             command,
             changedRawCommand,
@@ -5056,7 +5130,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", conflict.Prompts["P1"].View?.RelatedSpellDuelId);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, conflict.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, conflict.Prompts["P2"].View?.Type);
-        Assert.Single(journal.Entries);
+        Assert.Equal(2, journal.Entries.Count);
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw
             && entryRaw.TryGetProperty("clientNote", out var clientNote)
@@ -5080,27 +5154,17 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var session = new MatchSession(opened.State, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        var prompt = session.PromptFor("P1");
-        Assert.True(prompt.Actionable);
-        Assert.Equal(PromptTypes.AssignCombatDamage, prompt.View?.Type);
-        Assert.Equal($"battle:{BattlefieldObjectId}", prompt.View?.RelatedBattleId);
-        Assert.Equal(BattlefieldObjectId, prompt.View?.RelatedBattlefieldId);
-        Assert.Contains(CommandTypes.AssignCombatDamage, prompt.Actions);
-
-        var command = new AssignCombatDamageCommand(
-            $"battle:{BattlefieldObjectId}",
-            BattlefieldObjectId,
-            LegalAssignments());
-        var staleRawCommand = PromptScopedAssignCombatDamageRawCommand(command, prompt);
         const string acceptedIntentId = "intent-natural-assign-damage-before-stale-raw-journal-guard";
+        const string defenderAcceptedIntentId = "intent-natural-assign-damage-before-stale-raw-journal-guard-defender";
         const string staleIntentId = "intent-natural-assign-damage-stale-raw-journal-guard";
-
-        var assigned = await session.SubmitAsync(
-            "P1",
+        var acceptedSteps = await SubmitAssignCombatDamageSessionInTwoStepsAsync(
+            session,
             acceptedIntentId,
-            command,
-            staleRawCommand,
-            CancellationToken.None);
+            defenderAcceptedIntentId);
+        var prompt = acceptedSteps.AttackerPrompt;
+        var command = acceptedSteps.AttackerCommand;
+        var staleRawCommand = acceptedSteps.AttackerRawCommand;
+        var assigned = acceptedSteps.DefenderStep;
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -5118,7 +5182,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var acceptedTaskBattlefields = assigned.State.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId).ToArray();
         var acceptedP1Battlefields = assigned.State.PlayerZones["P1"].Battlefields.ToArray();
         var acceptedP2Graveyard = assigned.State.PlayerZones["P2"].Graveyard.ToArray();
-        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(2, journal.Entries.Count);
+        var acceptedJournalEntry = Assert.Single(journal.Entries, entry => string.Equals(entry.ClientIntentId, acceptedIntentId, StringComparison.Ordinal));
         Assert.Equal(acceptedIntentId, acceptedJournalEntry.ClientIntentId);
         Assert.True(acceptedJournalEntry.Accepted);
         Assert.Equal(CommandTypes.AssignCombatDamage, acceptedJournalEntry.CommandType);
@@ -5152,8 +5217,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", replay.Prompts["P1"].View?.RelatedSpellDuelId);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P2"].View?.Type);
-        Assert.Equal(2, journal.Entries.Count);
-        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(3, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[2];
         Assert.Equal(staleIntentId, rejectedJournalEntry.ClientIntentId);
         Assert.False(rejectedJournalEntry.Accepted);
         Assert.Equal(CommandTypes.AssignCombatDamage, rejectedJournalEntry.CommandType);
@@ -5194,7 +5259,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", staleRawReplay.Prompts["P1"].View?.RelatedSpellDuelId);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, staleRawReplay.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, staleRawReplay.Prompts["P2"].View?.Type);
-        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(3, journal.Entries.Count);
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(staleRawReplay.State, HiddenStandbyObjectId);
         AssertNaturalAssignDamageNextContestPromptQueueAudit(staleRawReplay);
 
@@ -5225,7 +5290,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"spell-duel:{NextBattlefieldObjectId}", conflict.Prompts["P1"].View?.RelatedSpellDuelId);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, conflict.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.AssignCombatDamage, conflict.Prompts["P2"].View?.Type);
-        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(3, journal.Entries.Count);
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw
             && entryRaw.TryGetProperty("clientNote", out var clientNote)
@@ -5249,27 +5314,17 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var session = new MatchSession(opened.State, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        var prompt = session.PromptFor("P1");
-        Assert.True(prompt.Actionable);
-        Assert.Equal(PromptTypes.AssignCombatDamage, prompt.View?.Type);
-        Assert.Equal($"battle:{BattlefieldObjectId}", prompt.View?.RelatedBattleId);
-        Assert.Equal(BattlefieldObjectId, prompt.View?.RelatedBattlefieldId);
-        Assert.Contains(CommandTypes.AssignCombatDamage, prompt.Actions);
-
-        var command = new AssignCombatDamageCommand(
-            $"battle:{BattlefieldObjectId}",
-            BattlefieldObjectId,
-            LegalAssignments());
-        var staleRawCommand = PromptScopedAssignCombatDamageRawCommand(command, prompt);
         const string acceptedIntentId = "intent-natural-assign-damage-before-stale-prompt-replay";
+        const string defenderAcceptedIntentId = "intent-natural-assign-damage-before-stale-prompt-replay-defender";
         const string staleIntentId = "intent-natural-assign-damage-stale-prompt-replay";
-
-        var assigned = await session.SubmitAsync(
-            "P1",
+        var acceptedSteps = await SubmitAssignCombatDamageSessionInTwoStepsAsync(
+            session,
             acceptedIntentId,
-            command,
-            staleRawCommand,
-            CancellationToken.None);
+            defenderAcceptedIntentId);
+        var prompt = acceptedSteps.AttackerPrompt;
+        var command = acceptedSteps.AttackerCommand;
+        var staleRawCommand = acceptedSteps.AttackerRawCommand;
+        var assigned = acceptedSteps.DefenderStep;
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -5303,10 +5358,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var acceptedTaskBattlefields = assigned.State.PendingTaskQueue.Tasks.Select(task => task.BattlefieldObjectId).ToArray();
         var acceptedP1Battlefields = assigned.State.PlayerZones["P1"].Battlefields.ToArray();
         var acceptedP2Graveyard = assigned.State.PlayerZones["P2"].Graveyard.ToArray();
-        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(2, journal.Entries.Count);
+        var acceptedJournalEntry = Assert.Single(journal.Entries, entry => string.Equals(entry.ClientIntentId, defenderAcceptedIntentId, StringComparison.Ordinal));
         Assert.Equal(opened.State.RoomId, acceptedJournalEntry.RoomId);
-        Assert.Equal("P1", acceptedJournalEntry.PlayerId);
-        Assert.Equal(acceptedIntentId, acceptedJournalEntry.ClientIntentId);
+        Assert.Equal("P2", acceptedJournalEntry.PlayerId);
+        Assert.Equal(defenderAcceptedIntentId, acceptedJournalEntry.ClientIntentId);
         Assert.Equal(CommandTypes.AssignCombatDamage, acceptedJournalEntry.CommandType);
         Assert.True(acceptedJournalEntry.Accepted);
         Assert.Null(acceptedJournalEntry.ErrorMessage);
@@ -5316,8 +5372,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(acceptedResultSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
         Assert.True(acceptedJournalEntry.RawCommand.HasValue);
         Assert.Equal(CommandTypes.AssignCombatDamage, acceptedJournalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
-        Assert.Equal(prompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
-        Assert.Equal(prompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
+        Assert.Equal(acceptedSteps.DefenderPrompt.PromptId, acceptedJournalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.Equal(acceptedSteps.DefenderPrompt.SnapshotTick, acceptedJournalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
 
         var replay = await session.SubmitAsync(
             "P1",
@@ -5354,8 +5410,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.NotEqual(PromptTypes.AssignCombatDamage, replay.Prompts["P2"].View?.Type);
         Assert.Equal(p1SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(p2SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
-        Assert.Equal(2, journal.Entries.Count);
-        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(3, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[2];
         Assert.Equal(opened.State.RoomId, rejectedJournalEntry.RoomId);
         Assert.Equal("P1", rejectedJournalEntry.PlayerId);
         Assert.Equal(staleIntentId, rejectedJournalEntry.ClientIntentId);
@@ -5410,7 +5466,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.NotEqual(PromptTypes.AssignCombatDamage, duplicateRejected.Prompts["P2"].View?.Type);
         Assert.Equal(p1SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(p2SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
-        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(3, journal.Entries.Count);
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(duplicateRejected.State, HiddenStandbyObjectId);
         AssertNaturalAssignDamageNextContestPromptQueueAudit(duplicateRejected);
 
@@ -5450,7 +5506,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.NotEqual(PromptTypes.AssignCombatDamage, conflict.Prompts["P2"].View?.Type);
         Assert.Equal(p1SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P1")));
         Assert.Equal(p2SnapshotAfterAssigned, MatchStateHasher.HashValue(session.SnapshotFor("P2")));
-        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(3, journal.Entries.Count);
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw
             && entryRaw.TryGetProperty("clientNote", out var clientNote)
@@ -5761,6 +5817,83 @@ public sealed class BattleDamageAssignmentLifecycleTests
             .Select(entry => entry.Key)
             .OrderBy(playerId => playerId, StringComparer.Ordinal)
             .FirstOrDefault();
+    }
+
+    private sealed record AssignCombatDamageSessionSteps(
+        ActionPromptDto AttackerPrompt,
+        AssignCombatDamageCommand AttackerCommand,
+        JsonElement AttackerRawCommand,
+        ResolutionResult AttackerStep,
+        ActionPromptDto DefenderPrompt,
+        AssignCombatDamageCommand DefenderCommand,
+        JsonElement DefenderRawCommand,
+        ResolutionResult DefenderStep);
+
+    private static async Task<AssignCombatDamageSessionSteps> SubmitAssignCombatDamageSessionInTwoStepsAsync(
+        MatchSession session,
+        string attackerClientIntentId,
+        string defenderClientIntentId)
+    {
+        var attackerPrompt = session.PromptFor("P1");
+        Assert.True(attackerPrompt.Actionable);
+        Assert.Equal(PromptTypes.AssignCombatDamage, attackerPrompt.View?.Type);
+        Assert.Equal($"battle:{BattlefieldObjectId}", attackerPrompt.View?.RelatedBattleId);
+        Assert.Equal(BattlefieldObjectId, attackerPrompt.View?.RelatedBattlefieldId);
+        Assert.Contains(CommandTypes.AssignCombatDamage, attackerPrompt.Actions);
+
+        var attackerCommand = new AssignCombatDamageCommand(
+            $"battle:{BattlefieldObjectId}",
+            BattlefieldObjectId,
+            [
+                new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 2),
+                new CombatDamageAssignmentDto(AttackerObjectId, BackRowDefenderObjectId, 3)
+            ]);
+        var attackerRawCommand = PromptScopedAssignCombatDamageRawCommand(attackerCommand, attackerPrompt);
+        var attackerStep = await session.SubmitAsync(
+            "P1",
+            attackerClientIntentId,
+            attackerCommand,
+            attackerRawCommand,
+            CancellationToken.None);
+
+        Assert.True(attackerStep.Accepted, attackerStep.ErrorMessage);
+        Assert.True(attackerStep.State.BattleState.IsActive);
+        Assert.Contains(attackerStep.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED", StringComparison.Ordinal));
+
+        var defenderPrompt = session.PromptFor("P2");
+        Assert.True(defenderPrompt.Actionable);
+        Assert.Equal(PromptTypes.AssignCombatDamage, defenderPrompt.View?.Type);
+        Assert.Equal($"battle:{BattlefieldObjectId}", defenderPrompt.View?.RelatedBattleId);
+        Assert.Equal(BattlefieldObjectId, defenderPrompt.View?.RelatedBattlefieldId);
+        Assert.Contains(CommandTypes.AssignCombatDamage, defenderPrompt.Actions);
+
+        var defenderCommand = new AssignCombatDamageCommand(
+            $"battle:{BattlefieldObjectId}",
+            BattlefieldObjectId,
+            [
+                new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 1)
+            ]);
+        var defenderRawCommand = PromptScopedAssignCombatDamageRawCommand(defenderCommand, defenderPrompt);
+        var defenderStep = await session.SubmitAsync(
+            "P2",
+            defenderClientIntentId,
+            defenderCommand,
+            defenderRawCommand,
+            CancellationToken.None);
+
+        Assert.True(defenderStep.Accepted, defenderStep.ErrorMessage);
+        Assert.False(defenderStep.State.BattleState.IsActive);
+
+        return new AssignCombatDamageSessionSteps(
+            attackerPrompt,
+            attackerCommand,
+            attackerRawCommand,
+            attackerStep,
+            defenderPrompt,
+            defenderCommand,
+            defenderRawCommand,
+            defenderStep);
     }
 
     private static async Task<ResolutionResult> AssignCombatDamageInTwoStepsAsync(
