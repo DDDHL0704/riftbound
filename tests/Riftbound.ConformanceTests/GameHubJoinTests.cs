@@ -2459,12 +2459,14 @@ public sealed class GameHubJoinTests
 
         var replayClients = new RecordingHubClients();
         await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
-            .SubmitIntent(roomId, activePlayerId, "recycle-rune-same", recycleRune);
+            .SubmitIntent(roomId, $" {activePlayerId} ", "recycle-rune-same", recycleRune);
 
         Assert.Empty(replayClients.CallerClient.Errors);
         var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
         Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal(activePlayerId, replayMessage.PlayerId);
         Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        AssertProtocolDefaults(replayMessage);
         var replayEvents = EventsFor(replayClients);
         Assert.Equal(
             acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
@@ -2474,7 +2476,19 @@ public sealed class GameHubJoinTests
         Assert.Equal(acceptedRecycleEvent.Payload["sourceObjectId"], replayRecycleEvent.Payload["sourceObjectId"]);
         Assert.Equal(acceptedPowerEvent.Payload["playerId"], replayPowerEvent.Payload["playerId"]);
         Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
         Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+
         Assert.Equal(
             acceptedSnapshotPlayers,
             replayClients.GroupClient.Snapshots
