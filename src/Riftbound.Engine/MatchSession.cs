@@ -2689,12 +2689,16 @@ public sealed record ResolutionResult(
                 StringComparer.Ordinal);
     }
 
-    internal static IReadOnlyDictionary<string, IReadOnlyList<string>> BattleDamageLegalTargetsFor(BattleState battle)
+    internal static IReadOnlyDictionary<string, IReadOnlyList<string>> BattleDamageLegalTargetsFor(
+        MatchState state,
+        BattleState battle)
     {
+        var orderedAttackers = OrderedBattleDamageTargetObjectIds(state, battle.AttackerObjectIds);
+        var orderedDefenders = OrderedBattleDamageTargetObjectIds(state, battle.DefenderObjectIds);
         return BattleParticipantObjectIds(battle)
             .ToDictionary(
                 objectId => objectId,
-                objectId => BattleLegalTargetsForSource(battle, objectId),
+                objectId => BattleLegalTargetsForSource(battle, objectId, orderedAttackers, orderedDefenders),
                 StringComparer.Ordinal);
     }
 
@@ -2721,7 +2725,7 @@ public sealed record ResolutionResult(
     internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> BattleRequiredAssignmentsFor(MatchState state, BattleState battle)
     {
         var damagePool = BattleDamagePoolFor(state, battle);
-        var legalTargets = BattleDamageLegalTargetsFor(battle);
+        var legalTargets = BattleDamageLegalTargetsFor(state, battle);
         return damagePool
             .Where(entry => entry.Value > 0 && legalTargets.TryGetValue(entry.Key, out var targets) && targets.Count > 0)
             .Select(entry => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
@@ -2760,19 +2764,52 @@ public sealed record ResolutionResult(
             .ToArray();
     }
 
-    internal static IReadOnlyList<string> BattleLegalTargetsForSource(BattleState battle, string sourceObjectId)
+    internal static IReadOnlyList<string> BattleLegalTargetsForSource(
+        BattleState battle,
+        string sourceObjectId,
+        IReadOnlyList<string>? orderedAttackers = null,
+        IReadOnlyList<string>? orderedDefenders = null)
     {
         if (battle.AttackerObjectIds.Contains(sourceObjectId, StringComparer.Ordinal))
         {
-            return battle.DefenderObjectIds.ToArray();
+            return orderedDefenders ?? battle.DefenderObjectIds.ToArray();
         }
 
         if (battle.DefenderObjectIds.Contains(sourceObjectId, StringComparer.Ordinal))
         {
-            return battle.AttackerObjectIds.ToArray();
+            return orderedAttackers ?? battle.AttackerObjectIds.ToArray();
         }
 
         return [];
+    }
+
+    private static IReadOnlyList<string> OrderedBattleDamageTargetObjectIds(
+        MatchState state,
+        IReadOnlyList<string> objectIds)
+    {
+        return objectIds
+            .Select((objectId, index) => new
+            {
+                ObjectId = objectId,
+                Index = index,
+                Priority = state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    ? BattleDamageAssignmentPriority(cardObject.Tags)
+                    : 1
+            })
+            .OrderBy(item => item.Priority)
+            .ThenBy(item => item.Index)
+            .Select(item => item.ObjectId)
+            .ToArray();
+    }
+
+    private static int BattleDamageAssignmentPriority(IReadOnlyList<string> tags)
+    {
+        if (tags.Contains(CardCombatKeywordNames.Bulwark, StringComparer.Ordinal))
+        {
+            return 0;
+        }
+
+        return tags.Contains(CardCombatKeywordNames.BackRow, StringComparer.Ordinal) ? 2 : 1;
     }
 
     internal static string BattleParticipantRole(BattleState battle, string objectId)
@@ -3381,7 +3418,7 @@ public sealed record ResolutionResult(
             ["battlefieldId"] = battle.BattlefieldObjectId,
             ["assigningPlayerId"] = BattleDamageAssigningPlayerId(state),
             ["damagePool"] = BattleDamagePoolFor(state, battle),
-            ["legalTargets"] = BattleDamageLegalTargetsFor(battle),
+            ["legalTargets"] = BattleDamageLegalTargetsFor(state, battle),
             ["existingDamage"] = BattleExistingDamageFor(state, battle),
             ["lethalDamageThreshold"] = BattleLethalDamageThresholdFor(state, battle),
             ["requiredAssignments"] = BattleRequiredAssignmentsFor(state, battle)
@@ -11564,7 +11601,7 @@ internal static class ActionPromptBuilder
 
         var assigningPlayerId = ResolutionResult.BattleDamageAssigningPlayerId(state) ?? string.Empty;
         var damagePool = ResolutionResult.BattleDamagePoolFor(state, battle);
-        var legalTargets = ResolutionResult.BattleDamageLegalTargetsFor(battle);
+        var legalTargets = ResolutionResult.BattleDamageLegalTargetsFor(state, battle);
         var existingDamage = ResolutionResult.BattleExistingDamageFor(state, battle);
         var lethalDamageThreshold = ResolutionResult.BattleLethalDamageThresholdFor(state, battle);
         var requiredAssignments = ResolutionResult.BattleRequiredAssignmentsFor(state, battle);

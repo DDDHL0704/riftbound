@@ -3258,7 +3258,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<CombatDamageAssignmentDto> assignments)
     {
         var damagePool = BuildCombatDamagePool(state, battle);
-        var legalTargets = BuildCombatDamageLegalTargets(battle);
+        var legalTargets = BuildCombatDamageLegalTargets(state, battle);
         var lethalThreshold = BuildCombatLethalDamageThreshold(state, battle);
         var participantIds = damagePool.Keys.ToHashSet(StringComparer.Ordinal);
         var sourceTargetDamage = new Dictionary<(string Source, string Target), int>();
@@ -3659,19 +3659,42 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StringComparer.Ordinal);
     }
 
-    private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildCombatDamageLegalTargets(BattleState battle)
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildCombatDamageLegalTargets(
+        MatchState state,
+        BattleState battle)
     {
+        var orderedAttackers = OrderedCombatDamageTargetObjectIds(state, battle.AttackerObjectIds);
+        var orderedDefenders = OrderedCombatDamageTargetObjectIds(state, battle.DefenderObjectIds);
         return battle.AttackerObjectIds
             .Concat(battle.DefenderObjectIds)
             .Distinct(StringComparer.Ordinal)
             .ToDictionary(
                 objectId => objectId,
                 objectId => battle.AttackerObjectIds.Contains(objectId, StringComparer.Ordinal)
-                    ? (IReadOnlyList<string>)battle.DefenderObjectIds.ToArray()
+                    ? orderedDefenders
                     : battle.DefenderObjectIds.Contains(objectId, StringComparer.Ordinal)
-                        ? battle.AttackerObjectIds.ToArray()
+                        ? orderedAttackers
                         : [],
                 StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> OrderedCombatDamageTargetObjectIds(
+        MatchState state,
+        IReadOnlyList<string> objectIds)
+    {
+        return objectIds
+            .Select((objectId, index) => new
+            {
+                ObjectId = objectId,
+                Index = index,
+                Priority = state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    ? BattleDamageAssignmentPriority(cardObject.Tags)
+                    : 1
+            })
+            .OrderBy(item => item.Priority)
+            .ThenBy(item => item.Index)
+            .Select(item => item.ObjectId)
+            .ToArray();
     }
 
     private static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
