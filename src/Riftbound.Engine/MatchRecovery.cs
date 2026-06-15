@@ -30214,7 +30214,7 @@ public static class MatchRecoveryValidator
             && TryReadObjectStringListDictionary(value, "legalTargets", out var legalTargets)
             && StringListDictionariesEqual(
                 legalTargets,
-                ResolutionResult.BattleDamageLegalTargetsFor(state.BattleState))
+                ResolutionResult.BattleDamageLegalTargetsFor(state, state.BattleState))
             && TryReadObjectIntDictionary(value, "existingDamage", out var existingDamage)
             && IntDictionariesEqual(
                 existingDamage,

@@ -81,6 +81,75 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task NaturalAssignCombatDamageUsesKeywordPriorityWhenDefendersDeclaredOutOfOrder()
+    {
+        const string earlyBackRowObjectId = "P2-0-BACKROW";
+        var reversedDefenders = new[] { earlyBackRowObjectId, BulwarkDefenderObjectId };
+        var originalState = BuildNaturalStartBattleState(defenderObjectIds: reversedDefenders);
+        var cardObjects = new Dictionary<string, CardObjectState>(originalState.CardObjects, StringComparer.Ordinal);
+        cardObjects.Remove(BackRowDefenderObjectId);
+        cardObjects[earlyBackRowObjectId] = originalState.CardObjects[BackRowDefenderObjectId] with
+        {
+            ObjectId = earlyBackRowObjectId
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(originalState.ObjectLocations, StringComparer.Ordinal);
+        objectLocations.Remove(BackRowDefenderObjectId);
+        objectLocations[earlyBackRowObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId);
+        var state = originalState with
+        {
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
+        };
+        var engine = new CoreRuleEngine();
+
+        var opened = await DeclareAssignmentBattleAsync(state, engine, reversedDefenders);
+
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var p1Prompt = opened.Prompts["P1"];
+        Assert.Equal(PromptTypes.AssignCombatDamage, p1Prompt.View?.Type);
+        var candidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var legalTargets = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<string>>>(metadata["legalTargets"]);
+        Assert.Equal([BulwarkDefenderObjectId, earlyBackRowObjectId], legalTargets[AttackerObjectId]);
+
+        var invalidBackRowFirstOverkill = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-assign-back-row-first-overkill", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                $"battle:{BattlefieldObjectId}",
+                BattlefieldObjectId,
+                [
+                    new CombatDamageAssignmentDto(AttackerObjectId, earlyBackRowObjectId, 1),
+                    new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 4),
+                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                    new CombatDamageAssignmentDto(earlyBackRowObjectId, AttackerObjectId, 1)
+                ]),
+            CancellationToken.None);
+
+        AssertRejectedNoMutation(opened.State, invalidBackRowFirstOverkill, ErrorCodes.InvalidPayload);
+        Assert.Equal(PromptTypes.AssignCombatDamage, invalidBackRowFirstOverkill.Prompts["P1"].View?.Type);
+
+        var legal = await engine.ResolveAsync(
+            opened.State,
+            new PlayerIntent("intent-natural-assign-keyword-sorted", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                $"battle:{BattlefieldObjectId}",
+                BattlefieldObjectId,
+                [
+                    new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 2),
+                    new CombatDamageAssignmentDto(AttackerObjectId, earlyBackRowObjectId, 3),
+                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                    new CombatDamageAssignmentDto(earlyBackRowObjectId, AttackerObjectId, 1)
+                ]),
+            CancellationToken.None);
+
+        Assert.True(legal.Accepted, legal.ErrorMessage);
+        Assert.Contains(legal.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task ReconnectDuringNaturalAssignCombatDamagePreservesBattleTaskMetadataAndRedaction()
     {
         var opened = await DeclareAssignmentBattleAsync(BuildNaturalStartBattleState(includeHiddenStandby: true));
@@ -5637,7 +5706,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
     private static async Task<ResolutionResult> DeclareAssignmentBattleAsync(
         MatchState state,
-        CoreRuleEngine? engine = null)
+        CoreRuleEngine? engine = null,
+        IReadOnlyList<string>? defenderObjectIds = null)
     {
         return await (engine ?? new CoreRuleEngine()).ResolveAsync(
             state,
@@ -5645,7 +5715,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             new DeclareBattleCommand(
                 BattlefieldObjectId,
                 [AttackerObjectId],
-                [BulwarkDefenderObjectId, BackRowDefenderObjectId],
+                defenderObjectIds ?? [BulwarkDefenderObjectId, BackRowDefenderObjectId],
                 OptionalCosts: ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
     }
