@@ -824,6 +824,55 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task PassReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .Pass("room-a", "alice", "pass-replay-protocol-envelope");
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedEventsMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        var acceptedEventKinds = EventsFor(acceptedClients)
+            .Select(gameEvent => gameEvent.Kind)
+            .ToArray();
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .Pass("room-a", " alice ", "pass-replay-protocol-envelope");
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayEventsMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayEventsMessage.Type);
+        Assert.Equal("alice", replayEventsMessage.PlayerId);
+        Assert.Equal(acceptedEventsMessage.ServerTick, replayEventsMessage.ServerTick);
+        AssertProtocolDefaults(replayEventsMessage);
+        Assert.Equal(
+            acceptedEventKinds,
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
+
+        Assert.NotEmpty(replayClients.GroupClient.Snapshots);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.NotEmpty(replayClients.GroupClient.Prompts);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+    }
+
+    [Fact]
     public async Task ReadyWrapperDuplicateClientIntentRawPayloadReplaysButSubmitIntentChangedRawConflictsWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
