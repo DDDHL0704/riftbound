@@ -1112,6 +1112,148 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task RecycleRuneReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
+    {
+        const string roomId = "official-hub-recycle-rune-replay-protocol-envelope";
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "submit-deck-p1-recycle-rune-protocol-envelope", SubmitDeckJson(p1Deck));
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "submit-deck-p2-recycle-rune-protocol-envelope", SubmitDeckJson(p2Deck));
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .Ready(roomId, "P1", "ready-p1-recycle-rune-protocol-envelope");
+        var readyClients = new RecordingHubClients();
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+            .Ready(roomId, "P2", "ready-p2-recycle-rune-protocol-envelope");
+
+        var startSnapshot = SnapshotFor(readyClients, "P1");
+        Assert.Equal(MatchPhases.Mulligan, Assert.IsType<string>(startSnapshot.Timing["phase"]));
+        var activePlayerId = startSnapshot.ActivePlayerId;
+        var secondPlayerId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "P2" : "P1";
+        var activeConnectionId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal)
+            ? "connection-1"
+            : "connection-2";
+        var secondConnectionId = string.Equals(secondPlayerId, "P1", StringComparison.Ordinal)
+            ? "connection-1"
+            : "connection-2";
+
+        var activeHand = StringList(ZoneView(PlayerView(SnapshotFor(readyClients, activePlayerId), activePlayerId))["hand"]);
+        var activeMulliganClients = new RecordingHubClients();
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(
+                roomId,
+                activePlayerId,
+                "mulligan-active-recycle-rune-protocol-envelope",
+                MulliganJson(activeHand.Take(1).ToArray()));
+        Assert.Empty(activeMulliganClients.CallerClient.Errors);
+
+        var secondMulliganClients = new RecordingHubClients();
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry)
+            .SubmitIntent(roomId, secondPlayerId, "mulligan-second-recycle-rune-protocol-envelope", MulliganJson([]));
+        Assert.Empty(secondMulliganClients.CallerClient.Errors);
+
+        var mainSnapshot = SnapshotFor(secondMulliganClients, activePlayerId);
+        Assert.Equal(MatchPhases.Main, Assert.IsType<string>(mainSnapshot.Timing["phase"]));
+        Assert.Equal(TimingStates.NeutralOpen, Assert.IsType<string>(mainSnapshot.Timing["timingState"]));
+        var mainPrompt = PromptFor(secondMulliganClients, activePlayerId);
+        Assert.True(mainPrompt.Actionable);
+        var tapRuneCandidate = Assert.Single(
+            mainPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
+        Assert.True(tapRuneCandidate.Enabled);
+        Assert.NotNull(tapRuneCandidate.Sources);
+        var runeSourceId = tapRuneCandidate.Sources.First().Id;
+        var tapRuneClients = new RecordingHubClients();
+
+        await CreateHub(tapRuneClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, activePlayerId, "tap-rune-before-recycle-protocol-envelope", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "TAP_RUNE",
+                sourceObjectId = runeSourceId
+            }));
+
+        Assert.Empty(tapRuneClients.CallerClient.Errors);
+        var postTapPrompt = PromptFor(tapRuneClients, activePlayerId);
+        var recycleRuneCandidate = Assert.Single(
+            postTapPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "RECYCLE_RUNE", StringComparison.Ordinal));
+        Assert.True(recycleRuneCandidate.Enabled);
+        Assert.Contains(recycleRuneCandidate.Sources ?? [], source => string.Equals(source.Id, runeSourceId, StringComparison.Ordinal));
+        var recycleRune = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "RECYCLE_RUNE",
+            sourceObjectId = runeSourceId
+        });
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, activePlayerId, "recycle-rune-replay-protocol-envelope", recycleRune);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedEventsMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        var acceptedEventKinds = EventsFor(acceptedClients)
+            .Select(gameEvent => gameEvent.Kind)
+            .ToArray();
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
+            .SubmitIntent(roomId, $" {activePlayerId} ", "recycle-rune-replay-protocol-envelope", recycleRune);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayEventsMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayEventsMessage.Type);
+        Assert.Equal(activePlayerId, replayEventsMessage.PlayerId);
+        Assert.Equal(acceptedEventsMessage.ServerTick, replayEventsMessage.ServerTick);
+        AssertProtocolDefaults(replayEventsMessage);
+        Assert.Equal(
+            acceptedEventKinds,
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
+
+        Assert.Equal(2, replayClients.GroupClient.Snapshots.Count);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+
+        Assert.Equal(2, replayClients.GroupClient.Prompts.Count);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+    }
+
+    [Fact]
     public async Task PassReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
