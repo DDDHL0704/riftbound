@@ -15544,11 +15544,13 @@ public sealed class GameHubJoinTests
                 .ToArray());
         foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
         {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
             AssertProtocolDefaults(snapshotMessage);
         }
 
         foreach (var promptMessage in replayClients.GroupClient.Prompts)
         {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
             AssertProtocolDefaults(promptMessage);
         }
 
