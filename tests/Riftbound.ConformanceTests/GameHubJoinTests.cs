@@ -3679,6 +3679,106 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task PayCostReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
+    {
+        const string roomId = "pay-cost-replay-protocol-envelope";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var development = new TestHostEnvironment(Environments.Development);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                development)
+            .SeedScenario(roomId, "P1", "pay-cost-window", "seed-pay-cost-replay-protocol-envelope");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var prompt = PromptFor(seedClients, "P1");
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        Assert.NotNull(prompt.PromptId);
+        Assert.True(prompt.SnapshotTick.HasValue);
+        var payCost = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = CommandTypes.PayCost,
+            paymentId = "PAY-3A-MANA-1",
+            paymentWindow = "TEST_PAYMENT",
+            paymentChoiceIds = new[] { "SPEND_MANA:1" },
+            promptId = prompt.PromptId,
+            snapshotTick = prompt.SnapshotTick
+        });
+        var acceptedClients = new RecordingHubClients();
+
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "pay-cost-replay-protocol-envelope", payCost);
+
+        Assert.Empty(acceptedClients.CallerClient.Errors);
+        var acceptedEventsMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
+        var acceptedEventKinds = EventsFor(acceptedClients)
+            .Select(gameEvent => gameEvent.Kind)
+            .ToArray();
+        Assert.Contains(acceptedEventKinds, kind => string.Equals(kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(acceptedEventKinds, kind => string.Equals(kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var acceptedPromptPlayers = acceptedClients.GroupClient.Prompts
+            .Select(message => message.PlayerId)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+
+        var replayClients = new RecordingHubClients();
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, " P1 ", "pay-cost-replay-protocol-envelope", payCost);
+
+        Assert.Empty(replayClients.CallerClient.Errors);
+        var replayEventsMessage = Assert.Single(replayClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, replayEventsMessage.Type);
+        Assert.Equal("P1", replayEventsMessage.PlayerId);
+        Assert.Equal(acceptedEventsMessage.ServerTick, replayEventsMessage.ServerTick);
+        AssertProtocolDefaults(replayEventsMessage);
+        Assert.Equal(
+            acceptedEventKinds,
+            EventsFor(replayClients).Select(gameEvent => gameEvent.Kind).ToArray());
+
+        Assert.NotEmpty(replayClients.GroupClient.Snapshots);
+        Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            Assert.Equal(MessageType.SNAPSHOT, snapshotMessage.Type);
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        Assert.Equal(
+            acceptedSnapshotPlayers,
+            replayClients.GroupClient.Snapshots
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+
+        Assert.NotEmpty(replayClients.GroupClient.Prompts);
+        Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            Assert.Equal(MessageType.PROMPT, promptMessage.Type);
+            AssertProtocolDefaults(promptMessage);
+        }
+
+        Assert.Equal(
+            acceptedPromptPlayers,
+            replayClients.GroupClient.Prompts
+                .Select(message => message.PlayerId)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+    }
+
+    [Fact]
     public async Task PayCostDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation()
     {
         const string roomId = "pay-cost-raw-idempotency";
