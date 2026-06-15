@@ -14765,7 +14765,7 @@ public sealed class GameHubJoinTests
 
         var replayClients = new RecordingHubClients();
         await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
-            .SubmitIntent(roomId, "P1", "reveal-card-same", revealCard);
+            .SubmitIntent(roomId, " P1 ", "reveal-card-same", revealCard);
 
         Assert.Empty(replayClients.CallerClient.Errors);
         Assert.Empty(replayClients.CallerClient.EventMessages);
@@ -14773,12 +14773,15 @@ public sealed class GameHubJoinTests
         Assert.Empty(replayClients.CallerClient.Prompts);
         var replayMessage = Assert.Single(replayClients.GroupClient.EventMessages);
         Assert.Equal(MessageType.EVENTS, replayMessage.Type);
+        Assert.Equal("P1", replayMessage.PlayerId);
         Assert.Equal(acceptedMessage.ServerTick, replayMessage.ServerTick);
+        AssertProtocolDefaults(replayMessage);
         var replayEvents = EventsFor(replayClients);
         Assert.Equal(
             acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
             replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
         var replayRevealEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_REVEALED", StringComparison.Ordinal));
+        Assert.Equal(acceptedRevealEvent.Payload["playerId"], replayRevealEvent.Payload["playerId"]);
         Assert.Equal(acceptedRevealEvent.Payload["sourceObjectId"], replayRevealEvent.Payload["sourceObjectId"]);
         Assert.Equal(acceptedRevealEvent.Payload["cardNo"], replayRevealEvent.Payload["cardNo"]);
         var replayStackEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
@@ -14798,6 +14801,16 @@ public sealed class GameHubJoinTests
                 .Select(message => message.PlayerId)
                 .OrderBy(playerId => playerId, StringComparer.Ordinal)
                 .ToArray());
+        foreach (var snapshotMessage in replayClients.GroupClient.Snapshots)
+        {
+            AssertProtocolDefaults(snapshotMessage);
+        }
+
+        foreach (var promptMessage in replayClients.GroupClient.Prompts)
+        {
+            AssertProtocolDefaults(promptMessage);
+        }
+
         var replayPromptActions = replayClients.GroupClient.Prompts
             .Select(message => Assert.IsType<ActionPromptDto>(message.Payload))
             .OrderBy(prompt => prompt.PlayerId, StringComparer.Ordinal)
