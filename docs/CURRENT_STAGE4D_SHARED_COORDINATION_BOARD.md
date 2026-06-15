@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-222O GameHub PayCost raw-command idempotent replay protocol-envelope versioning accepted one direct single-agent server-test shard covering replayed group `EVENTS`, `SNAPSHOT` and `PROMPT` protocol/schema defaults for the same raw `PAY_COST` command and same client intent id. After user request, A_MAIN also merged local 2P smoke/rule-audit work into the active isolation branch: merge `4545d2ce` from `codex/rule-audit-local2p-worktree-20260615` `299c454a`, which includes `codex/local-2p-smoke-20260612` `d61e9ac4` and primary local merge `d5d776e7`; follow-up `3478c1df` labels the new `OBJECTS_READIED` backend event in DevUI. Validation passed after merge: rule-audit adjacent conformance filter `3124/3124`, 4D-222O PayCost focused `1/1`, backend full `8259/8259`, DevUI `npm run build` after `npm ci`, `git diff --check`, and anchored conflict-marker scan. A_MAIN owns the main bundle. Future runtime/server closure work remains in single A_MAIN mode with no new subagents unless explicitly changed. It does not change DOC_MATRIX approved scope or open final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-222P GameHub MoveUnit raw-command idempotent replay protocol-envelope versioning accepted one direct single-agent server-test shard by extending the existing `MOVE_UNIT` raw idempotency test to prove replayed group `EVENTS`, `SNAPSHOT` and `PROMPT` protocol/schema defaults, normalized replay player routing, stable replayed event kinds, stable snapshot/prompt fanout and stable replay server tick. Runtime changed: no, server test coverage only. Main code commit `357d48bc`. Validation passed: focused `2/2`, changed-class `GameHubJoinTests` `217/217`; adjacent Hub/protocol/MoveUnit/Replay/Raw/ClientIntent/Development filter `2062/2062`; backend full `8259/8259`; `git diff --check` and anchored conflict-marker scan passed before docs sync. A_MAIN owns the main bundle. Future runtime/server closure work remains in single A_MAIN mode with no new subagents unless explicitly changed. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -66,12 +66,28 @@ Use this file as a lightweight message board:
 ## Current Worktrees
 
 - `A_MAIN_PRIMARY`: `/Users/dinghaolin/IdeaProjects/riftbound`, currently observed on branch `codex/rule-audit-local2p-20260615` at local merge `d5d776e7` ahead of `origin/main` by 6 and behind the latest server-test checkpoints; its local-2p smoke content is now merged into `A_MAIN_222O_ISOLATION` via `4545d2ce`.
-- `A_MAIN_222O_ISOLATION`: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`, branch `codex/stage4d-222o-pay-cost-replay-protocol`, currently at `3478c1df` after Stage 4D-222O commits, local-2p/rule-audit merge `4545d2ce`, and DevUI `OBJECTS_READIED` label fix; push after docs sync is pending.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-15 11:19 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN_222P_ISOLATION`: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`, branch `codex/stage4d-222p-move-unit-replay-protocol`, currently at `357d48bc` after Stage 4D-222P code commit; based on pushed `origin/main` `2e3e0794` after Stage 4D-222O plus local-2p/rule-audit merge. Push after docs sync is pending.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-15 11:26 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-15 11:26 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`
+
+Branch / commit: `codex/stage4d-222p-move-unit-replay-protocol` / `357d48bc` code, docs checkpoint in follow-up commit
+
+Write locks: Runtime validation code, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, frontend, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-222P GameHub MoveUnit replay protocol-envelope versioning accepted. A_MAIN extended `MoveUnitDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation`, proving an idempotent `MOVE_UNIT` raw-command replay with the same raw command and same client intent id emits replayed group `EVENTS`, `SNAPSHOT` and `PROMPT` messages with default protocol/schema versions, normalized player identity, stable replayed event kinds, stable replayed snapshot/prompt player fanout and stable replayed server tick. No subagent was created. DOC_MATRIX_CURRENT remains clean at `17bde0c3`. Project remains **NOT READY**.
+
+Validation: focused `2/2`; changed-class `GameHubJoinTests` `217/217`; adjacent Hub/protocol/MoveUnit/Replay/Raw/ClientIntent/Development filter `2062/2062`; backend full `8259/8259`; `git diff --check` and anchored conflict-marker scan passed before docs sync.
+
+Requested action: Next executable server slice can continue remaining raw-command/mapper/GameHub protocol surfaces, wrapper replay protocol surfaces, recovery timing continuousEffects/triggerQueue remaining breadth, or another higher-priority P0/P1 server audit surface after re-reading this board, implemented directly by A_MAIN. No DOC_MATRIX action is requested.
 
 ### 2026-06-15 11:19 A_MAIN
 
