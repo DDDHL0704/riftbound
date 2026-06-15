@@ -2493,7 +2493,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(2, damagePool["P2-DEFENDER"]);
         var legalTargets = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<string>>>(metadata["legalTargets"]);
         Assert.Equal(["P2-DEFENDER"], legalTargets["P1-ATTACKER"]);
-        Assert.Equal(["P1-ATTACKER"], legalTargets["P2-DEFENDER"]);
+        Assert.False(legalTargets.ContainsKey("P2-DEFENDER"));
         var lethalThreshold = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(metadata["lethalDamageThreshold"]);
         Assert.Equal(2, lethalThreshold["P1-ATTACKER"]);
         Assert.Equal(2, lethalThreshold["P2-DEFENDER"]);
@@ -2531,22 +2531,34 @@ public sealed class ConformanceFixtureShapeTests
                 "BATTLEFIELD:P1-MAIN",
                 [new CombatDamageAssignmentDto("P1-ATTACKER", "P2-NOT-IN-BATTLE", 1)]),
             CancellationToken.None);
-        var validShellResult = await engine.ResolveAsync(
+        var attackerStepResult = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-valid-assign-damage", "P1", CommandTypes.AssignCombatDamage),
             new AssignCombatDamageCommand(
                 "battle:BATTLEFIELD:P1-MAIN",
                 "BATTLEFIELD:P1-MAIN",
                 [
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2)
+                ]),
+            CancellationToken.None);
+        var validShellResult = await engine.ResolveAsync(
+            attackerStepResult.State,
+            new PlayerIntent("intent-valid-assign-damage-defender", "P2", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
                     new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
                 ]),
             CancellationToken.None);
 
         Assert.False(invalidTargetResult.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetResult.ErrorCode);
+        Assert.True(attackerStepResult.Accepted, attackerStepResult.ErrorMessage);
+        Assert.True(attackerStepResult.State.BattleState.IsActive);
+        Assert.True(attackerStepResult.Prompts["P2"].Actionable);
         Assert.True(validShellResult.Accepted, validShellResult.ErrorMessage);
-        Assert.Equal(state.Tick + 1, validShellResult.State.Tick);
+        Assert.Equal(state.Tick + 2, validShellResult.State.Tick);
         Assert.False(validShellResult.State.BattleState.IsActive);
         Assert.Contains(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_STEP_STARTED", StringComparison.Ordinal));
         Assert.Contains(validShellResult.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNED", StringComparison.Ordinal));
@@ -2597,8 +2609,7 @@ public sealed class ConformanceFixtureShapeTests
                 "battle:BATTLEFIELD:P1-MAIN",
                 "BATTLEFIELD:P1-MAIN",
                 [
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 1),
-                    new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 1)
                 ]),
             CancellationToken.None);
         var overassign = await engine.ResolveAsync(
@@ -2609,9 +2620,7 @@ public sealed class ConformanceFixtureShapeTests
                 "BATTLEFIELD:P1-MAIN",
                 [
                     new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-A", 3),
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-B", 2),
-                    new CombatDamageAssignmentDto("P2-DEFENDER-A", "P1-ATTACKER", 2),
-                    new CombatDamageAssignmentDto("P2-DEFENDER-B", "P1-ATTACKER", 2)
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-B", 2)
                 ]),
             CancellationToken.None);
         var lethalFirst = await engine.ResolveAsync(
@@ -2622,9 +2631,7 @@ public sealed class ConformanceFixtureShapeTests
                 "BATTLEFIELD:P1-MAIN",
                 [
                     new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-A", 1),
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-B", 4),
-                    new CombatDamageAssignmentDto("P2-DEFENDER-A", "P1-ATTACKER", 2),
-                    new CombatDamageAssignmentDto("P2-DEFENDER-B", "P1-ATTACKER", 2)
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER-B", 4)
                 ]),
             CancellationToken.None);
 
@@ -2645,13 +2652,11 @@ public sealed class ConformanceFixtureShapeTests
         var prompt = session.PromptFor("P1");
         var assignments = new[]
         {
-            new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2),
-            new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 2)
+            new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 2)
         };
         var rawAssignments = new[]
         {
-            new { sourceObjectId = "P1-ATTACKER", targetObjectId = "P2-DEFENDER", damage = 2 },
-            new { sourceObjectId = "P2-DEFENDER", targetObjectId = "P1-ATTACKER", damage = 2 }
+            new { sourceObjectId = "P1-ATTACKER", targetObjectId = "P2-DEFENDER", damage = 2 }
         };
         var command = new AssignCombatDamageCommand(
             "battle:BATTLEFIELD:P1-MAIN",
@@ -2805,18 +2810,29 @@ public sealed class ConformanceFixtureShapeTests
         Assert.True(pass.State.BattleState.IsActive);
         Assert.Equal(PromptTypes.AssignCombatDamage, pass.Prompts["P1"].View?.Type);
 
-        var assign = await engine.ResolveAsync(
+        var attackerAssign = await engine.ResolveAsync(
             pass.State,
             new PlayerIntent("intent-assign-after-spell-duel", "P1", CommandTypes.AssignCombatDamage),
             new AssignCombatDamageCommand(
                 "battle:BATTLEFIELD:P1-MAIN",
                 "BATTLEFIELD:P1-MAIN",
                 [
-                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 3),
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 3)
+                ]),
+            CancellationToken.None);
+        var assign = await engine.ResolveAsync(
+            attackerAssign.State,
+            new PlayerIntent("intent-assign-after-spell-duel-defender", "P2", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(
+                "battle:BATTLEFIELD:P1-MAIN",
+                "BATTLEFIELD:P1-MAIN",
+                [
                     new CombatDamageAssignmentDto("P2-DEFENDER", "P1-ATTACKER", 1)
                 ]),
             CancellationToken.None);
 
+        Assert.True(attackerAssign.Accepted, attackerAssign.ErrorMessage);
+        Assert.True(attackerAssign.State.BattleState.IsActive);
         Assert.True(assign.Accepted, assign.ErrorMessage);
         Assert.False(assign.State.BattleState.IsActive);
         Assert.Contains(assign.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));

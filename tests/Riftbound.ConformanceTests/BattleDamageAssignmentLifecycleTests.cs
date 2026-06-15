@@ -122,28 +122,22 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 BattlefieldObjectId,
                 [
                     new CombatDamageAssignmentDto(AttackerObjectId, earlyBackRowObjectId, 1),
-                    new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 4),
-                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
-                    new CombatDamageAssignmentDto(earlyBackRowObjectId, AttackerObjectId, 1)
+                    new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 4)
                 ]),
             CancellationToken.None);
 
         AssertRejectedNoMutation(opened.State, invalidBackRowFirstOverkill, ErrorCodes.InvalidPayload);
         Assert.Equal(PromptTypes.AssignCombatDamage, invalidBackRowFirstOverkill.Prompts["P1"].View?.Type);
 
-        var legal = await engine.ResolveAsync(
+        var legal = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             opened.State,
-            new PlayerIntent("intent-natural-assign-keyword-sorted", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand(
-                $"battle:{BattlefieldObjectId}",
-                BattlefieldObjectId,
-                [
-                    new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 2),
-                    new CombatDamageAssignmentDto(AttackerObjectId, earlyBackRowObjectId, 3),
-                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
-                    new CombatDamageAssignmentDto(earlyBackRowObjectId, AttackerObjectId, 1)
-                ]),
-            CancellationToken.None);
+            [
+                new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 2),
+                new CombatDamageAssignmentDto(AttackerObjectId, earlyBackRowObjectId, 3),
+                new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                new CombatDamageAssignmentDto(earlyBackRowObjectId, AttackerObjectId, 1)
+            ]);
 
         Assert.True(legal.Accepted, legal.ErrorMessage);
         Assert.Contains(legal.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
@@ -231,11 +225,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"battle:{BattlefieldObjectId}", p1Pass.Prompts["P1"].View?.RelatedBattleId);
         Assert.Equal(BattlefieldObjectId, p1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             p1Pass.State,
-            new PlayerIntent("intent-natural-response-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, ShadowResponseLegalAssignments()),
-            CancellationToken.None);
+            ShadowResponseLegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -308,11 +301,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
         AssertNextContestedBattlefieldNotAdvanced(p1Pass);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             p1Pass.State,
-            new PlayerIntent("intent-natural-response-assignment-advancement-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, ShadowResponseLegalAssignments()),
-            CancellationToken.None);
+            ShadowResponseLegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -413,11 +405,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
         AssertNextContestedBattlefieldNotAdvanced(p1Pass);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             p1Pass.State,
-            new PlayerIntent("intent-natural-response-conquer-ordering-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, ShadowResponseLegalAssignments()),
-            CancellationToken.None);
+            ShadowResponseLegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -542,18 +533,14 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
         AssertNextContestedBattlefieldNotAdvanced(p1Pass);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             p1Pass.State,
-            new PlayerIntent("intent-natural-response-held-ordering-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand(
-                $"battle:{BattlefieldObjectId}",
-                BattlefieldObjectId,
-                [
-                    new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 1),
-                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
-                    new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 1)
-                ]),
-            CancellationToken.None);
+            [
+                new CombatDamageAssignmentDto(AttackerObjectId, BulwarkDefenderObjectId, 1),
+                new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 1)
+            ]);
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -712,11 +699,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
         AssertNextContestedBattlefieldNotAdvanced(responseP1Pass);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             responseP1Pass.State,
-            new PlayerIntent("intent-natural-response-activation-assignment-advancement-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, StunnedAttackerShadowResponseAssignments()),
-            CancellationToken.None);
+            StunnedAttackerShadowResponseAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -835,10 +821,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("BATTLE_TASKS", responseP1Pass.State.PendingTaskQueue.Phase);
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
+        Assert.False(responseP1Pass.Prompts["P1"].Actionable);
+        Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P2"].View?.Type);
+        Assert.True(responseP1Pass.Prompts["P2"].Actionable);
         AssertNextContestedBattlefieldNotAdvanced(responseP1Pass);
 
         var assignCandidate = Assert.Single(
-            responseP1Pass.Prompts["P1"].Candidates ?? [],
+            responseP1Pass.Prompts["P2"].Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(assignCandidate.Metadata);
         var damagePool = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(metadata["damagePool"]);
@@ -872,8 +861,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, ShadowResponseLegalAssignments()),
             CancellationToken.None);
 
-        AssertRejectedNoMutation(responseP1Pass.State, staleAssignment, ErrorCodes.InvalidPayload);
-        Assert.Equal(PromptTypes.AssignCombatDamage, staleAssignment.Prompts["P1"].View?.Type);
+        AssertRejectedNoMutation(responseP1Pass.State, staleAssignment, ErrorCodes.PhaseNotAllowed);
+        Assert.Equal(PromptTypes.AssignCombatDamage, staleAssignment.Prompts["P2"].View?.Type);
         AssertNextContestedBattlefieldNotAdvanced(staleAssignment);
 
         var legalZeroAttackerAssignments = new[]
@@ -883,7 +872,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         };
         var assigned = await engine.ResolveAsync(
             responseP1Pass.State,
-            new PlayerIntent("intent-natural-response-stunned-assignment-zero-damage", "P1", CommandTypes.AssignCombatDamage),
+            new PlayerIntent("intent-natural-response-stunned-assignment-zero-damage", "P2", CommandTypes.AssignCombatDamage),
             new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, legalZeroAttackerAssignments),
             CancellationToken.None);
 
@@ -1020,10 +1009,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("BATTLE_TASKS", responseP1Pass.State.PendingTaskQueue.Phase);
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
+        Assert.False(responseP1Pass.Prompts["P1"].Actionable);
+        Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P2"].View?.Type);
+        Assert.True(responseP1Pass.Prompts["P2"].Actionable);
         AssertNextContestedBattlefieldNotAdvanced(responseP1Pass);
 
         var assignCandidate = Assert.Single(
-            responseP1Pass.Prompts["P1"].Candidates ?? [],
+            responseP1Pass.Prompts["P2"].Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(assignCandidate.Metadata);
         var damagePool = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(metadata["damagePool"]);
@@ -1049,7 +1041,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         var staleAssignment = await engine.ResolveAsync(
             responseP1Pass.State,
-            new PlayerIntent("intent-natural-response-power-modifier-assignment-stale-damage", "P1", CommandTypes.AssignCombatDamage),
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-stale-damage", "P2", CommandTypes.AssignCombatDamage),
             new AssignCombatDamageCommand(
                 $"battle:{BattlefieldObjectId}",
                 BattlefieldObjectId,
@@ -1057,7 +1049,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         AssertRejectedNoMutation(responseP1Pass.State, staleAssignment, ErrorCodes.InvalidPayload);
-        Assert.Equal(PromptTypes.AssignCombatDamage, staleAssignment.Prompts["P1"].View?.Type);
+        Assert.Equal(PromptTypes.AssignCombatDamage, staleAssignment.Prompts["P2"].View?.Type);
         AssertNextContestedBattlefieldNotAdvanced(staleAssignment);
 
         var legalEffectiveAssignments = new[]
@@ -1067,7 +1059,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         };
         var assigned = await engine.ResolveAsync(
             responseP1Pass.State,
-            new PlayerIntent("intent-natural-response-power-modifier-assignment-effective-damage", "P1", CommandTypes.AssignCombatDamage),
+            new PlayerIntent("intent-natural-response-power-modifier-assignment-effective-damage", "P2", CommandTypes.AssignCombatDamage),
             new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, legalEffectiveAssignments),
             CancellationToken.None);
 
@@ -1222,11 +1214,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
         AssertNextContestedBattlefieldNotAdvanced(responseP1Pass);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             responseP1Pass.State,
-            new PlayerIntent("intent-natural-response-activation-conquer-ordering-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, StunnedAttackerSecondAttackerConquerAssignments()),
-            CancellationToken.None);
+            StunnedAttackerSecondAttackerConquerAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -1397,17 +1388,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
         AssertNextContestedBattlefieldNotAdvanced(responseP1Pass);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             responseP1Pass.State,
-            new PlayerIntent("intent-natural-response-activation-held-ordering-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand(
-                $"battle:{BattlefieldObjectId}",
-                BattlefieldObjectId,
-                [
-                    new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
-                    new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 1)
-                ]),
-            CancellationToken.None);
+            [
+                new CombatDamageAssignmentDto(BulwarkDefenderObjectId, AttackerObjectId, 2),
+                new CombatDamageAssignmentDto(BackRowDefenderObjectId, AttackerObjectId, 1)
+            ]);
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -1565,11 +1552,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
         AssertNextContestedBattlefieldNotAdvanced(responseP1Pass);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             responseP1Pass.State,
-            new PlayerIntent("intent-natural-response-activation-assignment-no-result-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, NoResultWithStunnedSecondAttackerAssignments()),
-            CancellationToken.None);
+            NoResultWithStunnedSecondAttackerAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         var noResultEvent = Assert.Single(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
@@ -1732,11 +1718,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(responseP1Pass.State, HiddenStandbyObjectId);
         AssertNextContestedBattlefieldNotAdvanced(responseP1Pass);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             responseP1Pass.State,
-            new PlayerIntent("intent-natural-response-activation-cleanup-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, StunnedAttackerSecondAttackerConquerAssignments()),
-            CancellationToken.None);
+            StunnedAttackerSecondAttackerConquerAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         var battleClosedIndex = EventIndex(assigned.Events, gameEvent =>
@@ -4870,14 +4855,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var opened = await DeclareAssignmentBattleAsync(BuildNaturalStartBattleState());
         Assert.True(opened.Accepted, opened.ErrorMessage);
 
-        var assigned = await new CoreRuleEngine().ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            new CoreRuleEngine(),
             opened.State,
-            new PlayerIntent("intent-natural-assign-legal", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, LegalAssignments()),
-            CancellationToken.None);
+            LegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.Equal(opened.State.Tick + 1, assigned.State.Tick);
+        Assert.Equal(opened.State.Tick + 2, assigned.State.Tick);
         Assert.False(assigned.State.BattleState.IsActive);
         Assert.DoesNotContain(
             assigned.State.PendingTaskQueue.Tasks,
@@ -5484,11 +5468,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(PromptTypes.AssignCombatDamage, opened.Prompts["P1"].View?.Type);
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", opened.State.PendingTaskQueue.ActiveTaskId);
 
-        var assigned = await new CoreRuleEngine().ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            new CoreRuleEngine(),
             opened.State,
-            new PlayerIntent("intent-natural-assign-advances-next-battlefield", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, LegalAssignments()),
-            CancellationToken.None);
+            LegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         Assert.False(assigned.State.BattleState.IsActive);
@@ -5535,11 +5518,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", opened.State.PendingTaskQueue.ActiveTaskId);
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(opened.State, HiddenStandbyObjectId);
 
-        var assigned = await new CoreRuleEngine().ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            new CoreRuleEngine(),
             opened.State,
-            new PlayerIntent("intent-natural-control-cleanup-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, LegalAssignments()),
-            CancellationToken.None);
+            LegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         var controlEventIndex = EventIndex(assigned.Events, gameEvent =>
@@ -5616,11 +5598,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(opened.State.BattleState.IsActive);
         Assert.Equal(PromptTypes.AssignCombatDamage, opened.Prompts["P1"].View?.Type);
 
-        var assigned = await engine.ResolveAsync(
+        var assigned = await AssignCombatDamageInTwoStepsAsync(
+            engine,
             opened.State,
-            new PlayerIntent("intent-natural-no-result-assign-damage", "P1", CommandTypes.AssignCombatDamage),
-            new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, NoResultAssignments()),
-            CancellationToken.None);
+            NoResultAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
         var noResultEvent = Assert.Single(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
@@ -5718,6 +5699,81 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 defenderObjectIds ?? [BulwarkDefenderObjectId, BackRowDefenderObjectId],
                 OptionalCosts: ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
+    }
+
+    private static async Task<ResolutionResult> AssignCombatDamageInTwoStepsAsync(
+        CoreRuleEngine engine,
+        MatchState state,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments,
+        string battleId,
+        string battlefieldId)
+    {
+        var currentState = state;
+        ResolutionResult? latestResult = null;
+
+        for (var stepIndex = 0; stepIndex < 2; stepIndex++)
+        {
+            var assigningPlayerId = AssignCombatDamagePromptPlayerId(currentState);
+            if (string.IsNullOrWhiteSpace(assigningPlayerId))
+            {
+                break;
+            }
+
+            var sourceObjectIds = currentState.BattleState.ParticipantControllerIds
+                .Where(entry => string.Equals(entry.Value, assigningPlayerId, StringComparison.Ordinal))
+                .Select(entry => entry.Key)
+                .ToHashSet(StringComparer.Ordinal);
+            var playerAssignments = assignments
+                .Where(assignment => sourceObjectIds.Contains(assignment.SourceObjectId))
+                .ToArray();
+            if (playerAssignments.Length == 0)
+            {
+                break;
+            }
+
+            var step = await engine.ResolveAsync(
+                currentState,
+                new PlayerIntent($"intent-test-assign-combat-damage-step-{stepIndex}", assigningPlayerId, CommandTypes.AssignCombatDamage),
+                new AssignCombatDamageCommand(battleId, battlefieldId, playerAssignments),
+                CancellationToken.None);
+
+            Assert.True(step.Accepted, step.ErrorMessage);
+            latestResult = step;
+            currentState = step.State;
+        }
+
+        return latestResult
+            ?? new ResolutionResult(
+                true,
+                null,
+                currentState,
+                [],
+                ResolutionResult.BuildSnapshots(currentState),
+                ResolutionResult.BuildPrompts(currentState));
+    }
+
+    private static string? AssignCombatDamagePromptPlayerId(MatchState state)
+    {
+        return ResolutionResult.BuildPrompts(state)
+            .Where(entry => entry.Value.Actionable
+                && string.Equals(entry.Value.View?.Type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal)
+                && entry.Value.Actions.Contains(CommandTypes.AssignCombatDamage, StringComparer.Ordinal))
+            .Select(entry => entry.Key)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .FirstOrDefault();
+    }
+
+    private static async Task<ResolutionResult> AssignCombatDamageInTwoStepsAsync(
+        CoreRuleEngine engine,
+        MatchState state,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments)
+    {
+        return await AssignCombatDamageInTwoStepsAsync(
+            engine,
+            state,
+            assignments,
+            $"battle:{BattlefieldObjectId}",
+            BattlefieldObjectId);
     }
 
     private static JsonElement PromptScopedAssignCombatDamageRawCommand(
@@ -7265,7 +7321,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var damageStep = events[damageStepIndex];
         Assert.Equal($"battle:{BattlefieldObjectId}", damageStep.Payload["battleId"]);
         Assert.Equal(BattlefieldObjectId, damageStep.Payload["battlefieldId"]);
-        Assert.Equal("P1", damageStep.Payload["assigningPlayerId"]);
+        Assert.Equal("P2", damageStep.Payload["assigningPlayerId"]);
+        Assert.Equal("P1", damageStep.Payload["attackingPlayerId"]);
         Assert.Equal([AttackerObjectId], StringList(damageStep.Payload["attackerObjectIds"]));
         Assert.Equal([BulwarkDefenderObjectId, BackRowDefenderObjectId], StringList(damageStep.Payload["defenderObjectIds"]));
 
@@ -7274,7 +7331,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var assigned = events[assignedIndex];
         Assert.Equal($"battle:{BattlefieldObjectId}", assigned.Payload["battleId"]);
         Assert.Equal(BattlefieldObjectId, assigned.Payload["battlefieldId"]);
-        Assert.Equal("P1", assigned.Payload["assigningPlayerId"]);
+        Assert.Equal("P2", assigned.Payload["assigningPlayerId"]);
+        Assert.Equal("P1", assigned.Payload["attackingPlayerId"]);
         Assert.Equal(ExpectedNaturalDamagePool(), Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(assigned.Payload["damagePool"]));
         Assert.Equal(ExpectedNaturalLethalThresholds(), Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(assigned.Payload["lethalDamageThreshold"]));
         Assert.Equal(LegalAssignments(), Assert.IsAssignableFrom<IReadOnlyList<CombatDamageAssignmentDto>>(assigned.Payload["assignments"]));

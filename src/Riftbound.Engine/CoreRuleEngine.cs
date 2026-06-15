@@ -662,6 +662,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BrushBattlefieldTokenCardNo = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
+    private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
     private const string DemaciaMinionTokenCardNo = "OGN·271/298";
     private const string ZaunMinionTokenCardNo = "OGN·273/298";
     private const string WarhawkTokenCardNo = "UNL·T02";
@@ -3206,7 +3207,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        var validation = ValidateCombatDamageAssignments(state, battle, assignments);
+        var currentSourceIds = BattleDamageAssignmentRequiredSourceIdsForPlayer(state, battle, assigningPlayerId);
+        var currentSourceIdSet = currentSourceIds.ToHashSet(StringComparer.Ordinal);
+        var currentAssignments = assignments
+            .Where(assignment => currentSourceIdSet.Contains(assignment.SourceObjectId))
+            .ToArray();
+        var validation = ValidateCombatDamageAssignmentsForSources(state, battle, currentAssignments, currentSourceIds);
         if (!validation.Accepted)
         {
             return RejectWithCorePrompts(
@@ -3215,13 +3221,89 @@ public sealed class CoreRuleEngine : IRuleEngine
                 validation.ErrorCode);
         }
 
+        var acceptedAssignments = BattleDamageAssignmentLedgerFor(state, battle);
+        var mergedAssignments = acceptedAssignments
+            .Concat(currentAssignments)
+            .ToArray();
+        var includesFuturePlayerAssignments = currentAssignments.Length != assignments.Count;
+        if (includesFuturePlayerAssignments)
+        {
+            var fullBatchAssignments = acceptedAssignments
+                .Concat(assignments)
+                .ToArray();
+            var fullBatchValidation = ValidateCombatDamageAssignments(state, battle, fullBatchAssignments);
+            if (!fullBatchValidation.Accepted)
+            {
+                return RejectWithCorePrompts(
+                    state,
+                    fullBatchValidation.Message,
+                    fullBatchValidation.ErrorCode);
+            }
+
+            return CommitCombatDamageAssignments(
+                state,
+                intent,
+                battle,
+                fullBatchAssignments,
+                fullBatchValidation.DamagePool,
+                fullBatchValidation.LethalDamageThreshold);
+        }
+
+        var nextAssigningPlayerId = BattleDamageAssigningPlayerId(state, battle, mergedAssignments);
+        if (!string.IsNullOrWhiteSpace(nextAssigningPlayerId))
+        {
+            var nextState = state with
+            {
+                Tick = state.Tick + 1,
+                ActivePlayerId = nextAssigningPlayerId,
+                UntilEndOfTurnEffects = SetBattleDamageAssignmentLedgerMarker(
+                    state.UntilEndOfTurnEffects,
+                    battle,
+                    mergedAssignments),
+                PassedPriorityPlayerIds = [],
+                FocusPlayerId = null,
+                PassedFocusPlayerIds = []
+            };
+            var events = new GameEvent[]
+            {
+                new(
+                    "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+                    $"{intent.PlayerId} 提交己方战斗伤害分配",
+                    new Dictionary<string, object?>
+                    {
+                        ["battleId"] = battle.BattleId,
+                        ["battlefieldId"] = battle.BattlefieldObjectId,
+                        ["assigningPlayerId"] = intent.PlayerId,
+                        ["nextAssigningPlayerId"] = nextAssigningPlayerId,
+                        ["assignments"] = assignments
+                    })
+            };
+
+            return new ResolutionResult(
+                true,
+                null,
+                nextState,
+                events,
+                ResolutionResult.BuildSnapshots(nextState),
+                BuildCorePrompts(nextState));
+        }
+
+        var fullValidation = ValidateCombatDamageAssignments(state, battle, mergedAssignments);
+        if (!fullValidation.Accepted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                fullValidation.Message,
+                fullValidation.ErrorCode);
+        }
+
         return CommitCombatDamageAssignments(
             state,
             intent,
             battle,
-            assignments,
-            validation.DamagePool,
-            validation.LethalDamageThreshold);
+            mergedAssignments,
+            fullValidation.DamagePool,
+            fullValidation.LethalDamageThreshold);
     }
 
     private static bool HasOpenBattleDamageAssignmentWindow(MatchState state)
@@ -3242,14 +3324,299 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static string? BattleDamageAssigningPlayerId(MatchState state, BattleState battle)
     {
-        var attackerControllerIds = battle.AttackerObjectIds
-            .Select(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                ? controllerId
-                : string.Empty)
-            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+        return BattleDamageAssigningPlayerId(state, battle, BattleDamageAssignmentLedgerFor(state, battle));
+    }
+
+    private static string? BattleDamageAssigningPlayerId(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> acceptedAssignments)
+    {
+        var attackingPlayerId = BattleAttackingPlayerId(state, battle);
+        var defendingPlayerId = BattleDefendingPlayerId(battle);
+        if (string.IsNullOrWhiteSpace(attackingPlayerId))
+        {
+            return null;
+        }
+
+        var attackerSourceIds = BattleDamageAssignmentRequiredSourceIdsForPlayer(state, battle, attackingPlayerId);
+        if (attackerSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, attackerSourceIds))
+        {
+            return attackingPlayerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(defendingPlayerId))
+        {
+            var defenderSourceIds = BattleDamageAssignmentRequiredSourceIdsForPlayer(state, battle, defendingPlayerId);
+            if (defenderSourceIds.Count > 0 && !AssignmentsCoverSources(state, battle, acceptedAssignments, defenderSourceIds))
+            {
+                return defendingPlayerId;
+            }
+        }
+
+        return null;
+    }
+
+    private static IReadOnlyList<CombatDamageAssignmentDto> BattleDamageAssignmentLedgerFor(
+        MatchState state,
+        BattleState battle)
+    {
+        return TryReadBattleDamageAssignmentLedger(state, battle, out var assignments)
+            ? assignments
+            : [];
+    }
+
+    private static IReadOnlyList<string> BattleDamageAssignmentRequiredSourceIdsForPlayer(
+        MatchState state,
+        BattleState battle,
+        string? playerId)
+    {
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            return [];
+        }
+
+        var damagePool = BuildCombatDamagePool(state, battle);
+        var legalTargets = BuildCombatDamageLegalTargets(state, battle);
+        return battle.AttackerObjectIds
+            .Concat(battle.DefenderObjectIds)
+            .Where(objectId => battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                && string.Equals(controllerId, playerId, StringComparison.Ordinal)
+                && damagePool.TryGetValue(objectId, out var damage)
+                && damage > 0
+                && legalTargets.TryGetValue(objectId, out var targets)
+                && targets.Count > 0)
             .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
-        return attackerControllerIds.Length == 1 ? attackerControllerIds[0] : state.ActivePlayerId;
+    }
+
+    private static bool AssignmentsCoverSources(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments,
+        IReadOnlyList<string> sourceObjectIds)
+    {
+        var damagePool = BuildCombatDamagePool(state, battle);
+        foreach (var sourceObjectId in sourceObjectIds)
+        {
+            var expectedDamage = damagePool.TryGetValue(sourceObjectId, out var damage)
+                ? damage
+                : 0;
+            var assignedDamage = assignments
+                .Where(assignment => string.Equals(assignment.SourceObjectId, sourceObjectId, StringComparison.Ordinal))
+                .Sum(assignment => assignment.Damage);
+            if (assignedDamage != expectedDamage)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryReadBattleDamageAssignmentLedger(
+        MatchState state,
+        BattleState battle,
+        out IReadOnlyList<CombatDamageAssignmentDto> assignments)
+    {
+        assignments = [];
+        var marker = state.UntilEndOfTurnEffects.FirstOrDefault(effectId =>
+            effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal));
+        if (string.IsNullOrWhiteSpace(marker))
+        {
+            return false;
+        }
+
+        try
+        {
+            var encoded = marker[BattleDamageAssignmentLedgerPrefix.Length..];
+            var json = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
+            var parsed = JsonSerializer.Deserialize<BattleDamageAssignmentLedger>(json);
+            if (parsed is null
+                || !string.Equals(parsed.BattleId, battle.BattleId, StringComparison.Ordinal)
+                || !string.Equals(parsed.BattlefieldId, battle.BattlefieldObjectId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            assignments = parsed.Assignments
+                .Where(assignment => !string.IsNullOrWhiteSpace(assignment.SourceObjectId)
+                    && !string.IsNullOrWhiteSpace(assignment.TargetObjectId)
+                    && assignment.Damage > 0)
+                .ToArray();
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static IReadOnlyList<string> SetBattleDamageAssignmentLedgerMarker(
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments)
+    {
+        var marker = BuildBattleDamageAssignmentLedgerMarker(battle, assignments);
+        return untilEndOfTurnEffects
+            .Where(effectId => !effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal))
+            .Concat([marker])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string BuildBattleDamageAssignmentLedgerMarker(
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments)
+    {
+        var ledger = new BattleDamageAssignmentLedger(
+            battle.BattleId ?? string.Empty,
+            battle.BattlefieldObjectId ?? string.Empty,
+            assignments.ToArray());
+        var encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(ledger)));
+        return $"{BattleDamageAssignmentLedgerPrefix}{encoded}";
+    }
+
+    private static IReadOnlyList<string> ClearBattleDamageAssignmentLedgerMarkers(
+        IReadOnlyList<string> untilEndOfTurnEffects)
+    {
+        return untilEndOfTurnEffects
+            .Where(effectId => !effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal))
+            .ToArray();
+    }
+
+    private sealed record BattleDamageAssignmentLedger(
+        string BattleId,
+        string BattlefieldId,
+        IReadOnlyList<CombatDamageAssignmentDto> Assignments);
+
+    private static CombatDamageAssignmentValidationResult ValidateCombatDamageAssignmentsForSources(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments,
+        IReadOnlyList<string> requiredSourceObjectIds)
+    {
+        var damagePool = BuildCombatDamagePool(state, battle);
+        var legalTargets = BuildCombatDamageLegalTargets(state, battle);
+        var lethalThreshold = BuildCombatLethalDamageThreshold(state, battle);
+        var participantIds = damagePool.Keys.ToHashSet(StringComparer.Ordinal);
+        var requiredSources = requiredSourceObjectIds.ToHashSet(StringComparer.Ordinal);
+        if (requiredSources.Count == 0)
+        {
+            return CombatDamageAssignmentValidationResult.Rejected(
+                ErrorCodes.PhaseNotAllowed,
+                "当前玩家没有需要分配的战斗伤害源。",
+                damagePool,
+                lethalThreshold);
+        }
+
+        var sourceTargetDamage = new Dictionary<(string Source, string Target), int>();
+        foreach (var assignment in assignments)
+        {
+            if (!participantIds.Contains(assignment.SourceObjectId)
+                || !participantIds.Contains(assignment.TargetObjectId))
+            {
+                return CombatDamageAssignmentValidationResult.Rejected(
+                    ErrorCodes.InvalidTarget,
+                    "ASSIGN_COMBAT_DAMAGE 只能引用当前战斗参与者。",
+                    damagePool,
+                    lethalThreshold);
+            }
+
+            if (!requiredSources.Contains(assignment.SourceObjectId))
+            {
+                return CombatDamageAssignmentValidationResult.Rejected(
+                    ErrorCodes.InvalidTarget,
+                    "ASSIGN_COMBAT_DAMAGE 只能分配当前玩家控制的战斗伤害源。",
+                    damagePool,
+                    lethalThreshold);
+            }
+
+            if (!legalTargets.TryGetValue(assignment.SourceObjectId, out var legalTargetsForSource)
+                || !legalTargetsForSource.Contains(assignment.TargetObjectId, StringComparer.Ordinal))
+            {
+                return CombatDamageAssignmentValidationResult.Rejected(
+                    ErrorCodes.InvalidTarget,
+                    "ASSIGN_COMBAT_DAMAGE 只能分配给敌方战斗参与者。",
+                    damagePool,
+                    lethalThreshold);
+            }
+
+            var key = (assignment.SourceObjectId, assignment.TargetObjectId);
+            sourceTargetDamage[key] = sourceTargetDamage.TryGetValue(key, out var existingDamage)
+                ? existingDamage + assignment.Damage
+                : assignment.Damage;
+        }
+
+        foreach (var sourceObjectId in requiredSources)
+        {
+            if (!legalTargets.TryGetValue(sourceObjectId, out var legalTargetsForSource)
+                || legalTargetsForSource.Count == 0)
+            {
+                continue;
+            }
+
+            var expectedDamage = damagePool.TryGetValue(sourceObjectId, out var sourceDamage)
+                ? sourceDamage
+                : 0;
+            var assignedDamage = sourceTargetDamage
+                .Where(entry => string.Equals(entry.Key.Source, sourceObjectId, StringComparison.Ordinal))
+                .Sum(entry => entry.Value);
+            if (assignedDamage != expectedDamage)
+            {
+                return CombatDamageAssignmentValidationResult.Rejected(
+                    ErrorCodes.InvalidPayload,
+                    "ASSIGN_COMBAT_DAMAGE 必须完整分配当前玩家每个伤害源的战斗伤害池。",
+                    damagePool,
+                    lethalThreshold);
+            }
+
+            for (var targetIndex = 0; targetIndex < legalTargetsForSource.Count; targetIndex++)
+            {
+                var targetObjectId = legalTargetsForSource[targetIndex];
+                var assignedToTarget = sourceTargetDamage.TryGetValue((sourceObjectId, targetObjectId), out var targetDamage)
+                    ? targetDamage
+                    : 0;
+                var lethalDamage = lethalThreshold.TryGetValue(targetObjectId, out var threshold)
+                    ? threshold
+                    : 0;
+                var isLastLegalTarget = targetIndex == legalTargetsForSource.Count - 1;
+                if (!isLastLegalTarget && assignedToTarget > lethalDamage)
+                {
+                    return CombatDamageAssignmentValidationResult.Rejected(
+                        ErrorCodes.InvalidPayload,
+                        "ASSIGN_COMBAT_DAMAGE 对非末位目标不能超过致命伤害。",
+                        damagePool,
+                        lethalThreshold);
+                }
+
+                if (isLastLegalTarget || assignedToTarget >= lethalDamage)
+                {
+                    continue;
+                }
+
+                var laterTargetHasDamage = legalTargetsForSource
+                    .Skip(targetIndex + 1)
+                    .Any(laterTarget => sourceTargetDamage.TryGetValue((sourceObjectId, laterTarget), out var laterDamage)
+                        && laterDamage > 0);
+                if (laterTargetHasDamage)
+                {
+                    return CombatDamageAssignmentValidationResult.Rejected(
+                        ErrorCodes.InvalidPayload,
+                        "ASSIGN_COMBAT_DAMAGE 必须先向前序目标分配致命伤害。",
+                        damagePool,
+                        lethalThreshold);
+                }
+            }
+        }
+
+        return CombatDamageAssignmentValidationResult.AcceptedResult(damagePool, lethalThreshold);
     }
 
     private static CombatDamageAssignmentValidationResult ValidateCombatDamageAssignments(
@@ -3362,6 +3729,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var battlefieldId = battle.BattlefieldObjectId ?? string.Empty;
         var battleId = battle.BattleId ?? string.Empty;
+        var attackingPlayerId = BattleAttackingPlayerId(state, battle) ?? intent.PlayerId;
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
@@ -3376,6 +3744,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battleId"] = battleId,
                     ["battlefieldId"] = battlefieldId,
                     ["assigningPlayerId"] = intent.PlayerId,
+                    ["attackingPlayerId"] = attackingPlayerId,
                     ["attackerObjectIds"] = battle.AttackerObjectIds.ToArray(),
                     ["defenderObjectIds"] = battle.DefenderObjectIds.ToArray()
                 }),
@@ -3387,6 +3756,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battleId"] = battleId,
                     ["battlefieldId"] = battlefieldId,
                     ["assigningPlayerId"] = intent.PlayerId,
+                    ["attackingPlayerId"] = attackingPlayerId,
                     ["damagePool"] = damagePool,
                     ["lethalDamageThreshold"] = lethalDamageThreshold,
                     ["assignments"] = assignments
@@ -3418,8 +3788,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var combatStackItem = new StackItemState(
             $"assign-combat-damage-{state.Tick + 1}",
-            intent.PlayerId,
-            battle.AttackerObjectIds.FirstOrDefault() ?? intent.PlayerId,
+            attackingPlayerId,
+            battle.AttackerObjectIds.FirstOrDefault() ?? attackingPlayerId,
             "ASSIGN_COMBAT_DAMAGE",
             string.Empty,
             battle.AttackerObjectIds.Concat(battle.DefenderObjectIds).ToArray(),
@@ -3445,7 +3815,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battle.AttackerObjectIds,
                 battle.DefenderObjectIds,
                 defendingPlayerId,
-                intent.PlayerId,
+                attackingPlayerId,
                 out var battleWinnerPlayerId))
         {
             resolvedBattleWinnerPlayerId = battleWinnerPlayerId;
@@ -3458,7 +3828,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 battle.AttackerObjectIds,
                 battle.DefenderObjectIds,
-                intent.PlayerId,
+                attackingPlayerId,
                 defendingPlayerId));
         }
 
@@ -3486,10 +3856,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             var huntSource = huntConquerSources[0];
             combatEvents.Add(new GameEvent(
                 "BATTLEFIELD_CONQUERED",
-                $"{intent.PlayerId} 征服战场",
+                $"{attackingPlayerId} 征服战场",
                 new Dictionary<string, object?>
                 {
-                    ["playerId"] = intent.PlayerId,
+                    ["playerId"] = attackingPlayerId,
                     ["battlefieldId"] = battlefieldId,
                     ["sourceObjectId"] = huntSource.ObjectId,
                     ["defeatedObjectIds"] = battle.DefenderObjectIds.ToArray(),
@@ -3504,7 +3874,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
             playerExperience = GainExperience(
                 NormalizeExperienceForSeats(state),
-                intent.PlayerId,
+                attackingPlayerId,
                 huntAmount,
                 combatStackItem,
                 combatEvents,
@@ -3536,7 +3906,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ref battlefieldHeldEventEmitted,
                     defendingPlayerId,
                     battlefieldId,
-                    battle.AttackerObjectIds.FirstOrDefault() ?? intent.PlayerId,
+                    battle.AttackerObjectIds.FirstOrDefault() ?? attackingPlayerId,
                     battle.DefenderObjectIds,
                     new Dictionary<string, object?>
                     {
@@ -3603,7 +3973,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             combatEvents,
             state.Tick + 1,
             battlefieldId,
-            intent.PlayerId,
+            attackingPlayerId,
             defendingPlayerId,
             resolvedBattleWinnerPlayerId,
             battle.AttackerObjectIds,
@@ -3627,11 +3997,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             TriggerQueue = state.TriggerQueue.Concat(blueSentinelDelayedTriggers).ToArray(),
             BattlefieldResolutions = battlefieldResolutions,
             BattleResolutions = battleResolutions,
+            UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(state.UntilEndOfTurnEffects),
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
                 lethalCleanup.DestroyedUnitOwnerIds)
         };
-        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, attackingPlayerId);
         nextState = taskAdvance.State;
         combatEvents.AddRange(taskAdvance.Events);
 
@@ -16431,6 +16802,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PlayerZones = playerZones,
                 CardObjects = cardObjects,
                 ObjectLocations = assignmentObjectLocations,
+                UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(state.UntilEndOfTurnEffects),
                 PriorityPlayerId = null,
                 PassedPriorityPlayerIds = [],
                 FocusPlayerId = null,
@@ -25845,7 +26217,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ActivePlayerId = attackingPlayerId,
                 TimingState = TimingStates.NeutralOpen,
                 CardObjects = battleCardObjects,
-                UntilEndOfTurnEffects = ClearBattleResponseDeclarationContextMarkers(state.UntilEndOfTurnEffects),
+                UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(
+                    ClearBattleResponseDeclarationContextMarkers(state.UntilEndOfTurnEffects)),
                 PriorityPlayerId = null,
                 PassedPriorityPlayerIds = []
             },
