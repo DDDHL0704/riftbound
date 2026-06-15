@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-222O GameHub PayCost raw-command idempotent replay protocol-envelope versioning accepted one direct single-agent server-test shard covering replayed group `EVENTS`, `SNAPSHOT` and `PROMPT` protocol/schema defaults for the same raw `PAY_COST` command and same client intent id. Runtime changed: no, server test coverage only. Main code commit `73c5a371`. Validation passed: focused `1/1`, changed-class `GameHubJoinTests` `217/217`; adjacent Hub/protocol/PayCost/Replay/Raw/ClientIntent/Development filter `2049/2049`; backend full `8251/8251`. A_MAIN owns the main bundle. Future runtime/server closure work remains in single A_MAIN mode with no new subagents unless explicitly changed. It does not change DOC_MATRIX approved scope or open frontend/final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-222O GameHub PayCost raw-command idempotent replay protocol-envelope versioning accepted one direct single-agent server-test shard covering replayed group `EVENTS`, `SNAPSHOT` and `PROMPT` protocol/schema defaults for the same raw `PAY_COST` command and same client intent id. After user request, A_MAIN also merged local 2P smoke/rule-audit work into the active isolation branch: merge `4545d2ce` from `codex/rule-audit-local2p-worktree-20260615` `299c454a`, which includes `codex/local-2p-smoke-20260612` `d61e9ac4` and primary local merge `d5d776e7`; follow-up `3478c1df` labels the new `OBJECTS_READIED` backend event in DevUI. Validation passed after merge: rule-audit adjacent conformance filter `3124/3124`, 4D-222O PayCost focused `1/1`, backend full `8259/8259`, DevUI `npm run build` after `npm ci`, `git diff --check`, and anchored conflict-marker scan. A_MAIN owns the main bundle. Future runtime/server closure work remains in single A_MAIN mode with no new subagents unless explicitly changed. It does not change DOC_MATRIX approved scope or open final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,13 +65,29 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_PRIMARY`: `/Users/dinghaolin/IdeaProjects/riftbound`, currently observed on branch `codex/rule-audit-local2p-20260615` at local merge `d5d776e7` ahead of `origin/main` by 6 and behind the latest server-test checkpoints with local-2p smoke work; A_MAIN did not push those commits in Stage 4D-222M.
-- `A_MAIN_222O_ISOLATION`: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`, branch `codex/stage4d-222o-pay-cost-replay-protocol` based on `origin/main` `8d411ca3`; used for Stage 4D-222O to avoid mixing the primary worktree's local-2p merge into this server-test push.
-- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-15 11:04 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
+- `A_MAIN_PRIMARY`: `/Users/dinghaolin/IdeaProjects/riftbound`, currently observed on branch `codex/rule-audit-local2p-20260615` at local merge `d5d776e7` ahead of `origin/main` by 6 and behind the latest server-test checkpoints; its local-2p smoke content is now merged into `A_MAIN_222O_ISOLATION` via `4545d2ce`.
+- `A_MAIN_222O_ISOLATION`: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`, branch `codex/stage4d-222o-pay-cost-replay-protocol`, currently at `3478c1df` after Stage 4D-222O commits, local-2p/rule-audit merge `4545d2ce`, and DevUI `OBJECTS_READIED` label fix; push after docs sync is pending.
+- `DOC_MATRIX_CURRENT`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-current`, branch `codex/stage4d-matrix-docs-current`, last observed from A_MAIN on 2026-06-15 11:19 CST at clean HEAD `17bde0c3`; source commit `7cb78f27` has been integrated by A_MAIN in the prior integration checkpoint. A_MAIN did not touch that worktree. No further DOC_MATRIX rows are opened by this handoff.
 - `DOC_MATRIX_LEGACY`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs`, branch `codex/stage4d-matrix-docs-20260521`, latest known commit `1364dfbf`; keep idle unless explicitly reused.
 - `DOC_MATRIX_BATTLE`: `/Users/dinghaolin/MyProjects/riftbound-dotnet-stage4d-matrix-docs-battle`, branch `codex/stage4d-matrix-docs-battle-20260521`, latest known commit `98b99d93`; keep idle unless explicitly reused.
 
 ## Current Entries
+
+### 2026-06-15 11:19 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/MyProjects/riftbound-stage4d-222e-protocol-envelope`
+
+Branch / commit: `codex/stage4d-222o-pay-cost-replay-protocol` / `4545d2ce` local-2p/rule-audit merge, `3478c1df` DevUI event-label fix, docs checkpoint in follow-up commit
+
+Write locks: Runtime validation code, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, official catalog, browser/Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked unless the next A_MAIN slice explicitly owns them.
+
+Status: Per user request, A_MAIN merged `codex/rule-audit-local2p-worktree-20260615` at `299c454a` into the active Stage 4D branch. That branch already contained `codex/local-2p-smoke-20260612` at `d61e9ac4` and primary local merge `d5d776e7`, so both requested worktree contents are now included. The merge imports local 2P smoke/rule-audit changes across `CoreRuleEngine`, `MatchSession`, conformance tests/fixtures, DevUI starter deck override, and local smoke docs/script. A_MAIN added `3478c1df` to label the new backend `OBJECTS_READIED` event after the DevUI build guard caught the missing label. DOC_MATRIX_CURRENT remains clean at `17bde0c3`. Project remains **NOT READY**.
+
+Validation: merged rule-audit conformance filter `3124/3124`; 4D-222O PayCost focused replay protocol-envelope test `1/1`; backend full `8259/8259`; DevUI `npm run build` passed after `npm ci`; `git diff --check` and anchored conflict-marker scan passed before docs sync.
+
+Requested action: A_MAIN should push this integrated branch after docs checkpoint validation, then continue the next small Stage 4D server/runtime validation slice directly. No DOC_MATRIX action is requested.
 
 ### 2026-06-15 11:04 A_MAIN
 
