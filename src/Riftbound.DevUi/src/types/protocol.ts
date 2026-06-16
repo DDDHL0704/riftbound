@@ -27,6 +27,20 @@ export type GameEvent = {
   payload: Record<string, unknown>;
 };
 
+export type BattlefieldResolutionView = {
+  resolutionId?: string;
+  tick?: number;
+  kind?: string;
+  reason?: string;
+  battlefieldObjectId?: string;
+  playerId?: string | null;
+  previousControllerId?: string | null;
+  controllerId?: string | null;
+  sourceObjectId?: string | null;
+  participantObjectIds?: string[];
+  relatedEventKinds?: string[];
+};
+
 export type ActionPromptChoiceDto = {
   id: string;
   label: string;

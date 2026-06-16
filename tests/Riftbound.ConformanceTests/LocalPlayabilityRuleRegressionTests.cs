@@ -146,6 +146,65 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Null(spell.Cost.Power);
     }
 
+    [Fact]
+    public async Task MoveUnitToOpponentControlledEmptyBattlefieldStartsNonBattleSpellDuel()
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(
+            MoveUnitToOpponentControlledEmptyBattlefieldState(),
+            new PlayerIntent("intent-move-into-empty-controlled-battlefield", "P2", CommandTypes.MoveUnit),
+            new MoveUnitCommand("P2-BASE-MOVER", "BASE", "BATTLEFIELD:BF-1", []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P2", result.State.FocusPlayerId);
+        Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "BF-1"), result.State.ObjectLocations["P2-BASE-MOVER"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL"],
+            result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.DoesNotContain(result.State.PendingTaskQueue.Tasks, task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task NonBattleSpellDuelPassesResolveControlAndConquestScore()
+    {
+        var engine = new CoreRuleEngine();
+        var moved = await engine.ResolveAsync(
+            MoveUnitToOpponentControlledEmptyBattlefieldState(),
+            new PlayerIntent("intent-move-into-empty-controlled-battlefield-flow", "P2", CommandTypes.MoveUnit),
+            new MoveUnitCommand("P2-BASE-MOVER", "BASE", "BATTLEFIELD:BF-1", []),
+            CancellationToken.None);
+        Assert.True(moved.Accepted, moved.ErrorMessage);
+
+        var p2Pass = await engine.ResolveAsync(
+            moved.State,
+            new PlayerIntent("intent-non-battle-spell-duel-p2-pass", "P2", CommandTypes.PassFocus),
+            new PassFocusCommand(),
+            CancellationToken.None);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+
+        var p1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-non-battle-spell-duel-p1-pass", "P1", CommandTypes.PassFocus),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralOpen, p1Pass.State.TimingState);
+        Assert.Equal("P2", p1Pass.State.CardObjects["BF-1"].ControllerId);
+        Assert.Equal(1, p1Pass.State.PlayerScores["P2"]);
+        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_SCORE", StringComparison.Ordinal));
+        Assert.Empty(p1Pass.State.PendingTaskQueue.Tasks);
+    }
+
     private static MatchState PlayUnitToContestedBattlefieldState()
     {
         return new MatchState(
@@ -279,6 +338,56 @@ public sealed class LocalPlayabilityRuleRegressionTests
                 ["BF-1"] = new("P1", "BATTLEFIELD", "BF-1"),
                 ["P1-HOLDER"] = new("P1", "BATTLEFIELD", "BF-1"),
                 ["P1-DRAW"] = new("P1", "MAIN_DECK")
+            });
+    }
+
+    private static MatchState MoveUnitToOpponentControlledEmptyBattlefieldState()
+    {
+        return new MatchState(
+            roomId: "local-playability-non-battle-spell-duel-conquest",
+            tick: 0,
+            turnNumber: 3,
+            activePlayerId: "P2",
+            seats: Seats(),
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P2",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-MOVER"],
+                    MainDeck = ["P2-DRAW"]
+                }
+            },
+            playerScores: Scores(),
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = Battlefield("BF-1", "P1", "OGN·275/298"),
+                ["P2-BASE-MOVER"] = Unit("P2-BASE-MOVER", "P2", power: 2),
+                ["P2-DRAW"] = new(
+                    "P2-DRAW",
+                    cardNo: "OGN·004/298",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P2-BASE-MOVER"] = new("P2", "BASE"),
+                ["P2-DRAW"] = new("P2", "MAIN_DECK")
             });
     }
 

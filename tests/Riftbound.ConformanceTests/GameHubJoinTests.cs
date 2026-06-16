@@ -7754,7 +7754,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(passFocusClients.CallerClient.Errors);
         var events = EventsFor(passFocusClients);
         Assert.Equal(
-            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED"],
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED"],
             events.Select(gameEvent => gameEvent.Kind).ToArray());
         var closedEvent = Assert.Single(
             events,

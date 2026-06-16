@@ -30932,7 +30932,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(9, result.State.Tick);
         Assert.Equal(
-            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED"],
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED"],
             result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
         Assert.Null(result.State.FocusPlayerId);

@@ -192,6 +192,59 @@ h3 {
   color: var(--text-primary);
 }
 
+.scroll-area {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scroll-area-viewport {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: inherit;
+}
+
+.scroll-area-scrollbar {
+  display: flex;
+  width: 8px;
+  padding: 2px;
+  touch-action: none;
+  user-select: none;
+}
+
+.scroll-area-scrollbar-horizontal {
+  width: auto;
+  height: 8px;
+}
+
+.scroll-area-thumb {
+  position: relative;
+  flex: 1;
+  border-radius: 999px;
+  background: rgba(154, 188, 216, 0.44);
+}
+
+.scroll-area-corner {
+  background: transparent;
+}
+
+.tooltip-content {
+  z-index: 2000;
+  border: 1px solid rgba(154, 188, 216, 0.26);
+  border-radius: 6px;
+  background: rgba(10, 15, 23, 0.94);
+  color: rgba(235, 244, 248, 0.94);
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 850;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+}
+
+.tooltip-arrow {
+  fill: rgba(10, 15, 23, 0.94);
+}
+
 .page-grid,
 .home-page,
 .match-page {
@@ -557,14 +610,27 @@ button.card-face:hover {
   display: block;
   position: relative;
   min-height: 0;
-  border: 0;
+  aspect-ratio: 63 / 88;
+  border: 1px solid rgba(182, 129, 62, 0.78);
   border-radius: 6px;
-  background: transparent;
+  background:
+    linear-gradient(180deg, rgba(45, 23, 17, 0.96), rgba(14, 16, 22, 0.96)),
+    #211610;
   color: inherit;
   padding: 0;
   line-height: 0;
-  overflow: visible;
+  overflow: hidden;
   box-shadow: 0 9px 18px rgba(0, 0, 0, 0.28);
+}
+
+.card-image-only::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 2px;
+  border: 1px solid rgba(255, 226, 161, 0.18);
+  border-radius: 4px;
+  pointer-events: none;
 }
 
 .card-image-only:hover,
@@ -578,10 +644,70 @@ button.card-face:hover {
 .card-full-image {
   display: block;
   width: 100%;
-  aspect-ratio: 63 / 88;
-  border-radius: 6px;
+  height: 100%;
+  border-radius: 5px;
   object-fit: contain;
   object-position: center;
+}
+
+.card-image-cost,
+.card-image-power {
+  position: absolute;
+  z-index: 2;
+  display: inline-grid;
+  place-items: center;
+  min-height: 22px;
+  border: 1px solid rgba(22, 18, 12, 0.48);
+  background: rgba(246, 227, 174, 0.94);
+  color: #15120d;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.34);
+}
+
+.card-image-cost {
+  top: 3px;
+  left: 3px;
+  max-width: calc(100% - 6px);
+  border-radius: 5px;
+  padding: 3px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-image-power {
+  right: 3px;
+  bottom: 3px;
+  min-width: 23px;
+  border-radius: 999px;
+  background: rgba(244, 213, 116, 0.96);
+}
+
+.card-image-power.is-damaged {
+  background: rgba(239, 183, 102, 0.96);
+}
+
+.card-image-title {
+  position: absolute;
+  z-index: 2;
+  right: 3px;
+  bottom: 3px;
+  left: 3px;
+  display: block;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(26, 18, 14, 0.82), rgba(10, 9, 10, 0.92));
+  color: rgba(255, 247, 223, 0.94);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.15;
+  overflow: hidden;
+  padding: 4px 5px;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
 }
 
 .card-zoom-preview {
@@ -627,12 +753,20 @@ button.card-face:hover {
   max-width: 164px;
   height: 118px;
   aspect-ratio: 88 / 63;
+  overflow: visible;
 }
 
 .card-battlefield-image .card-full-image {
   width: 118px;
   height: 164px;
   transform: rotate(270deg);
+}
+
+.card-battlefield-image .card-image-title {
+  right: 8px;
+  bottom: 9px;
+  left: 8px;
+  max-width: calc(100% - 16px);
 }
 
 .card-battlefield-image .card-zoom-preview {
@@ -873,7 +1007,7 @@ button.card-face:hover {
 .app-frame-match .match-page {
   position: relative;
   display: grid;
-  grid-template-rows: 48px minmax(0, 1fr);
+  grid-template-rows: minmax(48px, auto) minmax(38px, auto) minmax(34px, auto) minmax(0, 1fr);
   gap: 6px;
   width: 100%;
   height: 100%;
@@ -949,10 +1083,7 @@ button.card-face:hover {
 }
 
 .app-frame-match .match-command-row {
-  position: absolute;
-  z-index: 4;
-  top: 56px;
-  right: 280px;
+  position: static;
   min-height: 38px;
   border-color: rgba(215, 173, 85, 0.22);
   background: rgba(12, 16, 17, 0.7);
@@ -964,7 +1095,6 @@ button.card-face:hover {
   padding: 5px 8px;
 }
 
-.app-frame-match .match-command-row .button span,
 .app-frame-match .match-command-meta span:first-child {
   display: none;
 }
@@ -983,6 +1113,60 @@ button.card-face:hover {
   background: rgba(255, 255, 255, 0.045);
   padding: 6px 8px;
   overflow-wrap: anywhere;
+}
+
+.match-rule-ribbon {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.28fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 34px;
+  border: 1px solid rgba(215, 173, 85, 0.24);
+  border-radius: 7px;
+  background: rgba(12, 17, 16, 0.78);
+  padding: 5px 8px;
+}
+
+.rule-ribbon-state,
+.rule-ribbon-events {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rule-ribbon-state span:not(.status-pill),
+.rule-ribbon-events span {
+  flex: 0 1 auto;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text-secondary);
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rule-ribbon-events span {
+  max-width: 220px;
+}
+
+.rule-ribbon-events .rule-ribbon-resolution {
+  border-color: rgba(106, 176, 190, 0.2);
+  background: rgba(106, 176, 190, 0.1);
+  color: #dbeee9;
+}
+
+.rule-ribbon-events strong {
+  margin-right: 4px;
+  color: #f6e7bd;
 }
 
 .match-workbench {
@@ -1029,7 +1213,7 @@ button.card-face:hover {
 }
 
 .app-frame-match .play-surface {
-  grid-template-rows: minmax(132px, 0.92fr) minmax(224px, 1.32fr) minmax(164px, 1fr);
+  grid-template-rows: minmax(104px, 0.66fr) minmax(226px, 1.42fr) minmax(154px, 0.92fr);
   align-content: stretch;
   gap: 6px;
   height: 100%;
@@ -1125,6 +1309,11 @@ button.card-face:hover {
 
 .app-frame-match .player-board-zones {
   min-height: 0;
+}
+
+.app-frame-match .player-self .player-board-zones {
+  grid-template-rows: minmax(0, 1fr) minmax(96px, 110px);
+  gap: 6px;
 }
 
 .player-opponent .player-board-zones {
@@ -1297,6 +1486,12 @@ button.card-face:hover {
   padding: 8px;
 }
 
+.rune-slot-meter > span:first-child {
+  color: rgba(219, 238, 233, 0.72);
+  font-size: 10px;
+  font-weight: 900;
+}
+
 .app-frame-match .rune-slot-meter {
   gap: 4px;
   min-height: 0;
@@ -1380,7 +1575,8 @@ button.card-face:hover {
   align-items: end;
   justify-content: center;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .app-frame-match .zone-hand .card-row .card-face:not(:first-child) {
@@ -1403,9 +1599,9 @@ button.card-face:hover {
 }
 
 .app-frame-match .player-self .zone-hand .card-compact {
-  width: 68px;
-  min-width: 68px;
-  max-width: 68px;
+  width: 78px;
+  min-width: 78px;
+  max-width: 78px;
 }
 
 .app-frame-match .player-opponent .zone-hand .card-compact {
@@ -1415,10 +1611,10 @@ button.card-face:hover {
 }
 
 .app-frame-match .zone-hand .card-back {
-  width: 68px;
-  min-width: 68px;
-  max-width: 68px;
-  min-height: 95px;
+  width: 78px;
+  min-width: 78px;
+  max-width: 78px;
+  min-height: 108px;
 }
 
 .app-frame-match .player-opponent .zone-hand .card-back {
@@ -1593,6 +1789,11 @@ button.card-face:hover {
   color: var(--text-secondary);
   font-size: 0.76rem;
   overflow-wrap: anywhere;
+}
+
+.battlefield-log .battlefield-resolution-entry {
+  color: #dbeee9;
+  font-weight: 850;
 }
 
 .side-panel {
@@ -2404,9 +2605,1297 @@ button.card-face:hover {
   line-height: 1.5;
 }
 
+/* TCG Arena-inspired tabletop layout for the match route. */
+.app-frame-match .app-content {
+  padding: 0;
+  background:
+    radial-gradient(circle at 74% 26%, rgba(193, 63, 82, 0.28), transparent 28%),
+    radial-gradient(circle at 30% 78%, rgba(65, 142, 186, 0.26), transparent 32%),
+    #11131a;
+}
+
+.app-frame-match .main-nav {
+  border-right: 1px solid rgba(231, 76, 105, 0.28);
+  background:
+    linear-gradient(180deg, rgba(18, 23, 34, 0.98), rgba(9, 13, 20, 0.98)),
+    #111722;
+  box-shadow: 10px 0 28px rgba(0, 0, 0, 0.32);
+}
+
+.app-frame-match .main-nav .button {
+  border-color: rgba(101, 142, 181, 0.2);
+  background: rgba(25, 45, 66, 0.7);
+}
+
+.app-frame-match .main-nav .button.nav-active {
+  border-color: rgba(234, 74, 112, 0.76);
+  background: rgba(54, 84, 112, 0.78);
+  box-shadow: inset 3px 0 0 rgba(234, 74, 112, 0.95);
+}
+
+.app-frame-match .match-page {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  width: 100%;
+  height: 100vh;
+  max-width: none;
+  margin: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.app-frame-match .match-topbar,
+.app-frame-match .match-command-row,
+.app-frame-match .match-rule-ribbon {
+  position: absolute;
+  z-index: 6;
+  border-radius: 8px;
+  border-color: rgba(96, 139, 170, 0.28);
+  background:
+    linear-gradient(180deg, rgba(18, 25, 37, 0.9), rgba(12, 18, 28, 0.82)),
+    rgba(12, 18, 28, 0.86);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.32);
+}
+
+.app-frame-match .match-topbar {
+  top: 8px;
+  left: 10px;
+  right: 328px;
+  min-height: 46px;
+  grid-template-columns: minmax(210px, 0.8fr) minmax(0, 1.2fr) auto;
+}
+
+.app-frame-match .match-command-row {
+  top: 62px;
+  left: 10px;
+  width: auto;
+  max-width: min(540px, calc(100vw - 412px));
+}
+
+.app-frame-match .match-rule-ribbon {
+  top: 62px;
+  left: 562px;
+  right: 328px;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-height: 38px;
+  padding: 6px 8px;
+}
+
+.app-frame-match .match-workbench {
+  grid-row: 1;
+  grid-template-columns: minmax(0, 1fr) 318px;
+  gap: 0;
+  height: 100vh;
+}
+
+.app-frame-match .play-surface {
+  position: relative;
+  z-index: 1;
+  grid-template-rows: minmax(150px, 0.78fr) minmax(244px, 1.12fr) minmax(206px, 1.08fr);
+  gap: 0;
+  height: 100vh;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(118deg, transparent 0 16%, rgba(246, 124, 79, 0.24) 16.5% 31%, transparent 31.5%),
+    linear-gradient(244deg, transparent 0 19%, rgba(113, 84, 222, 0.26) 19.5% 37%, transparent 37.5%),
+    linear-gradient(304deg, transparent 0 24%, rgba(70, 187, 218, 0.24) 24.5% 42%, transparent 42.5%),
+    linear-gradient(180deg, rgba(54, 25, 25, 0.72) 0%, rgba(27, 20, 26, 0.64) 48%, rgba(12, 20, 32, 0.7) 52%, rgba(24, 20, 45, 0.72) 100%),
+    #151823;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app-frame-match .play-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 0 11%, rgba(255, 224, 160, 0.08) 11.4% 12.2%, transparent 12.6%),
+    linear-gradient(270deg, transparent 0 10%, rgba(143, 218, 238, 0.08) 10.4% 11.2%, transparent 11.6%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 16%, transparent 84%, rgba(255, 255, 255, 0.07)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 122px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 96px);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+}
+
+.app-frame-match .play-surface::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(245, 74, 115, 0.88) 8%, rgba(245, 74, 115, 0.88) 92%, transparent);
+  box-shadow: 0 0 18px rgba(245, 74, 115, 0.44);
+}
+
+.app-frame-match .play-surface > * {
+  position: relative;
+  z-index: 1;
+}
+
+.app-frame-match .player-board,
+.app-frame-match .battlefield-area {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-frame-match .player-board {
+  grid-template-rows: 30px minmax(0, 1fr) 18px;
+  gap: 6px;
+  padding: 11px 12px 8px;
+}
+
+.app-frame-match .player-board-meta {
+  display: none;
+}
+
+.app-frame-match .player-board header {
+  align-items: center;
+  border-radius: 8px;
+  background: rgba(9, 14, 22, 0.36);
+  padding: 4px 7px;
+  backdrop-filter: blur(6px);
+}
+
+.app-frame-match .player-board header .eyebrow {
+  display: none;
+}
+
+.app-frame-match .player-board header h2 {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.app-frame-match .player-pills {
+  flex-wrap: nowrap;
+}
+
+.app-frame-match .player-pills .status-pill {
+  min-width: 40px;
+  justify-content: center;
+}
+
+.app-frame-match .player-board-zones {
+  min-height: 0;
+}
+
+.app-frame-match .player-opponent .player-board-zones {
+  grid-template-columns: minmax(0, 1fr) minmax(246px, 0.28fr);
+  gap: 8px;
+}
+
+.app-frame-match .player-self .player-board-zones {
+  grid-template-rows: minmax(0, 1fr) 164px;
+  gap: 6px;
+}
+
+.app-frame-match .player-board-primary-zones,
+.app-frame-match .player-opponent .player-board-primary-zones {
+  grid-template-columns: minmax(146px, 0.5fr) minmax(230px, 0.72fr) minmax(190px, 0.54fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.app-frame-match .zone-strip {
+  position: relative;
+  border: 1px solid rgba(154, 188, 216, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(20, 42, 60, 0.42), rgba(10, 16, 25, 0.34)),
+    rgba(7, 13, 22, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(4px);
+}
+
+.app-frame-match .zone-title {
+  position: absolute;
+  z-index: 2;
+  top: 4px;
+  left: 6px;
+  right: 6px;
+  min-height: 14px;
+  color: rgba(235, 244, 248, 0.78);
+  font-size: 10px;
+  line-height: 1.18;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.app-frame-match .zone-title span {
+  color: rgba(235, 244, 248, 0.68);
+}
+
+.app-frame-match .zone-strip .card-row {
+  padding-top: 16px;
+}
+
+.app-frame-match .zone-hand {
+  border-color: transparent;
+  background:
+    linear-gradient(180deg, transparent, rgba(8, 12, 20, 0.42)),
+    transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  overflow: visible;
+}
+
+.app-frame-match .zone-hand .zone-title {
+  top: auto;
+  bottom: 4px;
+}
+
+.app-frame-match .zone-hand .card-row {
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+  min-height: 144px;
+  padding: 4px 10px 18px;
+}
+
+.app-frame-match .player-self .zone-hand .card-face:not(:first-child) {
+  margin-left: -28px;
+}
+
+.app-frame-match .player-opponent .zone-hand .card-face:not(:first-child) {
+  margin-left: -36px;
+}
+
+.app-frame-match .zone-hand .card-face {
+  transform-origin: bottom center;
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+}
+
+.app-frame-match .zone-hand .card-face:nth-child(2n) {
+  transform: rotate(1.6deg) translateY(2px);
+}
+
+.app-frame-match .zone-hand .card-face:nth-child(3n) {
+  transform: rotate(-2.2deg) translateY(5px);
+}
+
+.app-frame-match .zone-hand .card-face:hover,
+.app-frame-match .zone-hand .card-face:focus-visible {
+  z-index: 8;
+  transform: translateY(-20px) scale(1.08);
+}
+
+.app-frame-match .player-self .zone-hand .card-compact,
+.app-frame-match .zone-hand .card-back {
+  width: 92px;
+  min-width: 92px;
+  max-width: 92px;
+}
+
+.app-frame-match .player-opponent .zone-hand .card-compact,
+.app-frame-match .player-opponent .zone-hand .card-back {
+  width: 76px;
+  min-width: 76px;
+  max-width: 76px;
+}
+
+.app-frame-match .card-back {
+  position: relative;
+  place-items: center;
+  border: 1px solid rgba(139, 204, 229, 0.5);
+  background:
+    radial-gradient(circle at 50% 46%, rgba(127, 207, 230, 0.36), transparent 34%),
+    linear-gradient(155deg, rgba(22, 85, 112, 0.98), rgba(9, 38, 65, 0.99) 54%, rgba(5, 27, 49, 0.99));
+  color: transparent;
+  text-shadow: none;
+}
+
+.app-frame-match .card-back::before {
+  content: "";
+  position: absolute;
+  width: 54%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(218, 236, 237, 0.64);
+  border-radius: 6px;
+  background:
+    linear-gradient(135deg, transparent 47%, rgba(218, 236, 237, 0.5) 48% 52%, transparent 53%),
+    linear-gradient(45deg, transparent 47%, rgba(218, 236, 237, 0.42) 48% 52%, transparent 53%),
+    radial-gradient(circle at 50% 50%, rgba(9, 38, 65, 0.44), transparent 58%);
+  opacity: 0.9;
+  transform: rotate(45deg);
+}
+
+.app-frame-match .card-back::after {
+  content: "LEAGUE\A OF\A LEGENDS";
+  position: absolute;
+  left: 13%;
+  right: 13%;
+  top: 50%;
+  color: rgba(232, 244, 247, 0.9);
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1.04;
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.82);
+  transform: translateY(-50%);
+  white-space: pre;
+}
+
+.app-frame-match .card-back .card-frame-top,
+.app-frame-match .card-back strong,
+.app-frame-match .card-back span {
+  display: none;
+}
+
+.app-frame-match .card-image-only,
+.app-frame-match .card-face {
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.44));
+}
+
+.app-frame-match .card-image-only:hover,
+.app-frame-match .card-image-only:focus-visible,
+.app-frame-match .card-image-only.is-selected {
+  box-shadow:
+    0 0 0 2px rgba(238, 79, 119, 0.88),
+    0 18px 32px rgba(0, 0, 0, 0.52);
+}
+
+.app-frame-match .card-zoom-preview {
+  display: none;
+  left: auto;
+  right: 336px;
+  top: 50%;
+  width: min(360px, 28vw);
+  transform: translateY(-50%) scale(0.96);
+}
+
+.app-frame-match .card-image-only:hover .card-zoom-preview,
+.app-frame-match .card-image-only:focus-visible .card-zoom-preview {
+  transform: translateY(-50%) scale(1);
+}
+
+.app-frame-match .battlefield-area {
+  grid-template-rows: 26px minmax(0, 1fr);
+  padding: 8px 12px;
+  border-top: 1px solid rgba(238, 79, 119, 0.5);
+  border-bottom: 1px solid rgba(238, 79, 119, 0.28);
+  background: rgba(7, 11, 18, 0.16);
+}
+
+.app-frame-match .battlefield-area > header {
+  border-radius: 8px;
+  background: rgba(9, 14, 22, 0.32);
+  padding: 4px 7px;
+  backdrop-filter: blur(6px);
+}
+
+.app-frame-match .battlefield-area > header .eyebrow {
+  display: none;
+}
+
+.app-frame-match .battlefield-grid {
+  gap: 8px;
+}
+
+.app-frame-match .battlefield-card {
+  border: 1px solid rgba(154, 188, 216, 0.2);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(16, 35, 52, 0.48), rgba(8, 13, 21, 0.36)),
+    rgba(8, 13, 21, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.app-frame-match .battlefield-card > .card-battlefield-image {
+  align-self: center;
+  justify-self: center;
+  width: 136px;
+  min-width: 136px;
+  max-width: 136px;
+  height: 98px;
+}
+
+.app-frame-match .battlefield-card > .card-battlefield-image .card-full-image {
+  width: 98px;
+  height: 136px;
+}
+
+.app-frame-match .battlefield-object-row {
+  grid-template-columns: repeat(auto-fill, minmax(62px, 72px));
+  overflow: visible;
+}
+
+.app-frame-match .battlefield-object-row .card-compact,
+.app-frame-match .zone-base .card-compact,
+.app-frame-match .zone-field .card-compact {
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+}
+
+.app-frame-match .zone-counts {
+  justify-content: flex-end;
+  color: rgba(238, 246, 247, 0.82);
+  font-size: 11px;
+}
+
+.app-frame-match .action-rail {
+  display: grid;
+  grid-template-rows: 318px minmax(0, 1fr) auto;
+  gap: 8px;
+  border-left: 1px solid rgba(154, 188, 216, 0.2);
+  background:
+    linear-gradient(180deg, rgba(20, 30, 43, 0.94), rgba(10, 16, 25, 0.96)),
+    rgba(10, 16, 25, 0.94);
+  padding: 8px;
+}
+
+.app-frame-match .focused-card-dock,
+.app-frame-match .action-panel,
+.app-frame-match .match-diagnostics {
+  border-radius: 8px;
+  border-color: rgba(154, 188, 216, 0.22);
+  background:
+    linear-gradient(180deg, rgba(30, 47, 66, 0.82), rgba(13, 20, 31, 0.82)),
+    rgba(13, 20, 31, 0.86);
+  box-shadow: none;
+}
+
+.app-frame-match .focused-card-dock {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-frame-match .focused-card-dock header {
+  align-items: center;
+}
+
+.app-frame-match .focused-card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.app-frame-match .focused-card-actions .button {
+  min-height: 28px;
+  padding: 4px 7px;
+  font-size: 11px;
+}
+
+.app-frame-match .focused-card-stage {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+  border: 1px solid rgba(154, 188, 216, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(9, 15, 24, 0.52), rgba(5, 8, 14, 0.36)),
+    rgba(6, 10, 17, 0.4);
+  padding: 8px;
+  overflow: hidden;
+}
+
+.app-frame-match .focused-card-stage .card-face {
+  width: min(206px, 100%);
+  min-width: 0;
+  max-width: 206px;
+}
+
+.app-frame-match .focused-card-stage .card-image-only {
+  min-height: 0;
+}
+
+.app-frame-match .focused-card-stage .card-zoom-preview {
+  display: none;
+}
+
+.app-frame-match .focused-card-placeholder {
+  position: relative;
+  display: grid;
+  width: min(176px, 82%);
+  aspect-ratio: 63 / 88;
+  place-items: center;
+  border: 1px solid rgba(116, 181, 210, 0.44);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(20, 62, 88, 0.98), rgba(13, 32, 54, 0.98)),
+    rgba(13, 32, 54, 0.98);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+.app-frame-match .focused-card-placeholder span {
+  width: 58%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(232, 244, 247, 0.68);
+  border-radius: 50%;
+  background:
+    linear-gradient(135deg, transparent 44%, rgba(232, 244, 247, 0.58) 45% 55%, transparent 56%),
+    linear-gradient(45deg, transparent 44%, rgba(232, 244, 247, 0.5) 45% 55%, transparent 56%);
+}
+
+.app-frame-match .action-panel {
+  overflow: hidden;
+}
+
+.app-frame-match .action-panel-scroll,
+.app-frame-match .match-diagnostics-scroll {
+  height: 100%;
+  min-height: 0;
+}
+
+.app-frame-match .action-panel-content {
+  display: grid;
+  gap: 8px;
+  padding-right: 8px;
+}
+
+.app-frame-match .match-diagnostics {
+  max-height: 190px;
+}
+
+.app-frame-match .match-diagnostics[open] {
+  min-height: min(284px, 32vh);
+}
+
+.app-frame-match .match-diagnostics-grid {
+  max-height: none;
+  overflow: visible;
+  padding-right: 8px;
+}
+
+.app-frame-match .match-diagnostics summary {
+  color: rgba(235, 244, 248, 0.86);
+}
+
+.app-frame-match .action-panel,
+.app-frame-match .match-diagnostics-grid,
+.app-frame-match .event-log,
+.app-frame-match .action-panel {
+  scrollbar-color: rgba(154, 188, 216, 0.46) rgba(255, 255, 255, 0.05);
+  scrollbar-width: thin;
+}
+
+/* Closer pass: TCG Arena uses a playmat first, UI chrome second. */
+.app-frame-match .match-topbar {
+  right: 342px;
+}
+
+.app-frame-match .match-command-row {
+  max-width: min(424px, calc(100vw - 430px));
+}
+
+.app-frame-match .match-rule-ribbon {
+  left: 570px;
+  right: 342px;
+}
+
+.app-frame-match .match-workbench {
+  grid-template-columns: minmax(0, 1fr) 332px;
+}
+
+.app-frame-match .play-surface {
+  grid-template-rows: minmax(154px, 0.86fr) minmax(292px, 1.24fr) minmax(224px, 1.08fr);
+  background:
+    linear-gradient(180deg, rgba(8, 10, 14, 0.2), rgba(8, 10, 14, 0.18)),
+    linear-gradient(90deg, rgba(178, 39, 65, 0.26), transparent 22%, transparent 74%, rgba(66, 180, 205, 0.18)),
+    url("https://russeus.github.io/RB-TCG-Arena/Images/Banner.png") center / cover no-repeat,
+    #10141c;
+}
+
+.app-frame-match .play-surface::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.06)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.028) 0 1px, transparent 1px 122px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 96px);
+  opacity: 0.42;
+}
+
+.app-frame-match .zone-strip {
+  border-color: rgba(154, 188, 216, 0.1);
+  background: rgba(3, 8, 14, 0.14);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.app-frame-match .zone-strip:hover,
+.app-frame-match .zone-strip:focus-within {
+  border-color: rgba(154, 188, 216, 0.24);
+  background: rgba(6, 14, 24, 0.2);
+}
+
+.app-frame-match .rune-slot,
+.app-frame-match .zone-base,
+.app-frame-match .zone-field,
+.app-frame-match .zone-signature {
+  background:
+    linear-gradient(180deg, rgba(11, 19, 31, 0.24), rgba(6, 10, 17, 0.14)),
+    rgba(6, 10, 17, 0.1);
+}
+
+.app-frame-match .rune-slot-meter {
+  border: 0;
+  background: transparent;
+  padding: 5px 6px;
+}
+
+.app-frame-match .rune-trait-list span,
+.app-frame-match .empty-hint {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.app-frame-match .battlefield-area {
+  position: relative;
+  grid-template-rows: minmax(0, 1fr);
+  padding: 0 10px 8px;
+  background:
+    linear-gradient(180deg, rgba(5, 9, 15, 0.04), rgba(5, 9, 15, 0.14)),
+    transparent;
+}
+
+.app-frame-match .battlefield-area > header {
+  position: absolute;
+  z-index: 4;
+  top: 8px;
+  left: 18px;
+  right: 18px;
+  width: auto;
+  background: transparent;
+  padding: 0;
+  backdrop-filter: none;
+}
+
+.app-frame-match .battlefield-area > header h2 {
+  font-size: 22px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.82);
+}
+
+.app-frame-match .battlefield-grid {
+  height: 100%;
+  padding-top: 42px;
+}
+
+.app-frame-match .battlefield-card {
+  position: relative;
+  display: block;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  padding: 0;
+}
+
+.app-frame-match .battlefield-card::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(154, 188, 216, 0.13);
+  border-radius: 7px;
+  background:
+    linear-gradient(180deg, rgba(8, 15, 25, 0.24), rgba(4, 8, 14, 0.12)),
+    rgba(4, 8, 14, 0.08);
+  pointer-events: none;
+}
+
+.app-frame-match .battlefield-card header {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  grid-column: auto;
+  background: transparent;
+  padding: 0;
+}
+
+.app-frame-match .battlefield-card header h3 {
+  font-size: 15px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.82);
+}
+
+.app-frame-match .battlefield-card header .eyebrow,
+.app-frame-match .battlefield-controller-lanes > strong {
+  display: none;
+}
+
+.app-frame-match .battlefield-state-line,
+.app-frame-match .battlefield-task-line {
+  position: absolute;
+  z-index: 3;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.app-frame-match .battlefield-state-line {
+  top: 48px;
+}
+
+.app-frame-match .battlefield-task-line {
+  display: none;
+}
+
+.app-frame-match .battlefield-state-line span,
+.app-frame-match .battlefield-task-line span,
+.app-frame-match .battlefield-card header .status-pill {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(13, 17, 24, 0.42);
+  padding: 4px 7px;
+  backdrop-filter: blur(5px);
+}
+
+.app-frame-match .battlefield-state-line span:nth-child(n+4) {
+  display: none;
+}
+
+.app-frame-match .battlefield-card > .card-battlefield-image {
+  position: absolute;
+  z-index: 2;
+  left: 18px;
+  bottom: 76px;
+  width: 148px;
+  min-width: 148px;
+  max-width: 148px;
+  height: 106px;
+}
+
+.app-frame-match .battlefield-card > .card-battlefield-image .card-full-image {
+  width: 106px;
+  height: 148px;
+}
+
+.app-frame-match .battlefield-occupants {
+  position: absolute;
+  z-index: 3;
+  inset: 112px 18px 44px 182px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(104px, 0.34fr);
+  gap: 8px;
+  overflow: visible;
+}
+
+.app-frame-match .battlefield-object-strip {
+  align-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.app-frame-match .battlefield-object-strip > strong,
+.app-frame-match .battlefield-controller-lanes > strong {
+  color: rgba(245, 249, 250, 0.9);
+  font-size: 10px;
+  font-weight: 950;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+.app-frame-match .battlefield-object-strip > strong {
+  opacity: 0.72;
+}
+
+.app-frame-match .battlefield-object-row {
+  display: flex;
+  gap: 0;
+  align-items: flex-end;
+  overflow: visible;
+  padding: 0;
+}
+
+.app-frame-match .battlefield-object-row .card-face:not(:first-child) {
+  margin-left: -10px;
+}
+
+.app-frame-match .battlefield-object-row .card-compact,
+.app-frame-match .zone-base .card-compact,
+.app-frame-match .zone-field .card-compact {
+  width: 68px;
+  min-width: 68px;
+  max-width: 68px;
+}
+
+.app-frame-match .battlefield-log {
+  display: none;
+}
+
+.app-frame-match .action-rail {
+  grid-template-rows: 320px minmax(0, 1fr) auto;
+  background:
+    linear-gradient(180deg, rgba(13, 20, 32, 0.86), rgba(6, 10, 17, 0.92)),
+    rgba(8, 12, 20, 0.88);
+}
+
+.app-frame-match .focused-card-dock {
+  border-color: transparent;
+  background: transparent;
+  padding: 6px 2px 2px;
+  overflow: visible;
+}
+
+.app-frame-match .focused-card-stage {
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  overflow: visible;
+}
+
+.app-frame-match .focused-card-stage .card-face {
+  width: min(224px, 92%);
+  max-width: 224px;
+  transform: rotate(0.6deg);
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.58));
+}
+
+.app-frame-match .action-panel,
+.app-frame-match .match-diagnostics {
+  background:
+    linear-gradient(180deg, rgba(19, 30, 45, 0.82), rgba(7, 12, 20, 0.78)),
+    rgba(8, 13, 21, 0.72);
+}
+
+/* Arena fidelity pass: playmat-first composition with cards floating over lanes. */
+.app-frame-match .match-domain-dock {
+  position: absolute;
+  z-index: 9;
+  top: 112px;
+  left: 12px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(9, 13, 20, 0.68);
+  padding: 5px 7px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.app-frame-match .domain-token {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.82);
+}
+
+.app-frame-match .domain-arcane {
+  background: radial-gradient(circle at 35% 30%, #cab8ff, #5e35b1 70%);
+}
+
+.app-frame-match .domain-fury {
+  background: radial-gradient(circle at 35% 30%, #ffd48a, #b83a21 72%);
+}
+
+.app-frame-match .domain-order {
+  background: radial-gradient(circle at 35% 30%, #d3f2ff, #286aa4 72%);
+}
+
+.app-frame-match .domain-wild {
+  background: radial-gradient(circle at 35% 30%, #d7ffb0, #2f7a42 72%);
+}
+
+.app-frame-match .domain-chaos {
+  background: radial-gradient(circle at 35% 30%, #ffd1ca, #a82d3b 72%);
+}
+
+.app-frame-match .domain-guard {
+  background: radial-gradient(circle at 35% 30%, #ffeeb4, #87651c 72%);
+}
+
+.app-frame-match .match-workbench {
+  grid-template-columns: minmax(0, 1fr) 368px;
+}
+
+.app-frame-match .match-topbar {
+  right: 378px;
+}
+
+.app-frame-match .match-command-row {
+  top: 64px;
+  max-width: min(408px, calc(100vw - 470px));
+}
+
+.app-frame-match .match-rule-ribbon {
+  top: 64px;
+  left: 440px;
+  right: 378px;
+}
+
+.app-frame-match .play-surface {
+  grid-template-rows: minmax(132px, 0.78fr) minmax(322px, 1.45fr) minmax(210px, 1fr);
+  background:
+    linear-gradient(180deg, rgba(5, 6, 12, 0.06), rgba(5, 6, 12, 0.18)),
+    linear-gradient(90deg, rgba(203, 31, 70, 0.34), transparent 20%, transparent 76%, rgba(49, 174, 213, 0.16)),
+    url("https://russeus.github.io/RB-TCG-Arena/Images/Banner.png") center / cover no-repeat,
+    #0f141d;
+}
+
+.app-frame-match .play-surface::after {
+  top: 49.5%;
+  height: 3px;
+  background:
+    linear-gradient(90deg, transparent, rgba(245, 65, 111, 0.95) 5%, rgba(245, 65, 111, 0.95) 95%, transparent);
+}
+
+.app-frame-match .player-board {
+  position: relative;
+  display: block;
+  padding: 6px 12px;
+}
+
+.app-frame-match .player-board header {
+  position: absolute;
+  z-index: 6;
+  left: 10px;
+  width: 202px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 19, 31, 0.68);
+}
+
+.app-frame-match .player-opponent header {
+  top: 8px;
+}
+
+.app-frame-match .player-self header {
+  bottom: 8px;
+}
+
+.app-frame-match .player-pills .status-pill:nth-child(2),
+.app-frame-match .player-pills .status-pill:nth-child(3) {
+  display: none;
+}
+
+.app-frame-match .player-board-primary-zones,
+.app-frame-match .player-opponent .player-board-primary-zones,
+.app-frame-match .player-self .player-board-primary-zones {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 112px minmax(174px, 0.28fr) minmax(214px, 0.3fr) minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+}
+
+.app-frame-match .player-opponent .player-board-primary-zones {
+  top: 52px;
+  right: 18px;
+  left: 242px;
+  bottom: 12px;
+}
+
+.app-frame-match .player-self .player-board-primary-zones {
+  top: 16px;
+  right: 18px;
+  left: 18px;
+  bottom: 112px;
+  grid-template-columns: 104px minmax(190px, 0.24fr) minmax(240px, 0.3fr) minmax(0, 1fr);
+}
+
+.app-frame-match .zone-strip {
+  min-height: 0;
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(5, 10, 18, 0.08);
+}
+
+.app-frame-match .zone-signature,
+.app-frame-match .rune-slot,
+.app-frame-match .zone-base,
+.app-frame-match .zone-field {
+  background:
+    linear-gradient(180deg, rgba(7, 14, 24, 0.22), rgba(2, 5, 10, 0.1)),
+    rgba(4, 8, 14, 0.08);
+}
+
+.app-frame-match .zone-title {
+  color: rgba(247, 250, 251, 0.72);
+}
+
+.app-frame-match .zone-hand {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  width: min(690px, 64vw);
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  transform: translateX(-50%);
+}
+
+.app-frame-match .player-opponent .zone-hand {
+  top: 12px;
+  width: min(520px, 46vw);
+  transform: translateX(-39%);
+}
+
+.app-frame-match .player-self .zone-hand {
+  bottom: -22px;
+}
+
+.app-frame-match .zone-hand .card-row {
+  min-height: 164px;
+  justify-content: center;
+  padding: 0 10px 22px;
+}
+
+.app-frame-match .player-opponent .zone-hand .card-row {
+  min-height: 104px;
+  align-items: flex-start;
+  padding-bottom: 0;
+}
+
+.app-frame-match .player-self .zone-hand .card-face:not(:first-child) {
+  margin-left: -24px;
+}
+
+.app-frame-match .player-opponent .zone-hand .card-face:not(:first-child) {
+  margin-left: -38px;
+}
+
+.app-frame-match .player-self .zone-hand .card-compact,
+.app-frame-match .player-self .zone-hand .card-back {
+  width: 104px;
+  min-width: 104px;
+  max-width: 104px;
+}
+
+.app-frame-match .player-opponent .zone-hand .card-compact,
+.app-frame-match .player-opponent .zone-hand .card-back {
+  width: 74px;
+  min-width: 74px;
+  max-width: 74px;
+}
+
+.app-frame-match .zone-hand .zone-title {
+  display: none;
+}
+
+.app-frame-match .zone-counts {
+  position: absolute;
+  z-index: 6;
+  right: 18px;
+  bottom: 12px;
+  gap: 8px;
+  border-radius: 8px;
+  background: rgba(8, 13, 21, 0.48);
+  padding: 5px 7px;
+}
+
+.app-frame-match .player-opponent .zone-counts {
+  top: 10px;
+  right: 18px;
+  bottom: auto;
+}
+
+.app-frame-match .battlefield-area {
+  padding: 0 10px;
+  border-top-color: rgba(238, 79, 119, 0.74);
+  border-bottom-color: rgba(238, 79, 119, 0.58);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.04)),
+    transparent;
+}
+
+.app-frame-match .battlefield-grid {
+  gap: 0;
+  padding-top: 36px;
+}
+
+.app-frame-match .battlefield-card::before {
+  inset: 10px 8px 14px;
+  border-color: rgba(185, 222, 236, 0.12);
+  background:
+    linear-gradient(180deg, rgba(13, 31, 48, 0.18), rgba(4, 8, 14, 0.06)),
+    rgba(5, 10, 18, 0.06);
+}
+
+.app-frame-match .battlefield-card > .card-battlefield-image {
+  left: 22px;
+  bottom: 32px;
+  width: 168px;
+  min-width: 168px;
+  max-width: 168px;
+  height: 118px;
+}
+
+.app-frame-match .battlefield-card > .card-battlefield-image .card-full-image {
+  width: 118px;
+  height: 168px;
+}
+
+.app-frame-match .battlefield-occupants {
+  inset: 100px 18px 34px 204px;
+  grid-template-columns: minmax(0, 1fr) 112px;
+}
+
+.app-frame-match .battlefield-object-row .card-compact,
+.app-frame-match .zone-base .card-compact,
+.app-frame-match .zone-field .card-compact {
+  width: 74px;
+  min-width: 74px;
+  max-width: 74px;
+}
+
+.app-frame-match .action-rail {
+  grid-template-rows: 392px minmax(0, 1fr) auto;
+  border-left-color: rgba(245, 65, 111, 0.34);
+  background:
+    linear-gradient(180deg, rgba(10, 16, 26, 0.72), rgba(5, 8, 14, 0.9)),
+    rgba(7, 11, 18, 0.78);
+}
+
+.app-frame-match .focused-card-dock header {
+  min-height: 28px;
+}
+
+.app-frame-match .focused-card-stage .card-face {
+  width: min(282px, 94%);
+  max-width: 282px;
+  transform: rotate(1.2deg);
+}
+
+.app-frame-match .focused-card-placeholder {
+  width: min(240px, 86%);
+}
+
+/* Arena second pass: keep the table clear, move utility chrome into a compact HUD. */
+.app-frame-match .match-topbar {
+  top: 8px;
+  right: auto;
+  width: min(356px, calc(100vw - 430px));
+  min-height: 40px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 6px 8px;
+}
+
+.app-frame-match .match-topbar-title h1 {
+  font-size: 16px;
+  line-height: 1.05;
+}
+
+.app-frame-match .match-topbar-pills {
+  display: none;
+}
+
+.app-frame-match .match-topbar-connection {
+  gap: 6px;
+}
+
+.app-frame-match .match-command-row {
+  top: 56px;
+  width: min(302px, calc(100vw - 430px));
+  max-width: none;
+  min-height: 34px;
+  padding: 5px;
+  background: rgba(8, 13, 21, 0.54);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
+}
+
+.app-frame-match .match-command-meta {
+  display: none;
+}
+
+.app-frame-match .match-command-actions {
+  gap: 4px;
+}
+
+.app-frame-match .match-command-actions .button {
+  min-height: 30px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+.app-frame-match .match-rule-ribbon {
+  top: 98px;
+  right: auto;
+  left: 10px;
+  width: min(314px, calc(100vw - 430px));
+  min-height: 36px;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 6px 7px;
+  background: rgba(8, 13, 21, 0.48);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+}
+
+.app-frame-match .rule-ribbon-state,
+.app-frame-match .rule-ribbon-events {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.app-frame-match .rule-ribbon-events span:nth-child(n+2) {
+  display: none;
+}
+
+.app-frame-match .match-domain-dock {
+  top: 144px;
+  left: 10px;
+}
+
+.app-frame-match .player-opponent .zone-hand {
+  top: 10px;
+  width: min(600px, 50vw);
+  transform: translateX(-50%);
+}
+
+.app-frame-match .battlefield-area > header {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app-frame-match .battlefield-grid {
+  padding-top: 8px;
+}
+
+.app-frame-match .battlefield-state-line {
+  top: 18px;
+}
+
+.app-frame-match .battlefield-state-line span:nth-child(n+3) {
+  display: none;
+}
+
+.app-frame-match .battlefield-occupants {
+  inset: 78px 18px 28px 204px;
+}
+
+.app-frame-match .action-rail {
+  grid-template-rows: 420px minmax(0, 1fr) auto;
+}
+
+.app-frame-match .focused-card-stage .card-face {
+  width: min(310px, 94%);
+  max-width: 310px;
+}
+
+.app-frame-match .focused-card-placeholder {
+  width: min(272px, 86%);
+}
+
 @media (max-width: 1366px) {
   .app-frame {
     grid-template-columns: 188px minmax(0, 1fr);
+  }
+
+  .app-frame.app-frame-match {
+    grid-template-columns: 56px minmax(0, 1fr);
   }
 
   .match-layout {
@@ -2415,6 +3904,32 @@ button.card-face:hover {
 
   .match-workbench {
     grid-template-columns: minmax(0, 1fr) minmax(310px, 340px);
+  }
+
+  .app-frame-match .match-workbench {
+    grid-template-columns: minmax(0, 1fr) 336px;
+  }
+
+  .app-frame-match .match-topbar {
+    right: 346px;
+  }
+
+  .app-frame-match .match-command-row {
+    max-width: min(360px, calc(100vw - 420px));
+  }
+
+  .app-frame-match .match-rule-ribbon {
+    left: 388px;
+    right: 346px;
+  }
+
+  .app-frame-match .player-opponent .player-board-primary-zones {
+    left: 220px;
+  }
+
+  .app-frame-match .focused-card-stage .card-face {
+    width: min(254px, 94%);
+    max-width: 254px;
   }
 
   .player-board-public-zones,
@@ -2438,6 +3953,7 @@ button.card-face:hover {
 @media (max-width: 1180px) {
   .match-topbar,
   .match-workbench,
+  .match-rule-ribbon,
   .player-board-meta {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2458,6 +3974,60 @@ button.card-face:hover {
 @media (max-width: 900px) {
   .app-frame {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app-frame.app-frame-match {
+    grid-template-columns: 56px minmax(0, 1fr);
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .app-frame-match .app-content {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .app-frame-match .match-page {
+    grid-template-rows: auto auto auto auto;
+    height: auto;
+    min-height: calc(100vh - 16px);
+    overflow: visible;
+  }
+
+  .app-frame-match .match-workbench {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    overflow: visible;
+  }
+
+  .app-frame-match .play-surface,
+  .app-frame-match .action-rail {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .app-frame-match .play-surface {
+    grid-template-rows: auto auto auto;
+  }
+
+  .app-frame-match .player-board,
+  .app-frame-match .battlefield-area {
+    overflow: visible;
+  }
+
+  .app-frame-match .rule-ribbon-state,
+  .app-frame-match .rule-ribbon-events {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .app-frame-match .rule-ribbon-state span:not(.status-pill),
+  .app-frame-match .rule-ribbon-events span {
+    white-space: normal;
+    text-overflow: clip;
   }
 
   .main-nav {
@@ -2501,5 +4071,103 @@ button.card-face:hover {
 
   .signature-zones {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) and (min-width: 901px) {
+  .app-frame-match .match-workbench {
+    grid-template-columns: minmax(0, 1fr) 286px;
+  }
+
+  .app-frame-match .match-topbar {
+    right: 296px;
+  }
+
+  .app-frame-match .match-command-row {
+    max-width: min(460px, calc(100vw - 380px));
+  }
+
+  .app-frame-match .match-rule-ribbon {
+    top: 106px;
+    left: 10px;
+    right: 296px;
+  }
+
+  .app-frame-match .card-zoom-preview {
+    right: 304px;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-frame-match .match-page {
+    display: grid;
+    grid-template-rows: auto auto auto auto;
+    height: auto;
+    min-height: calc(100vh - 16px);
+    overflow: visible;
+  }
+
+  .app-frame-match .match-topbar,
+  .app-frame-match .match-command-row,
+  .app-frame-match .match-rule-ribbon {
+    position: static;
+    width: 100%;
+    max-width: none;
+    backdrop-filter: none;
+  }
+
+  .app-frame-match .match-workbench {
+    grid-row: auto;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    overflow: visible;
+  }
+
+  .app-frame-match .play-surface {
+    height: auto;
+    min-height: 0;
+    grid-template-rows: auto auto auto;
+    border-radius: 8px;
+    overflow: visible;
+  }
+
+  .app-frame-match .play-surface::after {
+    display: none;
+  }
+
+  .app-frame-match .player-board-zones,
+  .app-frame-match .player-opponent .player-board-zones,
+  .app-frame-match .player-self .player-board-zones,
+  .app-frame-match .player-board-primary-zones,
+  .app-frame-match .player-opponent .player-board-primary-zones {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .app-frame-match .zone-hand .card-row {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .app-frame-match .player-self .zone-hand .card-face:not(:first-child),
+  .app-frame-match .player-opponent .zone-hand .card-face:not(:first-child) {
+    margin-left: -18px;
+  }
+
+  .app-frame-match .card-zoom-preview {
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+
+  .app-frame-match .card-image-only:hover .card-zoom-preview,
+  .app-frame-match .card-image-only:focus-visible .card-zoom-preview {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .app-frame-match .action-rail {
+    grid-template-rows: auto auto auto;
+    border-left: 0;
   }
 }

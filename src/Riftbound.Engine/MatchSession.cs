@@ -1341,11 +1341,14 @@ public sealed record MatchState
                     .Distinct(StringComparer.Ordinal)
                     .OrderBy(controllerId => controllerId, StringComparer.Ordinal)
                     .ToArray();
-                var contested = occupantControllerIds.Length > 1;
                 var effectiveBattlefieldControllerId = EffectiveOwnedControllerId(battlefieldObject);
                 var controllerId = string.IsNullOrWhiteSpace(effectiveBattlefieldControllerId)
                     ? null
                     : effectiveBattlefieldControllerId;
+                var contested = occupantControllerIds.Length > 1
+                    || (occupantControllerIds.Length == 1
+                        && (controllerId is null
+                            || !string.Equals(controllerId, occupantControllerIds[0], StringComparison.Ordinal)));
 
                 result[battlefieldObjectId] = new BattlefieldState(
                     battlefieldObjectId,
@@ -1460,13 +1463,16 @@ public sealed record MatchState
                 battlefield.ZonePlayerId,
                 null,
                 battlefield.BattlefieldObjectId));
-            tasks.Add(new CleanupTaskState(
-                $"task:start-battle:{battlefield.BattlefieldObjectId}",
-                "START_BATTLE",
-                "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
-                battlefield.ZonePlayerId,
-                null,
-                battlefield.BattlefieldObjectId));
+            if (BattlefieldHasOpposingOccupants(battlefield))
+            {
+                tasks.Add(new CleanupTaskState(
+                    $"task:start-battle:{battlefield.BattlefieldObjectId}",
+                    "START_BATTLE",
+                    "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                    battlefield.ZonePlayerId,
+                    null,
+                    battlefield.BattlefieldObjectId));
+            }
         }
 
         return tasks
@@ -1504,6 +1510,7 @@ public sealed record MatchState
             var spellDuelStatus = string.Equals(activeSpellDuelBattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
                 ? "ACTIVE"
                 : spellDuelCompleted ? "COMPLETED" : "PENDING";
+            var hasOpposingOccupants = BattlefieldHasOpposingOccupants(battlefield);
             var battleStatus = state.BattleState.IsActive
                 && string.Equals(state.BattleState.BattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
                     ? "ACTIVE"
@@ -1523,19 +1530,31 @@ public sealed record MatchState
                 string.Equals(activeSpellDuelBattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
                     ? stackItemIds
                     : []));
-            tasks.Add(new BattlefieldTaskState(
-                $"task:start-battle:{battlefield.BattlefieldObjectId}",
-                "START_BATTLE",
-                battleStatus,
-                "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
-                battlefield.BattlefieldObjectId,
-                participantControllerIds,
-                participantObjectIds,
-                state.BattleState.IsActive ? state.ActivePlayerId : null,
-                []));
+            if (hasOpposingOccupants)
+            {
+                tasks.Add(new BattlefieldTaskState(
+                    $"task:start-battle:{battlefield.BattlefieldObjectId}",
+                    "START_BATTLE",
+                    battleStatus,
+                    "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                    battlefield.BattlefieldObjectId,
+                    participantControllerIds,
+                    participantObjectIds,
+                    state.BattleState.IsActive ? state.ActivePlayerId : null,
+                    []));
+            }
         }
 
         return tasks;
+    }
+
+    private static bool BattlefieldHasOpposingOccupants(BattlefieldState battlefield)
+    {
+        return battlefield.OccupantControllerIds
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .Take(2)
+            .Count() > 1;
     }
 
     private static string EffectiveFieldControllerId(

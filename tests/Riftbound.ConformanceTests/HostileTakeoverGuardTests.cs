@@ -393,7 +393,7 @@ public sealed class HostileTakeoverGuardTests
     }
 
     [Fact]
-    public async Task HostileTakeoverPreservesPreciseBattlefieldWithoutStartingContestWhenNoOpponentOccupantRemains()
+    public async Task HostileTakeoverPreservesPreciseBattlefieldAndStartsNonBattleContestWhenNoOpponentOccupantRemains()
     {
         var engine = new CoreRuleEngine();
         var state = BuildHostileTakeoverPreciseBattlefieldState(includeRemainingOpponentOccupant: false);
@@ -420,13 +420,21 @@ public sealed class HostileTakeoverGuardTests
         Assert.Equal(ControlBattlefieldObjectId, targetLocation.BattlefieldObjectId);
 
         var battlefield = p2Pass.State.BattlefieldStates[ControlBattlefieldObjectId];
-        Assert.False(battlefield.Contested);
+        Assert.True(battlefield.Contested);
         Assert.Equal(["P1"], battlefield.OccupantControllerIds);
-        Assert.Equal("IDLE", p2Pass.State.PendingTaskQueue.Phase);
-        Assert.Empty(p2Pass.State.PendingTaskQueue.Tasks);
-        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+        Assert.Equal(TimingStates.SpellDuelOpen, p2Pass.State.TimingState);
+        Assert.Equal("P1", p2Pass.State.FocusPlayerId);
+        Assert.Equal("SPELL_DUEL_TASKS", p2Pass.State.PendingTaskQueue.Phase);
+        Assert.Equal($"task:start-spell-duel:{ControlBattlefieldObjectId}", p2Pass.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL"],
+            p2Pass.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
-            || string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, ControlBattlefieldObjectId, StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, ControlBattlefieldObjectId, StringComparison.Ordinal));
     }
 
     private static async Task<ResolutionResult> PlayHostileTakeoverAsync(

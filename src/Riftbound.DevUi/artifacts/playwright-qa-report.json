@@ -1,0 +1,92 @@
+{
+  "generatedAt": "2026-06-16T15:45:18.376Z",
+  "frontendUrl": "http://127.0.0.1:5176",
+  "serverUrl": "http://127.0.0.1:5088",
+  "updateBaseline": false,
+  "shots": [
+    {
+      "name": "home",
+      "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/home.png",
+      "visual": {
+        "status": "compared",
+        "ratio": 0,
+        "diffPixels": 0
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "cards",
+      "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/cards.png",
+      "visual": {
+        "status": "compared",
+        "ratio": 0,
+        "diffPixels": 0
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "decks",
+      "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/decks.png",
+      "visual": {
+        "status": "compared",
+        "ratio": 0,
+        "diffPixels": 0
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "room",
+      "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/room.png",
+      "visual": {
+        "status": "compared",
+        "ratio": 0,
+        "diffPixels": 0
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "match-midgame-showcase",
+      "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/match-midgame-showcase.png",
+      "visual": {
+        "status": "compared",
+        "ratio": 0,
+        "diffPixels": 0
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    },
+    {
+      "name": "prompt-pay-cost",
+      "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/prompt-pay-cost.png",
+      "visual": {
+        "status": "compared",
+        "ratio": 0,
+        "diffPixels": 0
+      },
+      "accessibility": {
+        "checked": true,
+        "violationCount": 0,
+        "violations": []
+      }
+    }
+  ]
+}

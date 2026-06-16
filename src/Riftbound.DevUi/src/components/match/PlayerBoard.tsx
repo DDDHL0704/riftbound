@@ -1,6 +1,6 @@
 import { BehaviorSpec } from "../../types/catalog";
 import { CardObjectView, PlayerSnapshotView } from "../../types/protocol";
-import { runePoolText } from "../../utils/formatters";
+import { runePoolText, runeTraitLabel } from "../../utils/formatters";
 import { CardFace, InspectedCard } from "../cards/CardFace";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -133,17 +133,18 @@ function RuneSlot({
   return (
     <div className="zone-strip rune-slot">
       <div className="zone-title">
-        <strong>符文槽</strong>
-        <span>{ids.length} / 牌堆 {runeDeckCount}</span>
+        <strong>符文区</strong>
+        <span>已召出 {ids.length} / 牌堆 {runeDeckCount}</span>
       </div>
       <div className="rune-slot-body">
         <div className="rune-slot-meter">
+          <span>可用资源池</span>
           <strong>{runePoolText(runePool)}</strong>
           <div className="rune-trait-list">
             {traits.length === 0 ? (
-              <span>暂无可用符能</span>
+              <span>暂无可用特性符能</span>
             ) : (
-              traits.map(([trait, amount]) => <span key={trait}>{trait} {amount}</span>)
+              traits.map(([trait, amount]) => <span key={trait}>{runeTraitLabel(trait)} {amount}</span>)
             )}
           </div>
         </div>

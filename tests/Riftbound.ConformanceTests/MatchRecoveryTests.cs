@@ -56054,7 +56054,7 @@ public sealed class MatchRecoveryTests
             StringComparer.Ordinal);
         var battlefieldTasks = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["battlefieldTasks"])
             .ToList();
-        Assert.Empty(battlefieldTasks);
+        Assert.Single(battlefieldTasks);
         battlefieldTasks.Add(new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             ["taskId"] = "task-participant-location",
@@ -56100,7 +56100,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task count 1 does not match authoritative state battlefield task count 0",
+                "spectator replay frame timing battlefield task count 2 does not match authoritative state battlefield task count 1",
                 StringComparison.Ordinal));
     }
 

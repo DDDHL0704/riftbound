@@ -1,6 +1,7 @@
 import { BehaviorSpec } from "../../types/catalog";
 import { BattlefieldSnapshotView, CardObjectView, GameEvent, SnapshotDto } from "../../types/protocol";
 import { asArray, asRecord, asString } from "../../utils/collections";
+import { BattlefieldTimelineItem, battlefieldResolutionTimeline } from "../../utils/battlefieldResolutions";
 import { CardFace, InspectedCard } from "../cards/CardFace";
 import { eventDescriptionLabel, eventKindLabel } from "./EventLog";
 import { StatusPill } from "../ui/StatusPill";
@@ -19,6 +20,7 @@ export function BattlefieldArea({
   const lanes = asRecord(snapshot?.lanes);
   const battlefields = asArray<BattlefieldSnapshotView>(lanes.battlefields);
   const objects = objectIndex(snapshot);
+  const resolutionTimeline = battlefieldResolutionTimeline(snapshot);
 
   return (
     <section className="battlefield-area">
@@ -44,6 +46,9 @@ export function BattlefieldArea({
           const groupedOccupants = groupObjectsByController(occupants, occupantControllers, objects);
           const battlefieldEvents = events
             .filter((event) => isBattlefieldEventFor(event, battlefieldId))
+            .slice(0, 3);
+          const battlefieldResolutions = resolutionTimeline
+            .filter((item) => item.battlefieldObjectId === battlefieldId)
             .slice(0, 3);
           return (
             <article className="battlefield-card" key={battlefieldId}>
@@ -108,7 +113,7 @@ export function BattlefieldArea({
                   specs={specs}
                 />
               </div>
-              <BattlefieldLog events={battlefieldEvents} />
+              <BattlefieldLog events={battlefieldEvents} resolutions={battlefieldResolutions} />
             </article>
           );
         })}
@@ -198,16 +203,23 @@ function isBattlefieldEventFor(event: GameEvent, battlefieldId: string): boolean
   return payloadBattlefieldId === battlefieldId;
 }
 
-function BattlefieldLog({ events }: { events: GameEvent[] }) {
+function BattlefieldLog({ events, resolutions }: { events: GameEvent[]; resolutions: BattlefieldTimelineItem[] }) {
   return (
     <div className="battlefield-log">
       <strong>战场日志</strong>
-      {events.length === 0 ? (
+      {events.length === 0 && resolutions.length === 0 ? (
         <span>暂无服务端战场事件。</span>
       ) : (
-        events.map((event, index) => (
+        <>
+          {resolutions.map((resolution) => (
+            <span className="battlefield-resolution-entry" key={resolution.id}>
+              {resolution.label}：{resolution.detail}
+            </span>
+          ))}
+          {events.map((event, index) => (
           <span key={`${event.kind}-${index}`}>{eventKindLabel(event.kind)}：{eventDescriptionLabel(event)}</span>
-        ))
+          ))}
+        </>
       )}
     </div>
   );
@@ -229,7 +241,7 @@ function BattlefieldObjectStrip({
   specs: Record<string, BehaviorSpec>;
 }) {
   return (
-    <div>
+    <div className="battlefield-object-strip">
       <strong>{label}</strong>
       {ids.length === 0 ? (
         <span>{emptyText}</span>

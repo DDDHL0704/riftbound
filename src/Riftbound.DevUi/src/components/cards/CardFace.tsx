@@ -31,7 +31,7 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
 
   if (hidden) {
     return (
-      <Container className={`card-face card-back ${selected ? "is-selected" : ""}`} {...containerProps}>
+      <Container aria-label="未公开卡牌" className={`card-face card-back ${selected ? "is-selected" : ""}`} {...containerProps}>
         <div className="card-frame-top">未公开</div>
         <strong>卡背</strong>
         <span>隐藏信息</span>
@@ -49,6 +49,8 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
 
   if (frontImage) {
     const battlefield = category === "战场";
+    const cost = costText(spec);
+    const showCost = cost !== "无费用";
 
     return (
       <Container
@@ -56,7 +58,10 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
         className={`card-face card-image-only ${battlefield ? "card-battlefield-image" : ""} ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`}
         {...containerProps}
       >
-        <img alt={title} className="card-full-image" loading="lazy" src={frontImage} />
+        <img alt="" aria-hidden="true" className="card-full-image" loading="lazy" src={frontImage} />
+        {showCost && <span className="card-image-cost">{cost}</span>}
+        {power != null && <span className={object?.damage ? "card-image-power is-damaged" : "card-image-power"}>{power}</span>}
+        <span className="card-image-title">{title}</span>
         <span className="card-zoom-preview" aria-hidden="true">
           <img alt="" loading="lazy" src={frontImage} />
         </span>

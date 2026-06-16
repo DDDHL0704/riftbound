@@ -22,7 +22,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["对战状态", "正式桌面状态", "法术对决", "战斗", "手牌选择", "伤害分配", "支付费用", "触发排序", "触发队列", "中央清理", "中央战场", "待命区", "服务端行动提示", "权威快照摘要"],
+    texts: ["对战状态", "等待服务端快照", "中央战场", "待命区", "服务端行动提示", "状态 / 日志 / 规则队列"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -36,12 +36,16 @@ try {
     await ensureApi();
   }
 
-  const preview = spawnChild(viteBin(), ["preview", "--host", "127.0.0.1", "--port", String(frontendPort), "--strictPort"], {
-    cwd: appRoot,
-    name: "vite-preview"
-  });
-  children.push(preview);
-  await waitForHttp(`${frontendUrl}/`, 30_000);
+  if (await isHttpOk(`${frontendUrl}/`)) {
+    console.log(`Frontend already available at ${frontendUrl}`);
+  } else {
+    const preview = spawnChild(viteBin(), ["preview", "--host", "127.0.0.1", "--port", String(frontendPort), "--strictPort"], {
+      cwd: appRoot,
+      name: "vite-preview"
+    });
+    children.push(preview);
+    await waitForHttp(`${frontendUrl}/`, 30_000);
+  }
 
   userDataDir = await mkdtemp(path.join(tmpdir(), "riftbound-chrome-smoke-"));
   const chrome = spawnChild(chromePath(), [

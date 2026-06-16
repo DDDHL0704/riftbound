@@ -26427,6 +26427,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             var cleanupResult = RunStateBasedCleanupAfterSpellDuelClosed(nextState);
             nextState = cleanupResult.State;
             events.AddRange(cleanupResult.Events);
+            foreach (var completedBattlefieldObjectId in completedBattlefieldObjectIds)
+            {
+                if (nextState.PendingTaskQueue.Tasks.Any(task =>
+                        string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                        && string.Equals(task.BattlefieldObjectId, completedBattlefieldObjectId, StringComparison.Ordinal)))
+                {
+                    continue;
+                }
+
+                var controlResult = ResolveNonBattlefieldControlAfterSpellDuelClosed(
+                    nextState,
+                    completedBattlefieldObjectId);
+                nextState = controlResult.State;
+                events.AddRange(controlResult.Events);
+            }
+
             var shouldAdvanceNextBattlefieldTask = completedBattlefieldObjectIds.Any(battlefieldObjectId =>
                 !nextState.PendingTaskQueue.Tasks.Any(task =>
                     string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -26459,6 +26475,136 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static (MatchState State, IReadOnlyList<GameEvent> Events) ResolveNonBattlefieldControlAfterSpellDuelClosed(
+        MatchState state,
+        string battlefieldId)
+    {
+        if (string.IsNullOrWhiteSpace(battlefieldId)
+            || state.PendingTaskQueue.Tasks.Any(task =>
+                string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal)))
+        {
+            return (state, []);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState))
+        {
+            return (state, []);
+        }
+
+        var occupantObjectIds = objectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
+                && IsObjectOnField(playerZones, entry.Key)
+                && cardObjects.TryGetValue(entry.Key, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(
+                    cardObject,
+                    TryGetFieldControllerId(playerZones, entry.Key, out var fieldControllerId)
+                        ? fieldControllerId
+                        : string.Empty))
+            .Select(entry => entry.Key)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        var occupantControllerIds = occupantObjectIds
+            .Select(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && TryGetFieldControllerId(playerZones, objectId, out var fieldControllerId)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, fieldControllerId)
+                    ? fieldControllerId
+                    : string.Empty)
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        if (occupantControllerIds.Length > 1)
+        {
+            return (state, []);
+        }
+
+        var previousControllerId = battlefieldState.ControllerId;
+        var nextControllerId = occupantControllerIds.Length == 1 ? occupantControllerIds[0] : null;
+        var events = new List<GameEvent>();
+        events.AddRange(ResolveBattlefieldControlAfterBattle(
+            playerZones,
+            cardObjects,
+            objectLocations,
+            battlefieldId,
+            nextControllerId));
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+
+        var playerScores = state.PlayerScores;
+        var untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
+        string? winnerPlayerId = null;
+        if (!string.IsNullOrWhiteSpace(nextControllerId)
+            && !string.Equals(previousControllerId, nextControllerId, StringComparison.Ordinal))
+        {
+            var sourceObjectId = occupantObjectIds.FirstOrDefault(objectId =>
+                    cardObjects.TryGetValue(objectId, out var cardObject)
+                    && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, nextControllerId))
+                ?? nextControllerId;
+            events.Add(new GameEvent(
+                "BATTLEFIELD_CONQUERED",
+                $"{nextControllerId} 征服战场",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = nextControllerId,
+                    ["battlefieldId"] = battlefieldObjectId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["defeatedObjectIds"] = Array.Empty<string>(),
+                    ["reason"] = "NON_BATTLE_SPELL_DUEL_CONTROL"
+                }));
+            var scoreState = state with
+            {
+                PlayerZones = playerZones,
+                CardObjects = cardObjects,
+                PlayerScores = playerScores,
+                UntilEndOfTurnEffects = untilEndOfTurnEffects
+            };
+            if (TryApplyBattlefieldScore(
+                    scoreState,
+                    playerZones,
+                    cardObjects,
+                    playerScores,
+                    nextControllerId,
+                    battlefieldObjectId,
+                    "BATTLEFIELD_CONQUERED_SCORE",
+                    EffectiveWinningScore(playerZones, cardObjects),
+                    events,
+                    out var scoredPlayerScores,
+                    out var scoredWinnerPlayerId,
+                    out var scoredUntilEndOfTurnEffects))
+            {
+                playerScores = scoredPlayerScores;
+                winnerPlayerId = scoredWinnerPlayerId;
+                untilEndOfTurnEffects = scoredUntilEndOfTurnEffects;
+            }
+        }
+
+        var nextState = state with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            CardObjects = cardObjects,
+            PlayerScores = playerScores,
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
+            BattlefieldResolutions = AppendBattlefieldResolutionEvents(
+                state.BattlefieldResolutions,
+                events,
+                state.Tick),
+            Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId
+        };
+        return (nextState, events);
     }
 
     private static (MatchState State, IReadOnlyList<GameEvent> Events) RunStateBasedCleanupAfterSpellDuelClosed(MatchState state)
@@ -26522,7 +26668,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     StringComparer.Ordinal))
             .OrderBy(candidate => candidate.BattlefieldObjectId, StringComparer.Ordinal)
             .FirstOrDefault();
-        if (battlefield is null || battlefield.OccupantControllerIds.Count < 2)
+        if (battlefield is null || battlefield.OccupantControllerIds.Count < 1)
         {
             return (state, []);
         }

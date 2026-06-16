@@ -1954,7 +1954,7 @@ public sealed class BoardTaskQueueFoundationTests
 
         var destinationBattlefield = result.State.BattlefieldStates[destinationBattlefieldObjectId];
         Assert.Equal(destinationBattlefieldObjectId, destinationBattlefield.BattlefieldObjectId);
-        Assert.Equal("P1", destinationBattlefield.ControllerId);
+        Assert.Equal("P2", destinationBattlefield.ControllerId);
         Assert.True(destinationBattlefield.Contested);
         Assert.Equal(["P1-ROAMER-001", "P2-DEST-DEFENDER"], destinationBattlefield.OccupantObjectIds);
         Assert.Equal(["P1", "P2"], destinationBattlefield.OccupantControllerIds);
@@ -2029,7 +2029,7 @@ public sealed class BoardTaskQueueFoundationTests
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 [originBattlefieldObjectId] = Battlefield(originBattlefieldObjectId, "P1"),
-                [destinationBattlefieldObjectId] = Battlefield(destinationBattlefieldObjectId, "P1"),
+                [destinationBattlefieldObjectId] = Battlefield(destinationBattlefieldObjectId, "P2"),
                 ["P1-ROAMER-001"] = RoamUnit("P1-ROAMER-001", "P1"),
                 ["P2-DEST-DEFENDER"] = Unit("P2-DEST-DEFENDER", "P2")
             },

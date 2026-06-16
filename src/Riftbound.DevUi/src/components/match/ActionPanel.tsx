@@ -4,6 +4,7 @@ import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, 
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
+import { ScrollArea } from "../ui/ScrollArea";
 import { StatusPill } from "../ui/StatusPill";
 
 type ActionPanelProps = {
@@ -34,92 +35,96 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
 
   return (
     <section className="side-panel action-panel">
-      <header>
-        <span className="eyebrow">服务端行动提示</span>
-        <h2>{promptTitle}</h2>
-      </header>
-      <div className="prompt-summary">
-        <StatusPill tone={canAct ? "good" : "neutral"}>{canAct ? "轮到你操作" : "等待服务端或对手"}</StatusPill>
-        <span>提示状态：{prompt ? "已收到" : "无"}</span>
-        {promptView?.type && <span>类型：{promptView.type}</span>}
-        <span>{promptView ? "说明" : "原因"}：{promptMessage}</span>
-        {promptView?.relatedBattlefieldId && <span>关联战场：{promptView.relatedBattlefieldId}</span>}
-        {promptView?.relatedBattleId && <span>关联战斗：{promptView.relatedBattleId}</span>}
-        {promptView?.relatedSpellDuelId && <span>关联法术对决：{promptView.relatedSpellDuelId}</span>}
-        {promptView?.relatedStackItemId && <span>关联结算链：{promptView.relatedStackItemId}</span>}
-        {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
-      </div>
-      {prompt && shouldShowGenericPromptDetails(prompt) && <GenericPromptDetails prompt={prompt} />}
-      <div className="action-buttons">
-        {showReadonlyOrderTriggers && (
-          <OrderTriggersCandidate
-            canAct={false}
-            candidate={orderTriggersCandidate}
-            disabledByConnection={!connected}
-            onCommand={onCommand}
-            prompt={prompt}
-            readOnly
-          />
-        )}
-        {showReadonlyHandChoice && (
-          <HandChoiceCandidate
-            canAct={false}
-            candidate={handChoiceCandidate}
-            disabledByConnection={!connected}
-            onCommand={onCommand}
-            prompt={prompt}
-            readOnly
-          />
-        )}
-        {candidates.length === 0 && !showReadonlyOrderTriggers && !showReadonlyHandChoice && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
-        {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
-          <MulliganCandidate
-            candidate={candidate}
-            disabledByConnection={!connected}
-            key={`${candidate.action}-${candidate.label}`}
-            onCommand={onCommand}
-            prompt={prompt}
-          />
-        ) : candidate.action === "CHOOSE_HAND_CARDS" ? (
-          <HandChoiceCandidate
-            canAct={Boolean(canAct)}
-            candidate={candidate}
-            disabledByConnection={!connected}
-            key={`${candidate.action}-${candidate.label}`}
-            onCommand={onCommand}
-            prompt={prompt}
-          />
-        ) : candidate.action === "ASSIGN_COMBAT_DAMAGE" ? (
-          <DamageAssignmentCandidate
-            candidate={candidate}
-            disabledByConnection={!connected}
-            key={`${candidate.action}-${candidate.label}`}
-            onCommand={onCommand}
-            prompt={prompt}
-            snapshot={snapshot}
-          />
-        ) : candidate.action === "ORDER_TRIGGERS" ? (
-          <OrderTriggersCandidate
-            canAct={Boolean(canAct)}
-            candidate={candidate}
-            disabledByConnection={!connected}
-            key={`${candidate.action}-${candidate.label}`}
-            onCommand={onCommand}
-            prompt={prompt}
-          />
-        ) : (
-          <CandidateButton
-            candidate={candidate}
-            key={`${candidate.action}-${candidate.label}`}
-            onCommand={onCommand}
-            onReady={onReady}
-            onSubmitStarterDeck={onSubmitStarterDeck}
-            disabledByConnection={!connected}
-            prompt={prompt}
-            snapshot={snapshot}
-          />
-        ))}
-      </div>
+      <ScrollArea className="action-panel-scroll">
+        <div className="action-panel-content">
+          <header>
+            <span className="eyebrow">服务端行动提示</span>
+            <h2>{promptTitle}</h2>
+          </header>
+          <div className="prompt-summary">
+            <StatusPill tone={canAct ? "good" : "neutral"}>{canAct ? "轮到你操作" : "等待服务端或对手"}</StatusPill>
+            <span>提示状态：{prompt ? "已收到" : "无"}</span>
+            {promptView?.type && <span>类型：{promptView.type}</span>}
+            <span>{promptView ? "说明" : "原因"}：{promptMessage}</span>
+            {promptView?.relatedBattlefieldId && <span>关联战场：{promptView.relatedBattlefieldId}</span>}
+            {promptView?.relatedBattleId && <span>关联战斗：{promptView.relatedBattleId}</span>}
+            {promptView?.relatedSpellDuelId && <span>关联法术对决：{promptView.relatedSpellDuelId}</span>}
+            {promptView?.relatedStackItemId && <span>关联结算链：{promptView.relatedStackItemId}</span>}
+            {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
+          </div>
+          {prompt && shouldShowGenericPromptDetails(prompt) && <GenericPromptDetails prompt={prompt} />}
+          <div className="action-buttons">
+            {showReadonlyOrderTriggers && (
+              <OrderTriggersCandidate
+                canAct={false}
+                candidate={orderTriggersCandidate}
+                disabledByConnection={!connected}
+                onCommand={onCommand}
+                prompt={prompt}
+                readOnly
+              />
+            )}
+            {showReadonlyHandChoice && (
+              <HandChoiceCandidate
+                canAct={false}
+                candidate={handChoiceCandidate}
+                disabledByConnection={!connected}
+                onCommand={onCommand}
+                prompt={prompt}
+                readOnly
+              />
+            )}
+            {candidates.length === 0 && !showReadonlyOrderTriggers && !showReadonlyHandChoice && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
+            {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
+              <MulliganCandidate
+                candidate={candidate}
+                disabledByConnection={!connected}
+                key={`${candidate.action}-${candidate.label}`}
+                onCommand={onCommand}
+                prompt={prompt}
+              />
+            ) : candidate.action === "CHOOSE_HAND_CARDS" ? (
+              <HandChoiceCandidate
+                canAct={Boolean(canAct)}
+                candidate={candidate}
+                disabledByConnection={!connected}
+                key={`${candidate.action}-${candidate.label}`}
+                onCommand={onCommand}
+                prompt={prompt}
+              />
+            ) : candidate.action === "ASSIGN_COMBAT_DAMAGE" ? (
+              <DamageAssignmentCandidate
+                candidate={candidate}
+                disabledByConnection={!connected}
+                key={`${candidate.action}-${candidate.label}`}
+                onCommand={onCommand}
+                prompt={prompt}
+                snapshot={snapshot}
+              />
+            ) : candidate.action === "ORDER_TRIGGERS" ? (
+              <OrderTriggersCandidate
+                canAct={Boolean(canAct)}
+                candidate={candidate}
+                disabledByConnection={!connected}
+                key={`${candidate.action}-${candidate.label}`}
+                onCommand={onCommand}
+                prompt={prompt}
+              />
+            ) : (
+              <CandidateButton
+                candidate={candidate}
+                key={`${candidate.action}-${candidate.label}`}
+                onCommand={onCommand}
+                onReady={onReady}
+                onSubmitStarterDeck={onSubmitStarterDeck}
+                disabledByConnection={!connected}
+                prompt={prompt}
+                snapshot={snapshot}
+              />
+            ))}
+          </div>
+        </div>
+      </ScrollArea>
     </section>
   );
 }
