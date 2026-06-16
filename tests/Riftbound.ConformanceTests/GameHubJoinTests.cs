@@ -12563,11 +12563,16 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-submit-deck", submitDeck);
 
         var submitDeckError = Assert.Single(submitDeckAfterFinishedClients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, submitDeckError.Type);
+        Assert.Equal(roomId, submitDeckError.RoomId);
+        Assert.Equal("P1", submitDeckError.PlayerId);
+        AssertProtocolDefaults(submitDeckError);
         var submitDeckPayload = Assert.IsType<ErrorDto>(submitDeckError.Payload);
         Assert.Equal(ErrorCodes.MatchFinished, submitDeckPayload.Code);
         Assert.Equal("对局已经结束，不能提交卡组。", submitDeckPayload.Message);
         Assert.DoesNotContain("match already finished", submitDeckPayload.Message, StringComparison.Ordinal);
         Assert.Empty(submitDeckAfterFinishedClients.GroupClient.EventMessages);
+        Assert.Empty(submitDeckAfterFinishedClients.GroupClient.Errors);
     }
 
     [Fact]
@@ -14638,6 +14643,10 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", clientIntentId, mulligan);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, error.Type);
+        Assert.Equal(roomId, error.RoomId);
+        Assert.Equal("P1", error.PlayerId);
+        AssertProtocolDefaults(error);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
         Assert.Equal("对局已经结束，不能继续提交行动。", payload.Message);
@@ -14658,6 +14667,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(afterFinishedClients.GroupClient.EventMessages);
         Assert.Empty(afterFinishedClients.GroupClient.Snapshots);
         Assert.Empty(afterFinishedClients.GroupClient.Prompts);
+        Assert.Empty(afterFinishedClients.GroupClient.Errors);
         Assert.Equal(journalCountAfterFinished, journal.Entries.Count);
 
         var session = await registry.GetOrCreateAsync(roomId, default);
@@ -14730,6 +14740,10 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", clientIntentId, surrender);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, error.Type);
+        Assert.Equal(roomId, error.RoomId);
+        Assert.Equal("P1", error.PlayerId);
+        AssertProtocolDefaults(error);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
         Assert.Equal("对局已经结束，不能继续提交行动。", payload.Message);
@@ -14823,6 +14837,10 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", clientIntentId, submitDeck);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, error.Type);
+        Assert.Equal(roomId, error.RoomId);
+        Assert.Equal("P1", error.PlayerId);
+        AssertProtocolDefaults(error);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
         Assert.Equal("对局已经结束，不能提交卡组。", payload.Message);
@@ -14842,6 +14860,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(afterFinishedClients.GroupClient.EventMessages);
         Assert.Empty(afterFinishedClients.GroupClient.Snapshots);
         Assert.Empty(afterFinishedClients.GroupClient.Prompts);
+        Assert.Empty(afterFinishedClients.GroupClient.Errors);
         Assert.Equal(journalCountAfterFinished + 1, journal.Entries.Count);
         var rejectedEntry = journal.Entries[^1];
         Assert.Equal(roomId, rejectedEntry.RoomId);
