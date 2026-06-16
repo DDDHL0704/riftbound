@@ -16,6 +16,11 @@ export function PlayerBoard({ playerId, player, perspectivePlayerId, specs, onIn
   const own = playerId === perspectivePlayerId;
   const zones = player.zones ?? {};
   const objects = player.objects ?? {};
+  const legendIds = zones.legendZone ?? [];
+  const championIds = zones.championZone ?? [];
+  const baseIds = zones.base ?? [];
+  const runeIds = baseIds.filter((id) => isRuneCard(objects[id], specs[objects[id]?.cardNo ?? ""]));
+  const baseObjectIds = baseIds.filter((id) => !runeIds.includes(id));
   const fieldObjects = (zones.battlefields ?? []).filter((id) => !isBattlefieldCard(objects[id]));
 
   return (
@@ -32,7 +37,6 @@ export function PlayerBoard({ playerId, player, perspectivePlayerId, specs, onIn
         </div>
       </header>
       <div className="player-board-meta">
-        <div className="resource-line">{runePoolText(player.runePool)}</div>
         <div className="player-state-strip">
           <span>{player.deckSubmitted ? "卡组已提交" : "等待卡组"}</span>
           <span>{player.mulliganCompleted ? "起手已确认" : "起手未确认"}</span>
@@ -40,11 +44,21 @@ export function PlayerBoard({ playerId, player, perspectivePlayerId, specs, onIn
         </div>
       </div>
       <div className="player-board-zones">
-        <div className="player-board-public-zones">
-          <ZoneStrip onInspectCard={onInspectCard} title="传奇" ids={zones.legendZone ?? []} objects={objects} specs={specs} compact />
-          <ZoneStrip onInspectCard={onInspectCard} title="英雄" ids={zones.championZone ?? []} objects={objects} specs={specs} compact />
-          <ZoneStrip onInspectCard={onInspectCard} title="基地" ids={zones.base ?? []} objects={objects} specs={specs} compact />
-          <ZoneStrip onInspectCard={onInspectCard} title="场上对象" ids={fieldObjects} objects={objects} specs={specs} compact />
+        <div className="player-board-primary-zones">
+          <div className="signature-zones">
+            <ZoneStrip className="zone-signature" onInspectCard={onInspectCard} title="传奇" ids={legendIds} objects={objects} specs={specs} compact />
+            <ZoneStrip className="zone-signature" onInspectCard={onInspectCard} title="英雄" ids={championIds} objects={objects} specs={specs} compact />
+          </div>
+          <RuneSlot
+            ids={runeIds}
+            objects={objects}
+            onInspectCard={onInspectCard}
+            runeDeckCount={zones.runeDeckCount ?? 0}
+            runePool={player.runePool}
+            specs={specs}
+          />
+          <ZoneStrip className="zone-base" onInspectCard={onInspectCard} title="基地" ids={baseObjectIds} objects={objects} specs={specs} compact />
+          <ZoneStrip className="zone-field" onInspectCard={onInspectCard} title="场上对象" ids={fieldObjects} objects={objects} specs={specs} compact />
         </div>
         <ZoneStrip
           className="zone-hand"
@@ -58,7 +72,6 @@ export function PlayerBoard({ playerId, player, perspectivePlayerId, specs, onIn
       </div>
       <div className="zone-counts">
         <span>主牌堆 {zones.mainDeckCount ?? 0}</span>
-        <span>符文牌堆 {zones.runeDeckCount ?? 0}</span>
         <span>废牌堆 {zones.graveyard?.length ?? 0}</span>
         <span>放逐 {zones.banished?.length ?? 0}</span>
       </div>
@@ -92,8 +105,52 @@ function ZoneStrip({
       <div className="card-row">
         {ids.length === 0 && <span className="empty-hint">无公开对象</span>}
         {ids.map((id) => {
-          const object = objects[id];
+          const object = objects[id] ?? (id.startsWith("hidden-") ? { objectId: id, isFaceDown: true } : undefined);
           return <CardFace compact={compact} key={id} object={object} objectId={id} onInspect={onInspectCard} spec={object?.cardNo ? specs[object.cardNo] : undefined} />;
+        })}
+      </div>
+    </div>
+  );
+}
+
+function RuneSlot({
+  ids,
+  objects,
+  onInspectCard,
+  runeDeckCount,
+  runePool,
+  specs
+}: {
+  ids: string[];
+  objects: NonNullable<PlayerSnapshotView["objects"]>;
+  onInspectCard: (card: InspectedCard) => void;
+  runeDeckCount: number;
+  runePool?: PlayerSnapshotView["runePool"];
+  specs: Record<string, BehaviorSpec>;
+}) {
+  const traits = Object.entries(runePool?.powerByTrait ?? {}).filter(([, amount]) => amount > 0);
+
+  return (
+    <div className="zone-strip rune-slot">
+      <div className="zone-title">
+        <strong>符文槽</strong>
+        <span>{ids.length} / 牌堆 {runeDeckCount}</span>
+      </div>
+      <div className="rune-slot-meter">
+        <strong>{runePoolText(runePool)}</strong>
+        <div className="rune-trait-list">
+          {traits.length === 0 ? (
+            <span>暂无可用符能</span>
+          ) : (
+            traits.map(([trait, amount]) => <span key={trait}>{trait} {amount}</span>)
+          )}
+        </div>
+      </div>
+      <div className="card-row rune-card-row">
+        {ids.length === 0 && <span className="empty-hint">符文入场后会显示在这里</span>}
+        {ids.map((id) => {
+          const object = objects[id];
+          return <CardFace compact key={id} object={object} objectId={id} onInspect={onInspectCard} spec={object?.cardNo ? specs[object.cardNo] : undefined} />;
         })}
       </div>
     </div>
@@ -106,4 +163,8 @@ function hiddenCards(count: number): string[] {
 
 function isBattlefieldCard(object?: CardObjectView): boolean {
   return Boolean(object?.tags?.includes("CARD_TYPE:BATTLEFIELD"));
+}
+
+function isRuneCard(object?: CardObjectView, spec?: BehaviorSpec): boolean {
+  return Boolean(object?.tags?.includes("CARD_TYPE:RUNE") || spec?.cardCategoryName === "符文");
 }

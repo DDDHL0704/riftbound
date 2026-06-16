@@ -20,6 +20,8 @@ export type BehaviorSpec = {
   status: string;
   reason: string;
   officialText: string;
+  frontImage: string;
+  backImage: string;
   cost: ParsedCostSpec;
   keywords: KeywordSpec[];
   targets: Array<{ scope: string; minCount: number; maxCount?: number | null; text: string; optional?: boolean }>;

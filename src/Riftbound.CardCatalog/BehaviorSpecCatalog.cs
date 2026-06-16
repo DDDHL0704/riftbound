@@ -545,6 +545,8 @@ public static class BehaviorSpecCatalogBuilder
             status,
             reason,
             card.CardEffect,
+            card.FrontImage,
+            card.BackImage,
             parsed.Cost,
             parsed.Keywords,
             parsed.Targets,

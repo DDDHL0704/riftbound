@@ -40,30 +40,56 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
   }
 
   const title = spec?.cardName ?? object?.cardNo ?? "未知卡牌";
+  const category = objectTypeText(object, spec);
   const power = object?.effectivePower ?? object?.power ?? object?.basePower;
   const states = objectStateLabels(object);
+  const frontImage = spec?.frontImage?.trim();
+  const ruleCopy = rulesText(spec?.officialText);
+  const keywordCopy = keywordsText(spec);
+
+  if (frontImage) {
+    return (
+      <Container
+        aria-label={`${title} ${spec?.cardNo ?? object?.cardNo ?? ""}`.trim()}
+        className={`card-face card-image-only ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`}
+        {...containerProps}
+      >
+        <img alt={title} className="card-full-image" loading="lazy" src={frontImage} />
+        <span className="card-zoom-preview" aria-hidden="true">
+          <img alt="" loading="lazy" src={frontImage} />
+        </span>
+      </Container>
+    );
+  }
 
   return (
     <Container className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`} {...containerProps}>
       <div className="card-frame-top">
-        <span>{objectTypeText(object, spec)}</span>
+        <span>{category}</span>
         <span>{spec?.cardNo ?? object?.cardNo ?? "无编号"}</span>
       </div>
-      <strong>{title}</strong>
+      <div className="card-title-row">
+        <strong title={title}>{title}</strong>
+        {power != null && <span className={object?.damage ? "card-power is-damaged" : "card-power"}>{power}</span>}
+      </div>
+      <div className="card-art-fallback">
+        <span>{category}</span>
+      </div>
       <div className="card-stat-row">
         <StatusPill tone="info">{costText(spec)}</StatusPill>
-        {power != null && <StatusPill tone={object?.damage ? "warn" : "neutral"}>战力 {power}</StatusPill>}
+        {keywordCopy !== "无关键词" && <StatusPill tone="neutral">{keywordCopy}</StatusPill>}
       </div>
       {compact ? (
-        <div className="card-mini-meta">
-          <span>属 {object?.ownerId ?? "?"}</span>
-          <span>控 {object?.controllerId ?? "?"}</span>
-          <span>{states.length ? states.slice(0, 2).join("、") : "正常"}</span>
-        </div>
+        <>
+          <p className="card-rules card-rules-compact">{ruleCopy}</p>
+          <div className="card-mini-meta">
+            <span>{states.length ? states.slice(0, 2).join("、") : "状态：正常"}</span>
+          </div>
+        </>
       ) : (
         <>
-          <p className="card-rules">{rulesText(spec?.officialText)}</p>
-          <div className="card-keywords">{keywordsText(spec)}</div>
+          <p className="card-rules">{ruleCopy}</p>
+          <div className="card-keywords">{keywordCopy}</div>
           <div className="card-meta-line">
             <span>所属：{object?.ownerId ?? "未知"}</span>
             <span>控制：{object?.controllerId ?? "未知"}</span>

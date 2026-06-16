@@ -42,6 +42,8 @@ public sealed record BehaviorSpec(
     string Status,
     string Reason,
     string OfficialText,
+    string FrontImage,
+    string BackImage,
     ParsedCostSpec Cost,
     IReadOnlyList<KeywordSpec> Keywords,
     IReadOnlyList<TargetSpec> Targets,
