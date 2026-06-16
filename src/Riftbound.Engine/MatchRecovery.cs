@@ -16592,6 +16592,12 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(triggerQueuePayload))
         {
             errors.Add("spectator replay frame timing trigger queue is required");
+            if (authoritativeState.TriggerQueue.Count > 0)
+            {
+                errors.Add(
+                    $"spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count {authoritativeState.TriggerQueue.Count}");
+            }
+
             return;
         }
 
