@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-223AS recovery spectator trigger-queue identity-redaction count-mismatch validation accepted on local `main` as code commit `8ba81c9d`. Runtime changed: no, server test coverage only. Frontend changed: no. `MatchRecoveryTests` now proves spectator replay-frame timing `triggerQueue[]` validation rejects `HIDDEN` redaction sentinels for trigger id, controller id and triggered event kind while also reporting unknown extra trigger ids, the missing authoritative trigger id and trigger-queue count mismatch. Validation passed: focused new test `1/1`; changed-class `MatchRecoveryTests` `1947/1947`; adjacent TriggerQueue/SpectatorReplayTiming filter `1467/1467`; backend full `8277/8277`; mechanical checks passed before code commit. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2` with no commits ahead of `main`; root PDF rule files remained present. Core rule PDF gate is active: this slice re-checked latest core rules 327/333 for stack/chain creation, 342/376/382-383 for spell duel, active skills and triggered skill ordering/placement, 401-404 for active/triggered skill placement, choices and costs, plus 808.1.d for Last Breath pending-item/source snapshot context. This narrows recovery spectator trigger-queue identity-redaction/count-mismatch diagnostics only; it does not change approved scope or final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-223AT recovery spectator trigger-queue visible-source payload identity count-mismatch validation accepted on local `main` as code commit `6d96a6be`. Runtime changed: no, server test coverage only. Frontend changed: no. `MatchRecoveryTests` now proves spectator replay-frame timing `triggerQueue[]` validation still reports authoritative card-object map-key/object-id mismatch, authoritative trigger source registry absence, spectator visible source-object registry absence, an extra spectator trigger id and trigger-queue count mismatch together. Validation passed: focused new test `1/1`; changed-class `MatchRecoveryTests` `1948/1948`; adjacent TriggerQueue/SpectatorReplayTiming filter `1468/1468`; backend full `8278/8278`; mechanical checks passed before code commit. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2` with no commits ahead of `main`; `rule-audit-remaining-20260615` had no new commits ahead of `main`; root PDF rule files remained present. Core rule PDF gate is active: this slice re-checked latest core rules 128/129.3 for hidden/private information boundaries, 160-166 for object/card identity context, 327/333 for stack/chain creation, 401-404 for active/triggered skill placement, choices and costs, plus 808.1.d for Last Breath pending-item/source snapshot context. This narrows recovery spectator trigger-queue visible-source payload-identity/count-mismatch diagnostics only; it does not change approved scope or final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,11 +65,27 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`, currently at Stage 4D-223AS code commit `8ba81c9d`; docs checkpoint follows in a follow-up commit. A_MAIN will continue directly on this `main` worktree per user request.
-- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-16 14:41 CST at `01364ee2` with no commits ahead of `main`. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`, currently at Stage 4D-223AT code commit `6d96a6be`; docs checkpoint follows in a follow-up commit. A_MAIN will continue directly on this `main` worktree per user request.
+- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-16 15:41 CST at `01364ee2` with no commits ahead of `main`. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
 - Historical DOC_MATRIX handoff `17bde0c3` and source `7cb78f27` have already been integrated into `main`; no current DOC_MATRIX worktree is active unless the user opens one explicitly.
 
 ## Current Entries
+
+### 2026-06-16 15:41 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at code commit `6d96a6be`; docs checkpoint follows.
+
+Write locks: A_MAIN touched `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current completion/P0-P1/dispatch docs, this board, and `docs/CURRENT_STAGE4D_223AT_RECOVERY_SPECTATOR_TRIGGER_QUEUE_VISIBLE_SOURCE_PAYLOAD_IDENTITY_COUNT_MISMATCH_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-223AT recovery spectator trigger-queue visible-source payload identity count-mismatch validation accepted. Runtime changed: no, server test coverage only. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2` with no commits ahead of `main`; `rule-audit-remaining-20260615` had no new commits ahead of `main`; root PDF rule files remained present.
+
+Validation: focused new test `1/1`; changed-class `MatchRecoveryTests` `1948/1948`; adjacent TriggerQueue/SpectatorReplayTiming filter `1468/1468`; backend full `8278/8278`; `git diff --check` and changed-test anchored conflict-marker scan passed before code commit.
+
+Requested action: continue next executable server slice on local `main` after re-reading this board and the PDF gate; check `codex/ui-followup-20260616` and `rule-audit-remaining-20260615` before integration. Project remains **NOT READY**.
 
 ### 2026-06-16 14:41 A_MAIN
 
