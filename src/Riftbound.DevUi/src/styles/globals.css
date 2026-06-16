@@ -888,8 +888,8 @@ button.card-face:hover {
   background:
     linear-gradient(90deg, transparent 0, transparent 49.8%, rgba(219, 176, 99, 0.28) 50%, transparent 50.2%, transparent 100%),
     linear-gradient(180deg, transparent 0, transparent 31%, rgba(219, 176, 99, 0.22) 31.1%, transparent 31.3%, transparent 66%, rgba(219, 176, 99, 0.22) 66.1%, transparent 66.3%, transparent 100%),
-    radial-gradient(circle at 28% 36%, rgba(83, 138, 122, 0.2), transparent 27%),
-    radial-gradient(circle at 72% 62%, rgba(173, 74, 86, 0.16), transparent 31%),
+    linear-gradient(115deg, rgba(83, 138, 122, 0.12) 0%, transparent 36%, rgba(173, 74, 86, 0.09) 70%, transparent 100%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 18px),
     linear-gradient(135deg, rgba(21, 24, 24, 0.96), rgba(42, 37, 34, 0.98));
   padding: 10px;
   overflow: hidden;
