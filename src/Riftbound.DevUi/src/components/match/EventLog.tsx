@@ -41,6 +41,7 @@ const eventKindLabels: Record<string, string> = {
   CARD_REVEALED: "翻开待命",
   CLEANUP_REPEATED: "清理循环",
   COMBAT_DAMAGE_ASSIGNED: "战斗伤害分配",
+  COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED: "提交战斗伤害分配",
   COST_PAID: "支付费用",
   PAYMENT_WINDOW_CLOSED: "支付窗口关闭",
   PAYMENT_WINDOW_OPENED: "支付窗口开启",

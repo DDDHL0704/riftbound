@@ -1,6 +1,6 @@
 import { Check, Play, X } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, GameCommand } from "../../types/protocol";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CardObjectView, GameCommand } from "../../types/protocol";
 import {
   conformanceLabel,
   conformanceTone,
@@ -20,15 +20,17 @@ import { InspectedCard, objectStateLabels } from "./CardFace";
 
 const DESTROY_FRIENDLY_UNIT_COST_PREFIX = "DESTROY_FRIENDLY_UNIT:";
 const RECYCLE_GRAVEYARD_CARD_COST_PREFIX = "RECYCLE_GRAVEYARD_CARD:";
+const ObjectLookupContext = createContext<Record<string, CardObjectView>>({});
 
 type CardDetailDrawerProps = {
   card?: InspectedCard;
+  objectLookup?: Record<string, CardObjectView>;
   onClose: () => void;
   onCommand?: (command: GameCommand) => void;
   prompt?: ActionPromptDto;
 };
 
-export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetailDrawerProps) {
+export function CardDetailDrawer({ card, objectLookup = {}, onClose, onCommand, prompt }: CardDetailDrawerProps) {
   if (!card) {
     return null;
   }
@@ -43,7 +45,8 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
     : undefined;
 
   return (
-    <div className="detail-layer" role="dialog" aria-modal="true" aria-label="卡牌详情">
+    <ObjectLookupContext.Provider value={objectLookup}>
+      <div className="detail-layer" role="dialog" aria-modal="true" aria-label="卡牌详情">
       <button className="detail-scrim" onClick={onClose} type="button" aria-label="关闭卡牌详情" />
       <aside className="detail-drawer">
         <header>
@@ -233,7 +236,8 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
           </>
         )}
       </aside>
-    </div>
+      </div>
+    </ObjectLookupContext.Provider>
   );
 }
 
@@ -628,6 +632,7 @@ function PlayCardComposer({
               active={destination === choice.id}
               key={choice.id}
               onClick={() => setDestination(choice.id)}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -661,6 +666,7 @@ function PlayCardComposer({
                   onClick={() => {
                     setTargetSelections((current) => ({ ...current, [targetIndex]: choice.id }));
                   }}
+                  choice={choice}
                   title={choiceTitle(choice)}
                 >
                   {choice.label}
@@ -677,6 +683,7 @@ function PlayCardComposer({
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -700,6 +707,7 @@ function PlayCardComposer({
                 disabled={disabled}
                 key={choice.id}
                 onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+                choice={choice}
                 title={choiceTitle(choice)}
               >
                 {choice.label}
@@ -819,6 +827,7 @@ function HideCardComposer({
               active={destination === choice.id}
               key={choice.id}
               onClick={() => setDestination(choice.id)}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -833,6 +842,7 @@ function HideCardComposer({
               active={optionalCost === choice.id}
               key={choice.id}
               onClick={() => setOptionalCost(choice.id)}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -946,6 +956,7 @@ function RevealCardComposer({
               active={destination === choice.id}
               key={choice.id}
               onClick={() => setDestination(choice.id)}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -960,6 +971,7 @@ function RevealCardComposer({
               active={optionalCost === choice.id}
               key={choice.id}
               onClick={() => setOptionalCost(choice.id)}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -1103,6 +1115,7 @@ function MoveUnitComposer({
             active={destination === choice.id}
             key={choice.id}
             onClick={() => setDestination(choice.id)}
+            choice={choice}
             title={choiceTitle(choice)}
           >
             {choice.label}
@@ -1123,6 +1136,7 @@ function MoveUnitComposer({
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -1268,6 +1282,7 @@ function AssembleEquipmentComposer({
               setTargetObjectId(choice.id);
               setAdditionalCosts(selectDefaultAdditionalCosts(selectedRequirement, choice.id));
             }}
+            choice={choice}
             title={choiceTitle(choice)}
           >
             {choice.label}
@@ -1288,6 +1303,7 @@ function AssembleEquipmentComposer({
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -1313,6 +1329,7 @@ function AssembleEquipmentComposer({
                   current,
                   choice.id,
                   selectedRequirement.requiredAdditionalCostChoiceCount))}
+                choice={choice}
                 title={choiceTitle(choice)}
               >
                 {choice.label}
@@ -1331,6 +1348,7 @@ function AssembleEquipmentComposer({
                 disabled={!active && paymentResourceCosts.length >= 1}
                 key={choice.id}
                 onClick={() => setPaymentResourceCosts((current) => active ? [] : [choice.id])}
+                choice={choice}
                 title={choiceTitle(choice)}
               >
                 {choice.label}
@@ -1508,6 +1526,7 @@ function ActivateAbilityComposer({
                 active={targetSelections[targetIndex] === choice.id}
                 key={choice.id}
                 onClick={() => setTargetSelections((current) => ({ ...current, [targetIndex]: choice.id }))}
+                choice={choice}
                 title={choiceTitle(choice)}
               >
                 {choice.label}
@@ -1530,6 +1549,7 @@ function ActivateAbilityComposer({
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
+              choice={choice}
               title={choiceTitle(choice)}
             >
               {choice.label}
@@ -1701,6 +1721,7 @@ function LegendActionComposer({
                 active={targetSelections[targetIndex] === choice.id}
                 key={choice.id}
                 onClick={() => setTargetSelections((current) => ({ ...current, [targetIndex]: choice.id }))}
+                choice={choice}
                 title={choiceTitle(choice)}
               >
                 {choice.label}
@@ -1854,6 +1875,7 @@ function DeclareBattleComposer({
             active={battlefieldId === choice.id}
             key={choice.id}
             onClick={() => setBattlefieldId(choice.id)}
+            choice={choice}
             title={choiceTitle(choice)}
           >
             {choice.label}
@@ -1883,6 +1905,7 @@ function DeclareBattleComposer({
                   disabled={alreadySelected}
                   key={choice.id}
                   onClick={() => setAttackerSelections((current) => ({ ...current, [attackerIndex]: choice.id }))}
+                  choice={choice}
                   title={choiceTitle(choice)}
                 >
                   {choice.label}
@@ -1915,6 +1938,7 @@ function DeclareBattleComposer({
                   disabled={alreadySelected}
                   key={choice.id}
                   onClick={() => setDefenderSelections((current) => ({ ...current, [targetIndex]: choice.id }))}
+                  choice={choice}
                   title={choiceTitle(choice)}
                 >
                   {choice.label}
@@ -1977,16 +2001,21 @@ function ChoiceGroup({ children, label }: { children: ReactNode; label: string }
 function ChoiceButton({
   active,
   children,
+  choice,
   disabled,
   onClick,
   title
 }: {
   active: boolean;
   children: ReactNode;
+  choice?: ActionPromptChoiceDto;
   disabled?: boolean;
   onClick: () => void;
   title?: string;
 }) {
+  const objectLookup = useContext(ObjectLookupContext);
+  const choiceMeta = choice ? choiceMetaLabel(choice, objectLookup) : "";
+
   return (
     <button
       className={`composer-choice${active ? " is-active" : ""}`}
@@ -1995,9 +2024,40 @@ function ChoiceButton({
       title={title}
       type="button"
     >
-      {children}
+      {choice ? (
+        <span className="composer-choice-body">
+          <span className="composer-choice-label">{choice.label}</span>
+          {choiceMeta && <span className="composer-choice-meta">{choiceMeta}</span>}
+        </span>
+      ) : children}
     </button>
   );
+}
+
+function choiceMetaLabel(choice: ActionPromptChoiceDto, objectLookup: Record<string, CardObjectView>): string {
+  const object = objectLookup[choice.id];
+  const parts = object
+    ? [
+        object.controllerId ? `控 ${object.controllerId}` : object.ownerId ? `属 ${object.ownerId}` : "",
+        zoneOnlyLabel(object.location),
+        shortChoiceId(choice.id)
+      ]
+    : [shortChoiceId(choice.id)];
+
+  return uniqueStrings(parts.filter((part) => part && part !== choice.label)).join(" / ");
+}
+
+function zoneOnlyLabel(location?: Record<string, unknown> | null): string {
+  if (!location) {
+    return "";
+  }
+
+  const zone = typeof location.zone === "string" ? location.zone : "";
+  return zoneLabel(zone);
+}
+
+function shortChoiceId(id: string): string {
+  return id.length > 14 ? `${id.slice(0, 5)}...${id.slice(-5)}` : id;
 }
 
 function choiceTitle(choice: ActionPromptChoiceDto): string | undefined {

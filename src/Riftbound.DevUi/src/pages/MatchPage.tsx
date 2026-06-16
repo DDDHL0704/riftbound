@@ -1,5 +1,5 @@
 import { RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppRoute } from "../app/router";
 import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { InspectedCard } from "../components/cards/CardFace";
@@ -15,6 +15,7 @@ import { Button } from "../components/ui/Button";
 import { useCatalog } from "../stores/catalogStore";
 import { useMatchController } from "../stores/useMatchController";
 import { useSettings } from "../stores/settingsStore";
+import { CardObjectView } from "../types/protocol";
 
 export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
@@ -26,6 +27,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const opponents = players.filter(([playerId]) => playerId !== settings.playerId);
   const [inspectedCard, setInspectedCard] = useState<InspectedCard | undefined>();
   const roomStatus = typeof snapshot?.timing?.roomStatus === "string" ? snapshot.timing.roomStatus : "";
+  const objectLookup = useMemo<Record<string, CardObjectView>>(() => {
+    const entries = Object.values(snapshot?.players ?? {})
+      .flatMap((player) => Object.entries(player.objects ?? {}));
+    return Object.fromEntries(entries);
+  }, [snapshot?.players]);
 
   useEffect(() => {
     if (roomStatus === "FINISHED") {
@@ -37,16 +43,16 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     <div className="match-page">
       <MatchTopBar playerId={settings.playerId} prompt={controller.state.prompt} snapshot={snapshot} status={controller.state.status} />
       <section className="match-command-row">
-        <Button icon={<RefreshCw size={16} />} onClick={() => void controller.join()} variant="secondary">连接/重连</Button>
-        <Button onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步快照</Button>
-        <span>房间/对局：{matchId}</span>
-        <span>当前玩家：{settings.playerId}</span>
+        <div className="match-command-actions">
+          <Button icon={<RefreshCw size={16} />} onClick={() => void controller.join()} variant="secondary">连接/重连</Button>
+          <Button onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步快照</Button>
+        </div>
+        <div className="match-command-meta">
+          <span>房间/对局：{matchId}</span>
+          <span>当前玩家：{settings.playerId}</span>
+        </div>
       </section>
-      <div className="match-layout">
-        <aside className="left-rail">
-          <MatchStatusPanel playerId={settings.playerId} prompt={controller.state.prompt} snapshot={snapshot} />
-          <EventLog density={settings.logDensity} errors={controller.state.errors} events={controller.state.events} />
-        </aside>
+      <div className="match-workbench">
         <main className="play-surface">
           {opponents.map(([playerId, player]) => (
             <PlayerBoard key={playerId} onInspectCard={setInspectedCard} perspectivePlayerId={settings.playerId} player={player} playerId={playerId} specs={specByNo} />
@@ -58,9 +64,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             <div className="empty-panel">还没有自己的玩家视角。请先在房间页入座。</div>
           )}
         </main>
-        <aside className="right-rail">
-          <StackPanel snapshot={snapshot} />
-          <SnapshotDebugPanel prompt={controller.state.prompt} snapshot={snapshot} />
+        <aside className="action-rail">
           <ActionPanel
             connectionStatus={controller.state.status}
             onCommand={(command) => void controller.submitCommand(command)}
@@ -70,10 +74,20 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             prompt={controller.state.prompt}
             snapshot={snapshot}
           />
+          <details className="match-diagnostics">
+            <summary>状态 / 日志 / 规则队列</summary>
+            <div className="match-diagnostics-grid">
+              <MatchStatusPanel playerId={settings.playerId} prompt={controller.state.prompt} snapshot={snapshot} />
+              <StackPanel snapshot={snapshot} />
+              <EventLog density={settings.logDensity} errors={controller.state.errors} events={controller.state.events} />
+              <SnapshotDebugPanel prompt={controller.state.prompt} snapshot={snapshot} />
+            </div>
+          </details>
         </aside>
       </div>
       <CardDetailDrawer
         card={inspectedCard}
+        objectLookup={objectLookup}
         onClose={() => setInspectedCard(undefined)}
         onCommand={(command) => void controller.submitCommand(command)}
         prompt={controller.state.prompt}

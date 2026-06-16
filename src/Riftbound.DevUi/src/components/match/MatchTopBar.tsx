@@ -35,17 +35,21 @@ export function MatchTopBar({
 
   return (
     <section className="match-topbar">
-      <div>
+      <div className="match-topbar-title">
         <span className="eyebrow">对战状态</span>
         <h1>{title}</h1>
       </div>
-      <StatusPill tone={connectionStatusTone(status)}>{connectionStatusLabel(status)}</StatusPill>
-      <StatusPill tone={snapshot?.activePlayerId === playerId ? "good" : "neutral"}>回合玩家：{snapshot?.activePlayerId ?? "无"}</StatusPill>
-      <StatusPill tone={asString(turnWindow.actingPlayerId, "") === playerId ? "good" : "neutral"}>行动权：{asString(turnWindow.actingPlayerId, "无")}</StatusPill>
-      <StatusPill tone={asString(spellDuel.focusPlayerId, "") === playerId ? "good" : "info"}>焦点：{asString(spellDuel.focusPlayerId, "无")}</StatusPill>
-      <StatusPill tone={promptPlayer === playerId ? "warn" : "neutral"}>提示：{promptPlayer}</StatusPill>
-      <StatusPill tone={prompt?.actionable ? "warn" : "neutral"}>窗口：{promptStatus}</StatusPill>
-      {status === "connected" ? <Wifi size={20} aria-hidden /> : <WifiOff size={20} aria-hidden />}
+      <div className="match-topbar-pills">
+        <StatusPill tone={snapshot?.activePlayerId === playerId ? "good" : "neutral"}>回合玩家：{snapshot?.activePlayerId ?? "无"}</StatusPill>
+        <StatusPill tone={asString(turnWindow.actingPlayerId, "") === playerId ? "good" : "neutral"}>行动权：{asString(turnWindow.actingPlayerId, "无")}</StatusPill>
+        <StatusPill tone={asString(spellDuel.focusPlayerId, "") === playerId ? "good" : "info"}>焦点：{asString(spellDuel.focusPlayerId, "无")}</StatusPill>
+        <StatusPill tone={promptPlayer === playerId ? "warn" : "neutral"}>提示：{promptPlayer}</StatusPill>
+        <StatusPill tone={prompt?.actionable ? "warn" : "neutral"}>窗口：{promptStatus}</StatusPill>
+      </div>
+      <div className="match-topbar-connection">
+        <StatusPill tone={connectionStatusTone(status)}>{connectionStatusLabel(status)}</StatusPill>
+        {status === "connected" ? <Wifi size={20} aria-hidden /> : <WifiOff size={20} aria-hidden />}
+      </div>
     </section>
   );
 }
