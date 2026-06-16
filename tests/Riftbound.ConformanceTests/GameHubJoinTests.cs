@@ -13993,6 +13993,10 @@ public sealed class GameHubJoinTests
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(MessageType.ERROR, error.Type);
+        Assert.Equal(roomId, error.RoomId);
+        Assert.Equal("P1", error.PlayerId);
+        AssertProtocolDefaults(error);
         Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
         Assert.Equal("对局已经结束，不能继续提交行动。", payload.Message);
         Assert.DoesNotContain(clientIntentId, payload.Message, StringComparison.Ordinal);
