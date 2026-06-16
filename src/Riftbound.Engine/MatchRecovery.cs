@@ -11906,6 +11906,11 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(queuePayload))
         {
             errors.Add("spectator replay frame timing pending task queue is required");
+            if (authoritativeState.PendingTaskQueue.Tasks.Count > 0)
+            {
+                errors.Add("spectator replay frame timing pending task queue task count does not match authoritative state pending task queue task count");
+            }
+
             return;
         }
 
