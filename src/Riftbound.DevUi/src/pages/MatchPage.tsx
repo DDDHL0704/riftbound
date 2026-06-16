@@ -1,4 +1,4 @@
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppRoute } from "../app/router";
 import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
@@ -45,7 +45,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <section className="match-command-row">
         <div className="match-command-actions">
           <Button icon={<RefreshCw size={16} />} onClick={() => void controller.join()} variant="secondary">连接/重连</Button>
-          <Button onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步快照</Button>
+          <Button icon={<RotateCcw size={16} />} onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步快照</Button>
         </div>
         <div className="match-command-meta">
           <span>房间/对局：{matchId}</span>
