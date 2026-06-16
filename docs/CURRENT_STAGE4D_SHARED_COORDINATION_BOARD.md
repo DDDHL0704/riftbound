@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-223AU recovery spectator trigger-queue missing-payload count-drift validation accepted on local `main` as code commit `76adf282`. Runtime changed: yes, narrow recovery validation diagnostic only. Frontend changed: no. `MatchRecovery.cs` now reports spectator replay-frame timing `triggerQueue` count `0` against non-empty authoritative trigger queue when the spectator payload is missing or null, while preserving the existing required-payload error. `MatchRecoveryTests` now proves the new missing-payload/count-mismatch path and preserves the empty-authoritative without-count behavior. Validation passed: focused new test `1/1`; existing without-count companion `1/1`; changed-class `MatchRecoveryTests` `1949/1949`; adjacent TriggerQueue/SpectatorReplayTiming filter `1469/1469`; backend full `8279/8279`; mechanical checks passed before code commit. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2` with no commits ahead of `main`; `rule-audit-remaining-20260615` had no new commits ahead of `main`; root PDF rule files remained present. Core rule PDF gate is active: this slice re-checked latest core rules 327/333 for stack/chain creation, 342/376/382-383 for spell duel, active skills and triggered skill ordering/placement, 401-404 for active/triggered skill placement, choices and costs, plus 808.1.d for Last Breath pending-item/source snapshot context. This narrows recovery spectator trigger-queue missing-payload/count-drift diagnostics only; it does not change approved scope or final-status locks. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-223AV recovery spectator trigger-queue null-payload count-drift validation accepted on local `main` as code commit `528b5aa9`. Runtime changed: no, server test coverage only. Frontend changed: no. `MatchRecoveryTests` now proves spectator replay-frame timing `triggerQueue = null` reports the required-payload error plus count `0` against non-empty authoritative trigger queue, while the existing empty-authoritative null-payload companion remains without count mismatch. Validation passed: focused new test `1/1`; existing null without-count companion `1/1`; changed-class `MatchRecoveryTests` `1950/1950`; adjacent TriggerQueue/SpectatorReplayTiming filter `1470/1470`; backend full `8280/8280`; mechanical checks passed before code commit. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2` with no commits ahead of `main`; `rule-audit-remaining-20260615` had no new commits ahead of `main`; root PDF rule files remained present. Core rule PDF gate is active: this slice re-checked latest core rules 327/333 for stack/chain creation, 342/376/382-383 for spell duel, active skills and triggered skill ordering/placement, 401-404 for active/triggered skill placement, choices and costs, plus 808.1.d for Last Breath pending-item/source snapshot context. This narrows recovery spectator trigger-queue null-payload/count-drift diagnostics only; it does not change approved scope or final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,11 +65,27 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`, currently at Stage 4D-223AU code commit `76adf282`; docs checkpoint follows in a follow-up commit. A_MAIN will continue directly on this `main` worktree per user request.
-- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-16 17:37 CST at `01364ee2` with no commits ahead of `main`. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`, currently at Stage 4D-223AV code commit `528b5aa9`; docs checkpoint follows in a follow-up commit. A_MAIN will continue directly on this `main` worktree per user request.
+- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-16 17:46 CST at `01364ee2` with no commits ahead of `main`. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
 - Historical DOC_MATRIX handoff `17bde0c3` and source `7cb78f27` have already been integrated into `main`; no current DOC_MATRIX worktree is active unless the user opens one explicitly.
 
 ## Current Entries
+
+### 2026-06-16 17:46 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at code commit `528b5aa9`; docs checkpoint follows.
+
+Write locks: A_MAIN touched `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current completion/P0-P1/dispatch docs, this board, and `docs/CURRENT_STAGE4D_223AV_RECOVERY_SPECTATOR_TRIGGER_QUEUE_NULL_PAYLOAD_COUNT_DRIFT_AUDIT.md`. Runtime validation code, matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-223AV recovery spectator trigger-queue null-payload count-drift validation accepted. Runtime changed: no, server test coverage only. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2` with no commits ahead of `main`; `rule-audit-remaining-20260615` had no new commits ahead of `main`; root PDF rule files remained present.
+
+Validation: focused new test `1/1`; existing null without-count companion `1/1`; changed-class `MatchRecoveryTests` `1950/1950`; adjacent TriggerQueue/SpectatorReplayTiming filter `1470/1470`; backend full `8280/8280`; `git diff --check` and changed-test anchored conflict-marker scan passed before code commit.
+
+Requested action: continue next executable server slice on local `main` after re-reading this board and the PDF gate; check `codex/ui-followup-20260616` and `rule-audit-remaining-20260615` before integration. Project remains **NOT READY**.
 
 ### 2026-06-16 17:37 A_MAIN
 
