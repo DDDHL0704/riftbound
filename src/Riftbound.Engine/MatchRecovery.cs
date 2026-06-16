@@ -20941,10 +20941,17 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        var authoritativeResources = authoritativeState.TemporaryPaymentResources;
         if (!timing.TryGetValue("temporaryPaymentResources", out var temporaryPaymentResourcesPayload)
             || IsNullSnapshotPayloadValue(temporaryPaymentResourcesPayload))
         {
             errors.Add("spectator replay frame timing temporary payment resources are required");
+            if (authoritativeResources.Count > 0)
+            {
+                errors.Add(
+                    $"spectator replay frame timing temporary payment resource count 0 does not match authoritative state temporary payment resource count {authoritativeResources.Count}");
+            }
+
             return;
         }
 
@@ -20954,7 +20961,6 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        var authoritativeResources = authoritativeState.TemporaryPaymentResources;
         var validateAuthoritativeResourceParity = spectatorResources.Count == authoritativeResources.Count;
         if (!validateAuthoritativeResourceParity)
         {
