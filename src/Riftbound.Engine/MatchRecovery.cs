@@ -13065,6 +13065,13 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(continuousEffectsPayload))
         {
             errors.Add("spectator replay frame timing continuous effects are required");
+            var authoritativeEffectCount = authoritativeState.ContinuousEffects.Count;
+            if (authoritativeEffectCount > 0)
+            {
+                errors.Add(
+                    $"spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count {authoritativeEffectCount}");
+            }
+
             return;
         }
 
