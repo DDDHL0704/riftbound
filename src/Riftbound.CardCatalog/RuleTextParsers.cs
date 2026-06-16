@@ -166,7 +166,7 @@ public static partial class CostParser
         return new ParsedCostSpec(
             card.Energy,
             card.ReturnEnergy,
-            card.Power,
+            null,
             additionalCosts.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
             optionalCosts.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray());
     }

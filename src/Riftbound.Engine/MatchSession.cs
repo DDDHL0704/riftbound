@@ -13066,10 +13066,20 @@ internal static class ActionPromptBuilder
             choices.Add(new ActionPromptChoiceDto("BASE", "基地"));
         }
 
-        var battlefieldDestination = $"BATTLEFIELD:{playerId}-MAIN";
-        if (!PromptBattlefieldStaticPreventsUnitPlayToBattlefield(state, playerId, battlefieldDestination))
+        var battlefieldDestinations = MoveUnitBaseToBattlefieldDestinationChoices(state)
+            .Where(choice => !PromptBattlefieldStaticPreventsUnitPlayToBattlefield(state, playerId, choice.Id))
+            .ToArray();
+        if (battlefieldDestinations.Length > 0)
         {
-            choices.Add(new ActionPromptChoiceDto(battlefieldDestination, "己方主战场"));
+            choices.AddRange(battlefieldDestinations);
+        }
+        else
+        {
+            var battlefieldDestination = $"BATTLEFIELD:{playerId}-MAIN";
+            if (!PromptBattlefieldStaticPreventsUnitPlayToBattlefield(state, playerId, battlefieldDestination))
+            {
+                choices.Add(new ActionPromptChoiceDto(battlefieldDestination, "己方主战场"));
+            }
         }
 
         return choices.Count == 0 ? null : choices;
@@ -13080,7 +13090,7 @@ internal static class ActionPromptBuilder
         string playerId,
         string destination)
     {
-        return string.Equals(destination, $"BATTLEFIELD:{playerId}-MAIN", StringComparison.Ordinal)
+        return destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)

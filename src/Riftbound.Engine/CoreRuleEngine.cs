@@ -4841,7 +4841,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             : command.Destination?.Trim() ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(destination)
             && (!behavior.PlaysSourceToBaseAsUnit
-                || !string.Equals(destination, $"{MoveUnitBattlefieldZone}:{intent.PlayerId}-MAIN", StringComparison.Ordinal)))
+                || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)))
         {
             return RejectWithCorePrompts(
                 state,
@@ -17098,36 +17098,81 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(source => source.HuntAmount > 0)
             .ToArray();
         var huntAmount = huntConquerSources.Sum(source => source.HuntAmount);
-        if (huntAmount > 0 && attackerConqueredBattlefield)
+        var conqueredRealBattlefield = TryGetBattlefieldCardObject(
+            playerZones,
+            cardObjects,
+            battlefieldId,
+            out _,
+            out _);
+        if (attackerConqueredBattlefield
+            && (huntAmount > 0 || conqueredRealBattlefield))
         {
-            var huntSource = huntConquerSources[0];
+            var conquestSourceObjectId = huntConquerSources.Length > 0
+                ? huntConquerSources[0].ObjectId
+                : survivingConquerAttackerObjectIds[0];
+            var conquestPayload = new Dictionary<string, object?>
+            {
+                ["playerId"] = intent.PlayerId,
+                ["battlefieldId"] = battlefieldId,
+                ["sourceObjectId"] = conquestSourceObjectId,
+                ["defeatedObjectIds"] = defenderObjectIds.ToArray(),
+                ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits
+            };
+            if (huntAmount > 0)
+            {
+                conquestPayload["huntAmount"] = huntAmount;
+                conquestPayload["huntSourceObjectIds"] = huntConquerSources
+                    .Select(source => source.ObjectId)
+                    .ToArray();
+                conquestPayload["huntAmountsBySource"] = huntConquerSources.ToDictionary(
+                    source => source.ObjectId,
+                    source => source.HuntAmount,
+                    StringComparer.Ordinal);
+            }
+
             combatEvents.Add(new GameEvent(
                 "BATTLEFIELD_CONQUERED",
                 $"{intent.PlayerId} 征服战场",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["sourceObjectId"] = huntSource.ObjectId,
-                    ["defeatedObjectIds"] = defenderObjectIds.ToArray(),
-                    ["huntAmount"] = huntAmount,
-                    ["huntSourceObjectIds"] = huntConquerSources
-                        .Select(source => source.ObjectId)
-                        .ToArray(),
-                    ["huntAmountsBySource"] = huntConquerSources.ToDictionary(
-                        source => source.ObjectId,
-                        source => source.HuntAmount,
-                        StringComparer.Ordinal),
-                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits
-                }));
-            playerExperience = GainExperience(
-                NormalizeExperienceForSeats(state),
-                intent.PlayerId,
-                huntAmount,
-                combatStackItem,
-                combatEvents,
-                huntSource.ObjectId,
-                huntSource.CardObject.CardNo);
+                conquestPayload));
+            var conquestScoreState = state with
+            {
+                PlayerZones = playerZones,
+                CardObjects = cardObjects,
+                PlayerScores = playerScores,
+                UntilEndOfTurnEffects = untilEndOfTurnEffects
+            };
+            if (TryApplyBattlefieldScore(
+                    conquestScoreState,
+                    playerZones,
+                    cardObjects,
+                    playerScores,
+                    intent.PlayerId,
+                    battlefieldId,
+                    "BATTLEFIELD_CONQUERED_SCORE",
+                    EffectiveWinningScore(playerZones, cardObjects),
+                    combatEvents,
+                    out var conquestPlayerScores,
+                    out var conquestWinnerPlayerId,
+                    out var conquestUntilEndOfTurnEffects))
+            {
+                playerScores = conquestPlayerScores;
+                winnerPlayerId = conquestWinnerPlayerId ?? winnerPlayerId;
+                untilEndOfTurnEffects = conquestUntilEndOfTurnEffects;
+            }
+
+            if (huntAmount > 0)
+            {
+                var huntSource = huntConquerSources[0];
+                playerExperience = GainExperience(
+                    NormalizeExperienceForSeats(state),
+                    intent.PlayerId,
+                    huntAmount,
+                    combatStackItem,
+                    combatEvents,
+                    huntSource.ObjectId,
+                    huntSource.CardObject.CardNo);
+            }
+
             TryResolveBattlefieldConquerMillTwoTrigger(
                 playerZones,
                 cardObjects,
@@ -26888,9 +26933,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cardObjects,
             RngCursor = battlefieldStartDrawResult.RngCursor
         };
-        var currentZones = playerZones.TryGetValue(turnPlayerId, out var zones)
-            ? zones
-            : PlayerZones.Empty;
         var firstTurnScoreResult = battlefieldStartDrawResult.WinnerPlayerId is null
             ? ApplyBattlefieldFirstTurnScore(preStartState, turnPlayerId)
             : new ScoreApplicationResult(
@@ -26898,20 +26940,43 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldStartDrawResult.WinnerPlayerId,
                 [],
                 preStartState.UntilEndOfTurnEffects);
+        var scoreEvents = firstTurnScoreResult.Events.ToList();
+        var scoredPlayerScores = firstTurnScoreResult.PlayerScores;
+        var scoredWinnerPlayerId = firstTurnScoreResult.WinnerPlayerId;
+        var scoredUntilEndOfTurnEffects = firstTurnScoreResult.UntilEndOfTurnEffects;
+        if (scoredWinnerPlayerId is null)
+        {
+            var heldScoreResult = ApplyBattlefieldHeldScoresAtTurnStart(
+                preStartState with
+                {
+                    PlayerScores = scoredPlayerScores,
+                    UntilEndOfTurnEffects = scoredUntilEndOfTurnEffects
+                },
+                playerZones,
+                cardObjects,
+                turnPlayerId);
+            scoreEvents.AddRange(heldScoreResult.Events);
+            scoredPlayerScores = heldScoreResult.PlayerScores;
+            scoredWinnerPlayerId = heldScoreResult.WinnerPlayerId;
+            scoredUntilEndOfTurnEffects = heldScoreResult.UntilEndOfTurnEffects;
+        }
 
-        var calledRuneTarget = firstTurnScoreResult.WinnerPlayerId is null ? RuneCallCount(preStartState) : 0;
+        var currentZones = playerZones.TryGetValue(turnPlayerId, out var zones)
+            ? zones
+            : PlayerZones.Empty;
+        var calledRuneTarget = scoredWinnerPlayerId is null ? RuneCallCount(preStartState) : 0;
         var calledRunes = TakeControlledRuneDeckPrefix(
             cardObjects,
             turnPlayerId,
             currentZones.RuneDeck,
             calledRuneTarget);
         var remainingRuneDeck = currentZones.RuneDeck.Skip(calledRunes.Length).ToArray();
-        var drawResult = firstTurnScoreResult.WinnerPlayerId is null
+        var drawResult = scoredWinnerPlayerId is null
             ? DrawOne(
                 preStartState with
                 {
-                    PlayerScores = firstTurnScoreResult.PlayerScores,
-                    UntilEndOfTurnEffects = firstTurnScoreResult.UntilEndOfTurnEffects
+                    PlayerScores = scoredPlayerScores,
+                    UntilEndOfTurnEffects = scoredUntilEndOfTurnEffects
                 },
                 turnPlayerId,
                 currentZones)
@@ -26920,8 +26985,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 currentZones.Graveyard,
                 [],
                 [],
-                firstTurnScoreResult.WinnerPlayerId,
-                firstTurnScoreResult.PlayerScores,
+                scoredWinnerPlayerId,
+                scoredPlayerScores,
                 preStartState.RngCursor,
                 EffectiveWinningScore(preStartState));
 
@@ -26950,7 +27015,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     .Concat(ephemeralCleanupResult.Events)
                     .Concat(battlefieldStartDamageResult.Events)
                     .Concat(battlefieldStartDrawResult.Events)
-                    .Concat(firstTurnScoreResult.Events)
+                    .Concat(scoreEvents)
                     .ToArray())
             .ToList();
         var playerScores = drawResult.PlayerScores;
@@ -27003,7 +27068,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
             RngCursor = rngCursor,
-            UntilEndOfTurnEffects = firstTurnScoreResult.UntilEndOfTurnEffects
+            UntilEndOfTurnEffects = scoredUntilEndOfTurnEffects
         };
 
         return new ResolutionResult(
@@ -28314,6 +28379,29 @@ public sealed class CoreRuleEngine : IRuleEngine
         return stackItem.Destination.StartsWith(
             $"{MoveUnitBattlefieldZone}:",
             StringComparison.Ordinal);
+    }
+
+    private static bool IsPlayCardUnitBattlefieldDestinationAllowed(
+        MatchState state,
+        string playerId,
+        string destination)
+    {
+        var normalized = NormalizeMoveUnitLocation(destination);
+        if (!normalized.StartsWith($"{MoveUnitBattlefieldZone}:", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (string.Equals(normalized, $"{MoveUnitBattlefieldZone}:{playerId}-MAIN", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        var battlefieldObjectId = PreciseBattlefieldLocationObjectId(normalized);
+        return !string.IsNullOrWhiteSpace(battlefieldObjectId)
+            && state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+            && IsBattlefieldCardObject(battlefieldState)
+            && IsObjectOnField(state.PlayerZones, battlefieldObjectId);
     }
 
     private static bool TryNormalizeMoveUnitZone(
@@ -42164,6 +42252,190 @@ public sealed class CoreRuleEngine : IRuleEngine
             WinningPlayerId(playerScores, EffectiveWinningScore(state)),
             events,
             nextUntilEndOfTurnEffects);
+    }
+
+    private static ScoreApplicationResult ApplyBattlefieldHeldScoresAtTurnStart(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        var playerScores = NormalizeScoresForSeats(state);
+        if (PlayerTurnOrdinal(state, playerId) <= 1)
+        {
+            return new ScoreApplicationResult(playerScores, null, [], state.UntilEndOfTurnEffects);
+        }
+
+        var untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
+        string? winnerPlayerId = null;
+        var events = new List<GameEvent>();
+        var battlefieldObjectIds = playerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldCardObject(cardObject)
+                && !IsDedicatedBattlefieldScoreRuleCardNo(cardObject.CardNo)
+                && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+                && !BattlefieldScoredThisTurn(untilEndOfTurnEffects, objectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (var battlefieldObjectId in battlefieldObjectIds)
+        {
+            events.Add(new GameEvent(
+                "BATTLEFIELD_HELD",
+                $"{playerId} 据守战场",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["battlefieldId"] = battlefieldObjectId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["timing"] = MatchPhases.TurnStart
+                }));
+
+            var scoreState = state with
+            {
+                PlayerZones = playerZones,
+                CardObjects = cardObjects,
+                PlayerScores = playerScores,
+                UntilEndOfTurnEffects = untilEndOfTurnEffects
+            };
+            if (!TryApplyBattlefieldScore(
+                    scoreState,
+                    playerZones,
+                    cardObjects,
+                    playerScores,
+                    playerId,
+                    battlefieldObjectId,
+                    "BATTLEFIELD_HELD_SCORE",
+                    EffectiveWinningScore(playerZones, cardObjects),
+                    events,
+                    out var scoredPlayerScores,
+                    out var scoredWinnerPlayerId,
+                    out var scoredUntilEndOfTurnEffects))
+            {
+                continue;
+            }
+
+            playerScores = scoredPlayerScores.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            winnerPlayerId = scoredWinnerPlayerId ?? winnerPlayerId;
+            untilEndOfTurnEffects = scoredUntilEndOfTurnEffects;
+
+            var triggerEvents = new List<GameEvent>();
+            if (TryResolveBattlefieldHeldCreateMinionTrigger(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    battlefieldObjectId,
+                    battlefieldObjectId,
+                    triggerEvents))
+            {
+                events.AddRange(triggerEvents);
+            }
+
+            if (winnerPlayerId is not null)
+            {
+                break;
+            }
+        }
+
+        return new ScoreApplicationResult(
+            playerScores,
+            winnerPlayerId,
+            events,
+            untilEndOfTurnEffects);
+    }
+
+    private static bool IsDedicatedBattlefieldScoreRuleCardNo(string? cardNo)
+    {
+        return IsBattlefieldFirstTurnScoreCardNo(cardNo)
+            || IsBattlefieldScoreDelayCardNo(cardNo);
+    }
+
+    private static bool TryApplyBattlefieldScore(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        string battlefieldId,
+        string reason,
+        int winningScore,
+        List<GameEvent> events,
+        out IReadOnlyDictionary<string, int> nextPlayerScores,
+        out string? winnerPlayerId,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        nextPlayerScores = playerScores;
+        winnerPlayerId = null;
+        nextUntilEndOfTurnEffects = state.UntilEndOfTurnEffects;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out _))
+        {
+            return false;
+        }
+
+        if (BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, battlefieldObjectId))
+        {
+            events.Add(BuildBattlefieldScoreAlreadyGainedEvent(
+                state,
+                playerId,
+                reason,
+                [battlefieldObjectId]));
+            return false;
+        }
+
+        if (TryBuildBattlefieldScorePreventedEvent(
+                state,
+                playerId,
+                reason,
+                [battlefieldObjectId],
+                out var scorePreventedEvent)
+            && scorePreventedEvent is not null)
+        {
+            events.Add(scorePreventedEvent);
+            return false;
+        }
+
+        var mutablePlayerScores = playerZones.Keys.ToDictionary(
+            scorePlayerId => scorePlayerId,
+            scorePlayerId => playerScores.TryGetValue(scorePlayerId, out var score) ? score : 0,
+            StringComparer.Ordinal);
+        mutablePlayerScores[playerId] = mutablePlayerScores.TryGetValue(playerId, out var currentScore)
+            ? currentScore + 1
+            : 1;
+        winnerPlayerId = WinningPlayerId(mutablePlayerScores, winningScore);
+        nextUntilEndOfTurnEffects = MarkBattlefieldScoredThisTurn(
+            state.UntilEndOfTurnEffects,
+            battlefieldObjectId,
+            playerId);
+
+        events.Add(new GameEvent(
+            "SCORE_GAINED",
+            $"{playerId} 获得 1 分",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["amount"] = 1,
+                ["score"] = mutablePlayerScores[playerId],
+                ["reason"] = reason,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["battlefieldObjectId"] = battlefieldObjectId
+            }));
+        if (winnerPlayerId is not null)
+        {
+            events.Add(new GameEvent(
+                "MATCH_WON",
+                $"{winnerPlayerId} 达到获胜分数并获胜",
+                new Dictionary<string, object?>
+                {
+                    ["winnerPlayerId"] = winnerPlayerId,
+                    ["winningScore"] = winningScore
+                }));
+        }
+
+        nextPlayerScores = mutablePlayerScores;
+        return true;
     }
 
     private static bool TryBuildBattlefieldScorePreventedEvent(
