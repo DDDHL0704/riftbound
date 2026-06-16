@@ -61,6 +61,14 @@ h3 {
   min-height: 100vh;
 }
 
+.app-frame.app-frame-match {
+  grid-template-columns: 56px minmax(0, 1fr);
+  width: 100vw;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .main-nav {
   display: flex;
   flex-direction: column;
@@ -97,6 +105,43 @@ h3 {
 .app-content {
   min-width: 0;
   padding: 20px;
+}
+
+.app-frame-match .main-nav {
+  align-items: center;
+  gap: 10px;
+  padding: 10px 7px;
+}
+
+.app-frame-match .brand-mark {
+  justify-content: center;
+  gap: 0;
+}
+
+.app-frame-match .brand-mark div,
+.app-frame-match .nav-footnote,
+.app-frame-match .main-nav .button span {
+  display: none;
+}
+
+.app-frame-match .main-nav nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.app-frame-match .main-nav .button {
+  width: 42px;
+  min-height: 42px;
+  padding: 0;
+}
+
+.app-frame-match .app-content {
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px;
 }
 
 .button {
@@ -574,6 +619,37 @@ button.card-face:hover {
   visibility: visible;
 }
 
+.card-battlefield-image {
+  display: grid;
+  place-items: center;
+  width: 164px;
+  min-width: 164px;
+  max-width: 164px;
+  height: 118px;
+  aspect-ratio: 88 / 63;
+}
+
+.card-battlefield-image .card-full-image {
+  width: 118px;
+  height: 164px;
+  transform: rotate(90deg);
+}
+
+.card-battlefield-image .card-zoom-preview {
+  display: grid;
+  place-items: center;
+  width: min(520px, 44vw);
+  height: min(372px, 60vh);
+}
+
+.card-battlefield-image .card-zoom-preview img {
+  width: 324px;
+  max-width: none;
+  height: 452px;
+  max-height: none;
+  transform: rotate(90deg);
+}
+
 .card-compact {
   width: 160px;
   min-width: 150px;
@@ -794,6 +870,17 @@ button.card-face:hover {
   margin: 0 auto;
 }
 
+.app-frame-match .match-page {
+  position: relative;
+  display: grid;
+  grid-template-rows: 48px minmax(0, 1fr);
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .match-topbar,
 .match-command-row {
   border: 1px solid var(--border-subtle);
@@ -808,6 +895,12 @@ button.card-face:hover {
   align-items: center;
 }
 
+.app-frame-match .match-topbar {
+  grid-template-columns: minmax(230px, 0.9fr) minmax(0, 1.45fr) auto;
+  min-height: 48px;
+  padding: 6px 10px;
+}
+
 .match-topbar-title {
   min-width: 0;
 }
@@ -816,6 +909,16 @@ button.card-face:hover {
   font-size: 24px;
   line-height: 1.15;
   overflow-wrap: anywhere;
+}
+
+.app-frame-match .match-topbar-title h1 {
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.app-frame-match .match-topbar-title .eyebrow {
+  margin-bottom: 2px;
+  font-size: 9px;
 }
 
 .match-topbar-pills,
@@ -845,6 +948,27 @@ button.card-face:hover {
   justify-content: space-between;
 }
 
+.app-frame-match .match-command-row {
+  position: absolute;
+  z-index: 4;
+  top: 56px;
+  right: 280px;
+  min-height: 38px;
+  border-color: rgba(215, 173, 85, 0.22);
+  background: rgba(12, 16, 17, 0.7);
+  padding: 5px 6px;
+}
+
+.app-frame-match .match-command-row .button {
+  min-height: 30px;
+  padding: 5px 8px;
+}
+
+.app-frame-match .match-command-row .button span,
+.app-frame-match .match-command-meta span:first-child {
+  display: none;
+}
+
 .match-command-meta {
   justify-content: flex-end;
   margin-left: auto;
@@ -866,6 +990,15 @@ button.card-face:hover {
   grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
   gap: 12px;
   align-items: start;
+}
+
+.app-frame-match .match-workbench {
+  grid-template-columns: minmax(0, 1fr) 266px;
+  align-items: stretch;
+  gap: 6px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .left-rail,
@@ -895,6 +1028,15 @@ button.card-face:hover {
   overflow: hidden;
 }
 
+.app-frame-match .play-surface {
+  grid-template-rows: minmax(132px, 0.92fr) minmax(224px, 1.32fr) minmax(164px, 1fr);
+  align-content: stretch;
+  gap: 6px;
+  height: 100%;
+  min-height: 0;
+  padding: 6px;
+}
+
 .player-board,
 .battlefield-area,
 .side-panel {
@@ -908,6 +1050,13 @@ button.card-face:hover {
   align-content: start;
   overflow: visible;
   background: rgba(10, 13, 13, 0.42);
+}
+
+.app-frame-match .battlefield-area {
+  grid-template-rows: 28px minmax(0, 1fr);
+  gap: 6px;
+  overflow: hidden;
+  padding: 8px;
 }
 
 .player-board header,
@@ -926,6 +1075,32 @@ button.card-face:hover {
   padding: 10px;
   background: rgba(13, 17, 18, 0.55);
   overflow: visible;
+}
+
+.app-frame-match .player-board {
+  grid-template-rows: 30px 24px minmax(0, 1fr) 18px;
+  gap: 5px;
+  overflow: hidden;
+  padding: 7px;
+}
+
+.app-frame-match .player-board header {
+  min-height: 0;
+}
+
+.app-frame-match .player-board header h2 {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.app-frame-match .player-pills {
+  gap: 5px;
+}
+
+.app-frame-match .status-pill {
+  min-height: 22px;
+  padding: 3px 7px;
+  font-size: 11px;
 }
 
 .player-self {
@@ -948,6 +1123,10 @@ button.card-face:hover {
   gap: 10px;
 }
 
+.app-frame-match .player-board-zones {
+  min-height: 0;
+}
+
 .player-opponent .player-board-zones {
   grid-template-columns: minmax(0, 1fr) minmax(360px, 0.44fr);
   align-items: start;
@@ -959,6 +1138,18 @@ button.card-face:hover {
   grid-template-columns: minmax(210px, 0.78fr) minmax(240px, 0.92fr) minmax(210px, 0.82fr) minmax(260px, 1.18fr);
   gap: 8px;
   min-width: 0;
+}
+
+.app-frame-match .player-board-primary-zones {
+  grid-template-columns: minmax(154px, 0.44fr) minmax(176px, 0.5fr) minmax(128px, 0.36fr) minmax(0, 1fr);
+  gap: 6px;
+  height: 100%;
+  min-height: 0;
+}
+
+.app-frame-match .player-opponent .player-board-zones {
+  grid-template-columns: minmax(0, 1fr) minmax(286px, 0.3fr);
+  gap: 6px;
 }
 
 .signature-zones {
@@ -1012,9 +1203,20 @@ button.card-face:hover {
   min-width: 0;
 }
 
+.app-frame-match .zone-strip {
+  gap: 4px;
+  overflow: hidden;
+  padding: 5px;
+}
+
 .zone-title {
   min-height: 22px;
   color: #f6e7bd;
+}
+
+.app-frame-match .zone-title {
+  min-height: 18px;
+  font-size: 11px;
 }
 
 .zone-title span {
@@ -1036,11 +1238,23 @@ button.card-face:hover {
   min-height: 0;
 }
 
+.app-frame-match .zone-signature .card-compact {
+  width: 78px;
+  min-width: 72px;
+  max-width: 82px;
+}
+
 .player-opponent .zone-signature .card-compact {
   width: 112px;
   min-width: 106px;
   max-width: 116px;
   min-height: 0;
+}
+
+.app-frame-match .player-opponent .zone-signature .card-compact {
+  width: 70px;
+  min-width: 66px;
+  max-width: 74px;
 }
 
 .rune-slot {
@@ -1058,6 +1272,15 @@ button.card-face:hover {
   background: rgba(240, 248, 246, 0.08);
   color: var(--text-primary);
   padding: 8px;
+}
+
+.app-frame-match .rune-slot-meter {
+  gap: 4px;
+  padding: 6px;
+}
+
+.app-frame-match .rune-slot-meter strong {
+  font-size: 13px;
 }
 
 .rune-slot-meter strong {
@@ -1080,12 +1303,24 @@ button.card-face:hover {
   font-weight: 850;
 }
 
+.app-frame-match .rune-trait-list span {
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
 .card-row {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   min-height: 202px;
   padding-bottom: 4px;
+}
+
+.app-frame-match .card-row {
+  gap: 5px;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 0;
 }
 
 .player-board-public-zones .card-row {
@@ -1096,8 +1331,21 @@ button.card-face:hover {
   min-height: 242px;
 }
 
+.app-frame-match .zone-hand .card-row {
+  align-items: end;
+  min-height: 0;
+}
+
+.app-frame-match .zone-hand .card-row .card-face:not(:first-child) {
+  margin-left: -54px;
+}
+
 .player-opponent .zone-hand .card-row {
   min-height: 138px;
+}
+
+.app-frame-match .player-opponent .zone-hand .card-row .card-face:not(:first-child) {
+  margin-left: -42px;
 }
 
 .player-self .zone-hand .card-compact {
@@ -1107,10 +1355,29 @@ button.card-face:hover {
   min-height: 0;
 }
 
+.app-frame-match .player-self .zone-hand .card-compact {
+  width: 118px;
+  min-width: 112px;
+  max-width: 122px;
+}
+
+.app-frame-match .player-opponent .zone-hand .card-compact {
+  width: 86px;
+  min-width: 82px;
+  max-width: 90px;
+}
+
 .battlefield-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 10px;
+}
+
+.app-frame-match .battlefield-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .battlefield-card {
@@ -1121,12 +1388,38 @@ button.card-face:hover {
     rgba(31, 54, 48, 0.82);
 }
 
+.app-frame-match .battlefield-card {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-columns: 176px minmax(0, 1fr);
+  gap: 6px 8px;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.app-frame-match .battlefield-card header,
+.app-frame-match .battlefield-state-line,
+.app-frame-match .battlefield-task-line {
+  grid-column: 1 / -1;
+}
+
+.app-frame-match .battlefield-card header h3 {
+  font-size: 14px;
+}
+
 .battlefield-card > .card-face {
   justify-self: start;
   width: 132px;
   min-width: 124px;
   max-width: 140px;
   min-height: 0;
+}
+
+.app-frame-match .battlefield-card > .card-face {
+  align-self: start;
+  width: 164px;
+  min-width: 164px;
+  max-width: 164px;
 }
 
 .battlefield-card > .card-face .card-art-window,
@@ -1139,6 +1432,12 @@ button.card-face:hover {
   align-items: stretch;
   justify-content: stretch;
   gap: 10px;
+}
+
+.app-frame-match .battlefield-occupants {
+  min-height: 0;
+  gap: 6px;
+  overflow: hidden;
 }
 
 .battlefield-occupants div {
@@ -1163,9 +1462,22 @@ button.card-face:hover {
   padding-bottom: 2px;
 }
 
+.app-frame-match .battlefield-object-row {
+  gap: 5px;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .battlefield-log {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 8px;
+}
+
+.app-frame-match .battlefield-log {
+  grid-column: 1 / -1;
+  max-height: 46px;
+  overflow: hidden;
+  padding-top: 5px;
 }
 
 .battlefield-log strong,
@@ -1194,6 +1506,22 @@ button.card-face:hover {
   overflow: auto;
 }
 
+.app-frame-match .action-rail {
+  position: static;
+  gap: 6px;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  overflow: hidden;
+}
+
+.app-frame-match .side-panel {
+  gap: 8px;
+  max-height: none;
+  overflow: hidden;
+  padding: 10px;
+}
+
 .action-panel {
   border-color: rgba(215, 173, 85, 0.54);
   background:
@@ -1201,9 +1529,41 @@ button.card-face:hover {
     rgba(33, 38, 35, 0.86);
 }
 
+.app-frame-match .action-panel {
+  min-height: 0;
+  overflow: auto;
+}
+
 .action-panel header h2 {
   font-size: 22px;
   line-height: 1.18;
+}
+
+.app-frame-match .action-panel header h2 {
+  font-size: 17px;
+}
+
+.app-frame-match .prompt-summary,
+.app-frame-match .mulligan-selector,
+.app-frame-match .stack-item,
+.app-frame-match .task-queue,
+.app-frame-match .hand-choice-panel,
+.app-frame-match .damage-assignment-panel,
+.app-frame-match .trigger-order-panel,
+.app-frame-match .generic-prompt-details,
+.app-frame-match .log-row {
+  padding: 7px;
+}
+
+.app-frame-match .match-diagnostics {
+  min-height: 0;
+  max-height: 122px;
+  overflow: auto;
+}
+
+.app-frame-match .match-diagnostics-grid {
+  max-height: 260px;
+  overflow: auto;
 }
 
 .stack-list,

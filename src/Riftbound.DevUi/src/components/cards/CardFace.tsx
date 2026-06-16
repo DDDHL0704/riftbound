@@ -48,10 +48,12 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
   const keywordCopy = keywordsText(spec);
 
   if (frontImage) {
+    const battlefield = category === "战场";
+
     return (
       <Container
         aria-label={`${title} ${spec?.cardNo ?? object?.cardNo ?? ""}`.trim()}
-        className={`card-face card-image-only ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`}
+        className={`card-face card-image-only ${battlefield ? "card-battlefield-image" : ""} ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`}
         {...containerProps}
       >
         <img alt={title} className="card-full-image" loading="lazy" src={frontImage} />

@@ -9,8 +9,10 @@ type AppShellProps = {
 };
 
 export function AppShell({ activeRoute, onNavigate, children }: AppShellProps) {
+  const matchFrame = activeRoute === "match";
+
   return (
-    <div className="app-frame">
+    <div className={`app-frame ${matchFrame ? "app-frame-match" : ""}`}>
       <aside className="main-nav" aria-label="主导航">
         <div className="brand-mark" aria-label="符文战场">
           <Shield size={28} />
