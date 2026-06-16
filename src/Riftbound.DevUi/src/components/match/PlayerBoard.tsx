@@ -136,22 +136,24 @@ function RuneSlot({
         <strong>符文槽</strong>
         <span>{ids.length} / 牌堆 {runeDeckCount}</span>
       </div>
-      <div className="rune-slot-meter">
-        <strong>{runePoolText(runePool)}</strong>
-        <div className="rune-trait-list">
-          {traits.length === 0 ? (
-            <span>暂无可用符能</span>
-          ) : (
-            traits.map(([trait, amount]) => <span key={trait}>{trait} {amount}</span>)
-          )}
+      <div className="rune-slot-body">
+        <div className="rune-slot-meter">
+          <strong>{runePoolText(runePool)}</strong>
+          <div className="rune-trait-list">
+            {traits.length === 0 ? (
+              <span>暂无可用符能</span>
+            ) : (
+              traits.map(([trait, amount]) => <span key={trait}>{trait} {amount}</span>)
+            )}
+          </div>
         </div>
-      </div>
-      <div className="card-row rune-card-row">
-        {ids.length === 0 && <span className="empty-hint">符文入场后会显示在这里</span>}
-        {ids.map((id) => {
-          const object = objects[id];
-          return <CardFace compact key={id} object={object} objectId={id} onInspect={onInspectCard} spec={object?.cardNo ? specs[object.cardNo] : undefined} />;
-        })}
+        <div className="card-row rune-card-row">
+          {ids.length === 0 && <span className="empty-hint">符文入场后会显示在这里</span>}
+          {ids.map((id) => {
+            const object = objects[id];
+            return <CardFace compact key={id} object={object} objectId={id} onInspect={onInspectCard} spec={object?.cardNo ? specs[object.cardNo] : undefined} />;
+          })}
+        </div>
       </div>
     </div>
   );
