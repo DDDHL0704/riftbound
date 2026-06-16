@@ -10524,6 +10524,64 @@ public sealed class ConformanceFixtureShapeTests
             source => string.Equals(source.Id, "P1-UNIT-MIGHTY-FAERIE", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task SeedScenarioCreatesMidgameShowcaseState()
+    {
+        var session = new MatchSession("dev-room", new CoreRuleEngine());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var seed = await session.SeedScenarioAsync(
+            "P1",
+            "seed-midgame-showcase",
+            "midgame-showcase",
+            JsonSerializer.SerializeToElement(new { cmdType = "DEV_SEED_SCENARIO", scenarioId = "midgame-showcase" }),
+            CancellationToken.None);
+
+        Assert.True(seed.Accepted);
+        Assert.Contains(seed.Events, evt => string.Equals(evt.Kind, "DEV_SCENARIO_SEEDED", StringComparison.Ordinal));
+
+        var p1View = PlayerView(seed.Snapshots["P1"], "P1");
+        var p1Zones = ZoneView(p1View);
+        Assert.Equal(3, Assert.IsType<int>(p1View["score"]));
+        Assert.Equal(2, Assert.IsType<int>(p1View["cardsPlayedThisTurn"]));
+        Assert.True(Assert.IsType<bool>(p1View["mulliganCompleted"]));
+        Assert.Contains("P1-SHOWCASE-RUNE-READY", StringList(p1Zones["base"]));
+        Assert.Contains("P1-SHOWCASE-ARENA", StringList(p1Zones["battlefields"]));
+        Assert.Contains("P1-SHOWCASE-STANDBY", StringList(p1Zones["battlefields"]));
+        Assert.Contains("P1-SHOWCASE-GRAVE-UNIT", StringList(p1Zones["graveyard"]));
+        Assert.Contains("P1-SHOWCASE-GRAVE-SPELL", StringList(p1Zones["graveyard"]));
+        Assert.Contains("P1-SHOWCASE-BANISHED-EQUIPMENT", StringList(p1Zones["banished"]));
+
+        var p1Objects = ObjectView(p1View);
+        var readyRune = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-SHOWCASE-RUNE-READY"]);
+        Assert.Equal("SFD·001/221", Assert.IsType<string>(readyRune["cardNo"]));
+        Assert.Equal("BASE", Assert.IsType<string>(Assert.IsType<Dictionary<string, object?>>(readyRune["location"])["zone"]));
+        var graveSpell = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-SHOWCASE-GRAVE-SPELL"]);
+        Assert.Equal("GRAVEYARD", Assert.IsType<string>(Assert.IsType<Dictionary<string, object?>>(graveSpell["location"])["zone"]));
+        var banishedEquipment = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-SHOWCASE-BANISHED-EQUIPMENT"]);
+        Assert.Equal("BANISHED", Assert.IsType<string>(Assert.IsType<Dictionary<string, object?>>(banishedEquipment["location"])["zone"]));
+
+        var p2OwnView = PlayerView(seed.Snapshots["P2"], "P2");
+        var p2OwnZones = ZoneView(p2OwnView);
+        Assert.Equal(4, Assert.IsType<int>(p2OwnView["score"]));
+        Assert.Equal(2, Assert.IsType<int>(p2OwnView["cardsPlayedThisTurn"]));
+        Assert.True(Assert.IsType<bool>(p2OwnView["mulliganCompleted"]));
+        Assert.Contains("P2-SHOWCASE-RUNE-READY", StringList(p2OwnZones["base"]));
+        Assert.Contains("P2-SHOWCASE-ARENA", StringList(p2OwnZones["battlefields"]));
+        Assert.Contains("P2-SHOWCASE-STANDBY", StringList(p2OwnZones["battlefields"]));
+        Assert.Contains("P2-SHOWCASE-GRAVE-UNIT", StringList(p2OwnZones["graveyard"]));
+        Assert.Contains("P2-SHOWCASE-BANISHED-EQUIPMENT", StringList(p2OwnZones["banished"]));
+
+        var p2FromP1View = PlayerView(seed.Snapshots["P1"], "P2");
+        var p2FromP1Zones = ZoneView(p2FromP1View);
+        Assert.Empty(StringList(p2FromP1Zones["hand"]));
+        Assert.Equal(5, Assert.IsType<int>(p2FromP1Zones["handHidden"]));
+        Assert.Equal(1, Assert.IsType<int>(p2FromP1Zones["battlefieldHiddenStandbyCount"]));
+        Assert.DoesNotContain("P2-SHOWCASE-STANDBY", StringList(p2FromP1Zones["battlefields"]));
+        Assert.DoesNotContain("P2-SHOWCASE-STANDBY", ObjectView(p2FromP1View).Keys);
+    }
+
     private static MatchState BuildP0ContractMainState()
     {
         return new MatchState(

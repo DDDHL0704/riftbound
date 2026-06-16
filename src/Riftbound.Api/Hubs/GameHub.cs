@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -19,7 +20,10 @@ public interface IGameClient
     Task Error(WsServerMessage message);
 }
 
-public sealed class GameHub(IMatchSessionRegistry sessions, IHostEnvironment? hostEnvironment = null) : Hub<IGameClient>
+public sealed class GameHub(
+    IMatchSessionRegistry sessions,
+    IHostEnvironment? hostEnvironment = null,
+    IConfiguration? configuration = null) : Hub<IGameClient>
 {
     public async Task JoinRoom(string roomId, string playerId, string? reconnectToken = null)
     {
@@ -154,7 +158,8 @@ public sealed class GameHub(IMatchSessionRegistry sessions, IHostEnvironment? ho
     public async Task SeedScenario(string roomId, string playerId, string scenarioId, string clientIntentId)
     {
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
-        if (hostEnvironment is not null && !hostEnvironment.IsDevelopment())
+        var allowDevSeedScenarios = configuration?.GetValue<bool>("Riftbound:AllowDevSeedScenarios") == true;
+        if (!allowDevSeedScenarios && hostEnvironment is not null && !hostEnvironment.IsDevelopment())
         {
             await Clients.Caller.Error(new WsServerMessage(
                 MessageType.ERROR,

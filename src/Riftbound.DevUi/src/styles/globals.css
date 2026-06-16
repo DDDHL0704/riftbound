@@ -632,7 +632,7 @@ button.card-face:hover {
 .card-battlefield-image .card-full-image {
   width: 118px;
   height: 164px;
-  transform: rotate(90deg);
+  transform: rotate(270deg);
 }
 
 .card-battlefield-image .card-zoom-preview {
@@ -647,7 +647,7 @@ button.card-face:hover {
   max-width: none;
   height: 452px;
   max-height: none;
-  transform: rotate(90deg);
+  transform: rotate(270deg);
 }
 
 .card-compact {

@@ -15515,6 +15515,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-conquer-gold" => BuildBattlefieldConquerGoldScenario(current, seed),
             "battlefield-conquer-ready-equipment" => BuildBattlefieldConquerReadyEquipmentScenario(current, seed),
             "battle-score" => BuildBattleScoreScenario(current, seed),
+            "midgame-showcase" => BuildMidgameShowcaseScenario(current, seed),
             "test-decks" => BuildTestDecksScenario(current, seed),
             "specified-hand" => BuildSpecifiedHandScenario(current, seed),
             _ => throw new MatchSessionException(
@@ -21835,6 +21836,151 @@ public sealed class MatchSession : IMatchSession
                 ["P1-BATTLE-COMMAND-FIELD-KEEPER"] = new(power: 2, tags: ["CARD_TYPE:UNIT"]),
                 ["P2-BATTLE-COMMAND-BASE-001"] = new(power: 3, isExhausted: true, tags: ["CARD_TYPE:UNIT"])
             });
+    }
+
+    private static MatchState BuildMidgameShowcaseScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildTestDecksScenario(current, seed);
+        var p1Zones = state.PlayerZones[seed.P1];
+        var p2Zones = state.PlayerZones[seed.P2];
+        var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
+        {
+            [seed.P1] = p1Zones with
+            {
+                Base = [..p1Zones.Base, "P1-SHOWCASE-RUNE-READY"],
+                Battlefields = ["P1-SHOWCASE-ARENA", ..p1Zones.Battlefields, "P1-SHOWCASE-STANDBY"],
+                Graveyard = ["P1-SHOWCASE-GRAVE-UNIT", "P1-SHOWCASE-GRAVE-SPELL"],
+                Banished = ["P1-SHOWCASE-BANISHED-EQUIPMENT"]
+            },
+            [seed.P2] = p2Zones with
+            {
+                Base = [..p2Zones.Base, "P2-SHOWCASE-RUNE-READY"],
+                Battlefields = ["P2-SHOWCASE-ARENA", ..p2Zones.Battlefields, "P2-SHOWCASE-STANDBY"],
+                Graveyard = ["P2-SHOWCASE-GRAVE-UNIT", "P2-SHOWCASE-GRAVE-SPELL"],
+                Banished = ["P2-SHOWCASE-BANISHED-EQUIPMENT"]
+            }
+        };
+
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+        {
+            ["P1-SHOWCASE-ARENA"] = new(
+                "P1-SHOWCASE-ARENA",
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: seed.P1,
+                controllerId: seed.P1),
+            ["P2-SHOWCASE-ARENA"] = new(
+                "P2-SHOWCASE-ARENA",
+                cardNo: "OGN·276/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: seed.P2,
+                controllerId: seed.P2),
+            ["P1-SHOWCASE-STANDBY"] = new(
+                "P1-SHOWCASE-STANDBY",
+                cardNo: "OGN·197/298",
+                power: 2,
+                isFaceDown: true,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                ownerId: seed.P1,
+                controllerId: seed.P1),
+            ["P2-SHOWCASE-STANDBY"] = new(
+                "P2-SHOWCASE-STANDBY",
+                cardNo: "OGN·197/298",
+                power: 2,
+                isFaceDown: true,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                ownerId: seed.P2,
+                controllerId: seed.P2),
+            ["P1-SHOWCASE-RUNE-READY"] = new(
+                "P1-SHOWCASE-RUNE-READY",
+                cardNo: "SFD·001/221",
+                tags: [CardObjectTags.RuneCard],
+                ownerId: seed.P1,
+                controllerId: seed.P1),
+            ["P2-SHOWCASE-RUNE-READY"] = new(
+                "P2-SHOWCASE-RUNE-READY",
+                cardNo: "SFD·001/221",
+                tags: [CardObjectTags.RuneCard],
+                ownerId: seed.P2,
+                controllerId: seed.P2),
+            ["P1-SHOWCASE-GRAVE-UNIT"] = new(
+                "P1-SHOWCASE-GRAVE-UNIT",
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: seed.P1,
+                controllerId: seed.P1),
+            ["P1-SHOWCASE-GRAVE-SPELL"] = new(
+                "P1-SHOWCASE-GRAVE-SPELL",
+                cardNo: "OGN·009/298",
+                tags: [CardObjectTags.SpellCard],
+                ownerId: seed.P1,
+                controllerId: seed.P1),
+            ["P1-SHOWCASE-BANISHED-EQUIPMENT"] = new(
+                "P1-SHOWCASE-BANISHED-EQUIPMENT",
+                cardNo: "SFD·022/221",
+                tags: [CardObjectTags.EquipmentCard],
+                ownerId: seed.P1,
+                controllerId: seed.P1),
+            ["P2-SHOWCASE-GRAVE-UNIT"] = new(
+                "P2-SHOWCASE-GRAVE-UNIT",
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: seed.P2,
+                controllerId: seed.P2),
+            ["P2-SHOWCASE-GRAVE-SPELL"] = new(
+                "P2-SHOWCASE-GRAVE-SPELL",
+                cardNo: "OGN·009/298",
+                tags: [CardObjectTags.SpellCard],
+                ownerId: seed.P2,
+                controllerId: seed.P2),
+            ["P2-SHOWCASE-BANISHED-EQUIPMENT"] = new(
+                "P2-SHOWCASE-BANISHED-EQUIPMENT",
+                cardNo: "SFD·022/221",
+                tags: [CardObjectTags.EquipmentCard],
+                ownerId: seed.P2,
+                controllerId: seed.P2)
+        };
+
+        var objectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+        {
+            ["P1-SHOWCASE-ARENA"] = new(seed.P1, "BATTLEFIELD", "P1-SHOWCASE-ARENA"),
+            ["P2-SHOWCASE-ARENA"] = new(seed.P2, "BATTLEFIELD", "P2-SHOWCASE-ARENA"),
+            ["P1-BATTLEFIELD-UNIT-001"] = new(seed.P1, "BATTLEFIELD", "P1-SHOWCASE-ARENA"),
+            ["P1-BATTLE-ATTACKER-001"] = new(seed.P1, "BATTLEFIELD", "P2-SHOWCASE-ARENA"),
+            ["P1-SHOWCASE-STANDBY"] = new(seed.P1, "BATTLEFIELD", "P1-SHOWCASE-ARENA"),
+            ["P2-UNIT-001"] = new(seed.P2, "BATTLEFIELD", "P2-SHOWCASE-ARENA"),
+            ["P2-HOSTILE-TAKEOVER-TARGET"] = new(seed.P2, "BATTLEFIELD", "P1-SHOWCASE-ARENA"),
+            ["P2-BATTLE-DEFENDER-001"] = new(seed.P2, "BATTLEFIELD", "P2-SHOWCASE-ARENA"),
+            ["P2-SHOWCASE-STANDBY"] = new(seed.P2, "BATTLEFIELD", "P2-SHOWCASE-ARENA"),
+            ["P1-SHOWCASE-RUNE-READY"] = new(seed.P1, "BASE"),
+            ["P2-SHOWCASE-RUNE-READY"] = new(seed.P2, "BASE"),
+            ["P1-SHOWCASE-GRAVE-UNIT"] = new(seed.P1, "GRAVEYARD"),
+            ["P1-SHOWCASE-GRAVE-SPELL"] = new(seed.P1, "GRAVEYARD"),
+            ["P2-SHOWCASE-GRAVE-UNIT"] = new(seed.P2, "GRAVEYARD"),
+            ["P2-SHOWCASE-GRAVE-SPELL"] = new(seed.P2, "GRAVEYARD"),
+            ["P1-SHOWCASE-BANISHED-EQUIPMENT"] = new(seed.P1, "BANISHED"),
+            ["P2-SHOWCASE-BANISHED-EQUIPMENT"] = new(seed.P2, "BANISHED")
+        };
+
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
+            PlayerScores = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [seed.P1] = 3,
+                [seed.P2] = 4
+            },
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [seed.P1] = 2,
+                [seed.P2] = 2
+            },
+            MulliganCompletedPlayerIds = [seed.P1, seed.P2]
+        };
     }
 
     private static MatchState BuildTestDecksScenario(MatchState current, DevScenarioSeed seed)

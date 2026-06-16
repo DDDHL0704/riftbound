@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Riftbound.Api.Hubs;
@@ -14204,6 +14205,10 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", clientIntentId, legendAct);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
+        Assert.Equal(MessageType.ERROR, error.Type);
+        Assert.Equal(roomId, error.RoomId);
+        Assert.Equal("P1", error.PlayerId);
+        AssertProtocolDefaults(error);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
         Assert.Equal("对局已经结束，不能继续提交行动。", payload.Message);
@@ -15982,6 +15987,45 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SeedScenarioCanBeAllowedOutsideDevelopmentByConfiguration()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "P2");
+        var clients = new RecordingHubClients();
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Riftbound:AllowDevSeedScenarios"] = "true"
+            })
+            .Build();
+
+        await CreateHub(
+                clients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Production),
+                configuration)
+            .SeedScenario("room-a", "P1", "midgame-showcase", "seed-midgame-showcase");
+
+        Assert.Empty(clients.CallerClient.Errors);
+        var eventMessage = Assert.Single(clients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, eventMessage.Type);
+        var events = Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(eventMessage.Payload);
+        Assert.Contains(events, evt => string.Equals(evt.Kind, "DEV_SCENARIO_SEEDED", StringComparison.Ordinal));
+        Assert.Equal(2, clients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, clients.GroupClient.Prompts.Count);
+
+        var p1Snapshot = Assert.IsType<SnapshotDto>(
+            Assert.Single(clients.GroupClient.Snapshots, message => string.Equals(message.PlayerId, "P1", StringComparison.Ordinal)).Payload);
+        var p1View = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        Assert.Equal(3, Assert.IsType<int>(p1View["score"]));
+    }
+
+    [Fact]
     public async Task SeedScenarioProductionRejectionRedactsSentinelInputsAndDoesNotBroadcast()
     {
         const string sentinel = "SECRET-RAW-clientIntentId";
@@ -16180,12 +16224,14 @@ public sealed class GameHubJoinTests
         RecordingGroupManager groups,
         string connectionId,
         IMatchSessionRegistry? registry = null,
-        IHostEnvironment? hostEnvironment = null)
+        IHostEnvironment? hostEnvironment = null,
+        IConfiguration? configuration = null)
     {
         return new GameHub(registry ?? new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
             NoopMatchJournal.Instance),
-            hostEnvironment)
+            hostEnvironment,
+            configuration)
         {
             Clients = clients,
             Groups = groups,
