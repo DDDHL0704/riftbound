@@ -21874,10 +21874,17 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        var authoritativeBattlefieldTasks = authoritativeState.BattlefieldTasks;
         if (!timing.TryGetValue("battlefieldTasks", out var battlefieldTasksPayload)
             || IsNullSnapshotPayloadValue(battlefieldTasksPayload))
         {
             errors.Add("spectator replay frame timing battlefield tasks are required");
+            if (authoritativeBattlefieldTasks.Count > 0)
+            {
+                errors.Add(
+                    $"spectator replay frame timing battlefield task count 0 does not match authoritative state battlefield task count {authoritativeBattlefieldTasks.Count}");
+            }
+
             return;
         }
 
@@ -21887,7 +21894,6 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        var authoritativeBattlefieldTasks = authoritativeState.BattlefieldTasks;
         var validateAuthoritativeBattlefieldTaskParity = spectatorBattlefieldTasks.Count == authoritativeBattlefieldTasks.Count;
         if (!validateAuthoritativeBattlefieldTaskParity)
         {

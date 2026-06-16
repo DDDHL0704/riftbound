@@ -53204,11 +53204,8 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldTasksMissingPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldTasksMissingPayloadWithoutCountMismatch()
     {
-        const string battlefieldObjectId = "alice-contested-battlefield-1";
-        const string aliceUnitObjectId = "alice-battlefield-unit-1";
-        const string bobUnitObjectId = "bob-battlefield-unit-1";
         var authoritativeState = new MatchState(
             "room-a",
             3,
@@ -53222,44 +53219,8 @@ public sealed class MatchRecoveryTests
             status: MatchStatuses.InProgress,
             readyPlayerIds: ["alice", "bob"],
             phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralOpen,
-            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["alice"] = PlayerZones.Empty with
-                {
-                    Battlefields = [battlefieldObjectId, aliceUnitObjectId]
-                },
-                ["bob"] = PlayerZones.Empty with
-                {
-                    Battlefields = [bobUnitObjectId]
-                }
-            },
-            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                [battlefieldObjectId] = new(
-                    battlefieldObjectId,
-                    cardNo: "SFD-BATTLEFIELD",
-                    ownerId: "alice",
-                    controllerId: "alice",
-                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
-                [aliceUnitObjectId] = new(
-                    aliceUnitObjectId,
-                    cardNo: "SFD-ALICE-UNIT",
-                    ownerId: "alice",
-                    controllerId: "alice",
-                    tags: [CardObjectTags.UnitCard]),
-                [bobUnitObjectId] = new(
-                    bobUnitObjectId,
-                    cardNo: "SFD-BOB-UNIT",
-                    ownerId: "bob",
-                    controllerId: "bob",
-                    tags: [CardObjectTags.UnitCard])
-            },
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-            {
-                [aliceUnitObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
-                [bobUnitObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId)
-            });
+            timingState: TimingStates.NeutralOpen);
+        Assert.Empty(authoritativeState.BattlefieldTasks);
         var events = new[]
         {
             RecoveredEvent(1, "TURN_ENDED"),
@@ -53299,10 +53260,15 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battlefield tasks are required",
                 StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task count",
+                StringComparison.Ordinal));
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldTasksNullPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldTasksMissingPayloadWithCountMismatch()
     {
         const string battlefieldObjectId = "alice-contested-battlefield-1";
         const string aliceUnitObjectId = "alice-battlefield-unit-1";
@@ -53358,6 +53324,71 @@ public sealed class MatchRecoveryTests
                 [aliceUnitObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
                 [bobUnitObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId)
             });
+        Assert.Equal(2, authoritativeState.BattlefieldTasks.Count);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        Assert.True(timing.Remove("battlefieldTasks"));
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield tasks are required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task count 0 does not match authoritative state battlefield task count 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldTasksNullPayloadWithoutCountMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+        Assert.Empty(authoritativeState.BattlefieldTasks);
         var events = new[]
         {
             RecoveredEvent(1, "TURN_ENDED"),
@@ -53396,6 +53427,115 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battlefield tasks are required",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldTasksNullPayloadWithCountMismatch()
+    {
+        const string battlefieldObjectId = "alice-contested-battlefield-1";
+        const string aliceUnitObjectId = "alice-battlefield-unit-1";
+        const string bobUnitObjectId = "bob-battlefield-unit-1";
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = [battlefieldObjectId, aliceUnitObjectId]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = [bobUnitObjectId]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [battlefieldObjectId] = new(
+                    battlefieldObjectId,
+                    cardNo: "SFD-BATTLEFIELD",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                [aliceUnitObjectId] = new(
+                    aliceUnitObjectId,
+                    cardNo: "SFD-ALICE-UNIT",
+                    ownerId: "alice",
+                    controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                [bobUnitObjectId] = new(
+                    bobUnitObjectId,
+                    cardNo: "SFD-BOB-UNIT",
+                    ownerId: "bob",
+                    controllerId: "bob",
+                    tags: [CardObjectTags.UnitCard])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [aliceUnitObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
+                [bobUnitObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId)
+            });
+        Assert.Equal(2, authoritativeState.BattlefieldTasks.Count);
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        timing["battlefieldTasks"] = null;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield tasks are required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task count 0 does not match authoritative state battlefield task count 2",
                 StringComparison.Ordinal));
     }
 
