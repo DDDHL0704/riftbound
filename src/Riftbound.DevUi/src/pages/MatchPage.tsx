@@ -171,7 +171,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     <div className="wire-match-page" style={wireMatchPageStyle()}>
       <header className="wire-topbar" aria-label="对战基础状态">
         <div className="wire-topbar-title">
-          <strong>符文战场对战线框</strong>
+          <h1>符文战场对战线框</h1>
           <span>房间 {matchId}</span>
         </div>
         <div className="wire-status-line" aria-label="服务端状态">

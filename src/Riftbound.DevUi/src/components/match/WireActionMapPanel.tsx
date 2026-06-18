@@ -87,6 +87,31 @@ export function WireActionMapPanel({ playerId, prompt, snapshot }: WireActionMap
           </article>
         ))}
       </div>
+
+      <div className="wire-action-grammar" aria-label="服务端候选交互语法">
+        <strong>交互语法</strong>
+        {model.candidates.length === 0 && <span className="empty-hint">暂无候选步骤。</span>}
+        {model.candidates
+          .filter((candidate) => candidate.enabled)
+          .slice(0, 4)
+          .map((candidate) => (
+            <article className="wire-action-sequence" key={`${candidate.action}-${candidate.label}`}>
+              <div className="wire-action-sequence-title">
+                <span>{candidate.label}</span>
+                <small>{candidate.steps.length} 步</small>
+              </div>
+              <ol>
+                {candidate.steps.map((step) => (
+                  <li className={`wire-action-step wire-action-step-${step.role} ${step.required ? "is-required" : ""}`} key={`${candidate.action}-${step.role}`}>
+                    <span>{step.label}</span>
+                    <strong>{step.count}</strong>
+                    <small>{step.required ? "必需；" : ""}{step.sampleLabels.length > 0 ? step.sampleLabels.join(" / ") : "由服务端候选决定"}</small>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+      </div>
     </section>
   );
 }

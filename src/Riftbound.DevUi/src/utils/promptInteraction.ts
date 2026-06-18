@@ -1,4 +1,5 @@
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto } from "../types/protocol";
+import { sourceRequirementRecords } from "./actionPromptCandidates";
 import { promptActionLabel, promptReasonLabel } from "./formatters";
 import { redactInternalText } from "./redaction";
 
@@ -18,6 +19,15 @@ export type PromptCandidateSummary = {
   label: string;
   reason: string;
   choices: PromptChoiceSummary[];
+  steps: PromptCandidateStep[];
+};
+
+export type PromptCandidateStep = {
+  count: number;
+  label: string;
+  required: boolean;
+  role: PromptChoiceRole;
+  sampleLabels: string[];
 };
 
 export type PromptObjectSummary = {
@@ -80,7 +90,8 @@ export function buildPromptInteractionModel(prompt?: ActionPromptDto): PromptInt
       enabled: candidate.enabled,
       label: promptActionLabel(candidate),
       reason: promptReasonLabel(candidate.reason, candidate.enabled ? "可提交" : "暂不可提交"),
-      choices
+      choices,
+      steps: candidateSteps(candidate, choices)
     };
   });
 
@@ -119,7 +130,7 @@ export function promptChoiceLabel(choice: ActionPromptChoiceDto): string {
 }
 
 function candidateChoices(candidate: ActionPromptCandidateDto): PromptChoiceSummary[] {
-  return choiceGroups.flatMap(({ key, role }) => {
+  const topLevelChoices = choiceGroups.flatMap(({ key, role }) => {
     const choices = candidate[key] as ActionPromptChoiceDto[] | null | undefined;
     return (choices ?? []).map((choice) => ({
       id: choice.id,
@@ -128,7 +139,144 @@ function candidateChoices(candidate: ActionPromptCandidateDto): PromptChoiceSumm
       role
     }));
   });
+  return uniqueChoiceSummaries([
+    ...topLevelChoices,
+    ...sourceRequirementChoices(candidate)
+  ]);
 }
+
+function candidateSteps(candidate: ActionPromptCandidateDto, choices: PromptChoiceSummary[]): PromptCandidateStep[] {
+  return choiceGroups
+    .map(({ role }) => {
+      const roleChoices = choices.filter((choice) => choice.role === role);
+      const uniqueLabels = roleChoices
+        .filter((choice, index, all) => all.findIndex((candidate) => candidate.id === choice.id) === index)
+        .map((choice) => choice.label);
+      return {
+        count: new Set(roleChoices.map((choice) => choice.id)).size,
+        label: promptChoiceRoleLabel(role),
+        required: role === "source" && requiresSourceStep(candidate.action),
+        role,
+        sampleLabels: uniqueLabels.slice(0, 3)
+      };
+    })
+    .filter((step) => step.count > 0 || step.required);
+}
+
+function sourceRequirementChoices(candidate: ActionPromptCandidateDto): PromptChoiceSummary[] {
+  return sourceRequirementRecords(candidate).flatMap((requirement) => [
+    ...sourceChoicesForRequirement(requirement),
+    ...choiceSummariesFromValue(requirement.targetChoices, "target"),
+    ...choiceSummariesFromIndexedValue(requirement.targetChoicesByIndex, "target"),
+    ...choiceSummariesFromIndexedValue(requirement.attackerChoicesByIndex, "source"),
+    ...choiceSummariesFromValue(requirement.destinationChoices, "destination"),
+    ...choiceSummariesFromValue(requirement.battlefieldChoices, "destination"),
+    ...choiceSummariesFromValue(requirement.optionalCostChoices, "optionalCost"),
+    ...choiceSummariesFromValue(requirement.additionalCostChoices, "optionalCost"),
+    ...choiceSummariesFromValue(requirement.paymentResourceChoices, "optionalCost"),
+    ...modeChoicesForRequirement(requirement)
+  ]);
+}
+
+function sourceChoicesForRequirement(requirement: Record<string, unknown>): PromptChoiceSummary[] {
+  const sourceObjectId = stringFromValue(requirement.sourceObjectId);
+  if (!sourceObjectId) {
+    return [];
+  }
+
+  const label = firstStringFromRecord(requirement, ["displayName", "cardNo", "equipmentCardNo", "sourceObjectId"]) ?? sourceObjectId;
+  return [{
+    id: sourceObjectId,
+    label: redactInternalText(label),
+    role: "source"
+  }];
+}
+
+function modeChoicesForRequirement(requirement: Record<string, unknown>): PromptChoiceSummary[] {
+  const mode = stringFromValue(requirement.mode ?? requirement.abilityId);
+  if (!mode) {
+    return [];
+  }
+
+  const label = firstStringFromRecord(requirement, ["modeLabel", "abilityLabel", "mode", "abilityId"]) ?? mode;
+  return [{
+    id: mode,
+    label: redactInternalText(label),
+    role: "mode"
+  }];
+}
+
+function choiceSummariesFromIndexedValue(value: unknown, role: PromptChoiceRole): PromptChoiceSummary[] {
+  if (!isRecord(value)) {
+    return [];
+  }
+
+  return Object.values(value).flatMap((choices) => choiceSummariesFromValue(choices, role));
+}
+
+function choiceSummariesFromValue(value: unknown, role: PromptChoiceRole): PromptChoiceSummary[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((choice): choice is ActionPromptChoiceDto => isRecord(choice) && typeof choice.id === "string")
+    .map((choice) => ({
+      id: choice.id,
+      label: promptChoiceLabel(choice),
+      reason: typeof choice.reason === "string" ? choice.reason : undefined,
+      role
+    }));
+}
+
+function uniqueChoiceSummaries(choices: PromptChoiceSummary[]): PromptChoiceSummary[] {
+  const seen = new Set<string>();
+  return choices.filter((choice) => {
+    const key = `${choice.role}:${choice.id}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function requiresSourceStep(action: string): boolean {
+  return sourceDrivenActions.has(action);
+}
+
+function firstStringFromRecord(record: Record<string, unknown>, keys: string[]): string | undefined {
+  for (const key of keys) {
+    const value = stringFromValue(record[key]);
+    if (value) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
+function stringFromValue(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+const sourceDrivenActions = new Set<string>([
+  "MULLIGAN",
+  "PLAY_CARD",
+  "HIDE_CARD",
+  "REVEAL_CARD",
+  "TAP_RUNE",
+  "RECYCLE_RUNE",
+  "MOVE_UNIT",
+  "ASSEMBLE_EQUIPMENT",
+  "DECLARE_BATTLE",
+  "ACTIVATE_ABILITY",
+  "LEGEND_ACT"
+]);
 
 function candidateChoiceObjectIds(choiceId: string): string[] {
   const cleaned = choiceId.trim();
