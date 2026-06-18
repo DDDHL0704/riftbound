@@ -25974,17 +25974,17 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateRequiredObjectReference(
+            ValidateAuthoritativeStateRequiredObjectReferenceWithExpectedDetails(
                 $"battlefield resolution {resolution.ResolutionId} battlefield object",
                 resolution.BattlefieldObjectId,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateOptionalObjectReference(
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"battlefield resolution {resolution.ResolutionId} source object",
                 resolution.SourceObjectId,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceList(
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battlefield resolution {resolution.ResolutionId} participant object",
                 resolution.ParticipantObjectIds,
                 knownObjectIds,
@@ -25999,32 +25999,32 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateRequiredObjectReference(
+            ValidateAuthoritativeStateRequiredObjectReferenceWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} battlefield object",
                 resolution.BattlefieldId,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceList(
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} attacker object",
                 resolution.AttackerObjectIds,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceList(
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} defender object",
                 resolution.DefenderObjectIds,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceList(
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} surviving attacker object",
                 resolution.SurvivingAttackerObjectIds,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceList(
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} surviving defender object",
                 resolution.SurvivingDefenderObjectIds,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceList(
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} destroyed object",
                 resolution.DestroyedObjectIds,
                 knownObjectIds,
@@ -26472,6 +26472,28 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
+        string objectLabel,
+        IReadOnlyList<string>? objectIds,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (objectIds is null)
+        {
+            errors.Add($"authoritative state {objectLabel} list is required");
+            return;
+        }
+
+        foreach (var objectId in objectIds)
+        {
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+                objectLabel,
+                objectId,
+                knownObjectIds,
+                errors);
+        }
+    }
+
     private static void ValidateAuthoritativeStateRequiredObjectReference(
         string objectLabel,
         string? objectId,
@@ -26485,6 +26507,25 @@ public static class MatchRecoveryValidator
         }
 
         ValidateAuthoritativeStateOptionalObjectReference(objectLabel, objectId, knownObjectIds, errors);
+    }
+
+    private static void ValidateAuthoritativeStateRequiredObjectReferenceWithExpectedDetails(
+        string objectLabel,
+        string? objectId,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            errors.Add($"authoritative state {objectLabel} is required");
+            return;
+        }
+
+        ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+            objectLabel,
+            objectId,
+            knownObjectIds,
+            errors);
     }
 
     private static void ValidateAuthoritativeStateOptionalObjectReference(
@@ -26507,6 +26548,33 @@ public static class MatchRecoveryValidator
         if (!knownObjectIds.Contains(normalizedObjectId))
         {
             errors.Add($"authoritative state {objectLabel} {normalizedObjectId} is missing from object registry");
+        }
+    }
+
+    private static void ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+        string objectLabel,
+        string? objectId,
+        IReadOnlySet<string> knownObjectIds,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return;
+        }
+
+        var normalizedObjectId = objectId.Trim();
+        if (!string.Equals(objectId, normalizedObjectId, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state {objectLabel} {normalizedObjectId} has surrounding whitespace");
+        }
+
+        if (!knownObjectIds.Contains(normalizedObjectId))
+        {
+            var expectedObjectIds = knownObjectIds
+                .OrderBy(knownObjectId => knownObjectId, StringComparer.Ordinal)
+                .ToArray();
+            errors.Add(
+                $"authoritative state {objectLabel} {normalizedObjectId} is missing from object registry; {FormatExpectedActualForRecovery(expectedObjectIds, normalizedObjectId)}");
         }
     }
 
@@ -28545,21 +28613,21 @@ public static class MatchRecoveryValidator
         string knownObjectLabel,
         List<string> errors)
     {
-        ValidateTimingOptionalObjectReference(
+        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
             resolutionPayload,
             "battlefieldObjectId",
             $"{payloadLabel} battlefield object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingOptionalObjectReference(
+        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
             resolutionPayload,
             "sourceObjectId",
             $"{payloadLabel} source object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             resolutionPayload,
             "participantObjectIds",
             $"{payloadLabel} participant object id",
@@ -28575,42 +28643,42 @@ public static class MatchRecoveryValidator
         string knownObjectLabel,
         List<string> errors)
     {
-        ValidateTimingOptionalObjectReference(
+        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
             resolutionPayload,
             "battlefieldId",
             $"{payloadLabel} battlefield object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             resolutionPayload,
             "attackerObjectIds",
             $"{payloadLabel} attacker object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             resolutionPayload,
             "defenderObjectIds",
             $"{payloadLabel} defender object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             resolutionPayload,
             "survivingAttackerObjectIds",
             $"{payloadLabel} surviving attacker object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             resolutionPayload,
             "survivingDefenderObjectIds",
             $"{payloadLabel} surviving defender object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             resolutionPayload,
             "destroyedObjectIds",
             $"{payloadLabel} destroyed object id",
