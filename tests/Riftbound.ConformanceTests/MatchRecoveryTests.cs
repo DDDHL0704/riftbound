@@ -184165,69 +184165,83 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingHandChoiceMissingPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingHandChoiceMissingPayloadWithoutCountMismatch()
     {
-        var authoritativeState = new MatchState(
-            "room-a",
-            3,
-            1,
-            "alice",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["alice"] = "P1",
-                ["bob"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["alice", "bob"],
-            phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralOpen,
-            pendingHandChoice: new PendingHandChoiceState(
-                "choice-1",
-                "CHOOSE_HAND_CARDS",
-                "alice",
-                requiredCount: 1,
-                maxCount: 2,
-                legalObjectIds: ["alice-hand-1", "alice-hand-2"],
-                reason: "test-choice",
-                sourceObjectId: "source-1",
-                effectKind: "DRAW_DISCARD"));
-        var events = new[]
-        {
-            RecoveredEvent(1, "TURN_ENDED"),
-            RecoveredEvent(2, "TURN_BEGAN")
-        };
-        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
-            "room-a",
-            3,
-            2,
-            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
-            authoritativeState);
-        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        timing.Remove("pendingHandChoice");
-        spectatorReplayFrame = spectatorReplayFrame with
-        {
-            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
-            {
-                Timing = timing
-            }
-        };
-
-        var errors = MatchRecoveryValidator.Validate(
-            "room-a",
-            2,
-            [],
-            events,
-            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
-            authoritativeState,
-            currentTick: 3,
-            spectatorReplayFrame: spectatorReplayFrame);
+        var errors = ValidateSpectatorReplayTimingPendingHandChoicePayload(
+            EmptyPendingHandChoiceState(),
+            removePayload: true);
 
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending hand choice is required", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending hand choice required count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending hand choice max count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingHandChoiceMissingPayloadWithCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingPendingHandChoicePayload(
+            RetainedPendingHandChoiceState(),
+            removePayload: true);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending hand choice required count 0 does not match authoritative state pending hand choice required count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending hand choice max count 0 does not match authoritative state pending hand choice max count 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorAcceptsSpectatorReplayTimingPendingHandChoiceNullPayloadWithoutCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingPendingHandChoicePayload(
+            EmptyPendingHandChoiceState(),
+            payloadValue: null);
+
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending hand choice",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingHandChoiceNullPayloadWithCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingPendingHandChoicePayload(
+            RetainedPendingHandChoiceState(),
+            payloadValue: null);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending hand choice required count 0 does not match authoritative state pending hand choice required count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending hand choice max count 0 does not match authoritative state pending hand choice max count 2",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -198076,6 +198090,100 @@ public sealed class MatchRecoveryTests
             ["destroyedObjectIds"] = new[] { "defender-1" },
             ["relatedEventKinds"] = new[] { "BATTLE_CLOSED" }
         };
+    }
+
+    private static MatchState EmptyPendingHandChoiceState()
+    {
+        return new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+    }
+
+    private static MatchState RetainedPendingHandChoiceState()
+    {
+        return new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            pendingHandChoice: new PendingHandChoiceState(
+                "choice-1",
+                "CHOOSE_HAND_CARDS",
+                "alice",
+                requiredCount: 1,
+                maxCount: 2,
+                legalObjectIds: ["alice-hand-1", "alice-hand-2"],
+                reason: "test-choice",
+                sourceObjectId: "source-1",
+                effectKind: "DRAW_DISCARD"));
+    }
+
+    private static IReadOnlyList<string> ValidateSpectatorReplayTimingPendingHandChoicePayload(
+        MatchState authoritativeState,
+        bool removePayload = false,
+        object? payloadValue = null)
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        if (removePayload)
+        {
+            Assert.True(timing.Remove("pendingHandChoice"));
+        }
+        else
+        {
+            timing["pendingHandChoice"] = payloadValue;
+        }
+
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        return MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
     }
 
     private static MatchState EmptyResolutionHistoryState()

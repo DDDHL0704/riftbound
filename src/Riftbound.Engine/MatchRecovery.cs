@@ -21692,13 +21692,14 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        var authoritativeChoice = authoritativeState.PendingHandChoice;
         if (!timing.TryGetValue("pendingHandChoice", out var choicePayload))
         {
             errors.Add("spectator replay frame timing pending hand choice is required");
+            AddMissingSpectatorPendingHandChoiceCountDiagnostics(authoritativeChoice, errors);
             return;
         }
 
-        var authoritativeChoice = authoritativeState.PendingHandChoice;
         if (authoritativeChoice is null)
         {
             if (!IsNullSnapshotPayloadValue(choicePayload))
@@ -21712,6 +21713,7 @@ public static class MatchRecoveryValidator
         if (IsNullSnapshotPayloadValue(choicePayload))
         {
             errors.Add("spectator replay frame timing pending hand choice is required");
+            AddMissingSpectatorPendingHandChoiceCountDiagnostics(authoritativeChoice, errors);
             return;
         }
 
@@ -21785,6 +21787,21 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing pending hand choice legal object ids must be redacted");
         }
+    }
+
+    private static void AddMissingSpectatorPendingHandChoiceCountDiagnostics(
+        PendingHandChoiceState? authoritativeChoice,
+        List<string> errors)
+    {
+        if (authoritativeChoice is null)
+        {
+            return;
+        }
+
+        errors.Add(
+            $"spectator replay frame timing pending hand choice required count 0 does not match authoritative state pending hand choice required count {authoritativeChoice.RequiredCount}");
+        errors.Add(
+            $"spectator replay frame timing pending hand choice max count 0 does not match authoritative state pending hand choice max count {authoritativeChoice.MaxCount}");
     }
 
     private static void ValidateSpectatorPendingHandChoicePayloadValues(
