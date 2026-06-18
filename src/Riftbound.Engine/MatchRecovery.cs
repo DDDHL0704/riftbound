@@ -28953,26 +28953,26 @@ public static class MatchRecoveryValidator
         }
 
         var authoritativeBattle = authoritativeState.BattleState;
-        if (TryReadObjectString(damageAssignmentPayload, "phase", out var phase)
-            && !string.Equals(phase, "DAMAGE_ASSIGNMENT", StringComparison.Ordinal))
+        if (!TryReadObjectString(damageAssignmentPayload, "phase", out var phase)
+            || !string.Equals(phase, "DAMAGE_ASSIGNMENT", StringComparison.Ordinal))
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("phase", errors);
         }
 
-        if (TryReadObjectString(damageAssignmentPayload, "battleId", out var battleId)
-            && !string.Equals(battleId, authoritativeBattle.BattleId, StringComparison.Ordinal))
+        if (!TryReadObjectString(damageAssignmentPayload, "battleId", out var battleId)
+            || !string.Equals(battleId, authoritativeBattle.BattleId, StringComparison.Ordinal))
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("battle id", errors);
         }
 
-        if (TryReadObjectString(damageAssignmentPayload, "battlefieldId", out var battlefieldId)
-            && !string.Equals(battlefieldId, authoritativeBattle.BattlefieldObjectId, StringComparison.Ordinal))
+        if (!TryReadObjectString(damageAssignmentPayload, "battlefieldId", out var battlefieldId)
+            || !string.Equals(battlefieldId, authoritativeBattle.BattlefieldObjectId, StringComparison.Ordinal))
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("battlefield object id", errors);
         }
 
-        if (TryReadObjectString(damageAssignmentPayload, "assigningPlayerId", out var assigningPlayerId)
-            && !string.Equals(
+        if (!TryReadObjectString(damageAssignmentPayload, "assigningPlayerId", out var assigningPlayerId)
+            || !string.Equals(
                 assigningPlayerId,
                 ResolutionResult.BattleDamageAssigningPlayerId(authoritativeState),
                 StringComparison.Ordinal))

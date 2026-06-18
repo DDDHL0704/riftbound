@@ -186745,6 +186745,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment phase is required",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment phase does not match authoritative state battle damage assignment phase",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -186799,6 +186804,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment phase is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment phase does not match authoritative state battle damage assignment phase",
                 StringComparison.Ordinal));
     }
 
@@ -186855,6 +186865,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment battle id is required",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment battle id does not match authoritative state battle damage assignment battle id",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -186909,6 +186924,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment battle id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment battle id does not match authoritative state battle damage assignment battle id",
                 StringComparison.Ordinal));
     }
 
@@ -186965,6 +186985,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment battlefield id is required",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment battlefield object id does not match authoritative state battle damage assignment battlefield object id",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -187019,6 +187044,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment battlefield id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment battlefield object id does not match authoritative state battle damage assignment battlefield object id",
                 StringComparison.Ordinal));
     }
 
@@ -187075,6 +187105,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment assigning player id is required",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment assigning player id does not match authoritative state battle damage assignment assigning player id",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -187129,6 +187164,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment assigning player id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment assigning player id does not match authoritative state battle damage assignment assigning player id",
                 StringComparison.Ordinal));
     }
 
