@@ -11691,6 +11691,12 @@ button.card-face:hover {
 .wire-match-page .candidate-composer-field,
 .wire-match-page .candidate-composer-costs,
 .wire-match-page .candidate-composer-warning,
+.wire-match-page .detail-drawer,
+.wire-match-page .detail-section,
+.wire-match-page .detail-grid div,
+.wire-match-page .play-card-composer,
+.wire-match-page .composer-meta span,
+.wire-match-page .composer-choice,
 .wire-match-page .wire-interaction-panel,
 .wire-match-page .wire-selected-candidates,
 .wire-match-page .wire-prompt-candidates,
@@ -11724,10 +11730,46 @@ button.card-face:hover {
 .wire-match-page .candidate-composer-costs > strong,
 .wire-match-page .candidate-composer-note,
 .wire-match-page .candidate-composer-check,
+.wire-match-page .detail-drawer,
+.wire-match-page .detail-drawer *,
+.wire-match-page .detail-muted,
+.wire-match-page .composer-heading span,
+.wire-match-page .composer-meta span,
+.wire-match-page .composer-choice-group > span,
+.wire-match-page .composer-choice-meta,
+.wire-match-page .composer-warning,
 .wire-match-page .log-row,
 .wire-match-page .event-log,
 .wire-match-page .event-log * {
   color: #000 !important;
+}
+
+.wire-match-page .detail-layer {
+  z-index: 60;
+}
+
+.wire-match-page button.detail-scrim {
+  border: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.wire-match-page .detail-drawer {
+  width: min(520px, calc(100vw - 24px));
+  border: 2px solid #000 !important;
+  box-shadow: none !important;
+}
+
+.wire-match-page .detail-grid,
+.wire-match-page .detail-action-list,
+.wire-match-page .composer-choice-list {
+  min-width: 0;
+}
+
+.wire-match-page .detail-action-list {
+  display: grid;
+  gap: 8px;
 }
 
 .wire-match-page input,

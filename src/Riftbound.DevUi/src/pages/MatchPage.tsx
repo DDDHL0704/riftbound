@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppRoute } from "../app/router";
+import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
@@ -49,6 +50,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const controller = useMatchController(settings.serverUrl, matchId, settings.playerId);
   const snapshot = controller.state.snapshot;
   const [inspectedCard, setInspectedCard] = useState<InspectedCard | undefined>();
+  const [detailCard, setDetailCard] = useState<InspectedCard | undefined>();
   const [previewCard, setPreviewCard] = useState<InspectedCard | undefined>();
   const previewDelayRef = useRef<number | undefined>(undefined);
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
@@ -64,6 +66,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     () => layoutFixtureEnabled ? { ...wireLayoutFixtureSpecByNo, ...specByNo } : specByNo,
     [layoutFixtureEnabled, specByNo]
   );
+  const tableObjectLookup = useMemo(() => objectIndex(tableSnapshot), [tableSnapshot]);
   const promptInteraction = useMemo(() => buildPromptInteractionModel(tablePrompt), [tablePrompt]);
   const tableInteraction = useMemo<WireTableInteraction>(() => ({
     interactionByObjectId: Object.fromEntries([
@@ -100,6 +103,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       previewDelayRef.current = undefined;
     }, 520);
   }, []);
+  const inspectCard = useCallback((card: InspectedCard) => {
+    setInspectedCard(card);
+    setDetailCard(card);
+  }, []);
   const tableRows = WIRE_TABLE_LAYOUT.table.rows.map((row) => {
     if (row.kind === "battlefield") {
       return (
@@ -107,7 +114,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           battlefields={battlefields}
           interaction={tableInteraction}
           key={row.id}
-          onInspectCard={setInspectedCard}
+          onInspectCard={inspectCard}
           onPreviewCard={queuePreviewCard}
           perspectivePlayerId={settings.playerId}
           snapshot={tableSnapshot}
@@ -125,7 +132,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           hidden={row.side === "opponent"}
           interaction={tableInteraction}
           key={row.id}
-          onInspectCard={setInspectedCard}
+          onInspectCard={inspectCard}
           onPreviewCard={queuePreviewCard}
           specs={tableSpecByNo}
         />
@@ -138,7 +145,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         fallbackSide={row.side}
         interaction={tableInteraction}
         key={row.id}
-        onInspectCard={setInspectedCard}
+        onInspectCard={inspectCard}
         onPreviewCard={queuePreviewCard}
         specs={tableSpecByNo}
       />
@@ -221,6 +228,13 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </section>
         </aside>
       </main>
+      <CardDetailDrawer
+        card={detailCard}
+        objectLookup={tableObjectLookup}
+        onClose={() => setDetailCard(undefined)}
+        onCommand={(command) => void controller.submitCommand(command)}
+        prompt={tablePrompt}
+      />
       <WireCardPreview card={previewCard} />
     </div>
   );
