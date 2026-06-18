@@ -11,6 +11,7 @@ type CardFaceProps = {
   compact?: boolean;
   selected?: boolean;
   onInspect?: (card: InspectedCard) => void;
+  onPreview?: (card?: InspectedCard) => void;
 };
 
 export type InspectedCard = {
@@ -19,15 +20,25 @@ export type InspectedCard = {
   spec?: BehaviorSpec;
 };
 
-export function CardFace({ objectId, object, spec, compact = false, selected = false, onInspect }: CardFaceProps) {
+export function CardFace({ objectId, object, spec, compact = false, selected = false, onInspect, onPreview }: CardFaceProps) {
   const hidden = isHiddenObject(object) && !spec;
   const Container = onInspect ? "button" : "article";
+  const previewCard = { objectId, object, spec };
+  const previewProps = onPreview
+    ? {
+        onBlur: () => onPreview(undefined),
+        onFocus: () => onPreview(previewCard),
+        onMouseEnter: () => onPreview(previewCard),
+        onMouseLeave: () => onPreview(undefined)
+      }
+    : {};
   const containerProps = onInspect
     ? {
         type: "button" as const,
-        onClick: () => onInspect({ objectId, object, spec })
+        onClick: () => onInspect({ objectId, object, spec }),
+        ...previewProps
       }
-    : {};
+    : previewProps;
 
   if (hidden) {
     return (

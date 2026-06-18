@@ -10776,15 +10776,24 @@ button.card-face:hover {
 }
 
 .wire-match-page {
-  --wire-card-w: 43px;
-  --wire-card-h: 60px;
+  --wire-card-w: 74px;
+  --wire-card-h: 104px;
+  --wire-fixed-pile-card-w: 92px;
+  --wire-fixed-pile-card-h: 128px;
+  --wire-fixed-pile-slot-w: 92px;
+  --wire-fixed-pile-slot-h: 128px;
+  --wire-battlefield-card-w: 136px;
+  --wire-battlefield-card-h: 96px;
+  --wire-rune-card-w: 43px;
+  --wire-rune-card-h: 60px;
   --wire-card-gap: 4px;
-  --wire-deck-area-w: 70px;
-  --wire-hand-piles-w: 146px;
-  --wire-rune-track-w: 584px;
-  --wire-signature-area-w: calc(var(--wire-card-w) + 16px);
-  --wire-signature-zone-h: calc(var(--wire-card-h) + 36px);
-  --wire-hero-area-w: var(--wire-signature-area-w);
+  --wire-deck-area-w: 60px;
+  --wire-public-pile-w: 92px;
+  --wire-hand-piles-w: 188px;
+  --wire-rune-track-w: 588px;
+  --wire-signature-area-w: 100px;
+  --wire-signature-zone-h: 140px;
+  --wire-hero-area-w: 100px;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -10882,9 +10891,9 @@ button.card-face:hover {
 .wire-match-body {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(720px, 1fr) 360px;
-  gap: 8px;
-  padding: 8px;
+  grid-template-columns: minmax(1040px, 1fr) 280px;
+  gap: 4px;
+  padding: 4px;
   background: #fff;
 }
 
@@ -10899,19 +10908,19 @@ button.card-face:hover {
 
 .wire-table-shell {
   overflow: auto;
-  padding: 8px;
+  padding: 4px;
 }
 
 .wire-table {
-  min-width: 1060px;
-  min-height: 720px;
-  height: calc(100vh - 88px);
+  min-width: 1280px;
+  min-height: 760px;
+  height: 100%;
   display: grid;
-  grid-template-rows: 128px 148px minmax(250px, 1fr) 148px 128px;
-  gap: 8px;
+  grid-template-rows: 150px 166px minmax(230px, 1fr) 166px 150px;
+  gap: 4px;
   border: 2px solid #000;
   background: #fff;
-  padding: 8px;
+  padding: 5px;
 }
 
 .wire-hand-rail,
@@ -10934,9 +10943,9 @@ button.card-face:hover {
 .wire-hand-rail {
   display: grid;
   grid-template-columns: var(--wire-deck-area-w) var(--wire-rune-track-w) minmax(360px, 1fr);
-  gap: 8px;
+  gap: 4px;
   align-items: stretch;
-  padding: 8px;
+  padding: 4px;
 }
 
 .wire-hand-opponent {
@@ -10960,13 +10969,20 @@ button.card-face:hover {
 }
 
 .wire-hand-rune-deck .wire-stack-count {
+  --wire-card-w: var(--wire-rune-card-w);
+  --wire-card-h: var(--wire-rune-card-h);
   min-width: var(--wire-card-w);
+}
+
+.wire-hand-rune-deck .wire-stack-box {
+  width: var(--wire-rune-card-w);
+  height: var(--wire-rune-card-h);
 }
 
 .wire-hand-rune-track,
 .wire-hand-zone {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .wire-hand-zone {
@@ -10978,8 +10994,8 @@ button.card-face:hover {
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--wire-hand-piles-w);
-  gap: 8px;
-  padding: 6px;
+  gap: 4px;
+  padding: 4px;
 }
 
 .wire-hand-opponent .wire-hand-body {
@@ -11005,21 +11021,28 @@ button.card-face:hover {
 .wire-hand-cards > .wire-card-row {
   width: 100%;
   justify-content: center;
-  padding: 6px;
+  padding: 3px;
 }
 
 .wire-hand-piles {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  padding: 6px;
+  grid-template-columns: repeat(2, var(--wire-fixed-pile-slot-w));
+  gap: 4px;
+  align-content: center;
+  justify-content: center;
+  padding: 4px;
 }
 
 .wire-hand-library-pile,
 .wire-hand-played-pile {
   min-width: 0;
   min-height: 0;
+  width: var(--wire-fixed-pile-slot-w);
+  height: var(--wire-fixed-pile-slot-h);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .wire-hand-library-pile > *,
@@ -11029,12 +11052,12 @@ button.card-face:hover {
 
 .wire-hand-piles .wire-stack-count {
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .wire-hand-piles .wire-stack-box {
-  width: var(--wire-card-w);
-  height: var(--wire-card-h);
+  width: var(--wire-fixed-pile-card-w);
+  height: var(--wire-fixed-pile-card-h);
 }
 
 .wire-hand-opponent .wire-hand-piles {
@@ -11066,6 +11089,7 @@ button.card-face:hover {
 }
 
 .wire-hand-title {
+  display: none;
   border: 0;
   border-bottom: 1px solid #000;
 }
@@ -11096,12 +11120,12 @@ button.card-face:hover {
   display: grid;
   grid-template-columns: var(--wire-signature-area-w) var(--wire-hero-area-w) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
-  gap: 8px;
-  padding: 8px;
+  gap: 4px;
+  padding: 4px;
 }
 
 .wire-player-opponent {
-  grid-template-columns: minmax(0, 1fr) var(--wire-hero-area-w) var(--wire-deck-area-w);
+  grid-template-columns: minmax(0, 1fr) var(--wire-hero-area-w) var(--wire-signature-area-w);
 }
 
 .wire-player-opponent .wire-home-legend {
@@ -11137,20 +11161,13 @@ button.card-face:hover {
   align-items: center;
   justify-content: center;
   overflow: visible;
-  padding: 5px;
+  padding: 4px;
 }
 
 .wire-signature-zone {
   align-self: center;
   height: var(--wire-signature-zone-h);
-  grid-template-rows: 24px calc(var(--wire-card-h) + 10px);
-}
-
-.wire-signature-zone .wire-zone-title {
-  display: flex;
-  align-items: center;
-  height: 24px;
-  padding: 3px 5px;
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .wire-signature-zone .wire-card-row {
@@ -11161,12 +11178,12 @@ button.card-face:hover {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--wire-deck-area-w);
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) var(--wire-public-pile-w);
+  gap: 4px;
 }
 
 .wire-player-opponent .wire-base-banish-grid {
-  grid-template-columns: var(--wire-deck-area-w) minmax(0, 1fr);
+  grid-template-columns: var(--wire-public-pile-w) minmax(0, 1fr);
 }
 
 .wire-base-main,
@@ -11174,12 +11191,23 @@ button.card-face:hover {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-rows: auto minmax(var(--wire-card-h), 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
   border: 1px solid #000;
   background: #fff;
   color: #000;
-  padding: 6px;
+  padding: 4px;
   overflow: visible;
+}
+
+.wire-banish-main {
+  align-items: center;
+  justify-items: center;
+  align-self: center;
+  justify-self: center;
+  width: var(--wire-fixed-pile-card-w);
+  height: var(--wire-fixed-pile-card-h);
+  border: 0;
+  padding: 0;
 }
 
 .wire-player-opponent .wire-banish-main {
@@ -11200,23 +11228,42 @@ button.card-face:hover {
 
 .wire-banish-main .wire-stack-count {
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .wire-banish-main .wire-stack-box {
-  width: var(--wire-card-w);
-  height: var(--wire-card-h);
+  width: var(--wire-fixed-pile-card-w);
+  height: var(--wire-fixed-pile-card-h);
 }
 
 .wire-zone {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   border: 1px solid #000;
 }
 
+.wire-signature-zone {
+  width: var(--wire-signature-area-w);
+  height: var(--wire-signature-zone-h);
+  border: 0;
+}
+
+.wire-signature-zone .wire-zone-body {
+  padding: 0;
+  overflow: hidden;
+}
+
+.wire-signature-zone .wire-card-row {
+  width: var(--wire-signature-area-w);
+  height: var(--wire-signature-zone-h);
+  align-items: center;
+  justify-content: center;
+}
+
 .wire-zone-title {
+  display: none;
   border-bottom: 1px solid #000;
   background: #fff;
   color: #000;
@@ -11231,17 +11278,17 @@ button.card-face:hover {
   min-height: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   overflow: auto;
-  padding: 6px;
+  padding: 3px;
 }
 
 .wire-battlefield-stack {
   display: grid;
-  grid-template-columns: calc(var(--wire-card-w) + 24px) minmax(0, 1fr) calc(var(--wire-card-w) + 24px);
+  grid-template-columns: var(--wire-battlefield-card-w) minmax(0, 1fr) var(--wire-battlefield-card-w);
   grid-template-rows: minmax(0, 1fr);
-  gap: 8px;
-  padding: 8px;
+  gap: 4px;
+  padding: 4px;
 }
 
 .wire-battlefield-site,
@@ -11249,10 +11296,18 @@ button.card-face:hover {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   border: 1px solid #000;
   background: #fff;
   color: #000;
+}
+
+.wire-battlefield-site {
+  align-self: center;
+  justify-self: center;
+  width: var(--wire-battlefield-card-w);
+  height: var(--wire-battlefield-card-h);
+  border: 0;
 }
 
 .wire-battlefield-site-body,
@@ -11262,9 +11317,16 @@ button.card-face:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px;
+  gap: 4px;
+  padding: 3px;
   overflow: auto;
+}
+
+.wire-battlefield-site-body {
+  --wire-card-w: var(--wire-battlefield-card-w);
+  --wire-card-h: var(--wire-battlefield-card-h);
+  padding: 0;
+  overflow: hidden;
 }
 
 .wire-battlefield-center-grid {
@@ -11273,7 +11335,7 @@ button.card-face:hover {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 8px;
+  gap: 4px;
 }
 
 .wire-battlefield-unit-zone .wire-mini-title {
@@ -11294,9 +11356,9 @@ button.card-face:hover {
   align-items: center;
   justify-content: start;
   justify-items: center;
-  gap: 6px;
+  gap: 4px;
   overflow: auto;
-  padding: 6px;
+  padding: 3px;
 }
 
 .wire-base-card-grid {
@@ -11305,7 +11367,7 @@ button.card-face:hover {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 6px;
+  gap: 4px;
   overflow: auto;
 }
 
@@ -11331,7 +11393,7 @@ button.card-face:hover {
   min-height: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   overflow: auto;
 }
 
@@ -11339,16 +11401,43 @@ button.card-face:hover {
   align-items: stretch;
 }
 
+.wire-density-single {
+  --wire-card-w: 100px;
+  --wire-card-h: 140px;
+}
+
+.wire-density-sparse {
+  --wire-card-w: 98px;
+  --wire-card-h: 137px;
+}
+
+.wire-density-normal {
+  --wire-card-w: 84px;
+  --wire-card-h: 117px;
+}
+
+.wire-density-dense {
+  --wire-card-w: 68px;
+  --wire-card-h: 95px;
+}
+
+.wire-density-packed {
+  --wire-card-w: 56px;
+  --wire-card-h: 78px;
+}
+
 .wire-rune-track {
   width: 100%;
   max-width: none;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(12, var(--wire-card-w));
+  --wire-card-w: var(--wire-rune-card-w);
+  --wire-card-h: var(--wire-rune-card-h);
+  grid-template-columns: repeat(12, var(--wire-rune-card-w));
   justify-content: start;
   align-items: center;
   gap: var(--wire-card-gap);
-  padding: 6px;
+  padding: 4px;
   overflow-x: auto;
 }
 
@@ -11364,8 +11453,8 @@ button.card-face:hover {
 }
 
 .wire-rune-slot {
-  width: var(--wire-card-w);
-  height: var(--wire-card-h);
+  width: var(--wire-rune-card-w);
+  height: var(--wire-rune-card-h);
   aspect-ratio: 744 / 1039;
   min-height: 0;
   display: flex;
@@ -11379,8 +11468,10 @@ button.card-face:hover {
 }
 
 .wire-rune-card-frame {
-  width: var(--wire-card-w);
-  height: var(--wire-card-h);
+  --wire-card-w: var(--wire-rune-card-w);
+  --wire-card-h: var(--wire-rune-card-h);
+  width: var(--wire-rune-card-w);
+  height: var(--wire-rune-card-h);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11396,7 +11487,7 @@ button.card-face:hover {
 }
 
 .wire-rune-slot > span {
-  font-size: 11px;
+  display: none;
 }
 
 .wire-stack-count {
@@ -11426,15 +11517,35 @@ button.card-face:hover {
   height: var(--wire-card-h);
 }
 
+.wire-fixed-pile {
+  --wire-card-w: var(--wire-fixed-pile-card-w);
+  --wire-card-h: var(--wire-fixed-pile-card-h);
+  width: var(--wire-fixed-pile-card-w) !important;
+  min-width: var(--wire-fixed-pile-card-w) !important;
+  max-width: var(--wire-fixed-pile-card-w) !important;
+  height: var(--wire-fixed-pile-card-h) !important;
+  min-height: var(--wire-fixed-pile-card-h) !important;
+  max-height: var(--wire-fixed-pile-card-h) !important;
+  border: 0;
+  overflow: hidden;
+}
+
+.wire-hand-library-pile > .wire-stack-count,
+.wire-hand-played-pile > .wire-stack-count,
+.wire-banish-main .wire-stack-count {
+  width: var(--wire-fixed-pile-card-w) !important;
+  min-width: var(--wire-fixed-pile-card-w) !important;
+  max-width: var(--wire-fixed-pile-card-w) !important;
+  height: var(--wire-fixed-pile-card-h) !important;
+  min-height: var(--wire-fixed-pile-card-h) !important;
+  max-height: var(--wire-fixed-pile-card-h) !important;
+}
+
 .wire-card-slot {
   width: var(--wire-card-w);
   height: var(--wire-card-h);
   aspect-ratio: 744 / 1039;
-  display: grid;
-  place-items: center;
-  font-size: 10px;
-  line-height: 1.1;
-  text-align: center;
+  display: block;
 }
 
 .wire-site-card {
@@ -11461,15 +11572,20 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: minmax(168px, auto) minmax(300px, 1fr) minmax(190px, 0.7fr);
-  gap: 8px;
-  overflow: hidden;
-  padding: 8px;
+  grid-template-rows: minmax(150px, auto) minmax(260px, 1fr) minmax(180px, 0.75fr);
+  gap: 4px;
+  overflow: auto;
+  padding: 4px;
 }
 
 .wire-panel {
-  overflow: hidden;
-  padding: 8px;
+  overflow: auto;
+  padding: 6px;
+}
+
+.wire-side-panel .wire-panel > * {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .wire-panel h2,
@@ -11586,6 +11702,38 @@ button.card-face:hover {
   object-position: center !important;
 }
 
+.wire-table .wire-battlefield-site .card-face,
+.wire-table .wire-battlefield-site .card-image-only,
+.wire-table .wire-battlefield-site .card-back,
+.wire-table .wire-battlefield-site .wire-card-slot {
+  width: var(--wire-battlefield-card-w) !important;
+  min-width: var(--wire-battlefield-card-w) !important;
+  max-width: var(--wire-battlefield-card-w) !important;
+  height: var(--wire-battlefield-card-h) !important;
+  min-height: var(--wire-battlefield-card-h) !important;
+  max-height: var(--wire-battlefield-card-h) !important;
+  aspect-ratio: 1039 / 744 !important;
+}
+
+.wire-table .wire-battlefield-site .card-image-only {
+  position: relative !important;
+}
+
+.wire-table .wire-battlefield-site .card-image-only .card-full-image {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: var(--wire-battlefield-card-h) !important;
+  min-width: var(--wire-battlefield-card-h) !important;
+  max-width: var(--wire-battlefield-card-h) !important;
+  height: var(--wire-battlefield-card-w) !important;
+  min-height: var(--wire-battlefield-card-w) !important;
+  max-height: var(--wire-battlefield-card-w) !important;
+  object-fit: cover !important;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  transform-origin: center;
+}
+
 .wire-table .card-back {
   display: grid !important;
   grid-template-rows: 1fr auto 1fr !important;
@@ -11597,11 +11745,7 @@ button.card-face:hover {
 .wire-table .card-back .card-frame-top,
 .wire-table .card-back strong,
 .wire-table .card-back span {
-  font-size: 9px !important;
-  line-height: 1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  color: #000 !important;
+  display: none !important;
 }
 
 .wire-match-page .card-image-only::before,
@@ -11630,6 +11774,34 @@ button.card-face:hover {
 .wire-match-page .card-back strong,
 .wire-match-page .card-back span {
   color: #000 !important;
+}
+
+.wire-card-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.wire-card-preview img {
+  width: min(34vw, 420px);
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 48px);
+  object-fit: contain;
+  border: 1px solid #000;
+  background: #fff;
+}
+
+.wire-card-preview.is-battlefield-preview img {
+  width: auto;
+  height: min(42vw, 640px);
+  max-width: calc(100vh - 96px);
+  max-height: calc(100vw - 96px);
+  transform: rotate(-90deg);
+  transform-origin: center;
 }
 
 @media (max-width: 1280px) {
