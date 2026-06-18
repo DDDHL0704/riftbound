@@ -12687,13 +12687,14 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        var authoritativePayment = authoritativeState.PendingPayment;
         if (!timing.TryGetValue("pendingPayment", out var paymentPayload))
         {
             errors.Add("spectator replay frame timing pending payment is required");
+            AddMissingSpectatorPendingPaymentDiagnostics(authoritativeState, authoritativePayment, errors);
             return;
         }
 
-        var authoritativePayment = authoritativeState.PendingPayment;
         if (authoritativePayment is null)
         {
             if (!IsNullSnapshotPayloadValue(paymentPayload))
@@ -12707,6 +12708,7 @@ public static class MatchRecoveryValidator
         if (IsNullSnapshotPayloadValue(paymentPayload))
         {
             errors.Add("spectator replay frame timing pending payment is required");
+            AddMissingSpectatorPendingPaymentDiagnostics(authoritativeState, authoritativePayment, errors);
             return;
         }
 
@@ -12786,6 +12788,49 @@ public static class MatchRecoveryValidator
             || !StringListsEqual(paymentResourceActions, ExpectedSpectatorPendingPaymentResourceActionIds(authoritativeState, authoritativePayment)))
         {
             errors.Add("spectator replay frame timing pending payment resource actions do not match authoritative state pending payment resource actions");
+        }
+    }
+
+    private static void AddMissingSpectatorPendingPaymentDiagnostics(
+        MatchState authoritativeState,
+        PendingPaymentState? authoritativePayment,
+        List<string> errors)
+    {
+        if (authoritativePayment is null)
+        {
+            return;
+        }
+
+        if (authoritativePayment.ManaCost > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing pending payment mana cost 0 does not match authoritative state pending payment mana cost {authoritativePayment.ManaCost}");
+        }
+
+        if (authoritativePayment.PowerCost > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing pending payment power cost 0 does not match authoritative state pending payment power cost {authoritativePayment.PowerCost}");
+        }
+
+        if (authoritativePayment.PowerCostByTrait.Count > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing pending payment power cost trait count 0 does not match authoritative state pending payment power cost trait count {authoritativePayment.PowerCostByTrait.Count}");
+        }
+
+        if (authoritativePayment.LegalPaymentChoiceIds.Count > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing pending payment choice count 0 does not match authoritative state pending payment choice count {authoritativePayment.LegalPaymentChoiceIds.Count}");
+        }
+
+        var expectedResourceActionCount =
+            ExpectedSpectatorPendingPaymentResourceActionIds(authoritativeState, authoritativePayment).Count;
+        if (expectedResourceActionCount > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing pending payment resource action count 0 does not match authoritative state pending payment resource action count {expectedResourceActionCount}");
         }
     }
 

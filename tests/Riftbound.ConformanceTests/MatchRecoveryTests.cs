@@ -59052,139 +59052,93 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingPaymentMissingPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingPaymentMissingPayloadWithoutCountMismatch()
     {
-        var authoritativeState = new MatchState(
-            "room-a",
-            3,
-            1,
-            "alice",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["alice"] = "P1",
-                ["bob"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["alice", "bob"],
-            phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralOpen,
-            pendingPayment: new PendingPaymentState(
-                "payment-1",
-                "PAY_COST",
-                "alice",
-                manaCost: 2,
-                powerCost: 1,
-                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
-                {
-                    ["blue"] = 1
-                },
-                legalPaymentChoiceIds: ["SPEND_MANA:2", "SPEND_POWER:1"],
-                reason: "test-payment"));
-        var events = new[]
-        {
-            RecoveredEvent(1, "TURN_ENDED"),
-            RecoveredEvent(2, "TURN_BEGAN")
-        };
-        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
-            "room-a",
-            3,
-            2,
-            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
-            authoritativeState);
-        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        Assert.True(timing.Remove("pendingPayment"));
-        spectatorReplayFrame = spectatorReplayFrame with
-        {
-            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
-            {
-                Timing = timing
-            }
-        };
-
-        var errors = MatchRecoveryValidator.Validate(
-            "room-a",
-            2,
-            [],
-            events,
-            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
-            authoritativeState,
-            currentTick: 3,
-            spectatorReplayFrame: spectatorReplayFrame);
+        var errors = ValidateSpectatorReplayTimingPendingPaymentPayload(
+            EmptyPendingPaymentState(),
+            removePayload: true);
 
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending payment is required", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment mana cost 0", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment power cost 0", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment choice count", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment resource action count", StringComparison.Ordinal));
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingPaymentNullPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingPaymentMissingPayloadWithCountMismatch()
     {
-        var authoritativeState = new MatchState(
-            "room-a",
-            3,
-            1,
-            "alice",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["alice"] = "P1",
-                ["bob"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["alice", "bob"],
-            phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralOpen,
-            pendingPayment: new PendingPaymentState(
-                "payment-1",
-                "PAY_COST",
-                "alice",
-                manaCost: 2,
-                powerCost: 1,
-                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
-                {
-                    ["blue"] = 1
-                },
-                legalPaymentChoiceIds: ["SPEND_MANA:2", "SPEND_POWER:1"],
-                reason: "test-payment"));
-        var events = new[]
-        {
-            RecoveredEvent(1, "TURN_ENDED"),
-            RecoveredEvent(2, "TURN_BEGAN")
-        };
-        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
-            "room-a",
-            3,
-            2,
-            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
-            authoritativeState);
-        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        timing["pendingPayment"] = null;
-        spectatorReplayFrame = spectatorReplayFrame with
-        {
-            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
-            {
-                Timing = timing
-            }
-        };
-
-        var errors = MatchRecoveryValidator.Validate(
-            "room-a",
-            2,
-            [],
-            events,
-            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
-            authoritativeState,
-            currentTick: 3,
-            spectatorReplayFrame: spectatorReplayFrame);
+        var errors = ValidateSpectatorReplayTimingPendingPaymentPayload(
+            RetainedPendingPaymentState(),
+            removePayload: true);
 
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending payment is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment mana cost 0 does not match authoritative state pending payment mana cost 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment power cost 0 does not match authoritative state pending payment power cost 1", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment power cost trait count 0 does not match authoritative state pending payment power cost trait count 1", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment choice count 0 does not match authoritative state pending payment choice count 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment resource action count 0 does not match authoritative state pending payment resource action count 1", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorAcceptsSpectatorReplayTimingPendingPaymentNullPayloadWithoutCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingPendingPaymentPayload(
+            EmptyPendingPaymentState(),
+            payloadValue: null);
+
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingPendingPaymentNullPayloadWithCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingPendingPaymentPayload(
+            RetainedPendingPaymentState(),
+            payloadValue: null);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment mana cost 0 does not match authoritative state pending payment mana cost 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment power cost 0 does not match authoritative state pending payment power cost 1", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment power cost trait count 0 does not match authoritative state pending payment power cost trait count 1", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment choice count 0 does not match authoritative state pending payment choice count 2", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending payment resource action count 0 does not match authoritative state pending payment resource action count 1", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -198090,6 +198044,103 @@ public sealed class MatchRecoveryTests
             ["destroyedObjectIds"] = new[] { "defender-1" },
             ["relatedEventKinds"] = new[] { "BATTLE_CLOSED" }
         };
+    }
+
+    private static MatchState EmptyPendingPaymentState()
+    {
+        return new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+    }
+
+    private static MatchState RetainedPendingPaymentState()
+    {
+        return new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            pendingPayment: new PendingPaymentState(
+                "payment-1",
+                "PAY_COST",
+                "alice",
+                manaCost: 2,
+                powerCost: 1,
+                powerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    ["blue"] = 1
+                },
+                legalPaymentChoiceIds: ["SPEND_MANA:2", "SPEND_POWER:1"],
+                reason: "test-payment",
+                paymentResourceActionIds: ["MANUAL_RESOURCE_ACTION"]));
+    }
+
+    private static IReadOnlyList<string> ValidateSpectatorReplayTimingPendingPaymentPayload(
+        MatchState authoritativeState,
+        bool removePayload = false,
+        object? payloadValue = null)
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        if (removePayload)
+        {
+            Assert.True(timing.Remove("pendingPayment"));
+        }
+        else
+        {
+            timing["pendingPayment"] = payloadValue;
+        }
+
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        return MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
     }
 
     private static MatchState EmptyPendingHandChoiceState()
