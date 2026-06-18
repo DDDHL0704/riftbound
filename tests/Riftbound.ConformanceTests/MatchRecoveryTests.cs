@@ -22041,37 +22041,37 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment damage pool source object id nonparticipant-pool-source is not an enclosing battle participant",
+                "snapshot for alice timing battle damage assignment damage pool source object id nonparticipant-pool-source is not an enclosing battle participant; expected [attacker-a, defender-a] but got nonparticipant-pool-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment legal targets source object id nonparticipant-legal-source is not an enclosing battle participant",
+                "snapshot for alice timing battle damage assignment legal targets source object id nonparticipant-legal-source is not an enclosing battle participant; expected [attacker-a, defender-a] but got nonparticipant-legal-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment legal targets legal target object id nonparticipant-legal-target is not an enclosing battle participant",
+                "snapshot for alice timing battle damage assignment legal targets legal target object id nonparticipant-legal-target is not an enclosing battle participant; expected [attacker-a, defender-a] but got nonparticipant-legal-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment existing damage object id nonparticipant-existing is not an enclosing battle participant",
+                "snapshot for alice timing battle damage assignment existing damage object id nonparticipant-existing is not an enclosing battle participant; expected [attacker-a, defender-a] but got nonparticipant-existing",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment lethal damage threshold object id nonparticipant-lethal is not an enclosing battle participant",
+                "snapshot for alice timing battle damage assignment lethal damage threshold object id nonparticipant-lethal is not an enclosing battle participant; expected [attacker-a, defender-a] but got nonparticipant-lethal",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment required assignment item source object id nonparticipant-required-source is not an enclosing battle participant",
+                "snapshot for alice timing battle damage assignment required assignment item source object id nonparticipant-required-source is not an enclosing battle participant; expected [attacker-a, defender-a] but got nonparticipant-required-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment required assignment item legal target object id nonparticipant-required-target is not an enclosing battle participant",
+                "snapshot for alice timing battle damage assignment required assignment item legal target object id nonparticipant-required-target is not an enclosing battle participant; expected [attacker-a, defender-a] but got nonparticipant-required-target",
                 StringComparison.Ordinal));
     }
 
@@ -188488,37 +188488,37 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment damage pool source object id battlefield-a is not an enclosing battle participant",
+                "spectator replay frame timing battle damage assignment damage pool source object id battlefield-a is not an enclosing battle participant; expected [attacker-a, defender-a] but got battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment legal targets source object id battlefield-a is not an enclosing battle participant",
+                "spectator replay frame timing battle damage assignment legal targets source object id battlefield-a is not an enclosing battle participant; expected [attacker-a, defender-a] but got battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment legal targets legal target object id battlefield-a is not an enclosing battle participant",
+                "spectator replay frame timing battle damage assignment legal targets legal target object id battlefield-a is not an enclosing battle participant; expected [attacker-a, defender-a] but got battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment existing damage object id battlefield-a is not an enclosing battle participant",
+                "spectator replay frame timing battle damage assignment existing damage object id battlefield-a is not an enclosing battle participant; expected [attacker-a, defender-a] but got battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment lethal damage threshold object id battlefield-a is not an enclosing battle participant",
+                "spectator replay frame timing battle damage assignment lethal damage threshold object id battlefield-a is not an enclosing battle participant; expected [attacker-a, defender-a] but got battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment required assignment item source object id battlefield-a is not an enclosing battle participant",
+                "spectator replay frame timing battle damage assignment required assignment item source object id battlefield-a is not an enclosing battle participant; expected [attacker-a, defender-a] but got battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment required assignment item legal target object id battlefield-a is not an enclosing battle participant",
+                "spectator replay frame timing battle damage assignment required assignment item legal target object id battlefield-a is not an enclosing battle participant; expected [attacker-a, defender-a] but got battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

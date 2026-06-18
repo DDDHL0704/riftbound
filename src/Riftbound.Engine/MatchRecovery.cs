@@ -30175,7 +30175,11 @@ public static class MatchRecoveryValidator
         var normalizedObjectId = objectId.Trim();
         if (!participantObjectIds.Contains(normalizedObjectId))
         {
-            errors.Add($"{itemLabel} {normalizedObjectId} is not an enclosing battle participant");
+            var expectedParticipantObjectIds = participantObjectIds
+                .OrderBy(participantObjectId => participantObjectId, StringComparer.Ordinal)
+                .ToArray();
+            errors.Add(
+                $"{itemLabel} {normalizedObjectId} is not an enclosing battle participant; {FormatExpectedActualForRecovery(expectedParticipantObjectIds, normalizedObjectId)}");
         }
     }
 
