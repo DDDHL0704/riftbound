@@ -26604,12 +26604,18 @@ public static class MatchRecoveryValidator
 
         var spectatorKnownPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
         var spectatorKnownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var authoritativeBattlefieldResolutionCount = authoritativeState.BattlefieldResolutions.Count;
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue(
                 "battlefieldResolutions",
                 out var battlefieldResolutionsPayload)
             || IsNullSnapshotPayloadValue(battlefieldResolutionsPayload))
         {
             errors.Add("spectator replay frame timing battlefield resolutions are required");
+            if (authoritativeBattlefieldResolutionCount > 0)
+            {
+                errors.Add(
+                    $"spectator replay frame timing battlefield resolution count 0 does not match authoritative state battlefield resolution count {authoritativeBattlefieldResolutionCount}");
+            }
         }
         else if (!TryReadObjectListValue(battlefieldResolutionsPayload, out var spectatorBattlefieldResolutions))
         {
@@ -26627,11 +26633,11 @@ public static class MatchRecoveryValidator
                 "spectator replay frame timing battlefield resolution item",
                 errors);
             var validateAuthoritativeBattlefieldResolutionParity =
-                spectatorBattlefieldResolutions.Count == authoritativeState.BattlefieldResolutions.Count;
+                spectatorBattlefieldResolutions.Count == authoritativeBattlefieldResolutionCount;
             if (!validateAuthoritativeBattlefieldResolutionParity)
             {
                 errors.Add(
-                    $"spectator replay frame timing battlefield resolution count {spectatorBattlefieldResolutions.Count} does not match authoritative state battlefield resolution count {authoritativeState.BattlefieldResolutions.Count}");
+                    $"spectator replay frame timing battlefield resolution count {spectatorBattlefieldResolutions.Count} does not match authoritative state battlefield resolution count {authoritativeBattlefieldResolutionCount}");
             }
 
             var seenSpectatorBattlefieldResolutionIds = new HashSet<string>(StringComparer.Ordinal);
@@ -26808,12 +26814,18 @@ public static class MatchRecoveryValidator
             }
         }
 
+        var authoritativeBattleResolutionCount = authoritativeState.BattleResolutions.Count;
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue(
                 "battleResolutions",
                 out var battleResolutionsPayload)
             || IsNullSnapshotPayloadValue(battleResolutionsPayload))
         {
             errors.Add("spectator replay frame timing battle resolutions are required");
+            if (authoritativeBattleResolutionCount > 0)
+            {
+                errors.Add(
+                    $"spectator replay frame timing battle resolution count 0 does not match authoritative state battle resolution count {authoritativeBattleResolutionCount}");
+            }
         }
         else if (!TryReadObjectListValue(battleResolutionsPayload, out var spectatorBattleResolutions))
         {
@@ -26831,11 +26843,11 @@ public static class MatchRecoveryValidator
                 "spectator replay frame timing battle resolution item",
                 errors);
             var validateAuthoritativeBattleResolutionParity =
-                spectatorBattleResolutions.Count == authoritativeState.BattleResolutions.Count;
+                spectatorBattleResolutions.Count == authoritativeBattleResolutionCount;
             if (!validateAuthoritativeBattleResolutionParity)
             {
                 errors.Add(
-                    $"spectator replay frame timing battle resolution count {spectatorBattleResolutions.Count} does not match authoritative state battle resolution count {authoritativeState.BattleResolutions.Count}");
+                    $"spectator replay frame timing battle resolution count {spectatorBattleResolutions.Count} does not match authoritative state battle resolution count {authoritativeBattleResolutionCount}");
             }
 
             var seenSpectatorBattleResolutionIds = new HashSet<string>(StringComparer.Ordinal);

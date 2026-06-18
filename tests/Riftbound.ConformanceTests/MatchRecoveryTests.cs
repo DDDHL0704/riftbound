@@ -188368,118 +188368,174 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldResolutionsMissingPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldResolutionsMissingPayloadWithoutCountMismatch()
     {
-        var authoritativeState = new MatchState(
-            "room-a",
-            3,
-            1,
-            "alice",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["alice"] = "P1",
-                ["bob"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["alice", "bob"],
-            phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralOpen);
-        var events = new[]
-        {
-            RecoveredEvent(1, "TURN_ENDED"),
-            RecoveredEvent(2, "TURN_BEGAN")
-        };
-        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
-            "room-a",
-            3,
-            2,
-            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
-            authoritativeState);
-        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        Assert.True(timing.Remove("battlefieldResolutions"));
-        spectatorReplayFrame = spectatorReplayFrame with
-        {
-            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
-            {
-                Timing = timing
-            }
-        };
+        var authoritativeState = EmptyResolutionHistoryState();
+        Assert.Empty(authoritativeState.BattlefieldResolutions);
 
-        var errors = MatchRecoveryValidator.Validate(
-            "room-a",
-            2,
-            [],
-            events,
-            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+        var errors = ValidateSpectatorReplayTimingResolutionPayload(
             authoritativeState,
-            currentTick: 3,
-            spectatorReplayFrame: spectatorReplayFrame);
+            "battlefieldResolutions",
+            removePayload: true);
 
         Assert.Contains(
             errors,
             error => error.Contains(
                 "spectator replay frame timing battlefield resolutions are required",
                 StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution count",
+                StringComparison.Ordinal));
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleResolutionsMissingPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldResolutionsMissingPayloadWithCountMismatch()
     {
-        var authoritativeState = new MatchState(
-            "room-a",
-            3,
-            1,
-            "alice",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["alice"] = "P1",
-                ["bob"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["alice", "bob"],
-            phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralOpen);
-        var events = new[]
-        {
-            RecoveredEvent(1, "TURN_ENDED"),
-            RecoveredEvent(2, "TURN_BEGAN")
-        };
-        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
-            "room-a",
-            3,
-            2,
-            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
-            authoritativeState);
-        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        Assert.True(timing.Remove("battleResolutions"));
-        spectatorReplayFrame = spectatorReplayFrame with
-        {
-            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
-            {
-                Timing = timing
-            }
-        };
+        var errors = ValidateSpectatorReplayTimingResolutionPayload(
+            RetainedResolutionHistoryState(),
+            "battlefieldResolutions",
+            removePayload: true);
 
-        var errors = MatchRecoveryValidator.Validate(
-            "room-a",
-            2,
-            [],
-            events,
-            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolutions are required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution count 0 does not match authoritative state battlefield resolution count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldResolutionsNullPayloadWithoutCountMismatch()
+    {
+        var authoritativeState = EmptyResolutionHistoryState();
+        Assert.Empty(authoritativeState.BattlefieldResolutions);
+
+        var errors = ValidateSpectatorReplayTimingResolutionPayload(
             authoritativeState,
-            currentTick: 3,
-            spectatorReplayFrame: spectatorReplayFrame);
+            "battlefieldResolutions",
+            payloadValue: null);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolutions are required",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattlefieldResolutionsNullPayloadWithCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingResolutionPayload(
+            RetainedResolutionHistoryState(),
+            "battlefieldResolutions",
+            payloadValue: null);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolutions are required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield resolution count 0 does not match authoritative state battlefield resolution count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleResolutionsMissingPayloadWithoutCountMismatch()
+    {
+        var authoritativeState = EmptyResolutionHistoryState();
+        Assert.Empty(authoritativeState.BattleResolutions);
+
+        var errors = ValidateSpectatorReplayTimingResolutionPayload(
+            authoritativeState,
+            "battleResolutions",
+            removePayload: true);
 
         Assert.Contains(
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle resolutions are required",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleResolutionsMissingPayloadWithCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingResolutionPayload(
+            RetainedResolutionHistoryState(),
+            "battleResolutions",
+            removePayload: true);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolutions are required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution count 0 does not match authoritative state battle resolution count 1",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleResolutionsNullPayloadWithoutCountMismatch()
+    {
+        var authoritativeState = EmptyResolutionHistoryState();
+        Assert.Empty(authoritativeState.BattleResolutions);
+
+        var errors = ValidateSpectatorReplayTimingResolutionPayload(
+            authoritativeState,
+            "battleResolutions",
+            payloadValue: null);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolutions are required",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleResolutionsNullPayloadWithCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingResolutionPayload(
+            RetainedResolutionHistoryState(),
+            "battleResolutions",
+            payloadValue: null);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolutions are required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle resolution count 0 does not match authoritative state battle resolution count 1",
                 StringComparison.Ordinal));
     }
 
@@ -198020,6 +198076,95 @@ public sealed class MatchRecoveryTests
             ["destroyedObjectIds"] = new[] { "defender-1" },
             ["relatedEventKinds"] = new[] { "BATTLE_CLOSED" }
         };
+    }
+
+    private static MatchState EmptyResolutionHistoryState()
+    {
+        return new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+    }
+
+    private static MatchState RetainedResolutionHistoryState()
+    {
+        return new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: RetainedResolutionCardObjects(),
+            objectLocations: RetainedResolutionObjectLocations(),
+            battlefieldResolutions: [RetainedBattlefieldResolutionState(0)],
+            battleResolutions: [RetainedBattleResolutionState(0)]);
+    }
+
+    private static IReadOnlyList<string> ValidateSpectatorReplayTimingResolutionPayload(
+        MatchState authoritativeState,
+        string payloadKey,
+        bool removePayload = false,
+        object? payloadValue = null)
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        if (removePayload)
+        {
+            Assert.True(timing.Remove(payloadKey));
+        }
+        else
+        {
+            timing[payloadKey] = payloadValue;
+        }
+
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        return MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
     }
 
     private static Dictionary<string, CardObjectState> RetainedResolutionCardObjects()
