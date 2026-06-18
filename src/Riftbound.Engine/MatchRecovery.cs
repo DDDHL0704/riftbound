@@ -13262,8 +13262,10 @@ public static class MatchRecoveryValidator
             var authoritativeEffectCount = authoritativeState.ContinuousEffects.Count;
             if (authoritativeEffectCount > 0)
             {
-                errors.Add(
-                    $"spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count {authoritativeEffectCount}");
+                AddSpectatorContinuousEffectCountMismatch(
+                    spectatorCount: 0,
+                    authoritativeCount: authoritativeEffectCount,
+                    errors);
             }
 
             ReportMissingSpectatorContinuousEffectAuthoritativeKeySet(
@@ -13278,8 +13280,10 @@ public static class MatchRecoveryValidator
             var authoritativeEffectCount = authoritativeState.ContinuousEffects.Count;
             if (authoritativeEffectCount > 0)
             {
-                errors.Add(
-                    $"spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count {authoritativeEffectCount}");
+                AddSpectatorContinuousEffectCountMismatch(
+                    spectatorCount: 0,
+                    authoritativeCount: authoritativeEffectCount,
+                    errors);
             }
 
             ReportMissingSpectatorContinuousEffectAuthoritativeKeySet(
@@ -13292,8 +13296,10 @@ public static class MatchRecoveryValidator
         var validateAuthoritativeParity = spectatorEffects.Count == authoritativeEffects.Count;
         if (!validateAuthoritativeParity)
         {
-            errors.Add(
-                $"spectator replay frame timing continuous effect count {spectatorEffects.Count} does not match authoritative state continuous effect count {authoritativeEffects.Count}");
+            AddSpectatorContinuousEffectCountMismatch(
+                spectatorEffects.Count,
+                authoritativeEffects.Count,
+                errors);
         }
 
         var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
@@ -13699,6 +13705,15 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing continuous effect deferred LayerEngine residuals disagree with authoritative state continuous effect deferred LayerEngine residuals");
         }
+    }
+
+    private static void AddSpectatorContinuousEffectCountMismatch(
+        int spectatorCount,
+        int authoritativeCount,
+        List<string> errors)
+    {
+        errors.Add(
+            $"spectator replay frame timing continuous effect count {spectatorCount} does not match authoritative state continuous effect count {authoritativeCount}; {FormatExpectedActualForRecovery(authoritativeCount, spectatorCount)}");
     }
 
     private static IReadOnlyDictionary<string, ContinuousEffectState> BuildAuthoritativeContinuousEffectsById(
@@ -16997,8 +17012,10 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing trigger queue is required");
             if (authoritativeState.TriggerQueue.Count > 0)
             {
-                errors.Add(
-                    $"spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count {authoritativeState.TriggerQueue.Count}");
+                AddSpectatorTriggerQueueCountMismatch(
+                    spectatorCount: 0,
+                    authoritativeCount: authoritativeState.TriggerQueue.Count,
+                    errors);
             }
 
             ReportMissingSpectatorTriggerQueueAuthoritativeKeySet(authoritativeState.TriggerQueue, errors);
@@ -17010,8 +17027,10 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing trigger queue payload is required");
             if (authoritativeState.TriggerQueue.Count > 0)
             {
-                errors.Add(
-                    $"spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count {authoritativeState.TriggerQueue.Count}");
+                AddSpectatorTriggerQueueCountMismatch(
+                    spectatorCount: 0,
+                    authoritativeCount: authoritativeState.TriggerQueue.Count,
+                    errors);
             }
 
             ReportMissingSpectatorTriggerQueueAuthoritativeKeySet(authoritativeState.TriggerQueue, errors);
@@ -17022,8 +17041,10 @@ public static class MatchRecoveryValidator
         var validateAuthoritativeParity = spectatorTriggers.Count == authoritativeTriggers.Count;
         if (!validateAuthoritativeParity)
         {
-            errors.Add(
-                $"spectator replay frame timing trigger queue count {spectatorTriggers.Count} does not match authoritative state trigger queue count {authoritativeTriggers.Count}");
+            AddSpectatorTriggerQueueCountMismatch(
+                spectatorTriggers.Count,
+                authoritativeTriggers.Count,
+                errors);
         }
 
         var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
@@ -17340,6 +17361,15 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"spectator replay frame timing trigger queue item {fieldLabel} {actual} does not match authoritative state trigger queue {fieldLabel} {expected} for trigger id {triggerId}; {detail}");
         }
+    }
+
+    private static void AddSpectatorTriggerQueueCountMismatch(
+        int spectatorCount,
+        int authoritativeCount,
+        List<string> errors)
+    {
+        errors.Add(
+            $"spectator replay frame timing trigger queue count {spectatorCount} does not match authoritative state trigger queue count {authoritativeCount}; {FormatExpectedActualForRecovery(authoritativeCount, spectatorCount)}");
     }
 
     private static void ValidateSpectatorTriggerQueuePayloadValues(

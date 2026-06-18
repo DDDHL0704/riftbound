@@ -61305,7 +61305,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count 1",
+                "spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count 1; expected 1 but got 0",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -61965,7 +61965,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1",
+                "spectator replay frame timing continuous effect count 2 does not match authoritative state continuous effect count 1; expected 1 but got 2",
                 StringComparison.Ordinal));
     }
 
@@ -97969,7 +97969,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count 1",
+                "spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count 1; expected 1 but got 0",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -98482,7 +98482,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue count 3 does not match authoritative state trigger queue count 2",
+                "spectator replay frame timing trigger queue count 3 does not match authoritative state trigger queue count 2; expected 2 but got 3",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
