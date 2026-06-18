@@ -3,6 +3,22 @@ import { AppRoute } from "../app/router";
 import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
+import {
+  buildWireCardFlowPlan,
+  WireCardFlow,
+  type WireCardFlowPlan,
+  WireCardSlot,
+  WireEmpty,
+  WirePublicPile,
+  WireStackCount
+} from "../components/match/wireCardFlow";
+import {
+  WIRE_TABLE_LAYOUT,
+  wireGridColumnsStyle,
+  wireGridTemplateStyle,
+  wireMatchPageStyle,
+  wireTableStyle
+} from "../components/match/wireTableLayout";
 import { Button } from "../components/ui/Button";
 import { ScrollArea } from "../components/ui/ScrollArea";
 import { buildWireLayoutFixtureSnapshot, isWireLayoutFixtureEnabled, wireLayoutFixtureSpecByNo } from "../fixtures/wireLayoutFixture";
@@ -67,6 +83,47 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       previewDelayRef.current = undefined;
     }, 520);
   }, []);
+  const tableRows = WIRE_TABLE_LAYOUT.table.rows.map((row) => {
+    if (row.kind === "battlefield") {
+      return (
+        <WireBattlefieldTable
+          battlefields={battlefields}
+          key={row.id}
+          onInspectCard={setInspectedCard}
+          onPreviewCard={queuePreviewCard}
+          perspectivePlayerId={settings.playerId}
+          snapshot={tableSnapshot}
+          specs={tableSpecByNo}
+        />
+      );
+    }
+
+    const entry = row.side === "self" ? self : opponent;
+    if (row.kind === "handRail") {
+      return (
+        <WireHandRail
+          entry={entry}
+          fallbackSide={row.side}
+          hidden={row.side === "opponent"}
+          key={row.id}
+          onInspectCard={setInspectedCard}
+          onPreviewCard={queuePreviewCard}
+          specs={tableSpecByNo}
+        />
+      );
+    }
+
+    return (
+      <WirePlayerHome
+        entry={entry}
+        fallbackSide={row.side}
+        key={row.id}
+        onInspectCard={setInspectedCard}
+        onPreviewCard={queuePreviewCard}
+        specs={tableSpecByNo}
+      />
+    );
+  });
 
   useEffect(() => {
     if (roomStatus === "FINISHED") {
@@ -83,7 +140,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   }, []);
 
   return (
-    <div className="wire-match-page">
+    <div className="wire-match-page" style={wireMatchPageStyle()}>
       <header className="wire-topbar" aria-label="对战基础状态">
         <div className="wire-topbar-title">
           <strong>符文战场对战线框</strong>
@@ -112,20 +169,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
       <main className="wire-match-body">
         <section className="wire-table-shell" aria-label="黑白线框对战桌面">
-          <div className="wire-table">
-            <WireHandRail entry={opponent} fallbackSide="opponent" hidden onInspectCard={setInspectedCard} onPreviewCard={queuePreviewCard} specs={tableSpecByNo} />
-            <WirePlayerHome entry={opponent} fallbackSide="opponent" onInspectCard={setInspectedCard} onPreviewCard={queuePreviewCard} specs={tableSpecByNo} />
-            <WireBattlefieldTable
-              battlefields={battlefields}
-              onInspectCard={setInspectedCard}
-              onPreviewCard={queuePreviewCard}
-              perspectivePlayerId={settings.playerId}
-              snapshot={tableSnapshot}
-              specs={tableSpecByNo}
-            />
-            <WirePlayerHome entry={self} fallbackSide="self" onInspectCard={setInspectedCard} onPreviewCard={queuePreviewCard} specs={tableSpecByNo} />
-            <WireHandRail entry={self} fallbackSide="self" onInspectCard={setInspectedCard} onPreviewCard={queuePreviewCard} specs={tableSpecByNo} />
-          </div>
+          <div className="wire-table" style={wireTableStyle()}>{tableRows}</div>
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
@@ -192,30 +236,47 @@ function WirePlayerHome({
   specs: Record<string, BehaviorSpec>;
 }) {
   const side = entry?.side ?? fallbackSide;
+  const layout = WIRE_TABLE_LAYOUT.playerHomes[side];
   const zones = entry?.player.zones ?? {};
   const objects = entry?.player.objects ?? {};
   const baseIds = zones.base ?? [];
   const runeIds = baseIds.filter((id) => isRuneCard(objects[id], specs[objects[id]?.cardNo ?? ""]));
   const baseObjectIds = baseIds.filter((id) => !runeIds.includes(id));
-
-  return (
-    <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} aria-label={`${entry ? playerLabel(entry) : side === "self" ? "P1 我方" : "P2 对手"} 基础区`}>
-      <WireZone className="wire-home-legend wire-signature-zone" title="传奇">
-        <WireFixedCardStrip emptyLabel="传奇" ids={zones.legendZone ?? []} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
-      </WireZone>
-      <WireZone className="wire-home-hero wire-signature-zone" title="英雄">
-        <WireFixedCardStrip emptyLabel="英雄" ids={zones.championZone ?? []} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
-      </WireZone>
-      <WireZone className="wire-home-base" title="基地 / 放逐">
-        <div className="wire-base-banish-grid">
-          <section className="wire-base-main" aria-label="基地">
-            <WireFixedCardStrip className="wire-card-scroll-grid wire-base-card-grid" emptyLabel="基地" ids={baseObjectIds} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
-          </section>
-          <section className="wire-banish-main" aria-label="放逐区">
-            <WirePublicPile ids={zones.banished ?? []} label="放逐" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
-          </section>
+  const baseSections = {
+    banish: (
+      <section className="wire-banish-main" key="banish" aria-label="放逐区">
+        <WirePublicPile ids={zones.banished ?? []} label="放逐" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
+      </section>
+    ),
+    base: (
+      <section className="wire-base-main" key="base" aria-label="基地">
+        <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" ids={baseObjectIds} kind="base" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots specs={specs} />
+      </section>
+    )
+  } satisfies Record<string, ReactNode>;
+  const homeSections = {
+    base: (
+      <WireZone className="wire-home-base" key="base" title="基地 / 放逐">
+        <div className="wire-base-banish-grid" style={wireGridColumnsStyle(layout.baseColumns)}>
+          {layout.baseSlots.map((slot) => baseSections[slot])}
         </div>
       </WireZone>
+    ),
+    hero: (
+      <WireZone className="wire-home-hero wire-signature-zone" key="hero" title="英雄">
+        <WireCardFlow emptyLabel="英雄" ids={zones.championZone ?? []} kind="signature" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots specs={specs} />
+      </WireZone>
+    ),
+    legend: (
+      <WireZone className="wire-home-legend wire-signature-zone" key="legend" title="传奇">
+        <WireCardFlow emptyLabel="传奇" ids={zones.legendZone ?? []} kind="signature" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots specs={specs} />
+      </WireZone>
+    )
+  } satisfies Record<string, ReactNode>;
+
+  return (
+    <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={`${entry ? playerLabel(entry) : side === "self" ? "P1 我方" : "P2 对手"} 基础区`}>
+      {layout.slots.map((slot) => homeSections[slot])}
     </section>
   );
 }
@@ -236,66 +297,61 @@ function WireHandRail({
   specs: Record<string, BehaviorSpec>;
 }) {
   const side = entry?.side ?? fallbackSide;
-
-  if (!entry) {
-    return (
-      <section className={`wire-hand-rail wire-hand-${side} wire-hand-missing`}>
-        <div className="wire-hand-rune-deck">
-          <WireStackCount count={12} label="符文牌堆" />
-        </div>
-        <div className="wire-hand-rune-track" aria-label="已抽出符文占位">
-          <WireRuneTrack ids={[]} objects={{}} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} reverse={side === "opponent"} specs={specs} />
-        </div>
-        <div className="wire-hand-zone">
-          <div className="wire-hand-body">
-            <div className="wire-hand-cards">
-              <div className="wire-card-row wire-card-row-centered">
-                <WireEmpty label="" />
-              </div>
-            </div>
-            <div className="wire-hand-piles">
-              <div className="wire-hand-library-pile">
-                <WireStackCount count={0} label="牌库" />
-              </div>
-              <div className="wire-hand-played-pile">
-                <WirePublicPile ids={[]} label="已打出" objects={{}} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  const zones = entry.player.zones ?? {};
-  const objects = entry.player.objects ?? {};
+  const layout = WIRE_TABLE_LAYOUT.handRails[side];
+  const zones = entry?.player.zones ?? {};
+  const objects = entry?.player.objects ?? {};
   const baseIds = zones.base ?? [];
   const runeIds = baseIds.filter((id) => isRuneCard(objects[id], specs[objects[id]?.cardNo ?? ""]));
-  const ids = hidden ? hiddenCards(entry.player.handSize ?? zones.handHidden ?? 0, entry.id) : zones.hand ?? [];
-
-  return (
-    <section className={`wire-hand-rail wire-hand-${side}`} aria-label={`${playerLabel(entry)} 手牌`}>
-      <div className="wire-hand-rune-deck">
-        <WireStackCount count={zones.runeDeckCount ?? 12} label="符文牌堆" />
+  const ids = entry ? hidden ? hiddenCards(entry.player.handSize ?? zones.handHidden ?? 0, entry.id) : zones.hand ?? [] : [];
+  const emptyObjects: Record<string, CardObjectView> = {};
+  const zoneObjects = entry ? objects : emptyObjects;
+  const pileSections = {
+    library: (
+      <div className="wire-hand-library-pile" key="library">
+        <WireStackCount count={zones.mainDeckCount ?? 0} label="牌库" />
       </div>
-      <div className="wire-hand-rune-track" aria-label={`${playerLabel(entry)} 已抽出符文`}>
-        <WireRuneTrack ids={runeIds} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} reverse={side === "opponent"} specs={specs} />
+    ),
+    played: (
+      <div className="wire-hand-played-pile" key="played">
+        <WirePublicPile ids={zones.graveyard ?? []} label="已打出" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
       </div>
-      <div className="wire-hand-zone">
-        <div className="wire-hand-body">
-          <div className="wire-hand-cards">
-            <WireCardStrip ids={ids} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
-          </div>
-          <div className="wire-hand-piles">
-            <div className="wire-hand-library-pile">
-              <WireStackCount count={zones.mainDeckCount ?? 0} label="牌库" />
-            </div>
-            <div className="wire-hand-played-pile">
-              <WirePublicPile ids={zones.graveyard ?? []} label="已打出" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
-            </div>
-          </div>
+    )
+  } satisfies Record<string, ReactNode>;
+  const handBodySections = {
+    cards: (
+      <div className="wire-hand-cards" key="cards">
+        <WireCardFlow ids={ids} kind="hand" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
+      </div>
+    ),
+    piles: (
+      <div className="wire-hand-piles" key="piles">
+        {layout.pileSlots.map((slot) => pileSections[slot])}
+      </div>
+    )
+  } satisfies Record<string, ReactNode>;
+  const handRailSections = {
+    hand: (
+      <div className="wire-hand-zone" key="hand">
+        <div className="wire-hand-body" style={wireGridColumnsStyle(layout.handBodyColumns)}>
+          {layout.handBodySlots.map((slot) => handBodySections[slot])}
         </div>
       </div>
+    ),
+    runeDeck: (
+      <div className="wire-hand-rune-deck" key="runeDeck">
+        <WireStackCount count={zones.runeDeckCount ?? WIRE_TABLE_LAYOUT.runeDeckSize} label="符文牌堆" />
+      </div>
+    ),
+    runeTrack: (
+      <div className="wire-hand-rune-track" key="runeTrack" aria-label={entry ? `${playerLabel(entry)} 已抽出符文` : "已抽出符文占位"}>
+        <WireRuneTrack ids={runeIds} objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} reverse={layout.runeReverse} specs={specs} />
+      </div>
+    )
+  } satisfies Record<string, ReactNode>;
+
+  return (
+    <section className={`wire-hand-rail wire-hand-${side} ${entry ? "" : "wire-hand-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={entry ? `${playerLabel(entry)} 手牌` : `${side === "self" ? "P1 我方" : "P2 对手"} 手牌`}>
+      {layout.slots.map((slot) => handRailSections[slot])}
     </section>
   );
 }
@@ -317,17 +373,44 @@ function WireBattlefieldTable({
 }) {
   const objects = objectIndex(snapshot);
   const lanes = [0, 1].map((index) => buildBattlefieldLane(battlefields[index], index, objects, perspectivePlayerId));
+  const layout = WIRE_TABLE_LAYOUT.battlefield;
+  const unitPlan = buildWireCardFlowPlan({
+    itemCount: Math.max(...lanes.flatMap((lane) => [lane.ownOccupants.length, lane.opposingOccupants.length]), 0),
+    kind: "battlefield-unit",
+    minSlots: 3
+  });
+  const battlefieldSections = {
+    center: (
+      <div className="wire-battlefield-center-grid" key="center" style={wireGridTemplateStyle(layout.centerColumns, layout.centerRows)}>
+        {layout.unitZones.map((zone) => {
+          const lane = lanes[zone.laneIndex];
+          const ids = zone.side === "self" ? lane.ownOccupants : lane.opposingOccupants;
+          return (
+            <WireBattlefieldUnitZone
+              ids={ids}
+              key={zone.id}
+              objects={objects}
+              onInspectCard={onInspectCard}
+              onPreviewCard={onPreviewCard}
+              plan={unitPlan}
+              specs={specs}
+              title={battlefieldUnitZoneLabel(zone.laneIndex, zone.side)}
+            />
+          );
+        })}
+      </div>
+    ),
+    leftSite: (
+      <WireBattlefieldSite key="leftSite" lane={lanes[0]} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} sideLabel="左战场牌" specs={specs} />
+    ),
+    rightSite: (
+      <WireBattlefieldSite key="rightSite" lane={lanes[1]} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} sideLabel="右战场牌" specs={specs} />
+    )
+  } satisfies Record<string, ReactNode>;
 
   return (
-    <section className="wire-battlefield-stack" aria-label="公共战场">
-      <WireBattlefieldSite lane={lanes[0]} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} sideLabel="左战场牌" specs={specs} />
-      <div className="wire-battlefield-center-grid">
-        <WireBattlefieldUnitZone ids={lanes[0].opposingOccupants} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} title="左战场 / 对方" />
-        <WireBattlefieldUnitZone ids={lanes[1].opposingOccupants} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} title="右战场 / 对方" />
-        <WireBattlefieldUnitZone ids={lanes[0].ownOccupants} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} title="左战场 / 我方" />
-        <WireBattlefieldUnitZone ids={lanes[1].ownOccupants} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} title="右战场 / 我方" />
-      </div>
-      <WireBattlefieldSite lane={lanes[1]} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} sideLabel="右战场牌" specs={specs} />
+    <section className="wire-battlefield-stack" style={wireGridColumnsStyle(layout.columns)} aria-label="公共战场">
+      {layout.slots.map((slot) => battlefieldSections[slot])}
     </section>
   );
 }
@@ -360,6 +443,12 @@ function buildBattlefieldLane(
     opposingOccupants: occupants.filter((id) => ownerOrController(objects[id]) !== perspectivePlayerId),
     zonePlayerId: asString(battlefield?.zonePlayerId, "")
   };
+}
+
+function battlefieldUnitZoneLabel(laneIndex: number, side: "opponent" | "self"): string {
+  const laneName = laneIndex === 0 ? "左战场" : "右战场";
+  const sideName = side === "self" ? "我方" : "对方";
+  return `${laneName} / ${sideName}`;
 }
 
 function WireBattlefieldSite({
@@ -400,6 +489,7 @@ function WireBattlefieldUnitZone({
   objects,
   onInspectCard,
   onPreviewCard,
+  plan,
   specs,
   title
 }: {
@@ -407,43 +497,14 @@ function WireBattlefieldUnitZone({
   objects: Record<string, CardObjectView>;
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard: (card?: InspectedCard) => void;
+  plan: WireCardFlowPlan;
   specs: Record<string, BehaviorSpec>;
   title: string;
 }) {
   return (
     <section className="wire-battlefield-unit-zone" aria-label={title}>
-      <WireBattlefieldSlotRow ids={ids} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} specs={specs} />
+      <WireCardFlow ids={ids} kind="battlefield-unit" minSlots={3} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={plan} renderEmptySlots specs={specs} />
     </section>
-  );
-}
-
-function WireBattlefieldSlotRow({
-  ids,
-  objects,
-  onInspectCard,
-  onPreviewCard,
-  specs
-}: {
-  ids: string[];
-  objects: Record<string, CardObjectView>;
-  onInspectCard: (card: InspectedCard) => void;
-  onPreviewCard: (card?: InspectedCard) => void;
-  specs: Record<string, BehaviorSpec>;
-}) {
-  const slotCount = Math.max(3, ids.length);
-
-  return (
-    <div className={`wire-battlefield-slot-row wire-card-scroll-grid ${wireDensityClass(ids.length)}`}>
-      {Array.from({ length: slotCount }, (_, index) => {
-        const id = ids[index];
-        if (!id) {
-          return <WireCardSlot key={`empty-unit-slot-${index}`} label="" />;
-        }
-
-        const object = objects[id] ?? hiddenObject(id);
-        return <CardFace compact key={id} object={object} objectId={id} onInspect={onInspectCard} onPreview={onPreviewCard} spec={object.cardNo ? specs[object.cardNo] : undefined} />;
-      })}
-    </div>
   );
 }
 
@@ -452,58 +513,6 @@ function WireZone({ children, className = "", title }: { children: ReactNode; cl
     <section className={`wire-zone ${className}`} aria-label={title}>
       <div className="wire-zone-body">{children}</div>
     </section>
-  );
-}
-
-function WireCardStrip({
-  ids,
-  objects,
-  onInspectCard,
-  onPreviewCard,
-  specs
-}: {
-  ids: string[];
-  objects: ZoneObjects | Record<string, CardObjectView>;
-  onInspectCard: (card: InspectedCard) => void;
-  onPreviewCard?: (card?: InspectedCard) => void;
-  specs: Record<string, BehaviorSpec>;
-}) {
-  return (
-    <div className={`wire-card-row ${wireDensityClass(ids.length)}`}>
-      {ids.length === 0 && <WireEmpty label="" />}
-      {ids.map((id) => {
-        const object = objects[id] ?? hiddenObject(id);
-        return <CardFace compact key={id} object={object} objectId={id} onInspect={onInspectCard} onPreview={onPreviewCard} spec={object.cardNo ? specs[object.cardNo] : undefined} />;
-      })}
-    </div>
-  );
-}
-
-function WireFixedCardStrip({
-  className = "",
-  emptyLabel,
-  ids,
-  objects,
-  onInspectCard,
-  onPreviewCard,
-  specs
-}: {
-  className?: string;
-  emptyLabel: string;
-  ids: string[];
-  objects: ZoneObjects | Record<string, CardObjectView>;
-  onInspectCard: (card: InspectedCard) => void;
-  onPreviewCard?: (card?: InspectedCard) => void;
-  specs: Record<string, BehaviorSpec>;
-}) {
-  return (
-    <div className={`wire-card-row ${wireDensityClass(ids.length)} ${className}`.trim()}>
-      {ids.length === 0 && <WireCardSlot label={emptyLabel} />}
-      {ids.map((id) => {
-        const object = objects[id] ?? hiddenObject(id);
-        return <CardFace compact key={id} object={object} objectId={id} onInspect={onInspectCard} onPreview={onPreviewCard} spec={object.cardNo ? specs[object.cardNo] : undefined} />;
-      })}
-    </div>
   );
 }
 
@@ -522,7 +531,8 @@ function WireRuneTrack({
   reverse?: boolean;
   specs: Record<string, BehaviorSpec>;
 }) {
-  const slotIndexes = Array.from({ length: 12 }, (_, index) => reverse ? 11 - index : index);
+  const runeDeckSize = WIRE_TABLE_LAYOUT.runeDeckSize;
+  const slotIndexes = Array.from({ length: runeDeckSize }, (_, index) => reverse ? runeDeckSize - 1 - index : index);
 
   return (
     <div className="wire-rune-track" aria-label="12 个符文槽">
@@ -549,52 +559,6 @@ function WireRuneTrack({
   );
 }
 
-function WireCardSlot({ label }: { label: string }) {
-  return (
-    <div className="wire-card-slot" aria-label={`${label || "卡牌"}空槽`} />
-  );
-}
-
-function WirePublicPile({
-  ids,
-  label,
-  objects,
-  onInspectCard,
-  onPreviewCard,
-  specs
-}: {
-  ids: string[];
-  label: string;
-  objects: ZoneObjects;
-  onInspectCard: (card: InspectedCard) => void;
-  onPreviewCard?: (card?: InspectedCard) => void;
-  specs: Record<string, BehaviorSpec>;
-}) {
-  const topId = ids.at(-1);
-
-  return (
-    <div className="wire-stack-count wire-fixed-pile" role="group" aria-label={`${label} ${ids.length} 张`}>
-      {topId ? (
-        <CardFace compact object={objects[topId]} objectId={topId} onInspect={onInspectCard} onPreview={onPreviewCard} spec={objects[topId]?.cardNo ? specs[objects[topId].cardNo] : undefined} />
-      ) : (
-        <div className="wire-stack-box" aria-hidden="true" />
-      )}
-    </div>
-  );
-}
-
-function WireStackCount({ count, label }: { count: number; label: string }) {
-  return (
-    <div className="wire-stack-count" role="group" aria-label={`${label} ${count} 张`}>
-      <div className="wire-stack-box" aria-hidden="true" />
-    </div>
-  );
-}
-
-function WireEmpty({ label }: { label: string }) {
-  return <span className="wire-empty">{label}</span>;
-}
-
 function WireCardPreview({ card }: { card?: InspectedCard }) {
   const frontImage = card?.spec?.frontImage?.trim();
   if (!card || !frontImage) {
@@ -608,26 +572,6 @@ function WireCardPreview({ card }: { card?: InspectedCard }) {
       <img alt={title} src={frontImage} />
     </div>
   );
-}
-
-function wireDensityClass(count: number): string {
-  if (count <= 1) {
-    return "wire-density-single";
-  }
-
-  if (count <= 3) {
-    return "wire-density-sparse";
-  }
-
-  if (count <= 5) {
-    return "wire-density-normal";
-  }
-
-  if (count <= 8) {
-    return "wire-density-dense";
-  }
-
-  return "wire-density-packed";
 }
 
 function objectIndex(snapshot?: SnapshotDto): Record<string, CardObjectView> {
@@ -650,10 +594,6 @@ function playerLabel(entry: PlayerEntry): string {
 
 function hiddenCards(count: number, playerId: string): string[] {
   return Array.from({ length: count }, (_, index) => `hidden-${playerId}-${index}`);
-}
-
-function hiddenObject(objectId: string): CardObjectView {
-  return { objectId, isFaceDown: true };
 }
 
 function isRuneCard(object?: CardObjectView, spec?: BehaviorSpec): boolean {
