@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-223CG recovery battle object-reference detail validation accepted on local `main` as code commit `eafdbc33`; docs checkpoint follows. Runtime changed: yes, narrow recovery validation diagnostic detail only. Frontend changed: no. `MatchRecoveryValidator` now appends stable expected/actual details to snapshot and spectator replay-frame timing battle object-reference diagnostics while preserving the existing diagnostic prefix. Validation passed: focused battle object-reference detail tests `2/2`; changed-class `MatchRecoveryTests` `1974/1974`; adjacent Recovery/SpectatorReplayTiming/BattleDamageAssignment/DamageAssignment/Battle/BattlefieldTask/PendingTaskQueue/TriggerQueue/ContinuousEffect filter `2714/2714`; backend full via `Riftbound.slnx` `8307/8307`; mechanical checks passed before docs sync. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` is clean at `01364ee2`, 110 commits behind the post-code `main` and `0` commits ahead at the pre-docs-sync divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` has no commits ahead of `main`; root PDF text remained available. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-223CG post-merge main sync accepted on local `main` as merge commit `3ab28f46`; docs checkpoint follows. Runtime changed in the post-merge sync: no beyond 223CG code commit `eafdbc33`. Frontend changed: yes, accepted incoming DevUi wireframe legal action map work from remote `main` commit `217dcf47`. Added validation: `npm --prefix src/Riftbound.DevUi run build` passed. Prior 223CG server validation remains: focused battle object-reference detail tests `2/2`; changed-class `MatchRecoveryTests` `1974/1974`; adjacent Recovery/SpectatorReplayTiming/BattleDamageAssignment/DamageAssignment/Battle/BattlefieldTask/PendingTaskQueue/TriggerQueue/ContinuousEffect filter `2714/2714`; backend full via `Riftbound.slnx` `8307/8307`. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` is clean at `01364ee2`, 113 commits behind current `main` and `0` commits ahead at the post-merge divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` has no commits ahead of `main`; root PDF text remained available. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,11 +65,27 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223CG code checkpoint is `eafdbc33`; docs sync follows. A_MAIN will continue directly on this `main` worktree per user request.
-- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 06:52 CST at `01364ee2`, 110 commits behind the post-code `main` and `0` commits ahead at the pre-docs-sync divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223CG post-merge checkpoint is merge commit `3ab28f46`; docs sync follows. A_MAIN will continue directly on this `main` worktree per user request.
+- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 06:55 CST at `01364ee2`, 113 commits behind current `main` and `0` commits ahead at the post-merge divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
 - Historical DOC_MATRIX handoff `17bde0c3` and source `7cb78f27` have already been integrated into `main`; no current DOC_MATRIX worktree is active unless the user opens one explicitly.
 
 ## Current Entries
+
+### 2026-06-19 06:55 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at merge commit `3ab28f46`; contains 223CG code commit `eafdbc33`, docs checkpoint `b1cefc50`, and remote DevUi commit `217dcf47`.
+
+Write locks: A_MAIN touched current completion/P0-P1/dispatch docs and this board for the post-merge sync. Runtime/test files remain as committed in `eafdbc33`; incoming DevUi files were accepted from `217dcf47`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Post-223CG remote `main` import merged cleanly. Runtime changed in this sync: no beyond `eafdbc33`. Frontend changed: yes, accepted incoming DevUi wireframe legal action map work from `217dcf47`. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` remains clean at `01364ee2`, 113 commits behind current `main` and `0` commits ahead at the post-merge divergence check. `codex/rule-audit-remaining-20260615` has no commits ahead of `main`.
+
+Validation: Prior 223CG server validation remains: focused battle object-reference detail tests `2/2`; changed-class `MatchRecoveryTests` `1974/1974`; adjacent Recovery/SpectatorReplayTiming/BattleDamageAssignment/DamageAssignment/Battle/BattlefieldTask/PendingTaskQueue/TriggerQueue/ContinuousEffect filter `2714/2714`; backend full via `Riftbound.slnx` `8307/8307`. Added frontend validation: `npm --prefix src/Riftbound.DevUi run build` passed, including event-label, user-facing text, tabletop layout, wire-table layout, strict typecheck and Vite production build.
+
+Requested action: after final mechanical checks and push, continue next executable server slice on local `main` after re-reading this board, `AGENTS.md`, and the PDF gate; keep checking `codex/ui-followup-20260616` and `codex/rule-audit-remaining-20260615` before integration. Project remains **NOT READY**.
 
 ### 2026-06-19 06:52 A_MAIN
 
