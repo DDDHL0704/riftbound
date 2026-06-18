@@ -13122,6 +13122,9 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count {authoritativeEffectCount}");
             }
 
+            ReportMissingSpectatorContinuousEffectAuthoritativeKeySet(
+                authoritativeState.ContinuousEffects,
+                errors);
             return;
         }
 
@@ -13135,6 +13138,9 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count {authoritativeEffectCount}");
             }
 
+            ReportMissingSpectatorContinuousEffectAuthoritativeKeySet(
+                authoritativeState.ContinuousEffects,
+                errors);
             return;
         }
 
@@ -13570,6 +13576,16 @@ public static class MatchRecoveryValidator
         }
 
         return authoritativeEffectsById;
+    }
+
+    private static void ReportMissingSpectatorContinuousEffectAuthoritativeKeySet(
+        IReadOnlyList<ContinuousEffectState> authoritativeEffects,
+        List<string> errors)
+    {
+        ValidateSpectatorContinuousEffectAuthoritativeKeySet(
+            Array.Empty<object?>(),
+            BuildAuthoritativeContinuousEffectsById(authoritativeEffects),
+            errors);
     }
 
     private static void ValidateSpectatorContinuousEffectAuthoritativeKeySet(
@@ -16662,6 +16678,7 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count {authoritativeState.TriggerQueue.Count}");
             }
 
+            ReportMissingSpectatorTriggerQueueAuthoritativeKeySet(authoritativeState.TriggerQueue, errors);
             return;
         }
 
@@ -16674,6 +16691,7 @@ public static class MatchRecoveryValidator
                     $"spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count {authoritativeState.TriggerQueue.Count}");
             }
 
+            ReportMissingSpectatorTriggerQueueAuthoritativeKeySet(authoritativeState.TriggerQueue, errors);
             return;
         }
 
@@ -16735,20 +16753,7 @@ public static class MatchRecoveryValidator
                 errors);
         }
 
-        var authoritativeTriggersById = new Dictionary<string, TriggerQueueItemState>(StringComparer.Ordinal);
-        foreach (var authoritativeTrigger in authoritativeTriggers)
-        {
-            if (string.IsNullOrWhiteSpace(authoritativeTrigger.TriggerId))
-            {
-                continue;
-            }
-
-            var normalizedTriggerId = authoritativeTrigger.TriggerId.Trim();
-            if (!authoritativeTriggersById.ContainsKey(normalizedTriggerId))
-            {
-                authoritativeTriggersById.Add(normalizedTriggerId, authoritativeTrigger);
-            }
-        }
+        var authoritativeTriggersById = BuildAuthoritativeTriggerQueueById(authoritativeTriggers);
 
         ValidateSpectatorTriggerQueueAuthoritativeKeySet(
             spectatorTriggers,
@@ -16854,6 +16859,37 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds");
         }
+    }
+
+    private static IReadOnlyDictionary<string, TriggerQueueItemState> BuildAuthoritativeTriggerQueueById(
+        IReadOnlyList<TriggerQueueItemState> authoritativeTriggers)
+    {
+        var authoritativeTriggersById = new Dictionary<string, TriggerQueueItemState>(StringComparer.Ordinal);
+        foreach (var authoritativeTrigger in authoritativeTriggers)
+        {
+            if (string.IsNullOrWhiteSpace(authoritativeTrigger.TriggerId))
+            {
+                continue;
+            }
+
+            var normalizedTriggerId = authoritativeTrigger.TriggerId.Trim();
+            if (!authoritativeTriggersById.ContainsKey(normalizedTriggerId))
+            {
+                authoritativeTriggersById.Add(normalizedTriggerId, authoritativeTrigger);
+            }
+        }
+
+        return authoritativeTriggersById;
+    }
+
+    private static void ReportMissingSpectatorTriggerQueueAuthoritativeKeySet(
+        IReadOnlyList<TriggerQueueItemState> authoritativeTriggers,
+        List<string> errors)
+    {
+        ValidateSpectatorTriggerQueueAuthoritativeKeySet(
+            Array.Empty<object?>(),
+            BuildAuthoritativeTriggerQueueById(authoritativeTriggers),
+            errors);
     }
 
     private static void ValidateSpectatorTriggerQueueAuthoritativeKeySet(

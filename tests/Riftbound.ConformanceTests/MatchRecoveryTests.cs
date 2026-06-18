@@ -61286,6 +61286,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count 1",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item effect id effect-1 is required by authoritative state continuous effects",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -61448,6 +61453,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item effect id effect-1 is required by authoritative state continuous effects",
                 StringComparison.Ordinal));
     }
 
@@ -96949,7 +96959,27 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             malformedListErrors,
             error => error.Contains(
+                "spectator replay frame timing continuous effect item effect id effect-1 is required by authoritative state continuous effects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect item effect id effect-2 is required by authoritative state continuous effects",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
                 "spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-1 is required by authoritative state trigger queue",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-2 is required by authoritative state trigger queue",
                 StringComparison.Ordinal));
 
         var malformedItemFrame = MatchReplayRedactor.BuildSpectatorFrame(
@@ -97915,6 +97945,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count 1",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-visible is required by authoritative state trigger queue",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -98062,6 +98097,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count 1",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue item trigger id trigger-visible is required by authoritative state trigger queue",
                 StringComparison.Ordinal));
     }
 
