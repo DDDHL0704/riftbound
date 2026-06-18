@@ -41,6 +41,85 @@ export type BattlefieldResolutionView = {
   relatedEventKinds?: string[];
 };
 
+export type BattleResolutionView = {
+  resolutionId?: string;
+  tick?: number;
+  kind?: string;
+  reason?: string;
+  battlefieldId?: string;
+  attackingPlayerId?: string | null;
+  defendingPlayerId?: string | null;
+  winnerPlayerId?: string | null;
+  attackerObjectIds?: string[];
+  defenderObjectIds?: string[];
+  survivingAttackerObjectIds?: string[];
+  survivingDefenderObjectIds?: string[];
+  destroyedObjectIds?: string[];
+  relatedEventKinds?: string[];
+};
+
+export type StackItemView = {
+  stackItemId?: string;
+  controllerId?: string;
+  sourceObjectId?: string;
+  effectKind?: string;
+  cardNo?: string | null;
+  targetObjectIds?: string[];
+  damageAmount?: number;
+  destination?: string;
+};
+
+export type PendingTaskView = {
+  taskId?: string;
+  kind?: string;
+  status?: string;
+  reason?: string;
+  battlefieldObjectId?: string;
+  participantControllerIds?: string[];
+  participantObjectIds?: string[];
+  actingPlayerId?: string | null;
+  stackItemIds?: string[];
+  spellDuelId?: string;
+  battleId?: string;
+};
+
+export type PendingTaskQueueView = {
+  activeTaskId?: string | null;
+  hasTasks?: boolean;
+  isBlocking?: boolean;
+  phase?: string;
+  tasks?: PendingTaskView[];
+};
+
+export type TriggerQueueItemView = {
+  triggerId?: string;
+  controllerId?: string;
+  sourceObjectId?: string;
+  sourceVisibility?: string;
+  effectKind?: string;
+  triggeredByEventKind?: string;
+};
+
+export type TurnWindowView = {
+  state?: string;
+  isSpellDuel?: boolean;
+  isClosed?: boolean;
+  hasStack?: boolean;
+  actingPlayerId?: string | null;
+};
+
+export type MatchTimingView = Record<string, unknown> & {
+  battleResolutions?: BattleResolutionView[];
+  battlefieldResolutions?: BattlefieldResolutionView[];
+  battlefieldTasks?: PendingTaskView[];
+  pendingTaskQueue?: PendingTaskQueueView | null;
+  phase?: string;
+  roomStatus?: string;
+  timingState?: string;
+  triggerQueue?: TriggerQueueItemView[];
+  turnWindow?: TurnWindowView | null;
+};
+
 export type ActionPromptChoiceDto = {
   id: string;
   label: string;
@@ -195,8 +274,8 @@ export type SnapshotDto = {
   activePlayerId: string;
   players: Record<string, PlayerSnapshotView>;
   lanes: Record<string, unknown>;
-  stack: unknown[];
-  timing: Record<string, unknown>;
+  stack: StackItemView[];
+  timing: MatchTimingView;
   turnState: string;
 };
 

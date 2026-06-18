@@ -11535,7 +11535,7 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: minmax(150px, auto) minmax(260px, 1fr) minmax(180px, 0.75fr);
+  grid-template-rows: minmax(270px, 1.1fr) minmax(260px, 1fr) minmax(170px, 0.65fr);
   gap: 4px;
   overflow: auto;
   padding: 4px;
@@ -11562,9 +11562,85 @@ button.card-face:hover {
 
 .wire-focus-card {
   display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 8px;
+  grid-template-columns: minmax(72px, 92px) minmax(0, 1fr);
+  gap: 6px;
   align-items: start;
+}
+
+.wire-focus-card > .card-face,
+.wire-focus-card > .card-image-only,
+.wire-focus-card > .card-back {
+  width: 92px !important;
+  height: 128px !important;
+  border: 1px solid #000 !important;
+  border-radius: 0 !important;
+}
+
+.wire-focus-copy,
+.wire-interaction-panel,
+.wire-selected-candidates,
+.wire-prompt-candidates,
+.wire-prompt-contract,
+.wire-candidate-row,
+.wire-rule-queue {
+  min-width: 0;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+.wire-interaction-panel {
+  display: grid;
+  gap: 5px;
+}
+
+.wire-interaction-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+.wire-focus-copy,
+.wire-selected-candidates,
+.wire-prompt-candidates,
+.wire-prompt-contract,
+.wire-rule-queue {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.wire-focus-copy button {
+  justify-self: start;
+}
+
+.wire-candidate-row {
+  display: grid;
+  gap: 3px;
+  padding: 5px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.wire-candidate-row > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-candidate-row.is-disabled {
+  border-style: dashed;
+}
+
+.wire-candidate-row small,
+.wire-rule-queue small {
+  color: #000;
 }
 
 .wire-action-panel {
@@ -11584,6 +11660,12 @@ button.card-face:hover {
 .wire-match-page .damage-assignment-panel,
 .wire-match-page .trigger-order-panel,
 .wire-match-page .generic-prompt-details,
+.wire-match-page .wire-interaction-panel,
+.wire-match-page .wire-selected-candidates,
+.wire-match-page .wire-prompt-candidates,
+.wire-match-page .wire-prompt-contract,
+.wire-match-page .wire-candidate-row,
+.wire-match-page .wire-rule-queue,
 .wire-match-page .log-row,
 .wire-match-page .event-log {
   border-color: #000 !important;
@@ -11655,6 +11737,27 @@ button.card-face:hover {
 .wire-table .card-image-only {
   display: block !important;
   position: relative !important;
+}
+
+.wire-table .card-face.is-selected,
+.wire-table .card-image-only.is-selected,
+.wire-table .card-back.is-selected {
+  outline: 3px double #000 !important;
+  outline-offset: -3px !important;
+}
+
+.wire-table .card-face.is-prompt-enabled,
+.wire-table .card-image-only.is-prompt-enabled,
+.wire-table .card-back.is-prompt-enabled {
+  outline: 2px solid #000 !important;
+  outline-offset: -5px !important;
+}
+
+.wire-table .card-face.is-prompt-disabled,
+.wire-table .card-image-only.is-prompt-disabled,
+.wire-table .card-back.is-prompt-disabled {
+  outline: 2px dashed #000 !important;
+  outline-offset: -5px !important;
 }
 
 .wire-table .card-full-image {
