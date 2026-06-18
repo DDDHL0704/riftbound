@@ -29027,9 +29027,7 @@ public static class MatchRecoveryValidator
                 AddSpectatorBattleDamageAssignmentValueMismatch("required assignments", errors);
             }
         }
-        else if (TryReadObjectList(damageAssignmentPayload, "requiredAssignments", out var requiredAssignmentItems)
-            && requiredAssignmentItems.Count == authoritativeRequiredAssignments.Count
-            && authoritativeRequiredAssignments.Count > 0)
+        else if (authoritativeRequiredAssignments.Count > 0)
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("required assignments", errors);
         }

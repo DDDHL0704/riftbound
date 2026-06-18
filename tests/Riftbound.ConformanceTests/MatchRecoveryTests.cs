@@ -187258,6 +187258,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            requiredAssignmentErrors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignments does not match authoritative state battle damage assignment required assignments",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -187318,6 +187323,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignments does not match authoritative state battle damage assignment required assignments",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -187377,6 +187387,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignments does not match authoritative state battle damage assignment required assignments",
                 StringComparison.Ordinal));
     }
 
