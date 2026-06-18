@@ -1,6 +1,7 @@
 import type { InspectedCard } from "../cards/CardFace";
 import { Play } from "lucide-react";
-import type { ActionPromptCandidateDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
 import {
   buildPromptInteractionModel,
   promptChoiceRoleLabel,
@@ -101,7 +102,7 @@ function FocusedActionList({
   snapshot?: SnapshotDto;
 }) {
   const sourceObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
-  const candidates = sourceCandidatesFor(prompt, sourceObjectId);
+  const candidates = sourceCandidatesForPrompt(prompt, sourceObjectId);
 
   if (!inspectedCard) {
     return null;
@@ -139,7 +140,7 @@ function FocusedActionList({
             key={`${candidate.action}-${candidate.label}`}
             onClick={() => {
               if (command && onCommand) {
-                onCommand(withPromptStamp(command, prompt));
+                onCommand(promptStampedCommand(command, prompt));
               }
             }}
             title={command ? promptReasonTitle(candidate.reason) : "该候选还需要服务端提供完整选择后才能提交"}
@@ -196,60 +197,4 @@ function CandidateSummaryRow({ candidate }: { candidate: PromptCandidateSummary 
       ))}
     </article>
   );
-}
-
-function sourceCandidatesFor(prompt: ActionPromptDto | undefined, sourceObjectId: string | undefined): ActionPromptCandidateDto[] {
-  if (!prompt || !sourceObjectId) {
-    return [];
-  }
-
-  return (prompt.candidates ?? []).filter((candidate) =>
-    candidate.enabled && (
-      (candidate.sources ?? []).some((source) => source.id === sourceObjectId)
-      || sourceRequirementIds(candidate).includes(sourceObjectId)
-    ));
-}
-
-function sourceRequirementIds(candidate: ActionPromptCandidateDto): string[] {
-  const requirements = candidate.metadata?.sourceRequirements;
-  const records = Array.isArray(requirements)
-    ? requirements
-    : requirements && typeof requirements === "object"
-      ? Object.values(requirements)
-      : [];
-  return records
-    .filter((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value))
-    .map((record) => record.sourceObjectId)
-    .filter((value): value is string => typeof value === "string" && value.trim().length > 0);
-}
-
-function commandForSourceCandidate(
-  candidate: ActionPromptCandidateDto,
-  sourceObjectId: string | undefined
-): GameCommand | undefined {
-  if (!sourceObjectId || !candidate.enabled) {
-    return undefined;
-  }
-
-  if (candidate.action === "TAP_RUNE") {
-    return { cmdType: "TAP_RUNE", sourceObjectId };
-  }
-
-  if (candidate.action === "RECYCLE_RUNE") {
-    return { cmdType: "RECYCLE_RUNE", sourceObjectId };
-  }
-
-  return undefined;
-}
-
-function withPromptStamp(command: GameCommand, prompt: ActionPromptDto | undefined): GameCommand {
-  if (!prompt || (command.promptId != null && command.snapshotTick != null)) {
-    return command;
-  }
-
-  return {
-    ...command,
-    promptId: command.promptId ?? prompt.promptId ?? null,
-    snapshotTick: command.snapshotTick ?? prompt.snapshotTick ?? null
-  };
 }

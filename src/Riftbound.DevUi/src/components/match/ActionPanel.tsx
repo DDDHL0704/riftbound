@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
+import { promptStampedCommand as withPromptStamp } from "../../utils/actionPromptCandidates";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
@@ -1188,18 +1189,6 @@ function safePromptValue(key: string, value: unknown): string {
   }
 
   return "无";
-}
-
-function withPromptStamp(command: GameCommand, prompt: ActionPromptDto | undefined): GameCommand {
-  if (!prompt || (command.promptId != null && command.snapshotTick != null)) {
-    return command;
-  }
-
-  return {
-    ...command,
-    promptId: command.promptId ?? prompt.promptId ?? null,
-    snapshotTick: command.snapshotTick ?? prompt.snapshotTick ?? null
-  };
 }
 
 const knownPromptTypes = new Set<string>([

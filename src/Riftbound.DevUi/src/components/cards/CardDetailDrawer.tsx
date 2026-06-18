@@ -1,5 +1,6 @@
 import { Play, X } from "lucide-react";
-import { ActionPromptCandidateDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
 import {
   conformanceLabel,
   conformanceTone,
@@ -34,9 +35,9 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt, snapshot }:
   const title = hidden ? "未公开卡牌" : card.spec?.cardName ?? card.object?.cardNo ?? "未知卡牌";
   const states = objectStateLabels(card.object);
   const sourceObjectId = card.objectId ?? card.object?.objectId;
-  const sourceActions = hidden ? [] : sourceCandidatesFor(prompt, sourceObjectId);
+  const sourceActions = hidden ? [] : sourceCandidatesForPrompt(prompt, sourceObjectId);
   const stampedOnCommand = onCommand
-    ? (command: GameCommand) => onCommand(withPromptStamp(command, prompt))
+    ? (command: GameCommand) => onCommand(promptStampedCommand(command, prompt))
     : undefined;
 
   return (
@@ -151,62 +152,6 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt, snapshot }:
       </aside>
     </div>
   );
-}
-
-function sourceCandidatesFor(prompt: ActionPromptDto | undefined, sourceObjectId: string | undefined): ActionPromptCandidateDto[] {
-  if (!prompt || !sourceObjectId) {
-    return [];
-  }
-
-  return (prompt.candidates ?? []).filter((candidate) =>
-    candidate.enabled && (
-      (candidate.sources ?? []).some((source) => source.id === sourceObjectId)
-      || sourceRequirementIds(candidate).includes(sourceObjectId)
-    ));
-}
-
-function sourceRequirementIds(candidate: ActionPromptCandidateDto): string[] {
-  const requirements = candidate.metadata?.sourceRequirements;
-  const records = Array.isArray(requirements)
-    ? requirements
-    : requirements && typeof requirements === "object"
-      ? Object.values(requirements)
-      : [];
-  return records
-    .filter((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value))
-    .map((record) => record.sourceObjectId)
-    .filter((value): value is string => typeof value === "string" && value.trim().length > 0);
-}
-
-function commandForSourceCandidate(
-  candidate: ActionPromptCandidateDto,
-  sourceObjectId: string | undefined
-): GameCommand | undefined {
-  if (!sourceObjectId || !candidate.enabled) {
-    return undefined;
-  }
-
-  if (candidate.action === "TAP_RUNE") {
-    return { cmdType: "TAP_RUNE", sourceObjectId };
-  }
-
-  if (candidate.action === "RECYCLE_RUNE") {
-    return { cmdType: "RECYCLE_RUNE", sourceObjectId };
-  }
-
-  return undefined;
-}
-
-function withPromptStamp(command: GameCommand, prompt: ActionPromptDto | undefined): GameCommand {
-  if (!prompt || (command.promptId != null && command.snapshotTick != null)) {
-    return command;
-  }
-
-  return {
-    ...command,
-    promptId: command.promptId ?? prompt.promptId ?? null,
-    snapshotTick: command.snapshotTick ?? prompt.snapshotTick ?? null
-  };
 }
 
 function formatLocation(location?: Record<string, unknown> | null): string {
