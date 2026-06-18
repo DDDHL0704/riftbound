@@ -187203,6 +187203,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment required assignment list payload is required",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            requiredAssignmentErrors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -187575,6 +187580,26 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment lethal damage threshold map payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool count 0 does not match authoritative state battle damage assignment damage pool count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal target count 0 does not match authoritative state battle damage assignment legal target count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment existing damage count 0 does not match authoritative state battle damage assignment existing damage count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment lethal damage threshold count 0 does not match authoritative state battle damage assignment lethal damage threshold count 2",
                 StringComparison.Ordinal));
     }
 

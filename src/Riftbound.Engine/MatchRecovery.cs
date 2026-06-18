@@ -28795,30 +28795,35 @@ public static class MatchRecoveryValidator
             damageAssignmentPayload,
             "damagePool",
             "damage pool",
+            IsSnapshotIntMapPayloadObject,
             ResolutionResult.BattleDamagePoolFor(authoritativeState, authoritativeBattle).Count,
             errors);
         AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
             damageAssignmentPayload,
             "legalTargets",
             "legal target",
+            IsSnapshotStringListMapPayloadObject,
             ResolutionResult.BattleDamageLegalTargetsFor(authoritativeState, authoritativeBattle).Count,
             errors);
         AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
             damageAssignmentPayload,
             "existingDamage",
             "existing damage",
+            IsSnapshotIntMapPayloadObject,
             ResolutionResult.BattleExistingDamageFor(authoritativeState, authoritativeBattle).Count,
             errors);
         AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
             damageAssignmentPayload,
             "lethalDamageThreshold",
             "lethal damage threshold",
+            IsSnapshotIntMapPayloadObject,
             ResolutionResult.BattleLethalDamageThresholdFor(authoritativeState, authoritativeBattle).Count,
             errors);
         AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
             damageAssignmentPayload,
             "requiredAssignments",
             "required assignment",
+            payload => TryReadObjectListValue(payload, out _),
             ResolutionResult.BattleRequiredAssignmentsFor(authoritativeState, authoritativeBattle).Count,
             errors);
     }
@@ -28827,11 +28832,13 @@ public static class MatchRecoveryValidator
         object? damageAssignmentPayload,
         string payloadKey,
         string countLabel,
+        Func<object?, bool> isReadablePayload,
         int authoritativeCount,
         List<string> errors)
     {
         if (TryReadObjectValue(damageAssignmentPayload, payloadKey, out var fieldPayload)
-            && !IsNullSnapshotPayloadValue(fieldPayload))
+            && !IsNullSnapshotPayloadValue(fieldPayload)
+            && isReadablePayload(fieldPayload))
         {
             return;
         }
