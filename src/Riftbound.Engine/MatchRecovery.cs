@@ -28712,6 +28712,10 @@ public static class MatchRecoveryValidator
             damageAssignmentPayload,
             authoritativeState,
             errors);
+        ValidateSpectatorBattleDamageAssignmentAuthoritativeValues(
+            damageAssignmentPayload,
+            authoritativeState,
+            errors);
         ValidateBattleDamageAssignmentIdentityConsistency(
             battlePayload,
             damageAssignmentPayload,
@@ -28929,6 +28933,66 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"spectator replay frame timing battle damage assignment {countLabel} count {spectatorCount} does not match authoritative state battle damage assignment {countLabel} count {authoritativeCount}");
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentAuthoritativeValues(
+        object? damageAssignmentPayload,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState))
+        {
+            return;
+        }
+
+        var authoritativeBattle = authoritativeState.BattleState;
+        if (TryReadObjectIntDictionary(damageAssignmentPayload, "damagePool", out var damagePool)
+            && !IntDictionariesEqual(
+                damagePool,
+                ResolutionResult.BattleDamagePoolFor(authoritativeState, authoritativeBattle)))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("damage pool", errors);
+        }
+
+        if (TryReadObjectStringListDictionary(damageAssignmentPayload, "legalTargets", out var legalTargets)
+            && !StringListDictionariesEqual(
+                legalTargets,
+                ResolutionResult.BattleDamageLegalTargetsFor(authoritativeState, authoritativeBattle)))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("legal targets", errors);
+        }
+
+        if (TryReadObjectIntDictionary(damageAssignmentPayload, "existingDamage", out var existingDamage)
+            && !IntDictionariesEqual(
+                existingDamage,
+                ResolutionResult.BattleExistingDamageFor(authoritativeState, authoritativeBattle)))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("existing damage", errors);
+        }
+
+        if (TryReadObjectIntDictionary(damageAssignmentPayload, "lethalDamageThreshold", out var lethalDamageThreshold)
+            && !IntDictionariesEqual(
+                lethalDamageThreshold,
+                ResolutionResult.BattleLethalDamageThresholdFor(authoritativeState, authoritativeBattle)))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("lethal damage threshold", errors);
+        }
+
+        if (TryReadObjectRequiredAssignments(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments)
+            && !RequiredAssignmentsEqual(
+                requiredAssignments,
+                ResolutionResult.BattleRequiredAssignmentsFor(authoritativeState, authoritativeBattle)))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("required assignments", errors);
+        }
+    }
+
+    private static void AddSpectatorBattleDamageAssignmentValueMismatch(
+        string fieldLabel,
+        List<string> errors)
+    {
+        errors.Add(
+            $"spectator replay frame timing battle damage assignment {fieldLabel} does not match authoritative state battle damage assignment {fieldLabel}");
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentMapPayloadShapes(
