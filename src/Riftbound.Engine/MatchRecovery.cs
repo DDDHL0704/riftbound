@@ -30001,7 +30001,7 @@ public static class MatchRecoveryValidator
         if (!string.Equals(normalizedDamageAssignmentValue, normalizedBattleValue, StringComparison.Ordinal))
         {
             errors.Add(
-                $"{payloadLabel} {damageAssignmentLabel} {normalizedDamageAssignmentValue} does not match enclosing battle {battleLabel} {normalizedBattleValue}");
+                $"{payloadLabel} {damageAssignmentLabel} {normalizedDamageAssignmentValue} does not match enclosing battle {battleLabel} {normalizedBattleValue}; {FormatExpectedActualForRecovery(normalizedBattleValue, normalizedDamageAssignmentValue)}");
         }
     }
 

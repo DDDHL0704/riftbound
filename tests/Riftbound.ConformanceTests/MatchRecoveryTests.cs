@@ -21946,12 +21946,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment battle id battle-b does not match enclosing battle battle id battle-a",
+                "snapshot for alice timing battle damage assignment battle id battle-b does not match enclosing battle battle id battle-a; expected battle-a but got battle-b",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment battlefield object id battlefield-b does not match enclosing battle battlefield object id battlefield-a",
+                "snapshot for alice timing battle damage assignment battlefield object id battlefield-b does not match enclosing battle battlefield object id battlefield-a; expected battlefield-a but got battlefield-b",
                 StringComparison.Ordinal));
     }
 
@@ -188381,12 +188381,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment battle id battle-b does not match enclosing battle battle id battle:battlefield-a",
+                "spectator replay frame timing battle damage assignment battle id battle-b does not match enclosing battle battle id battle:battlefield-a; expected battle:battlefield-a but got battle-b",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment battlefield object id attacker-a does not match enclosing battle battlefield object id battlefield-a",
+                "spectator replay frame timing battle damage assignment battlefield object id attacker-a does not match enclosing battle battlefield object id battlefield-a; expected battlefield-a but got attacker-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
