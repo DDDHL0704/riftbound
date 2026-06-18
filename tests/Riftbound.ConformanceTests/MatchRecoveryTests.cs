@@ -20804,27 +20804,27 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle battlefield object id missing-battlefield is missing from objects",
+                "snapshot for alice timing battle battlefield object id missing-battlefield is missing from objects; expected [] but got missing-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle attacker object id missing-attacker is missing from objects",
+                "snapshot for alice timing battle attacker object id missing-attacker is missing from objects; expected [] but got missing-attacker",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle defender object id missing-defender is missing from objects",
+                "snapshot for alice timing battle defender object id missing-defender is missing from objects; expected [] but got missing-defender",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle participant object id missing-attacker is missing from objects",
+                "snapshot for alice timing battle participant object id missing-attacker is missing from objects; expected [] but got missing-attacker",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle participant object id missing-defender is missing from objects",
+                "snapshot for alice timing battle participant object id missing-defender is missing from objects; expected [] but got missing-defender",
                 StringComparison.Ordinal));
     }
 
@@ -186163,27 +186163,27 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle battlefield object id missing-battlefield is missing from object registry",
+                "spectator replay frame timing battle battlefield object id missing-battlefield is missing from object registry; expected [] but got missing-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle attacker object id missing-attacker is missing from object registry",
+                "spectator replay frame timing battle attacker object id missing-attacker is missing from object registry; expected [] but got missing-attacker",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle defender object id missing-defender is missing from object registry",
+                "spectator replay frame timing battle defender object id missing-defender is missing from object registry; expected [] but got missing-defender",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle participant object id missing-attacker is missing from object registry",
+                "spectator replay frame timing battle participant object id missing-attacker is missing from object registry; expected [] but got missing-attacker",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle participant object id missing-defender is missing from object registry",
+                "spectator replay frame timing battle participant object id missing-defender is missing from object registry; expected [] but got missing-defender",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

@@ -29146,31 +29146,32 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidateTimingOptionalObjectReference(
+        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
             battlePayload,
             "battlefieldObjectId",
             $"{payloadLabel} battlefield object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             battlePayload,
             "attackerObjectIds",
             $"{payloadLabel} attacker object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             battlePayload,
             "defenderObjectIds",
             $"{payloadLabel} defender object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceDictionaryKeys(
+        ValidateTimingObjectReferenceMapKeysWithExpectedDetails(
             battlePayload,
             "participantControllerIds",
             $"{payloadLabel} participant object id",
+            IsSnapshotStringMapPayloadObject,
             knownObjectIds,
             knownObjectLabel,
             errors);
@@ -30264,14 +30265,14 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidateBattleDamageAssignmentOptionalObjectReference(
+        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
             damageAssignmentPayload,
             "battlefieldId",
             $"{payloadLabel} battlefield object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateBattleDamageAssignmentObjectReferenceMapKeys(
+        ValidateTimingObjectReferenceMapKeysWithExpectedDetails(
             damageAssignmentPayload,
             "damagePool",
             $"{payloadLabel} damage pool source object id",
@@ -30279,7 +30280,7 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateBattleDamageAssignmentObjectReferenceStringListDictionary(
+        ValidateTimingObjectReferenceStringListDictionaryWithExpectedDetails(
             damageAssignmentPayload,
             "legalTargets",
             $"{payloadLabel} legal targets source object id",
@@ -30287,7 +30288,7 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateBattleDamageAssignmentObjectReferenceMapKeys(
+        ValidateTimingObjectReferenceMapKeysWithExpectedDetails(
             damageAssignmentPayload,
             "existingDamage",
             $"{payloadLabel} existing damage object id",
@@ -30295,7 +30296,7 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateBattleDamageAssignmentObjectReferenceMapKeys(
+        ValidateTimingObjectReferenceMapKeysWithExpectedDetails(
             damageAssignmentPayload,
             "lethalDamageThreshold",
             $"{payloadLabel} lethal damage threshold object id",
@@ -30330,14 +30331,14 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateBattleDamageAssignmentOptionalObjectReference(
+            ValidateTimingOptionalObjectReferenceWithExpectedDetails(
                 requiredAssignment,
                 "sourceObjectId",
                 $"{payloadLabel} required assignment item source object id",
                 knownObjectIds,
                 knownObjectLabel,
                 errors);
-            ValidateBattleDamageAssignmentObjectReferenceList(
+            ValidateTimingObjectReferenceListWithExpectedDetails(
                 requiredAssignment,
                 "legalTargetObjectIds",
                 $"{payloadLabel} required assignment item legal target object id",
@@ -30347,15 +30348,15 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateBattleDamageAssignmentOptionalObjectReference(
-        object? damageAssignmentPayload,
+    private static void ValidateTimingOptionalObjectReferenceWithExpectedDetails(
+        object? payload,
         string payloadKey,
         string objectLabel,
         IReadOnlySet<string> knownObjectIds,
         string knownObjectLabel,
         List<string> errors)
     {
-        if (!TryReadObjectValue(damageAssignmentPayload, payloadKey, out var objectIdPayload)
+        if (!TryReadObjectValue(payload, payloadKey, out var objectIdPayload)
             || IsNullSnapshotPayloadValue(objectIdPayload)
             || !TryReadOptionalStringValue(objectIdPayload, out var objectId)
             || string.IsNullOrWhiteSpace(objectId))
@@ -30363,7 +30364,7 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidateBattleDamageAssignmentObjectReference(
+        ValidateTimingObjectReferenceWithExpectedDetails(
             objectLabel,
             objectId,
             knownObjectIds,
@@ -30371,8 +30372,8 @@ public static class MatchRecoveryValidator
             errors);
     }
 
-    private static void ValidateBattleDamageAssignmentObjectReferenceMapKeys(
-        object? damageAssignmentPayload,
+    private static void ValidateTimingObjectReferenceMapKeysWithExpectedDetails(
+        object? payload,
         string payloadKey,
         string objectLabel,
         Func<object?, bool> isValidMapPayload,
@@ -30380,7 +30381,7 @@ public static class MatchRecoveryValidator
         string knownObjectLabel,
         List<string> errors)
     {
-        if (!TryReadObjectValue(damageAssignmentPayload, payloadKey, out var mapPayload)
+        if (!TryReadObjectValue(payload, payloadKey, out var mapPayload)
             || IsNullSnapshotPayloadValue(mapPayload)
             || !isValidMapPayload(mapPayload))
         {
@@ -30389,7 +30390,7 @@ public static class MatchRecoveryValidator
 
         foreach (var (objectId, _) in EnumerateSnapshotPayloadObjectValues(mapPayload))
         {
-            ValidateBattleDamageAssignmentObjectReference(
+            ValidateTimingObjectReferenceWithExpectedDetails(
                 objectLabel,
                 objectId,
                 knownObjectIds,
@@ -30398,8 +30399,8 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateBattleDamageAssignmentObjectReferenceStringListDictionary(
-        object? damageAssignmentPayload,
+    private static void ValidateTimingObjectReferenceStringListDictionaryWithExpectedDetails(
+        object? payload,
         string payloadKey,
         string sourceObjectLabel,
         string targetObjectLabel,
@@ -30407,7 +30408,7 @@ public static class MatchRecoveryValidator
         string knownObjectLabel,
         List<string> errors)
     {
-        if (!TryReadObjectValue(damageAssignmentPayload, payloadKey, out var mapPayload)
+        if (!TryReadObjectValue(payload, payloadKey, out var mapPayload)
             || IsNullSnapshotPayloadValue(mapPayload)
             || !IsSnapshotStringListMapPayloadObject(mapPayload))
         {
@@ -30416,7 +30417,7 @@ public static class MatchRecoveryValidator
 
         foreach (var (sourceObjectId, targetObjectIdsPayload) in EnumerateSnapshotPayloadObjectValues(mapPayload))
         {
-            ValidateBattleDamageAssignmentObjectReference(
+            ValidateTimingObjectReferenceWithExpectedDetails(
                 sourceObjectLabel,
                 sourceObjectId,
                 knownObjectIds,
@@ -30430,7 +30431,7 @@ public static class MatchRecoveryValidator
 
             foreach (var targetObjectId in targetObjectIds)
             {
-                ValidateBattleDamageAssignmentObjectReference(
+                ValidateTimingObjectReferenceWithExpectedDetails(
                     targetObjectLabel,
                     targetObjectId,
                     knownObjectIds,
@@ -30440,22 +30441,22 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateBattleDamageAssignmentObjectReferenceList(
-        object? damageAssignmentPayload,
+    private static void ValidateTimingObjectReferenceListWithExpectedDetails(
+        object? payload,
         string payloadKey,
         string objectLabel,
         IReadOnlySet<string> knownObjectIds,
         string knownObjectLabel,
         List<string> errors)
     {
-        if (!TryReadObjectStringList(damageAssignmentPayload, payloadKey, out var objectIds))
+        if (!TryReadObjectStringList(payload, payloadKey, out var objectIds))
         {
             return;
         }
 
         foreach (var objectId in objectIds)
         {
-            ValidateBattleDamageAssignmentObjectReference(
+            ValidateTimingObjectReferenceWithExpectedDetails(
                 objectLabel,
                 objectId,
                 knownObjectIds,
@@ -30464,7 +30465,7 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateBattleDamageAssignmentObjectReference(
+    private static void ValidateTimingObjectReferenceWithExpectedDetails(
         string objectLabel,
         string objectId,
         IReadOnlySet<string> knownObjectIds,
