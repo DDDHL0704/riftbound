@@ -30264,14 +30264,14 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidateTimingOptionalObjectReference(
+        ValidateBattleDamageAssignmentOptionalObjectReference(
             damageAssignmentPayload,
             "battlefieldId",
             $"{payloadLabel} battlefield object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceMapKeys(
+        ValidateBattleDamageAssignmentObjectReferenceMapKeys(
             damageAssignmentPayload,
             "damagePool",
             $"{payloadLabel} damage pool source object id",
@@ -30279,7 +30279,7 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceStringListDictionary(
+        ValidateBattleDamageAssignmentObjectReferenceStringListDictionary(
             damageAssignmentPayload,
             "legalTargets",
             $"{payloadLabel} legal targets source object id",
@@ -30287,7 +30287,7 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceMapKeys(
+        ValidateBattleDamageAssignmentObjectReferenceMapKeys(
             damageAssignmentPayload,
             "existingDamage",
             $"{payloadLabel} existing damage object id",
@@ -30295,7 +30295,7 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceMapKeys(
+        ValidateBattleDamageAssignmentObjectReferenceMapKeys(
             damageAssignmentPayload,
             "lethalDamageThreshold",
             $"{payloadLabel} lethal damage threshold object id",
@@ -30330,20 +30330,160 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateTimingOptionalObjectReference(
+            ValidateBattleDamageAssignmentOptionalObjectReference(
                 requiredAssignment,
                 "sourceObjectId",
                 $"{payloadLabel} required assignment item source object id",
                 knownObjectIds,
                 knownObjectLabel,
                 errors);
-            ValidateTimingObjectReferenceList(
+            ValidateBattleDamageAssignmentObjectReferenceList(
                 requiredAssignment,
                 "legalTargetObjectIds",
                 $"{payloadLabel} required assignment item legal target object id",
                 knownObjectIds,
                 knownObjectLabel,
                 errors);
+        }
+    }
+
+    private static void ValidateBattleDamageAssignmentOptionalObjectReference(
+        object? damageAssignmentPayload,
+        string payloadKey,
+        string objectLabel,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(damageAssignmentPayload, payloadKey, out var objectIdPayload)
+            || IsNullSnapshotPayloadValue(objectIdPayload)
+            || !TryReadOptionalStringValue(objectIdPayload, out var objectId)
+            || string.IsNullOrWhiteSpace(objectId))
+        {
+            return;
+        }
+
+        ValidateBattleDamageAssignmentObjectReference(
+            objectLabel,
+            objectId,
+            knownObjectIds,
+            knownObjectLabel,
+            errors);
+    }
+
+    private static void ValidateBattleDamageAssignmentObjectReferenceMapKeys(
+        object? damageAssignmentPayload,
+        string payloadKey,
+        string objectLabel,
+        Func<object?, bool> isValidMapPayload,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(damageAssignmentPayload, payloadKey, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload)
+            || !isValidMapPayload(mapPayload))
+        {
+            return;
+        }
+
+        foreach (var (objectId, _) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            ValidateBattleDamageAssignmentObjectReference(
+                objectLabel,
+                objectId,
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
+        }
+    }
+
+    private static void ValidateBattleDamageAssignmentObjectReferenceStringListDictionary(
+        object? damageAssignmentPayload,
+        string payloadKey,
+        string sourceObjectLabel,
+        string targetObjectLabel,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(damageAssignmentPayload, payloadKey, out var mapPayload)
+            || IsNullSnapshotPayloadValue(mapPayload)
+            || !IsSnapshotStringListMapPayloadObject(mapPayload))
+        {
+            return;
+        }
+
+        foreach (var (sourceObjectId, targetObjectIdsPayload) in EnumerateSnapshotPayloadObjectValues(mapPayload))
+        {
+            ValidateBattleDamageAssignmentObjectReference(
+                sourceObjectLabel,
+                sourceObjectId,
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
+
+            if (!TryReadStringListValue(targetObjectIdsPayload, out var targetObjectIds))
+            {
+                continue;
+            }
+
+            foreach (var targetObjectId in targetObjectIds)
+            {
+                ValidateBattleDamageAssignmentObjectReference(
+                    targetObjectLabel,
+                    targetObjectId,
+                    knownObjectIds,
+                    knownObjectLabel,
+                    errors);
+            }
+        }
+    }
+
+    private static void ValidateBattleDamageAssignmentObjectReferenceList(
+        object? damageAssignmentPayload,
+        string payloadKey,
+        string objectLabel,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (!TryReadObjectStringList(damageAssignmentPayload, payloadKey, out var objectIds))
+        {
+            return;
+        }
+
+        foreach (var objectId in objectIds)
+        {
+            ValidateBattleDamageAssignmentObjectReference(
+                objectLabel,
+                objectId,
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
+        }
+    }
+
+    private static void ValidateBattleDamageAssignmentObjectReference(
+        string objectLabel,
+        string objectId,
+        IReadOnlySet<string> knownObjectIds,
+        string knownObjectLabel,
+        List<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return;
+        }
+
+        var normalizedObjectId = objectId.Trim();
+        if (!knownObjectIds.Contains(normalizedObjectId))
+        {
+            var expectedObjectIds = knownObjectIds
+                .OrderBy(knownObjectId => knownObjectId, StringComparer.Ordinal)
+                .ToArray();
+            errors.Add(
+                $"{objectLabel} {normalizedObjectId} is missing from {knownObjectLabel}; {FormatExpectedActualForRecovery(expectedObjectIds, normalizedObjectId)}");
         }
     }
 

@@ -21845,42 +21845,42 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment battlefield object id missing-battlefield is missing from objects",
+                "snapshot for alice timing battle damage assignment battlefield object id missing-battlefield is missing from objects; expected [attacker-a, battlefield-a, defender-a] but got missing-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment damage pool source object id missing-pool-source is missing from objects",
+                "snapshot for alice timing battle damage assignment damage pool source object id missing-pool-source is missing from objects; expected [attacker-a, battlefield-a, defender-a] but got missing-pool-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment legal targets source object id missing-legal-source is missing from objects",
+                "snapshot for alice timing battle damage assignment legal targets source object id missing-legal-source is missing from objects; expected [attacker-a, battlefield-a, defender-a] but got missing-legal-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment legal targets legal target object id missing-legal-target is missing from objects",
+                "snapshot for alice timing battle damage assignment legal targets legal target object id missing-legal-target is missing from objects; expected [attacker-a, battlefield-a, defender-a] but got missing-legal-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment existing damage object id missing-existing is missing from objects",
+                "snapshot for alice timing battle damage assignment existing damage object id missing-existing is missing from objects; expected [attacker-a, battlefield-a, defender-a] but got missing-existing",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment lethal damage threshold object id missing-lethal is missing from objects",
+                "snapshot for alice timing battle damage assignment lethal damage threshold object id missing-lethal is missing from objects; expected [attacker-a, battlefield-a, defender-a] but got missing-lethal",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment required assignment item source object id missing-required-source is missing from objects",
+                "snapshot for alice timing battle damage assignment required assignment item source object id missing-required-source is missing from objects; expected [attacker-a, battlefield-a, defender-a] but got missing-required-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle damage assignment required assignment item legal target object id missing-required-target is missing from objects",
+                "snapshot for alice timing battle damage assignment required assignment item legal target object id missing-required-target is missing from objects; expected [attacker-a, battlefield-a, defender-a] but got missing-required-target",
                 StringComparison.Ordinal));
     }
 
@@ -188289,42 +188289,42 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment battlefield object id missing-battlefield is missing from object registry",
+                "spectator replay frame timing battle damage assignment battlefield object id missing-battlefield is missing from object registry; expected [attacker-a, battlefield-a, defender-a] but got missing-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment damage pool source object id missing-pool-source is missing from object registry",
+                "spectator replay frame timing battle damage assignment damage pool source object id missing-pool-source is missing from object registry; expected [attacker-a, battlefield-a, defender-a] but got missing-pool-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment legal targets source object id missing-legal-source is missing from object registry",
+                "spectator replay frame timing battle damage assignment legal targets source object id missing-legal-source is missing from object registry; expected [attacker-a, battlefield-a, defender-a] but got missing-legal-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment legal targets legal target object id missing-legal-target is missing from object registry",
+                "spectator replay frame timing battle damage assignment legal targets legal target object id missing-legal-target is missing from object registry; expected [attacker-a, battlefield-a, defender-a] but got missing-legal-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment existing damage object id missing-existing is missing from object registry",
+                "spectator replay frame timing battle damage assignment existing damage object id missing-existing is missing from object registry; expected [attacker-a, battlefield-a, defender-a] but got missing-existing",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment lethal damage threshold object id missing-lethal is missing from object registry",
+                "spectator replay frame timing battle damage assignment lethal damage threshold object id missing-lethal is missing from object registry; expected [attacker-a, battlefield-a, defender-a] but got missing-lethal",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment required assignment item source object id missing-required-source is missing from object registry",
+                "spectator replay frame timing battle damage assignment required assignment item source object id missing-required-source is missing from object registry; expected [attacker-a, battlefield-a, defender-a] but got missing-required-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment required assignment item legal target object id missing-required-target is missing from object registry",
+                "spectator replay frame timing battle damage assignment required assignment item legal target object id missing-required-target is missing from object registry; expected [attacker-a, battlefield-a, defender-a] but got missing-required-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
