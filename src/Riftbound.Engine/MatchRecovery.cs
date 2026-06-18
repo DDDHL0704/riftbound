@@ -13836,10 +13836,23 @@ public static class MatchRecoveryValidator
         string effectId,
         List<string> errors)
     {
-        if (!TryReadObjectString(effectPayload, key, out var actual)
-            || !string.Equals(actual, expected, StringComparison.Ordinal))
+        if (!TryReadObjectString(effectPayload, key, out var actual))
         {
-            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(expected, FormatUnreadableObjectValue(effectPayload, key)),
+                errors);
+            return;
+        }
+
+        if (!string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(expected, actual),
+                errors);
         }
     }
 
@@ -13851,9 +13864,32 @@ public static class MatchRecoveryValidator
         string effectId,
         List<string> errors)
     {
-        if (!OptionalStringSnapshotValueMatches(effectPayload, key, expected))
+        var expectedText = expected ?? string.Empty;
+        if (!TryReadObjectValue(effectPayload, key, out var value))
         {
-            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+            if (string.IsNullOrEmpty(expectedText))
+            {
+                return;
+            }
+
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(expectedText, "<missing>"),
+                errors);
+            return;
+        }
+
+        if (!TryReadOptionalStringValue(value, out var actual)
+            || !string.Equals(actual, expectedText, StringComparison.Ordinal))
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(
+                    expectedText,
+                    TryReadOptionalStringValue(value, out var readableActual) ? readableActual : "<unreadable>"),
+                errors);
         }
     }
 
@@ -13865,10 +13901,23 @@ public static class MatchRecoveryValidator
         string effectId,
         List<string> errors)
     {
-        if (!TryReadObjectInt(effectPayload, key, out var actual)
-            || actual != expected)
+        if (!TryReadObjectInt(effectPayload, key, out var actual))
         {
-            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(expected, FormatUnreadableObjectValue(effectPayload, key)),
+                errors);
+            return;
+        }
+
+        if (actual != expected)
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(expected, actual),
+                errors);
         }
     }
 
@@ -13880,9 +13929,41 @@ public static class MatchRecoveryValidator
         string effectId,
         List<string> errors)
     {
-        if (!OptionalIntSnapshotValueMatches(effectPayload, key, expected))
+        if (!TryReadObjectValue(effectPayload, key, out var value))
         {
-            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+            if (!expected.HasValue)
+            {
+                return;
+            }
+
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(expected.Value, "<missing>"),
+                errors);
+            return;
+        }
+
+        if (!expected.HasValue)
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery("<empty>", FormatReadableIntValue(value)),
+                errors);
+            return;
+        }
+
+        if (!TryReadIntValue(value, out var actual)
+            || actual != expected.Value)
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(
+                    expected.Value,
+                    TryReadIntValue(value, out var readableActual) ? readableActual : "<unreadable>"),
+                errors);
         }
     }
 
@@ -13894,19 +13975,71 @@ public static class MatchRecoveryValidator
         string effectId,
         List<string> errors)
     {
-        if (!OptionalStringListSnapshotValueMatches(effectPayload, key, expected))
+        IReadOnlyList<string> expectedValues = expected ?? [];
+        if (!TryReadObjectValue(effectPayload, key, out var value))
         {
-            AddSpectatorContinuousEffectKeyedValueMismatch(fieldLabel, effectId, errors);
+            if (expectedValues.Count == 0)
+            {
+                return;
+            }
+
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(expectedValues, "<missing>"),
+                errors);
+            return;
+        }
+
+        if (!TryReadStringListValue(value, out var actual)
+            || !StringListsEqual(actual, expectedValues))
+        {
+            AddSpectatorContinuousEffectKeyedValueMismatch(
+                fieldLabel,
+                effectId,
+                FormatExpectedActualForRecovery(
+                    expectedValues,
+                    TryReadStringListValue(value, out var readableActual) ? readableActual : "<unreadable>"),
+                errors);
         }
     }
 
     private static void AddSpectatorContinuousEffectKeyedValueMismatch(
         string fieldLabel,
         string effectId,
+        string detail,
         List<string> errors)
     {
         errors.Add(
-            $"spectator replay frame timing continuous effect item {fieldLabel} does not match authoritative state continuous effect {fieldLabel} for effect id {effectId}");
+            $"spectator replay frame timing continuous effect item {fieldLabel} does not match authoritative state continuous effect {fieldLabel} for effect id {effectId}; {detail}");
+    }
+
+    private static string FormatExpectedActualForRecovery(object? expected, object? actual)
+    {
+        return $"expected {FormatRecoveryDiagnosticValue(expected)} but got {FormatRecoveryDiagnosticValue(actual)}";
+    }
+
+    private static string FormatRecoveryDiagnosticValue(object? value)
+    {
+        return value switch
+        {
+            null => "<empty>",
+            string text => text.Length == 0 ? "<empty>" : text,
+            int number => number.ToString(CultureInfo.InvariantCulture),
+            IReadOnlyList<string> values => values.Count == 0 ? "[]" : $"[{string.Join(", ", values)}]",
+            IEnumerable<string> values => FormatRecoveryDiagnosticValue(values.ToArray()),
+            _ => value.ToString() ?? "<unreadable>"
+        };
+    }
+
+    private static string FormatUnreadableObjectValue(object? payload, string key)
+    {
+        return TryReadObjectValue(payload, key, out _) ? "<unreadable>" : "<missing>";
+    }
+
+    private static object FormatReadableIntValue(object? value)
+    {
+        return TryReadIntValue(value, out var actual) ? actual : "<unreadable>";
     }
 
     private static (string? EffectId, int? Sequence) ValidateSpectatorContinuousEffectPayloadValues(

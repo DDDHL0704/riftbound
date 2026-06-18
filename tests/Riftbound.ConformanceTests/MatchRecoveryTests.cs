@@ -62315,6 +62315,11 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
+                "spectator replay frame timing continuous effect item scope does not match authoritative state continuous effect scope for effect id effect-1; expected OBJECT but got <missing>",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
                 "spectator replay frame timing continuous effect scopes disagree with authoritative state continuous effect scopes",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
