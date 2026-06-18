@@ -28704,6 +28704,10 @@ public static class MatchRecoveryValidator
             payloadLabel,
             shouldValidatePendingFields,
             errors);
+        AddMissingSpectatorBattleDamageAssignmentFieldDiagnostics(
+            damageAssignmentPayload,
+            authoritativeState,
+            errors);
         ValidateBattleDamageAssignmentIdentityConsistency(
             battlePayload,
             damageAssignmentPayload,
@@ -28742,43 +28746,114 @@ public static class MatchRecoveryValidator
         var authoritativeBattle = authoritativeState.BattleState;
         var authoritativeDamagePoolCount =
             ResolutionResult.BattleDamagePoolFor(authoritativeState, authoritativeBattle).Count;
-        if (authoritativeDamagePoolCount > 0)
-        {
-            errors.Add(
-                $"spectator replay frame timing battle damage assignment damage pool count 0 does not match authoritative state battle damage assignment damage pool count {authoritativeDamagePoolCount}");
-        }
+        AddSpectatorBattleDamageAssignmentCountDiagnostic(
+            "damage pool",
+            authoritativeDamagePoolCount,
+            errors);
 
         var authoritativeLegalTargetCount =
             ResolutionResult.BattleDamageLegalTargetsFor(authoritativeState, authoritativeBattle).Count;
-        if (authoritativeLegalTargetCount > 0)
-        {
-            errors.Add(
-                $"spectator replay frame timing battle damage assignment legal target count 0 does not match authoritative state battle damage assignment legal target count {authoritativeLegalTargetCount}");
-        }
+        AddSpectatorBattleDamageAssignmentCountDiagnostic(
+            "legal target",
+            authoritativeLegalTargetCount,
+            errors);
 
         var authoritativeExistingDamageCount =
             ResolutionResult.BattleExistingDamageFor(authoritativeState, authoritativeBattle).Count;
-        if (authoritativeExistingDamageCount > 0)
-        {
-            errors.Add(
-                $"spectator replay frame timing battle damage assignment existing damage count 0 does not match authoritative state battle damage assignment existing damage count {authoritativeExistingDamageCount}");
-        }
+        AddSpectatorBattleDamageAssignmentCountDiagnostic(
+            "existing damage",
+            authoritativeExistingDamageCount,
+            errors);
 
         var authoritativeLethalDamageThresholdCount =
             ResolutionResult.BattleLethalDamageThresholdFor(authoritativeState, authoritativeBattle).Count;
-        if (authoritativeLethalDamageThresholdCount > 0)
-        {
-            errors.Add(
-                $"spectator replay frame timing battle damage assignment lethal damage threshold count 0 does not match authoritative state battle damage assignment lethal damage threshold count {authoritativeLethalDamageThresholdCount}");
-        }
+        AddSpectatorBattleDamageAssignmentCountDiagnostic(
+            "lethal damage threshold",
+            authoritativeLethalDamageThresholdCount,
+            errors);
 
         var authoritativeRequiredAssignmentCount =
             ResolutionResult.BattleRequiredAssignmentsFor(authoritativeState, authoritativeBattle).Count;
-        if (authoritativeRequiredAssignmentCount > 0)
+        AddSpectatorBattleDamageAssignmentCountDiagnostic(
+            "required assignment",
+            authoritativeRequiredAssignmentCount,
+            errors);
+    }
+
+    private static void AddMissingSpectatorBattleDamageAssignmentFieldDiagnostics(
+        object? damageAssignmentPayload,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState))
         {
-            errors.Add(
-                $"spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count {authoritativeRequiredAssignmentCount}");
+            return;
         }
+
+        var authoritativeBattle = authoritativeState.BattleState;
+        AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
+            damageAssignmentPayload,
+            "damagePool",
+            "damage pool",
+            ResolutionResult.BattleDamagePoolFor(authoritativeState, authoritativeBattle).Count,
+            errors);
+        AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
+            damageAssignmentPayload,
+            "legalTargets",
+            "legal target",
+            ResolutionResult.BattleDamageLegalTargetsFor(authoritativeState, authoritativeBattle).Count,
+            errors);
+        AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
+            damageAssignmentPayload,
+            "existingDamage",
+            "existing damage",
+            ResolutionResult.BattleExistingDamageFor(authoritativeState, authoritativeBattle).Count,
+            errors);
+        AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
+            damageAssignmentPayload,
+            "lethalDamageThreshold",
+            "lethal damage threshold",
+            ResolutionResult.BattleLethalDamageThresholdFor(authoritativeState, authoritativeBattle).Count,
+            errors);
+        AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
+            damageAssignmentPayload,
+            "requiredAssignments",
+            "required assignment",
+            ResolutionResult.BattleRequiredAssignmentsFor(authoritativeState, authoritativeBattle).Count,
+            errors);
+    }
+
+    private static void AddMissingSpectatorBattleDamageAssignmentFieldDiagnostic(
+        object? damageAssignmentPayload,
+        string payloadKey,
+        string countLabel,
+        int authoritativeCount,
+        List<string> errors)
+    {
+        if (TryReadObjectValue(damageAssignmentPayload, payloadKey, out var fieldPayload)
+            && !IsNullSnapshotPayloadValue(fieldPayload))
+        {
+            return;
+        }
+
+        AddSpectatorBattleDamageAssignmentCountDiagnostic(
+            countLabel,
+            authoritativeCount,
+            errors);
+    }
+
+    private static void AddSpectatorBattleDamageAssignmentCountDiagnostic(
+        string countLabel,
+        int authoritativeCount,
+        List<string> errors)
+    {
+        if (authoritativeCount <= 0)
+        {
+            return;
+        }
+
+        errors.Add(
+            $"spectator replay frame timing battle damage assignment {countLabel} count 0 does not match authoritative state battle damage assignment {countLabel} count {authoritativeCount}");
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentMapPayloadShapes(
