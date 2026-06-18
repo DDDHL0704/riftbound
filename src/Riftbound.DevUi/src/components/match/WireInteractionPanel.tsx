@@ -1,13 +1,11 @@
 import type { InspectedCard } from "../cards/CardFace";
-import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
-import { asString } from "../../utils/collections";
+import type { ActionPromptDto } from "../../types/protocol";
 import {
   buildPromptInteractionModel,
   promptChoiceRoleLabel,
   type PromptCandidateSummary,
   type PromptInteractionModel
 } from "../../utils/promptInteraction";
-import { redactInternalText } from "../../utils/redaction";
 import { CardFace } from "../cards/CardFace";
 import { StatusPill } from "../ui/StatusPill";
 import { WireEmpty } from "./wireCardFlow";
@@ -16,14 +14,12 @@ export function WireInteractionPanel({
   inspectedCard,
   onClearInspectedCard,
   playerId,
-  prompt,
-  snapshot
+  prompt
 }: {
   inspectedCard?: InspectedCard;
   onClearInspectedCard: () => void;
   playerId: string;
   prompt?: ActionPromptDto;
-  snapshot?: SnapshotDto;
 }) {
   const model = buildPromptInteractionModel(prompt);
   const inspectedObjectId = inspectedCard?.objectId;
@@ -69,7 +65,6 @@ export function WireInteractionPanel({
       )}
 
       <PromptCandidateList model={model} prompt={prompt} />
-      <WireRuleQueue snapshot={snapshot} />
     </section>
   );
 }
@@ -117,83 +112,4 @@ function CandidateSummaryRow({ candidate }: { candidate: PromptCandidateSummary 
       ))}
     </article>
   );
-}
-
-function WireRuleQueue({ snapshot }: { snapshot?: SnapshotDto }) {
-  const timing = snapshot?.timing;
-  const queue = timing?.pendingTaskQueue ?? {};
-  const tasks = queue.tasks ?? [];
-  const triggerQueue = timing?.triggerQueue ?? [];
-  const battleResolutions = timing?.battleResolutions ?? [];
-  const battlefieldResolutions = timing?.battlefieldResolutions ?? [];
-  const stack = snapshot?.stack ?? [];
-
-  return (
-    <div className="wire-rule-queue">
-      <strong>结算链 / 规则事件</strong>
-      <span>结算链：{stack.length} 项</span>
-      <span>任务队列：{tasks.length} 项{queue.isBlocking ? " / 阻塞行动" : ""}</span>
-      <span>触发队列：{triggerQueue.length} 项</span>
-      {stack.slice(0, 3).map((item, index) => {
-        return (
-          <small key={`stack-${index}`}>
-            结算 {stack.length - index}：{stackKindLabel(item.effectKind)} / 来源 {asString(item.cardNo, "服务端效果")}
-          </small>
-        );
-      })}
-      {tasks.slice(0, 3).map((task, index) => (
-        <small key={task.taskId ?? `task-${index}`}>
-          任务：{protocolLabel(task.kind, "服务端任务")} / {protocolLabel(task.reason, "服务端规则")}
-        </small>
-      ))}
-      {battlefieldResolutions.slice(0, 3).map((resolution, index) => (
-        <small key={resolution.resolutionId ?? `battlefield-resolution-${index}`}>
-          战场：{battlefieldResolutionLabel(resolution.kind)} / {asString(resolution.playerId ?? resolution.controllerId, "无控制者")}
-        </small>
-      ))}
-      {battleResolutions.slice(0, 2).map((resolution, index) => (
-        <small key={resolution.resolutionId ?? `battle-resolution-${index}`}>
-          战斗：{protocolLabel(resolution.kind, "服务端结果")} / 胜者 {asString(resolution.winnerPlayerId, "无")}
-        </small>
-      ))}
-    </div>
-  );
-}
-
-function stackKindLabel(value: unknown): string {
-  switch (asString(value, "")) {
-    case "SPELL":
-      return "法术";
-    case "ABILITY":
-      return "技能";
-    case "LEGEND_ABILITY":
-      return "传奇技能";
-    case "TRIGGER":
-      return "触发";
-    case "REVEAL_CARD":
-      return "翻开待命";
-    default:
-      return protocolLabel(value, "服务端效果");
-  }
-}
-
-function battlefieldResolutionLabel(value: unknown): string {
-  switch (asString(value, "")) {
-    case "CONQUERED":
-      return "征服";
-    case "CONTROL_RESOLVED":
-      return "控制结算";
-    case "HELD":
-      return "据守";
-    default:
-      return protocolLabel(value, "战场结果");
-  }
-}
-
-function protocolLabel(value: unknown, fallback: string): string {
-  const raw = asString(value, "");
-  if (!raw) {
-    return fallback;
-  }
-  return /^[A-Z0-9_:-]+$/.test(raw) ? fallback : redactInternalText(raw);
 }

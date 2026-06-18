@@ -276,18 +276,32 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
       {
         cardNo: "UNL-007/219",
         controllerId: selfId,
+        damageAmount: 2,
         effectKind: "SPELL",
         sourceObjectId: "p1-hand-spell",
+        destination: "GRAVEYARD",
         stackItemId: "fixture-stack-1",
         targetObjectIds: ["p2-right-1"]
+      },
+      {
+        cardNo: "UNL-011/219",
+        controllerId: opponentId,
+        effectKind: "ABILITY",
+        sourceObjectId: "p2-banished-equip",
+        stackItemId: "fixture-stack-2",
+        targetObjectIds: ["p2-right-2", "p1-right-1"]
       }
     ],
     tick: 9001,
     timing: {
       battleResolutions: [
         {
+          attackerObjectIds: ["p1-right-1"],
           battlefieldId: "fixture-left-battlefield",
+          defenderObjectIds: ["p2-right-1"],
+          destroyedObjectIds: ["p2-right-2"],
           kind: "NO_RESULT",
+          relatedEventKinds: ["BATTLE_CLOSED"],
           resolutionId: "fixture-battle-resolution-1",
           tick: 9000,
           winnerPlayerId: null
@@ -320,6 +334,18 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
             reason: "BATTLEFIELD_CONTESTED",
             status: "PENDING",
             taskId: "fixture-task-1"
+          },
+          {
+            actingPlayerId: selfId,
+            battleId: "fixture-battle-right",
+            battlefieldObjectId: "fixture-right-battlefield",
+            kind: "START_BATTLE",
+            participantControllerIds: [selfId, opponentId],
+            participantObjectIds: ["p1-right-1", "p2-right-1"],
+            reason: "BATTLE_CLEANUP",
+            stackItemIds: ["fixture-stack-1"],
+            status: "READY",
+            taskId: "fixture-task-2"
           }
         ]
       },
@@ -333,6 +359,14 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
           sourceObjectId: "p1-left-1",
           triggerId: "fixture-trigger-1",
           triggeredByEventKind: "BATTLEFIELD_HELD"
+        },
+        {
+          controllerId: opponentId,
+          effectKind: "TRIGGER",
+          sourceObjectId: "HIDDEN",
+          sourceVisibility: "HIDDEN",
+          triggerId: "fixture-trigger-2",
+          triggeredByEventKind: "BATTLEFIELD_CONQUERED"
         }
       ],
       turnWindow: { state: "MAIN_ACTION" }

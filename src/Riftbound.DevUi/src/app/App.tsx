@@ -10,6 +10,7 @@ import { RoomPage } from "../pages/RoomPage";
 import { RuleAuditPage } from "../pages/RuleAuditPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { TabletopLayoutLabPage } from "../pages/TabletopLayoutLabPage";
+import { isWireLayoutFixtureEnabled } from "../fixtures/wireLayoutFixture";
 import { CatalogProvider } from "../stores/catalogStore";
 import { SettingsProvider, useSettings } from "../stores/settingsStore";
 import { AppRoute, parseRoute, routePath } from "./router";
@@ -17,6 +18,7 @@ import { AppRoute, parseRoute, routePath } from "./router";
 function RoutedApp() {
   const [route, setRoute] = useState<AppRoute>(() => parseRoute());
   const { settings } = useSettings();
+  const catalogDisabled = route.name === "match" && isWireLayoutFixtureEnabled();
 
   useEffect(() => {
     const onPop = () => setRoute(parseRoute());
@@ -33,7 +35,7 @@ function RoutedApp() {
   );
 
   return (
-    <CatalogProvider serverUrl={settings.serverUrl}>
+    <CatalogProvider disabled={catalogDisabled} serverUrl={settings.serverUrl}>
       <AppShell activeRoute={route.name} onNavigate={navigate}>
         {route.name === "home" && <HomePage onNavigate={navigate} />}
         {route.name === "cards" && <CardLibraryPage />}

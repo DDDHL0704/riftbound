@@ -5,6 +5,7 @@ import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
+import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
 import {
   buildWireCardFlowPlan,
   WireCardFlow,
@@ -205,8 +206,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               onClearInspectedCard={() => setInspectedCard(undefined)}
               playerId={settings.playerId}
               prompt={tablePrompt}
-              snapshot={tableSnapshot}
             />
+          </section>
+          <section aria-label="服务端规则队列" className="wire-panel wire-rule-panel" tabIndex={0}>
+            <WireRuleQueuePanel playerId={settings.playerId} prompt={tablePrompt} snapshot={tableSnapshot} />
           </section>
           <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" tabIndex={0}>
             <ActionPanel

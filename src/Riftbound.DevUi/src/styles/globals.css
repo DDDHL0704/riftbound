@@ -11562,7 +11562,7 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: minmax(270px, 1.1fr) minmax(260px, 1fr) minmax(170px, 0.65fr);
+  grid-template-rows: minmax(180px, 0.7fr) minmax(260px, 1fr) minmax(230px, 0.9fr) minmax(140px, 0.5fr);
   gap: 4px;
   overflow: auto;
   padding: 4px;
@@ -11571,6 +11571,10 @@ button.card-face:hover {
 .wire-panel {
   overflow: auto;
   padding: 6px;
+}
+
+.wire-rule-panel {
+  padding: 4px;
 }
 
 .wire-side-panel .wire-panel > * {
@@ -11670,6 +11674,116 @@ button.card-face:hover {
   color: #000;
 }
 
+.wire-rule-queue {
+  align-content: start;
+}
+
+.wire-rule-queue-header,
+.wire-rule-state-grid,
+.wire-rule-section,
+.wire-rule-item,
+.wire-rule-note,
+.wire-rule-metric,
+.wire-rule-line {
+  min-width: 0;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+.wire-rule-queue-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+}
+
+.wire-rule-queue-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.wire-rule-state-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-rule-metric {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.wire-rule-metric strong {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.wire-rule-metric.is-mine,
+.wire-rule-line.is-mine {
+  border-width: 2px;
+}
+
+.wire-rule-section {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-rule-section h3 {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.wire-rule-item {
+  display: grid;
+  gap: 3px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-rule-item > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 3px;
+}
+
+.wire-rule-item > div > strong,
+.wire-rule-line > strong,
+.wire-rule-metric > strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-rule-line {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 4px;
+  padding: 2px 4px;
+}
+
+.wire-rule-note {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
 .wire-action-panel {
   padding: 0;
 }
@@ -11703,6 +11817,13 @@ button.card-face:hover {
 .wire-match-page .wire-prompt-contract,
 .wire-match-page .wire-candidate-row,
 .wire-match-page .wire-rule-queue,
+.wire-match-page .wire-rule-queue-header,
+.wire-match-page .wire-rule-state-grid,
+.wire-match-page .wire-rule-section,
+.wire-match-page .wire-rule-item,
+.wire-match-page .wire-rule-note,
+.wire-match-page .wire-rule-metric,
+.wire-match-page .wire-rule-line,
 .wire-match-page .log-row,
 .wire-match-page .event-log {
   border-color: #000 !important;
