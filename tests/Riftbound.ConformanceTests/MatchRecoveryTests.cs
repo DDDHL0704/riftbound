@@ -15903,12 +15903,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item battlefield object id missing-battlefield is missing from objects",
+                "snapshot for alice timing battlefield task item battlefield object id missing-battlefield is missing from objects; expected [] but got missing-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item participant object id missing-participant is missing from objects",
+                "snapshot for alice timing battlefield task item participant object id missing-participant is missing from objects; expected [] but got missing-participant",
                 StringComparison.Ordinal));
     }
 
@@ -55604,12 +55604,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item battlefield object id missing-battlefield is missing from object registry",
+                "spectator replay frame timing battlefield task item battlefield object id missing-battlefield is missing from object registry; expected [] but got missing-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item participant object id missing-participant is missing from object registry",
+                "spectator replay frame timing battlefield task item participant object id missing-participant is missing from object registry; expected [] but got missing-participant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

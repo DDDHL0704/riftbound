@@ -4550,7 +4550,7 @@ public static class MatchRecoveryValidator
                 taskLabel,
                 "battlefield object id",
                 errors);
-            ValidateTimingOptionalObjectReference(
+            ValidateTimingOptionalObjectReferenceWithExpectedDetails(
                 taskPayload,
                 "battlefieldObjectId",
                 $"{taskLabel} battlefield object id",
@@ -5329,7 +5329,7 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing {payloadLabel}",
                 "participant object id",
                 errors);
-            ValidateTimingObjectReferenceList(
+            ValidateTimingObjectReferenceListWithExpectedDetails(
                 taskPayload,
                 "participantObjectIds",
                 $"snapshot for {view.PlayerId} timing {payloadLabel} participant object id",
@@ -22727,7 +22727,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "battlefield object id",
             errors);
-        ValidateTimingOptionalObjectReference(
+        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
             spectatorBattlefieldTask,
             "battlefieldObjectId",
             $"{payloadLabel} battlefield object id",
@@ -22836,7 +22836,7 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "participant object id",
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             spectatorBattlefieldTask,
             "participantObjectIds",
             $"{payloadLabel} participant object id",
@@ -30352,11 +30352,12 @@ public static class MatchRecoveryValidator
         object? payload,
         string payloadKey,
         string objectLabel,
-        IReadOnlySet<string> knownObjectIds,
+        IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
         List<string> errors)
     {
-        if (!TryReadObjectValue(payload, payloadKey, out var objectIdPayload)
+        if (knownObjectIds is null
+            || !TryReadObjectValue(payload, payloadKey, out var objectIdPayload)
             || IsNullSnapshotPayloadValue(objectIdPayload)
             || !TryReadOptionalStringValue(objectIdPayload, out var objectId)
             || string.IsNullOrWhiteSpace(objectId))
@@ -30445,11 +30446,12 @@ public static class MatchRecoveryValidator
         object? payload,
         string payloadKey,
         string objectLabel,
-        IReadOnlySet<string> knownObjectIds,
+        IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
         List<string> errors)
     {
-        if (!TryReadObjectStringList(payload, payloadKey, out var objectIds))
+        if (knownObjectIds is null
+            || !TryReadObjectStringList(payload, payloadKey, out var objectIds))
         {
             return;
         }
@@ -30468,11 +30470,11 @@ public static class MatchRecoveryValidator
     private static void ValidateTimingObjectReferenceWithExpectedDetails(
         string objectLabel,
         string objectId,
-        IReadOnlySet<string> knownObjectIds,
+        IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
         List<string> errors)
     {
-        if (string.IsNullOrWhiteSpace(objectId))
+        if (knownObjectIds is null || string.IsNullOrWhiteSpace(objectId))
         {
             return;
         }
