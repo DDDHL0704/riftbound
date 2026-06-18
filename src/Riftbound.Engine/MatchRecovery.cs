@@ -14048,10 +14048,24 @@ public static class MatchRecoveryValidator
             null => "<empty>",
             string text => text.Length == 0 ? "<empty>" : text,
             int number => number.ToString(CultureInfo.InvariantCulture),
+            long number => number.ToString(CultureInfo.InvariantCulture),
+            bool flag => flag ? "true" : "false",
+            IReadOnlyDictionary<string, int> values => FormatRecoveryDiagnosticIntDictionary(values),
             IReadOnlyList<string> values => values.Count == 0 ? "[]" : $"[{string.Join(", ", values)}]",
             IEnumerable<string> values => FormatRecoveryDiagnosticValue(values.ToArray()),
             _ => value.ToString() ?? "<unreadable>"
         };
+    }
+
+    private static string FormatRecoveryDiagnosticIntDictionary(IReadOnlyDictionary<string, int> values)
+    {
+        var formattedEntries = values
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => $"{entry.Key}: {entry.Value.ToString(CultureInfo.InvariantCulture)}");
+
+        return values.Count == 0
+            ? "{}"
+            : $"{{{string.Join(", ", formattedEntries)}}}";
     }
 
     private static string FormatUnreadableObjectValue(object? payload, string key)
@@ -21593,13 +21607,25 @@ public static class MatchRecoveryValidator
     {
         if (!TryReadObjectString(resourcePayload, key, out var actual))
         {
-            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(fieldLabel, null, expected, resourceId, errors);
+            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(
+                fieldLabel,
+                null,
+                expected,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, FormatUnreadableObjectValue(resourcePayload, key)));
             return;
         }
 
         if (!string.Equals(actual, expected, StringComparison.Ordinal))
         {
-            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(fieldLabel, actual, expected, resourceId, errors);
+            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(
+                fieldLabel,
+                actual,
+                expected,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, actual));
         }
     }
 
@@ -21611,11 +21637,33 @@ public static class MatchRecoveryValidator
         string resourceId,
         List<string> errors)
     {
-        if (!TryReadObjectString(resourcePayload, key, out var actual))
+        if (!TryReadObjectValue(resourcePayload, key, out var value))
         {
             if (!string.IsNullOrEmpty(expected))
             {
-                AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(fieldLabel, null, expected, resourceId, errors);
+                AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(
+                    fieldLabel,
+                    null,
+                    expected,
+                    resourceId,
+                    errors,
+                    FormatExpectedActualForRecovery(expected, "<missing>"));
+            }
+
+            return;
+        }
+
+        if (!TryReadOptionalStringValue(value, out var actual))
+        {
+            if (!string.IsNullOrEmpty(expected))
+            {
+                AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(
+                    fieldLabel,
+                    null,
+                    expected,
+                    resourceId,
+                    errors,
+                    FormatExpectedActualForRecovery(expected, "<unreadable>"));
             }
 
             return;
@@ -21623,7 +21671,13 @@ public static class MatchRecoveryValidator
 
         if (!string.Equals(actual, expected, StringComparison.Ordinal))
         {
-            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(fieldLabel, actual, expected, resourceId, errors);
+            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(
+                fieldLabel,
+                actual,
+                expected,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, actual));
         }
     }
 
@@ -21637,7 +21691,14 @@ public static class MatchRecoveryValidator
     {
         if (!TryReadObjectInt(resourcePayload, key, out var actual))
         {
-            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(fieldLabel, null, expected.ToString(CultureInfo.InvariantCulture), resourceId, errors);
+            var expectedText = expected.ToString(CultureInfo.InvariantCulture);
+            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(
+                fieldLabel,
+                null,
+                expectedText,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, FormatUnreadableObjectValue(resourcePayload, key)));
             return;
         }
 
@@ -21648,7 +21709,8 @@ public static class MatchRecoveryValidator
                 actual.ToString(CultureInfo.InvariantCulture),
                 expected.ToString(CultureInfo.InvariantCulture),
                 resourceId,
-                errors);
+                errors,
+                FormatExpectedActualForRecovery(expected, actual));
         }
     }
 
@@ -21660,10 +21722,33 @@ public static class MatchRecoveryValidator
         string resourceId,
         List<string> errors)
     {
-        if (!TryReadObjectIntDictionary(resourcePayload, key, out var actual)
-            || !IntDictionariesEqual(actual, expected))
+        if (!TryReadObjectValue(resourcePayload, key, out var value))
         {
-            AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(fieldLabel, resourceId, errors);
+            AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(
+                fieldLabel,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, "<missing>"));
+            return;
+        }
+
+        if (!TryReadIntDictionaryValue(value, out var actual))
+        {
+            AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(
+                fieldLabel,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, "<unreadable>"));
+            return;
+        }
+
+        if (!IntDictionariesEqual(actual, expected))
+        {
+            AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(
+                fieldLabel,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, actual));
         }
     }
 
@@ -21675,10 +21760,33 @@ public static class MatchRecoveryValidator
         string resourceId,
         List<string> errors)
     {
-        if (!TryReadObjectStringList(resourcePayload, key, out var actual)
-            || !StringListsEqual(actual, expected))
+        if (!TryReadObjectValue(resourcePayload, key, out var value))
         {
-            AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(fieldLabel, resourceId, errors);
+            AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(
+                fieldLabel,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, "<missing>"));
+            return;
+        }
+
+        if (!TryReadStringListValue(value, out var actual))
+        {
+            AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(
+                fieldLabel,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, "<unreadable>"));
+            return;
+        }
+
+        if (!StringListsEqual(actual, expected))
+        {
+            AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(
+                fieldLabel,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, actual));
         }
     }
 
@@ -21691,7 +21799,13 @@ public static class MatchRecoveryValidator
     {
         if (!TryReadObjectBool(resourcePayload, key, out var actual))
         {
-            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(fieldLabel, null, "true", resourceId, errors);
+            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(
+                fieldLabel,
+                null,
+                "true",
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(true, FormatUnreadableObjectValue(resourcePayload, key)));
             return;
         }
 
@@ -21702,7 +21816,8 @@ public static class MatchRecoveryValidator
                 actual.ToString(),
                 "true",
                 resourceId,
-                errors);
+                errors,
+                FormatExpectedActualForRecovery(true, actual));
         }
     }
 
@@ -21716,7 +21831,14 @@ public static class MatchRecoveryValidator
     {
         if (!TryReadObjectLong(resourcePayload, key, out var actual))
         {
-            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(fieldLabel, null, expected.ToString(CultureInfo.InvariantCulture), resourceId, errors);
+            var expectedText = expected.ToString(CultureInfo.InvariantCulture);
+            AddSpectatorTemporaryPaymentResourceKeyedValueMismatch(
+                fieldLabel,
+                null,
+                expectedText,
+                resourceId,
+                errors,
+                FormatExpectedActualForRecovery(expected, FormatUnreadableObjectValue(resourcePayload, key)));
             return;
         }
 
@@ -21727,7 +21849,8 @@ public static class MatchRecoveryValidator
                 actual.ToString(CultureInfo.InvariantCulture),
                 expected.ToString(CultureInfo.InvariantCulture),
                 resourceId,
-                errors);
+                errors,
+                FormatExpectedActualForRecovery(expected, actual));
         }
     }
 
@@ -21736,20 +21859,24 @@ public static class MatchRecoveryValidator
         string? actual,
         string expected,
         string resourceId,
-        List<string> errors)
+        List<string> errors,
+        string? detail = null)
     {
         var actualLabel = actual is null ? string.Empty : $" {actual}";
+        var detailSuffix = string.IsNullOrEmpty(detail) ? string.Empty : $"; {detail}";
         errors.Add(
-            $"spectator replay frame timing temporary payment resource item {fieldLabel}{actualLabel} does not match authoritative state temporary payment resource {fieldLabel} {expected} for resource id {resourceId}");
+            $"spectator replay frame timing temporary payment resource item {fieldLabel}{actualLabel} does not match authoritative state temporary payment resource {fieldLabel} {expected} for resource id {resourceId}{detailSuffix}");
     }
 
     private static void AddSpectatorTemporaryPaymentResourceKeyedCollectionMismatch(
         string fieldLabel,
         string resourceId,
-        List<string> errors)
+        List<string> errors,
+        string? detail = null)
     {
+        var detailSuffix = string.IsNullOrEmpty(detail) ? string.Empty : $"; {detail}";
         errors.Add(
-            $"spectator replay frame timing temporary payment resource item {fieldLabel} do not match authoritative state temporary payment resource {fieldLabel} for resource id {resourceId}");
+            $"spectator replay frame timing temporary payment resource item {fieldLabel} do not match authoritative state temporary payment resource {fieldLabel} for resource id {resourceId}{detailSuffix}");
     }
 
     private static string? ValidateSpectatorTemporaryPaymentResourcePayloadValues(

@@ -179607,62 +179607,62 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item owner player id does not match authoritative state temporary payment resource owner player id alice for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item owner player id does not match authoritative state temporary payment resource owner player id alice for resource id temp-payment-resource-1; expected alice but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item source object id does not match authoritative state temporary payment resource source object id source-1 for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item source object id does not match authoritative state temporary payment resource source object id source-1 for resource id temp-payment-resource-1; expected source-1 but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item ability id does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1; expected TEST_TEMP_RESOURCE_ABILITY but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item payment window does not match authoritative state temporary payment resource payment window PAY_COST for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item payment window does not match authoritative state temporary payment resource payment window PAY_COST for resource id temp-payment-resource-1; expected PAY_COST but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item generated power does not match authoritative state temporary payment resource generated power 3 for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item generated power does not match authoritative state temporary payment resource generated power 3 for resource id temp-payment-resource-1; expected 3 but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item remaining power does not match authoritative state temporary payment resource remaining power 1 for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item remaining power does not match authoritative state temporary payment resource remaining power 1 for resource id temp-payment-resource-1; expected 1 but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item generated power traits do not match authoritative state temporary payment resource generated power traits for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item generated power traits do not match authoritative state temporary payment resource generated power traits for resource id temp-payment-resource-1; expected {blue: 2} but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item remaining power traits do not match authoritative state temporary payment resource remaining power traits for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item remaining power traits do not match authoritative state temporary payment resource remaining power traits for resource id temp-payment-resource-1; expected {blue: 1} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item allowed payment kinds do not match authoritative state temporary payment resource allowed payment kinds for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item allowed payment kinds do not match authoritative state temporary payment resource allowed payment kinds for resource id temp-payment-resource-1; expected [RUNE_COST] but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item payment-only flag does not match authoritative state temporary payment resource payment-only flag true for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item payment-only flag does not match authoritative state temporary payment resource payment-only flag true for resource id temp-payment-resource-1; expected true but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1; expected PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item created tick does not match authoritative state temporary payment resource created tick 2 for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item created tick does not match authoritative state temporary payment resource created tick 2 for resource id temp-payment-resource-1; expected 2 but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
