@@ -10838,9 +10838,10 @@ button.card-face:hover {
   padding: 8px;
 }
 
-.wire-topbar-title strong {
+.wire-topbar-title h1 {
   font-size: 16px;
   line-height: 1.1;
+  margin: 0;
 }
 
 .wire-topbar-title span,
@@ -11625,6 +11626,9 @@ button.card-face:hover {
 .wire-action-entry-strip,
 .wire-action-object-chip,
 .wire-action-group,
+.wire-action-grammar,
+.wire-action-sequence,
+.wire-action-step,
 .wire-rule-queue {
   min-width: 0;
   border: 1px solid #000;
@@ -11806,6 +11810,62 @@ button.card-face:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-action-grammar {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-action-sequence {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-action-sequence-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-action-sequence-title span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-action-sequence ol {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-action-step {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px 22px minmax(0, 1fr);
+  gap: 4px;
+  align-items: center;
+  padding: 3px;
+}
+
+.wire-action-step small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-action-step.is-required {
+  border-width: 2px;
 }
 
 .wire-rule-queue {
