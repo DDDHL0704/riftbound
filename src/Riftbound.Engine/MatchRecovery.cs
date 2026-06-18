@@ -13128,6 +13128,13 @@ public static class MatchRecoveryValidator
         if (!TryReadObjectListValue(continuousEffectsPayload, out var spectatorEffects))
         {
             errors.Add("spectator replay frame timing continuous effects payload is required");
+            var authoritativeEffectCount = authoritativeState.ContinuousEffects.Count;
+            if (authoritativeEffectCount > 0)
+            {
+                errors.Add(
+                    $"spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count {authoritativeEffectCount}");
+            }
+
             return;
         }
 
@@ -16661,6 +16668,12 @@ public static class MatchRecoveryValidator
         if (!TryReadObjectListValue(triggerQueuePayload, out var spectatorTriggers))
         {
             errors.Add("spectator replay frame timing trigger queue payload is required");
+            if (authoritativeState.TriggerQueue.Count > 0)
+            {
+                errors.Add(
+                    $"spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count {authoritativeState.TriggerQueue.Count}");
+            }
+
             return;
         }
 

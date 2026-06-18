@@ -96941,6 +96941,16 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue payload is required",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing continuous effect count 0 does not match authoritative state continuous effect count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            malformedListErrors,
+            error => error.Contains(
+                "spectator replay frame timing trigger queue count 0 does not match authoritative state trigger queue count 2",
+                StringComparison.Ordinal));
 
         var malformedItemFrame = MatchReplayRedactor.BuildSpectatorFrame(
             "room-a",
