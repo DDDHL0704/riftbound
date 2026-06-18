@@ -28986,34 +28986,58 @@ public static class MatchRecoveryValidator
             AddSpectatorBattleDamageAssignmentValueMismatch("assigning player id", errors);
         }
 
-        if (TryReadObjectIntDictionary(damageAssignmentPayload, "damagePool", out var damagePool)
-            && !IntDictionariesEqual(
-                damagePool,
-                ResolutionResult.BattleDamagePoolFor(authoritativeState, authoritativeBattle)))
+        var authoritativeDamagePool =
+            ResolutionResult.BattleDamagePoolFor(authoritativeState, authoritativeBattle);
+        if (TryReadObjectIntDictionary(damageAssignmentPayload, "damagePool", out var damagePool))
+        {
+            if (!IntDictionariesEqual(damagePool, authoritativeDamagePool))
+            {
+                AddSpectatorBattleDamageAssignmentValueMismatch("damage pool", errors);
+            }
+        }
+        else if (authoritativeDamagePool.Count > 0)
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("damage pool", errors);
         }
 
-        if (TryReadObjectStringListDictionary(damageAssignmentPayload, "legalTargets", out var legalTargets)
-            && !StringListDictionariesEqual(
-                legalTargets,
-                ResolutionResult.BattleDamageLegalTargetsFor(authoritativeState, authoritativeBattle)))
+        var authoritativeLegalTargets =
+            ResolutionResult.BattleDamageLegalTargetsFor(authoritativeState, authoritativeBattle);
+        if (TryReadObjectStringListDictionary(damageAssignmentPayload, "legalTargets", out var legalTargets))
+        {
+            if (!StringListDictionariesEqual(legalTargets, authoritativeLegalTargets))
+            {
+                AddSpectatorBattleDamageAssignmentValueMismatch("legal targets", errors);
+            }
+        }
+        else if (authoritativeLegalTargets.Count > 0)
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("legal targets", errors);
         }
 
-        if (TryReadObjectIntDictionary(damageAssignmentPayload, "existingDamage", out var existingDamage)
-            && !IntDictionariesEqual(
-                existingDamage,
-                ResolutionResult.BattleExistingDamageFor(authoritativeState, authoritativeBattle)))
+        var authoritativeExistingDamage =
+            ResolutionResult.BattleExistingDamageFor(authoritativeState, authoritativeBattle);
+        if (TryReadObjectIntDictionary(damageAssignmentPayload, "existingDamage", out var existingDamage))
+        {
+            if (!IntDictionariesEqual(existingDamage, authoritativeExistingDamage))
+            {
+                AddSpectatorBattleDamageAssignmentValueMismatch("existing damage", errors);
+            }
+        }
+        else if (authoritativeExistingDamage.Count > 0)
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("existing damage", errors);
         }
 
-        if (TryReadObjectIntDictionary(damageAssignmentPayload, "lethalDamageThreshold", out var lethalDamageThreshold)
-            && !IntDictionariesEqual(
-                lethalDamageThreshold,
-                ResolutionResult.BattleLethalDamageThresholdFor(authoritativeState, authoritativeBattle)))
+        var authoritativeLethalDamageThreshold =
+            ResolutionResult.BattleLethalDamageThresholdFor(authoritativeState, authoritativeBattle);
+        if (TryReadObjectIntDictionary(damageAssignmentPayload, "lethalDamageThreshold", out var lethalDamageThreshold))
+        {
+            if (!IntDictionariesEqual(lethalDamageThreshold, authoritativeLethalDamageThreshold))
+            {
+                AddSpectatorBattleDamageAssignmentValueMismatch("lethal damage threshold", errors);
+            }
+        }
+        else if (authoritativeLethalDamageThreshold.Count > 0)
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("lethal damage threshold", errors);
         }
