@@ -26049,12 +26049,12 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateOptionalObjectReference(
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"stack item {stackItem.StackItemId} source object",
                 stackItem.SourceObjectId,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceList(
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"stack item {stackItem.StackItemId} target object",
                 stackItem.TargetObjectIds,
                 knownObjectIds,
@@ -30745,14 +30745,14 @@ public static class MatchRecoveryValidator
                 && !string.IsNullOrWhiteSpace(stackItemId)
                 ? stackItemId.Trim()
                 : $"#{index + 1}";
-            ValidateTimingOptionalObjectReference(
+            ValidateTimingOptionalObjectReferenceWithExpectedDetails(
                 stackItem,
                 "sourceObjectId",
                 $"spectator replay frame snapshot stack item {stackItemLabel} source object id",
                 knownObjectIds,
                 "object registry",
                 errors);
-            ValidateTimingObjectReferenceList(
+            ValidateTimingObjectReferenceListWithExpectedDetails(
                 stackItem,
                 "targetObjectIds",
                 $"spectator replay frame snapshot stack item {stackItemLabel} target object id",

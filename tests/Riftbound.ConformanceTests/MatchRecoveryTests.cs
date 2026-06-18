@@ -29351,12 +29351,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state stack item stack-1 source object source-1 is missing from object registry",
+                "authoritative state stack item stack-1 source object source-1 is missing from object registry; expected [] but got source-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state stack item stack-1 target object target-1 is missing from object registry",
+                "authoritative state stack item stack-1 target object target-1 is missing from object registry; expected [] but got target-1",
                 StringComparison.Ordinal));
     }
 
@@ -36970,10 +36970,10 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state stack item stack-1 source object missing-stack-source is missing from object registry", StringComparison.Ordinal));
+            error => error.Contains("authoritative state stack item stack-1 source object missing-stack-source is missing from object registry; expected [known-1] but got missing-stack-source", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state stack item stack-1 target object missing-stack-target is missing from object registry", StringComparison.Ordinal));
+            error => error.Contains("authoritative state stack item stack-1 target object missing-stack-target is missing from object registry; expected [known-1] but got missing-stack-target", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state trigger queue item trigger-1 source object missing-trigger-source is missing from object registry", StringComparison.Ordinal));
@@ -43548,12 +43548,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot stack item forged-stack-extra source object id missing-stack-source is missing from object registry",
+                "spectator replay frame snapshot stack item forged-stack-extra source object id missing-stack-source is missing from object registry; expected [spell-1, spell-2, target-1] but got missing-stack-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot stack item forged-stack-extra target object id missing-stack-target is missing from object registry",
+                "spectator replay frame snapshot stack item forged-stack-extra target object id missing-stack-target is missing from object registry; expected [spell-1, spell-2, target-1] but got missing-stack-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
