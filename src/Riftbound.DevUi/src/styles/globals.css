@@ -1938,6 +1938,7 @@ button.card-face:hover {
 .damage-assignment-panel,
 .trigger-order-panel,
 .generic-prompt-details,
+.candidate-composer,
 .log-row {
   display: grid;
   gap: 5px;
@@ -1958,6 +1959,7 @@ button.card-face:hover {
 }
 
 .generic-prompt-heading,
+.candidate-composer-heading,
 .hand-choice-heading,
 .damage-assignment-heading,
 .trigger-order-heading,
@@ -1978,6 +1980,7 @@ button.card-face:hover {
 }
 
 .generic-prompt-note,
+.candidate-composer-note,
 .hand-choice-note,
 .damage-assignment-note,
 .trigger-order-note,
@@ -1990,6 +1993,8 @@ button.card-face:hover {
 
 .generic-prompt-option,
 .generic-prompt-metadata,
+.candidate-composer-field,
+.candidate-composer-costs,
 .snapshot-debug-section,
 .snapshot-player-row {
   display: grid;
@@ -1998,13 +2003,35 @@ button.card-face:hover {
   padding-top: 8px;
 }
 
+.candidate-composer-field span,
+.candidate-composer-costs > strong,
 .generic-prompt-option span {
   color: var(--text-primary);
   font-size: 0.84rem;
 }
 
+.candidate-composer-check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.candidate-composer-warning {
+  border: 1px solid rgba(255, 92, 92, 0.42);
+  border-radius: 4px;
+  color: var(--danger);
+  padding: 6px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .generic-prompt-option small,
 .generic-prompt-metadata span,
+.candidate-composer-note,
 .hand-choice-summary span,
 .hand-choice-row small,
 .damage-assignment-summary span,
@@ -11660,6 +11687,10 @@ button.card-face:hover {
 .wire-match-page .damage-assignment-panel,
 .wire-match-page .trigger-order-panel,
 .wire-match-page .generic-prompt-details,
+.wire-match-page .candidate-composer,
+.wire-match-page .candidate-composer-field,
+.wire-match-page .candidate-composer-costs,
+.wire-match-page .candidate-composer-warning,
 .wire-match-page .wire-interaction-panel,
 .wire-match-page .wire-selected-candidates,
 .wire-match-page .wire-prompt-candidates,
@@ -11689,6 +11720,10 @@ button.card-face:hover {
 .wire-match-page .eyebrow,
 .wire-match-page .empty-hint,
 .wire-match-page .prompt-summary span,
+.wire-match-page .candidate-composer-field span,
+.wire-match-page .candidate-composer-costs > strong,
+.wire-match-page .candidate-composer-note,
+.wire-match-page .candidate-composer-check,
 .wire-match-page .log-row,
 .wire-match-page .event-log,
 .wire-match-page .event-log * {

@@ -193,7 +193,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
-          <section className="wire-panel">
+          <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>
             <WireInteractionPanel
               inspectedCard={inspectedCard}
               onClearInspectedCard={() => setInspectedCard(undefined)}
@@ -202,7 +202,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               snapshot={tableSnapshot}
             />
           </section>
-          <section className="wire-panel wire-action-panel">
+          <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" tabIndex={0}>
             <ActionPanel
               connectionStatus={controller.state.status}
               onCommand={(command) => void controller.submitCommand(command)}
@@ -213,7 +213,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               snapshot={tableSnapshot}
             />
           </section>
-          <section className="wire-panel wire-log-panel">
+          <section aria-label="事件日志" className="wire-panel wire-log-panel" tabIndex={0}>
             <h2>日志</h2>
             <ScrollArea className="wire-log-scroll">
               <EventLog density={settings.logDensity} errors={controller.state.errors} events={controller.state.events} />
