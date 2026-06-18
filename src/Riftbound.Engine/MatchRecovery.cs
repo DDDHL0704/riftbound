@@ -28940,12 +28940,46 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        if (!ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState))
+        var expectedPending = ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState);
+        if (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending)
+            && isPending != expectedPending)
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("pending flag", errors);
+        }
+
+        if (!expectedPending)
         {
             return;
         }
 
         var authoritativeBattle = authoritativeState.BattleState;
+        if (TryReadObjectString(damageAssignmentPayload, "phase", out var phase)
+            && !string.Equals(phase, "DAMAGE_ASSIGNMENT", StringComparison.Ordinal))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("phase", errors);
+        }
+
+        if (TryReadObjectString(damageAssignmentPayload, "battleId", out var battleId)
+            && !string.Equals(battleId, authoritativeBattle.BattleId, StringComparison.Ordinal))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("battle id", errors);
+        }
+
+        if (TryReadObjectString(damageAssignmentPayload, "battlefieldId", out var battlefieldId)
+            && !string.Equals(battlefieldId, authoritativeBattle.BattlefieldObjectId, StringComparison.Ordinal))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("battlefield object id", errors);
+        }
+
+        if (TryReadObjectString(damageAssignmentPayload, "assigningPlayerId", out var assigningPlayerId)
+            && !string.Equals(
+                assigningPlayerId,
+                ResolutionResult.BattleDamageAssigningPlayerId(authoritativeState),
+                StringComparison.Ordinal))
+        {
+            AddSpectatorBattleDamageAssignmentValueMismatch("assigning player id", errors);
+        }
+
         if (TryReadObjectIntDictionary(damageAssignmentPayload, "damagePool", out var damagePool)
             && !IntDictionariesEqual(
                 damagePool,

@@ -188157,6 +188157,16 @@ public sealed class MatchRecoveryTests
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment battle id does not match authoritative state battle damage assignment battle id",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment battlefield object id does not match authoritative state battle damage assignment battlefield object id",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
             error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
     }
 
@@ -196070,6 +196080,11 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment pending flag does not match authoritative state battle damage assignment pending flag",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
             error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
     }
 
@@ -196124,6 +196139,11 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment phase does not match authoritative state battle damage assignment phase",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
             error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
     }
 
@@ -196176,6 +196196,11 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment assigning player id does not match authoritative state battle damage assignment assigning player id",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
