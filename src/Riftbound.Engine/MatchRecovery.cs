@@ -29213,13 +29213,19 @@ public static class MatchRecoveryValidator
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Select(objectId => objectId.Trim())
             .ToHashSet(StringComparer.Ordinal);
+        var expectedParticipantObjectIds = participantObjectIds
+            .OrderBy(participantObjectId => participantObjectId, StringComparer.Ordinal)
+            .ToArray();
+        var actualControllerObjectIds = controllerObjectIds
+            .OrderBy(controllerObjectId => controllerObjectId, StringComparer.Ordinal)
+            .ToArray();
 
         foreach (var controllerObjectId in controllerObjectIds)
         {
             if (!participantObjectIds.Contains(controllerObjectId))
             {
                 errors.Add(
-                    $"{payloadLabel} participant controller object id {controllerObjectId} is not an enclosing battle participant");
+                    $"{payloadLabel} participant controller object id {controllerObjectId} is not an enclosing battle participant; {FormatExpectedActualForRecovery(expectedParticipantObjectIds, controllerObjectId)}");
             }
         }
 
@@ -29228,7 +29234,7 @@ public static class MatchRecoveryValidator
             if (!controllerObjectIds.Contains(participantObjectId))
             {
                 errors.Add(
-                    $"{payloadLabel} participant controller for participant object id {participantObjectId} is required");
+                    $"{payloadLabel} participant controller for participant object id {participantObjectId} is required; {FormatExpectedActualForRecovery(expectedParticipantObjectIds, actualControllerObjectIds)}");
             }
         }
     }

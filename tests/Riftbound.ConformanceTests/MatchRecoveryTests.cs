@@ -21001,12 +21001,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle participant controller object id nonparticipant-controller is not an enclosing battle participant",
+                "snapshot for alice timing battle participant controller object id nonparticipant-controller is not an enclosing battle participant; expected [attacker-a, defender-a] but got nonparticipant-controller",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle participant controller for participant object id defender-a is required",
+                "snapshot for alice timing battle participant controller for participant object id defender-a is required; expected [attacker-a, defender-a] but got [attacker-a, nonparticipant-controller]",
                 StringComparison.Ordinal));
     }
 
@@ -188703,12 +188703,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle participant controller object id battlefield-a is not an enclosing battle participant",
+                "spectator replay frame timing battle participant controller object id battlefield-a is not an enclosing battle participant; expected [attacker-a, defender-a] but got battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle participant controller for participant object id defender-a is required",
+                "spectator replay frame timing battle participant controller for participant object id defender-a is required; expected [attacker-a, defender-a] but got [attacker-a, battlefield-a]",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
