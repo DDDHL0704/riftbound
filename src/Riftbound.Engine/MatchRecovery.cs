@@ -14173,6 +14173,8 @@ public static class MatchRecoveryValidator
             long number => number.ToString(CultureInfo.InvariantCulture),
             bool flag => flag ? "true" : "false",
             IReadOnlyDictionary<string, int> values => FormatRecoveryDiagnosticIntDictionary(values),
+            IReadOnlyDictionary<string, IReadOnlyList<string>> values => FormatRecoveryDiagnosticStringListDictionary(values),
+            IReadOnlyList<BattleRequiredAssignmentView> values => FormatRecoveryDiagnosticRequiredAssignments(values),
             IReadOnlyList<string> values => values.Count == 0 ? "[]" : $"[{string.Join(", ", values)}]",
             IEnumerable<string> values => FormatRecoveryDiagnosticValue(values.ToArray()),
             _ => value.ToString() ?? "<unreadable>"
@@ -14188,6 +14190,36 @@ public static class MatchRecoveryValidator
         return values.Count == 0
             ? "{}"
             : $"{{{string.Join(", ", formattedEntries)}}}";
+    }
+
+    private static string FormatRecoveryDiagnosticStringListDictionary(
+        IReadOnlyDictionary<string, IReadOnlyList<string>> values)
+    {
+        var formattedEntries = values
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => $"{entry.Key}: {FormatRecoveryDiagnosticValue(entry.Value)}");
+
+        return values.Count == 0
+            ? "{}"
+            : $"{{{string.Join(", ", formattedEntries)}}}";
+    }
+
+    private static string FormatRecoveryDiagnosticRequiredAssignments(
+        IReadOnlyList<BattleRequiredAssignmentView> values)
+    {
+        if (values.Count == 0)
+        {
+            return "[]";
+        }
+
+        var formattedAssignments = values.Select(assignment =>
+            "{"
+            + $"sourceObjectId: {FormatRecoveryDiagnosticValue(assignment.SourceObjectId)}, "
+            + $"damage: {FormatRecoveryDiagnosticValue(assignment.Damage)}, "
+            + $"legalTargetObjectIds: {FormatRecoveryDiagnosticValue(assignment.LegalTargetObjectIds)}"
+            + "}");
+
+        return $"[{string.Join(", ", formattedAssignments)}]";
     }
 
     private static string FormatUnreadableObjectValue(object? payload, string key)
@@ -29449,17 +29481,13 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         var expectedPending = ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState);
-        if (!TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending))
-        {
-            if (expectedPending)
-            {
-                AddSpectatorBattleDamageAssignmentValueMismatch("pending flag", errors);
-            }
-        }
-        else if (isPending != expectedPending)
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("pending flag", errors);
-        }
+        ValidateSpectatorBattleDamageAssignmentBoolAuthoritativeValue(
+            damageAssignmentPayload,
+            "isPending",
+            "pending flag",
+            expectedPending,
+            reportUnreadableWhenExpected: expectedPending,
+            errors);
 
         if (!expectedPending)
         {
@@ -29467,110 +29495,213 @@ public static class MatchRecoveryValidator
         }
 
         var authoritativeBattle = authoritativeState.BattleState;
-        if (!TryReadObjectString(damageAssignmentPayload, "phase", out var phase)
-            || !string.Equals(phase, "DAMAGE_ASSIGNMENT", StringComparison.Ordinal))
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("phase", errors);
-        }
-
-        if (!TryReadObjectString(damageAssignmentPayload, "battleId", out var battleId)
-            || !string.Equals(battleId, authoritativeBattle.BattleId, StringComparison.Ordinal))
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("battle id", errors);
-        }
-
-        if (!TryReadObjectString(damageAssignmentPayload, "battlefieldId", out var battlefieldId)
-            || !string.Equals(battlefieldId, authoritativeBattle.BattlefieldObjectId, StringComparison.Ordinal))
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("battlefield object id", errors);
-        }
-
-        if (!TryReadObjectString(damageAssignmentPayload, "assigningPlayerId", out var assigningPlayerId)
-            || !string.Equals(
-                assigningPlayerId,
-                ResolutionResult.BattleDamageAssigningPlayerId(authoritativeState),
-                StringComparison.Ordinal))
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("assigning player id", errors);
-        }
+        ValidateSpectatorBattleDamageAssignmentStringAuthoritativeValue(
+            damageAssignmentPayload,
+            "phase",
+            "phase",
+            "DAMAGE_ASSIGNMENT",
+            errors);
+        ValidateSpectatorBattleDamageAssignmentStringAuthoritativeValue(
+            damageAssignmentPayload,
+            "battleId",
+            "battle id",
+            authoritativeBattle.BattleId,
+            errors);
+        ValidateSpectatorBattleDamageAssignmentStringAuthoritativeValue(
+            damageAssignmentPayload,
+            "battlefieldId",
+            "battlefield object id",
+            authoritativeBattle.BattlefieldObjectId,
+            errors);
+        ValidateSpectatorBattleDamageAssignmentStringAuthoritativeValue(
+            damageAssignmentPayload,
+            "assigningPlayerId",
+            "assigning player id",
+            ResolutionResult.BattleDamageAssigningPlayerId(authoritativeState),
+            errors);
 
         var authoritativeDamagePool =
             ResolutionResult.BattleDamagePoolFor(authoritativeState, authoritativeBattle);
-        if (TryReadObjectIntDictionary(damageAssignmentPayload, "damagePool", out var damagePool))
-        {
-            if (!IntDictionariesEqual(damagePool, authoritativeDamagePool))
-            {
-                AddSpectatorBattleDamageAssignmentValueMismatch("damage pool", errors);
-            }
-        }
-        else if (authoritativeDamagePool.Count > 0)
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("damage pool", errors);
-        }
+        ValidateSpectatorBattleDamageAssignmentIntDictionaryAuthoritativeValue(
+            damageAssignmentPayload,
+            "damagePool",
+            "damage pool",
+            authoritativeDamagePool,
+            errors);
 
         var authoritativeLegalTargets =
             ResolutionResult.BattleDamageLegalTargetsFor(authoritativeState, authoritativeBattle);
-        if (TryReadObjectStringListDictionary(damageAssignmentPayload, "legalTargets", out var legalTargets))
-        {
-            if (!StringListDictionariesEqual(legalTargets, authoritativeLegalTargets))
-            {
-                AddSpectatorBattleDamageAssignmentValueMismatch("legal targets", errors);
-            }
-        }
-        else if (authoritativeLegalTargets.Count > 0)
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("legal targets", errors);
-        }
+        ValidateSpectatorBattleDamageAssignmentStringListDictionaryAuthoritativeValue(
+            damageAssignmentPayload,
+            "legalTargets",
+            "legal targets",
+            authoritativeLegalTargets,
+            errors);
 
         var authoritativeExistingDamage =
             ResolutionResult.BattleExistingDamageFor(authoritativeState, authoritativeBattle);
-        if (TryReadObjectIntDictionary(damageAssignmentPayload, "existingDamage", out var existingDamage))
-        {
-            if (!IntDictionariesEqual(existingDamage, authoritativeExistingDamage))
-            {
-                AddSpectatorBattleDamageAssignmentValueMismatch("existing damage", errors);
-            }
-        }
-        else if (authoritativeExistingDamage.Count > 0)
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("existing damage", errors);
-        }
+        ValidateSpectatorBattleDamageAssignmentIntDictionaryAuthoritativeValue(
+            damageAssignmentPayload,
+            "existingDamage",
+            "existing damage",
+            authoritativeExistingDamage,
+            errors);
 
         var authoritativeLethalDamageThreshold =
             ResolutionResult.BattleLethalDamageThresholdFor(authoritativeState, authoritativeBattle);
-        if (TryReadObjectIntDictionary(damageAssignmentPayload, "lethalDamageThreshold", out var lethalDamageThreshold))
-        {
-            if (!IntDictionariesEqual(lethalDamageThreshold, authoritativeLethalDamageThreshold))
-            {
-                AddSpectatorBattleDamageAssignmentValueMismatch("lethal damage threshold", errors);
-            }
-        }
-        else if (authoritativeLethalDamageThreshold.Count > 0)
-        {
-            AddSpectatorBattleDamageAssignmentValueMismatch("lethal damage threshold", errors);
-        }
+        ValidateSpectatorBattleDamageAssignmentIntDictionaryAuthoritativeValue(
+            damageAssignmentPayload,
+            "lethalDamageThreshold",
+            "lethal damage threshold",
+            authoritativeLethalDamageThreshold,
+            errors);
 
         var authoritativeRequiredAssignments =
             ResolutionResult.BattleRequiredAssignmentsFor(authoritativeState, authoritativeBattle);
-        if (TryReadObjectRequiredAssignments(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments))
+        ValidateSpectatorBattleDamageAssignmentRequiredAssignmentsAuthoritativeValue(
+            damageAssignmentPayload,
+            "requiredAssignments",
+            "required assignments",
+            authoritativeRequiredAssignments,
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentBoolAuthoritativeValue(
+        object? damageAssignmentPayload,
+        string key,
+        string fieldLabel,
+        bool expected,
+        bool reportUnreadableWhenExpected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectBool(damageAssignmentPayload, key, out var actual);
+        if (readable)
         {
-            if (!RequiredAssignmentsEqual(requiredAssignments, authoritativeRequiredAssignments))
+            if (actual != expected)
             {
-                AddSpectatorBattleDamageAssignmentValueMismatch("required assignments", errors);
+                AddSpectatorBattleDamageAssignmentValueMismatch(fieldLabel, expected, actual, errors);
             }
+
+            return;
         }
-        else if (authoritativeRequiredAssignments.Count > 0)
+
+        if (reportUnreadableWhenExpected)
         {
-            AddSpectatorBattleDamageAssignmentValueMismatch("required assignments", errors);
+            AddSpectatorBattleDamageAssignmentValueMismatch(
+                fieldLabel,
+                expected,
+                FormatUnreadableObjectValue(damageAssignmentPayload, key),
+                errors);
         }
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentStringAuthoritativeValue(
+        object? damageAssignmentPayload,
+        string key,
+        string fieldLabel,
+        string? expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectString(damageAssignmentPayload, key, out var actual);
+        if (readable
+            && string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        AddSpectatorBattleDamageAssignmentValueMismatch(
+            fieldLabel,
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(damageAssignmentPayload, key),
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentIntDictionaryAuthoritativeValue(
+        object? damageAssignmentPayload,
+        string key,
+        string fieldLabel,
+        IReadOnlyDictionary<string, int> expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectIntDictionary(damageAssignmentPayload, key, out var actual);
+        if (readable && IntDictionariesEqual(actual, expected))
+        {
+            return;
+        }
+
+        if (expected.Count == 0 && !readable)
+        {
+            return;
+        }
+
+        AddSpectatorBattleDamageAssignmentValueMismatch(
+            fieldLabel,
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(damageAssignmentPayload, key),
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentStringListDictionaryAuthoritativeValue(
+        object? damageAssignmentPayload,
+        string key,
+        string fieldLabel,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectStringListDictionary(damageAssignmentPayload, key, out var actual);
+        if (readable && StringListDictionariesEqual(actual, expected))
+        {
+            return;
+        }
+
+        if (expected.Count == 0 && !readable)
+        {
+            return;
+        }
+
+        AddSpectatorBattleDamageAssignmentValueMismatch(
+            fieldLabel,
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(damageAssignmentPayload, key),
+            errors);
+    }
+
+    private static void ValidateSpectatorBattleDamageAssignmentRequiredAssignmentsAuthoritativeValue(
+        object? damageAssignmentPayload,
+        string key,
+        string fieldLabel,
+        IReadOnlyList<IReadOnlyDictionary<string, object?>> expectedPayload,
+        List<string> errors)
+    {
+        var expected = TryConvertRequiredAssignmentObjects(expectedPayload, out var parsedExpected)
+            ? parsedExpected
+            : [];
+        var readable = TryReadObjectRequiredAssignments(damageAssignmentPayload, key, out var actual);
+        if (readable && RequiredAssignmentsEqual(actual, expected))
+        {
+            return;
+        }
+
+        if (expected.Count == 0 && !readable)
+        {
+            return;
+        }
+
+        AddSpectatorBattleDamageAssignmentValueMismatch(
+            fieldLabel,
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(damageAssignmentPayload, key),
+            errors);
     }
 
     private static void AddSpectatorBattleDamageAssignmentValueMismatch(
         string fieldLabel,
+        object? expected,
+        object? actual,
         List<string> errors)
     {
         errors.Add(
-            $"spectator replay frame timing battle damage assignment {fieldLabel} does not match authoritative state battle damage assignment {fieldLabel}");
+            $"spectator replay frame timing battle damage assignment {fieldLabel} does not match authoritative state battle damage assignment {fieldLabel}; {FormatExpectedActualForRecovery(expected, actual)}");
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentMapPayloadShapes(

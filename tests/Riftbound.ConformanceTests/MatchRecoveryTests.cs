@@ -186728,6 +186728,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment pending flag does not match authoritative state battle damage assignment pending flag",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment pending flag does not match authoritative state battle damage assignment pending flag; expected true but got <missing>",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -186847,6 +186852,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment phase does not match authoritative state battle damage assignment phase",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment phase does not match authoritative state battle damage assignment phase; expected DAMAGE_ASSIGNMENT but got <missing>",
                 StringComparison.Ordinal));
     }
 
@@ -196304,7 +196314,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment pending flag does not match authoritative state battle damage assignment pending flag",
+                "spectator replay frame timing battle damage assignment pending flag does not match authoritative state battle damage assignment pending flag; expected false but got true",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -196363,7 +196373,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment phase does not match authoritative state battle damage assignment phase",
+                "spectator replay frame timing battle damage assignment phase does not match authoritative state battle damage assignment phase; expected DAMAGE_ASSIGNMENT but got WAIT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -196422,7 +196432,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment assigning player id does not match authoritative state battle damage assignment assigning player id",
+                "spectator replay frame timing battle damage assignment assigning player id does not match authoritative state battle damage assignment assigning player id; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -196486,7 +196496,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment damage pool does not match authoritative state battle damage assignment damage pool",
+                "spectator replay frame timing battle damage assignment damage pool does not match authoritative state battle damage assignment damage pool; expected {attacker-a: 3, defender-a: 2} but got {attacker-a: 4, defender-a: 2}",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -196551,7 +196561,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment legal targets does not match authoritative state battle damage assignment legal targets",
+                "spectator replay frame timing battle damage assignment legal targets does not match authoritative state battle damage assignment legal targets; expected {attacker-a: [defender-a], defender-a: [attacker-a]} but got {attacker-a: [], defender-a: [attacker-a]}",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -196616,7 +196626,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment existing damage does not match authoritative state battle damage assignment existing damage",
+                "spectator replay frame timing battle damage assignment existing damage does not match authoritative state battle damage assignment existing damage; expected {attacker-a: 0, defender-a: 0} but got {attacker-a: 0, defender-a: 1}",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -196681,7 +196691,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment lethal damage threshold does not match authoritative state battle damage assignment lethal damage threshold",
+                "spectator replay frame timing battle damage assignment lethal damage threshold does not match authoritative state battle damage assignment lethal damage threshold; expected {attacker-a: 3, defender-a: 2} but got {attacker-a: 3, defender-a: 1}",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -196752,7 +196762,9 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment required assignments does not match authoritative state battle damage assignment required assignments",
-                StringComparison.Ordinal));
+                StringComparison.Ordinal)
+                && error.Contains("expected [{sourceObjectId: attacker-a, damage: 3, legalTargetObjectIds: [defender-a]}", StringComparison.Ordinal)
+                && error.Contains("but got [{sourceObjectId: attacker-a, damage: 4, legalTargetObjectIds: [defender-a]}", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing battle does not match authoritative state battle", StringComparison.Ordinal));
