@@ -42,6 +42,7 @@ type CandidateComposerProps = {
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
+  onSubmitted?: () => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
   forcedSourceObjectId?: string;
@@ -67,6 +68,7 @@ export function CandidateComposer({
   disabledByConnection,
   forcedSourceObjectId,
   onCommand,
+  onSubmitted,
   prompt,
   snapshot
 }: CandidateComposerProps) {
@@ -199,7 +201,14 @@ export function CandidateComposer({
       <Button
         disabled={!canSubmit}
         icon={<Send size={16} />}
-        onClick={() => command && onCommand(withPromptStamp(command, prompt))}
+        onClick={() => {
+          if (!command) {
+            return;
+          }
+
+          onCommand(withPromptStamp(command, prompt));
+          onSubmitted?.();
+        }}
         title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
         variant={canSubmit ? "primary" : "ghost"}
       >

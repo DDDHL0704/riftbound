@@ -66,7 +66,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     () => layoutFixtureEnabled ? { ...wireLayoutFixtureSpecByNo, ...specByNo } : specByNo,
     [layoutFixtureEnabled, specByNo]
   );
-  const tableObjectLookup = useMemo(() => objectIndex(tableSnapshot), [tableSnapshot]);
   const promptInteraction = useMemo(() => buildPromptInteractionModel(tablePrompt), [tablePrompt]);
   const tableInteraction = useMemo<WireTableInteraction>(() => ({
     interactionByObjectId: Object.fromEntries([
@@ -230,10 +229,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </main>
       <CardDetailDrawer
         card={detailCard}
-        objectLookup={tableObjectLookup}
         onClose={() => setDetailCard(undefined)}
         onCommand={(command) => void controller.submitCommand(command)}
         prompt={tablePrompt}
+        snapshot={tableSnapshot}
       />
       <WireCardPreview card={previewCard} />
     </div>
