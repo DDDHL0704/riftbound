@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted slice: Stage 4D-223BT post-merge main sync accepted on local `main` as merge commit `1f040f0f`; it contains 223BT recovery code commit `d5abb496`, docs checkpoint `194bcac6`, and remote DevUi interaction-panel import `20cfbf2d`. Runtime changed in this post-merge sync: no beyond `d5abb496`. Frontend changed: yes, accepted incoming DevUi wire interaction panel only. Validation now includes the prior 223BT server suite plus `npm --prefix src/Riftbound.DevUi run build`, which passed through event-label, user-facing text, tabletop layout, wire-table layout, strict typecheck and Vite production build. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` is clean at `01364ee2`, behind current `main` with `0` commits ahead at the pre-docs-sync divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` has no commits ahead of `main`; root PDF text remained available. Core rule PDF gate remains active from the 223BT slice: latest core rules 316.4-316.5, 323.9-323.14, 334-335, and 454-455/458 were re-checked. Project remains **NOT READY**.
+Current A_MAIN latest accepted slice: Stage 4D-223BU recovery spectator temporary-payment-resource mismatch detail validation accepted on local `main` as code commit `7caba5a5`; docs checkpoint follows. Runtime changed: yes, narrow recovery validation diagnostic detail only. Frontend changed: no. `MatchRecoveryTests` now proves spectator replay-frame timing temporary-payment-resource keyed authoritative mismatch diagnostics preserve their old prefix while appending stable expected/actual details such as `<missing>` and `<unreadable>` for scalar/map/list/bool/tick drift. Validation passed: focused temporary-payment-resource keyed required-field absence detail test `1/1`; changed-class `MatchRecoveryTests` `1974/1974` before final tidy; final adjacent Recovery/SpectatorReplayTiming/TemporaryPayment/PendingPayment/Payment/BattlefieldTask/TriggerQueue filter `3044/3044`; backend full via `Riftbound.slnx` `8307/8307`; mechanical checks passed before docs sync. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` is clean at `01364ee2`, behind current `main` with `0` commits ahead at the pre-docs-sync divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` has no commits ahead of `main`; root PDF text remained available. Core rule PDF gate is active: this slice re-checked latest core rules 131.2-131.3, 162.1-162.2, 165.1-165.2, 357, 403-404, 805, 809, 818 and 820 plus internal evidence index entries 4D-03J/4D-03K. This narrows recovery spectator timing temporary-payment-resource keyed mismatch detail diagnostics only; it does not change approved scope or final-status locks. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,11 +65,27 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest accepted Stage 4D-223BT post-merge sync is merge commit `1f040f0f`, containing recovery code `d5abb496`, docs checkpoint `194bcac6`, and incoming DevUi import `20cfbf2d`. A_MAIN will continue directly on this `main` worktree per user request.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest full Stage 4D-223BU code checkpoint is commit `7caba5a5`; docs checkpoint follows. A_MAIN will continue directly on this `main` worktree per user request.
 - `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 04:28 CST at `01364ee2`, behind current `main` with `0` commits ahead at the pre-docs-sync divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
 - Historical DOC_MATRIX handoff `17bde0c3` and source `7cb78f27` have already been integrated into `main`; no current DOC_MATRIX worktree is active unless the user opens one explicitly.
 
 ## Current Entries
+
+### 2026-06-19 04:43 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at code commit `7caba5a5`; docs checkpoint follows.
+
+Write locks: A_MAIN touched `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current completion/P0-P1/dispatch docs, this board, and `docs/CURRENT_STAGE4D_223BU_RECOVERY_SPECTATOR_TEMPORARY_PAYMENT_RESOURCE_MISMATCH_DETAILS_AUDIT.md`. Matrix JSON, `tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs`, official catalog, Chrome/formal E2E, `fullOfficial`, final status and `riftbound-dotnet.sln` remain locked.
+
+Status: Stage 4D-223BU recovery spectator temporary-payment-resource mismatch detail validation accepted. Runtime changed: yes, narrow recovery validation diagnostic detail only. Frontend changed: no. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2`, behind current `main` with `0` commits ahead at the pre-docs-sync divergence check; exact divergence must be rechecked before integration. `codex/rule-audit-remaining-20260615` had no new commits ahead of `main`; root PDF text remained available.
+
+Validation: focused temporary-payment-resource keyed required-field absence detail test `1/1`; changed-class `MatchRecoveryTests` `1974/1974` before final tidy; final adjacent Recovery/SpectatorReplayTiming/TemporaryPayment/PendingPayment/Payment/BattlefieldTask/TriggerQueue filter `3044/3044`; backend full via `Riftbound.slnx` `8307/8307`; `git diff --check` passed and docs/src/tests anchored conflict-marker scan had no findings before docs sync.
+
+Requested action: continue next executable server slice on local `main` after re-reading this board, `AGENTS.md`, and the PDF gate; check `codex/ui-followup-20260616` and `codex/rule-audit-remaining-20260615` before integration. Project remains **NOT READY**.
 
 ### 2026-06-19 04:28 A_MAIN
 
