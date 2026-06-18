@@ -13,14 +13,30 @@ type CatalogContextValue = {
 
 const CatalogContext = createContext<CatalogContextValue | undefined>(undefined);
 
-export function CatalogProvider({ children, serverUrl }: { children: ReactNode; serverUrl: string }) {
+export function CatalogProvider({
+  children,
+  disabled = false,
+  serverUrl
+}: {
+  children: ReactNode;
+  disabled?: boolean;
+  serverUrl: string;
+}) {
   const [specs, setSpecs] = useState<BehaviorSpec[]>([]);
   const [keywordCoverage, setKeywordCoverage] = useState<KeywordCoverageReport | undefined>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!disabled);
   const [error, setError] = useState<string | undefined>();
   const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
+    if (disabled) {
+      setSpecs([]);
+      setKeywordCoverage(undefined);
+      setError(undefined);
+      setLoading(false);
+      return undefined;
+    }
+
     const controller = new AbortController();
     const client = new ApiClient(serverUrl);
     setLoading(true);
@@ -43,7 +59,7 @@ export function CatalogProvider({ children, serverUrl }: { children: ReactNode; 
       });
 
     return () => controller.abort();
-  }, [serverUrl, reloadTick]);
+  }, [disabled, serverUrl, reloadTick]);
 
   const specByNo = useMemo(
     () =>
