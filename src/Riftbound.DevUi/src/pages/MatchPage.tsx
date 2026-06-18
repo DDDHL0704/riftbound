@@ -195,24 +195,27 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </div>
       </header>
 
-      <main className="wire-match-body">
+      <div className="wire-match-body">
         <section className="wire-table-shell" aria-label="黑白线框对战桌面">
           <div className="wire-table" style={wireTableStyle()}>{tableRows}</div>
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
-          <section aria-label="服务端合法操作地图" className="wire-panel wire-action-map-panel" tabIndex={0}>
+          <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" tabIndex={0}>
             <WireActionMapPanel playerId={settings.playerId} prompt={tablePrompt} snapshot={tableSnapshot} />
           </section>
           <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>
             <WireInteractionPanel
+              disabledByConnection={controller.state.status !== "connected"}
               inspectedCard={inspectedCard}
+              onCommand={(command) => void controller.submitCommand(command)}
               onClearInspectedCard={() => setInspectedCard(undefined)}
               playerId={settings.playerId}
               prompt={tablePrompt}
+              snapshot={tableSnapshot}
             />
           </section>
-          <section aria-label="服务端规则队列" className="wire-panel wire-rule-panel" tabIndex={0}>
+          <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" tabIndex={0}>
             <WireRuleQueuePanel playerId={settings.playerId} prompt={tablePrompt} snapshot={tableSnapshot} />
           </section>
           <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" tabIndex={0}>
@@ -233,7 +236,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             </ScrollArea>
           </section>
         </aside>
-      </main>
+      </div>
       <CardDetailDrawer
         card={detailCard}
         onClose={() => setDetailCard(undefined)}
@@ -282,40 +285,41 @@ function WirePlayerHome({
   const baseIds = zones.base ?? [];
   const runeIds = baseIds.filter((id) => isRuneCard(objects[id], specs[objects[id]?.cardNo ?? ""]));
   const baseObjectIds = baseIds.filter((id) => !runeIds.includes(id));
+  const ownerLabel = entry ? playerLabel(entry) : side === "self" ? "P1 我方" : "P2 对手";
   const baseSections = {
     banish: (
-      <section className="wire-banish-main" key="banish" aria-label="放逐区">
+      <section className="wire-banish-main" key="banish" aria-label={`${ownerLabel} 放逐区`}>
         <WirePublicPile ids={zones.banished ?? []} interactionByObjectId={interaction.interactionByObjectId} label="放逐" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} />
       </section>
     ),
     base: (
-      <section className="wire-base-main" key="base" aria-label="基地">
+      <section className="wire-base-main" key="base" aria-label={`${ownerLabel} 基地`}>
         <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" ids={baseObjectIds} interactionByObjectId={interaction.interactionByObjectId} kind="base" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} />
       </section>
     )
   } satisfies Record<string, ReactNode>;
   const homeSections = {
     base: (
-      <WireZone className="wire-home-base" key="base" title="基地 / 放逐">
+      <WireZone className="wire-home-base" key="base" title={`${ownerLabel} 基地 / 放逐`}>
         <div className="wire-base-banish-grid" style={wireGridColumnsStyle(layout.baseColumns)}>
           {layout.baseSlots.map((slot) => baseSections[slot])}
         </div>
       </WireZone>
     ),
     hero: (
-      <WireZone className="wire-home-hero wire-signature-zone" key="hero" title="英雄">
+      <WireZone className="wire-home-hero wire-signature-zone" key="hero" title={`${ownerLabel} 英雄`}>
         <WireCardFlow emptyLabel="英雄" ids={zones.championZone ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="signature" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} />
       </WireZone>
     ),
     legend: (
-      <WireZone className="wire-home-legend wire-signature-zone" key="legend" title="传奇">
+      <WireZone className="wire-home-legend wire-signature-zone" key="legend" title={`${ownerLabel} 传奇`}>
         <WireCardFlow emptyLabel="传奇" ids={zones.legendZone ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="signature" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} />
       </WireZone>
     )
   } satisfies Record<string, ReactNode>;
 
   return (
-    <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={`${entry ? playerLabel(entry) : side === "self" ? "P1 我方" : "P2 对手"} 基础区`}>
+    <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={`${ownerLabel} 基础区`}>
       {layout.slots.map((slot) => homeSections[slot])}
     </section>
   );
