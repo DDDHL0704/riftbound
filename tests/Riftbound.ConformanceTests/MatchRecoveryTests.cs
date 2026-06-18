@@ -187791,6 +187791,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment required assignment item legal target object id list is required",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignments does not match authoritative state battle damage assignment required assignments",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -187866,6 +187871,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment required assignment item legal target object id list is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignments does not match authoritative state battle damage assignment required assignments",
                 StringComparison.Ordinal));
     }
 

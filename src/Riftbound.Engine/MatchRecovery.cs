@@ -29018,10 +29018,18 @@ public static class MatchRecoveryValidator
             AddSpectatorBattleDamageAssignmentValueMismatch("lethal damage threshold", errors);
         }
 
-        if (TryReadObjectRequiredAssignments(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments)
-            && !RequiredAssignmentsEqual(
-                requiredAssignments,
-                ResolutionResult.BattleRequiredAssignmentsFor(authoritativeState, authoritativeBattle)))
+        var authoritativeRequiredAssignments =
+            ResolutionResult.BattleRequiredAssignmentsFor(authoritativeState, authoritativeBattle);
+        if (TryReadObjectRequiredAssignments(damageAssignmentPayload, "requiredAssignments", out var requiredAssignments))
+        {
+            if (!RequiredAssignmentsEqual(requiredAssignments, authoritativeRequiredAssignments))
+            {
+                AddSpectatorBattleDamageAssignmentValueMismatch("required assignments", errors);
+            }
+        }
+        else if (TryReadObjectList(damageAssignmentPayload, "requiredAssignments", out var requiredAssignmentItems)
+            && requiredAssignmentItems.Count == authoritativeRequiredAssignments.Count
+            && authoritativeRequiredAssignments.Count > 0)
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("required assignments", errors);
         }
