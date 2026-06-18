@@ -54968,17 +54968,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing battlefield task item status does not match authoritative state battlefield task status {expectedStatus} for battlefield object id {contestedBattlefieldObjectId} kind START_SPELL_DUEL",
+                $"spectator replay frame timing battlefield task item status does not match authoritative state battlefield task status {expectedStatus} for battlefield object id {contestedBattlefieldObjectId} kind START_SPELL_DUEL; expected {expectedStatus} but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing battlefield task item acting player id does not match authoritative state battlefield task acting player id {expectedActingPlayerId} for battlefield object id {contestedBattlefieldObjectId} kind START_SPELL_DUEL",
+                $"spectator replay frame timing battlefield task item acting player id does not match authoritative state battlefield task acting player id {expectedActingPlayerId} for battlefield object id {contestedBattlefieldObjectId} kind START_SPELL_DUEL; expected {expectedActingPlayerId} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing battlefield task item stack item ids disagree with authoritative state battlefield task stack item ids for battlefield object id {contestedBattlefieldObjectId} kind START_SPELL_DUEL",
+                $"spectator replay frame timing battlefield task item stack item ids disagree with authoritative state battlefield task stack item ids for battlefield object id {contestedBattlefieldObjectId} kind START_SPELL_DUEL; expected [{stackItemId}] but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

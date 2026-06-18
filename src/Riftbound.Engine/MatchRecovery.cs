@@ -4981,15 +4981,19 @@ public static class MatchRecoveryValidator
         const string payloadLabel = "spectator replay frame timing battlefield task item";
         if (!TryReadObjectString(taskPayload, key, out var actual))
         {
+            var detail = FormatExpectedActualForRecovery(
+                expected,
+                FormatUnreadableObjectValue(taskPayload, key));
             errors.Add(
-                $"{payloadLabel} {fieldLabel} does not match authoritative state battlefield task {fieldLabel} {expected} for battlefield object id {battlefieldObjectId} kind {kind}");
+                $"{payloadLabel} {fieldLabel} does not match authoritative state battlefield task {fieldLabel} {expected} for battlefield object id {battlefieldObjectId} kind {kind}; {detail}");
             return;
         }
 
         if (!string.Equals(actual, expected, StringComparison.Ordinal))
         {
+            var detail = FormatExpectedActualForRecovery(expected, actual);
             errors.Add(
-                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state battlefield task {fieldLabel} {expected} for battlefield object id {battlefieldObjectId} kind {kind}");
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state battlefield task {fieldLabel} {expected} for battlefield object id {battlefieldObjectId} kind {kind}; {detail}");
         }
     }
 
@@ -5004,21 +5008,29 @@ public static class MatchRecoveryValidator
     {
         const string payloadLabel = "spectator replay frame timing battlefield task item";
         var expectedText = expected ?? string.Empty;
-        if (!TryReadObjectOptionalString(taskPayload, key, out var actual))
+        if (!TryReadObjectValue(taskPayload, key, out var value))
         {
             if (!string.IsNullOrEmpty(expectedText))
             {
                 errors.Add(
-                    $"{payloadLabel} {fieldLabel} does not match authoritative state battlefield task {fieldLabel} {expectedText} for battlefield object id {battlefieldObjectId} kind {kind}");
+                    $"{payloadLabel} {fieldLabel} does not match authoritative state battlefield task {fieldLabel} {expectedText} for battlefield object id {battlefieldObjectId} kind {kind}; {FormatExpectedActualForRecovery(expectedText, "<missing>")}");
             }
 
             return;
         }
 
-        if (!string.Equals(actual, expectedText, StringComparison.Ordinal))
+        if (!TryReadOptionalStringValue(value, out var actual))
         {
             errors.Add(
-                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state battlefield task {fieldLabel} {expectedText} for battlefield object id {battlefieldObjectId} kind {kind}");
+                $"{payloadLabel} {fieldLabel} does not match authoritative state battlefield task {fieldLabel} {expectedText} for battlefield object id {battlefieldObjectId} kind {kind}; {FormatExpectedActualForRecovery(expectedText, "<unreadable>")}");
+            return;
+        }
+
+        if (!string.Equals(actual, expectedText, StringComparison.Ordinal))
+        {
+            var detail = FormatExpectedActualForRecovery(expectedText, actual);
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state battlefield task {fieldLabel} {expectedText} for battlefield object id {battlefieldObjectId} kind {kind}; {detail}");
         }
     }
 
@@ -5032,11 +5044,21 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing battlefield task item";
-        if (!TryReadObjectStringList(taskPayload, key, out var actual)
-            || !StringListsEqual(actual, expected))
+        if (!TryReadObjectValue(taskPayload, key, out var value))
         {
             errors.Add(
-                $"{payloadLabel} {fieldLabel} disagree with authoritative state battlefield task {fieldLabel} for battlefield object id {battlefieldObjectId} kind {kind}");
+                $"{payloadLabel} {fieldLabel} disagree with authoritative state battlefield task {fieldLabel} for battlefield object id {battlefieldObjectId} kind {kind}; {FormatExpectedActualForRecovery(expected, "<missing>")}");
+            return;
+        }
+
+        if (!TryReadStringListValue(value, out var actual)
+            || !StringListsEqual(actual, expected))
+        {
+            var detail = FormatExpectedActualForRecovery(
+                expected,
+                TryReadStringListValue(value, out var readableActual) ? readableActual : "<unreadable>");
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} disagree with authoritative state battlefield task {fieldLabel} for battlefield object id {battlefieldObjectId} kind {kind}; {detail}");
         }
     }
 
