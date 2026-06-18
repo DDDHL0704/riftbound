@@ -12347,15 +12347,19 @@ public static class MatchRecoveryValidator
         const string payloadLabel = "spectator replay frame timing pending task queue task item";
         if (!TryReadObjectString(taskPayload, key, out var actual))
         {
+            var detail = FormatExpectedActualForRecovery(
+                expected,
+                FormatUnreadableObjectValue(taskPayload, key));
             errors.Add(
-                $"{payloadLabel} {fieldLabel} does not match authoritative state pending task queue task {fieldLabel} {expected} for task id {taskId}");
+                $"{payloadLabel} {fieldLabel} does not match authoritative state pending task queue task {fieldLabel} {expected} for task id {taskId}; {detail}");
             return;
         }
 
         if (!string.Equals(actual, expected, StringComparison.Ordinal))
         {
+            var detail = FormatExpectedActualForRecovery(expected, actual);
             errors.Add(
-                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state pending task queue task {fieldLabel} {expected} for task id {taskId}");
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state pending task queue task {fieldLabel} {expected} for task id {taskId}; {detail}");
         }
     }
 
@@ -12369,21 +12373,29 @@ public static class MatchRecoveryValidator
     {
         const string payloadLabel = "spectator replay frame timing pending task queue task item";
         var expectedText = expected ?? string.Empty;
-        if (!TryReadObjectOptionalString(taskPayload, key, out var actual))
+        if (!TryReadObjectValue(taskPayload, key, out var value))
         {
             if (!string.IsNullOrEmpty(expectedText))
             {
                 errors.Add(
-                    $"{payloadLabel} {fieldLabel} does not match authoritative state pending task queue task {fieldLabel} {expectedText} for task id {taskId}");
+                    $"{payloadLabel} {fieldLabel} does not match authoritative state pending task queue task {fieldLabel} {expectedText} for task id {taskId}; {FormatExpectedActualForRecovery(expectedText, "<missing>")}");
             }
 
             return;
         }
 
-        if (!string.Equals(actual, expectedText, StringComparison.Ordinal))
+        if (!TryReadOptionalStringValue(value, out var actual))
         {
             errors.Add(
-                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state pending task queue task {fieldLabel} {expectedText} for task id {taskId}");
+                $"{payloadLabel} {fieldLabel} does not match authoritative state pending task queue task {fieldLabel} {expectedText} for task id {taskId}; {FormatExpectedActualForRecovery(expectedText, "<unreadable>")}");
+            return;
+        }
+
+        if (!string.Equals(actual, expectedText, StringComparison.Ordinal))
+        {
+            var detail = FormatExpectedActualForRecovery(expectedText, actual);
+            errors.Add(
+                $"{payloadLabel} {fieldLabel} {actual} does not match authoritative state pending task queue task {fieldLabel} {expectedText} for task id {taskId}; {detail}");
         }
     }
 
@@ -12406,15 +12418,25 @@ public static class MatchRecoveryValidator
             if (!TryReadObjectBool(taskPayload, "hiddenObject", out var hiddenObject)
                 || !hiddenObject)
             {
+                var detail = FormatExpectedActualForRecovery(
+                    true,
+                    TryReadObjectBool(taskPayload, "hiddenObject", out var readableHiddenObject)
+                        ? readableHiddenObject
+                        : FormatUnreadableObjectValue(taskPayload, "hiddenObject"));
                 errors.Add(
-                    $"{payloadLabel} hidden object flag {FormatBoolForRecoveryDiagnostic(hiddenObject)} does not match authoritative state pending task queue task hidden object flag true for task id {taskId}");
+                    $"{payloadLabel} hidden object flag {FormatBoolForRecoveryDiagnostic(hiddenObject)} does not match authoritative state pending task queue task hidden object flag true for task id {taskId}; {detail}");
             }
 
             if (!TryReadObjectString(taskPayload, "hiddenObjectKind", out var hiddenObjectKind)
                 || !string.Equals(hiddenObjectKind, "BATTLEFIELD_STANDBY", StringComparison.Ordinal))
             {
+                var detail = FormatExpectedActualForRecovery(
+                    "BATTLEFIELD_STANDBY",
+                    TryReadObjectString(taskPayload, "hiddenObjectKind", out var readableHiddenObjectKind)
+                        ? readableHiddenObjectKind
+                        : FormatUnreadableObjectValue(taskPayload, "hiddenObjectKind"));
                 errors.Add(
-                    $"{payloadLabel} hidden object kind {hiddenObjectKind ?? string.Empty} does not match authoritative state pending task queue task hidden object kind BATTLEFIELD_STANDBY for task id {taskId}");
+                    $"{payloadLabel} hidden object kind {hiddenObjectKind ?? string.Empty} does not match authoritative state pending task queue task hidden object kind BATTLEFIELD_STANDBY for task id {taskId}; {detail}");
             }
 
             return;

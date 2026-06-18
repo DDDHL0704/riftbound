@@ -57316,27 +57316,27 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item kind {expectedKind}_FORGED does not match authoritative state pending task queue task kind {expectedKind} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item kind {expectedKind}_FORGED does not match authoritative state pending task queue task kind {expectedKind} for task id {equipmentTaskId}; expected {expectedKind} but got {expectedKind}_FORGED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item reason {expectedReason}_FORGED does not match authoritative state pending task queue task reason {expectedReason} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item reason {expectedReason}_FORGED does not match authoritative state pending task queue task reason {expectedReason} for task id {equipmentTaskId}; expected {expectedReason} but got {expectedReason}_FORGED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item player id bob does not match authoritative state pending task queue task player id {expectedPlayerId} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item player id bob does not match authoritative state pending task queue task player id {expectedPlayerId} for task id {equipmentTaskId}; expected {expectedPlayerId} but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item battlefield object id forged-battlefield does not match authoritative state pending task queue task battlefield object id {expectedBattlefieldObjectId} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item battlefield object id forged-battlefield does not match authoritative state pending task queue task battlefield object id {expectedBattlefieldObjectId} for task id {equipmentTaskId}; expected {expectedBattlefieldObjectId} but got forged-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item object id forged-object does not match authoritative state pending task queue task object id {expectedObjectId} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item object id forged-object does not match authoritative state pending task queue task object id {expectedObjectId} for task id {equipmentTaskId}; expected {expectedObjectId} but got forged-object",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -57511,27 +57511,27 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item kind does not match authoritative state pending task queue task kind {expectedKind} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item kind does not match authoritative state pending task queue task kind {expectedKind} for task id {equipmentTaskId}; expected {expectedKind} but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item reason does not match authoritative state pending task queue task reason {expectedReason} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item reason does not match authoritative state pending task queue task reason {expectedReason} for task id {equipmentTaskId}; expected {expectedReason} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item player id does not match authoritative state pending task queue task player id {expectedPlayerId} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item player id does not match authoritative state pending task queue task player id {expectedPlayerId} for task id {equipmentTaskId}; expected {expectedPlayerId} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item battlefield object id does not match authoritative state pending task queue task battlefield object id {expectedBattlefieldObjectId} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item battlefield object id does not match authoritative state pending task queue task battlefield object id {expectedBattlefieldObjectId} for task id {equipmentTaskId}; expected {expectedBattlefieldObjectId} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing pending task queue task item object id does not match authoritative state pending task queue task object id {expectedObjectId} for task id {equipmentTaskId}",
+                $"spectator replay frame timing pending task queue task item object id does not match authoritative state pending task queue task object id {expectedObjectId} for task id {equipmentTaskId}; expected {expectedObjectId} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
