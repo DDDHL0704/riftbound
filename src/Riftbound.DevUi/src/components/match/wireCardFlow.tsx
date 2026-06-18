@@ -20,6 +20,7 @@ export type WireCardFlowPlan = {
 type WireCardFlowProps = {
   className?: string;
   emptyLabel?: string;
+  interactionByObjectId?: Record<string, "enabled" | "disabled" | undefined>;
   ids: string[];
   kind: WireCardFlowKind;
   minSlots?: number;
@@ -28,6 +29,7 @@ type WireCardFlowProps = {
   onPreviewCard?: (card?: InspectedCard) => void;
   plan?: WireCardFlowPlan;
   renderEmptySlots?: boolean;
+  selectedObjectId?: string;
   specs: Record<string, BehaviorSpec>;
 };
 
@@ -95,6 +97,7 @@ export function buildWireCardFlowPlan({
 export function WireCardFlow({
   className = "",
   emptyLabel = "",
+  interactionByObjectId,
   ids,
   kind,
   minSlots = 0,
@@ -103,6 +106,7 @@ export function WireCardFlow({
   onPreviewCard,
   plan: providedPlan,
   renderEmptySlots = false,
+  selectedObjectId,
   specs
 }: WireCardFlowProps) {
   const flowPlan = providedPlan ?? buildWireCardFlowPlan({ itemCount: ids.length, kind, minSlots });
@@ -127,11 +131,13 @@ export function WireCardFlow({
         return (
           <CardFace
             compact
+            interactionState={interactionByObjectId?.[id]}
             key={id}
             object={object}
             objectId={id}
             onInspect={onInspectCard}
             onPreview={onPreviewCard}
+            selected={selectedObjectId === id}
             spec={object.cardNo ? specs[object.cardNo] : undefined}
           />
         );
@@ -146,17 +152,21 @@ export function WireCardSlot({ label }: { label: string }) {
 
 export function WirePublicPile({
   ids,
+  interactionByObjectId,
   label,
   objects,
   onInspectCard,
   onPreviewCard,
+  selectedObjectId,
   specs
 }: {
   ids: string[];
+  interactionByObjectId?: Record<string, "enabled" | "disabled" | undefined>;
   label: string;
   objects: Record<string, CardObjectView | undefined>;
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard?: (card?: InspectedCard) => void;
+  selectedObjectId?: string;
   specs: Record<string, BehaviorSpec>;
 }) {
   const topId = ids.at(-1);
@@ -167,10 +177,12 @@ export function WirePublicPile({
       {topId ? (
         <CardFace
           compact
+          interactionState={topId ? interactionByObjectId?.[topId] : undefined}
           object={topObject ?? hiddenObject(topId)}
           objectId={topId}
           onInspect={onInspectCard}
           onPreview={onPreviewCard}
+          selected={selectedObjectId === topId}
           spec={topObject?.cardNo ? specs[topObject.cardNo] : undefined}
         />
       ) : (

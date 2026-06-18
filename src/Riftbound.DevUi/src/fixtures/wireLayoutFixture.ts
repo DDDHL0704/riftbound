@@ -1,5 +1,5 @@
 import { BehaviorSpec } from "../types/catalog";
-import { CardObjectView, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
+import { ActionPromptDto, CardObjectView, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
 
 type FixtureCard = {
   cardNo: string;
@@ -42,6 +42,66 @@ export const wireLayoutFixtureSpecByNo: Record<string, BehaviorSpec> = Object.fr
 export function isWireLayoutFixtureEnabled(search = window.location.search): boolean {
   const params = new URLSearchParams(search);
   return params.get("fixture") === "layout" || params.get("layoutFixture") === "cards";
+}
+
+export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): ActionPromptDto {
+  const selfId = perspectivePlayerId || "P1";
+
+  return {
+    actionable: true,
+    actions: ["PLAY_CARD", "MOVE_UNIT", "TAP_RUNE", "DECLARE_BATTLE", "PASS"],
+    candidates: [
+      {
+        action: "PLAY_CARD",
+        destinations: [{ id: "STACK", label: "结算链" }],
+        enabled: true,
+        label: "打出手牌样例",
+        optionalCosts: [{ id: "RECYCLE_RUNE:p1-rune-2", label: "回收已抽出符文" }],
+        reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
+        sources: [{ id: "p1-hand-spell", label: "手牌法术" }],
+        targets: [{ id: "p2-right-1", label: "对方单位" }]
+      },
+      {
+        action: "MOVE_UNIT",
+        destinations: [{ id: "BATTLEFIELD:fixture-right-battlefield", label: "右战场" }],
+        enabled: true,
+        label: "移动单位样例",
+        optionalCosts: [{ id: "ROAM", label: "游走费用" }],
+        reason: "前端线框样例；移动窗口、费用和目标由服务端决定。",
+        sources: [{ id: "p1-left-2", label: "我方左战场单位" }]
+      },
+      {
+        action: "TAP_RUNE",
+        enabled: true,
+        label: "横置符文样例",
+        reason: "前端线框样例；真实资源池由服务端快照决定。",
+        sources: [{ id: "p1-rune-3", label: "未横置符文" }]
+      },
+      {
+        action: "DECLARE_BATTLE",
+        enabled: false,
+        label: "声明战斗样例",
+        reason: "前端线框样例：当前只展示禁用候选。",
+        targets: [{ id: "fixture-left-battlefield", label: "左战场牌" }]
+      },
+      {
+        action: "PASS",
+        enabled: true,
+        label: "让过",
+        reason: "前端线框样例；真实窗口由服务端推进。"
+      }
+    ],
+    playerId: selfId,
+    promptId: "wire-layout-fixture-prompt",
+    reason: "前端线框样例 prompt，不参与规则判断。",
+    snapshotTick: 9001,
+    view: {
+      message: "展示点击卡牌、候选行动、目标/费用和规则队列的线框占位。",
+      relatedBattlefieldId: "fixture-left-battlefield",
+      title: "前端线框交互样例",
+      type: "MAIN_ACTION"
+    }
+  };
 }
 
 export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): SnapshotDto {
@@ -142,12 +202,69 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
       [selfId]: self,
       [opponentId]: opponent
     },
-    stack: [],
+    stack: [
+      {
+        cardNo: "UNL-007/219",
+        controllerId: selfId,
+        effectKind: "SPELL",
+        sourceObjectId: "p1-hand-spell",
+        stackItemId: "fixture-stack-1",
+        targetObjectIds: ["p2-right-1"]
+      }
+    ],
     tick: 9001,
     timing: {
+      battleResolutions: [
+        {
+          battlefieldId: "fixture-left-battlefield",
+          kind: "NO_RESULT",
+          resolutionId: "fixture-battle-resolution-1",
+          tick: 9000,
+          winnerPlayerId: null
+        }
+      ],
+      battlefieldResolutions: [
+        {
+          battlefieldObjectId: "fixture-left-battlefield",
+          controllerId: selfId,
+          kind: "CONTROL_RESOLVED",
+          participantObjectIds: ["p1-left-1", "p2-left-1"],
+          playerId: selfId,
+          previousControllerId: opponentId,
+          reason: "前端线框样例：服务端战场控制结果。",
+          relatedEventKinds: ["BATTLEFIELD_CONTROL_RESOLVED"],
+          resolutionId: "fixture-battlefield-resolution-1",
+          sourceObjectId: "fixture-left-battlefield",
+          tick: 9000
+        }
+      ],
+      pendingTaskQueue: {
+        activeTaskId: "fixture-task-1",
+        isBlocking: true,
+        phase: "BATTLEFIELD_TASKS",
+        tasks: [
+          {
+            battlefieldObjectId: "fixture-left-battlefield",
+            kind: "BATTLEFIELD_CONTESTED",
+            participantObjectIds: ["p1-left-1", "p2-left-1"],
+            reason: "BATTLEFIELD_CONTESTED",
+            status: "PENDING",
+            taskId: "fixture-task-1"
+          }
+        ]
+      },
       phase: "MAIN",
       roomStatus: "VISUAL_FIXTURE",
       timingState: "MAIN_ACTION",
+      triggerQueue: [
+        {
+          controllerId: selfId,
+          effectKind: "TRIGGER",
+          sourceObjectId: "p1-left-1",
+          triggerId: "fixture-trigger-1",
+          triggeredByEventKind: "BATTLEFIELD_HELD"
+        }
+      ],
       turnWindow: { state: "MAIN_ACTION" }
     },
     turnNumber: 7,
