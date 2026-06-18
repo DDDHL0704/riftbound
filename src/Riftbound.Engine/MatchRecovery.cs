@@ -14360,42 +14360,42 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        ValidateTimingOptionalObjectReference(
+        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
             effectPayload,
             "targetObjectId",
             $"{effectLabel} target object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingOptionalObjectReference(
+        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
             effectPayload,
             "sourceObjectId",
             $"{effectLabel} source object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             effectPayload,
             "participantObjectIds",
             $"{effectLabel} participant object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             effectPayload,
             "sourceDependencyObjectIds",
             $"{effectLabel} source dependency object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             effectPayload,
             "targetDependencyObjectIds",
             $"{effectLabel} target dependency object id",
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingObjectReferenceList(
+        ValidateTimingObjectReferenceListWithExpectedDetails(
             effectPayload,
             "participantDependencyObjectIds",
             $"{effectLabel} participant dependency object id",

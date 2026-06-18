@@ -3311,32 +3311,32 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item target object id missing-target is missing from objects",
+                "snapshot for alice timing continuous effect item target object id missing-target is missing from objects; expected [] but got missing-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item source object id missing-source is missing from objects",
+                "snapshot for alice timing continuous effect item source object id missing-source is missing from objects; expected [] but got missing-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item participant object id missing-participant is missing from objects",
+                "snapshot for alice timing continuous effect item participant object id missing-participant is missing from objects; expected [] but got missing-participant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item source dependency object id missing-source is missing from objects",
+                "snapshot for alice timing continuous effect item source dependency object id missing-source is missing from objects; expected [] but got missing-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item target dependency object id missing-target is missing from objects",
+                "snapshot for alice timing continuous effect item target dependency object id missing-target is missing from objects; expected [] but got missing-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item participant dependency object id missing-participant is missing from objects",
+                "snapshot for alice timing continuous effect item participant dependency object id missing-participant is missing from objects; expected [] but got missing-participant",
                 StringComparison.Ordinal));
     }
 
@@ -79656,22 +79656,22 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant object id missing-participant-object is missing from object registry",
+                "spectator replay frame timing continuous effect item participant object id missing-participant-object is missing from object registry; expected [battlefield-1, participant-1] but got missing-participant-object",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item source dependency object id missing-source-dependency is missing from object registry",
+                "spectator replay frame timing continuous effect item source dependency object id missing-source-dependency is missing from object registry; expected [battlefield-1, participant-1] but got missing-source-dependency",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item target dependency object id missing-target-dependency is missing from object registry",
+                "spectator replay frame timing continuous effect item target dependency object id missing-target-dependency is missing from object registry; expected [battlefield-1, participant-1] but got missing-target-dependency",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant dependency object id missing-participant-dependency is missing from object registry",
+                "spectator replay frame timing continuous effect item participant dependency object id missing-participant-dependency is missing from object registry; expected [battlefield-1, participant-1] but got missing-participant-dependency",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -79817,22 +79817,22 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant object id missing-participant-object is missing from object registry",
+                "spectator replay frame timing continuous effect item participant object id missing-participant-object is missing from object registry; expected [battlefield-1, participant-1] but got missing-participant-object",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item source dependency object id missing-source-dependency is missing from object registry",
+                "spectator replay frame timing continuous effect item source dependency object id missing-source-dependency is missing from object registry; expected [battlefield-1, participant-1] but got missing-source-dependency",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item target dependency object id missing-target-dependency is missing from object registry",
+                "spectator replay frame timing continuous effect item target dependency object id missing-target-dependency is missing from object registry; expected [battlefield-1, participant-1] but got missing-target-dependency",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant dependency object id missing-participant-dependency is missing from object registry",
+                "spectator replay frame timing continuous effect item participant dependency object id missing-participant-dependency is missing from object registry; expected [battlefield-1, participant-1] but got missing-participant-dependency",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -83546,12 +83546,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item target object id missing-target-object is missing from object registry",
+                "spectator replay frame timing continuous effect item target object id missing-target-object is missing from object registry; expected [source-1, target-1] but got missing-target-object",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item source object id missing-source-object is missing from object registry",
+                "spectator replay frame timing continuous effect item source object id missing-source-object is missing from object registry; expected [source-1, target-1] but got missing-source-object",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -83683,12 +83683,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item target object id missing-target-object is missing from object registry",
+                "spectator replay frame timing continuous effect item target object id missing-target-object is missing from object registry; expected [source-1, target-1] but got missing-target-object",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item source object id missing-source-object is missing from object registry",
+                "spectator replay frame timing continuous effect item source object id missing-source-object is missing from object registry; expected [source-1, target-1] but got missing-source-object",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -87196,22 +87196,22 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant object id missing-participant is missing from object registry",
+                "spectator replay frame timing continuous effect item participant object id missing-participant is missing from object registry; expected [equipment-1, source-1] but got missing-participant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item source dependency object id missing-source is missing from object registry",
+                "spectator replay frame timing continuous effect item source dependency object id missing-source is missing from object registry; expected [equipment-1, source-1] but got missing-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item target dependency object id missing-target is missing from object registry",
+                "spectator replay frame timing continuous effect item target dependency object id missing-target is missing from object registry; expected [equipment-1, source-1] but got missing-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant dependency object id missing-participant is missing from object registry",
+                "spectator replay frame timing continuous effect item participant dependency object id missing-participant is missing from object registry; expected [equipment-1, source-1] but got missing-participant",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -87318,22 +87318,22 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant object id missing-participant is missing from object registry",
+                "spectator replay frame timing continuous effect item participant object id missing-participant is missing from object registry; expected [equipment-1, source-1] but got missing-participant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item source dependency object id missing-source is missing from object registry",
+                "spectator replay frame timing continuous effect item source dependency object id missing-source is missing from object registry; expected [equipment-1, source-1] but got missing-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item target dependency object id missing-target is missing from object registry",
+                "spectator replay frame timing continuous effect item target dependency object id missing-target is missing from object registry; expected [equipment-1, source-1] but got missing-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant dependency object id missing-participant is missing from object registry",
+                "spectator replay frame timing continuous effect item participant dependency object id missing-participant is missing from object registry; expected [equipment-1, source-1] but got missing-participant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -87438,32 +87438,32 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item target object id missing-target is missing from object registry",
+                "spectator replay frame timing continuous effect item target object id missing-target is missing from object registry; expected [] but got missing-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item source object id missing-source is missing from object registry",
+                "spectator replay frame timing continuous effect item source object id missing-source is missing from object registry; expected [] but got missing-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant object id missing-participant is missing from object registry",
+                "spectator replay frame timing continuous effect item participant object id missing-participant is missing from object registry; expected [] but got missing-participant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item source dependency object id missing-source is missing from object registry",
+                "spectator replay frame timing continuous effect item source dependency object id missing-source is missing from object registry; expected [] but got missing-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item target dependency object id missing-target is missing from object registry",
+                "spectator replay frame timing continuous effect item target dependency object id missing-target is missing from object registry; expected [] but got missing-target",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item participant dependency object id missing-participant is missing from object registry",
+                "spectator replay frame timing continuous effect item participant dependency object id missing-participant is missing from object registry; expected [] but got missing-participant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
