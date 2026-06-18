@@ -29188,13 +29188,18 @@ public static class MatchRecoveryValidator
         }
 
         var hasParticipants = participantObjectIds.Count > 0;
+        var actualParticipantObjectIds = participantObjectIds
+            .OrderBy(participantObjectId => participantObjectId, StringComparer.Ordinal)
+            .ToArray();
         if (isActive && !hasParticipants)
         {
-            errors.Add($"{payloadLabel} active flag is true but no battle participants are present");
+            errors.Add(
+                $"{payloadLabel} active flag is true but no battle participants are present; {FormatExpectedActualForRecovery("<non-empty>", actualParticipantObjectIds)}");
         }
         else if (!isActive && hasParticipants)
         {
-            errors.Add($"{payloadLabel} active flag is false but battle participants are present");
+            errors.Add(
+                $"{payloadLabel} active flag is false but battle participants are present; {FormatExpectedActualForRecovery(Array.Empty<string>(), actualParticipantObjectIds)}");
         }
     }
 

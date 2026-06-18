@@ -20947,7 +20947,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battle active flag is true but no battle participants are present",
+                "snapshot for alice timing battle active flag is true but no battle participants are present; expected <non-empty> but got []",
                 StringComparison.Ordinal));
     }
 
@@ -188644,7 +188644,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle active flag is false but battle participants are present",
+                "spectator replay frame timing battle active flag is false but battle participants are present; expected [] but got [attacker-a, defender-a]",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
