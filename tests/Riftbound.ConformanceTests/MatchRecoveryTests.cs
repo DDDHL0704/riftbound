@@ -184164,31 +184164,31 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice id does not match authoritative state pending hand choice id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice id does not match authoritative state pending hand choice id; expected choice-1 but got wrong-choice", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice window does not match authoritative state pending hand choice window", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice window does not match authoritative state pending hand choice window; expected CHOOSE_HAND_CARDS but got WRONG_WINDOW", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice player does not match authoritative state pending hand choice player", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice player does not match authoritative state pending hand choice player; expected alice but got bob", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice required count does not match authoritative state pending hand choice required count", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice required count does not match authoritative state pending hand choice required count; expected 1 but got 3", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice max count does not match authoritative state pending hand choice max count", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice max count does not match authoritative state pending hand choice max count; expected 2 but got 4", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice reason does not match authoritative state pending hand choice reason", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice reason does not match authoritative state pending hand choice reason; expected test-choice but got wrong-reason", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object; expected source-1 but got wrong-source", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice effect kind does not match authoritative state pending hand choice effect kind", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice effect kind does not match authoritative state pending hand choice effect kind; expected DRAW_DISCARD but got WRONG_EFFECT", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending hand choice state does not match authoritative spectator pending hand choice state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame timing pending hand choice state does not match authoritative spectator pending hand choice state; expected WAITING_FOR_CHOICE but got PENDING_CHOICE", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending hand choice legal object ids must be redacted", StringComparison.Ordinal));
@@ -184341,6 +184341,9 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending hand choice id is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice id does not match authoritative state pending hand choice id; expected choice-1 but got <missing>", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -184548,6 +184551,9 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending hand choice required count is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice required count does not match authoritative state pending hand choice required count; expected 1 but got <missing>", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -184686,6 +184692,9 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending hand choice state is required", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice state does not match authoritative spectator pending hand choice state; expected WAITING_FOR_CHOICE but got <missing>", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -184824,6 +184833,9 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object", StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object; expected source-1 but got <missing>", StringComparison.Ordinal));
     }
 
     [Fact]

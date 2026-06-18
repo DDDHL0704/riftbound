@@ -22231,64 +22231,115 @@ public static class MatchRecoveryValidator
             errors);
         ValidateSpectatorPendingHandChoicePayloadValues(choicePayload, errors);
 
-        if (!TryReadObjectString(choicePayload, "choiceId", out var choiceId)
-            || !string.Equals(choiceId, authoritativeChoice.ChoiceId, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending hand choice id does not match authoritative state pending hand choice id");
-        }
-
-        if (!TryReadObjectString(choicePayload, "choiceWindow", out var choiceWindow)
-            || !string.Equals(choiceWindow, authoritativeChoice.ChoiceWindow, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending hand choice window does not match authoritative state pending hand choice window");
-        }
-
-        if (!TryReadObjectString(choicePayload, "playerId", out var playerId)
-            || !string.Equals(playerId, authoritativeChoice.PlayerId, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending hand choice player does not match authoritative state pending hand choice player");
-        }
-
-        if (!TryReadObjectInt(choicePayload, "requiredCount", out var requiredCount)
-            || requiredCount != authoritativeChoice.RequiredCount)
-        {
-            errors.Add("spectator replay frame timing pending hand choice required count does not match authoritative state pending hand choice required count");
-        }
-
-        if (!TryReadObjectInt(choicePayload, "maxCount", out var maxCount)
-            || maxCount != authoritativeChoice.MaxCount)
-        {
-            errors.Add("spectator replay frame timing pending hand choice max count does not match authoritative state pending hand choice max count");
-        }
-
-        if (!TryReadObjectString(choicePayload, "reason", out var reason)
-            || !string.Equals(reason, authoritativeChoice.Reason, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending hand choice reason does not match authoritative state pending hand choice reason");
-        }
-
-        if (!TryReadObjectString(choicePayload, "sourceObjectId", out var sourceObjectId)
-            || !string.Equals(sourceObjectId, authoritativeChoice.SourceObjectId, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object");
-        }
-
-        if (!TryReadObjectString(choicePayload, "effectKind", out var effectKind)
-            || !string.Equals(effectKind, authoritativeChoice.EffectKind, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending hand choice effect kind does not match authoritative state pending hand choice effect kind");
-        }
-
-        if (!TryReadObjectString(choicePayload, "choiceState", out var choiceState)
-            || !string.Equals(choiceState, "WAITING_FOR_CHOICE", StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending hand choice state does not match authoritative spectator pending hand choice state");
-        }
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "choiceId",
+            "spectator replay frame timing pending hand choice id does not match authoritative state pending hand choice id",
+            authoritativeChoice.ChoiceId,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "choiceWindow",
+            "spectator replay frame timing pending hand choice window does not match authoritative state pending hand choice window",
+            authoritativeChoice.ChoiceWindow,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "playerId",
+            "spectator replay frame timing pending hand choice player does not match authoritative state pending hand choice player",
+            authoritativeChoice.PlayerId,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
+            choicePayload,
+            "requiredCount",
+            "spectator replay frame timing pending hand choice required count does not match authoritative state pending hand choice required count",
+            authoritativeChoice.RequiredCount,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
+            choicePayload,
+            "maxCount",
+            "spectator replay frame timing pending hand choice max count does not match authoritative state pending hand choice max count",
+            authoritativeChoice.MaxCount,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "reason",
+            "spectator replay frame timing pending hand choice reason does not match authoritative state pending hand choice reason",
+            authoritativeChoice.Reason,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "sourceObjectId",
+            "spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object",
+            authoritativeChoice.SourceObjectId,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "effectKind",
+            "spectator replay frame timing pending hand choice effect kind does not match authoritative state pending hand choice effect kind",
+            authoritativeChoice.EffectKind,
+            errors);
+        ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+            choicePayload,
+            "choiceState",
+            "spectator replay frame timing pending hand choice state does not match authoritative spectator pending hand choice state",
+            "WAITING_FOR_CHOICE",
+            errors);
 
         if (TryReadObjectValue(choicePayload, "legalObjectIds", out _))
         {
             errors.Add("spectator replay frame timing pending hand choice legal object ids must be redacted");
         }
+    }
+
+    private static void ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
+        object? choicePayload,
+        string key,
+        string mismatchMessage,
+        string? expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectString(choicePayload, key, out var actual);
+        if (readable
+            && string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        AddSpectatorPendingHandChoiceAuthoritativeMismatch(
+            mismatchMessage,
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(choicePayload, key),
+            errors);
+    }
+
+    private static void ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
+        object? choicePayload,
+        string key,
+        string mismatchMessage,
+        int expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectInt(choicePayload, key, out var actual);
+        if (readable && actual == expected)
+        {
+            return;
+        }
+
+        AddSpectatorPendingHandChoiceAuthoritativeMismatch(
+            mismatchMessage,
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(choicePayload, key),
+            errors);
+    }
+
+    private static void AddSpectatorPendingHandChoiceAuthoritativeMismatch(
+        string mismatchMessage,
+        object? expected,
+        object? actual,
+        List<string> errors)
+    {
+        errors.Add($"{mismatchMessage}; {FormatExpectedActualForRecovery(expected, actual)}");
     }
 
     private static void AddMissingSpectatorPendingHandChoiceCountDiagnostics(
