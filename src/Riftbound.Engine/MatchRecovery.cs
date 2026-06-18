@@ -28673,6 +28673,7 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(damageAssignmentPayload))
         {
             errors.Add($"{payloadLabel} payload is required");
+            AddMissingSpectatorBattleDamageAssignmentDiagnostics(authoritativeState, errors);
             return;
         }
 
@@ -28726,6 +28727,57 @@ public static class MatchRecoveryValidator
             BuildAuthoritativeStateKnownObjectIds(authoritativeState),
             "object registry",
             errors);
+    }
+
+    private static void AddMissingSpectatorBattleDamageAssignmentDiagnostics(
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState))
+        {
+            return;
+        }
+
+        var authoritativeBattle = authoritativeState.BattleState;
+        var authoritativeDamagePoolCount =
+            ResolutionResult.BattleDamagePoolFor(authoritativeState, authoritativeBattle).Count;
+        if (authoritativeDamagePoolCount > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing battle damage assignment damage pool count 0 does not match authoritative state battle damage assignment damage pool count {authoritativeDamagePoolCount}");
+        }
+
+        var authoritativeLegalTargetCount =
+            ResolutionResult.BattleDamageLegalTargetsFor(authoritativeState, authoritativeBattle).Count;
+        if (authoritativeLegalTargetCount > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing battle damage assignment legal target count 0 does not match authoritative state battle damage assignment legal target count {authoritativeLegalTargetCount}");
+        }
+
+        var authoritativeExistingDamageCount =
+            ResolutionResult.BattleExistingDamageFor(authoritativeState, authoritativeBattle).Count;
+        if (authoritativeExistingDamageCount > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing battle damage assignment existing damage count 0 does not match authoritative state battle damage assignment existing damage count {authoritativeExistingDamageCount}");
+        }
+
+        var authoritativeLethalDamageThresholdCount =
+            ResolutionResult.BattleLethalDamageThresholdFor(authoritativeState, authoritativeBattle).Count;
+        if (authoritativeLethalDamageThresholdCount > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing battle damage assignment lethal damage threshold count 0 does not match authoritative state battle damage assignment lethal damage threshold count {authoritativeLethalDamageThresholdCount}");
+        }
+
+        var authoritativeRequiredAssignmentCount =
+            ResolutionResult.BattleRequiredAssignmentsFor(authoritativeState, authoritativeBattle).Count;
+        if (authoritativeRequiredAssignmentCount > 0)
+        {
+            errors.Add(
+                $"spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count {authoritativeRequiredAssignmentCount}");
+        }
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentMapPayloadShapes(

@@ -186369,102 +186369,138 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentMissingPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentMissingPayloadWithoutCountMismatch()
     {
-        var authoritativeState = BattleDamageAssignmentState();
-        var events = new[]
-        {
-            RecoveredEvent(1, "TURN_ENDED"),
-            RecoveredEvent(2, "TURN_BEGAN")
-        };
-        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
-            "room-a",
-            3,
-            2,
-            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
-            authoritativeState);
-        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        Assert.True(battle.Remove("damageAssignment"));
-        timing["battle"] = battle;
-        spectatorReplayFrame = spectatorReplayFrame with
-        {
-            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
-            {
-                Timing = timing
-            }
-        };
-
-        var errors = MatchRecoveryValidator.Validate(
-            "room-a",
-            2,
-            [],
-            events,
-            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
-            authoritativeState,
-            currentTick: 3,
-            spectatorReplayFrame: spectatorReplayFrame);
+        var errors = ValidateSpectatorReplayTimingBattleDamageAssignmentPayload(
+            EmptyBattleDamageAssignmentState(),
+            removePayload: true);
 
         Assert.Contains(
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment payload is required",
                 StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal target count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment count",
+                StringComparison.Ordinal));
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentNullPayload()
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentMissingPayloadWithCountMismatch()
     {
-        var authoritativeState = BattleDamageAssignmentState();
-        var events = new[]
-        {
-            RecoveredEvent(1, "TURN_ENDED"),
-            RecoveredEvent(2, "TURN_BEGAN")
-        };
-        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
-            "room-a",
-            3,
-            2,
-            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
-            authoritativeState);
-        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value,
-            StringComparer.Ordinal);
-        battle["damageAssignment"] = null;
-        timing["battle"] = battle;
-        spectatorReplayFrame = spectatorReplayFrame with
-        {
-            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
-            {
-                Timing = timing
-            }
-        };
-
-        var errors = MatchRecoveryValidator.Validate(
-            "room-a",
-            2,
-            [],
-            events,
-            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
-            authoritativeState,
-            currentTick: 3,
-            spectatorReplayFrame: spectatorReplayFrame);
+        var errors = ValidateSpectatorReplayTimingBattleDamageAssignmentPayload(
+            BattleDamageAssignmentState(),
+            removePayload: true);
 
         Assert.Contains(
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool count 0 does not match authoritative state battle damage assignment damage pool count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal target count 0 does not match authoritative state battle damage assignment legal target count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment existing damage count 0 does not match authoritative state battle damage assignment existing damage count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment lethal damage threshold count 0 does not match authoritative state battle damage assignment lethal damage threshold count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentNullPayloadWithoutCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingBattleDamageAssignmentPayload(
+            EmptyBattleDamageAssignmentState(),
+            payloadValue: null);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment payload is required",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal target count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentNullPayloadWithCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingBattleDamageAssignmentPayload(
+            BattleDamageAssignmentState(),
+            payloadValue: null);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool count 0 does not match authoritative state battle damage assignment damage pool count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal target count 0 does not match authoritative state battle damage assignment legal target count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment existing damage count 0 does not match authoritative state battle damage assignment existing damage count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment lethal damage threshold count 0 does not match authoritative state battle damage assignment lethal damage threshold count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2",
                 StringComparison.Ordinal));
     }
 
@@ -198561,6 +198597,24 @@ public sealed class MatchRecoveryTests
         return recoveredEvents;
     }
 
+    private static MatchState EmptyBattleDamageAssignmentState()
+    {
+        return new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+    }
+
     private static MatchState BattleDamageAssignmentState()
     {
         const string battlefieldObjectId = "battlefield-a";
@@ -198621,6 +198675,59 @@ public sealed class MatchRecoveryTests
                 [attackerObjectId] = new("alice", "BATTLEFIELD", battlefieldObjectId),
                 [defenderObjectId] = new("bob", "BATTLEFIELD", battlefieldObjectId)
             });
+    }
+
+    private static IReadOnlyList<string> ValidateSpectatorReplayTimingBattleDamageAssignmentPayload(
+        MatchState authoritativeState,
+        bool removePayload = false,
+        object? payloadValue = null)
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        if (removePayload)
+        {
+            Assert.True(battle.Remove("damageAssignment"));
+        }
+        else
+        {
+            battle["damageAssignment"] = payloadValue;
+        }
+
+        timing["battle"] = battle;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        return MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
     }
 
     private static RecoveredEvent RecoveredEvent(long sequence, string kind)
