@@ -7,7 +7,9 @@ import { LobbyPage } from "../pages/LobbyPage";
 import { MatchPage } from "../pages/MatchPage";
 import { ResultPage } from "../pages/ResultPage";
 import { RoomPage } from "../pages/RoomPage";
+import { RuleAuditPage } from "../pages/RuleAuditPage";
 import { SettingsPage } from "../pages/SettingsPage";
+import { TabletopLayoutLabPage } from "../pages/TabletopLayoutLabPage";
 import { CatalogProvider } from "../stores/catalogStore";
 import { SettingsProvider, useSettings } from "../stores/settingsStore";
 import { AppRoute, parseRoute, routePath } from "./router";
@@ -41,6 +43,8 @@ function RoutedApp() {
         {route.name === "match" && <MatchPage matchId={route.matchId} onNavigate={navigate} />}
         {route.name === "result" && <ResultPage matchId={route.matchId} onNavigate={navigate} />}
         {route.name === "settings" && <SettingsPage />}
+        {route.name === "layoutLab" && <TabletopLayoutLabPage />}
+        {route.name === "audit" && <RuleAuditPage />}
       </AppShell>
     </CatalogProvider>
   );

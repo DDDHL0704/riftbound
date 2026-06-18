@@ -174,6 +174,7 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   await reloadAndReconnect(p1Tab);
   await waitForText(p1Tab.cdp, ["正式桌面状态", "P1", "OGN·290/298"]);
   assertOpponentHandRedacted(snapshot(p1), "P2");
+  await settleServerTasksUntilCanEndTurn(p1, p2);
 
   logStep(13, "Active player ends turn.");
   await submit(p1, { cmdType: "END_TURN" }, "end-turn-p1");
@@ -187,8 +188,9 @@ async function runFormal18(driver, p1Tab, p2Tab) {
   assertEqual(snapshot(p1).players.P2.score, 1, "Expected P2 score to be 1 after battlefield score.");
 
   logStep(16, "Opponent browser reconnects and displays the scored state.");
+  const expectedScoredStateLabel = `1/${snapshot(p1).timing?.winningScore ?? 8}`;
   await reloadAndReconnect(p2Tab);
-  await waitForText(p2Tab.cdp, ["正式桌面状态", "P2", "1/8"]);
+  await waitForText(p2Tab.cdp, ["正式桌面状态", "P2", expectedScoredStateLabel]);
   await expectAbsentText(p2Tab.cdp, hiddenDebugTexts);
 
   logStep(17, "Opponent surrenders through the server command path.");
@@ -385,6 +387,32 @@ async function passPriorityUntilStackResolves(p1, p2) {
   throw new Error("Stack did not resolve after both players passed priority.");
 }
 
+async function settleServerTasksUntilCanEndTurn(p1, p2) {
+  for (let index = 0; index < 12; index++) {
+    if (phase(p1) === "MAIN" && snapshot(p1).activePlayerId === "P1" && enabledCandidate(p1, "END_TURN")) {
+      return;
+    }
+
+    const taskClient = [p1, p2].find((client) =>
+      enabledCandidate(client, "PASS_FOCUS")
+      || enabledCandidate(client, "PASS_PRIORITY")
+      || enabledCandidate(client, "PASS"));
+
+    if (!taskClient) {
+      throw new Error(`No pass candidate while waiting to end turn. P1 phase=${phase(p1)} prompt=${p1.state.prompt?.view?.type ?? "none"}`);
+    }
+
+    const cmdType = enabledCandidate(taskClient, "PASS_FOCUS")
+      ? "PASS_FOCUS"
+      : enabledCandidate(taskClient, "PASS_PRIORITY")
+        ? "PASS_PRIORITY"
+        : "PASS";
+    await submit(taskClient, { cmdType }, `settle-server-task-${index}`);
+  }
+
+  throw new Error("Server tasks did not return to an END_TURN candidate.");
+}
+
 async function moveUnitToOpponentBattlefield(client, opponentPlayerId) {
   const move = enabledCandidate(client, "MOVE_UNIT");
   const requirements = Array.isArray(move?.metadata?.sourceRequirements)
@@ -434,7 +462,13 @@ function assertJoined(client, playerId) {
 function assertEvent(client, kind, predicate = () => true) {
   const event = client.state.events.find((candidate) => candidate.kind === kind && predicate(candidate));
   if (!event) {
-    throw new Error(`Missing event ${kind}. Recent events: ${client.state.events.map((candidate) => candidate.kind).slice(-20).join(", ")}`);
+    const recentEvents = client.state.events
+      .slice(-20)
+      .map((candidate) => ({
+        kind: candidate.kind,
+        payload: candidate.payload
+      }));
+    throw new Error(`Missing event ${kind}. Recent events: ${JSON.stringify(recentEvents, null, 2)}`);
   }
 }
 

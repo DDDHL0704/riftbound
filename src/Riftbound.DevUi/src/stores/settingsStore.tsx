@@ -49,7 +49,7 @@ export function useSettings(): SettingsContextValue {
 }
 
 function readInitialSettings(): AppSettings {
-  const serverUrl = localStorage.getItem("riftbound.serverUrl") ?? "http://127.0.0.1:5088";
+  const serverUrl = localStorage.getItem("riftbound.serverUrl") ?? defaultServerUrl();
   const storedPlayerId = localStorage.getItem("riftbound.playerId");
   const playerId = storedPlayerId ?? `玩家${Math.floor(Math.random() * 900 + 100)}`;
   const animationLevel = readEnum("riftbound.animationLevel", ["full", "reduced", "off"], "full");
@@ -65,6 +65,13 @@ function readInitialSettings(): AppSettings {
     animationLevel,
     logDensity
   };
+}
+
+function defaultServerUrl(): string {
+  const { origin, port, hostname, protocol } = window.location;
+  const vitePort = Number(port);
+  const runningFromVite = protocol === "http:" && (hostname === "127.0.0.1" || hostname === "localhost") && vitePort >= 5173 && vitePort <= 5179;
+  return runningFromVite ? "http://127.0.0.1:5088" : origin;
 }
 
 function readEnum<const T extends string>(key: string, values: readonly T[], fallback: T): T {

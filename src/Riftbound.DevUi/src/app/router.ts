@@ -6,7 +6,9 @@ export type AppRoute =
   | { name: "room"; roomId: string }
   | { name: "match"; matchId: string }
   | { name: "result"; matchId: string }
-  | { name: "settings" };
+  | { name: "settings" }
+  | { name: "layoutLab" }
+  | { name: "audit" };
 
 export function parseRoute(pathname = window.location.pathname): AppRoute {
   const segments = pathname.split("/").filter(Boolean).map(decodeURIComponent);
@@ -42,6 +44,14 @@ export function parseRoute(pathname = window.location.pathname): AppRoute {
     return { name: "settings" };
   }
 
+  if (segments[0] === "layout-lab") {
+    return { name: "layoutLab" };
+  }
+
+  if (segments[0] === "audit") {
+    return { name: "audit" };
+  }
+
   return { name: "home" };
 }
 
@@ -63,5 +73,9 @@ export function routePath(route: AppRoute): string {
       return `/matches/${encodeURIComponent(route.matchId)}/result`;
     case "settings":
       return "/settings";
+    case "layoutLab":
+      return "/layout-lab";
+    case "audit":
+      return "/audit";
   }
 }

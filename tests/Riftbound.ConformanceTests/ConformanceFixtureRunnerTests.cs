@@ -42661,7 +42661,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P79BattlefieldStaticFirstTurnRuneSkipsOpponentControlledSource()
+    public async Task P79BattlefieldStaticFirstTurnRuneIgnoresBattlefieldControlChange()
     {
         var state = BattlefieldFirstTurnRuneState();
         var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -42672,19 +42672,19 @@ public sealed class ConformanceFixtureRunnerTests
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state with { CardObjects = dirtyObjects },
-            new PlayerIntent("intent-p7-9-battlefield-first-turn-rune-dirty-source", "P1", "END_TURN"),
+            new PlayerIntent("intent-p7-9-battlefield-first-turn-rune-control-change", "P1", "END_TURN"),
             new EndTurnCommand(),
             CancellationToken.None);
 
         Assert.True(result.Accepted);
         Assert.Equal("P2", result.State.TurnPlayerId);
-        Assert.Equal(["P2-RUNE-004"], result.State.PlayerZones["P2"].RuneDeck);
+        Assert.Empty(result.State.PlayerZones["P2"].RuneDeck);
         Assert.Equal(
-            ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
+            ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003", "P2-RUNE-004"],
             result.State.PlayerZones["P2"].Base);
         var runeEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
         Assert.Equal("P2", runeEvent.Payload["playerId"]);
-        Assert.Equal(3, runeEvent.Payload["count"]);
+        Assert.Equal(4, runeEvent.Payload["count"]);
     }
 
     [Fact]
@@ -42713,7 +42713,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P79BattlefieldStaticFirstTurnScoreSkipsOpponentControlledSource()
+    public async Task P79BattlefieldStaticFirstTurnScoreIgnoresBattlefieldControlChange()
     {
         var state = BattlefieldFirstTurnScoreState();
         var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -42724,17 +42724,19 @@ public sealed class ConformanceFixtureRunnerTests
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state with { CardObjects = dirtyObjects },
-            new PlayerIntent("intent-p7-9-battlefield-first-turn-score-dirty-source", "P1", "END_TURN"),
+            new PlayerIntent("intent-p7-9-battlefield-first-turn-score-control-change", "P1", "END_TURN"),
             new EndTurnCommand(),
             CancellationToken.None);
 
         Assert.True(result.Accepted);
         Assert.Equal("P2", result.State.TurnPlayerId);
-        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
-        Assert.DoesNotContain(result.Events, gameEvent =>
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_TURN_GAIN_SCORE", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        var scoreEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.Equal(1, scoreEvent.Payload["amount"]);
     }
 
     [Fact]
@@ -42780,7 +42782,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P79BattlefieldScoreDelaySkipsOpponentControlledSource()
+    public async Task P79BattlefieldScoreDelayIgnoresBattlefieldControlChange()
     {
         var baseState = BattlefieldFirstTurnScoreState();
         var state = baseState with
@@ -42805,18 +42807,18 @@ public sealed class ConformanceFixtureRunnerTests
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent("intent-p7-9-battlefield-score-delay-dirty-source", "P1", "END_TURN"),
+            new PlayerIntent("intent-p7-9-battlefield-score-delay-control-change", "P1", "END_TURN"),
             new EndTurnCommand(),
             CancellationToken.None);
 
         Assert.True(result.Accepted);
         Assert.Equal("P2", result.State.TurnPlayerId);
-        Assert.Equal(1, result.State.PlayerScores["P2"]);
-        Assert.DoesNotContain(result.Events, gameEvent =>
+        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
+        var preventedEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
-        var scoreEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
-        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
-        Assert.Equal(1, scoreEvent.Payload["amount"]);
+        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD_FIRST_TURN_GAIN_SCORE", preventedEvent.Payload["preventedReason"]);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
     }
 
     [Fact]

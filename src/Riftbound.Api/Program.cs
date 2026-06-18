@@ -3,6 +3,7 @@ using Riftbound.Api;
 using Riftbound.CardCatalog;
 using Riftbound.Engine;
 using Riftbound.Persistence;
+using Microsoft.Extensions.FileProviders;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -37,7 +38,20 @@ builder.Services.AddSingleton<IMatchSessionRegistry>(services => new InMemoryMat
 
 var app = builder.Build();
 
+var devUiDistPath = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "../Riftbound.DevUi/dist"));
+var devUiDistProvider = Directory.Exists(devUiDistPath)
+    ? new PhysicalFileProvider(devUiDistPath)
+    : null;
+
 app.UseCors("DevUi");
+if (devUiDistProvider is not null)
+{
+    app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = devUiDistProvider });
+    app.UseStaticFiles(new StaticFileOptions { FileProvider = devUiDistProvider });
+}
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.MapGet("/health", () => Results.Ok(new
 {
@@ -126,6 +140,18 @@ app.MapGet("/catalog/keyword-coverage", async (CancellationToken cancellationTok
 });
 
 app.MapHub<GameHub>("/hubs/game");
+if (devUiDistProvider is not null)
+{
+    app.MapFallback(async context =>
+    {
+        context.Response.ContentType = "text/html; charset=utf-8";
+        await context.Response.SendFileAsync(Path.Combine(devUiDistPath, "index.html"));
+    });
+}
+else
+{
+    app.MapFallbackToFile("index.html");
+}
 
 app.Run();
 

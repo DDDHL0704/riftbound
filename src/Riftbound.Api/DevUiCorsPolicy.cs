@@ -9,7 +9,9 @@ public static class DevUiCorsPolicy
         "http://127.0.0.1:5173",
         "http://localhost:5173",
         "http://127.0.0.1:5174",
-        "http://localhost:5174"
+        "http://localhost:5174",
+        "http://127.0.0.1:5088",
+        "http://localhost:5088"
     ];
 
     public static CorsPolicyBuilder Apply(CorsPolicyBuilder policy, IReadOnlyCollection<string> configuredOrigins, bool allowLoopbackViteFallback)

@@ -224,7 +224,14 @@ function ScoreTrack({
         <strong>{label}</strong>
         <span>{playerId} · {score}/{winningScore}</span>
       </header>
-      <div className="score-track-bar" aria-label={`${playerId} 得分 ${score}/${winningScore}`}>
+      <div
+        aria-label={`${playerId} 得分 ${score}/${winningScore}`}
+        aria-valuemax={winningScore}
+        aria-valuemin={0}
+        aria-valuenow={clamped}
+        className="score-track-bar"
+        role="meter"
+      >
         <span style={{ width: `${percent}%` }} />
       </div>
     </article>

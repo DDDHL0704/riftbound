@@ -302,7 +302,7 @@ async function openSeededMatch(page, seeded, playerId) {
     storedSession: session
   });
   await page.goto(`${frontendUrl}/matches/${seeded.roomId}`, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: /连接\/重连/ }).click();
+  await page.getByRole("button", { name: "连接/重连", exact: true }).click();
   await page.waitForFunction((expectedPlayerId) => document.body.textContent?.includes(expectedPlayerId), playerId, { timeout: 15_000 });
 }
 

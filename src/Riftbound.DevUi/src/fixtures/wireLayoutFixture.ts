@@ -1,0 +1,227 @@
+import { BehaviorSpec } from "../types/catalog";
+import { CardObjectView, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
+
+type FixtureCard = {
+  cardNo: string;
+  cardName: string;
+  category: string;
+  frontImage: string;
+  mana?: number | null;
+  power?: number | null;
+  text?: string;
+};
+
+const fixtureCards = [
+  card("UNL-181/219", "戏命师", "传奇", "https://cdn.playloltcg.com/lol/card/20260319/af04e77a6eea4a58ba2ccec4f94eb8a8.webp"),
+  card("UNL-187/219", "皮城执法官", "传奇", "https://cdn.playloltcg.com/lol/card/20260319/18b9587cd7dc463bb9610453870c5c36.webp"),
+  card("UNL-022/219", "烬", "英雄单位", "https://cdn.playloltcg.com/lol/card/20260319/3e84e2bd274c47d4b0642909f61e46ba.webp", 4, 4),
+  card("UNL-030/219", "蔚", "英雄单位", "https://cdn.playloltcg.com/lol/card/20260319/beaf0126ad9f4001ae4330a9dbfc9742.webp", 4, 3),
+  card("UNL-001/219", "竞技场理事", "单位", "https://cdn.playloltcg.com/lol/card/20260326/476c4f003a4449868e32b75f7e94a446.webp", 5, 3),
+  card("UNL-002/219", "伊焚娜", "单位", "https://cdn.playloltcg.com/lol/card/20260319/479c288d279e44bb9e462d8dc470857b.webp", 2, 1),
+  card("UNL-003/219", "鲛人滋事者", "单位", "https://cdn.playloltcg.com/lol/card/20260319/1155aa27333d4079806b8bde86f776b1.webp", 2, 2),
+  card("UNL-006/219", "小鲨鱼", "单位", "https://cdn.playloltcg.com/lol/card/20260320/84bc57f9ba5941789d14942174614417.webp", 3, 1),
+  card("UNL-008/219", "莽林巨象", "单位", "https://cdn.playloltcg.com/lol/card/20260320/a050510cae71433090ce267967360655.webp", 6, 6),
+  card("UNL-011/219", "魔法鲜豆", "装备", "https://cdn.playloltcg.com/lol/card/20260319/f6de8aed9fd647f8a4a12c34168763fd.webp", 2),
+  card("UNL-019/219", "枯萎战斧", "装备", "https://cdn.playloltcg.com/lol/card/20260320/7d138597c0844ab5864e58e29e950227.webp", 4, 4),
+  card("UNL-007/219", "惩戒", "法术", "https://cdn.playloltcg.com/lol/card/20260319/46161dd31a0a4fb28d2ccc29dc5cec7f.webp", 2),
+  card("UNL-009/219", "大幕渐起", "法术", "https://cdn.playloltcg.com/lol/card/20260319/1759d1e9ca134dbea8ff596d71938321.webp", 2),
+  card("UNL-205/219", "废弃大厅", "战场", "https://cdn.playloltcg.com/lol/card/20260328/25b2ac5be09f4adb963ebe235838b1b9.webp"),
+  card("UNL-206/219", "鲜血祭坛", "战场", "https://cdn.playloltcg.com/lol/card/20260328/4a9ceade8ae24844894c32d8b55ccc18.webp"),
+  card("UNL-R01", "炽烈符文", "符文", "https://cdn.playloltcg.com/lol/card/20260402/5cd9c22ab0bd4160a62eef5369bc736c.webp"),
+  card("UNL-R02", "翠意符文", "符文", "https://cdn.playloltcg.com/lol/card/20260402/cc71063b8abb40ef95ffbab78e72aceb.webp"),
+  card("UNL-R03", "灵光符文", "符文", "https://cdn.playloltcg.com/lol/card/20260402/b122fe259abd430c90e675f208ac3920.webp"),
+  card("UNL-R04", "摧破符文", "符文", "https://cdn.playloltcg.com/lol/card/20260402/843feaf0a8c7486b95c71c9bbcaee0a6.webp"),
+  card("UNL-R05", "混沌符文", "符文", "https://cdn.playloltcg.com/lol/card/20260402/4335fc7a7fa1437dba7092da707d8430.webp"),
+  card("UNL-R06", "序理符文", "符文", "https://cdn.playloltcg.com/lol/card/20260402/09d687b1468c42b29f6ee21f600b8ada.webp")
+] satisfies FixtureCard[];
+
+export const wireLayoutFixtureSpecByNo: Record<string, BehaviorSpec> = Object.fromEntries(
+  fixtureCards.map((fixture) => [fixture.cardNo, toBehaviorSpec(fixture)])
+);
+
+export function isWireLayoutFixtureEnabled(search = window.location.search): boolean {
+  const params = new URLSearchParams(search);
+  return params.get("fixture") === "layout" || params.get("layoutFixture") === "cards";
+}
+
+export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): SnapshotDto {
+  const selfId = perspectivePlayerId || "P1";
+  const opponentId = selfId === "P2" ? "P1" : "P2";
+
+  const self = buildPlayer(selfId, "P1 视觉样例", [
+    obj("p1-legend", "UNL-181/219", selfId),
+    obj("p1-hero", "UNL-022/219", selfId),
+    obj("p1-base-unit", "UNL-001/219", selfId),
+    obj("p1-base-equip", "UNL-011/219", selfId),
+    obj("p1-base-spell", "UNL-009/219", selfId),
+    obj("p1-rune-1", "UNL-R01", selfId),
+    obj("p1-rune-2", "UNL-R02", selfId, selfId, { isExhausted: true }),
+    obj("p1-rune-3", "UNL-R03", selfId),
+    obj("p1-rune-4", "UNL-R04", selfId, selfId, { isExhausted: true }),
+    obj("p1-rune-5", "UNL-R05", selfId),
+    obj("p1-rune-6", "UNL-R06", selfId),
+    obj("p1-hand-unit", "UNL-003/219", selfId),
+    obj("p1-hand-spell", "UNL-007/219", selfId),
+    obj("p1-hand-equip", "UNL-019/219", selfId),
+    obj("p1-grave-spell", "UNL-009/219", selfId),
+    obj("p1-grave-equip", "UNL-011/219", selfId),
+    obj("p1-banished-spell", "UNL-007/219", selfId),
+    obj("p1-left-1", "UNL-002/219", selfId),
+    obj("p1-left-2", "UNL-006/219", selfId, selfId, { isExhausted: true }),
+    obj("p1-left-3", "UNL-008/219", selfId),
+    obj("p1-left-4", "UNL-019/219", selfId),
+    obj("p1-right-1", "UNL-001/219", selfId),
+    obj("p1-right-2", "UNL-003/219", selfId),
+    obj("p1-right-3", "UNL-022/219", selfId)
+  ], {
+    base: ["p1-base-unit", "p1-base-equip", "p1-base-spell", "p1-rune-1", "p1-rune-2", "p1-rune-3", "p1-rune-4", "p1-rune-5", "p1-rune-6"],
+    banished: ["p1-banished-spell"],
+    championZone: ["p1-hero"],
+    graveyard: ["p1-grave-spell", "p1-grave-equip"],
+    hand: ["p1-hand-unit", "p1-hand-spell", "p1-hand-equip"],
+    legendZone: ["p1-legend"],
+    mainDeckCount: 31,
+    runeDeckCount: 6
+  });
+
+  const opponent = buildPlayer(opponentId, "P2 视觉样例", [
+    obj("p2-legend", "UNL-187/219", opponentId),
+    obj("p2-hero", "UNL-030/219", opponentId),
+    obj("p2-base-unit", "UNL-006/219", opponentId),
+    obj("p2-base-equip", "UNL-019/219", opponentId),
+    obj("p2-rune-1", "UNL-R06", opponentId),
+    obj("p2-rune-2", "UNL-R05", opponentId, opponentId, { isExhausted: true }),
+    obj("p2-rune-3", "UNL-R04", opponentId),
+    obj("p2-rune-4", "UNL-R03", opponentId),
+    obj("p2-rune-5", "UNL-R02", opponentId, opponentId, { isExhausted: true }),
+    obj("p2-grave-spell", "UNL-007/219", opponentId),
+    obj("p2-banished-equip", "UNL-011/219", opponentId),
+    obj("p2-left-1", "UNL-030/219", opponentId),
+    obj("p2-left-2", "UNL-001/219", opponentId),
+    obj("p2-left-3", "UNL-003/219", opponentId, opponentId, { isExhausted: true }),
+    obj("p2-right-1", "UNL-008/219", opponentId),
+    obj("p2-right-2", "UNL-002/219", opponentId),
+    obj("p2-right-3", "UNL-006/219", opponentId),
+    obj("p2-right-4", "UNL-019/219", opponentId)
+  ], {
+    base: ["p2-base-unit", "p2-base-equip", "p2-rune-1", "p2-rune-2", "p2-rune-3", "p2-rune-4", "p2-rune-5"],
+    banished: ["p2-banished-equip"],
+    championZone: ["p2-hero"],
+    graveyard: ["p2-grave-spell"],
+    handHidden: 5,
+    legendZone: ["p2-legend"],
+    mainDeckCount: 33,
+    runeDeckCount: 7
+  });
+
+  return {
+    activePlayerId: selfId,
+    lanes: {
+      battlefields: [
+        {
+          battlefieldObjectId: "fixture-left-battlefield",
+          cardNo: "UNL-205/219",
+          controllerId: selfId,
+          occupantObjectIds: ["p2-left-1", "p2-left-2", "p2-left-3", "p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"],
+          scoredThisTurn: false,
+          status: "CONTESTED",
+          zonePlayerId: selfId
+        },
+        {
+          battlefieldObjectId: "fixture-right-battlefield",
+          cardNo: "UNL-206/219",
+          controllerId: opponentId,
+          occupantObjectIds: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4", "p1-right-1", "p1-right-2", "p1-right-3"],
+          scoredThisTurn: true,
+          status: "CONTROLLED",
+          zonePlayerId: opponentId
+        }
+      ]
+    },
+    players: {
+      [selfId]: self,
+      [opponentId]: opponent
+    },
+    stack: [],
+    tick: 9001,
+    timing: {
+      phase: "MAIN",
+      roomStatus: "VISUAL_FIXTURE",
+      timingState: "MAIN_ACTION",
+      turnWindow: { state: "MAIN_ACTION" }
+    },
+    turnNumber: 7,
+    turnState: "MAIN_ACTION"
+  };
+}
+
+function card(cardNo: string, cardName: string, category: string, frontImage: string, mana?: number | null, power?: number | null): FixtureCard {
+  return { cardNo, cardName, category, frontImage, mana, power };
+}
+
+function toBehaviorSpec(fixture: FixtureCard): BehaviorSpec {
+  return {
+    activatedAbilities: [],
+    cardCategoryName: fixture.category,
+    cardName: fixture.cardName,
+    cardNo: fixture.cardNo,
+    conformanceReason: "前端布局样例牌，不参与规则判定。",
+    conformanceTier: "layout-fixture",
+    cost: { additionalCosts: [], mana: fixture.mana ?? null, optionalCosts: [], power: null, returnEnergy: null },
+    effects: [],
+    frontImage: fixture.frontImage,
+    backImage: "",
+    functionalUnitId: "wire-layout-fixture",
+    implementedEffectKind: null,
+    implementedByCardNo: null,
+    keywords: [],
+    officialText: fixture.text ?? "",
+    reason: "前端布局样例牌，不参与规则判定。",
+    replacements: [],
+    staticAbilities: [],
+    status: "fixture",
+    targets: [],
+    templateIds: [],
+    triggers: []
+  };
+}
+
+function buildPlayer(id: string, name: string, objects: CardObjectView[], zones: NonNullable<PlayerSnapshotView["zones"]>): PlayerSnapshotView {
+  return {
+    cardsPlayedThisTurn: 2,
+    deckSubmitted: true,
+    experience: 0,
+    handSize: zones.hand?.length ?? zones.handHidden ?? 0,
+    id,
+    mulliganCompleted: true,
+    name,
+    objects: Object.fromEntries(objects.map((object) => [object.objectId ?? object.cardNo ?? crypto.randomUUID(), object])),
+    ready: true,
+    runePool: { mana: 12, power: 3, powerByTrait: { 红色: 2, 蓝色: 1 }, totalPower: 3, untypedPower: 0 },
+    score: id.startsWith("P2") ? 4 : 5,
+    seat: id.startsWith("P2") ? "opponent" : "self",
+    zones
+  };
+}
+
+function obj(
+  objectId: string,
+  cardNo: string,
+  ownerId: string,
+  controllerId = ownerId,
+  overrides: Partial<CardObjectView> = {}
+): CardObjectView {
+  const spec = wireLayoutFixtureSpecByNo[cardNo];
+  return {
+    basePower: fixtureCards.find((cardSpec) => cardSpec.cardNo === cardNo)?.power ?? undefined,
+    cardNo,
+    controllerId,
+    effectivePower: fixtureCards.find((cardSpec) => cardSpec.cardNo === cardNo)?.power ?? undefined,
+    isExhausted: false,
+    objectId,
+    ownerId,
+    power: fixtureCards.find((cardSpec) => cardSpec.cardNo === cardNo)?.power ?? undefined,
+    tags: spec?.cardCategoryName === "符文" ? ["CARD_TYPE:RUNE"] : [],
+    ...overrides
+  };
+}

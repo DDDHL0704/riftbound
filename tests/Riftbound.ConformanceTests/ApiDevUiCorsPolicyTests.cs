@@ -46,11 +46,13 @@ public sealed class ApiDevUiCorsPolicyTests
         Assert.False(allowed);
     }
 
-    [Fact]
-    public void ConfiguredOriginsAllowCaseInsensitiveMatches()
+    [Theory]
+    [InlineData("HTTP://LOCALHOST:5173")]
+    [InlineData("http://127.0.0.1:5088")]
+    public void ConfiguredOriginsAllowCaseInsensitiveMatches(string origin)
     {
         var allowed = DevUiCorsPolicy.IsAllowedOrigin(
-            "HTTP://LOCALHOST:5173",
+            origin,
             DevUiCorsPolicy.DefaultOrigins,
             allowLoopbackViteFallback: false);
 

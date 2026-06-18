@@ -1,0 +1,27 @@
+{
+  "runeDeckSize": 12,
+  "players": {
+    "self": {
+      "legend": { "id": "self-legend", "label": "传奇", "x": 2.4, "y": 10, "width": 8.2, "height": 51 },
+      "champion": { "id": "self-champion", "label": "英雄", "x": 11.8, "y": 10, "width": 8.2, "height": 51 },
+      "score": { "id": "self-score", "label": "分数", "x": 2.4, "y": 67, "width": 17.6, "height": 25 },
+      "piles": { "id": "self-piles", "label": "牌堆", "x": 22.4, "y": 10, "width": 8.4, "height": 51 },
+      "base": { "id": "self-base", "label": "基地", "x": 33, "y": 8, "width": 32, "height": 51.5 },
+      "runeBank": { "id": "self-runes", "label": "符文", "x": 22.4, "y": 67, "width": 43.4, "height": 25 },
+      "hand": { "id": "self-hand", "label": "手牌", "x": 68.4, "y": 45, "width": 29.2, "height": 49 }
+    },
+    "opponent": {
+      "legend": { "id": "opponent-legend", "label": "传奇", "x": 73.6, "y": 39, "width": 7.4, "height": 50 },
+      "champion": { "id": "opponent-champion", "label": "英雄", "x": 82.2, "y": 39, "width": 7.4, "height": 50 },
+      "score": { "id": "opponent-score", "label": "分数", "x": 90.8, "y": 7, "width": 6.6, "height": 27 },
+      "piles": { "id": "opponent-piles", "label": "牌堆", "x": 47.4, "y": 40, "width": 9.4, "height": 47 },
+      "base": { "id": "opponent-base", "label": "基地", "x": 2.4, "y": 38, "width": 36.8, "height": 49 },
+      "runeBank": { "id": "opponent-runes", "label": "符文", "x": 39.8, "y": 8, "width": 18.8, "height": 23 },
+      "hand": { "id": "opponent-hand", "label": "对手手牌", "x": 59.4, "y": 8, "width": 28.8, "height": 24 }
+    }
+  },
+  "battlefields": [
+    { "id": "battlefield-left", "label": "战场 1", "x": 3, "y": 6, "width": 45.5, "height": 88 },
+    { "id": "battlefield-right", "label": "战场 2", "x": 51.5, "y": 6, "width": 45.5, "height": 88 }
+  ]
+}

@@ -8,4 +8,7 @@
     <ProjectReference Include="../Riftbound.Engine/Riftbound.Engine.csproj" />
     <ProjectReference Include="../Riftbound.Persistence/Riftbound.Persistence.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="../Riftbound.DevUi/dist/**/*" Link="wwwroot/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

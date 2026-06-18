@@ -1,3 +1,4 @@
+import { type CSSProperties } from "react";
 import { BehaviorSpec } from "../../types/catalog";
 import { BattlefieldSnapshotView, CardObjectView, GameEvent, SnapshotDto } from "../../types/protocol";
 import { asArray, asRecord, asString } from "../../utils/collections";
@@ -5,15 +6,18 @@ import { BattlefieldTimelineItem, battlefieldResolutionTimeline } from "../../ut
 import { CardFace, InspectedCard } from "../cards/CardFace";
 import { eventDescriptionLabel, eventKindLabel } from "./EventLog";
 import { StatusPill } from "../ui/StatusPill";
+import { BATTLEFIELD_TABLE_LAYOUT, LayoutBox } from "./tabletopLayout";
 
 export function BattlefieldArea({
   events = [],
   onInspectCard,
+  perspectivePlayerId,
   snapshot,
   specs
 }: {
   events?: GameEvent[];
   onInspectCard: (card: InspectedCard) => void;
+  perspectivePlayerId: string;
   snapshot?: SnapshotDto;
   specs: Record<string, BehaviorSpec>;
 }) {
@@ -31,7 +35,7 @@ export function BattlefieldArea({
         </div>
         <StatusPill tone={battlefields.length === 2 ? "good" : "warn"}>{battlefields.length || 0} 处战场</StatusPill>
       </header>
-      <div className="battlefield-grid">
+      <div className="battlefield-grid tabletop-battlefield-grid">
         {battlefields.length === 0 && <div className="empty-panel">等待服务端下发战场快照；控制者、待命区和本回合得分状态将在快照到达后显示。</div>}
         {battlefields.map((field, index) => {
           const cardNo = asString(field.cardNo, "");
@@ -43,19 +47,23 @@ export function BattlefieldArea({
           const occupantControllers = asArray<string>(field.occupantControllerIds);
           const pendingTaskKinds = asArray<string>(field.pendingTaskKinds);
           const battlefieldId = asString(field.battlefieldObjectId, `battlefield-${index}`);
-          const groupedOccupants = groupObjectsByController(occupants, occupantControllers, objects);
           const battlefieldEvents = events
             .filter((event) => isBattlefieldEventFor(event, battlefieldId))
             .slice(0, 3);
           const battlefieldResolutions = resolutionTimeline
             .filter((item) => item.battlefieldObjectId === battlefieldId)
             .slice(0, 3);
+          const ownOccupants = occupants.filter((id) => (objects[id]?.controllerId || objects[id]?.ownerId) === perspectivePlayerId);
+          const opposingOccupants = occupants.filter((id) => (objects[id]?.controllerId || objects[id]?.ownerId) !== perspectivePlayerId);
+          const box = BATTLEFIELD_TABLE_LAYOUT[index] ?? fallbackBattlefieldBox(index);
+
           return (
-            <article className="battlefield-card" key={battlefieldId}>
+            <article className="battlefield-card tabletop-battlefield-card" key={battlefieldId} style={boxStyle(box)}>
               <header>
                 <div>
                   <span className="eyebrow">战场 {index + 1}</span>
                   <h3>{specs[cardNo]?.cardName ?? (cardNo || "未命名战场")}</h3>
+                  {cardNo && <span className="battlefield-card-no">{cardNo}</span>}
                 </div>
                 <StatusPill tone={contested ? "warn" : controllerId === "无人" ? "neutral" : "good"}>
                   {contested ? "争夺中" : `控制：${controllerId}`}
@@ -73,37 +81,39 @@ export function BattlefieldArea({
                   {pendingTaskKinds.slice(0, 3).map((kind) => <span key={kind}>{battlefieldTaskLabel(kind)}</span>)}
                 </div>
               )}
-              <CardFace
-                compact
-                object={{
-                  cardNo,
-                  controllerId: asString(field.controllerId, ""),
-                  objectId: asString(field.battlefieldObjectId, ""),
-                  ownerId: asString(field.zonePlayerId, "")
-                }}
-                objectId={asString(field.battlefieldObjectId, "")}
-                onInspect={onInspectCard}
-                spec={specs[cardNo]}
-              />
-              <div className="battlefield-occupants">
-                <div className="battlefield-controller-lanes">
-                  <strong>双方单位</strong>
-                  {groupedOccupants.length === 0 ? (
-                    <span>无</span>
-                  ) : (
-                    groupedOccupants.map((group) => (
-                      <BattlefieldObjectStrip
-                        emptyText="无"
-                        ids={group.ids}
-                        key={group.controllerId}
-                        label={group.controllerId}
-                        objects={objects}
-                        onInspectCard={onInspectCard}
-                        specs={specs}
-                      />
-                    ))
-                  )}
-                </div>
+              <div className="tabletop-battlefield-site-card">
+                <CardFace
+                  compact
+                  object={{
+                    cardNo,
+                    controllerId: asString(field.controllerId, ""),
+                    objectId: asString(field.battlefieldObjectId, ""),
+                    ownerId: asString(field.zonePlayerId, "")
+                  }}
+                  objectId={asString(field.battlefieldObjectId, "")}
+                  onInspect={onInspectCard}
+                  spec={specs[cardNo]}
+                />
+              </div>
+              <div className="battlefield-occupants tabletop-battlefield-occupants">
+                <BattlefieldObjectStrip
+                  emptyText="无"
+                  ids={opposingOccupants}
+                  label="对方战场单位"
+                  objects={objects}
+                  onInspectCard={onInspectCard}
+                  specs={specs}
+                  variant="opponent"
+                />
+                <BattlefieldObjectStrip
+                  emptyText="无"
+                  ids={ownOccupants}
+                  label="我方战场单位"
+                  objects={objects}
+                  onInspectCard={onInspectCard}
+                  specs={specs}
+                  variant="self"
+                />
                 <BattlefieldObjectStrip
                   emptyText={`${field.faceDownStandbyCount ?? 0} 张面朝下`}
                   ids={standby}
@@ -111,6 +121,7 @@ export function BattlefieldArea({
                   objects={objects}
                   onInspectCard={onInspectCard}
                   specs={specs}
+                  variant="standby"
                 />
               </div>
               <BattlefieldLog events={battlefieldEvents} resolutions={battlefieldResolutions} />
@@ -120,6 +131,27 @@ export function BattlefieldArea({
       </div>
     </section>
   );
+}
+
+function boxStyle(box: LayoutBox): CSSProperties {
+  return {
+    left: `${box.x}%`,
+    top: `${box.y}%`,
+    width: `${box.width}%`,
+    height: `${box.height}%`
+  };
+}
+
+function fallbackBattlefieldBox(index: number): LayoutBox {
+  const width = 30;
+  return {
+    id: `battlefield-fallback-${index}`,
+    label: `战场 ${index + 1}`,
+    x: 3 + (index % 3) * 32,
+    y: 9 + Math.floor(index / 3) * 42,
+    width,
+    height: 38
+  };
 }
 
 function battlefieldStatusLabel(status: string): string {
@@ -168,31 +200,6 @@ function battlefieldTaskLabel(kind: string): string {
   }
 }
 
-function groupObjectsByController(
-  objectIds: string[],
-  controllerIds: string[],
-  objects: Record<string, CardObjectView>
-): Array<{ controllerId: string; ids: string[] }> {
-  const preferredControllers = controllerIds.length > 0 ? controllerIds : ["服务端未提供控制者"];
-  const groups = new Map<string, string[]>();
-  for (const controllerId of preferredControllers) {
-    groups.set(controllerId, []);
-  }
-
-  for (const objectId of objectIds) {
-    const object = objects[objectId];
-    const controllerId = object?.controllerId || object?.ownerId || "服务端未提供控制者";
-    if (!groups.has(controllerId)) {
-      groups.set(controllerId, []);
-    }
-    groups.get(controllerId)!.push(objectId);
-  }
-
-  return Array.from(groups.entries())
-    .map(([controllerId, ids]) => ({ controllerId, ids }))
-    .filter((group) => group.ids.length > 0);
-}
-
 function isBattlefieldEventFor(event: GameEvent, battlefieldId: string): boolean {
   if (event.kind.startsWith("BATTLEFIELD_")) {
     const payloadBattlefieldId = asString(event.payload.battlefieldObjectId ?? event.payload.battlefieldId, "");
@@ -217,7 +224,7 @@ function BattlefieldLog({ events, resolutions }: { events: GameEvent[]; resoluti
             </span>
           ))}
           {events.map((event, index) => (
-          <span key={`${event.kind}-${index}`}>{eventKindLabel(event.kind)}：{eventDescriptionLabel(event)}</span>
+            <span key={`${event.kind}-${index}`}>{eventKindLabel(event.kind)}：{eventDescriptionLabel(event)}</span>
           ))}
         </>
       )}
@@ -231,7 +238,8 @@ function BattlefieldObjectStrip({
   label,
   objects,
   onInspectCard,
-  specs
+  specs,
+  variant = "self"
 }: {
   emptyText?: string;
   ids: string[];
@@ -239,9 +247,10 @@ function BattlefieldObjectStrip({
   objects: Record<string, CardObjectView>;
   onInspectCard: (card: InspectedCard) => void;
   specs: Record<string, BehaviorSpec>;
+  variant?: "opponent" | "self" | "standby";
 }) {
   return (
-    <div className="battlefield-object-strip">
+    <div className={`battlefield-object-strip tabletop-object-strip tabletop-object-${variant}`}>
       <strong>{label}</strong>
       {ids.length === 0 ? (
         <span>{emptyText}</span>
