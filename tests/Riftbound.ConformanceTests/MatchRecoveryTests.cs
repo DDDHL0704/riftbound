@@ -186505,6 +186505,84 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentPayloadShapeWithoutCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingBattleDamageAssignmentPayload(
+            EmptyBattleDamageAssignmentState(),
+            payloadValue: "not-damage-assignment");
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment payload is required",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal target count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment existing damage count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment lethal damage threshold count",
+                StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment count",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentPayloadShapeWithCountMismatch()
+    {
+        var errors = ValidateSpectatorReplayTimingBattleDamageAssignmentPayload(
+            BattleDamageAssignmentState(),
+            payloadValue: "not-damage-assignment");
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment damage pool count 0 does not match authoritative state battle damage assignment damage pool count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment legal target count 0 does not match authoritative state battle damage assignment legal target count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment existing damage count 0 does not match authoritative state battle damage assignment existing damage count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment lethal damage threshold count 0 does not match authoritative state battle damage assignment lethal damage threshold count 2",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingBattleDamageAssignmentPendingFlagMissingPayload()
     {
         var authoritativeState = BattleDamageAssignmentState();

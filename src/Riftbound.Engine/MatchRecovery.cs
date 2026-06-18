@@ -28680,6 +28680,7 @@ public static class MatchRecoveryValidator
         if (!IsSnapshotPlayerPayloadObject(damageAssignmentPayload))
         {
             errors.Add($"{payloadLabel} payload is required");
+            AddMissingSpectatorBattleDamageAssignmentDiagnostics(authoritativeState, errors);
             return;
         }
 
