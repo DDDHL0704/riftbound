@@ -186635,6 +186635,11 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment pending flag is required",
                 StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment pending flag does not match authoritative state battle damage assignment pending flag",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -186689,6 +186694,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing battle damage assignment pending flag is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battle damage assignment pending flag does not match authoritative state battle damage assignment pending flag",
                 StringComparison.Ordinal));
     }
 

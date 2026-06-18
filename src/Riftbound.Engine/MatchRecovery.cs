@@ -28941,8 +28941,14 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         var expectedPending = ResolutionResult.HasOpenBattleDamageAssignmentWindow(authoritativeState);
-        if (TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending)
-            && isPending != expectedPending)
+        if (!TryReadObjectBool(damageAssignmentPayload, "isPending", out var isPending))
+        {
+            if (expectedPending)
+            {
+                AddSpectatorBattleDamageAssignmentValueMismatch("pending flag", errors);
+            }
+        }
+        else if (isPending != expectedPending)
         {
             AddSpectatorBattleDamageAssignmentValueMismatch("pending flag", errors);
         }
