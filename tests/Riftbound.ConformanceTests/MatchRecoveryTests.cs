@@ -59030,25 +59030,39 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending payment id does not match authoritative state pending payment id", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing pending payment id does not match authoritative state pending payment id; expected payment-1 but got wrong-payment",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending payment window does not match authoritative state pending payment window", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing pending payment window does not match authoritative state pending payment window; expected PAY_COST but got WRONG_WINDOW",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending payment player does not match authoritative state pending payment player", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing pending payment player does not match authoritative state pending payment player; expected alice but got bob",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending payment mana cost does not match authoritative state pending payment mana cost", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing pending payment mana cost does not match authoritative state pending payment mana cost; expected 2 but got 9",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending payment power cost does not match authoritative state pending payment power cost", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing pending payment power cost does not match authoritative state pending payment power cost; expected 1 but got 8",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending payment power cost traits do not match authoritative state pending payment power cost traits", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing pending payment power cost traits do not match authoritative state pending payment power cost traits; expected {blue: 1} but got {green: 2}",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending payment choices do not match authoritative state pending payment choices", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing pending payment choices do not match authoritative state pending payment choices; expected [SPEND_MANA:2, SPEND_POWER:1] but got [SPEND_MANA:9]",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -59994,6 +60008,11 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "spectator replay frame timing pending payment payment id is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing pending payment id does not match authoritative state pending payment id; expected payment-1 but got <missing>",
                 StringComparison.Ordinal));
     }
 
@@ -61122,7 +61141,9 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing pending payment resource actions do not match authoritative state pending payment resource actions", StringComparison.Ordinal));
+            error => error.Contains(
+                $"spectator replay frame timing pending payment resource actions do not match authoritative state pending payment resource actions; expected [MANUAL_RESOURCE_ACTION, RECYCLE_RUNE:rune-1, {temporaryResourceAction}] but got [wrong-resource-action]",
+                StringComparison.Ordinal));
     }
 
     [Fact]

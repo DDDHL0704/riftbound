@@ -12768,23 +12768,24 @@ public static class MatchRecoveryValidator
             errors);
         ValidateSpectatorPendingPaymentPayloadValues(paymentPayload, errors);
 
-        if (!TryReadObjectString(paymentPayload, "paymentId", out var paymentId)
-            || !string.Equals(paymentId, authoritativePayment.PaymentId, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending payment id does not match authoritative state pending payment id");
-        }
-
-        if (!TryReadObjectString(paymentPayload, "paymentWindow", out var paymentWindow)
-            || !string.Equals(paymentWindow, authoritativePayment.PaymentWindow, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending payment window does not match authoritative state pending payment window");
-        }
-
-        if (!TryReadObjectString(paymentPayload, "playerId", out var playerId)
-            || !string.Equals(playerId, authoritativePayment.PlayerId, StringComparison.Ordinal))
-        {
-            errors.Add("spectator replay frame timing pending payment player does not match authoritative state pending payment player");
-        }
+        ValidateSpectatorPendingPaymentRequiredStringAuthoritativeValue(
+            paymentPayload,
+            "paymentId",
+            "id",
+            authoritativePayment.PaymentId,
+            errors);
+        ValidateSpectatorPendingPaymentRequiredStringAuthoritativeValue(
+            paymentPayload,
+            "paymentWindow",
+            "window",
+            authoritativePayment.PaymentWindow,
+            errors);
+        ValidateSpectatorPendingPaymentRequiredStringAuthoritativeValue(
+            paymentPayload,
+            "playerId",
+            "player",
+            authoritativePayment.PlayerId,
+            errors);
 
         if (!TryReadObjectValue(paymentPayload, "cost", out var costPayload)
             || IsNullSnapshotPayloadValue(costPayload))
@@ -12803,36 +12804,39 @@ public static class MatchRecoveryValidator
                 errors);
             ValidateSpectatorPendingPaymentPowerTraitPayloadPropertyNames(costPayload, errors);
 
-            if (!TryReadObjectInt(costPayload, "mana", out var manaCost)
-                || manaCost != authoritativePayment.ManaCost)
-            {
-                errors.Add("spectator replay frame timing pending payment mana cost does not match authoritative state pending payment mana cost");
-            }
-
-            if (!TryReadObjectInt(costPayload, "power", out var powerCost)
-                || powerCost != authoritativePayment.PowerCost)
-            {
-                errors.Add("spectator replay frame timing pending payment power cost does not match authoritative state pending payment power cost");
-            }
-
-            if (!TryReadObjectIntDictionary(costPayload, "powerByTrait", out var powerCostByTrait)
-                || !IntDictionariesEqual(powerCostByTrait, authoritativePayment.PowerCostByTrait))
-            {
-                errors.Add("spectator replay frame timing pending payment power cost traits do not match authoritative state pending payment power cost traits");
-            }
+            ValidateSpectatorPendingPaymentRequiredIntAuthoritativeValue(
+                costPayload,
+                "mana",
+                "mana cost",
+                authoritativePayment.ManaCost,
+                errors);
+            ValidateSpectatorPendingPaymentRequiredIntAuthoritativeValue(
+                costPayload,
+                "power",
+                "power cost",
+                authoritativePayment.PowerCost,
+                errors);
+            ValidateSpectatorPendingPaymentRequiredIntDictionaryAuthoritativeValue(
+                costPayload,
+                "powerByTrait",
+                "power cost traits",
+                authoritativePayment.PowerCostByTrait,
+                errors);
         }
 
-        if (!TryReadObjectStringList(paymentPayload, "paymentChoices", out var paymentChoices)
-            || !StringListsEqual(paymentChoices, authoritativePayment.LegalPaymentChoiceIds))
-        {
-            errors.Add("spectator replay frame timing pending payment choices do not match authoritative state pending payment choices");
-        }
+        ValidateSpectatorPendingPaymentRequiredStringListAuthoritativeValue(
+            paymentPayload,
+            "paymentChoices",
+            "choices",
+            authoritativePayment.LegalPaymentChoiceIds,
+            errors);
 
-        if (!TryReadObjectStringList(paymentPayload, "paymentResourceActions", out var paymentResourceActions)
-            || !StringListsEqual(paymentResourceActions, ExpectedSpectatorPendingPaymentResourceActionIds(authoritativeState, authoritativePayment)))
-        {
-            errors.Add("spectator replay frame timing pending payment resource actions do not match authoritative state pending payment resource actions");
-        }
+        ValidateSpectatorPendingPaymentRequiredStringListAuthoritativeValue(
+            paymentPayload,
+            "paymentResourceActions",
+            "resource actions",
+            ExpectedSpectatorPendingPaymentResourceActionIds(authoritativeState, authoritativePayment),
+            errors);
     }
 
     private static void AddMissingSpectatorPendingPaymentDiagnostics(
@@ -12956,6 +12960,102 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} cost",
             "power cost trait",
             errors);
+    }
+
+    private static void ValidateSpectatorPendingPaymentRequiredStringAuthoritativeValue(
+        object? paymentPayload,
+        string key,
+        string fieldLabel,
+        string expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectString(paymentPayload, key, out var actual);
+        if (readable
+            && string.Equals(actual, expected, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        AddSpectatorPendingPaymentAuthoritativeMismatch(
+            fieldLabel,
+            "does",
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(paymentPayload, key),
+            errors);
+    }
+
+    private static void ValidateSpectatorPendingPaymentRequiredIntAuthoritativeValue(
+        object? costPayload,
+        string key,
+        string fieldLabel,
+        int expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectInt(costPayload, key, out var actual);
+        if (readable && actual == expected)
+        {
+            return;
+        }
+
+        AddSpectatorPendingPaymentAuthoritativeMismatch(
+            fieldLabel,
+            "does",
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(costPayload, key),
+            errors);
+    }
+
+    private static void ValidateSpectatorPendingPaymentRequiredIntDictionaryAuthoritativeValue(
+        object? costPayload,
+        string key,
+        string fieldLabel,
+        IReadOnlyDictionary<string, int> expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectIntDictionary(costPayload, key, out var actual);
+        if (readable && IntDictionariesEqual(actual, expected))
+        {
+            return;
+        }
+
+        AddSpectatorPendingPaymentAuthoritativeMismatch(
+            fieldLabel,
+            "do",
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(costPayload, key),
+            errors);
+    }
+
+    private static void ValidateSpectatorPendingPaymentRequiredStringListAuthoritativeValue(
+        object? paymentPayload,
+        string key,
+        string fieldLabel,
+        IReadOnlyList<string> expected,
+        List<string> errors)
+    {
+        var readable = TryReadObjectStringList(paymentPayload, key, out var actual);
+        if (readable && StringListsEqual(actual, expected))
+        {
+            return;
+        }
+
+        AddSpectatorPendingPaymentAuthoritativeMismatch(
+            fieldLabel,
+            "do",
+            expected,
+            readable ? actual : FormatUnreadableObjectValue(paymentPayload, key),
+            errors);
+    }
+
+    private static void AddSpectatorPendingPaymentAuthoritativeMismatch(
+        string fieldLabel,
+        string matchVerb,
+        object? expected,
+        object? actual,
+        List<string> errors)
+    {
+        errors.Add(
+            $"spectator replay frame timing pending payment {fieldLabel} {matchVerb} not match authoritative state pending payment {fieldLabel}; {FormatExpectedActualForRecovery(expected, actual)}");
     }
 
     private static IReadOnlyList<string> ExpectedSpectatorPendingPaymentResourceActionIds(
