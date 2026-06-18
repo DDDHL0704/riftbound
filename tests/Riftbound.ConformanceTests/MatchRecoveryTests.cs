@@ -186500,27 +186500,27 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment damage pool count 0 does not match authoritative state battle damage assignment damage pool count 2",
+                "spectator replay frame timing battle damage assignment damage pool count 0 does not match authoritative state battle damage assignment damage pool count 2; expected 2 but got 0",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment legal target count 0 does not match authoritative state battle damage assignment legal target count 2",
+                "spectator replay frame timing battle damage assignment legal target count 0 does not match authoritative state battle damage assignment legal target count 2; expected 2 but got 0",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment existing damage count 0 does not match authoritative state battle damage assignment existing damage count 2",
+                "spectator replay frame timing battle damage assignment existing damage count 0 does not match authoritative state battle damage assignment existing damage count 2; expected 2 but got 0",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment lethal damage threshold count 0 does not match authoritative state battle damage assignment lethal damage threshold count 2",
+                "spectator replay frame timing battle damage assignment lethal damage threshold count 0 does not match authoritative state battle damage assignment lethal damage threshold count 2; expected 2 but got 0",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2",
+                "spectator replay frame timing battle damage assignment required assignment count 0 does not match authoritative state battle damage assignment required assignment count 2; expected 2 but got 0",
                 StringComparison.Ordinal));
     }
 
@@ -196856,27 +196856,27 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment damage pool count 1 does not match authoritative state battle damage assignment damage pool count 2",
+                "spectator replay frame timing battle damage assignment damage pool count 1 does not match authoritative state battle damage assignment damage pool count 2; expected 2 but got 1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment legal target count 1 does not match authoritative state battle damage assignment legal target count 2",
+                "spectator replay frame timing battle damage assignment legal target count 1 does not match authoritative state battle damage assignment legal target count 2; expected 2 but got 1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment existing damage count 1 does not match authoritative state battle damage assignment existing damage count 2",
+                "spectator replay frame timing battle damage assignment existing damage count 1 does not match authoritative state battle damage assignment existing damage count 2; expected 2 but got 1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment lethal damage threshold count 1 does not match authoritative state battle damage assignment lethal damage threshold count 2",
+                "spectator replay frame timing battle damage assignment lethal damage threshold count 1 does not match authoritative state battle damage assignment lethal damage threshold count 2; expected 2 but got 1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battle damage assignment required assignment count 1 does not match authoritative state battle damage assignment required assignment count 2",
+                "spectator replay frame timing battle damage assignment required assignment count 1 does not match authoritative state battle damage assignment required assignment count 2; expected 2 but got 1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

@@ -29502,7 +29502,7 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add(
-            $"spectator replay frame timing battle damage assignment {countLabel} count {spectatorCount} does not match authoritative state battle damage assignment {countLabel} count {authoritativeCount}");
+            $"spectator replay frame timing battle damage assignment {countLabel} count {spectatorCount} does not match authoritative state battle damage assignment {countLabel} count {authoritativeCount}; {FormatExpectedActualForRecovery(authoritativeCount, spectatorCount)}");
     }
 
     private static void ValidateSpectatorBattleDamageAssignmentAuthoritativeValues(
