@@ -137245,7 +137245,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id does not match authoritative state trigger queue controller id alice for trigger id trigger-1",
+                "spectator replay frame timing trigger queue item controller id does not match authoritative state trigger queue controller id alice for trigger id trigger-1; expected alice but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

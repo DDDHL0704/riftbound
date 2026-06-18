@@ -17136,15 +17136,19 @@ public static class MatchRecoveryValidator
     {
         if (!TryReadObjectString(triggerPayload, key, out var actual))
         {
+            var detail = FormatExpectedActualForRecovery(
+                expected,
+                FormatUnreadableObjectValue(triggerPayload, key));
             errors.Add(
-                $"spectator replay frame timing trigger queue item {fieldLabel} does not match authoritative state trigger queue {fieldLabel} {expected} for trigger id {triggerId}");
+                $"spectator replay frame timing trigger queue item {fieldLabel} does not match authoritative state trigger queue {fieldLabel} {expected} for trigger id {triggerId}; {detail}");
             return;
         }
 
         if (!string.Equals(actual, expected, StringComparison.Ordinal))
         {
+            var detail = FormatExpectedActualForRecovery(expected, actual);
             errors.Add(
-                $"spectator replay frame timing trigger queue item {fieldLabel} {actual} does not match authoritative state trigger queue {fieldLabel} {expected} for trigger id {triggerId}");
+                $"spectator replay frame timing trigger queue item {fieldLabel} {actual} does not match authoritative state trigger queue {fieldLabel} {expected} for trigger id {triggerId}; {detail}");
         }
     }
 
