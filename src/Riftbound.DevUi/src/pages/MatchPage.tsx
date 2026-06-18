@@ -4,6 +4,7 @@ import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
+import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
 import {
@@ -200,6 +201,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
+          <section aria-label="服务端合法操作地图" className="wire-panel wire-action-map-panel" tabIndex={0}>
+            <WireActionMapPanel playerId={settings.playerId} prompt={tablePrompt} snapshot={tableSnapshot} />
+          </section>
           <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>
             <WireInteractionPanel
               inspectedCard={inspectedCard}

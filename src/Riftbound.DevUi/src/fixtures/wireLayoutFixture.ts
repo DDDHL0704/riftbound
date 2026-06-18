@@ -155,6 +155,15 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         targets: [{ id: "fixture-left-battlefield", label: "左战场牌" }]
       },
       {
+        action: "ACTIVATE_ABILITY",
+        enabled: false,
+        label: "激活技能禁用样例",
+        modes: [{ id: "ABILITY:p1-base-equip", label: "基地装备技能" }],
+        reason: "前端线框样例；真实不可提交原因由服务端规则窗口提供。",
+        sources: [{ id: "p1-base-equip", label: "基地装备" }],
+        targets: [{ id: "p2-right-1", label: "对方右战场单位" }]
+      },
+      {
         action: "PASS",
         enabled: true,
         label: "让过",

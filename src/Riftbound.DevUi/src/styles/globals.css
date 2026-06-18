@@ -11562,7 +11562,7 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: minmax(180px, 0.7fr) minmax(260px, 1fr) minmax(230px, 0.9fr) minmax(140px, 0.5fr);
+  grid-template-rows: minmax(150px, 0.55fr) minmax(170px, 0.6fr) minmax(250px, 1fr) minmax(210px, 0.8fr) minmax(120px, 0.4fr);
   gap: 4px;
   overflow: auto;
   padding: 4px;
@@ -11574,6 +11574,10 @@ button.card-face:hover {
 }
 
 .wire-rule-panel {
+  padding: 4px;
+}
+
+.wire-action-map-panel {
   padding: 4px;
 }
 
@@ -11613,6 +11617,12 @@ button.card-face:hover {
 .wire-prompt-candidates,
 .wire-prompt-contract,
 .wire-candidate-row,
+.wire-action-map,
+.wire-action-map-header,
+.wire-action-map-metrics,
+.wire-action-entry-strip,
+.wire-action-object-chip,
+.wire-action-group,
 .wire-rule-queue {
   min-width: 0;
   border: 1px solid #000;
@@ -11670,8 +11680,111 @@ button.card-face:hover {
 }
 
 .wire-candidate-row small,
+.wire-action-map small,
 .wire-rule-queue small {
   color: #000;
+}
+
+.wire-action-map {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-action-map-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+}
+
+.wire-action-map-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-action-map-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-action-map-metric {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  border: 1px solid #000;
+  padding: 3px;
+}
+
+.wire-action-map-metric strong,
+.wire-action-object-chip strong,
+.wire-action-group-heading strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-action-entry-strip {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  overflow: auto;
+  padding: 4px;
+}
+
+.wire-action-object-chip {
+  flex: 0 0 86px;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-action-group-list {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.wire-action-group {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-action-group.is-enabled {
+  border-width: 2px;
+}
+
+.wire-action-group-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-action-role-grid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.wire-action-role-grid span {
+  min-width: 0;
+  border: 1px solid #000;
+  padding: 2px 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-rule-queue {
@@ -11816,6 +11929,14 @@ button.card-face:hover {
 .wire-match-page .wire-prompt-candidates,
 .wire-match-page .wire-prompt-contract,
 .wire-match-page .wire-candidate-row,
+.wire-match-page .wire-action-map,
+.wire-match-page .wire-action-map-header,
+.wire-match-page .wire-action-map-metrics,
+.wire-match-page .wire-action-map-metric,
+.wire-match-page .wire-action-entry-strip,
+.wire-match-page .wire-action-object-chip,
+.wire-match-page .wire-action-group,
+.wire-match-page .wire-action-role-grid span,
 .wire-match-page .wire-rule-queue,
 .wire-match-page .wire-rule-queue-header,
 .wire-match-page .wire-rule-state-grid,
