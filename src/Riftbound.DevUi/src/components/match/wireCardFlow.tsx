@@ -147,7 +147,7 @@ export function WireCardFlow({
 }
 
 export function WireCardSlot({ label }: { label: string }) {
-  return <div className="wire-card-slot" aria-label={`${label || "卡牌"}空槽`} />;
+  return <div className="wire-card-slot" aria-hidden="true" data-empty-label={label || "卡牌"} />;
 }
 
 export function WirePublicPile({

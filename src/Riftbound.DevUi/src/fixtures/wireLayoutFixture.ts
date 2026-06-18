@@ -56,6 +56,27 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         destinations: [{ id: "STACK", label: "结算链" }],
         enabled: true,
         label: "打出手牌样例",
+        metadata: {
+          sourceRequirements: [
+            {
+              cardNo: "UNL-007/219",
+              composable: true,
+              destinationChoices: [{ id: "STACK", label: "结算链" }],
+              displayName: "惩戒",
+              maxTargetCount: 1,
+              minTargetCount: 1,
+              optionalCostChoices: [{ id: "RECYCLE_RUNE:p1-rune-2", label: "回收已抽出符文" }],
+              paymentResourceChoices: [{ id: "POWER:p1-rune-3", label: "支付符能：灵光符文" }],
+              sourceObjectId: "p1-hand-spell",
+              targetChoicesByIndex: {
+                "0": [
+                  { id: "p2-right-1", label: "对方右战场单位" },
+                  { id: "p2-left-1", label: "对方左战场单位" }
+                ]
+              }
+            }
+          ]
+        },
         optionalCosts: [{ id: "RECYCLE_RUNE:p1-rune-2", label: "回收已抽出符文" }],
         reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
         sources: [{ id: "p1-hand-spell", label: "手牌法术" }],
@@ -66,6 +87,25 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         destinations: [{ id: "BATTLEFIELD:fixture-right-battlefield", label: "右战场" }],
         enabled: true,
         label: "移动单位样例",
+        metadata: {
+          sourceRequirements: [
+            {
+              composable: true,
+              destinationChoices: [
+                { id: "BATTLEFIELD:fixture-right-battlefield", label: "右战场" },
+                { id: "BASE", label: "基地" }
+              ],
+              displayName: "小鲨鱼",
+              mode: "MOVE",
+              modeLabel: "移动",
+              optionalCostChoices: [{ id: "ROAM", label: "游走费用" }],
+              origin: "BATTLEFIELD:fixture-left-battlefield",
+              originLabel: "左战场",
+              requiredOptionalCosts: ["ROAM"],
+              sourceObjectId: "p1-left-2"
+            }
+          ]
+        },
         optionalCosts: [{ id: "ROAM", label: "游走费用" }],
         reason: "前端线框样例；移动窗口、费用和目标由服务端决定。",
         sources: [{ id: "p1-left-2", label: "我方左战场单位" }]
@@ -79,9 +119,39 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       },
       {
         action: "DECLARE_BATTLE",
-        enabled: false,
+        destinations: [{ id: "fixture-right-battlefield", label: "右战场牌" }],
+        enabled: true,
         label: "声明战斗样例",
-        reason: "前端线框样例：当前只展示禁用候选。",
+        metadata: {
+          sourceRequirements: [
+            {
+              cardNo: "UNL-001/219",
+              battlefieldChoices: [{ id: "fixture-right-battlefield", label: "右战场牌" }],
+              composable: true,
+              displayName: "竞技场理事",
+              maxAttackerCount: 1,
+              maxDefenderCount: 2,
+              minAttackerCount: 1,
+              minDefenderCount: 1,
+              optionalCostChoices: [{ id: "BATTLE_POWER:p1-rune-5", label: "战斗符能" }],
+              paymentResourceChoices: [{ id: "POWER:p1-rune-5", label: "支付符能：混沌符文" }],
+              sourceObjectId: "p1-right-1",
+              targetChoicesByIndex: {
+                "0": [
+                  { id: "p2-right-1", label: "对方右战场单位 1" },
+                  { id: "p2-right-2", label: "对方右战场单位 2" }
+                ],
+                "1": [
+                  { id: "p2-right-2", label: "对方右战场单位 2" },
+                  { id: "p2-right-3", label: "对方右战场单位 3" }
+                ]
+              }
+            }
+          ]
+        },
+        optionalCosts: [{ id: "BATTLE_POWER:p1-rune-5", label: "战斗符能" }],
+        reason: "前端线框样例；声明、战场和防守方仍由服务端规则校验。",
+        sources: [{ id: "p1-right-1", label: "我方右战场单位" }],
         targets: [{ id: "fixture-left-battlefield", label: "左战场牌" }]
       },
       {
