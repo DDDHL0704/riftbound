@@ -10776,24 +10776,6 @@ button.card-face:hover {
 }
 
 .wire-match-page {
-  --wire-card-w: 74px;
-  --wire-card-h: 104px;
-  --wire-fixed-pile-card-w: 92px;
-  --wire-fixed-pile-card-h: 128px;
-  --wire-fixed-pile-slot-w: 92px;
-  --wire-fixed-pile-slot-h: 128px;
-  --wire-battlefield-card-w: 136px;
-  --wire-battlefield-card-h: 96px;
-  --wire-rune-card-w: 43px;
-  --wire-rune-card-h: 60px;
-  --wire-card-gap: 4px;
-  --wire-deck-area-w: 60px;
-  --wire-public-pile-w: 92px;
-  --wire-hand-piles-w: 188px;
-  --wire-rune-track-w: 588px;
-  --wire-signature-area-w: 100px;
-  --wire-signature-zone-h: 140px;
-  --wire-hero-area-w: 100px;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -10912,11 +10894,10 @@ button.card-face:hover {
 }
 
 .wire-table {
-  min-width: 1280px;
-  min-height: 760px;
+  min-width: var(--wire-table-min-w);
+  min-height: var(--wire-table-min-h);
   height: 100%;
   display: grid;
-  grid-template-rows: 150px 166px minmax(230px, 1fr) 166px 150px;
   gap: 4px;
   border: 2px solid #000;
   background: #fff;
@@ -10942,14 +10923,9 @@ button.card-face:hover {
 
 .wire-hand-rail {
   display: grid;
-  grid-template-columns: var(--wire-deck-area-w) var(--wire-rune-track-w) minmax(360px, 1fr);
   gap: 4px;
   align-items: stretch;
   padding: 4px;
-}
-
-.wire-hand-opponent {
-  grid-template-columns: minmax(360px, 1fr) var(--wire-rune-track-w) var(--wire-deck-area-w);
 }
 
 .wire-hand-rune-deck,
@@ -10993,13 +10969,8 @@ button.card-face:hover {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--wire-hand-piles-w);
   gap: 4px;
   padding: 4px;
-}
-
-.wire-hand-opponent .wire-hand-body {
-  grid-template-columns: var(--wire-hand-piles-w) minmax(0, 1fr);
 }
 
 .wire-hand-cards,
@@ -11018,7 +10989,7 @@ button.card-face:hover {
   overflow: auto;
 }
 
-.wire-hand-cards > .wire-card-row {
+.wire-hand-cards > .wire-card-flow {
   width: 100%;
   justify-content: center;
   padding: 3px;
@@ -11060,34 +11031,6 @@ button.card-face:hover {
   height: var(--wire-fixed-pile-card-h);
 }
 
-.wire-hand-opponent .wire-hand-piles {
-  order: 1;
-}
-
-.wire-hand-opponent .wire-hand-played-pile {
-  order: 1;
-}
-
-.wire-hand-opponent .wire-hand-library-pile {
-  order: 2;
-}
-
-.wire-hand-opponent .wire-hand-cards {
-  order: 2;
-}
-
-.wire-hand-opponent .wire-hand-rune-deck {
-  order: 3;
-}
-
-.wire-hand-opponent .wire-hand-rune-track {
-  order: 2;
-}
-
-.wire-hand-opponent .wire-hand-zone {
-  order: 1;
-}
-
 .wire-hand-title {
   display: none;
   border: 0;
@@ -11118,26 +11061,9 @@ button.card-face:hover {
 
 .wire-player-home {
   display: grid;
-  grid-template-columns: var(--wire-signature-area-w) var(--wire-hero-area-w) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   gap: 4px;
   padding: 4px;
-}
-
-.wire-player-opponent {
-  grid-template-columns: minmax(0, 1fr) var(--wire-hero-area-w) var(--wire-signature-area-w);
-}
-
-.wire-player-opponent .wire-home-legend {
-  order: 3;
-}
-
-.wire-player-opponent .wire-home-hero {
-  order: 2;
-}
-
-.wire-player-opponent .wire-home-base {
-  order: 1;
 }
 
 .wire-home-legend {
@@ -11147,10 +11073,6 @@ button.card-face:hover {
 .wire-home-hero {
   width: var(--wire-signature-area-w);
   justify-self: start;
-}
-
-.wire-player-opponent .wire-home-hero {
-  justify-self: end;
 }
 
 .wire-home-base {
@@ -11170,7 +11092,7 @@ button.card-face:hover {
   grid-template-rows: minmax(0, 1fr);
 }
 
-.wire-signature-zone .wire-card-row {
+.wire-signature-zone .wire-card-flow {
   overflow: visible;
 }
 
@@ -11178,12 +11100,7 @@ button.card-face:hover {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--wire-public-pile-w);
   gap: 4px;
-}
-
-.wire-player-opponent .wire-base-banish-grid {
-  grid-template-columns: var(--wire-public-pile-w) minmax(0, 1fr);
 }
 
 .wire-base-main,
@@ -11208,14 +11125,6 @@ button.card-face:hover {
   height: var(--wire-fixed-pile-card-h);
   border: 0;
   padding: 0;
-}
-
-.wire-player-opponent .wire-banish-main {
-  order: 1;
-}
-
-.wire-player-opponent .wire-base-main {
-  order: 2;
 }
 
 .wire-mini-title {
@@ -11255,7 +11164,7 @@ button.card-face:hover {
   overflow: hidden;
 }
 
-.wire-signature-zone .wire-card-row {
+.wire-signature-zone .wire-card-flow {
   width: var(--wire-signature-area-w);
   height: var(--wire-signature-zone-h);
   align-items: center;
@@ -11285,7 +11194,6 @@ button.card-face:hover {
 
 .wire-battlefield-stack {
   display: grid;
-  grid-template-columns: var(--wire-battlefield-card-w) minmax(0, 1fr) var(--wire-battlefield-card-w);
   grid-template-rows: minmax(0, 1fr);
   gap: 4px;
   padding: 4px;
@@ -11311,7 +11219,7 @@ button.card-face:hover {
 }
 
 .wire-battlefield-site-body,
-.wire-battlefield-slot-row {
+.wire-card-flow-battlefield-unit {
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -11333,8 +11241,6 @@ button.card-face:hover {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
   gap: 4px;
 }
 
@@ -11342,8 +11248,65 @@ button.card-face:hover {
   text-align: center;
 }
 
-.wire-battlefield-slot-row {
+.wire-card-flow-battlefield-unit {
   justify-content: space-evenly;
+}
+
+.wire-card-flow {
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  gap: var(--wire-flow-gap, 4px);
+  overflow: auto;
+  background: #fff;
+  color: #000;
+}
+
+.wire-card-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, var(--wire-card-w));
+  grid-auto-rows: var(--wire-card-h);
+  place-content: center;
+  place-items: center;
+}
+
+.wire-card-flow-rail {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.wire-card-flow > .card-face,
+.wire-card-flow > .card-image-only,
+.wire-card-flow > .card-back,
+.wire-card-flow > .wire-card-slot {
+  flex: 0 0 auto;
+}
+
+.wire-card-flow-battlefield-unit {
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+}
+
+.wire-card-flow-base {
+  width: 100%;
+  height: 100%;
+  justify-content: flex-start;
+  padding: 3px;
+}
+
+.wire-card-flow-hand {
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+}
+
+.wire-card-flow-signature {
+  width: var(--wire-signature-area-w);
+  height: var(--wire-signature-zone-h);
+  padding: 0;
 }
 
 .wire-card-scroll-grid {

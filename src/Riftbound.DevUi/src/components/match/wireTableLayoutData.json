@@ -1,0 +1,79 @@
+{
+  "runeDeckSize": 12,
+  "tokens": {
+    "cardWidth": 74,
+    "cardHeight": 104,
+    "fixedPileCardWidth": 92,
+    "fixedPileCardHeight": 128,
+    "fixedPileSlotWidth": 92,
+    "fixedPileSlotHeight": 128,
+    "battlefieldCardWidth": 136,
+    "battlefieldCardHeight": 96,
+    "runeCardWidth": 43,
+    "runeCardHeight": 60,
+    "cardGap": 4,
+    "deckAreaWidth": 60,
+    "publicPileWidth": 92,
+    "handPilesWidth": 188,
+    "runeTrackWidth": 588,
+    "signatureAreaWidth": 100,
+    "signatureZoneHeight": 140,
+    "heroAreaWidth": 100,
+    "tableMinWidth": 1280,
+    "tableMinHeight": 892
+  },
+  "table": {
+    "rowTemplates": ["150px", "166px", "minmax(230px, 1fr)", "166px", "150px"],
+    "rows": [
+      { "id": "opponent-hand", "kind": "handRail", "side": "opponent" },
+      { "id": "opponent-home", "kind": "playerHome", "side": "opponent" },
+      { "id": "battlefield", "kind": "battlefield" },
+      { "id": "self-home", "kind": "playerHome", "side": "self" },
+      { "id": "self-hand", "kind": "handRail", "side": "self" }
+    ]
+  },
+  "handRails": {
+    "self": {
+      "columns": ["var(--wire-deck-area-w)", "var(--wire-rune-track-w)", "minmax(360px, 1fr)"],
+      "slots": ["runeDeck", "runeTrack", "hand"],
+      "handBodyColumns": ["minmax(0, 1fr)", "var(--wire-hand-piles-w)"],
+      "handBodySlots": ["cards", "piles"],
+      "pileSlots": ["library", "played"],
+      "runeReverse": false
+    },
+    "opponent": {
+      "columns": ["minmax(360px, 1fr)", "var(--wire-rune-track-w)", "var(--wire-deck-area-w)"],
+      "slots": ["hand", "runeTrack", "runeDeck"],
+      "handBodyColumns": ["var(--wire-hand-piles-w)", "minmax(0, 1fr)"],
+      "handBodySlots": ["piles", "cards"],
+      "pileSlots": ["played", "library"],
+      "runeReverse": true
+    }
+  },
+  "playerHomes": {
+    "self": {
+      "columns": ["var(--wire-signature-area-w)", "var(--wire-hero-area-w)", "minmax(0, 1fr)"],
+      "slots": ["legend", "hero", "base"],
+      "baseColumns": ["minmax(0, 1fr)", "var(--wire-public-pile-w)"],
+      "baseSlots": ["base", "banish"]
+    },
+    "opponent": {
+      "columns": ["minmax(0, 1fr)", "var(--wire-hero-area-w)", "var(--wire-signature-area-w)"],
+      "slots": ["base", "hero", "legend"],
+      "baseColumns": ["var(--wire-public-pile-w)", "minmax(0, 1fr)"],
+      "baseSlots": ["banish", "base"]
+    }
+  },
+  "battlefield": {
+    "columns": ["var(--wire-battlefield-card-w)", "minmax(0, 1fr)", "var(--wire-battlefield-card-w)"],
+    "slots": ["leftSite", "center", "rightSite"],
+    "centerColumns": ["1fr", "1fr"],
+    "centerRows": ["1fr", "1fr"],
+    "unitZones": [
+      { "id": "left-opponent", "laneIndex": 0, "side": "opponent" },
+      { "id": "right-opponent", "laneIndex": 1, "side": "opponent" },
+      { "id": "left-self", "laneIndex": 0, "side": "self" },
+      { "id": "right-self", "laneIndex": 1, "side": "self" }
+    ]
+  }
+}
