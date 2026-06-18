@@ -1,6 +1,7 @@
 import { Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
@@ -206,7 +207,7 @@ export function CandidateComposer({
             return;
           }
 
-          onCommand(withPromptStamp(command, prompt));
+          onCommand(promptStampedCommand(command, prompt));
           onSubmitted?.();
         }}
         title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
@@ -673,16 +674,4 @@ function firstStringFromRecord(record: Record<string, unknown>, keys: string[]):
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function withPromptStamp(command: GameCommand, prompt: ActionPromptDto | undefined): GameCommand {
-  if (!prompt || (command.promptId != null && command.snapshotTick != null)) {
-    return command;
-  }
-
-  return {
-    ...command,
-    promptId: command.promptId ?? prompt.promptId ?? null,
-    snapshotTick: command.snapshotTick ?? prompt.snapshotTick ?? null
-  };
 }
