@@ -455,11 +455,17 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const ruleDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
     const selectedRow = document.querySelector(".wire-rule-item.is-detail-selected");
+    const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
+    const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     return {
       text: panel?.textContent ?? "",
       selectedRow: Boolean(selectedRow),
       hasSourceRef: Boolean(panel?.querySelector('[data-rule-object-ref="p1-hand-spell"]')),
       hasTargetRef: Boolean(panel?.querySelector('[data-rule-object-ref="p2-right-1"]')),
+      sourceState: sourceObject?.getAttribute("data-timeline-state") ?? null,
+      targetState: targetObject?.getAttribute("data-timeline-state") ?? null,
+      sourcePromptState: sourceObject?.getAttribute("data-prompt-state") ?? null,
+      targetPromptState: targetObject?.getAttribute("data-prompt-state") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
@@ -469,11 +475,17 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const eventDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
     const selectedRow = document.querySelector(".log-row.is-detail-selected");
+    const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
+    const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     return {
       text: panel?.textContent ?? "",
       selectedRow: Boolean(selectedRow),
       hasSourceRef: Boolean(panel?.querySelector('[data-event-object-ref="p1-hand-spell"]')),
       hasTargetRef: Boolean(panel?.querySelector('[data-event-object-ref="p2-right-1"]')),
+      sourceState: sourceObject?.getAttribute("data-timeline-state") ?? null,
+      targetState: targetObject?.getAttribute("data-timeline-state") ?? null,
+      sourcePromptState: sourceObject?.getAttribute("data-prompt-state") ?? null,
+      targetPromptState: targetObject?.getAttribute("data-prompt-state") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
@@ -496,12 +508,16 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
   if (!ruleDetailResult.hasTargetRef) failures.push("rule detail target ref missing");
+  if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
+  if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
   if (!ruleDetailResult.selectedRow) failures.push("rule detail selected row missing");
   if (ruleDetailResult.detailLayerOpen) failures.push("rule detail opened card detail layer");
   if (!eventDetailResult.text.includes("加入结算链")) failures.push("event detail title missing");
   if (!eventDetailResult.text.includes("服务端摘要")) failures.push("event detail did not use server object refs");
   if (!eventDetailResult.hasSourceRef) failures.push("event detail source ref missing");
   if (!eventDetailResult.hasTargetRef) failures.push("event detail target ref missing");
+  if (eventDetailResult.sourceState !== "event") failures.push("event detail did not project source to table");
+  if (eventDetailResult.targetState !== "event") failures.push("event detail did not project target to table");
   if (!eventDetailResult.selectedRow) failures.push("event detail selected row missing");
   if (eventDetailResult.detailLayerOpen) failures.push("event detail opened card detail layer");
 
