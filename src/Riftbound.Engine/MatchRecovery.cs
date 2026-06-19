@@ -18443,6 +18443,24 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} {diagnosticName} triggered event kind {triggeredEventKind} must be {expectedTriggeredEventKind}; {FormatExpectedActualForRecovery(expectedTriggeredEventKind, triggeredEventKind)}");
     }
 
+    private static void ValidateTriggerQueueEffectKindMustBe(
+        string payloadLabel,
+        string diagnosticName,
+        string? effectKind,
+        string expectedEffectKind,
+        List<string> errors)
+    {
+        if (effectKind is null
+            || string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+            || string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} effect kind {effectKind} must be {expectedEffectKind}; {FormatExpectedActualForRecovery(expectedEffectKind, effectKind)}");
+    }
+
     private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
         string payloadLabel,
         string? triggerId,
@@ -18596,13 +18614,12 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} must match trigger id source object id {expectedSourceObjectId}");
         }
 
-        if (effectKind is not null
-            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(effectKind, P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource effect kind {effectKind} must be {P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind}");
-        }
+        ValidateTriggerQueueEffectKindMustBe(
+            payloadLabel,
+            "blue sentinel delayed resource",
+            effectKind,
+            P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind,
+            errors);
 
         ValidateTriggerQueueTriggeredEventKindMustBe(
             payloadLabel,
@@ -18835,13 +18852,12 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}");
         }
 
-        if (effectKind is not null
-            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(effectKind, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} jhin movement resource effect kind {effectKind} must be {P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind}");
-        }
+        ValidateTriggerQueueEffectKindMustBe(
+            payloadLabel,
+            "jhin movement resource",
+            effectKind,
+            P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
+            errors);
 
         var expectedTriggeredEventKind = destination.StartsWith("BATTLEFIELD", StringComparison.Ordinal)
             ? "UNIT_MOVED_TO_BATTLEFIELD"
@@ -19178,13 +19194,12 @@ public static class MatchRecoveryValidator
             sourceVisibility,
             errors);
 
-        if (effectKind is not null
-            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(effectKind, KogmawLastBreathAoeEffectKindForRecovery, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} kogmaw last breath effect kind {effectKind} must be {KogmawLastBreathAoeEffectKindForRecovery}");
-        }
+        ValidateTriggerQueueEffectKindMustBe(
+            payloadLabel,
+            "kogmaw last breath",
+            effectKind,
+            KogmawLastBreathAoeEffectKindForRecovery,
+            errors);
 
         ValidateTriggerQueueTriggeredEventKindMustBe(
             payloadLabel,
@@ -19400,13 +19415,12 @@ public static class MatchRecoveryValidator
             sourceVisibility,
             errors);
 
-        if (effectKind is not null
-            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(effectKind, OgsLuxHighCostSpellPowerEffectKindForRecovery, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} ogs lux high cost spell effect kind {effectKind} must be {OgsLuxHighCostSpellPowerEffectKindForRecovery}");
-        }
+        ValidateTriggerQueueEffectKindMustBe(
+            payloadLabel,
+            "ogs lux high cost spell",
+            effectKind,
+            OgsLuxHighCostSpellPowerEffectKindForRecovery,
+            errors);
 
         ValidateTriggerQueueTriggeredEventKindMustBe(
             payloadLabel,
@@ -19564,13 +19578,12 @@ public static class MatchRecoveryValidator
             sourceVisibility,
             errors);
 
-        if (effectKind is not null
-            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} teemo on-play self-power effect kind {effectKind} must be {expectedEffectKind}");
-        }
+        ValidateTriggerQueueEffectKindMustBe(
+            payloadLabel,
+            "teemo on-play self-power",
+            effectKind,
+            expectedEffectKind,
+            errors);
 
         ValidateTriggerQueueTriggeredEventKindMustBe(
             payloadLabel,
@@ -21191,13 +21204,12 @@ public static class MatchRecoveryValidator
             sourceVisibility,
             errors);
 
-        if (effectKind is not null
-            && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} effect kind {effectKind} must be {expectedEffectKind}");
-        }
+        ValidateTriggerQueueEffectKindMustBe(
+            payloadLabel,
+            diagnosticName,
+            effectKind,
+            expectedEffectKind,
+            errors);
 
         ValidateTriggerQueueTriggeredEventKindMustBe(
             payloadLabel,

@@ -6617,7 +6617,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER; expected BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -7592,7 +7592,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell effect kind WRONG_EFFECT must be OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell effect kind WRONG_EFFECT must be OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3; expected OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -8293,7 +8293,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power effect kind WRONG_EFFECT must be TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3",
+                "snapshot for alice timing trigger queue item teemo on-play self-power effect kind WRONG_EFFECT must be TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3; expected TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -8914,7 +8914,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw effect kind WRONG_EFFECT must be WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw effect kind WRONG_EFFECT must be WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1; expected WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10034,7 +10034,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item unsung hero last-breath powerful draw effect kind WRONG_EFFECT must be UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
+                "snapshot for alice timing trigger queue item unsung hero last-breath powerful draw effect kind WRONG_EFFECT must be UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2; expected UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10180,7 +10180,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune effect kind WRONG_EFFECT must be SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1",
+                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune effect kind WRONG_EFFECT must be SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1; expected SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10247,7 +10247,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1",
+                "snapshot for alice timing trigger queue item sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1; expected SAD_PORO_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10314,7 +10314,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item loyal poro last-breath draw effect kind WRONG_EFFECT must be LOYAL_PORO_LAST_BREATH_DRAW_1",
+                "snapshot for alice timing trigger queue item loyal poro last-breath draw effect kind WRONG_EFFECT must be LOYAL_PORO_LAST_BREATH_DRAW_1; expected LOYAL_PORO_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10381,7 +10381,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item honest broker last-breath create gold effect kind WRONG_EFFECT must be HONEST_BROKER_LAST_BREATH_CREATE_GOLD",
+                "snapshot for alice timing trigger queue item honest broker last-breath create gold effect kind WRONG_EFFECT must be HONEST_BROKER_LAST_BREATH_CREATE_GOLD; expected HONEST_BROKER_LAST_BREATH_CREATE_GOLD but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10448,7 +10448,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item mechanical trickster last-breath create minions effect kind WRONG_EFFECT must be MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS",
+                "snapshot for alice timing trigger queue item mechanical trickster last-breath create minions effect kind WRONG_EFFECT must be MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS; expected MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10515,7 +10515,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item undercover agent last-breath effect kind WRONG_EFFECT must be UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT",
+                "snapshot for alice timing trigger queue item undercover agent last-breath effect kind WRONG_EFFECT must be UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT; expected UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10582,7 +10582,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ironclad vanguard last-breath create robots effect kind WRONG_EFFECT must be IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS",
+                "snapshot for alice timing trigger queue item ironclad vanguard last-breath create robots effect kind WRONG_EFFECT must be IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS; expected IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10649,7 +10649,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item muddy dredger last-breath create warhawk effect kind WRONG_EFFECT must be MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK",
+                "snapshot for alice timing trigger queue item muddy dredger last-breath create warhawk effect kind WRONG_EFFECT must be MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK; expected MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10716,7 +10716,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2; expected GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -12089,7 +12089,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1",
+                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1; expected RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -12156,7 +12156,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1",
+                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1; expected SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -12223,7 +12223,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION",
+                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION; expected VIKTOR_DESTROYED_NON_MINION_CREATE_MINION but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -12289,7 +12289,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER",
+                "snapshot for alice timing trigger queue item jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER; expected JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -13129,7 +13129,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath effect kind WRONG_EFFECT must be OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                "snapshot for alice timing trigger queue item kogmaw last breath effect kind WRONG_EFFECT must be OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT; expected OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -29787,7 +29787,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1 blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1 blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER; expected BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -30478,7 +30478,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell effect kind WRONG_EFFECT must be OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell effect kind WRONG_EFFECT must be OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3; expected OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -31001,7 +31001,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power effect kind WRONG_EFFECT must be TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3",
+                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power effect kind WRONG_EFFECT must be TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3; expected TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -31455,7 +31455,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw effect kind WRONG_EFFECT must be WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw effect kind WRONG_EFFECT must be WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1; expected WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32261,7 +32261,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 unsung hero last-breath powerful draw effect kind WRONG_EFFECT must be UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 unsung hero last-breath powerful draw effect kind WRONG_EFFECT must be UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2; expected UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32315,7 +32315,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune effect kind WRONG_EFFECT must be SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune effect kind WRONG_EFFECT must be SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1; expected SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32369,7 +32369,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1 sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1 sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1; expected SAD_PORO_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32423,7 +32423,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-LOYAL_PORO_LAST_BREATH_DRAW_1 loyal poro last-breath draw effect kind WRONG_EFFECT must be LOYAL_PORO_LAST_BREATH_DRAW_1",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-LOYAL_PORO_LAST_BREATH_DRAW_1 loyal poro last-breath draw effect kind WRONG_EFFECT must be LOYAL_PORO_LAST_BREATH_DRAW_1; expected LOYAL_PORO_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32477,7 +32477,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-HONEST_BROKER_LAST_BREATH_CREATE_GOLD honest broker last-breath create gold effect kind WRONG_EFFECT must be HONEST_BROKER_LAST_BREATH_CREATE_GOLD",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-HONEST_BROKER_LAST_BREATH_CREATE_GOLD honest broker last-breath create gold effect kind WRONG_EFFECT must be HONEST_BROKER_LAST_BREATH_CREATE_GOLD; expected HONEST_BROKER_LAST_BREATH_CREATE_GOLD but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32531,7 +32531,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS mechanical trickster last-breath create minions effect kind WRONG_EFFECT must be MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS mechanical trickster last-breath create minions effect kind WRONG_EFFECT must be MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS; expected MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32585,7 +32585,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT undercover agent last-breath effect kind WRONG_EFFECT must be UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT undercover agent last-breath effect kind WRONG_EFFECT must be UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT; expected UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32639,7 +32639,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS ironclad vanguard last-breath create robots effect kind WRONG_EFFECT must be IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS ironclad vanguard last-breath create robots effect kind WRONG_EFFECT must be IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS; expected IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32693,7 +32693,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK muddy dredger last-breath create warhawk effect kind WRONG_EFFECT must be MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK muddy dredger last-breath create warhawk effect kind WRONG_EFFECT must be MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK; expected MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -32747,7 +32747,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2; expected GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -33779,7 +33779,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1; expected RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -33833,7 +33833,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1; expected SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -33887,7 +33887,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION; expected VIKTOR_DESTROYED_NON_MINION_CREATE_MINION but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -33945,7 +33945,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER",
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER; expected JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -34602,7 +34602,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath effect kind WRONG_EFFECT must be OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath effect kind WRONG_EFFECT must be OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT; expected OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -139461,7 +139461,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER; expected BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -139582,7 +139582,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource effect kind WRONG_EFFECT must be BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER; expected BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_RESOURCE_SKILL_GAIN_GENERIC_POWER but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -142089,7 +142089,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell effect kind WRONG_EFFECT must be OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell effect kind WRONG_EFFECT must be OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3; expected OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -142200,7 +142200,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell effect kind WRONG_EFFECT must be OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell effect kind WRONG_EFFECT must be OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3; expected OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -144289,7 +144289,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power effect kind WRONG_EFFECT must be TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3",
+                "spectator replay frame timing trigger queue item teemo on-play self-power effect kind WRONG_EFFECT must be TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3; expected TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -144400,7 +144400,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power effect kind WRONG_EFFECT must be TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3",
+                "spectator replay frame timing trigger queue item teemo on-play self-power effect kind WRONG_EFFECT must be TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3; expected TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146263,7 +146263,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw effect kind WRONG_EFFECT must be WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw effect kind WRONG_EFFECT must be WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1; expected WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146380,7 +146380,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw effect kind WRONG_EFFECT must be WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw effect kind WRONG_EFFECT must be WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1; expected WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149277,7 +149277,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw effect kind WRONG_EFFECT must be UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
+                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw effect kind WRONG_EFFECT must be UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2; expected UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149394,7 +149394,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw effect kind WRONG_EFFECT must be UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
+                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw effect kind WRONG_EFFECT must be UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2; expected UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149723,7 +149723,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune effect kind WRONG_EFFECT must be SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune effect kind WRONG_EFFECT must be SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1; expected SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149840,7 +149840,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune effect kind WRONG_EFFECT must be SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune effect kind WRONG_EFFECT must be SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1; expected SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149953,7 +149953,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1",
+                "spectator replay frame timing trigger queue item sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1; expected SAD_PORO_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150070,7 +150070,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1",
+                "spectator replay frame timing trigger queue item sad poro last-breath draw effect kind WRONG_EFFECT must be SAD_PORO_LAST_BREATH_DRAW_1; expected SAD_PORO_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150183,7 +150183,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item loyal poro last-breath draw effect kind WRONG_EFFECT must be LOYAL_PORO_LAST_BREATH_DRAW_1",
+                "spectator replay frame timing trigger queue item loyal poro last-breath draw effect kind WRONG_EFFECT must be LOYAL_PORO_LAST_BREATH_DRAW_1; expected LOYAL_PORO_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150300,7 +150300,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item loyal poro last-breath draw effect kind WRONG_EFFECT must be LOYAL_PORO_LAST_BREATH_DRAW_1",
+                "spectator replay frame timing trigger queue item loyal poro last-breath draw effect kind WRONG_EFFECT must be LOYAL_PORO_LAST_BREATH_DRAW_1; expected LOYAL_PORO_LAST_BREATH_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150413,7 +150413,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item honest broker last-breath create gold effect kind WRONG_EFFECT must be HONEST_BROKER_LAST_BREATH_CREATE_GOLD",
+                "spectator replay frame timing trigger queue item honest broker last-breath create gold effect kind WRONG_EFFECT must be HONEST_BROKER_LAST_BREATH_CREATE_GOLD; expected HONEST_BROKER_LAST_BREATH_CREATE_GOLD but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150530,7 +150530,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item honest broker last-breath create gold effect kind WRONG_EFFECT must be HONEST_BROKER_LAST_BREATH_CREATE_GOLD",
+                "spectator replay frame timing trigger queue item honest broker last-breath create gold effect kind WRONG_EFFECT must be HONEST_BROKER_LAST_BREATH_CREATE_GOLD; expected HONEST_BROKER_LAST_BREATH_CREATE_GOLD but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150643,7 +150643,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions effect kind WRONG_EFFECT must be MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS",
+                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions effect kind WRONG_EFFECT must be MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS; expected MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150760,7 +150760,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions effect kind WRONG_EFFECT must be MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS",
+                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions effect kind WRONG_EFFECT must be MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS; expected MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150873,7 +150873,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item undercover agent last-breath effect kind WRONG_EFFECT must be UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT",
+                "spectator replay frame timing trigger queue item undercover agent last-breath effect kind WRONG_EFFECT must be UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT; expected UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150990,7 +150990,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item undercover agent last-breath effect kind WRONG_EFFECT must be UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT",
+                "spectator replay frame timing trigger queue item undercover agent last-breath effect kind WRONG_EFFECT must be UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT; expected UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151103,7 +151103,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots effect kind WRONG_EFFECT must be IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS",
+                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots effect kind WRONG_EFFECT must be IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS; expected IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151220,7 +151220,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots effect kind WRONG_EFFECT must be IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS",
+                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots effect kind WRONG_EFFECT must be IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS; expected IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151333,7 +151333,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk effect kind WRONG_EFFECT must be MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK",
+                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk effect kind WRONG_EFFECT must be MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK; expected MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151450,7 +151450,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk effect kind WRONG_EFFECT must be MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK",
+                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk effect kind WRONG_EFFECT must be MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK; expected MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151563,7 +151563,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2; expected GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151680,7 +151680,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2; expected GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155161,7 +155161,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1",
+                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1; expected RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155278,7 +155278,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1",
+                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1; expected RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155391,7 +155391,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1",
+                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1; expected SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155508,7 +155508,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1",
+                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1; expected SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155621,7 +155621,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION",
+                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION; expected VIKTOR_DESTROYED_NON_MINION_CREATE_MINION but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155738,7 +155738,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION",
+                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION; expected VIKTOR_DESTROYED_NON_MINION_CREATE_MINION but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155855,7 +155855,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER",
+                "spectator replay frame timing trigger queue item jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER; expected JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155976,7 +155976,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER",
+                "spectator replay frame timing trigger queue item jhin movement resource effect kind WRONG_EFFECT must be JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER; expected JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -158631,7 +158631,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath effect kind WRONG_EFFECT must be OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                "spectator replay frame timing trigger queue item kogmaw last breath effect kind WRONG_EFFECT must be OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT; expected OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -158742,7 +158742,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath effect kind WRONG_EFFECT must be OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                "spectator replay frame timing trigger queue item kogmaw last breath effect kind WRONG_EFFECT must be OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT; expected OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT but got WRONG_EFFECT",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
