@@ -45842,37 +45842,59 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice main deck count does not match authoritative state main deck count", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice main deck count does not match authoritative state main deck count; expected 1 but got 2",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice rune deck count does not match authoritative state rune deck count", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice rune deck count does not match authoritative state rune deck count; expected 1 but got 2",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice hand objects must be redacted for spectator view", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice hand objects must be redacted for spectator view; expected [] but got [alice-hand-1]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice hidden hand count does not match authoritative state hand count", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice hidden hand count does not match authoritative state hand count; expected 1 but got 2",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice base objects do not match authoritative state base objects", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice base objects do not match authoritative state base objects; expected [alice-base-1] but got [alice-base-drift]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice battlefield objects do not match authoritative state battlefield objects", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice battlefield objects do not match authoritative state battlefield objects; expected [alice-visible-battlefield-1] but got [alice-visible-battlefield-1, alice-hidden-standby-1]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice hidden battlefield standby count does not match authoritative state hidden battlefield standby count", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice hidden battlefield standby count does not match authoritative state hidden battlefield standby count; expected 1 but got 0",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice graveyard objects do not match authoritative state graveyard objects", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice graveyard objects do not match authoritative state graveyard objects; expected [alice-grave-1] but got [alice-grave-drift]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice banished objects do not match authoritative state banished objects", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice banished objects do not match authoritative state banished objects; expected [alice-banished-1] but got [alice-banished-drift]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice legend zone objects do not match authoritative state legend zone objects", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice legend zone objects do not match authoritative state legend zone objects; expected [alice-legend-1] but got [alice-legend-drift]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice champion zone objects do not match authoritative state champion zone objects", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice champion zone objects do not match authoritative state champion zone objects; expected [alice-champion-1] but got [alice-champion-drift]",
+                StringComparison.Ordinal));
     }
 
     [Fact]

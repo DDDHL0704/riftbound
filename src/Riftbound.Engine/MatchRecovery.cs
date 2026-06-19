@@ -9432,25 +9432,30 @@ public static class MatchRecoveryValidator
         if (!TryReadObjectInt(zonePayload, "mainDeckCount", out var mainDeckCount)
             || mainDeckCount != zones.MainDeck.Count)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} main deck count does not match authoritative state main deck count");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} main deck count does not match authoritative state main deck count; {FormatExpectedActualForRecovery(zones.MainDeck.Count, FormatReadableIntValue(mainDeckCount, zonePayload, "mainDeckCount"))}");
         }
 
         if (!TryReadObjectInt(zonePayload, "runeDeckCount", out var runeDeckCount)
             || runeDeckCount != zones.RuneDeck.Count)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} rune deck count does not match authoritative state rune deck count");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} rune deck count does not match authoritative state rune deck count; {FormatExpectedActualForRecovery(zones.RuneDeck.Count, FormatReadableIntValue(runeDeckCount, zonePayload, "runeDeckCount"))}");
         }
 
-        if (!TryReadObjectStringList(zonePayload, "hand", out var handObjects)
+        var hasHandObjects = TryReadObjectStringList(zonePayload, "hand", out var handObjects);
+        if (!hasHandObjects
             || handObjects.Count != 0)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} hand objects must be redacted for spectator view");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} hand objects must be redacted for spectator view; {FormatExpectedActualForRecovery(Array.Empty<string>(), FormatReadableStringListValue(hasHandObjects, handObjects, zonePayload, "hand"))}");
         }
 
         if (!TryReadObjectInt(zonePayload, "handHidden", out var handHidden)
             || handHidden != zones.Hand.Count)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} hidden hand count does not match authoritative state hand count");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} hidden hand count does not match authoritative state hand count; {FormatExpectedActualForRecovery(zones.Hand.Count, FormatReadableIntValue(handHidden, zonePayload, "handHidden"))}");
         }
 
         ValidateSpectatorSnapshotPlayerZoneStringList(
@@ -9475,7 +9480,8 @@ public static class MatchRecoveryValidator
         if (!TryReadObjectInt(zonePayload, "battlefieldHiddenStandbyCount", out var hiddenStandbyCount)
             || hiddenStandbyCount != expectedHiddenStandbyCount)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} hidden battlefield standby count does not match authoritative state hidden battlefield standby count");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} hidden battlefield standby count does not match authoritative state hidden battlefield standby count; {FormatExpectedActualForRecovery(expectedHiddenStandbyCount, FormatReadableIntValue(hiddenStandbyCount, zonePayload, "battlefieldHiddenStandbyCount"))}");
         }
 
         ValidateSpectatorSnapshotPlayerZoneStringList(
@@ -9632,10 +9638,12 @@ public static class MatchRecoveryValidator
         string description,
         List<string> errors)
     {
-        if (!TryReadObjectStringList(zonePayload, key, out var value)
+        var hasValue = TryReadObjectStringList(zonePayload, key, out var value);
+        if (!hasValue
             || !StringListsEqual(value, expected))
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} {description} do not match authoritative state {description}");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} {description} do not match authoritative state {description}; {FormatExpectedActualForRecovery(expected, FormatReadableStringListValue(hasValue, value, zonePayload, key))}");
         }
     }
 
@@ -14283,6 +14291,15 @@ public static class MatchRecoveryValidator
     private static object FormatReadableIntDictionaryValue(
         bool hasValue,
         IReadOnlyDictionary<string, int> value,
+        object? payload,
+        string key)
+    {
+        return hasValue ? value : FormatUnreadableObjectValue(payload, key);
+    }
+
+    private static object FormatReadableStringListValue(
+        bool hasValue,
+        IReadOnlyList<string> value,
         object? payload,
         string key)
     {
