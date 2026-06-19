@@ -13637,138 +13637,355 @@ public static class MatchRecoveryValidator
 
         if (!effectIdsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect ids disagree with authoritative state continuous effect ids");
+            AddSpectatorContinuousEffectStringAggregateMismatch(
+                "ids",
+                authoritativeEffects.Select(effect => effect.EffectId),
+                spectatorEffects,
+                "effectId",
+                errors);
         }
 
         if (!scopesMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect scopes disagree with authoritative state continuous effect scopes");
+            AddSpectatorContinuousEffectStringAggregateMismatch(
+                "scopes",
+                authoritativeEffects.Select(effect => effect.Scope),
+                spectatorEffects,
+                "scope",
+                errors);
         }
 
         if (!layersMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect layers disagree with authoritative state continuous effect layers");
+            AddSpectatorContinuousEffectStringAggregateMismatch(
+                "layers",
+                authoritativeEffects.Select(effect => effect.Layer),
+                spectatorEffects,
+                "layer",
+                errors);
         }
 
         if (!durationsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect durations disagree with authoritative state continuous effect durations");
+            AddSpectatorContinuousEffectStringAggregateMismatch(
+                "durations",
+                authoritativeEffects.Select(effect => effect.Duration),
+                spectatorEffects,
+                "duration",
+                errors);
         }
 
         if (!targetObjectIdsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect target objects disagree with authoritative state continuous effect target objects");
+            AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+                "target objects",
+                authoritativeEffects.Select(effect => effect.TargetObjectId),
+                spectatorEffects,
+                "targetObjectId",
+                errors);
         }
 
         if (!sourceObjectIdsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect source objects disagree with authoritative state continuous effect source objects");
+            AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+                "source objects",
+                authoritativeEffects.Select(effect => effect.SourceObjectId),
+                spectatorEffects,
+                "sourceObjectId",
+                errors);
         }
 
         if (!powerDeltasMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect power deltas disagree with authoritative state continuous effect power deltas");
+            AddSpectatorContinuousEffectIntAggregateMismatch(
+                "power deltas",
+                authoritativeEffects.Select(effect => effect.PowerDelta),
+                spectatorEffects,
+                "powerDelta",
+                errors);
         }
 
         if (!basePowersMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect base powers disagree with authoritative state continuous effect base powers");
+            AddSpectatorContinuousEffectIntAggregateMismatch(
+                "base powers",
+                authoritativeEffects.Select(effect => effect.BasePower),
+                spectatorEffects,
+                "basePower",
+                errors);
         }
 
         if (!effectivePowersMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect effective powers disagree with authoritative state continuous effect effective powers");
+            AddSpectatorContinuousEffectIntAggregateMismatch(
+                "effective powers",
+                authoritativeEffects.Select(effect => effect.EffectivePower),
+                spectatorEffects,
+                "effectivePower",
+                errors);
         }
 
         if (!sequencesMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect sequences disagree with authoritative state continuous effect sequences");
+            AddSpectatorContinuousEffectIntAggregateMismatch(
+                "sequences",
+                authoritativeEffects.Select(effect => effect.Sequence),
+                spectatorEffects,
+                "sequence",
+                errors);
         }
 
         if (!effectKindsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect kinds disagree with authoritative state continuous effect kinds");
+            AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+                "kinds",
+                authoritativeEffects.Select(effect => effect.EffectKind),
+                spectatorEffects,
+                "effectKind",
+                errors);
         }
 
         if (!sourceCardNumbersMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect source card numbers disagree with authoritative state continuous effect source card numbers");
+            AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+                "source card numbers",
+                authoritativeEffects.Select(effect => effect.SourceCardNo),
+                spectatorEffects,
+                "sourceCardNo",
+                errors);
         }
 
         if (!sourcePathsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect source paths disagree with authoritative state continuous effect source paths");
+            AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+                "source paths",
+                authoritativeEffects.Select(effect => effect.SourcePath),
+                spectatorEffects,
+                "sourcePath",
+                errors);
         }
 
         if (!layerEngineStatusesMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect layer engine statuses disagree with authoritative state continuous effect layer engine statuses");
+            AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+                "layer engine statuses",
+                authoritativeEffects.Select(effect => effect.IsLayerEngineFoundationOnly ? "FOUNDATION_ONLY" : null),
+                spectatorEffects,
+                "layerEngineStatus",
+                errors);
         }
 
         if (!requestedPowerDeltasMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect requested power deltas disagree with authoritative state continuous effect requested power deltas");
+            AddSpectatorContinuousEffectOptionalIntAggregateMismatch(
+                "requested power deltas",
+                authoritativeEffects.Select(effect => effect.RequestedPowerDelta),
+                spectatorEffects,
+                "requestedPowerDelta",
+                errors);
         }
 
         if (!appliedPowerDeltasMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect applied power deltas disagree with authoritative state continuous effect applied power deltas");
+            AddSpectatorContinuousEffectOptionalIntAggregateMismatch(
+                "applied power deltas",
+                authoritativeEffects.Select(effect => effect.AppliedPowerDelta),
+                spectatorEffects,
+                "appliedPowerDelta",
+                errors);
         }
 
         if (!minimumPowersMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect minimum powers disagree with authoritative state continuous effect minimum powers");
+            AddSpectatorContinuousEffectOptionalIntAggregateMismatch(
+                "minimum powers",
+                authoritativeEffects.Select(effect => effect.MinimumPower),
+                spectatorEffects,
+                "minimumPower",
+                errors);
         }
 
         if (!resultingPowersMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect resulting powers disagree with authoritative state continuous effect resulting powers");
+            AddSpectatorContinuousEffectOptionalIntAggregateMismatch(
+                "resulting powers",
+                authoritativeEffects.Select(effect => effect.ResultingPower),
+                spectatorEffects,
+                "resultingPower",
+                errors);
         }
 
         if (!appliedOrdersMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect applied orders disagree with authoritative state continuous effect applied orders");
+            AddSpectatorContinuousEffectOptionalIntAggregateMismatch(
+                "applied orders",
+                authoritativeEffects.Select(effect => effect.AppliedOrder),
+                spectatorEffects,
+                "appliedOrder",
+                errors);
         }
 
         if (!sourceOrdersMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect source orders disagree with authoritative state continuous effect source orders");
+            AddSpectatorContinuousEffectOptionalIntAggregateMismatch(
+                "source orders",
+                authoritativeEffects.Select(effect => effect.SourceOrder),
+                spectatorEffects,
+                "sourceOrder",
+                errors);
         }
 
         if (!conditionsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect conditions disagree with authoritative state continuous effect conditions");
+            AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+                "conditions",
+                authoritativeEffects.Select(effect => effect.Condition),
+                spectatorEffects,
+                "condition",
+                errors);
         }
 
         if (!lifecyclesMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect lifecycles disagree with authoritative state continuous effect lifecycles");
+            AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+                "lifecycles",
+                authoritativeEffects.Select(effect => effect.Lifecycle),
+                spectatorEffects,
+                "lifecycle",
+                errors);
         }
 
         if (!participantObjectIdsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect participant object ids disagree with authoritative state continuous effect participant object ids");
+            AddSpectatorContinuousEffectOptionalStringListAggregateMismatch(
+                "participant object ids",
+                authoritativeEffects.Select(effect => effect.ParticipantObjectIds),
+                spectatorEffects,
+                "participantObjectIds",
+                errors);
         }
 
         if (!sourceDependencyObjectIdsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect source dependency object ids disagree with authoritative state continuous effect source dependency object ids");
+            AddSpectatorContinuousEffectOptionalStringListAggregateMismatch(
+                "source dependency object ids",
+                authoritativeEffects.Select(effect => effect.SourceDependencyObjectIds),
+                spectatorEffects,
+                "sourceDependencyObjectIds",
+                errors);
         }
 
         if (!targetDependencyObjectIdsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect target dependency object ids disagree with authoritative state continuous effect target dependency object ids");
+            AddSpectatorContinuousEffectOptionalStringListAggregateMismatch(
+                "target dependency object ids",
+                authoritativeEffects.Select(effect => effect.TargetDependencyObjectIds),
+                spectatorEffects,
+                "targetDependencyObjectIds",
+                errors);
         }
 
         if (!participantDependencyObjectIdsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect participant dependency object ids disagree with authoritative state continuous effect participant dependency object ids");
+            AddSpectatorContinuousEffectOptionalStringListAggregateMismatch(
+                "participant dependency object ids",
+                authoritativeEffects.Select(effect => effect.ParticipantDependencyObjectIds),
+                spectatorEffects,
+                "participantDependencyObjectIds",
+                errors);
         }
 
         if (!deferredLayerEngineResidualsMatch)
         {
-            errors.Add("spectator replay frame timing continuous effect deferred LayerEngine residuals disagree with authoritative state continuous effect deferred LayerEngine residuals");
+            AddSpectatorContinuousEffectOptionalStringListAggregateMismatch(
+                "deferred LayerEngine residuals",
+                authoritativeEffects.Select(effect => effect.DeferredLayerEngineResiduals),
+                spectatorEffects,
+                "deferredLayerEngineResiduals",
+                errors);
         }
+    }
+
+    private static void AddSpectatorContinuousEffectStringAggregateMismatch(
+        string fieldLabel,
+        IEnumerable<string?> expectedValues,
+        IReadOnlyList<object?> spectatorEffects,
+        string key,
+        List<string> errors)
+    {
+        AddSpectatorContinuousEffectAggregateMismatch(
+            fieldLabel,
+            expectedValues.Select(value => FormatRecoveryDiagnosticValue(value ?? string.Empty)).ToArray(),
+            ExtractObjectStringDiagnosticValues(spectatorEffects, key),
+            errors);
+    }
+
+    private static void AddSpectatorContinuousEffectOptionalStringAggregateMismatch(
+        string fieldLabel,
+        IEnumerable<string?> expectedValues,
+        IReadOnlyList<object?> spectatorEffects,
+        string key,
+        List<string> errors)
+    {
+        AddSpectatorContinuousEffectAggregateMismatch(
+            fieldLabel,
+            expectedValues.Select(value => FormatRecoveryDiagnosticValue(value ?? string.Empty)).ToArray(),
+            ExtractObjectOptionalStringDiagnosticValues(spectatorEffects, key),
+            errors);
+    }
+
+    private static void AddSpectatorContinuousEffectIntAggregateMismatch(
+        string fieldLabel,
+        IEnumerable<int> expectedValues,
+        IReadOnlyList<object?> spectatorEffects,
+        string key,
+        List<string> errors)
+    {
+        AddSpectatorContinuousEffectAggregateMismatch(
+            fieldLabel,
+            expectedValues.Select(value => FormatRecoveryDiagnosticValue(value)).ToArray(),
+            ExtractObjectIntDiagnosticValues(spectatorEffects, key),
+            errors);
+    }
+
+    private static void AddSpectatorContinuousEffectOptionalIntAggregateMismatch(
+        string fieldLabel,
+        IEnumerable<int?> expectedValues,
+        IReadOnlyList<object?> spectatorEffects,
+        string key,
+        List<string> errors)
+    {
+        AddSpectatorContinuousEffectAggregateMismatch(
+            fieldLabel,
+            expectedValues
+                .Select(value => FormatRecoveryDiagnosticValue(value.HasValue ? (object)value.Value : string.Empty))
+                .ToArray(),
+            ExtractObjectOptionalIntDiagnosticValues(spectatorEffects, key),
+            errors);
+    }
+
+    private static void AddSpectatorContinuousEffectOptionalStringListAggregateMismatch(
+        string fieldLabel,
+        IEnumerable<IReadOnlyList<string>?> expectedValues,
+        IReadOnlyList<object?> spectatorEffects,
+        string key,
+        List<string> errors)
+    {
+        AddSpectatorContinuousEffectAggregateMismatch(
+            fieldLabel,
+            expectedValues.Select(value => FormatRecoveryDiagnosticValue(value ?? [])).ToArray(),
+            ExtractObjectStringListDiagnosticValues(spectatorEffects, key),
+            errors);
+    }
+
+    private static void AddSpectatorContinuousEffectAggregateMismatch(
+        string fieldLabel,
+        IReadOnlyList<string> expectedValues,
+        IReadOnlyList<string> actualValues,
+        List<string> errors)
+    {
+        errors.Add(
+            $"spectator replay frame timing continuous effect {fieldLabel} disagree with authoritative state continuous effect {fieldLabel}; {FormatExpectedActualForRecovery(expectedValues, actualValues)}");
     }
 
     private static void AddSpectatorContinuousEffectCountMismatch(
@@ -14351,6 +14568,85 @@ public static class MatchRecoveryValidator
     private static object FormatReadableIntValue(object? value)
     {
         return TryReadIntValue(value, out var actual) ? actual : "<unreadable>";
+    }
+
+    private static IReadOnlyList<string> ExtractObjectStringDiagnosticValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        return items
+            .Select(item => TryReadObjectString(item, key, out var value)
+                ? FormatRecoveryDiagnosticValue(value ?? string.Empty)
+                : FormatRecoveryDiagnosticValue(FormatUnreadableObjectValue(item, key)))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ExtractObjectOptionalStringDiagnosticValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        return items
+            .Select(item =>
+            {
+                if (!TryReadObjectValue(item, key, out var value))
+                {
+                    return FormatRecoveryDiagnosticValue("<missing>");
+                }
+
+                return TryReadOptionalStringValue(value, out var actual)
+                    ? FormatRecoveryDiagnosticValue(actual)
+                    : FormatRecoveryDiagnosticValue("<unreadable>");
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ExtractObjectIntDiagnosticValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        return items
+            .Select(item => TryReadObjectInt(item, key, out var value)
+                ? FormatRecoveryDiagnosticValue(value)
+                : FormatRecoveryDiagnosticValue(FormatUnreadableObjectValue(item, key)))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ExtractObjectOptionalIntDiagnosticValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        return items
+            .Select(item =>
+            {
+                if (!TryReadObjectValue(item, key, out var value))
+                {
+                    return FormatRecoveryDiagnosticValue("<missing>");
+                }
+
+                return TryReadIntValue(value, out var actual)
+                    ? FormatRecoveryDiagnosticValue(actual)
+                    : FormatRecoveryDiagnosticValue("<unreadable>");
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ExtractObjectStringListDiagnosticValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        return items
+            .Select(item =>
+            {
+                if (!TryReadObjectValue(item, key, out var value))
+                {
+                    return FormatRecoveryDiagnosticValue("<missing>");
+                }
+
+                return TryReadStringListValue(value, out var actual)
+                    ? FormatRecoveryDiagnosticValue(actual)
+                    : FormatRecoveryDiagnosticValue("<unreadable>");
+            })
+            .ToArray();
     }
 
     private static (string? EffectId, int? Sequence) ValidateSpectatorContinuousEffectPayloadValues(

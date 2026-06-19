@@ -61931,7 +61931,9 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing continuous effect ids disagree with authoritative state continuous effect ids", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing continuous effect ids disagree with authoritative state continuous effect ids; expected [effect-1] but got [wrong-effect]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing continuous effect scopes disagree with authoritative state continuous effect scopes", StringComparison.Ordinal));
@@ -61943,7 +61945,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains("spectator replay frame timing continuous effect durations disagree with authoritative state continuous effect durations", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing continuous effect target objects disagree with authoritative state continuous effect target objects", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing continuous effect target objects disagree with authoritative state continuous effect target objects; expected [target-1] but got [wrong-target]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing continuous effect source objects disagree with authoritative state continuous effect source objects", StringComparison.Ordinal));
@@ -61970,7 +61974,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains("spectator replay frame timing continuous effect source paths disagree with authoritative state continuous effect source paths", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing continuous effect layer engine statuses disagree with authoritative state continuous effect layer engine statuses", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing continuous effect layer engine statuses disagree with authoritative state continuous effect layer engine statuses; expected [FOUNDATION_ONLY] but got [WRONG_LAYER_ENGINE_STATUS]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame timing continuous effect requested power deltas disagree with authoritative state continuous effect requested power deltas", StringComparison.Ordinal));
