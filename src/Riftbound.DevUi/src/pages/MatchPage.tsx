@@ -89,6 +89,8 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const promptInteraction = useMemo(() => buildPromptInteractionModel(tablePrompt), [tablePrompt]);
   const selectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
   const selectedObjectContext = selectedObjectId ? tableObjectContextModel.byId[selectedObjectId] : undefined;
+  const detailObjectId = detailCard?.objectId ?? detailCard?.object?.objectId;
+  const detailObjectContext = detailObjectId ? tableObjectContextModel.byId[detailObjectId] : undefined;
   const focusedSourceCandidates = useMemo(
     () => focusedCandidateSummaries(promptInteraction.candidates, selectedObjectId),
     [promptInteraction.candidates, selectedObjectId]
@@ -338,6 +340,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </div>
       <CardDetailDrawer
         card={detailCard}
+        objectContext={detailObjectContext}
         onClose={() => setDetailCard(undefined)}
         onCommand={(command) => void controller.submitCommand(command)}
         prompt={tablePrompt}

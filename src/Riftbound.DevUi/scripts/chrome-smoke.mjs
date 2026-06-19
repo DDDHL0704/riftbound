@@ -269,6 +269,17 @@ async function runWireClickSelectionSmoke(cdp) {
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
+  await clickButtonByText(cdp, "查看详情");
+  await delay(150);
+  const detailContextResult = await evaluateJson(cdp, `(() => {
+    const detail = document.querySelector(".detail-layer");
+    return {
+      text: detail?.textContent ?? "",
+      open: Boolean(detail)
+    };
+  })()`);
+  await clickButtonByText(cdp, "关闭");
+  await delay(100);
   await clickObject(cdp, "p2-left-1");
   await delay(150);
   const targetResult = await evaluateJson(cdp, `(() => {
@@ -354,6 +365,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.contextText.includes("位置")) failures.push("object context position missing");
   if (!focusResult.contextText.includes("我方手牌")) failures.push("object context did not locate hand source");
   if (!focusResult.contextText.includes("近期事件")) failures.push("object context event section missing");
+  if (!detailContextResult.open) failures.push("card detail did not open");
+  if (!detailContextResult.text.includes("规则上下文")) failures.push("card detail context section missing");
+  if (!detailContextResult.text.includes("我方手牌")) failures.push("card detail did not reuse object context location");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
   if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
   if (focusResult.detailLayerOpen) failures.push("focused action summary opened detail");
@@ -563,6 +577,21 @@ async function clickCandidateObjectRef(cdp, objectId) {
   });
   if (!result.result?.value) {
     throw new Error(`Candidate object ref not found: ${objectId}`);
+  }
+}
+
+async function clickButtonByText(cdp, text) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = Array.from(document.querySelectorAll("button")).find((button) => button.textContent?.includes(${JSON.stringify(text)}));
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Button not found: ${text}`);
   }
 }
 

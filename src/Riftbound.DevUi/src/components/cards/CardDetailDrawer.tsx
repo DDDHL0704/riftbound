@@ -13,6 +13,7 @@ import {
   statusLabel
 } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
+import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { CandidateComposer, canComposeCandidate } from "../match/CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -22,11 +23,12 @@ type CardDetailDrawerProps = {
   card?: InspectedCard;
   onClose: () => void;
   onCommand?: (command: GameCommand) => void;
+  objectContext?: TableObjectContext;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
 };
 
-export function CardDetailDrawer({ card, onClose, onCommand, prompt, snapshot }: CardDetailDrawerProps) {
+export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prompt, snapshot }: CardDetailDrawerProps) {
   if (!card) {
     return null;
   }
@@ -80,9 +82,10 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt, snapshot }:
               </div>
               <div>
                 <dt>位置</dt>
-                <dd>{formatLocation(card.object?.location)}</dd>
+                <dd>{objectContext?.zone.label ?? formatLocation(card.object?.location)}</dd>
               </div>
             </dl>
+            <DetailObjectContext context={objectContext} />
             <section className="detail-section">
               <strong>关键词</strong>
               <p>{keywordsText(card.spec)}</p>
@@ -151,6 +154,54 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt, snapshot }:
         )}
       </aside>
     </div>
+  );
+}
+
+function DetailObjectContext({ context }: { context?: TableObjectContext }) {
+  if (!context) {
+    return (
+      <section className="detail-section">
+        <strong>规则上下文</strong>
+        <p className="detail-muted">当前快照没有公开该对象的上下文索引。</p>
+      </section>
+    );
+  }
+
+  const events = context.eventLinks.slice(-4).reverse();
+  return (
+    <section className="detail-section detail-context" aria-label="卡牌规则上下文">
+      <strong>规则上下文</strong>
+      <div className="detail-context-grid">
+        <span>
+          <small>区域</small>
+          <b>{context.zone.label}</b>
+        </span>
+        <span>
+          <small>服务端候选</small>
+          <b>{context.promptEnabledCount} 可用 / {context.promptDisabledCount} 阻断</b>
+        </span>
+        <span>
+          <small>状态</small>
+          <b>{context.stateLabels.join(" / ")}</b>
+        </span>
+      </div>
+      {context.stackRoles.length > 0 && <p>结算链：{context.stackRoles.join(" / ")}</p>}
+      {context.candidateLinks.length > 0 && (
+        <p>候选：{context.candidateLinks.slice(0, 3).map((candidate) => `${candidate.label}（${candidate.roles.join("/") || "关联"}）`).join("、")}</p>
+      )}
+      {events.length > 0 ? (
+        <ol className="detail-context-events">
+          {events.map((event, index) => (
+            <li key={`${event.kind}-${event.role}-${index}`}>
+              <span>{event.role}</span>
+              <b>{event.description}</b>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="detail-muted">暂无公开关联事件。</p>
+      )}
+    </section>
   );
 }
 
