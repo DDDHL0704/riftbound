@@ -151,6 +151,20 @@ export function promptChoiceRoleLabel(role: PromptChoiceRole): string {
   return roleLabels[role];
 }
 
+export function promptCommandBindingLabel(binding: PromptCommandBindingSummary): string {
+  const label = binding.label ?? binding.roleLabel ?? (binding.source === "requirementMetadata" ? "服务端" : "");
+  const prefix = label ? `${label}:` : "";
+  return `${prefix}${binding.field}${binding.required ? "*" : ""}`;
+}
+
+export function promptCommandBindingSourceLabel(binding: PromptCommandBindingSummary): string {
+  if (binding.source === "requirementMetadata") {
+    return "服务端注入";
+  }
+
+  return binding.roleLabel ? "玩家选择" : binding.source;
+}
+
 export function promptChoiceLabel(choice: ActionPromptChoiceDto): string {
   return redactInternalText(choice.label || choice.id || "服务端选项");
 }
