@@ -8706,7 +8706,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in object locations",
+                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in object locations; expected BASE but got BATTLEFIELD",
                 StringComparison.Ordinal));
     }
 
@@ -31445,7 +31445,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in authoritative state object locations; expected BASE but got BATTLEFIELD",
                 StringComparison.Ordinal));
     }
 
@@ -145643,7 +145643,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in authoritative state object locations",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in authoritative state object locations; expected BASE but got BATTLEFIELD",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -145755,7 +145755,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in authoritative state object locations",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location zone BATTLEFIELD must be BASE in authoritative state object locations; expected BASE but got BATTLEFIELD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

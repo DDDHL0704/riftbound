@@ -19742,7 +19742,7 @@ public static class MatchRecoveryValidator
             if (!string.Equals(sourceZone, "BASE", StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} location zone {sourceZone} must be BASE in {objectLocationLabel}");
+                    $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} location zone {sourceZone} must be BASE in {objectLocationLabel}; {FormatExpectedActualForRecovery("BASE", sourceZone)}");
             }
 
             if (controllerId is not null
