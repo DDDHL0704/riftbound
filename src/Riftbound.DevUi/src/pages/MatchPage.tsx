@@ -32,7 +32,7 @@ import { BehaviorSpec } from "../types/catalog";
 import { BattlefieldSnapshotView, CardObjectView, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
 import { asArray, asRecord, asString } from "../utils/collections";
 import { connectionStatusLabel, matchPhaseLabel, timingStateLabel } from "../utils/formatters";
-import { buildPromptInteractionModel, promptChoiceObjectIds, type PromptCandidateSummary, type PromptChoiceRole, type PromptObjectState } from "../utils/promptInteraction";
+import { buildPromptInteractionModel, promptChoiceSummaryObjectIds, type PromptCandidateSummary, type PromptChoiceRole, type PromptObjectState } from "../utils/promptInteraction";
 
 type PlayerEntry = {
   id: string;
@@ -276,7 +276,7 @@ function focusedCandidateSummaries(
     candidate.enabled
     && candidate.choices.some((choice) =>
       choice.role === "source"
-      && promptChoiceObjectIds(choice.id).includes(focusedObjectId)));
+      && promptChoiceSummaryObjectIds(choice).includes(focusedObjectId)));
 }
 
 function buildWireInteractionMap(
@@ -296,7 +296,7 @@ function buildWireInteractionMap(
         continue;
       }
 
-      for (const objectId of promptChoiceObjectIds(choice.id)) {
+      for (const objectId of promptChoiceSummaryObjectIds(choice)) {
         states[objectId] = mergePromptObjectState(states[objectId], roleState);
       }
     }

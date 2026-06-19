@@ -5636,6 +5636,14 @@ internal static class ActionPromptBuilder
                     && state.Seats.ContainsKey(playerId)))
             && !string.Equals(action, "WAIT", StringComparison.Ordinal)
             && hasRequiredChoices;
+        var selectionSteps = SelectionStepsFor(
+            requiresSourceChoices,
+            requiresTargetChoices,
+            sources,
+            targets,
+            destinations,
+            modes,
+            optionalCosts);
         return new ActionPromptCandidateDto(
             action,
             LabelFor(action),
@@ -5646,7 +5654,74 @@ internal static class ActionPromptBuilder
             destinations,
             modes,
             optionalCosts,
-            MetadataFor(state, playerId, action));
+            MetadataFor(state, playerId, action),
+            selectionSteps);
+    }
+
+    private static IReadOnlyList<ActionPromptSelectionStepDto>? SelectionStepsFor(
+        bool requiresSourceChoices,
+        bool requiresTargetChoices,
+        IReadOnlyList<ActionPromptChoiceDto>? sources,
+        IReadOnlyList<ActionPromptChoiceDto>? targets,
+        IReadOnlyList<ActionPromptChoiceDto>? destinations,
+        IReadOnlyList<ActionPromptChoiceDto>? modes,
+        IReadOnlyList<ActionPromptChoiceDto>? optionalCosts)
+    {
+        var steps = new List<ActionPromptSelectionStepDto>();
+        AddSelectionStep(steps, "source", "来源", requiresSourceChoices, sources);
+        AddSelectionStep(steps, "target", "目标", requiresTargetChoices, targets);
+        AddSelectionStep(steps, "destination", "位置", false, destinations);
+        AddSelectionStep(steps, "mode", "模式", false, modes);
+        AddSelectionStep(steps, "optionalCost", "费用", false, optionalCosts);
+        return steps.Count == 0 ? null : steps;
+    }
+
+    private static void AddSelectionStep(
+        ICollection<ActionPromptSelectionStepDto> steps,
+        string role,
+        string label,
+        bool required,
+        IReadOnlyList<ActionPromptChoiceDto>? choices)
+    {
+        if ((choices is null || choices.Count == 0) && !required)
+        {
+            return;
+        }
+
+        steps.Add(new ActionPromptSelectionStepDto(
+            role,
+            label,
+            required,
+            choices?.Select(SelectionChoiceFor).ToArray() ?? []));
+    }
+
+    private static ActionPromptSelectionChoiceDto SelectionChoiceFor(ActionPromptChoiceDto choice)
+    {
+        return new ActionPromptSelectionChoiceDto(
+            choice.Id,
+            choice.Label,
+            SelectionChoiceObjectIds(choice.Id),
+            choice.Reason);
+    }
+
+    private static IReadOnlyList<string> SelectionChoiceObjectIds(string choiceId)
+    {
+        var cleaned = choiceId.Trim();
+        if (string.IsNullOrWhiteSpace(cleaned))
+        {
+            return [];
+        }
+
+        var objectIds = new List<string> { cleaned };
+        var segments = cleaned.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var lastSegment = segments.Length > 0 ? segments[^1] : "";
+        if (!string.IsNullOrWhiteSpace(lastSegment)
+            && !string.Equals(lastSegment, cleaned, StringComparison.Ordinal))
+        {
+            objectIds.Add(lastSegment);
+        }
+
+        return objectIds.Distinct(StringComparer.Ordinal).ToArray();
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? SourcesFor(

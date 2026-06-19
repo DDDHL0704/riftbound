@@ -79,6 +79,32 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         },
         optionalCosts: [{ id: "RECYCLE_RUNE:p1-rune-2", label: "回收已抽出符文" }],
         reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
+        selectionSteps: [
+          {
+            choices: [{ id: "p1-hand-spell", label: "手牌法术", objectIds: ["p1-hand-spell"] }],
+            label: "来源",
+            required: true,
+            role: "source"
+          },
+          {
+            choices: [{ id: "p2-right-1", label: "对方单位", objectIds: ["p2-right-1"] }],
+            label: "目标",
+            required: false,
+            role: "target"
+          },
+          {
+            choices: [{ id: "STACK", label: "结算链", objectIds: ["STACK"] }],
+            label: "位置",
+            required: false,
+            role: "destination"
+          },
+          {
+            choices: [{ id: "RECYCLE_RUNE:p1-rune-2", label: "回收已抽出符文", objectIds: ["RECYCLE_RUNE:p1-rune-2", "p1-rune-2"] }],
+            label: "费用",
+            required: false,
+            role: "optionalCost"
+          }
+        ],
         sources: [{ id: "p1-hand-spell", label: "手牌法术" }],
         targets: [{ id: "p2-right-1", label: "对方单位" }]
       },
@@ -108,6 +134,26 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         },
         optionalCosts: [{ id: "ROAM", label: "游走费用" }],
         reason: "前端线框样例；移动窗口、费用和目标由服务端决定。",
+        selectionSteps: [
+          {
+            choices: [{ id: "p1-left-2", label: "我方左战场单位", objectIds: ["p1-left-2"] }],
+            label: "来源",
+            required: true,
+            role: "source"
+          },
+          {
+            choices: [{ id: "BATTLEFIELD:fixture-right-battlefield", label: "右战场", objectIds: ["BATTLEFIELD:fixture-right-battlefield", "fixture-right-battlefield"] }],
+            label: "位置",
+            required: false,
+            role: "destination"
+          },
+          {
+            choices: [{ id: "ROAM", label: "游走费用", objectIds: ["ROAM"] }],
+            label: "费用",
+            required: false,
+            role: "optionalCost"
+          }
+        ],
         sources: [{ id: "p1-left-2", label: "我方左战场单位" }]
       },
       {
