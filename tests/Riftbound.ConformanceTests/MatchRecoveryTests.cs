@@ -16297,7 +16297,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item battlefield object id ghost-battlefield is missing from battlefield states",
+                "snapshot for alice timing battlefield task item battlefield object id ghost-battlefield is missing from battlefield states; expected [] but got ghost-battlefield",
                 StringComparison.Ordinal));
 
         static Dictionary<string, object?> SnapshotObjectPayload(
@@ -56476,7 +56476,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item battlefield object id ghost-battlefield is missing from authoritative state battlefield states",
+                "spectator replay frame timing battlefield task item battlefield object id ghost-battlefield is missing from authoritative state battlefield states; expected [] but got ghost-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

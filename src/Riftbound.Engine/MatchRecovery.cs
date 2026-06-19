@@ -15134,7 +15134,8 @@ public static class MatchRecoveryValidator
         var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
         if (!battlefieldStateObjectIds.Contains(normalizedBattlefieldObjectId))
         {
-            errors.Add($"{battlefieldObjectLabel} {normalizedBattlefieldObjectId} is missing from {battlefieldStateLabel}");
+            errors.Add(
+                $"{battlefieldObjectLabel} {normalizedBattlefieldObjectId} is missing from {battlefieldStateLabel}; {FormatExpectedActualForRecovery(FormatObjectIdsForRecovery(battlefieldStateObjectIds), normalizedBattlefieldObjectId)}");
         }
     }
 
