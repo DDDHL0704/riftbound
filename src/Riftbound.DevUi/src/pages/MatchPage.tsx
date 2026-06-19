@@ -34,6 +34,7 @@ import { BattlefieldSnapshotView, CardObjectView, PlayerSnapshotView, SnapshotDt
 import { asArray, asRecord, asString } from "../utils/collections";
 import { connectionStatusLabel, matchPhaseLabel, timingStateLabel } from "../utils/formatters";
 import { buildPromptInteractionModel, promptChoiceSummaryObjectIds, type PromptCandidateSummary, type PromptChoiceRole, type PromptChoiceSummary, type PromptObjectState } from "../utils/promptInteraction";
+import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 
 type PlayerEntry = {
   id: string;
@@ -70,6 +71,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     () => layoutFixtureEnabled ? { ...wireLayoutFixtureSpecByNo, ...specByNo } : specByNo,
     [layoutFixtureEnabled, specByNo]
   );
+  const tableObjectIndex = useMemo(() => buildCardObjectIndex(tableSnapshot), [tableSnapshot]);
   const promptInteraction = useMemo(() => buildPromptInteractionModel(tablePrompt), [tablePrompt]);
   const focusedSourceCandidates = useMemo(
     () => focusedCandidateSummaries(promptInteraction.candidates, inspectedCard?.objectId),
@@ -128,6 +130,20 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     const sourceCandidate = sourceCandidateForObject(promptInteraction.candidates, clickedObjectId);
     setSelectionDraft(sourceCandidate ? emptySelectionDraft(clickedObjectId, sourceCandidate) : undefined);
   }, [focusedSourceCandidates, inspectedCard?.object?.objectId, inspectedCard?.objectId, promptInteraction.candidates]);
+  const inspectObjectFromTable = useCallback((objectId: string) => {
+    const object = tableObjectIndex[objectId];
+    if (!object) {
+      return;
+    }
+
+    const sourceCandidate = sourceCandidateForObject(promptInteraction.candidates, objectId);
+    setInspectedCard({
+      object,
+      objectId,
+      spec: object.cardNo ? tableSpecByNo[object.cardNo] : undefined
+    });
+    setSelectionDraft(sourceCandidate ? emptySelectionDraft(objectId, sourceCandidate) : undefined);
+  }, [promptInteraction.candidates, tableObjectIndex, tableSpecByNo]);
   const tableRows = WIRE_TABLE_LAYOUT.table.rows.map((row) => {
     if (row.kind === "battlefield") {
       return (
@@ -245,7 +261,13 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             />
           </section>
           <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" tabIndex={0}>
-            <WireRuleQueuePanel playerId={settings.playerId} prompt={tablePrompt} snapshot={tableSnapshot} />
+            <WireRuleQueuePanel
+              onInspectObject={inspectObjectFromTable}
+              playerId={settings.playerId}
+              prompt={tablePrompt}
+              selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
+              snapshot={tableSnapshot}
+            />
           </section>
           <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" tabIndex={0}>
             <ActionPanel
@@ -620,7 +642,7 @@ function WireBattlefieldTable({
   snapshot?: SnapshotDto;
   specs: Record<string, BehaviorSpec>;
 }) {
-  const objects = objectIndex(snapshot);
+  const objects = buildCardObjectIndex(snapshot);
   const lanes = [0, 1].map((index) => buildBattlefieldLane(battlefields[index], index, objects, perspectivePlayerId));
   const layout = WIRE_TABLE_LAYOUT.battlefield;
   const unitPlan = buildWireCardFlowPlan({
@@ -830,16 +852,6 @@ function WireCardPreview({ card }: { card?: InspectedCard }) {
       <img alt={title} src={frontImage} />
     </div>
   );
-}
-
-function objectIndex(snapshot?: SnapshotDto): Record<string, CardObjectView> {
-  const indexed: Record<string, CardObjectView> = {};
-  for (const player of Object.values(snapshot?.players ?? {})) {
-    for (const [objectId, object] of Object.entries(player.objects ?? {})) {
-      indexed[objectId] = object;
-    }
-  }
-  return indexed;
 }
 
 function ownerOrController(object?: CardObjectView): string {
