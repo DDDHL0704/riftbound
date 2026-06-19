@@ -20,6 +20,7 @@ export type WireTimelineDetail = {
 
 export function WireTimelineDetailPanel({
   detail,
+  objectContextById,
   objectIndex,
   onClear,
   onInspectObject,
@@ -27,6 +28,7 @@ export function WireTimelineDetailPanel({
   selectedObjectId
 }: {
   detail?: WireTimelineDetail;
+  objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
   onClear: () => void;
   onInspectObject?: (objectId: string) => void;
@@ -35,6 +37,7 @@ export function WireTimelineDetailPanel({
 }) {
   const plan = buildWireTimelineDetailPlan({
     detail,
+    objectContextById,
     objectIndex,
     selectedObjectContext,
     selectedObjectId
@@ -78,6 +81,20 @@ export function WireTimelineDetailPanel({
                   <span>{row.role}</span>
                   <strong>{row.label}</strong>
                   <small>{row.stateLabel}</small>
+                </li>
+              ))}
+            </ol>
+          )}
+          {plan.actionHintRows.length > 0 && (
+            <ol className="wire-timeline-action-hint-list" aria-label="详情对象服务端候选">
+              {plan.actionHintRows.map((row) => (
+                <li data-action-object-id={row.objectId} key={row.key}>
+                  <span>{row.role}</span>
+                  <strong>{row.label}</strong>
+                  <small>{row.stateLabel}</small>
+                  <small>{row.zoneLabel}</small>
+                  <small>{row.commandTypes.length > 0 ? row.commandTypes.join(" / ") : "服务端候选"}</small>
+                  {row.reasonLabels.length > 0 && <small>{row.reasonLabels.slice(0, 2).join(" / ")}</small>}
                 </li>
               ))}
             </ol>

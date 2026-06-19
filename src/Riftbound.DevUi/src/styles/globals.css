@@ -12284,6 +12284,8 @@ button.card-face:hover {
 .wire-timeline-detail-line,
 .wire-timeline-projection-list,
 .wire-timeline-projection-list li,
+.wire-timeline-action-hint-list,
+.wire-timeline-action-hint-list li,
 .wire-selected-object-context,
 .wire-detail-trigger,
 .wire-detail-clear,
@@ -12389,6 +12391,7 @@ button.card-face:hover {
 .wire-timeline-detail-status-grid strong,
 .wire-timeline-detail-line > strong,
 .wire-timeline-projection-list strong,
+.wire-timeline-action-hint-list strong,
 .log-row-heading > strong {
   min-width: 0;
   overflow: hidden;
@@ -12487,6 +12490,29 @@ button.card-face:hover {
 .wire-timeline-projection-list li[data-projection-state="hidden"],
 .wire-timeline-projection-list li[data-projection-state="missing"] {
   border-style: dashed;
+}
+
+.wire-timeline-action-hint-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 3px;
+  list-style: none;
+}
+
+.wire-timeline-action-hint-list li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 70px;
+  gap: 3px 4px;
+  padding: 2px 4px;
+}
+
+.wire-timeline-action-hint-list li > small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-selected-object-context {
@@ -12594,6 +12620,8 @@ button.wire-object-ref {
 .wire-match-page .wire-timeline-detail-header,
 .wire-match-page .wire-timeline-detail-lines,
 .wire-match-page .wire-timeline-detail-line,
+.wire-match-page .wire-timeline-action-hint-list,
+.wire-match-page .wire-timeline-action-hint-list li,
 .wire-match-page .wire-selected-object-context,
 .wire-match-page .wire-detail-trigger,
 .wire-match-page .wire-detail-clear,

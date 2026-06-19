@@ -36,6 +36,48 @@ const plan = buildWireTimelineDetailPlan({
     "source-1": { objectId: "source-1", cardNo: "OGN-001/298" },
     "target-1": { objectId: "target-1", cardNo: "SFD-001/221" }
   },
+  objectContextById: {
+    "source-1": {
+      candidateLinks: [
+        {
+          commandFields: ["来源:sourceObjectId*"],
+          commandType: "PLAY_CARD",
+          enabled: true,
+          label: "打出卡牌",
+          reason: "",
+          requiredCommandFields: ["来源:sourceObjectId*"],
+          roles: ["来源"]
+        }
+      ],
+      eventLinks: [],
+      objectId: "source-1",
+      promptDisabledCount: 0,
+      promptEnabledCount: 1,
+      stackRoles: [],
+      stateLabels: [],
+      zone: { kind: "hand", label: "我方手牌" }
+    },
+    "target-1": {
+      candidateLinks: [
+        {
+          commandFields: ["目标:targetObjectIds*"],
+          commandType: "CHOOSE_TARGET",
+          enabled: false,
+          label: "选择目标",
+          reason: "等待来源",
+          requiredCommandFields: ["目标:targetObjectIds*"],
+          roles: ["目标"]
+        }
+      ],
+      eventLinks: [],
+      objectId: "target-1",
+      promptDisabledCount: 1,
+      promptEnabledCount: 0,
+      stackRoles: [],
+      stateLabels: [],
+      zone: { kind: "battlefield", label: "右战场 / 对方单位" }
+    }
+  },
   selectedObjectContext: {
     candidateLinks: [],
     eventLinks: [],
@@ -54,9 +96,14 @@ assert.equal(plan.statusCards[0].value, "规则队列");
 assert.equal(plan.statusCards[1].value, "2 / 4 可定位");
 assert.equal(plan.statusCards[2].value, "我方手牌");
 assert.equal(plan.statusCards[3].value, "已命中详情对象");
+assert.equal(plan.statusCards[4].value, "1 可用 / 1 阻断");
 assert.deepEqual(plan.projectionRows.map((row) => row.state), ["selected", "visible", "missing", "hidden"]);
 assert.equal(JSON.stringify(plan).includes("missing-1"), true);
 assert.equal(plan.projectionRows.find((row) => row.state === "missing")?.label, "未公开对象");
 assert.equal(plan.projectionRows.find((row) => row.state === "hidden")?.label, "隐藏对象");
+assert.equal(plan.actionHintRows.length, 2);
+assert.equal(plan.actionHintRows[0].objectId, "source-1");
+assert.equal(plan.actionHintRows[0].commandTypes[0], "PLAY_CARD");
+assert.equal(plan.actionHintRows[1].reasonLabels[0], "等待来源");
 
 console.log("Wire timeline detail plan check passed.");

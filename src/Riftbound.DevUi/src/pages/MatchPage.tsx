@@ -307,6 +307,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <section aria-label="规则与事件详情区" className="wire-panel wire-timeline-detail-panel" tabIndex={0}>
             <WireTimelineDetailPanel
               detail={timelineDetail}
+              objectContextById={tableObjectContextModel.byId}
               objectIndex={tableObjectIndex}
               onClear={() => setTimelineDetail(undefined)}
               onInspectObject={inspectObjectFromTable}
