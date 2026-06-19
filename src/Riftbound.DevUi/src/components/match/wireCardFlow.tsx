@@ -55,9 +55,20 @@ export function WireCardFlow({
   return (
     <div
       className={`wire-card-flow wire-card-flow-${kind} wire-card-flow-${flowPlan.layout} wire-flow-${flowPlan.density} ${className}`.trim()}
+      data-flow-capacity={String(flowPlan.capacity)}
+      data-flow-card-height={flowPlan.cardHeight}
+      data-flow-card-width={flowPlan.cardWidth}
       data-flow-count={ids.length}
+      data-flow-density={flowPlan.density}
+      data-flow-fit={flowPlan.fit}
       data-flow-kind={kind}
+      data-flow-layout={flowPlan.layout}
+      data-flow-min-slots={flowPlan.minSlots}
+      data-flow-overflow={flowPlan.overflow}
+      data-flow-overflow-count={flowPlan.overflowCount}
+      data-flow-scroll-after={flowPlan.scrollAfter}
       data-flow-slots={slotCount}
+      data-flow-visible-slots={flowPlan.visibleSlotCount}
       style={wireCardFlowStyle(flowPlan)}
     >
       {ids.length === 0 && !renderEmptySlots && <WireEmpty label={emptyLabel} />}
@@ -151,7 +162,8 @@ function wireCardFlowStyle(flowPlan: WireCardFlowPlan): WireCssProperties {
   return {
     "--wire-card-h": `${flowPlan.cardHeight}px`,
     "--wire-card-w": `${flowPlan.cardWidth}px`,
-    "--wire-flow-gap": `${flowPlan.gap}px`
+    "--wire-flow-gap": `${flowPlan.gap}px`,
+    "--wire-flow-visible-slots": flowPlan.visibleSlotCount
   };
 }
 

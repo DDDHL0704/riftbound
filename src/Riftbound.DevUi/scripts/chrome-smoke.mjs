@@ -339,10 +339,56 @@ async function runWireLayoutGeometrySmoke(cdp) {
     const flowGroups = new Map();
 
     for (const flow of Array.from(document.querySelectorAll(".wire-card-flow"))) {
+      const capacity = flow.getAttribute("data-flow-capacity") ?? "";
+      const cardHeight = Number(flow.getAttribute("data-flow-card-height") ?? "0");
+      const cardWidth = Number(flow.getAttribute("data-flow-card-width") ?? "0");
+      const density = flow.getAttribute("data-flow-density") ?? "";
+      const fit = flow.getAttribute("data-flow-fit") ?? "";
       const kind = flow.getAttribute("data-flow-kind") ?? "unknown";
+      const layout = flow.getAttribute("data-flow-layout") ?? "";
       const count = Number(flow.getAttribute("data-flow-count") ?? "0");
+      const overflow = flow.getAttribute("data-flow-overflow") ?? "";
+      const overflowCount = Number(flow.getAttribute("data-flow-overflow-count") ?? "-1");
+      const scrollAfter = Number(flow.getAttribute("data-flow-scroll-after") ?? "0");
       const slots = Number(flow.getAttribute("data-flow-slots") ?? "0");
+      const visibleSlots = Number(flow.getAttribute("data-flow-visible-slots") ?? "0");
       const cards = childCards(flow);
+      if (!["single", "sparse", "normal", "dense", "packed"].includes(density)) {
+        failures.push(\`flow \${kind} missing density metadata\`);
+      }
+      if (!["fixed-slot", "elastic-rail", "overflow-rail"].includes(fit)) {
+        failures.push(\`flow \${kind} missing fit metadata\`);
+      }
+      if (!["grid", "rail"].includes(layout)) {
+        failures.push(\`flow \${kind} missing layout metadata\`);
+      }
+      if (!["none", "scroll"].includes(overflow)) {
+        failures.push(\`flow \${kind} missing overflow metadata\`);
+      }
+      if (kind === "signature" && capacity !== "1") {
+        failures.push(\`signature flow capacity should be 1, got \${capacity}\`);
+      }
+      if (kind !== "signature" && capacity !== "unbounded") {
+        failures.push(\`unbounded flow \${kind} declared capacity \${capacity}\`);
+      }
+      if (visibleSlots > slots) {
+        failures.push(\`flow \${kind} visible slots exceed rendered slots: \${visibleSlots} > \${slots}\`);
+      }
+      if (visibleSlots > scrollAfter) {
+        failures.push(\`flow \${kind} visible slots exceed scroll threshold: \${visibleSlots} > \${scrollAfter}\`);
+      }
+      if (overflowCount !== Math.max(0, slots - visibleSlots)) {
+        failures.push(\`flow \${kind} overflow count mismatch: \${overflowCount} for \${slots} slots / \${visibleSlots} visible\`);
+      }
+      if (overflowCount > 0 && (overflow !== "scroll" || fit !== "overflow-rail")) {
+        failures.push(\`flow \${kind} overflow is not represented as scroll overflow fit\`);
+      }
+      if (overflowCount === 0 && overflow !== "none") {
+        failures.push(\`flow \${kind} declares overflow without overflowing slots\`);
+      }
+      if (cardWidth <= 0 || cardHeight <= 0) {
+        failures.push(\`flow \${kind} has non-positive plan card size\`);
+      }
       if (slots < count) {
         failures.push(\`flow \${kind} has fewer slots than cards: \${slots} < \${count}\`);
       }
@@ -358,6 +404,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
       const rect = rectOf(firstCard);
       if (rect.width <= 0 || rect.height <= 0) {
         failures.push(\`flow \${kind} has non-positive card rect\`);
+      }
+      if (Math.abs(rect.width - cardWidth) > 1 || Math.abs(rect.height - cardHeight) > 1) {
+        failures.push(\`flow \${kind} DOM card size drifted from plan: dom \${sizeKey(rect)} plan \${cardWidth}x\${cardHeight}\`);
       }
       if (Math.abs((rect.width / rect.height) - (744 / 1039)) > 0.04 && kind !== "battlefield-unit") {
         failures.push(\`flow \${kind} card ratio drifted: \${sizeKey(rect)}\`);

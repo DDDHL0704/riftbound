@@ -11432,6 +11432,19 @@ button.card-face:hover {
   padding: 3px;
 }
 
+.wire-card-flow[data-flow-overflow="scroll"] {
+  justify-content: flex-start;
+  scrollbar-gutter: stable;
+  scroll-snap-type: x proximity;
+}
+
+.wire-card-flow[data-flow-overflow="scroll"] > .card-face,
+.wire-card-flow[data-flow-overflow="scroll"] > .card-image-only,
+.wire-card-flow[data-flow-overflow="scroll"] > .card-back,
+.wire-card-flow[data-flow-overflow="scroll"] > .wire-card-slot {
+  scroll-snap-align: start;
+}
+
 .wire-card-flow-signature {
   width: var(--wire-signature-area-w);
   height: var(--wire-signature-zone-h);

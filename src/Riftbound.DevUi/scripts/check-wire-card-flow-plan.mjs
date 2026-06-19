@@ -25,10 +25,26 @@ for (const kind of ["battlefield-unit", "base", "hand", "signature"]) {
     const plan = buildWireCardFlowPlan({ itemCount, kind });
     assert.equal(plan.kind, kind);
     assert.equal(plan.itemCount, itemCount);
+    assert.equal(plan.overflowCount, Math.max(0, plan.slotCount - plan.visibleSlotCount));
     assert.ok(plan.slotCount >= itemCount, `${kind} ${itemCount} slotCount must cover itemCount`);
+    assert.ok(plan.visibleSlotCount <= plan.slotCount, `${kind} ${itemCount} visible slots must not exceed slot count`);
+    assert.ok(plan.visibleSlotCount <= plan.scrollAfter, `${kind} ${itemCount} visible slots must honor scroll threshold`);
     assert.ok(plan.cardWidth > 0, `${kind} ${itemCount} cardWidth must be positive`);
     assert.ok(plan.cardHeight > 0, `${kind} ${itemCount} cardHeight must be positive`);
     assert.ok(Math.abs((plan.cardWidth / plan.cardHeight) - cardAspect) < 0.01, `${kind} ${itemCount} card ratio drifted`);
+    if (kind === "signature") {
+      assert.equal(plan.capacity, 1, "signature slots are fixed one-card rule zones");
+      assert.equal(plan.scrollAfter, 1, "signature slots must declare one visible card");
+    } else {
+      assert.equal(plan.capacity, "unbounded", `${kind} must be modeled as an unbounded zone`);
+      assert.equal(plan.layout, "rail", `${kind} should use the rail layout`);
+    }
+    if (plan.overflowCount > 0) {
+      assert.equal(plan.overflow, "scroll", `${kind} ${itemCount} overflowing plan must scroll`);
+      assert.equal(plan.fit, "overflow-rail", `${kind} ${itemCount} overflowing plan must use overflow fit`);
+    } else {
+      assert.equal(plan.overflow, "none", `${kind} ${itemCount} non-overflowing plan should not scroll`);
+    }
   }
 }
 
@@ -44,6 +60,8 @@ assert.deepEqual(
 
 const emptyBattlefield = buildWireCardFlowPlan({ itemCount: 0, kind: "battlefield-unit", minSlots: 3 });
 assert.equal(emptyBattlefield.slotCount, 3);
+assert.equal(emptyBattlefield.visibleSlotCount, 3);
+assert.equal(emptyBattlefield.overflow, "none");
 assert.equal(emptyBattlefield.density, "sparse");
 assert.equal(emptyBattlefield.cardWidth, 74);
 
@@ -52,21 +70,41 @@ assert.equal(crowdedBattlefield.density, "packed");
 assert.equal(crowdedBattlefield.layout, "rail");
 assert.equal(crowdedBattlefield.cardWidth, 42);
 assert.equal(crowdedBattlefield.slotCount, 40);
+assert.equal(crowdedBattlefield.scrollAfter, 12);
+assert.equal(crowdedBattlefield.visibleSlotCount, 12);
+assert.equal(crowdedBattlefield.overflowCount, 28);
+assert.equal(crowdedBattlefield.overflow, "scroll");
 
 const crowdedBase = buildWireCardFlowPlan({ itemCount: 40, kind: "base" });
 assert.equal(crowdedBase.density, "packed");
 assert.equal(crowdedBase.cardWidth, 52);
 assert.equal(crowdedBase.slotCount, 40);
+assert.equal(crowdedBase.scrollAfter, 10);
+assert.equal(crowdedBase.visibleSlotCount, 10);
+assert.equal(crowdedBase.overflowCount, 30);
+assert.equal(crowdedBase.overflow, "scroll");
 
 const crowdedHand = buildWireCardFlowPlan({ itemCount: 40, kind: "hand" });
 assert.equal(crowdedHand.density, "packed");
 assert.equal(crowdedHand.cardWidth, 52);
 assert.equal(crowdedHand.slotCount, 40);
+assert.equal(crowdedHand.scrollAfter, 12);
+assert.equal(crowdedHand.visibleSlotCount, 12);
+assert.equal(crowdedHand.overflowCount, 28);
+assert.equal(crowdedHand.overflow, "scroll");
 
 const signature = buildWireCardFlowPlan({ itemCount: 1, kind: "signature" });
 assert.equal(signature.density, "single");
+assert.equal(signature.fit, "fixed-slot");
 assert.equal(signature.layout, "grid");
 assert.equal(signature.cardWidth, 100);
+assert.equal(signature.visibleSlotCount, 1);
+assert.equal(signature.overflow, "none");
+
+const invalidSignatureOverflow = buildWireCardFlowPlan({ itemCount: 2, kind: "signature" });
+assert.equal(invalidSignatureOverflow.capacity, 1);
+assert.equal(invalidSignatureOverflow.overflowCount, 1, "signature overflow should remain explicit if backend emits invalid data");
+assert.equal(invalidSignatureOverflow.overflow, "scroll");
 
 console.log("Wire card flow plan check passed.");
 
