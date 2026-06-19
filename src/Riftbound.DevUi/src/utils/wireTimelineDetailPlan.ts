@@ -1,4 +1,5 @@
 import type { CardObjectView } from "../types/protocol";
+import { summarizePromptCandidateSemantics } from "./promptCandidateSemantics";
 import type { TableObjectContext } from "./tableObjectContext";
 
 export type WireTimelineDetailLineLike = {
@@ -123,19 +124,20 @@ function actionHintRowsForDetail(
     if (!context?.candidateLinks.length) {
       continue;
     }
+    const candidateSummary = summarizePromptCandidateSemantics(context.candidateLinks, { disabledReasonsOnly: true });
 
     rows.push({
-      commandFieldLabels: uniqueStrings(context.candidateLinks.flatMap((candidate) => candidate.commandFields).filter(isNonEmptyString)),
-      commandTypes: uniqueStrings(context.candidateLinks.map((candidate) => candidate.commandType ?? candidate.label).filter(isNonEmptyString)),
+      commandFieldLabels: candidateSummary.commandFieldLabels,
+      commandTypes: candidateSummary.commandTypes,
       disabledCount: context.promptDisabledCount,
       enabledCount: context.promptEnabledCount,
       key: `${ref.role || "对象"}:${id}`,
       label: projectionLabel(ref, objectIndex),
       objectId: id,
-      reasonLabels: uniqueStrings(context.candidateLinks.filter((candidate) => !candidate.enabled).map((candidate) => candidate.reason).filter(isNonEmptyString)),
-      requiredCommandFieldLabels: uniqueStrings(context.candidateLinks.flatMap((candidate) => candidate.requiredCommandFields).filter(isNonEmptyString)),
+      reasonLabels: candidateSummary.reasonLabels,
+      requiredCommandFieldLabels: candidateSummary.requiredCommandFieldLabels,
       role: ref.role || "对象",
-      selectionRoleLabels: uniqueStrings(context.candidateLinks.flatMap((candidate) => candidate.roles).filter(isNonEmptyString)),
+      selectionRoleLabels: candidateSummary.selectionRoleLabels,
       stateLabel: `${context.promptEnabledCount} 可用 / ${context.promptDisabledCount} 阻断`,
       zoneLabel: context.zone.label
     });
@@ -221,12 +223,4 @@ function projectionStateLabel(state: WireTimelineProjectionState): string {
 
 function detailSourceLabel(source: WireTimelineDetailLike["source"]): string {
   return source === "event" ? "日志事件" : "规则队列";
-}
-
-function isNonEmptyString(value: string | undefined): value is string {
-  return Boolean(value?.trim());
-}
-
-function uniqueStrings(values: string[]): string[] {
-  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }

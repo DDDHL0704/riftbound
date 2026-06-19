@@ -5,33 +5,49 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const commandFieldDisplayPath = resolve(scriptDir, "../src/utils/commandFieldDisplay.ts");
-const commandFieldDisplaySource = readFileSync(commandFieldDisplayPath, "utf8");
-const commandFieldDisplayOutput = ts.transpileModule(commandFieldDisplaySource.replace(/^import[\s\S]*?;\n/gm, ""), {
+const stripImports = (value) => value.replace(/^import[\s\S]*?;\n/gm, "");
+const transpile = (value) => ts.transpileModule(stripImports(value), {
   compilerOptions: {
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2022
   }
 }).outputText;
+
+const commandFieldDisplayPath = resolve(scriptDir, "../src/utils/commandFieldDisplay.ts");
+const commandFieldDisplaySource = readFileSync(commandFieldDisplayPath, "utf8");
+const commandFieldDisplayOutput = transpile(commandFieldDisplaySource);
 const commandFieldModuleShim = { exports: {} };
 new Function("exports", "module", commandFieldDisplayOutput)(commandFieldModuleShim.exports, commandFieldModuleShim);
 
+const candidateSemanticsPath = resolve(scriptDir, "../src/utils/promptCandidateSemantics.ts");
+const candidateSemanticsOutput = transpile(readFileSync(candidateSemanticsPath, "utf8"));
+const candidateSemanticsModuleShim = { exports: {} };
+new Function(
+  "exports",
+  "module",
+  "commandFieldDisplayLabel",
+  candidateSemanticsOutput
+)(
+  candidateSemanticsModuleShim.exports,
+  candidateSemanticsModuleShim,
+  commandFieldModuleShim.exports.commandFieldDisplayLabel
+);
+
 const sourcePath = resolve(scriptDir, "../src/utils/focusedObjectCommandPlan.ts");
 const source = readFileSync(sourcePath, "utf8");
-const output = ts.transpileModule(source.replace(/^import[\s\S]*?;\n/gm, ""), {
-  compilerOptions: {
-    module: ts.ModuleKind.CommonJS,
-    target: ts.ScriptTarget.ES2022
-  }
-}).outputText;
+const output = transpile(source);
 const moduleShim = { exports: {} };
 
 new Function(
   "exports",
   "module",
-  "commandFieldDisplayLabel",
+  "commandFieldLabelsForCandidate",
   output
-)(moduleShim.exports, moduleShim, commandFieldModuleShim.exports.commandFieldDisplayLabel);
+)(
+  moduleShim.exports,
+  moduleShim,
+  candidateSemanticsModuleShim.exports.commandFieldLabelsForCandidate
+);
 
 const { buildFocusedObjectCommandPlan } = moduleShim.exports;
 
