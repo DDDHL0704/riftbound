@@ -1,7 +1,8 @@
 import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
-import { promptStampedCommand as withPromptStamp } from "../../utils/actionPromptCandidates";
+import { commandFromActionPromptTemplate } from "../../utils/actionPromptCommandTemplate";
+import { promptStampedCommand as withPromptStamp, sourceRequirementFor } from "../../utils/actionPromptCandidates";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
@@ -1092,11 +1093,16 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
     case "WAIT":
       return undefined;
     default:
-      if (hasSingleChoice(candidate.sources) && candidate.action === "TAP_RUNE") {
-        return { cmdType: "TAP_RUNE", sourceObjectId: candidate.sources![0].id };
-      }
-      if (hasSingleChoice(candidate.sources) && candidate.action === "RECYCLE_RUNE") {
-        return { cmdType: "RECYCLE_RUNE", sourceObjectId: candidate.sources![0].id };
+      if (hasSingleChoice(candidate.sources) && candidate.commandTemplate && !requiresFurtherChoice(candidate)) {
+        const source = candidate.sources![0].id;
+        const templatedCommand = commandFromActionPromptTemplate(
+          candidate.commandTemplate,
+          { sourceId: source },
+          sourceRequirementFor(candidate, source)
+        );
+        if (templatedCommand) {
+          return templatedCommand;
+        }
       }
       if (hasSingleChoice(candidate.sources) && candidate.action === "PLAY_CARD" && !candidate.commandTemplate) {
         const source = candidate.sources![0].id;

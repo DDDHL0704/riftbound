@@ -3,12 +3,11 @@ import { useEffect, useMemo, useState } from "react";
 import type {
   ActionPromptCandidateDto,
   ActionPromptChoiceDto,
-  ActionPromptCommandTemplateBindingDto,
-  ActionPromptCommandTemplateDto,
   ActionPromptDto,
   GameCommand,
   SnapshotDto
 } from "../../types/protocol";
+import { commandFromActionPromptTemplate } from "../../utils/actionPromptCommandTemplate";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
@@ -515,12 +514,16 @@ function composerCommand(
   const optionalCosts = optionalCostIds.length > 0 ? optionalCostIds : undefined;
   const destination = state.destinationId || undefined;
   const mode = state.mode || undefined;
-  const templatedCommand = commandFromTemplate(
+  const templatedCommand = commandFromActionPromptTemplate(
     candidate.commandTemplate,
-    state,
-    requirement,
-    targetObjectIds,
-    optionalCostIds
+    {
+      destinationId: state.destinationId,
+      mode: state.mode,
+      optionalCostIds,
+      sourceId: state.sourceId,
+      targetObjectIds
+    },
+    requirement
   );
   if (templatedCommand) {
     return templatedCommand;
@@ -581,109 +584,6 @@ function composerCommand(
     default:
       return undefined;
   }
-}
-
-function commandFromTemplate(
-  template: ActionPromptCommandTemplateDto | null | undefined,
-  state: CandidateComposerState,
-  requirement: Record<string, unknown> | undefined,
-  targetObjectIds: string[],
-  optionalCostIds: string[]
-): GameCommand | undefined {
-  if (!template?.cmdType || !Array.isArray(template.bindings)) {
-    return undefined;
-  }
-
-  const command: Record<string, unknown> = { cmdType: template.cmdType };
-  for (const binding of template.bindings) {
-    const value = commandTemplateValue(binding, state, requirement, targetObjectIds, optionalCostIds);
-    if (isMissingCommandTemplateValue(value)) {
-      if (binding.required) {
-        return undefined;
-      }
-      if (binding.omitEmpty !== false) {
-        continue;
-      }
-    }
-
-    command[binding.field] = value;
-  }
-
-  return command as GameCommand;
-}
-
-function commandTemplateValue(
-  binding: ActionPromptCommandTemplateBindingDto,
-  state: CandidateComposerState,
-  requirement: Record<string, unknown> | undefined,
-  targetObjectIds: string[],
-  optionalCostIds: string[]
-): string | string[] | undefined {
-  const rawValue = commandTemplateRawValue(binding, state, requirement, targetObjectIds, optionalCostIds);
-  if (binding.asArray) {
-    if (Array.isArray(rawValue)) {
-      return rawValue;
-    }
-
-    return typeof rawValue === "string" && rawValue.length > 0 ? [rawValue] : [];
-  }
-
-  return rawValue;
-}
-
-function commandTemplateRawValue(
-  binding: ActionPromptCommandTemplateBindingDto,
-  state: CandidateComposerState,
-  requirement: Record<string, unknown> | undefined,
-  targetObjectIds: string[],
-  optionalCostIds: string[]
-): string | string[] | undefined {
-  switch (binding.source) {
-    case "selectedSource":
-      return state.sourceId;
-    case "selectedTarget":
-      return targetObjectIds[0];
-    case "selectedTargets":
-      return targetObjectIds;
-    case "selectedDestination":
-      return state.destinationId;
-    case "selectedMode":
-      return state.mode;
-    case "selectedOptionalCosts":
-      return optionalCostIds;
-    case "requirementMetadata":
-      return commandTemplateRequirementValue(binding, requirement);
-    default:
-      return undefined;
-  }
-}
-
-function commandTemplateRequirementValue(
-  binding: ActionPromptCommandTemplateBindingDto,
-  requirement: Record<string, unknown> | undefined
-): string | undefined {
-  if (!requirement) {
-    return undefined;
-  }
-
-  const keys = [
-    ...(binding.metadataKey ? [binding.metadataKey] : []),
-    ...(Array.isArray(binding.metadataKeys) ? binding.metadataKeys : [])
-  ];
-  for (const key of keys) {
-    const value = stringMetadata(requirement, key);
-    if (value) {
-      return value;
-    }
-  }
-
-  return undefined;
-}
-
-function isMissingCommandTemplateValue(value: string | string[] | undefined): boolean {
-  return value == null
-    || (typeof value === "string" && value.trim().length === 0)
-    || (Array.isArray(value) && value.length === 0);
 }
 
 function cardNoForRequirement(

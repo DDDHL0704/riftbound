@@ -1,4 +1,5 @@
 import type { ActionPromptCandidateDto, ActionPromptDto, GameCommand } from "../types/protocol";
+import { commandFromActionPromptTemplate } from "./actionPromptCommandTemplate";
 
 type SourceCandidateOptions = {
   enabledOnly?: boolean;
@@ -30,6 +31,15 @@ export function commandForSourceCandidate(
 ): GameCommand | undefined {
   if (!sourceObjectId || !candidate.enabled) {
     return undefined;
+  }
+
+  const templatedCommand = commandFromActionPromptTemplate(
+    candidate.commandTemplate,
+    { sourceId: sourceObjectId },
+    sourceRequirementFor(candidate, sourceObjectId)
+  );
+  if (templatedCommand) {
+    return templatedCommand;
   }
 
   if (candidate.action === "TAP_RUNE") {
@@ -71,4 +81,16 @@ export function sourceRequirementIds(candidate: ActionPromptCandidateDto): strin
   return sourceRequirementRecords(candidate)
     .map((record) => record.sourceObjectId)
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0);
+}
+
+export function sourceRequirementFor(
+  candidate: ActionPromptCandidateDto,
+  sourceObjectId: string | undefined
+): Record<string, unknown> | undefined {
+  if (!sourceObjectId) {
+    return undefined;
+  }
+
+  return sourceRequirementRecords(candidate)
+    .find((record) => record.sourceObjectId === sourceObjectId);
 }
