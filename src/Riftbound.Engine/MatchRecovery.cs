@@ -10038,7 +10038,8 @@ public static class MatchRecoveryValidator
                 if (expectedLocation is not null)
                 {
                     errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location is required");
-                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location");
+                    errors.Add(
+                        $"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location; {FormatExpectedActualForRecovery(FormatObjectLocationValue(expectedLocation), FormatUnreadableObjectValue(objectPayload, "location"))}");
                 }
 
                 continue;
@@ -10049,7 +10050,8 @@ public static class MatchRecoveryValidator
                 errors.Add($"{payloadLabel} payload is required");
                 if (expectedLocation is not null)
                 {
-                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location");
+                    errors.Add(
+                        $"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location; {FormatExpectedActualForRecovery(FormatObjectLocationValue(expectedLocation), FormatUnreadableObjectValue(objectPayload, "location"))}");
                 }
 
                 continue;
@@ -10066,11 +10068,13 @@ public static class MatchRecoveryValidator
             {
                 if (locationPlayerId is null)
                 {
-                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
+                    errors.Add(
+                        $"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id; {FormatExpectedActualForRecovery(expectedLocation.PlayerId, FormatReadableStringValue(false, locationPlayerId, locationPayload, "playerId"))}");
                 }
                 else if (!string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
                 {
-                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
+                    errors.Add(
+                        $"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id; {FormatExpectedActualForRecovery(expectedLocation.PlayerId, FormatReadableStringValue(true, locationPlayerId, locationPayload, "playerId"))}");
                 }
             }
 
@@ -10085,11 +10089,13 @@ public static class MatchRecoveryValidator
             {
                 if (zone is null)
                 {
-                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
+                    errors.Add(
+                        $"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone; {FormatExpectedActualForRecovery(expectedLocation.Zone, FormatReadableStringValue(false, zone, locationPayload, "zone"))}");
                 }
                 else if (!string.Equals(zone, expectedLocation.Zone, StringComparison.Ordinal))
                 {
-                    errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
+                    errors.Add(
+                        $"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone; {FormatExpectedActualForRecovery(expectedLocation.Zone, FormatReadableStringValue(true, zone, locationPayload, "zone"))}");
                 }
             }
 
@@ -10113,6 +10119,7 @@ public static class MatchRecoveryValidator
                     objectId,
                     hasBattlefieldObjectId,
                     battlefieldObjectId,
+                    FormatReadableStringValue(hasBattlefieldObjectId, battlefieldObjectId, locationPayload, "battlefieldObjectId"),
                     expectedLocation,
                     errors);
             }
@@ -10352,14 +10359,16 @@ public static class MatchRecoveryValidator
             || IsNullSnapshotPayloadValue(locationPayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location is required");
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location; {FormatExpectedActualForRecovery(FormatObjectLocationValue(expectedLocation), FormatUnreadableObjectValue(objectPayload, "location"))}");
             return;
         }
 
         if (!IsSnapshotPlayerPayloadObject(locationPayload))
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location payload is required");
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} location does not match authoritative object location; {FormatExpectedActualForRecovery(FormatObjectLocationValue(expectedLocation), FormatUnreadableObjectValue(objectPayload, "location"))}");
             return;
         }
 
@@ -10377,11 +10386,13 @@ public static class MatchRecoveryValidator
             errors);
         if (locationPlayerId is null)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id; {FormatExpectedActualForRecovery(expectedLocation.PlayerId, FormatReadableStringValue(false, locationPlayerId, locationPayload, "playerId"))}");
         }
         else if (!string.Equals(locationPlayerId, expectedLocation.PlayerId, StringComparison.Ordinal))
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} location player id does not match authoritative object location player id; {FormatExpectedActualForRecovery(expectedLocation.PlayerId, FormatReadableStringValue(true, locationPlayerId, locationPayload, "playerId"))}");
         }
 
         var zone = ValidateSnapshotPayloadRequiredStringValue(
@@ -10393,11 +10404,13 @@ public static class MatchRecoveryValidator
             IsKnownObjectLocationZone);
         if (zone is null)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone; {FormatExpectedActualForRecovery(expectedLocation.Zone, FormatReadableStringValue(false, zone, locationPayload, "zone"))}");
         }
         else if (!string.Equals(zone, expectedLocation.Zone, StringComparison.Ordinal))
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} location zone does not match authoritative object location zone; {FormatExpectedActualForRecovery(expectedLocation.Zone, FormatReadableStringValue(true, zone, locationPayload, "zone"))}");
         }
 
         var hasBattlefieldObjectId = TryReadObjectValue(locationPayload, "battlefieldObjectId", out var battlefieldObjectIdPayload)
@@ -10418,6 +10431,7 @@ public static class MatchRecoveryValidator
             objectId,
             hasBattlefieldObjectId,
             battlefieldObjectId,
+            FormatReadableStringValue(hasBattlefieldObjectId, battlefieldObjectId, locationPayload, "battlefieldObjectId"),
             expectedLocation,
             errors);
     }
@@ -10427,6 +10441,7 @@ public static class MatchRecoveryValidator
         string objectId,
         bool hasBattlefieldObjectId,
         string? battlefieldObjectId,
+        object actualBattlefieldObjectId,
         ObjectLocationState expectedLocation,
         List<string> errors)
     {
@@ -10437,7 +10452,8 @@ public static class MatchRecoveryValidator
             if (battlefieldObjectId is not null
                 && !string.Equals(battlefieldObjectId, expectedBattlefieldObjectId, StringComparison.Ordinal))
             {
-                errors.Add($"{payloadLabel} does not match authoritative object location battlefield object id");
+                errors.Add(
+                    $"{payloadLabel} does not match authoritative object location battlefield object id; {FormatExpectedActualForRecovery(expectedBattlefieldObjectId, actualBattlefieldObjectId)}");
             }
 
             return;
@@ -10446,19 +10462,22 @@ public static class MatchRecoveryValidator
         if (!hasBattlefieldObjectId || battlefieldObjectId is { Length: 0 })
         {
             errors.Add($"{payloadLabel} is required");
-            errors.Add($"{payloadLabel} does not match authoritative object location battlefield object id");
+            errors.Add(
+                $"{payloadLabel} does not match authoritative object location battlefield object id; {FormatExpectedActualForRecovery(expectedBattlefieldObjectId, actualBattlefieldObjectId)}");
             return;
         }
 
         if (battlefieldObjectId is null)
         {
-            errors.Add($"{payloadLabel} does not match authoritative object location battlefield object id");
+            errors.Add(
+                $"{payloadLabel} does not match authoritative object location battlefield object id; {FormatExpectedActualForRecovery(expectedBattlefieldObjectId, actualBattlefieldObjectId)}");
             return;
         }
 
         if (!string.Equals(battlefieldObjectId, expectedBattlefieldObjectId, StringComparison.Ordinal))
         {
-            errors.Add($"{payloadLabel} does not match authoritative object location battlefield object id");
+            errors.Add(
+                $"{payloadLabel} does not match authoritative object location battlefield object id; {FormatExpectedActualForRecovery(expectedBattlefieldObjectId, actualBattlefieldObjectId)}");
         }
     }
 
@@ -14239,6 +14258,15 @@ public static class MatchRecoveryValidator
             IEnumerable<string> values => FormatRecoveryDiagnosticValue(values.ToArray()),
             _ => value.ToString() ?? "<unreadable>"
         };
+    }
+
+    private static string FormatObjectLocationValue(ObjectLocationState location)
+    {
+        return "{"
+            + $"playerId: {FormatRecoveryDiagnosticValue(location.PlayerId)}, "
+            + $"zone: {FormatRecoveryDiagnosticValue(location.Zone)}, "
+            + $"battlefieldObjectId: {FormatRecoveryDiagnosticValue(location.BattlefieldObjectId ?? string.Empty)}"
+            + "}";
     }
 
     private static string FormatRecoveryDiagnosticIntDictionary(IReadOnlyDictionary<string, int> values)

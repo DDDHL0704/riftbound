@@ -47856,17 +47856,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location player id does not match authoritative object location player id",
+                "spectator replay frame snapshot player alice object alice-hand-1 location player id does not match authoritative object location player id; expected alice but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location zone does not match authoritative object location zone",
+                "spectator replay frame snapshot player alice object alice-hand-1 location zone does not match authoritative object location zone; expected BATTLEFIELD but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location battlefield object id does not match authoritative object location battlefield object id",
+                "spectator replay frame snapshot player alice object alice-hand-1 location battlefield object id does not match authoritative object location battlefield object id; expected alice-battlefield-card-1 but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -47982,7 +47982,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location player id does not match authoritative object location player id",
+                "spectator replay frame snapshot player alice object alice-hand-1 location player id does not match authoritative object location player id; expected alice but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -47992,7 +47992,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location zone does not match authoritative object location zone",
+                "spectator replay frame snapshot player alice object alice-hand-1 location zone does not match authoritative object location zone; expected BATTLEFIELD but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -48002,7 +48002,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location battlefield object id does not match authoritative object location battlefield object id",
+                "spectator replay frame snapshot player alice object alice-hand-1 location battlefield object id does not match authoritative object location battlefield object id; expected alice-battlefield-card-1 but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -48136,7 +48136,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-missing-location-1 location does not match authoritative object location",
+                "spectator replay frame snapshot player alice object alice-hand-missing-location-1 location does not match authoritative object location; expected {playerId: alice, zone: HAND, battlefieldObjectId: <empty>} but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -48146,7 +48146,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-null-location-1 location does not match authoritative object location",
+                "spectator replay frame snapshot player alice object alice-hand-null-location-1 location does not match authoritative object location; expected {playerId: alice, zone: HAND, battlefieldObjectId: <empty>} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -48156,7 +48156,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-shape-location-1 location does not match authoritative object location",
+                "spectator replay frame snapshot player alice object alice-hand-shape-location-1 location does not match authoritative object location; expected {playerId: alice, zone: HAND, battlefieldObjectId: <empty>} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -48263,17 +48263,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location player id does not match authoritative object location player id",
+                "spectator replay frame snapshot player alice object alice-hand-1 location player id does not match authoritative object location player id; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location zone does not match authoritative object location zone",
+                "spectator replay frame snapshot player alice object alice-hand-1 location zone does not match authoritative object location zone; expected HAND but got BATTLEFIELD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-hand-1 location battlefield object id does not match authoritative object location battlefield object id",
+                "spectator replay frame snapshot player alice object alice-hand-1 location battlefield object id does not match authoritative object location battlefield object id; expected <empty> but got alice-visible-battlefield-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -51806,13 +51806,13 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location player id does not match authoritative object location player id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location player id does not match authoritative object location player id; expected alice but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location zone does not match authoritative object location zone", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location zone does not match authoritative object location zone; expected BATTLEFIELD but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location battlefield object id does not match authoritative object location battlefield object id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location battlefield object id does not match authoritative object location battlefield object id; expected alice-battlefield-card-1 but got <unreadable>", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -51917,7 +51917,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location player id does not match authoritative object location player id",
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location player id does not match authoritative object location player id; expected alice but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -51927,7 +51927,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location zone does not match authoritative object location zone",
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location zone does not match authoritative object location zone; expected BATTLEFIELD but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -51937,7 +51937,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location battlefield object id does not match authoritative object location battlefield object id",
+                "spectator replay frame snapshot player alice object alice-visible-battlefield-1 location battlefield object id does not match authoritative object location battlefield object id; expected alice-battlefield-card-1 but got <missing>",
                 StringComparison.Ordinal));
     }
 
@@ -52064,7 +52064,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-visible-missing-location-1 location does not match authoritative object location",
+                "spectator replay frame snapshot player alice object alice-visible-missing-location-1 location does not match authoritative object location; expected {playerId: alice, zone: BATTLEFIELD, battlefieldObjectId: alice-battlefield-card-1} but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -52074,7 +52074,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-visible-null-location-1 location does not match authoritative object location",
+                "spectator replay frame snapshot player alice object alice-visible-null-location-1 location does not match authoritative object location; expected {playerId: alice, zone: BATTLEFIELD, battlefieldObjectId: alice-battlefield-card-1} but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -52084,7 +52084,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot player alice object alice-visible-shape-location-1 location does not match authoritative object location",
+                "spectator replay frame snapshot player alice object alice-visible-shape-location-1 location does not match authoritative object location; expected {playerId: alice, zone: BATTLEFIELD, battlefieldObjectId: alice-battlefield-card-1} but got <unreadable>",
                 StringComparison.Ordinal));
     }
 
@@ -52184,13 +52184,13 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location player id does not match authoritative object location player id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location player id does not match authoritative object location player id; expected alice but got bob", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location zone does not match authoritative object location zone", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location zone does not match authoritative object location zone; expected BATTLEFIELD but got BASE", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location battlefield object id does not match authoritative object location battlefield object id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 location battlefield object id does not match authoritative object location battlefield object id; expected alice-battlefield-card-1 but got alice-battlefield-drift", StringComparison.Ordinal));
     }
 
     [Fact]
