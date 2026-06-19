@@ -1744,6 +1744,8 @@
 
 线框对战桌面右侧规则队列地图继续工程化：新增 `wireRuleQueuePlan`，把服务端 `stack`、`pendingTaskQueue.tasks`、`battlefieldTasks`、`triggerQueue`、`battlefieldResolutions` 与 `battleResolutions` 投影为固定四泳道“结算链 / 规则任务 / 触发队列 / 近期事件”，并输出当前队列状态、下一步、顺序摘要与对象数量。`WireRuleQueuePanel` 现在由该计划驱动顶部地图和状态指标，详细结算链/任务/触发/事件列表仍只读取服务端快照；新增 `check:wire-rule-queue-plan` 构建门禁、Chrome smoke 与 appshot 基线覆盖。前端仍不根据牌文、隐藏信息或本地状态自行推进规则；项目仍 **NOT READY**。
 
+线框对战桌面焦点交互语法继续工程化：新增 `focusedInteractionGrammarPlan`，把点击焦点牌后的服务端候选、桌面点选草稿和连接状态投影为固定 source / mode / destination / target / optional cost / submit 步骤，显示每一步已锁定、已选择、可选、缺少或阻断状态。`WireInteractionPanel` 现在在焦点操作入口中展示该语法计划，`CandidateComposer` 仍只按服务端候选组装命令并由服务端最终校验；新增 `check:focused-interaction-grammar-plan` 构建门禁，Chrome smoke 覆盖点击来源、目标、费用后的语法状态，appshot 覆盖中局桌面存在交互语法入口。前端仍不根据牌文、隐藏信息或本地状态自行决定合法性；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：
