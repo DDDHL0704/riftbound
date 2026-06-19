@@ -1,0 +1,155 @@
+import type { ActionPromptContractDto } from "../types/protocol";
+import type { FocusedActionModel } from "./focusedActionModel";
+import type { TableObjectCandidateContext, TableObjectContext, TableObjectEventContext } from "./tableObjectContext";
+
+export type FocusedObjectStatusCard = {
+  label: string;
+  value: string;
+};
+
+export type FocusedObjectCommandRow = {
+  commandType?: string;
+  enabled: boolean;
+  fields: string[];
+  key: string;
+  label: string;
+  reason: string;
+  requiredFields: string[];
+  roles: string[];
+  secondaryFields: string[];
+};
+
+export type FocusedObjectNextStepRow = {
+  candidateLabel: string;
+  enabled: boolean;
+  nextStepLabel?: string;
+  stateLabel: string;
+};
+
+export type FocusedObjectContractSummary = {
+  candidateAction: string;
+  hiddenMetadataCount: number;
+  legalChoicesCount: number;
+  promptKind: string;
+  requiredPayloadCount: number;
+  validationErrorCount: number;
+  visibleMetadataCount: number;
+};
+
+export type FocusedObjectEventRow = {
+  description: string;
+  kind: string;
+  role: string;
+};
+
+export type FocusedObjectCommandPlan = {
+  commandRows: FocusedObjectCommandRow[];
+  contract?: FocusedObjectContractSummary;
+  eventRows: FocusedObjectEventRow[];
+  nextStepRows: FocusedObjectNextStepRow[];
+  stackRoles: string[];
+  statusCards: FocusedObjectStatusCard[];
+};
+
+export function buildFocusedObjectCommandPlan({
+  context,
+  contract,
+  focusModel
+}: {
+  context?: TableObjectContext;
+  contract?: ActionPromptContractDto | null;
+  focusModel?: FocusedActionModel;
+}): FocusedObjectCommandPlan | undefined {
+  if (!context) {
+    return undefined;
+  }
+
+  const commandRows = context.candidateLinks
+    .map(commandRowFromCandidate)
+    .sort(commandRowSort);
+  const nextStepRows = (focusModel?.candidates ?? [])
+    .map(({ candidate, nextStep, stateLabel }) => ({
+      candidateLabel: candidate.label,
+      enabled: candidate.enabled,
+      nextStepLabel: nextStep?.label,
+      stateLabel
+    }));
+  const stateValue = context.stateLabels.length > 0
+    ? context.stateLabels.slice(0, 3).join(" / ")
+    : "无公开状态";
+  const candidateValue = `${context.promptEnabledCount} 可用 / ${context.promptDisabledCount} 阻断`;
+
+  return {
+    commandRows,
+    contract: contractSummary(contract),
+    eventRows: context.eventLinks.slice(-3).reverse().map(eventRowFromContext),
+    nextStepRows,
+    stackRoles: context.stackRoles,
+    statusCards: [
+      { label: "位置", value: context.zone.label },
+      { label: "状态", value: stateValue },
+      { label: "候选", value: candidateValue },
+      { label: "下一步", value: focusModel?.nextStepLabel ?? "点击桌面对象查看服务端候选" }
+    ]
+  };
+}
+
+function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: number): FocusedObjectCommandRow {
+  const requiredFields = uniqueStrings(candidate.requiredCommandFields);
+  const fields = uniqueStrings(candidate.commandFields);
+  const secondaryFields = fields.filter((field) => !requiredFields.includes(field));
+
+  return {
+    commandType: candidate.commandType,
+    enabled: candidate.enabled,
+    fields,
+    key: `${candidate.commandType ?? "NO_COMMAND"}:${candidate.label}:${index}`,
+    label: candidate.label,
+    reason: candidate.reason,
+    requiredFields,
+    roles: uniqueStrings(candidate.roles),
+    secondaryFields
+  };
+}
+
+function commandRowSort(left: FocusedObjectCommandRow, right: FocusedObjectCommandRow): number {
+  if (left.enabled !== right.enabled) {
+    return left.enabled ? -1 : 1;
+  }
+
+  const leftCommand = left.commandType ?? "";
+  const rightCommand = right.commandType ?? "";
+  if (leftCommand !== rightCommand) {
+    return leftCommand.localeCompare(rightCommand);
+  }
+
+  return left.label.localeCompare(right.label);
+}
+
+function contractSummary(contract?: ActionPromptContractDto | null): FocusedObjectContractSummary | undefined {
+  if (!contract) {
+    return undefined;
+  }
+
+  return {
+    candidateAction: contract.candidateAction,
+    hiddenMetadataCount: contract.hiddenMetadata.length,
+    legalChoicesCount: contract.legalChoices.length,
+    promptKind: contract.promptKind,
+    requiredPayloadCount: contract.requiredPayload.length,
+    validationErrorCount: contract.validationErrors.length,
+    visibleMetadataCount: contract.visibleMetadata.length
+  };
+}
+
+function eventRowFromContext(event: TableObjectEventContext): FocusedObjectEventRow {
+  return {
+    description: event.description,
+    kind: event.kind,
+    role: event.role
+  };
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}

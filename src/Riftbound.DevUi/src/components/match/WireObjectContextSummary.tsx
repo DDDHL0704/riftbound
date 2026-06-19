@@ -1,58 +1,76 @@
+import type { ActionPromptContractDto } from "../../types/protocol";
+import type { FocusedActionModel } from "../../utils/focusedActionModel";
+import { buildFocusedObjectCommandPlan } from "../../utils/focusedObjectCommandPlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 
-export function WireObjectContextSummary({ context }: { context?: TableObjectContext }) {
-  if (!context) {
+export function WireObjectContextSummary({
+  context,
+  contract,
+  focusModel
+}: {
+  context?: TableObjectContext;
+  contract?: ActionPromptContractDto | null;
+  focusModel?: FocusedActionModel;
+}) {
+  const plan = buildFocusedObjectCommandPlan({ context, contract, focusModel });
+  if (!plan) {
     return <span className="empty-hint">服务端未提供该对象的公开上下文。</span>;
   }
-
-  const latestEvents = context.eventLinks.slice(-3).reverse();
-  const enabledCandidates = context.candidateLinks.filter((candidate) => candidate.enabled);
-  const disabledCandidates = context.candidateLinks.filter((candidate) => !candidate.enabled);
-  const commandCandidates = context.candidateLinks.filter((candidate) => candidate.commandType);
 
   return (
     <div className="wire-object-context" role="group" aria-label="焦点对象上下文">
       <div className="wire-object-context-grid">
-        <span>
-          <small>位置</small>
-          <strong>{context.zone.label}</strong>
-        </span>
-        <span>
-          <small>状态</small>
-          <strong>{context.stateLabels.slice(0, 3).join(" / ")}</strong>
-        </span>
-        <span>
-          <small>候选</small>
-          <strong>{context.promptEnabledCount} 可用 / {context.promptDisabledCount} 阻断</strong>
-        </span>
+        {plan.statusCards.map((card) => (
+          <span key={card.label}>
+            <small>{card.label}</small>
+            <strong>{card.value}</strong>
+          </span>
+        ))}
       </div>
-      {context.stackRoles.length > 0 && (
-        <span className="wire-object-context-line">结算链：{context.stackRoles.join(" / ")}</span>
+      {plan.contract && (
+        <div className="wire-object-contract-block" aria-label="焦点对象提示契约">
+          <span className="wire-object-context-line">提示契约：{plan.contract.promptKind} / {plan.contract.candidateAction}</span>
+          <div>
+            <small>提交 {plan.contract.requiredPayloadCount}</small>
+            <small>合法 {plan.contract.legalChoicesCount}</small>
+            <small>公开 {plan.contract.visibleMetadataCount}</small>
+            <small>隐藏 {plan.contract.hiddenMetadataCount}</small>
+          </div>
+        </div>
       )}
-      {enabledCandidates.length > 0 && (
-        <span className="wire-object-context-line">可用：{enabledCandidates.slice(0, 2).map(candidate => `${candidate.label}(${candidate.roles.join("/")})`).join("、")}</span>
+      {plan.stackRoles.length > 0 && (
+        <span className="wire-object-context-line">结算链：{plan.stackRoles.join(" / ")}</span>
       )}
-      {disabledCandidates.length > 0 && enabledCandidates.length === 0 && (
-        <span className="wire-object-context-line">阻断：{disabledCandidates.slice(0, 2).map(candidate => candidate.reason).join("、")}</span>
+      {plan.nextStepRows.length > 0 && (
+        <ol className="wire-object-next-step-list" aria-label="焦点对象候选步骤">
+          {plan.nextStepRows.slice(0, 3).map((row) => (
+            <li className={row.enabled ? "is-enabled" : "is-disabled"} key={`${row.candidateLabel}-${row.nextStepLabel ?? row.stateLabel}`}>
+              <span>{row.candidateLabel}</span>
+              <strong>{row.stateLabel}{row.nextStepLabel ? `；下一步 ${row.nextStepLabel}` : ""}</strong>
+            </li>
+          ))}
+        </ol>
       )}
-      {commandCandidates.length > 0 && (
+      {plan.commandRows.length > 0 && (
         <div className="wire-object-command-block">
           <span className="wire-object-context-line">服务端命令</span>
           <ol className="wire-object-command-list" aria-label="焦点对象服务端命令字段">
-            {commandCandidates.slice(0, 3).map((candidate, index) => (
-              <li key={`${candidate.commandType}-${candidate.label}-${index}`}>
-                <span>{candidate.enabled ? "可提交" : "阻断"}</span>
-                <strong>{candidate.commandType}{candidate.commandFields.length > 0 ? `：${candidate.commandFields.join(" / ")}` : ""}</strong>
+            {plan.commandRows.slice(0, 4).map((row) => (
+              <li className={row.enabled ? "is-enabled" : "is-disabled"} key={row.key}>
+                <span>{row.enabled ? "可提交" : "阻断"}{row.roles.length > 0 ? ` / ${row.roles.join("/")}` : ""}</span>
+                <strong>{row.commandType ?? row.label}{row.requiredFields.length > 0 ? `：${row.requiredFields.join(" / ")}` : ""}</strong>
+                {row.secondaryFields.length > 0 && <small>{row.secondaryFields.join(" / ")}</small>}
+                {!row.enabled && <small>{row.reason}</small>}
               </li>
             ))}
           </ol>
         </div>
       )}
-      {latestEvents.length > 0 ? (
+      {plan.eventRows.length > 0 ? (
         <div className="wire-object-event-block">
           <span className="wire-object-context-line">近期事件</span>
           <ol className="wire-object-event-list" aria-label="焦点对象近期事件">
-            {latestEvents.map((event, index) => (
+            {plan.eventRows.map((event, index) => (
               <li key={`${event.kind}-${event.role}-${index}`}>
                 <span>{event.role}</span>
                 <strong>{event.description}</strong>

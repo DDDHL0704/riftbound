@@ -388,7 +388,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.text.includes("可提交")) failures.push("focused action summary enabled count missing");
   if (!focusResult.contextText.includes("位置")) failures.push("object context position missing");
   if (!focusResult.contextText.includes("我方手牌")) failures.push("object context did not locate hand source");
+  if (!focusResult.contextText.includes("下一步")) failures.push("object context next-step plan missing");
+  if (!focusResult.contextText.includes("服务端命令")) failures.push("object context command plan missing");
   if (!focusResult.contextText.includes("近期事件")) failures.push("object context event section missing");
+  if (focusResult.contextText.includes("serverPaymentState")) failures.push("object context leaked hidden server state");
   if (!detailContextResult.open) failures.push("card detail did not open");
   if (!detailContextResult.text.includes("规则上下文")) failures.push("card detail context section missing");
   if (!detailContextResult.text.includes("我方手牌")) failures.push("card detail did not reuse object context location");
