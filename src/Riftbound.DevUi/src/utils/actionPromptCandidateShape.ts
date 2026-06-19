@@ -1,6 +1,13 @@
 import type { ActionPromptCandidateDto } from "../types/protocol";
 
 export function candidateRequiresFurtherChoice(candidate: ActionPromptCandidateDto): boolean {
+  const selectionSteps = candidate.selectionSteps ?? [];
+  if (selectionSteps.length > 0) {
+    return selectionSteps.some((step) =>
+      step.role !== "source"
+      && (step.required || step.choices.length > 0));
+  }
+
   return Boolean(
     (candidate.targets?.length ?? 0) > 0
     || (candidate.destinations?.length ?? 0) > 0
