@@ -175,6 +175,10 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       },
       {
         action: "TAP_RUNE",
+        commandTemplate: {
+          bindings: [{ field: "sourceObjectId", required: true, source: "selectedSource" }],
+          cmdType: "TAP_RUNE"
+        },
         enabled: true,
         label: "横置符文样例",
         reason: "前端线框样例；真实资源池由服务端快照决定。",

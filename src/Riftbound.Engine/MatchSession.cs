@@ -5703,6 +5703,12 @@ internal static class ActionPromptBuilder
                 SelectedModeBinding("mode"),
                 SelectedDestinationBinding("destination"),
                 SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.TapRune => CommandTemplate(
+                CommandTypes.TapRune,
+                SourceBinding("sourceObjectId", required: true)),
+            CommandTypes.RecycleRune => CommandTemplate(
+                CommandTypes.RecycleRune,
+                SourceBinding("sourceObjectId", required: true)),
             CommandTypes.MoveUnit => CommandTemplate(
                 CommandTypes.MoveUnit,
                 SourceBinding("sourceObjectId", required: true),

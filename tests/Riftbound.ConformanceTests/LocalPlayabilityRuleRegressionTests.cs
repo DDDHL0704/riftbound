@@ -145,6 +145,26 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Contains(template.Bindings, binding =>
             string.Equals(binding.Field, "destination", StringComparison.Ordinal)
             && string.Equals(binding.Source, "selectedDestination", StringComparison.Ordinal));
+
+        var tapRuneCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.TapRune, StringComparison.Ordinal));
+        var tapRuneTemplate = Assert.IsType<ActionPromptCommandTemplateDto>(tapRuneCandidate.CommandTemplate);
+        Assert.Equal(CommandTypes.TapRune, tapRuneTemplate.CmdType);
+        Assert.Contains(tapRuneTemplate.Bindings, binding =>
+            string.Equals(binding.Field, "sourceObjectId", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "selectedSource", StringComparison.Ordinal)
+            && binding.Required);
+
+        var recycleRuneCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.RecycleRune, StringComparison.Ordinal));
+        var recycleRuneTemplate = Assert.IsType<ActionPromptCommandTemplateDto>(recycleRuneCandidate.CommandTemplate);
+        Assert.Equal(CommandTypes.RecycleRune, recycleRuneTemplate.CmdType);
+        Assert.Contains(recycleRuneTemplate.Bindings, binding =>
+            string.Equals(binding.Field, "sourceObjectId", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "selectedSource", StringComparison.Ordinal)
+            && binding.Required);
     }
 
     [Fact]
