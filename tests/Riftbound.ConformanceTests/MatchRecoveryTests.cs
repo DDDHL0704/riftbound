@@ -29057,10 +29057,14 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state active player charlie is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state active player charlie is missing from seats; expected [alice, bob] but got charlie",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state turn player diana is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state turn player diana is missing from seats; expected [alice, bob] but got diana",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -29094,19 +29098,29 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state priority player charlie is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state priority player charlie is missing from seats; expected [alice, bob] but got charlie",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state focus player diana is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state focus player diana is missing from seats; expected [alice, bob] but got diana",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state winner player eve is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state winner player eve is missing from seats; expected [alice, bob] but got eve",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state opening second action player gina is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state opening second action player gina is missing from seats; expected [alice, bob] but got gina",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state extra turn player frank is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state extra turn player frank is missing from seats; expected [alice, bob] but got frank",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -29140,19 +29154,29 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state ready player charlie is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state ready player charlie is missing from seats; expected [alice, bob] but got charlie",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state passed priority player diana is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state passed priority player diana is missing from seats; expected [alice, bob] but got diana",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state passed focus player eve is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state passed focus player eve is missing from seats; expected [alice, bob] but got eve",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state destroyed unit owner frank is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state destroyed unit owner frank is missing from seats; expected [alice, bob] but got frank",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state mulligan completed player gina is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state mulligan completed player gina is missing from seats; expected [alice, bob] but got gina",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -29205,22 +29229,34 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state rune pool player charlie is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state rune pool player charlie is missing from seats; expected [alice, bob] but got charlie",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state zone player diana is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state zone player diana is missing from seats; expected [alice, bob] but got diana",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state score player eve is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state score player eve is missing from seats; expected [alice, bob] but got eve",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state experience player frank is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state experience player frank is missing from seats; expected [alice, bob] but got frank",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state cards played player gina is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state cards played player gina is missing from seats; expected [alice, bob] but got gina",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state decklist player henry is missing from seats", StringComparison.Ordinal));
+            error => error.Contains(
+                "authoritative state decklist player henry is missing from seats; expected [alice, bob] but got henry",
+                StringComparison.Ordinal));
     }
 
     [Fact]

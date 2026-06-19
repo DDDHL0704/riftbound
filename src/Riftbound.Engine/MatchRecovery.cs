@@ -25002,7 +25002,8 @@ public static class MatchRecoveryValidator
 
         if (!seatPlayerIds.Contains(normalizedPlayerId))
         {
-            errors.Add($"authoritative state {pointerName} {normalizedPlayerId} is missing from seats");
+            errors.Add(
+                $"authoritative state {pointerName} {normalizedPlayerId} is missing from seats; {FormatAuthoritativeStateExpectedPlayerDetail(seatPlayerIds, normalizedPlayerId)}");
         }
     }
 
@@ -25039,7 +25040,7 @@ public static class MatchRecoveryValidator
             if (!seatPlayerIds.Contains(normalizedPlayerId))
             {
                 errors.Add(
-                    $"authoritative state {listMemberName} {normalizedPlayerId} is missing from seats");
+                    $"authoritative state {listMemberName} {normalizedPlayerId} is missing from seats; {FormatAuthoritativeStateExpectedPlayerDetail(seatPlayerIds, normalizedPlayerId)}");
             }
 
             if (!seenPlayerIds.Add(normalizedPlayerId))
@@ -25080,7 +25081,8 @@ public static class MatchRecoveryValidator
 
             if (!seatPlayerIds.Contains(normalizedPlayerId))
             {
-                errors.Add($"authoritative state {mapKeyName} {normalizedPlayerId} is missing from seats");
+                errors.Add(
+                    $"authoritative state {mapKeyName} {normalizedPlayerId} is missing from seats; {FormatAuthoritativeStateExpectedPlayerDetail(seatPlayerIds, normalizedPlayerId)}");
             }
 
             if (!seenPlayerIds.Add(normalizedPlayerId))
@@ -26788,8 +26790,19 @@ public static class MatchRecoveryValidator
 
         if (!seatPlayerIds.Contains(normalizedPlayerId))
         {
-            errors.Add($"authoritative state {pointerName} {normalizedPlayerId} is missing from seats");
+            errors.Add(
+                $"authoritative state {pointerName} {normalizedPlayerId} is missing from seats; {FormatAuthoritativeStateExpectedPlayerDetail(seatPlayerIds, normalizedPlayerId)}");
         }
+    }
+
+    private static string FormatAuthoritativeStateExpectedPlayerDetail(
+        IReadOnlySet<string> seatPlayerIds,
+        string actualPlayerId)
+    {
+        var expectedPlayerIds = seatPlayerIds
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        return FormatExpectedActualForRecovery(expectedPlayerIds, actualPlayerId);
     }
 
     private static void ValidateAuthoritativeStateSeats(
