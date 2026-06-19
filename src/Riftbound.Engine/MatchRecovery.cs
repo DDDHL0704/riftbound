@@ -9124,11 +9124,19 @@ public static class MatchRecoveryValidator
             "spectator replay frame snapshot players",
             errors);
 
-        foreach (var expectedPlayerId in authoritativeState.Seats.Keys)
+        var expectedPlayerIds = authoritativeState.Seats.Keys
+            .OrderBy(expectedPlayerId => expectedPlayerId, StringComparer.Ordinal)
+            .ToArray();
+        var actualPlayerIds = snapshot.Players.Keys
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (var expectedPlayerId in expectedPlayerIds)
         {
             if (!snapshot.Players.ContainsKey(expectedPlayerId))
             {
-                errors.Add($"spectator replay frame snapshot is missing player {expectedPlayerId}");
+                errors.Add(
+                    $"spectator replay frame snapshot is missing player {expectedPlayerId}; {FormatExpectedActualForRecovery(expectedPlayerIds, actualPlayerIds)}");
             }
         }
 
@@ -9136,9 +9144,6 @@ public static class MatchRecoveryValidator
         {
             if (!authoritativeState.Seats.ContainsKey(playerId))
             {
-                var expectedPlayerIds = authoritativeState.Seats.Keys
-                    .OrderBy(expectedPlayerId => expectedPlayerId, StringComparer.Ordinal)
-                    .ToArray();
                 errors.Add(
                     $"spectator replay frame snapshot player {playerId} is not in authoritative seats; {FormatExpectedActualForRecovery(expectedPlayerIds, playerId)}");
             }
@@ -22943,11 +22948,19 @@ public static class MatchRecoveryValidator
         IEnumerable<string> expectedPlayerIds,
         List<string> errors)
     {
-        foreach (var expectedPlayerId in expectedPlayerIds)
+        var expectedPlayerIdList = expectedPlayerIds
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var actualPlayerIds = view.Snapshot.Players.Keys
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (var expectedPlayerId in expectedPlayerIdList)
         {
             if (!view.Snapshot.Players.ContainsKey(expectedPlayerId))
             {
-                errors.Add($"snapshot for {view.PlayerId} is missing player {expectedPlayerId}");
+                errors.Add(
+                    $"snapshot for {view.PlayerId} is missing player {expectedPlayerId}; {FormatExpectedActualForRecovery(expectedPlayerIdList, actualPlayerIds)}");
             }
         }
     }
