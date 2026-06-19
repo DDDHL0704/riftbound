@@ -12560,6 +12560,12 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-action-candidate-plan-card[data-candidate-plan-draft-active="true"],
+.wire-action-candidate-plan li[data-step-progress="selected"] {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
 .wire-action-candidate-plan-next {
   padding: 3px;
   font-weight: 700;
@@ -12582,6 +12588,10 @@ button.card-face:hover {
   align-items: center;
   border: 1px solid #000;
   padding: 3px;
+}
+
+.wire-action-candidate-plan li small[data-step-progress-label] {
+  grid-column: 1 / -1;
 }
 
 .wire-action-candidate-step-ref-list {

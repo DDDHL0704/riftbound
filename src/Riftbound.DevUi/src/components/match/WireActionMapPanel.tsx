@@ -1,4 +1,5 @@
 import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
+import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
   buildWireActionMapPlan,
   type WireActionContractPlan,
@@ -14,11 +15,20 @@ type WireActionMapPanelProps = {
   playerId: string;
   prompt?: ActionPromptDto;
   selectedObjectId?: string;
+  selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
 };
 
-export function WireActionMapPanel({ onChooseObject, onInspectObject, playerId, prompt, selectedObjectId, snapshot }: WireActionMapPanelProps) {
-  const plan = buildWireActionMapPlan({ playerId, prompt, selectedObjectId, snapshot });
+export function WireActionMapPanel({
+  onChooseObject,
+  onInspectObject,
+  playerId,
+  prompt,
+  selectedObjectId,
+  selectionDraft,
+  snapshot
+}: WireActionMapPanelProps) {
+  const plan = buildWireActionMapPlan({ playerId, prompt, selectedObjectId, selectionDraft, snapshot });
 
   return (
     <section className="wire-action-map" aria-label="服务端合法操作地图">
@@ -186,6 +196,7 @@ function CandidateInteractionPlanList({ onChooseObject, plan }: { onChooseObject
         <article
           className={candidatePlan.enabled ? "wire-action-candidate-plan-card is-enabled" : "wire-action-candidate-plan-card"}
           data-candidate-plan-action={candidatePlan.action}
+          data-candidate-plan-draft-active={candidatePlan.draftActive ? "true" : "false"}
           data-candidate-plan-enabled={candidatePlan.enabled ? "true" : "false"}
           key={candidatePlan.key}
         >
@@ -200,6 +211,7 @@ function CandidateInteractionPlanList({ onChooseObject, plan }: { onChooseObject
             {candidatePlan.stepRows.slice(0, 4).map((step) => (
               <li
                 className={step.required ? "is-required" : ""}
+                data-step-progress={step.selectionState}
                 data-step-role={step.role}
                 data-step-state={step.state}
                 key={step.key}
@@ -207,6 +219,9 @@ function CandidateInteractionPlanList({ onChooseObject, plan }: { onChooseObject
                 <span>{step.label}</span>
                 <strong>{step.count}</strong>
                 <small>{step.stateLabel} / {step.sampleLabels.length > 0 ? step.sampleLabels.join(" / ") : "由服务端候选决定"}</small>
+                <small data-step-progress-label={step.selectionState}>
+                  {step.progressLabel}{step.selectedLabels.length > 0 ? ` / ${step.selectedLabels.join(" / ")}` : ""}
+                </small>
                 {step.objectRefs.length > 0 && (
                   <div className="wire-action-candidate-step-ref-list" role="group" aria-label={`${candidatePlan.candidateLabel} ${step.label}对象`}>
                     {step.objectRefs.map((ref) => (

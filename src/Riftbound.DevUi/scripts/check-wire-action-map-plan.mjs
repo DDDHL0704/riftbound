@@ -139,6 +139,9 @@ assert.equal(plan.groups[0].roleCounts.find((role) => role.role === "source")?.c
 assert.equal(plan.groups[0].roleCounts.find((role) => role.role === "target")?.count, 1);
 assert.equal(plan.candidatePlanTotalCount, 3);
 assert.equal(plan.candidatePlans[0].action, "PLAY_CARD");
+assert.equal(plan.candidatePlans[0].draftActive, false);
+assert.equal(plan.candidatePlans[0].stepRows[0].selectionState, "inactive");
+assert.equal(plan.candidatePlans[0].stepRows[0].progressLabel, "未进入当前草稿");
 assert.deepEqual(plan.candidatePlans[0].stepRows[0].objectRefs, [{
   key: "PLAY_CARD:source:p1-hand-1:p1-hand-1",
   label: "手牌法术",
@@ -160,6 +163,30 @@ assert.equal(plan.grammarCandidates[0].commandFields[2].label, "服务端字段"
 assert.equal(plan.grammarCandidates[0].commandFields[2].sourceLabel, "服务端注入");
 assert.equal(plan.contract.hiddenMetadataCount, 1);
 assert.equal(JSON.stringify(plan).includes("serverPaymentState"), false);
+
+const draftPlan = buildWireActionMapPlan({
+  playerId: "P1",
+  prompt,
+  selectedObjectId: "p1-hand-1",
+  selectionDraft: {
+    candidateKey: "PLAY_CARD::打出手牌",
+    optionalCostIds: [],
+    sourceObjectId: "p1-hand-1",
+    targetChoiceIds: ["p2-unit-1"]
+  },
+  snapshot
+});
+const draftCandidate = draftPlan.candidatePlans.find((candidate) => candidate.action === "PLAY_CARD");
+assert.equal(draftCandidate.draftActive, true);
+const draftSourceStep = draftCandidate.stepRows.find((step) => step.role === "source");
+const draftTargetStep = draftCandidate.stepRows.find((step) => step.role === "target");
+assert.equal(draftSourceStep.selectionState, "selected");
+assert.equal(draftSourceStep.selectedCount, 1);
+assert.deepEqual(draftSourceStep.selectedLabels, ["手牌法术"]);
+assert.equal(draftTargetStep.selectionState, "selected");
+assert.equal(draftTargetStep.selectedCount, 1);
+assert.deepEqual(draftTargetStep.selectedLabels, ["敌方单位"]);
+assert.equal(draftPlan.candidatePlans.find((candidate) => candidate.action === "ACTIVATE_ABILITY").draftActive, false);
 
 const readOnlyPlan = buildWireActionMapPlan({
   playerId: "P2",

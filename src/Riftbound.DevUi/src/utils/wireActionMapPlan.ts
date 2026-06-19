@@ -1,4 +1,5 @@
 import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto, CardObjectView, SnapshotDto } from "../types/protocol";
+import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import {
   buildCandidateInteractionPlans,
   type CandidateInteractionPlan,
@@ -54,9 +55,14 @@ export type WireActionFocusObjectRef = {
 
 export type WireActionCandidateStepPlan = CandidateInteractionStepPlan & {
   objectRefs: WireActionFocusObjectRef[];
+  progressLabel: string;
+  selectedCount: number;
+  selectedLabels: string[];
+  selectionState: "inactive" | "selected" | "unselected";
 };
 
 export type WireActionCandidatePlan = Omit<CandidateInteractionPlan, "nextRequiredStep" | "stepRows"> & {
+  draftActive: boolean;
   nextRequiredStep?: WireActionCandidateStepPlan;
   stepRows: WireActionCandidateStepPlan[];
 };
@@ -151,6 +157,7 @@ type BuildWireActionMapPlanOptions = {
   playerId: string;
   prompt?: ActionPromptDto;
   selectedObjectId?: string;
+  selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
 };
 
@@ -170,6 +177,7 @@ export function buildWireActionMapPlan({
   playerId,
   prompt,
   selectedObjectId,
+  selectionDraft,
   snapshot
 }: BuildWireActionMapPlanOptions): WireActionMapPlan {
   const model = buildPromptInteractionModel(prompt);
@@ -182,7 +190,7 @@ export function buildWireActionMapPlan({
   const groups = actionGroups(model);
   const candidateByKey = new Map(model.candidates.map((candidate) => [candidateKey(candidate), candidate]));
   const candidatePlans = buildCandidateInteractionPlans(model.candidates)
-    .map((candidatePlan) => wireActionCandidatePlan(candidatePlan, candidateByKey.get(candidatePlan.key), objects));
+    .map((candidatePlan) => wireActionCandidatePlan(candidatePlan, candidateByKey.get(candidatePlan.key), objects, selectionDraft));
   const grammarCandidates = model.candidates.filter((candidate) => candidate.enabled);
   const objectLimit = nonNegativeLimit(maxObjectEntries);
 
@@ -251,20 +259,94 @@ function focusPlan(
 function wireActionCandidatePlan(
   candidatePlan: CandidateInteractionPlan,
   candidate: PromptCandidateSummary | undefined,
-  objects: ObjectIndex
+  objects: ObjectIndex,
+  selectionDraft: CandidateSelectionDraft | undefined
 ): WireActionCandidatePlan {
+  const draftActive = Boolean(candidate && selectionDraft?.candidateKey === candidateDraftKey(candidate));
   const stepRows = candidatePlan.stepRows.map((step) => ({
     ...step,
-    objectRefs: candidate ? objectRefsForStep(candidate, step.role, objects) : []
+    objectRefs: candidate ? objectRefsForStep(candidate, step.role, objects) : [],
+    ...stepSelectionPlan(candidate, step.role, selectionDraft, draftActive)
   }));
 
   return {
     ...candidatePlan,
+    draftActive,
     nextRequiredStep: candidatePlan.nextRequiredStep
       ? stepRows.find((step) => step.key === candidatePlan.nextRequiredStep?.key)
       : undefined,
     stepRows
   };
+}
+
+function stepSelectionPlan(
+  candidate: PromptCandidateSummary | undefined,
+  role: PromptChoiceRole,
+  selectionDraft: CandidateSelectionDraft | undefined,
+  draftActive: boolean
+): Pick<WireActionCandidateStepPlan, "progressLabel" | "selectedCount" | "selectedLabels" | "selectionState"> {
+  if (!candidate || !selectionDraft || !draftActive) {
+    return {
+      progressLabel: "未进入当前草稿",
+      selectedCount: 0,
+      selectedLabels: [],
+      selectionState: "inactive"
+    };
+  }
+
+  const selectedChoices = candidate.choices.filter((choice) => choice.role === role && choiceSelectedForDraft(choice, role, selectionDraft));
+  const selectedLabels = uniqueStrings(selectedChoices.map((choice) => choice.label)).slice(0, 3);
+  const fallbackCount = selectedFallbackCount(role, selectionDraft);
+  const selectedCount = selectedChoices.length > 0 ? selectedChoices.length : fallbackCount;
+
+  return {
+    progressLabel: selectedCount > 0 ? `已选 ${selectedCount}` : "未选",
+    selectedCount,
+    selectedLabels,
+    selectionState: selectedCount > 0 ? "selected" : "unselected"
+  };
+}
+
+function choiceSelectedForDraft(
+  choice: PromptCandidateSummary["choices"][number],
+  role: PromptChoiceRole,
+  selectionDraft: CandidateSelectionDraft
+): boolean {
+  switch (role) {
+    case "source":
+      return choiceMatchesSelection(choice, selectionDraft.sourceObjectId);
+    case "target":
+      return selectionDraft.targetChoiceIds.some((choiceId) => choiceMatchesSelection(choice, choiceId));
+    case "destination":
+      return choiceMatchesSelection(choice, selectionDraft.destinationId);
+    case "mode":
+      return choiceMatchesSelection(choice, selectionDraft.mode);
+    case "optionalCost":
+      return selectionDraft.optionalCostIds.some((choiceId) => choiceMatchesSelection(choice, choiceId));
+  }
+}
+
+function selectedFallbackCount(role: PromptChoiceRole, selectionDraft: CandidateSelectionDraft): number {
+  switch (role) {
+    case "source":
+      return selectionDraft.sourceObjectId ? 1 : 0;
+    case "target":
+      return selectionDraft.targetChoiceIds.length;
+    case "destination":
+      return selectionDraft.destinationId ? 1 : 0;
+    case "mode":
+      return selectionDraft.mode ? 1 : 0;
+    case "optionalCost":
+      return selectionDraft.optionalCostIds.length;
+  }
+}
+
+function choiceMatchesSelection(choice: PromptCandidateSummary["choices"][number], selectedId: string | undefined): boolean {
+  if (!selectedId) {
+    return false;
+  }
+
+  return choice.id === selectedId || promptChoiceSummaryObjectIds(choice).includes(selectedId);
 }
 
 function focusCandidatePlan(
@@ -341,6 +423,10 @@ function objectRefsForStep(
 
 function candidateKey(candidate: PromptCandidateSummary): string {
   return `${candidate.action}:${candidate.label}`;
+}
+
+function candidateDraftKey(candidate: PromptCandidateSummary): string {
+  return `${candidate.action}::${candidate.label}`;
 }
 
 function focusStateLabel(candidateCount: number, enabledCount: number): string {

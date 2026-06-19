@@ -328,6 +328,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               playerId={settings.playerId}
               prompt={tablePrompt}
               selectedObjectId={selectedObjectId}
+              selectionDraft={selectionDraft}
               snapshot={tableSnapshot}
             />
           </section>

@@ -583,11 +583,19 @@ async function runWireClickSelectionSmoke(cdp) {
   const actionFocusChoiceResult = await evaluateJson(cdp, `(() => {
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
+    const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
+    const sourceStep = candidatePlan?.querySelector('[data-step-role="source"]');
+    const targetStep = candidatePlan?.querySelector('[data-step-role="target"]');
     return {
+      candidateDraftActive: candidatePlan?.getAttribute("data-candidate-plan-draft-active") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
       sourceSelected: sourceObject?.getAttribute("data-selected") ?? null,
+      sourceStepProgress: sourceStep?.getAttribute("data-step-progress") ?? null,
+      sourceStepProgressText: sourceStep?.querySelector("[data-step-progress-label]")?.textContent ?? "",
+      targetStepProgress: targetStep?.getAttribute("data-step-progress") ?? null,
+      targetStepProgressText: targetStep?.querySelector("[data-step-progress-label]")?.textContent ?? "",
       targetState: targetObject?.getAttribute("data-prompt-state") ?? null
     };
   })()`);
@@ -761,6 +769,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.detailLayerOpen) failures.push("action map object chip opened detail");
   if (actionFocusChoiceResult.sourceSelected !== "true") failures.push("action focus choice did not preserve source focus");
   if (actionFocusChoiceResult.targetState !== "chosen") failures.push("action focus choice did not mark target chosen");
+  if (actionFocusChoiceResult.candidateDraftActive !== "true") failures.push("action focus choice did not activate candidate plan draft");
+  if (actionFocusChoiceResult.sourceStepProgress !== "selected") failures.push("action focus choice did not mark source step selected");
+  if (actionFocusChoiceResult.targetStepProgress !== "selected") failures.push("action focus choice did not mark target step selected");
+  if (!actionFocusChoiceResult.targetStepProgressText.includes("已选 1")) failures.push("action focus choice target step progress text missing");
   if (!actionFocusChoiceResult.draftText.includes("目标 1")) failures.push("action focus choice did not update target draft");
   if (actionFocusChoiceResult.previewText.includes("目标：无")) failures.push("action focus choice command preview missed target");
   if (actionFocusChoiceResult.detailLayerOpen) failures.push("action focus choice opened detail");
