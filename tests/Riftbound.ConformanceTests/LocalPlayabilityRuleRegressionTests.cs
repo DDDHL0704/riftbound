@@ -113,6 +113,41 @@ public sealed class LocalPlayabilityRuleRegressionTests
     }
 
     [Fact]
+    public void ActionPromptCandidatesProvideServerCommandTemplateForFrontendComposer()
+    {
+        var state = PlayUnitToContestedBattlefieldState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+
+        var template = Assert.IsType<ActionPromptCommandTemplateDto>(playCandidate.CommandTemplate);
+        Assert.Equal(CommandTypes.PlayCard, template.CmdType);
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Field, "sourceObjectId", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "selectedSource", StringComparison.Ordinal)
+            && binding.Required);
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Field, "cardNo", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "requirementMetadata", StringComparison.Ordinal)
+            && binding.Required
+            && binding.MetadataKeys is not null
+            && binding.MetadataKeys.Contains("cardNo", StringComparer.Ordinal));
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Field, "targetObjectIds", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "selectedTargets", StringComparison.Ordinal)
+            && binding.AsArray
+            && !binding.OmitEmpty);
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Field, "destination", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "selectedDestination", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task DeclareBattleConquestScoresAndTriggersConquestForNonHuntUnit()
     {
         var result = await new CoreRuleEngine().ResolveAsync(

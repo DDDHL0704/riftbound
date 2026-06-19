@@ -1098,7 +1098,7 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
       if (hasSingleChoice(candidate.sources) && candidate.action === "RECYCLE_RUNE") {
         return { cmdType: "RECYCLE_RUNE", sourceObjectId: candidate.sources![0].id };
       }
-      if (hasSingleChoice(candidate.sources) && candidate.action === "PLAY_CARD") {
+      if (hasSingleChoice(candidate.sources) && candidate.action === "PLAY_CARD" && !candidate.commandTemplate) {
         const source = candidate.sources![0].id;
         const cardNo = findCardNo(snapshot, source);
         return cardNo && !requiresFurtherChoice(candidate)
