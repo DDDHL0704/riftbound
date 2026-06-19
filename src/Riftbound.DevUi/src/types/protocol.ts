@@ -126,6 +126,20 @@ export type ActionPromptChoiceDto = {
   reason?: string | null;
 };
 
+export type ActionPromptSelectionChoiceDto = {
+  id: string;
+  label: string;
+  objectIds: string[];
+  reason?: string | null;
+};
+
+export type ActionPromptSelectionStepDto = {
+  role: "source" | "target" | "destination" | "mode" | "optionalCost" | (string & {});
+  label: string;
+  required: boolean;
+  choices: ActionPromptSelectionChoiceDto[];
+};
+
 export type ActionPromptCandidateDto = {
   action: string;
   label: string;
@@ -137,6 +151,7 @@ export type ActionPromptCandidateDto = {
   modes?: ActionPromptChoiceDto[] | null;
   optionalCosts?: ActionPromptChoiceDto[] | null;
   metadata?: Record<string, unknown> | null;
+  selectionSteps?: ActionPromptSelectionStepDto[] | null;
 };
 
 export type KnownPromptType =

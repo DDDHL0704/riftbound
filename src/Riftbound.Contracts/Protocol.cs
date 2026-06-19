@@ -329,6 +329,18 @@ public sealed record ActionPromptDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptCandidateDto>? Candidates = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PromptViewDto? View = null);
 
+public sealed record ActionPromptSelectionChoiceDto(
+    string Id,
+    string Label,
+    IReadOnlyList<string> ObjectIds,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Reason = null);
+
+public sealed record ActionPromptSelectionStepDto(
+    string Role,
+    string Label,
+    bool Required,
+    IReadOnlyList<ActionPromptSelectionChoiceDto> Choices);
+
 public sealed record ActionPromptCandidateDto(
     string Action,
     string Label,
@@ -339,7 +351,8 @@ public sealed record ActionPromptCandidateDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptChoiceDto>? Destinations = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptChoiceDto>? Modes = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptChoiceDto>? OptionalCosts = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, object?>? Metadata = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, object?>? Metadata = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptSelectionStepDto>? SelectionSteps = null);
 
 public sealed record ActionPromptChoiceDto(
     string Id,

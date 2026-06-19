@@ -4,8 +4,8 @@ import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/prot
 import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
 import {
   buildPromptInteractionModel,
-  promptChoiceObjectIds,
   promptChoiceRoleLabel,
+  promptChoiceSummaryObjectIds,
   type PromptCandidateSummary,
   type PromptInteractionModel
 } from "../../utils/promptInteraction";
@@ -117,7 +117,7 @@ function FocusedActionList({
       candidate.enabled
       && candidate.choices.some((choice) =>
         choice.role === "source"
-        && promptChoiceObjectIds(choice.id).includes(sourceObjectId)))
+        && promptChoiceSummaryObjectIds(choice).includes(sourceObjectId)))
     : [];
 
   if (!inspectedCard) {

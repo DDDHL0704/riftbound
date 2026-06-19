@@ -9,6 +9,7 @@ export type PromptObjectState = "enabled" | "disabled" | "source" | "target" | "
 export type PromptChoiceSummary = {
   id: string;
   label: string;
+  objectIds?: string[];
   reason?: string;
   role: PromptChoiceRole;
 };
@@ -66,7 +67,7 @@ export function buildPromptInteractionModel(prompt?: ActionPromptDto): PromptInt
   const candidates = (prompt?.candidates ?? []).map((candidate) => {
     const choices = candidateChoices(candidate);
     for (const choice of choices) {
-      for (const objectId of promptChoiceObjectIds(choice.id)) {
+      for (const objectId of promptChoiceSummaryObjectIds(choice)) {
         const existing = objectById.get(objectId) ?? {
           choices: [],
           disabledCandidateCount: 0,
@@ -140,12 +141,40 @@ function candidateChoices(candidate: ActionPromptCandidateDto): PromptChoiceSumm
     }));
   });
   return uniqueChoiceSummaries([
+    ...selectionStepChoices(candidate),
     ...topLevelChoices,
     ...sourceRequirementChoices(candidate)
   ]);
 }
 
 function candidateSteps(candidate: ActionPromptCandidateDto, choices: PromptChoiceSummary[]): PromptCandidateStep[] {
+  const serverSteps = candidate.selectionSteps
+    ?.map((step) => {
+      const role = promptChoiceRoleFromString(step.role);
+      if (!role) {
+        return undefined;
+      }
+      const roleChoices = choices.filter((choice) => choice.role === role);
+      const sampleLabels = uniqueLabels(roleChoices.map((choice) => choice.label));
+
+      return {
+        count: Math.max(
+          new Set(step.choices.map((choice) => choice.id)).size,
+          new Set(roleChoices.map((choice) => choice.id)).size
+        ),
+        label: step.label || promptChoiceRoleLabel(role),
+        required: step.required,
+        role,
+        sampleLabels: sampleLabels.length > 0
+          ? sampleLabels.slice(0, 3)
+          : step.choices.map((choice) => redactInternalText(choice.label)).slice(0, 3)
+      } satisfies PromptCandidateStep;
+    })
+    .filter((step): step is PromptCandidateStep => Boolean(step));
+  if (serverSteps?.length) {
+    return serverSteps;
+  }
+
   return choiceGroups
     .map(({ role }) => {
       const roleChoices = choices.filter((choice) => choice.role === role);
@@ -161,6 +190,23 @@ function candidateSteps(candidate: ActionPromptCandidateDto, choices: PromptChoi
       };
     })
     .filter((step) => step.count > 0 || step.required);
+}
+
+function selectionStepChoices(candidate: ActionPromptCandidateDto): PromptChoiceSummary[] {
+  return (candidate.selectionSteps ?? []).flatMap((step) => {
+    const role = promptChoiceRoleFromString(step.role);
+    if (!role) {
+      return [];
+    }
+
+    return step.choices.map((choice) => ({
+      id: choice.id,
+      label: redactInternalText(choice.label),
+      objectIds: normalizedObjectIds(choice.objectIds),
+      reason: choice.reason ?? undefined,
+      role
+    }));
+  });
 }
 
 function sourceRequirementChoices(candidate: ActionPromptCandidateDto): PromptChoiceSummary[] {
@@ -241,6 +287,25 @@ function uniqueChoiceSummaries(choices: PromptChoiceSummary[]): PromptChoiceSumm
   });
 }
 
+function uniqueLabels(labels: string[]): string[] {
+  return Array.from(new Set(labels.map((label) => label.trim()).filter(Boolean)));
+}
+
+function promptChoiceRoleFromString(role: string): PromptChoiceRole | undefined {
+  return choiceGroups.some((group) => group.role === role) ? role as PromptChoiceRole : undefined;
+}
+
+function normalizedObjectIds(objectIds: string[] | null | undefined): string[] | undefined {
+  if (!Array.isArray(objectIds)) {
+    return undefined;
+  }
+
+  const normalized = objectIds
+    .map((objectId) => objectId.trim())
+    .filter(Boolean);
+  return normalized.length > 0 ? Array.from(new Set(normalized)) : undefined;
+}
+
 function requiresSourceStep(action: string): boolean {
   return sourceDrivenActions.has(action);
 }
@@ -291,4 +356,8 @@ export function promptChoiceObjectIds(choiceId: string): string[] {
   }
 
   return [...ids];
+}
+
+export function promptChoiceSummaryObjectIds(choice: PromptChoiceSummary): string[] {
+  return choice.objectIds?.length ? choice.objectIds : promptChoiceObjectIds(choice.id);
 }
