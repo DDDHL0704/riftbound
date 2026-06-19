@@ -11668,6 +11668,9 @@ button.card-face:hover {
 .wire-window-plan-primary,
 .wire-window-plan-primary span,
 .wire-window-plan-next,
+.wire-window-evidence,
+.wire-window-evidence-heading,
+.wire-window-evidence li,
 .wire-priority-rail,
 .wire-priority-rail-heading,
 .wire-priority-rail li,
@@ -11793,6 +11796,52 @@ button.card-face:hover {
 .wire-window-plan-next {
   padding: 4px;
   font-weight: 700;
+}
+
+.wire-window-evidence {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-window-evidence-heading {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-window-evidence ol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-window-evidence li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-window-evidence li.is-mine,
+.wire-window-evidence li[data-window-evidence-state="active"],
+.wire-window-evidence li[data-window-evidence-state="mine"] {
+  border-width: 2px;
+}
+
+.wire-window-evidence-heading strong,
+.wire-window-evidence-heading span,
+.wire-window-evidence li small,
+.wire-window-evidence li strong,
+.wire-window-evidence li span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-window-plan-contract {
@@ -12973,6 +13022,9 @@ button.wire-object-ref {
 .wire-match-page .wire-window-plan-primary,
 .wire-match-page .wire-window-plan-primary span,
 .wire-match-page .wire-window-plan-next,
+.wire-match-page .wire-window-evidence,
+.wire-match-page .wire-window-evidence-heading,
+.wire-match-page .wire-window-evidence li,
 .wire-match-page .wire-priority-rail,
 .wire-match-page .wire-priority-rail-heading,
 .wire-match-page .wire-priority-rail li,

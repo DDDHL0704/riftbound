@@ -532,6 +532,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const actionChip = document.querySelector('[data-action-object-id="p1-hand-spell"]');
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const windowPlan = document.querySelector(".wire-window-plan");
+    const evidence = document.querySelector("[data-wire-window-evidence]");
     const priorityRail = document.querySelector(".wire-priority-rail");
     const ruleQueue = document.querySelector(".wire-rule-queue");
     const ruleFlow = document.querySelector(".wire-rule-flow");
@@ -547,6 +548,10 @@ async function runWireClickSelectionSmoke(cdp) {
       focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? "",
       windowState: windowPlan?.getAttribute("data-wire-window-state") ?? null,
       windowText: windowPlan?.textContent ?? "",
+      evidenceKeys: Array.from(document.querySelectorAll("[data-window-evidence-key]")).map((node) => node.getAttribute("data-window-evidence-key")),
+      evidenceStackState: document.querySelector('[data-window-evidence-key="stack"]')?.getAttribute("data-window-evidence-state") ?? null,
+      evidenceTaskState: document.querySelector('[data-window-evidence-key="tasks"]')?.getAttribute("data-window-evidence-state") ?? null,
+      evidenceText: evidence?.textContent ?? "",
       priorityMode: windowPlan?.getAttribute("data-wire-priority-mode") ?? null,
       priorityRailText: priorityRail?.textContent ?? "",
       priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null,
@@ -662,6 +667,18 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.windowText.includes("可提交")) failures.push("wire window plan candidate metric missing");
   if (!actionMapResult.windowText.includes("结算链")) failures.push("wire window plan stack metric missing");
   if (!actionMapResult.windowText.includes("任务")) failures.push("wire window plan task metric missing");
+  if (!actionMapResult.evidenceText.includes("证据摘要")) failures.push("wire window evidence header missing");
+  if (!actionMapResult.evidenceText.includes("服务端结算链")) failures.push("wire window evidence stack source missing");
+  if (!actionMapResult.evidenceText.includes("服务端规则任务")) failures.push("wire window evidence task source missing");
+  if (actionMapResult.evidenceText.includes("triggerQueue")) failures.push("wire window evidence leaked raw trigger queue key");
+  if (actionMapResult.evidenceText.includes("pendingTaskQueue")) failures.push("wire window evidence leaked raw pending task queue key");
+  if (!actionMapResult.evidenceKeys.includes("prompt")) failures.push("wire window evidence prompt row missing");
+  if (!actionMapResult.evidenceKeys.includes("stack")) failures.push("wire window evidence stack row missing");
+  if (!actionMapResult.evidenceKeys.includes("tasks")) failures.push("wire window evidence task row missing");
+  if (!actionMapResult.evidenceKeys.includes("spell-duel")) failures.push("wire window evidence spell-duel row missing");
+  if (!actionMapResult.evidenceKeys.includes("battle")) failures.push("wire window evidence battle row missing");
+  if (actionMapResult.evidenceStackState !== "active") failures.push(`wire window evidence stack state unexpected: ${actionMapResult.evidenceStackState}`);
+  if (actionMapResult.evidenceTaskState !== "active") failures.push(`wire window evidence task state unexpected: ${actionMapResult.evidenceTaskState}`);
   if (!["battle", "battlefield-task", "task"].includes(actionMapResult.priorityMode)) failures.push(`wire priority rail mode did not reflect server task context: ${actionMapResult.priorityMode}`);
   if (actionMapResult.priorityActiveStep !== "focus" && actionMapResult.priorityActiveStep !== "tasks") failures.push(`wire priority rail active step missing task/focus state: ${actionMapResult.priorityActiveStep}`);
   if (!actionMapResult.priorityRailText.includes("优先权轨道")) failures.push("wire priority rail header missing");

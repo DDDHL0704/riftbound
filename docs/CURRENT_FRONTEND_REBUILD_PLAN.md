@@ -1768,6 +1768,8 @@
 
 线框对战桌面交互投影继续工程化：新增 `wireTableInteractionModel.ts`，把焦点来源候选、桌面点选目标/位置/费用草稿、对象高亮优先级和规则详情对象投影从 `MatchPage` 抽成纯策略；`MatchPage` 现在负责状态协调和渲染，不再内联规则候选投影算法。新增 `check:wire-table-interaction-model` 构建门禁，断言 mode 选择不会被桌面对象误点选、可选费用二次点击会退回角色高亮、规则详情忽略 `HIDDEN` 占位并去重；项目仍 **NOT READY**。
 
+线框对战桌面窗口证据摘要继续工程化：新增 `wireWindowEvidencePlan.ts`，把 prompt、priority/focus、stack、pendingTaskQueue、triggerQueue、spellDuel 与 battle 的当前证据整理为固定行，`WireTurnWindowPanel` 在右侧窗口总览中显示“证据摘要”，帮助玩家知道当前窗口依据来自哪块服务端快照。新增 `check:wire-window-evidence-plan` 构建门禁和 Chrome smoke 断言，确保结算链/规则任务/法术对决/战斗证据行稳定存在且不依赖前端牌文推断；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：

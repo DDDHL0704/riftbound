@@ -2,6 +2,7 @@ import type { ActionPromptDto, ConnectionStatus, SnapshotDto } from "../../types
 import { matchPhaseLabel, roomStatusLabel, timingStateLabel } from "../../utils/formatters";
 import { buildWirePriorityRailPlan } from "../../utils/wirePriorityRailPlan";
 import { buildWireTurnWindowPlan } from "../../utils/wireTurnWindowPlan";
+import { buildWireWindowEvidencePlan } from "../../utils/wireWindowEvidencePlan";
 import { StatusPill } from "../ui/StatusPill";
 
 export function WireTurnWindowPanel({
@@ -17,6 +18,7 @@ export function WireTurnWindowPanel({
 }) {
   const plan = buildWireTurnWindowPlan({ connectionStatus, playerId, prompt, snapshot });
   const rail = buildWirePriorityRailPlan({ connectionStatus, playerId, prompt, snapshot });
+  const evidence = buildWireWindowEvidencePlan({ connectionStatus, playerId, prompt, snapshot });
 
   return (
     <section
@@ -50,6 +52,27 @@ export function WireTurnWindowPanel({
 
       <div className="wire-window-plan-next" data-wire-window-next-step>
         下一步：{plan.nextStepLabel}
+      </div>
+
+      <div className="wire-window-evidence" aria-label="服务端窗口证据" data-wire-window-evidence="true">
+        <div className="wire-window-evidence-heading">
+          <strong>证据摘要</strong>
+          <span>{evidence.headline}</span>
+        </div>
+        <ol>
+          {evidence.rows.map((row) => (
+            <li
+              className={row.mine ? "is-mine" : ""}
+              data-window-evidence-key={row.key}
+              data-window-evidence-state={row.state}
+              key={row.key}
+            >
+              <small>{row.label}</small>
+              <strong>{row.value}</strong>
+              <span>{row.source}</span>
+            </li>
+          ))}
+        </ol>
       </div>
 
       <div className="wire-priority-rail" aria-label="服务端优先权轨道">
