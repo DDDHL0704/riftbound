@@ -52,13 +52,13 @@ const scenarioShots = [
     name: "match-midgame-showcase",
     scenario: "midgame-showcase",
     playerId: "P1",
-    texts: ["正式桌面状态", "服务端行动提示", "中央战场"]
+    texts: ["符文战场对战线框", "服务端行动提示", "焦点 / 候选 / 规则队列"]
   },
   {
     name: "prompt-pay-cost",
     scenario: "pay-cost-window",
     playerId: "P1",
-    texts: ["正式桌面状态", "支付费用", "服务端行动提示"]
+    texts: ["符文战场对战线框", "支付费用", "服务端行动提示"]
   }
 ];
 
@@ -302,7 +302,7 @@ async function openSeededMatch(page, seeded, playerId) {
     storedSession: session
   });
   await page.goto(`${frontendUrl}/matches/${seeded.roomId}`, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "连接/重连", exact: true }).click();
+  await page.getByRole("button", { name: /^(连接|连接\/重连)$/ }).click();
   await page.waitForFunction((expectedPlayerId) => document.body.textContent?.includes(expectedPlayerId), playerId, { timeout: 15_000 });
 }
 

@@ -30,7 +30,7 @@ export function WireObjectRefChips({
   }
 
   return (
-    <div className={`wire-object-refs wire-${source}-object-refs ${className}`.trim()} aria-label="关联桌面对象">
+    <div className={`wire-object-refs wire-${source}-object-refs ${className}`.trim()} role="group" aria-label="关联桌面对象">
       {visibleRefs.map((ref) => {
         const object = objects[ref.id];
         const hidden = ref.id === "HIDDEN";

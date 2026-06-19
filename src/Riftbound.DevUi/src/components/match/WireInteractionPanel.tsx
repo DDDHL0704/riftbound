@@ -165,7 +165,7 @@ function FocusedActionList({
       <FocusedActionSummary focusModel={focusModel} />
       {candidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
       {selectionDraft && selectionDraft.sourceObjectId === sourceObjectId && (
-        <div className="wire-selection-draft" aria-label="已点选候选草稿">
+        <div className="wire-selection-draft" role="group" aria-label="已点选候选草稿">
           <strong>桌面点选</strong>
           <span>目标 {selectionDraft.targetChoiceIds.length}</span>
           <span>位置 {selectionDraft.destinationId ? "已选" : "未选"}</span>
@@ -173,7 +173,7 @@ function FocusedActionList({
         </div>
       )}
       {candidateSummaries.length > 0 && (
-        <div className="wire-focused-path" aria-label="焦点候选路径">
+        <div className="wire-focused-path" role="group" aria-label="焦点候选路径">
           {candidateSummaries.slice(0, 2).map((candidate) => (
             <article key={`${candidate.action}-${candidate.label}`}>
               <strong>{candidate.label}</strong>
@@ -237,6 +237,7 @@ function FocusedActionSummary({ focusModel }: { focusModel: FocusedActionModel }
       aria-label="焦点行动摘要"
       className="wire-focused-action-summary"
       data-wire-focused-action-state={focusModel.submittedByServer ? "server-candidate" : "no-candidate"}
+      role="group"
     >
       <div className="wire-focused-action-metrics">
         <span>
