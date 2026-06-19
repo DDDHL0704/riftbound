@@ -11,7 +11,6 @@ import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
 import { WireTurnWindowPanel } from "../components/match/WireTurnWindowPanel";
 import {
-  buildWireCardFlowPlan,
   WireCardFlow,
   type WireCardFlowPlan,
   type WireTimelineObjectState,
@@ -19,6 +18,14 @@ import {
   WirePublicPile,
   WireStackCount
 } from "../components/match/wireCardFlow";
+import {
+  buildWireTableViewModel,
+  playerLabel,
+  type WireBattlefieldLane,
+  type WireBattlefieldModel,
+  type WirePlayerEntry,
+  type WireZoneObjects
+} from "../components/match/wireTableViewModel";
 import {
   WIRE_TABLE_LAYOUT,
   wireGridColumnsStyle,
@@ -33,21 +40,14 @@ import { useCatalog } from "../stores/catalogStore";
 import { useSettings } from "../stores/settingsStore";
 import { useMatchController } from "../stores/useMatchController";
 import { BehaviorSpec } from "../types/catalog";
-import { BattlefieldSnapshotView, CardObjectView, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
-import { asArray, asRecord, asString } from "../utils/collections";
+import { CardObjectView } from "../types/protocol";
+import { asRecord, asString } from "../utils/collections";
 import { connectionStatusLabel, matchPhaseLabel, timingStateLabel } from "../utils/formatters";
 import type { CandidateSelectionDraft } from "../utils/candidateSelectionDraft";
 import { buildPromptInteractionModel, promptChoiceSummaryObjectIds, type PromptCandidateSummary, type PromptChoiceRole, type PromptChoiceSummary, type PromptObjectState } from "../utils/promptInteraction";
 import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
 
-type PlayerEntry = {
-  id: string;
-  player: PlayerSnapshotView;
-  side: "self" | "opponent";
-};
-
-type ZoneObjects = NonNullable<PlayerSnapshotView["objects"]>;
 type WireTableInteraction = {
   interactionByObjectId: Record<string, PromptObjectState | undefined>;
   selectedObjectId?: string;
@@ -85,6 +85,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   );
   const tableObjectIndex = useMemo(() => buildCardObjectIndex(tableSnapshot), [tableSnapshot]);
   const tableConnectionStatus = layoutFixtureEnabled ? "connected" : controller.state.status;
+  const tableView = useMemo(
+    () => buildWireTableViewModel({
+      perspectivePlayerId: settings.playerId,
+      snapshot: tableSnapshot,
+      specs: tableSpecByNo
+    }),
+    [settings.playerId, tableSnapshot, tableSpecByNo]
+  );
   const tableObjectContextModel = useMemo(() => buildTableObjectContextModel({
     events: tableEvents,
     perspectivePlayerId: settings.playerId,
@@ -106,10 +114,8 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     timelineByObjectId: buildWireTimelineMap(timelineDetail)
   }), [focusedSourceCandidates, promptInteraction, selectedObjectId, selectionDraft, timelineDetail]);
 
-  const playerEntries = useMemo(() => buildPlayerEntries(tableSnapshot, settings.playerId), [tableSnapshot, settings.playerId]);
-  const self = playerEntries.find((entry) => entry.side === "self");
-  const opponent = playerEntries.find((entry) => entry.side === "opponent");
-  const battlefields = useMemo(() => asArray<BattlefieldSnapshotView>(asRecord(tableSnapshot?.lanes).battlefields), [tableSnapshot?.lanes]);
+  const self = tableView.self;
+  const opponent = tableView.opponent;
   const timing = asRecord(tableSnapshot?.timing);
   const turnWindow = asRecord(timing.turnWindow);
   const phase = asString(timing.phase, tableSnapshot?.turnState ?? "");
@@ -172,13 +178,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     if (row.kind === "battlefield") {
       return (
         <WireBattlefieldTable
-          battlefields={battlefields}
+          battlefield={tableView.battlefield}
           interaction={tableInteraction}
           key={row.id}
           onInspectCard={inspectCard}
           onPreviewCard={queuePreviewCard}
-          perspectivePlayerId={settings.playerId}
-          snapshot={tableSnapshot}
           specs={tableSpecByNo}
         />
       );
@@ -387,20 +391,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   );
 }
 
-function buildPlayerEntries(snapshot: SnapshotDto | undefined, perspectivePlayerId: string): PlayerEntry[] {
-  const entries = Object.entries(snapshot?.players ?? {}).map(([id, player]): PlayerEntry => ({
-    id,
-    player,
-    side: id === perspectivePlayerId ? "self" : "opponent"
-  }));
-
-  return entries.sort((left, right) => sideOrder(left.side) - sideOrder(right.side));
-}
-
-function sideOrder(side: PlayerEntry["side"]): number {
-  return side === "opponent" ? 0 : 1;
-}
-
 function focusedCandidateSummaries(
   candidates: PromptCandidateSummary[],
   focusedObjectId?: string
@@ -595,8 +585,8 @@ function WirePlayerHome({
   onPreviewCard,
   specs
 }: {
-  entry?: PlayerEntry;
-  fallbackSide: PlayerEntry["side"];
+  entry?: WirePlayerEntry;
+  fallbackSide: WirePlayerEntry["side"];
   interaction: WireTableInteraction;
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard: (card?: InspectedCard) => void;
@@ -604,12 +594,10 @@ function WirePlayerHome({
 }) {
   const side = entry?.side ?? fallbackSide;
   const layout = WIRE_TABLE_LAYOUT.playerHomes[side];
-  const zones = entry?.player.zones ?? {};
-  const objects = entry?.player.objects ?? {};
-  const baseIds = zones.base ?? [];
-  const runeIds = baseIds.filter((id) => isRuneCard(objects[id], specs[objects[id]?.cardNo ?? ""]));
-  const baseObjectIds = baseIds.filter((id) => !runeIds.includes(id));
-  const ownerLabel = entry ? playerLabel(entry) : side === "self" ? "P1 我方" : "P2 对手";
+  const zones = entry?.zones ?? {};
+  const objects = entry?.objects ?? {};
+  const baseObjectIds = entry?.baseObjectIds ?? [];
+  const ownerLabel = entry?.label ?? (side === "self" ? "P1 我方" : "P2 对手");
   const baseSections = {
     banish: (
       <section className="wire-banish-main" key="banish" aria-label={`${ownerLabel} 放逐区`}>
@@ -658,8 +646,8 @@ function WireHandRail({
   onPreviewCard,
   specs
 }: {
-  entry?: PlayerEntry;
-  fallbackSide: PlayerEntry["side"];
+  entry?: WirePlayerEntry;
+  fallbackSide: WirePlayerEntry["side"];
   hidden?: boolean;
   interaction: WireTableInteraction;
   onInspectCard: (card: InspectedCard) => void;
@@ -668,13 +656,11 @@ function WireHandRail({
 }) {
   const side = entry?.side ?? fallbackSide;
   const layout = WIRE_TABLE_LAYOUT.handRails[side];
-  const zones = entry?.player.zones ?? {};
-  const objects = entry?.player.objects ?? {};
-  const baseIds = zones.base ?? [];
-  const runeIds = baseIds.filter((id) => isRuneCard(objects[id], specs[objects[id]?.cardNo ?? ""]));
-  const ids = entry ? hidden ? hiddenCards(entry.player.handSize ?? zones.handHidden ?? 0, entry.id) : zones.hand ?? [] : [];
+  const zones = entry?.zones ?? {};
+  const runeIds = entry?.runeIds ?? [];
+  const ids = entry ? hidden ? entry.hiddenHandIds : entry.handIds : [];
   const emptyObjects: Record<string, CardObjectView> = {};
-  const zoneObjects = entry ? objects : emptyObjects;
+  const zoneObjects = entry ? entry.objects : emptyObjects;
   const pileSections = {
     library: (
       <div className="wire-hand-library-pile" key="library">
@@ -727,30 +713,22 @@ function WireHandRail({
 }
 
 function WireBattlefieldTable({
-  battlefields,
+  battlefield,
   interaction,
   onInspectCard,
   onPreviewCard,
-  perspectivePlayerId,
-  snapshot,
   specs
 }: {
-  battlefields: BattlefieldSnapshotView[];
+  battlefield: WireBattlefieldModel;
   interaction: WireTableInteraction;
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard: (card?: InspectedCard) => void;
-  perspectivePlayerId: string;
-  snapshot?: SnapshotDto;
   specs: Record<string, BehaviorSpec>;
 }) {
-  const objects = buildCardObjectIndex(snapshot);
-  const lanes = [0, 1].map((index) => buildBattlefieldLane(battlefields[index], index, objects, perspectivePlayerId));
+  const objects = battlefield.objects;
+  const lanes = battlefield.lanes;
   const layout = WIRE_TABLE_LAYOUT.battlefield;
-  const unitPlan = buildWireCardFlowPlan({
-    itemCount: Math.max(...lanes.flatMap((lane) => [lane.ownOccupants.length, lane.opposingOccupants.length]), 0),
-    kind: "battlefield-unit",
-    minSlots: 3
-  });
+  const unitPlan = battlefield.unitPlan;
   const battlefieldSections = {
     center: (
       <div className="wire-battlefield-center-grid" key="center" style={wireGridTemplateStyle(layout.centerColumns, layout.centerRows)}>
@@ -786,36 +764,6 @@ function WireBattlefieldTable({
       {layout.slots.map((slot) => battlefieldSections[slot])}
     </section>
   );
-}
-
-type WireBattlefieldLane = {
-  battlefield?: BattlefieldSnapshotView;
-  battlefieldId: string;
-  cardNo: string;
-  controllerId: string;
-  index: number;
-  ownOccupants: string[];
-  opposingOccupants: string[];
-  zonePlayerId: string;
-};
-
-function buildBattlefieldLane(
-  battlefield: BattlefieldSnapshotView | undefined,
-  index: number,
-  objects: Record<string, CardObjectView>,
-  perspectivePlayerId: string
-): WireBattlefieldLane {
-  const occupants = asArray<string>(battlefield?.occupantObjectIds);
-  return {
-    battlefield,
-    battlefieldId: asString(battlefield?.battlefieldObjectId, `empty-battlefield-${index}`),
-    cardNo: asString(battlefield?.cardNo, ""),
-    controllerId: asString(battlefield?.controllerId, ""),
-    index,
-    ownOccupants: occupants.filter((id) => ownerOrController(objects[id]) === perspectivePlayerId),
-    opposingOccupants: occupants.filter((id) => ownerOrController(objects[id]) !== perspectivePlayerId),
-    zonePlayerId: asString(battlefield?.zonePlayerId, "")
-  };
 }
 
 function battlefieldUnitZoneLabel(laneIndex: number, side: "opponent" | "self"): string {
@@ -874,7 +822,7 @@ function WireBattlefieldUnitZone({
 }: {
   ids: string[];
   interaction: WireTableInteraction;
-  objects: Record<string, CardObjectView>;
+  objects: WireZoneObjects;
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard: (card?: InspectedCard) => void;
   plan: WireCardFlowPlan;
@@ -907,7 +855,7 @@ function WireRuneTrack({
 }: {
   ids: string[];
   interaction: WireTableInteraction;
-  objects: ZoneObjects;
+  objects: WireZoneObjects;
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard?: (card?: InspectedCard) => void;
   reverse?: boolean;
@@ -955,20 +903,4 @@ function WireCardPreview({ card }: { card?: InspectedCard }) {
       <img alt={title} src={frontImage} />
     </div>
   );
-}
-
-function ownerOrController(object?: CardObjectView): string {
-  return object?.controllerId || object?.ownerId || "";
-}
-
-function playerLabel(entry: PlayerEntry): string {
-  return `${entry.side === "self" ? "P1 我方" : "P2 对手"} · ${entry.player.name ?? entry.id}`;
-}
-
-function hiddenCards(count: number, playerId: string): string[] {
-  return Array.from({ length: count }, (_, index) => `hidden-${playerId}-${index}`);
-}
-
-function isRuneCard(object?: CardObjectView, spec?: BehaviorSpec): boolean {
-  return Boolean(object?.tags?.includes("CARD_TYPE:RUNE") || spec?.cardCategoryName === "符文");
 }
