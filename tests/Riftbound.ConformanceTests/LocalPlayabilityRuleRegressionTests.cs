@@ -130,11 +130,13 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Contains(template.Bindings, binding =>
             string.Equals(binding.Field, "sourceObjectId", StringComparison.Ordinal)
             && string.Equals(binding.Source, "selectedSource", StringComparison.Ordinal)
-            && binding.Required);
+            && binding.Required
+            && string.Equals(binding.Label, "来源", StringComparison.Ordinal));
         Assert.Contains(template.Bindings, binding =>
             string.Equals(binding.Field, "cardNo", StringComparison.Ordinal)
             && string.Equals(binding.Source, "requirementMetadata", StringComparison.Ordinal)
             && binding.Required
+            && string.Equals(binding.Label, "服务端", StringComparison.Ordinal)
             && binding.MetadataKeys is not null
             && binding.MetadataKeys.Contains("cardNo", StringComparer.Ordinal));
         Assert.Contains(template.Bindings, binding =>
@@ -154,7 +156,8 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Contains(tapRuneTemplate.Bindings, binding =>
             string.Equals(binding.Field, "sourceObjectId", StringComparison.Ordinal)
             && string.Equals(binding.Source, "selectedSource", StringComparison.Ordinal)
-            && binding.Required);
+            && binding.Required
+            && string.Equals(binding.Label, "来源", StringComparison.Ordinal));
 
         var recycleRuneCandidate = Assert.Single(
             prompt.Candidates ?? [],
@@ -164,7 +167,8 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Contains(recycleRuneTemplate.Bindings, binding =>
             string.Equals(binding.Field, "sourceObjectId", StringComparison.Ordinal)
             && string.Equals(binding.Source, "selectedSource", StringComparison.Ordinal)
-            && binding.Required);
+            && binding.Required
+            && string.Equals(binding.Label, "来源", StringComparison.Ordinal));
     }
 
     [Fact]

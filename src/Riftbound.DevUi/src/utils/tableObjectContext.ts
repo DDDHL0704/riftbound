@@ -193,8 +193,9 @@ function commandBindingsForRoles(
 }
 
 function commandBindingLabel(binding: PromptCommandBindingSummary): string {
-  const role = binding.roleLabel ? `${binding.roleLabel}:` : binding.source === "requirementMetadata" ? "服务端:" : "";
-  return `${role}${binding.field}${binding.required ? "*" : ""}`;
+  const label = binding.label ?? binding.roleLabel ?? (binding.source === "requirementMetadata" ? "服务端" : "");
+  const prefix = label ? `${label}:` : "";
+  return `${prefix}${binding.field}${binding.required ? "*" : ""}`;
 }
 
 function buildZoneIndex(

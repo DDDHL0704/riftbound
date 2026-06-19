@@ -364,7 +364,8 @@ public sealed record ActionPromptCommandBindingDto(
     bool AsArray = false,
     bool OmitEmpty = true,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? MetadataKey = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? MetadataKeys = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? MetadataKeys = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Label = null);
 
 public sealed record ActionPromptCandidateDto(
     string Action,
