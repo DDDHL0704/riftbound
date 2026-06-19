@@ -1,6 +1,8 @@
-import { ErrorDto, GameEvent } from "../../types/protocol";
+import { CardObjectView, ErrorDto, GameEvent } from "../../types/protocol";
+import { asArray, asRecord } from "../../utils/collections";
 import { errorCodeLabel, errorMessageLabel } from "../../utils/errors";
 import { redactInternalText } from "../../utils/redaction";
+import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef, wireObjectRef, wireObjectRefs } from "./WireObjectRefChips";
 
 export type LogDensity = "compact" | "standard" | "detailed";
 
@@ -156,7 +158,21 @@ export function eventDescriptionLabel(event: GameEvent) {
   return redactInternalText(description);
 }
 
-export function EventLog({ density = "standard", events, errors }: { density?: LogDensity; events: GameEvent[]; errors: ErrorDto[] }) {
+export function EventLog({
+  density = "standard",
+  errors,
+  events,
+  objectIndex = {},
+  onInspectObject,
+  selectedObjectId
+}: {
+  density?: LogDensity;
+  errors: ErrorDto[];
+  events: GameEvent[];
+  objectIndex?: WireObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  selectedObjectId?: string;
+}) {
   const visibleEvents = density === "compact" ? events.slice(-12) : events;
   const hiddenEventCount = events.length - visibleEvents.length;
 
@@ -178,8 +194,88 @@ export function EventLog({ density = "standard", events, errors }: { density?: L
         <article className="log-row" key={`${event.kind}-${index}`}>
           <strong>{eventKindLabel(event.kind)}</strong>
           <span>{eventDescriptionLabel(event)}</span>
+          <WireObjectRefChips
+            className="log-object-refs"
+            objects={objectIndex}
+            onInspectObject={onInspectObject}
+            refs={eventObjectRefs(event, objectIndex)}
+            selectedObjectId={selectedObjectId}
+            source="event"
+          />
         </article>
       ))}
     </section>
   );
+}
+
+const singularObjectKeyRoles: Record<string, string> = {
+  attachedToObjectId: "贴附",
+  attackerObjectId: "攻击",
+  battlefieldId: "战场",
+  battlefieldObjectId: "战场",
+  cardObjectId: "卡牌",
+  defenderObjectId: "防守",
+  destroyedObjectId: "被摧毁",
+  equipmentObjectId: "装备",
+  hostObjectId: "贴附",
+  objectId: "对象",
+  runeObjectId: "符文",
+  sourceObjectId: "来源",
+  targetObjectId: "目标",
+  unitObjectId: "单位"
+};
+
+const arrayObjectKeyRoles: Record<string, string> = {
+  attackerObjectIds: "攻击",
+  banishedObjectIds: "放逐",
+  cardObjectIds: "卡牌",
+  chosenObjectIds: "已选",
+  defenderObjectIds: "防守",
+  destroyedObjectIds: "被摧毁",
+  discardedObjectIds: "弃置",
+  exhaustedObjectIds: "横置",
+  objectIds: "对象",
+  participantObjectIds: "参与",
+  paymentObjectIds: "费用",
+  readyObjectIds: "重置",
+  revealedObjectIds: "展示",
+  runeObjectIds: "符文",
+  sourceObjectIds: "来源",
+  targetObjectIds: "目标",
+  unitObjectIds: "单位"
+};
+
+function eventObjectRefs(event: GameEvent, objects: WireObjectIndex): WireObjectRef[] {
+  return collectEventObjectRefs(event.payload, objects, 0);
+}
+
+function collectEventObjectRefs(record: Record<string, unknown>, objects: WireObjectIndex, depth: number): WireObjectRef[] {
+  if (depth > 2) {
+    return [];
+  }
+
+  const refs: WireObjectRef[] = [];
+  for (const [key, value] of Object.entries(record)) {
+    const singularRole = singularObjectKeyRoles[key];
+    if (singularRole && typeof value === "string" && isVisibleObjectRef(value, objects)) {
+      refs.push(wireObjectRef(singularRole, value));
+      continue;
+    }
+
+    const arrayRole = arrayObjectKeyRoles[key];
+    if (arrayRole) {
+      refs.push(...wireObjectRefs(arrayRole, asArray<unknown>(value).filter((item): item is string => typeof item === "string" && isVisibleObjectRef(item, objects))));
+      continue;
+    }
+
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      refs.push(...collectEventObjectRefs(asRecord(value), objects, depth + 1));
+    }
+  }
+
+  return refs;
+}
+
+function isVisibleObjectRef(objectId: string, objects: Record<string, CardObjectView>): boolean {
+  return objectId === "HIDDEN" || Boolean(objects[objectId]);
 }

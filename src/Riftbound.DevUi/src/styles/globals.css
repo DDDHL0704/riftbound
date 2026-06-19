@@ -11939,8 +11939,12 @@ button.card-face:hover {
 .wire-rule-note,
 .wire-rule-metric,
 .wire-rule-line,
+.wire-object-refs,
+.wire-object-ref,
 .wire-rule-object-refs,
-.wire-rule-object-ref {
+.wire-rule-object-ref,
+.wire-event-object-refs,
+.wire-event-object-ref {
   min-width: 0;
   border: 1px solid #000;
   background: #fff;
@@ -12040,14 +12044,14 @@ button.card-face:hover {
   line-height: 1.2;
 }
 
-.wire-rule-object-refs {
+.wire-object-refs {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
   padding: 3px;
 }
 
-.wire-rule-object-ref {
+.wire-object-ref {
   min-width: 0;
   display: inline-flex;
   align-items: center;
@@ -12058,15 +12062,15 @@ button.card-face:hover {
   text-align: left;
 }
 
-button.wire-rule-object-ref {
+button.wire-object-ref {
   cursor: pointer;
 }
 
-.wire-rule-object-ref.is-selected {
+.wire-object-ref.is-selected {
   border-width: 2px;
 }
 
-.wire-rule-object-ref.is-disabled {
+.wire-object-ref.is-disabled {
   opacity: 0.72;
 }
 
@@ -12118,8 +12122,12 @@ button.wire-rule-object-ref {
 .wire-match-page .wire-rule-note,
 .wire-match-page .wire-rule-metric,
 .wire-match-page .wire-rule-line,
+.wire-match-page .wire-object-refs,
+.wire-match-page .wire-object-ref,
 .wire-match-page .wire-rule-object-refs,
 .wire-match-page .wire-rule-object-ref,
+.wire-match-page .wire-event-object-refs,
+.wire-match-page .wire-event-object-ref,
 .wire-match-page .log-row,
 .wire-match-page .event-log {
   border-color: #000 !important;

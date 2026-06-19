@@ -1,5 +1,5 @@
 import { BehaviorSpec } from "../types/catalog";
-import { ActionPromptDto, CardObjectView, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
+import { ActionPromptDto, CardObjectView, GameEvent, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
 
 type FixtureCard = {
   cardNo: string;
@@ -227,6 +227,44 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       type: "MAIN_ACTION"
     }
   };
+}
+
+export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameEvent[] {
+  const selfId = perspectivePlayerId || "P1";
+  const opponentId = selfId === "P2" ? "P1" : "P2";
+
+  return [
+    {
+      description: "惩戒加入结算链，目标为右战场对方单位。",
+      kind: "STACK_ITEM_ADDED",
+      payload: {
+        controllerId: selfId,
+        sourceObjectId: "p1-hand-spell",
+        stackItemId: "fixture-stack-1",
+        targetObjectIds: ["p2-right-1"]
+      }
+    },
+    {
+      description: "左战场控制结算完成。",
+      kind: "BATTLEFIELD_CONTROL_RESOLVED",
+      payload: {
+        battlefieldObjectId: "fixture-left-battlefield",
+        controllerId: selfId,
+        participantObjectIds: ["p1-left-1", "p2-left-1"],
+        previousControllerId: opponentId
+      }
+    },
+    {
+      description: "右战场战斗结算，无胜者。",
+      kind: "BATTLE_NO_RESULT",
+      payload: {
+        attackerObjectIds: ["p1-right-1"],
+        battlefieldId: "fixture-right-battlefield",
+        defenderObjectIds: ["p2-right-1"],
+        destroyedObjectIds: ["p2-right-2"]
+      }
+    }
+  ];
 }
 
 export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): SnapshotDto {

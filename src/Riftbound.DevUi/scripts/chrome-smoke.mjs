@@ -334,6 +334,7 @@ async function runWireClickSelectionSmoke(cdp) {
 async function runWireRuleObjectRefSmoke(cdp) {
   const initial = await evaluateJson(cdp, `(() => ({
     battlefieldRefs: document.querySelectorAll('[data-rule-object-ref="fixture-left-battlefield"]').length,
+    eventRefs: document.querySelectorAll('[data-event-object-ref="p1-hand-spell"]').length,
     unitRefs: document.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length,
     hiddenRefs: document.querySelectorAll('[data-rule-object-ref="HIDDEN"]').length
   }))()`);
@@ -362,8 +363,21 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
+  await clickEventObjectRef(cdp, "p1-hand-spell");
+  await delay(150);
+  const eventResult = await evaluateJson(cdp, `(() => {
+    const tableObject = document.querySelector('[data-object-id="p1-hand-spell"]');
+    const selectedRef = document.querySelector('[data-event-object-ref="p1-hand-spell"][data-selected="true"]');
+    return {
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      selectedRef: Boolean(selectedRef),
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
+    };
+  })()`);
+
   const failures = [];
   if (initial.battlefieldRefs < 1) failures.push("battlefield rule object ref missing");
+  if (initial.eventRefs < 1) failures.push("event object ref missing");
   if (initial.unitRefs < 1) failures.push("unit rule object ref missing");
   if (initial.hiddenRefs < 1) failures.push("hidden rule object ref missing");
   if (battlefieldResult.selected !== "true") failures.push("battlefield ref did not focus battlefield card");
@@ -372,6 +386,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (unitResult.selected !== "true") failures.push("unit ref did not focus unit card");
   if (!unitResult.selectedRef) failures.push("unit ref did not show selected state");
   if (unitResult.detailLayerOpen) failures.push("unit ref opened detail layer");
+  if (eventResult.selected !== "true") failures.push("event ref did not focus source card");
+  if (!eventResult.selectedRef) failures.push("event ref did not show selected state");
+  if (eventResult.detailLayerOpen) failures.push("event ref opened detail layer");
 
   if (failures.length > 0) {
     throw new Error(`Wire rule object ref smoke failed:\n${failures.join("\n")}`);
@@ -405,6 +422,21 @@ async function clickRuleObjectRef(cdp, objectId) {
   });
   if (!result.result?.value) {
     throw new Error(`Rule object ref not found: ${objectId}`);
+  }
+}
+
+async function clickEventObjectRef(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-event-object-ref="${objectId}"]`)});
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Event object ref not found: ${objectId}`);
   }
 }
 

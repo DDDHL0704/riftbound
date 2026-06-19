@@ -25,7 +25,7 @@ import {
 } from "../components/match/wireTableLayout";
 import { Button } from "../components/ui/Button";
 import { ScrollArea } from "../components/ui/ScrollArea";
-import { buildWireLayoutFixturePrompt, buildWireLayoutFixtureSnapshot, isWireLayoutFixtureEnabled, wireLayoutFixtureSpecByNo } from "../fixtures/wireLayoutFixture";
+import { buildWireLayoutFixtureEvents, buildWireLayoutFixturePrompt, buildWireLayoutFixtureSnapshot, isWireLayoutFixtureEnabled, wireLayoutFixtureSpecByNo } from "../fixtures/wireLayoutFixture";
 import { useCatalog } from "../stores/catalogStore";
 import { useSettings } from "../stores/settingsStore";
 import { useMatchController } from "../stores/useMatchController";
@@ -66,6 +66,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const tablePrompt = useMemo(
     () => layoutFixtureEnabled ? buildWireLayoutFixturePrompt(settings.playerId) : controller.state.prompt,
     [controller.state.prompt, layoutFixtureEnabled, settings.playerId]
+  );
+  const tableEvents = useMemo(
+    () => layoutFixtureEnabled ? buildWireLayoutFixtureEvents(settings.playerId) : controller.state.events,
+    [controller.state.events, layoutFixtureEnabled, settings.playerId]
   );
   const tableSpecByNo = useMemo(
     () => layoutFixtureEnabled ? { ...wireLayoutFixtureSpecByNo, ...specByNo } : specByNo,
@@ -283,7 +287,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <section aria-label="事件日志" className="wire-panel wire-log-panel" tabIndex={0}>
             <h2>日志</h2>
             <ScrollArea className="wire-log-scroll">
-              <EventLog density={settings.logDensity} errors={controller.state.errors} events={controller.state.events} />
+              <EventLog
+                density={settings.logDensity}
+                errors={controller.state.errors}
+                events={tableEvents}
+                objectIndex={tableObjectIndex}
+                onInspectObject={inspectObjectFromTable}
+                selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
+              />
             </ScrollArea>
           </section>
         </aside>
