@@ -3571,12 +3571,14 @@ public static class MatchRecoveryValidator
 
             if (!string.IsNullOrEmpty(activeTaskId) && !seenTaskIds.Contains(activeTaskId))
             {
-                errors.Add($"{payloadLabel} active task id {activeTaskId} does not match a pending task queue task id");
+                errors.Add(
+                    $"{payloadLabel} active task id {activeTaskId} does not match a pending task queue task id; {FormatExpectedActualForRecovery(FormatObjectIdsForRecovery(seenTaskIds), activeTaskId)}");
             }
 
             if (taskPayloads.Count > 0 && string.IsNullOrEmpty(activeTaskId))
             {
-                errors.Add($"{payloadLabel} active task id is required when pending task queue has tasks");
+                errors.Add(
+                    $"{payloadLabel} active task id is required when pending task queue has tasks; {FormatExpectedActualForRecovery(FormatObjectIdsForRecovery(seenTaskIds), activeTaskId ?? string.Empty)}");
             }
 
             ValidateSnapshotPendingTaskQueueFlagsMatchTaskCount(
@@ -3608,16 +3610,19 @@ public static class MatchRecoveryValidator
             && expectedTaskCount != actualTaskCount)
         {
             errors.Add(
-                $"{payloadLabel} metadata task count {expectedTaskCount} does not match pending task queue task count {actualTaskCount}");
+                $"{payloadLabel} metadata task count {expectedTaskCount} does not match pending task queue task count {actualTaskCount}; {FormatExpectedActualForRecovery(actualTaskCount, expectedTaskCount)}");
         }
 
         if (taskPayloadCount is not null
             && taskKindsAreValid
-            && TryReadObjectStringList(metadataPayload, "stateBasedTaskKinds", out var stateBasedTaskKinds)
-            && !StringListsEqual(stateBasedTaskKinds, ExpectedStateBasedTaskKinds(taskKinds)))
+            && TryReadObjectStringList(metadataPayload, "stateBasedTaskKinds", out var stateBasedTaskKinds))
         {
-            errors.Add(
-                $"{payloadLabel} metadata state-based task kinds do not match pending task queue task kinds");
+            var expectedStateBasedTaskKinds = ExpectedStateBasedTaskKinds(taskKinds);
+            if (!StringListsEqual(stateBasedTaskKinds, expectedStateBasedTaskKinds))
+            {
+                errors.Add(
+                    $"{payloadLabel} metadata state-based task kinds do not match pending task queue task kinds; {FormatExpectedActualForRecovery(expectedStateBasedTaskKinds, stateBasedTaskKinds)}");
+            }
         }
     }
 
@@ -12664,13 +12669,13 @@ public static class MatchRecoveryValidator
         if (queueResult.HasTasks is bool actualHasTasks && actualHasTasks != hasTasks)
         {
             errors.Add(
-                $"{payloadLabel} has tasks flag {FormatBoolForRecoveryDiagnostic(actualHasTasks)} does not match pending task queue task count {taskCount}");
+                $"{payloadLabel} has tasks flag {FormatBoolForRecoveryDiagnostic(actualHasTasks)} does not match pending task queue task count {taskCount}; {FormatExpectedActualForRecovery(hasTasks, actualHasTasks)}");
         }
 
         if (queueResult.IsBlocking is bool actualIsBlocking && actualIsBlocking != hasTasks)
         {
             errors.Add(
-                $"{payloadLabel} blocking flag {FormatBoolForRecoveryDiagnostic(actualIsBlocking)} does not match pending task queue task count {taskCount}");
+                $"{payloadLabel} blocking flag {FormatBoolForRecoveryDiagnostic(actualIsBlocking)} does not match pending task queue task count {taskCount}; {FormatExpectedActualForRecovery(hasTasks, actualIsBlocking)}");
         }
     }
 

@@ -17900,7 +17900,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing pending task queue active task id task-missing does not match a pending task queue task id",
+                "snapshot for alice timing pending task queue active task id task-missing does not match a pending task queue task id; expected [task-1, task-2] but got task-missing",
                 StringComparison.Ordinal));
     }
 
@@ -17946,7 +17946,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing pending task queue active task id is required when pending task queue has tasks",
+                "snapshot for alice timing pending task queue active task id is required when pending task queue has tasks; expected [task-1] but got <empty>",
                 StringComparison.Ordinal));
     }
 
@@ -17999,7 +17999,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing pending task queue metadata task count 1 does not match pending task queue task count 2",
+                "snapshot for alice timing pending task queue metadata task count 1 does not match pending task queue task count 2; expected 2 but got 1",
                 StringComparison.Ordinal));
     }
 
@@ -18052,7 +18052,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing pending task queue metadata state-based task kinds do not match pending task queue task kinds",
+                "snapshot for alice timing pending task queue metadata state-based task kinds do not match pending task queue task kinds; expected [DESTROY_LETHAL_UNIT, RECALL_UNATTACHED_EQUIPMENT] but got [DESTROY_LETHAL_UNIT]",
                 StringComparison.Ordinal));
     }
 
@@ -18099,12 +18099,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing pending task queue has tasks flag false does not match pending task queue task count 1",
+                "snapshot for alice timing pending task queue has tasks flag false does not match pending task queue task count 1; expected true but got false",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing pending task queue blocking flag false does not match pending task queue task count 1",
+                "snapshot for alice timing pending task queue blocking flag false does not match pending task queue task count 1; expected true but got false",
                 StringComparison.Ordinal));
     }
 
