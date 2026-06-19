@@ -92,7 +92,7 @@ export function WireActionMapPanel({ onChooseObject, onInspectObject, playerId, 
         ))}
       </div>
 
-      <CandidateInteractionPlanList plan={plan} />
+      <CandidateInteractionPlanList onChooseObject={onChooseObject ?? onInspectObject} plan={plan} />
 
       <div className="wire-action-grammar" role="group" aria-label="服务端候选交互语法">
         <strong>交互语法</strong>
@@ -174,7 +174,7 @@ function FocusedActionBridge({ onChooseObject, plan }: { onChooseObject?: (objec
   );
 }
 
-function CandidateInteractionPlanList({ plan }: { plan: WireActionMapPlan }) {
+function CandidateInteractionPlanList({ onChooseObject, plan }: { onChooseObject?: (objectId: string) => void; plan: WireActionMapPlan }) {
   return (
     <div className="wire-action-candidate-plan" role="group" aria-label="服务端候选步骤计划">
       <div className="wire-action-candidate-plan-heading">
@@ -207,6 +207,22 @@ function CandidateInteractionPlanList({ plan }: { plan: WireActionMapPlan }) {
                 <span>{step.label}</span>
                 <strong>{step.count}</strong>
                 <small>{step.stateLabel} / {step.sampleLabels.length > 0 ? step.sampleLabels.join(" / ") : "由服务端候选决定"}</small>
+                {step.objectRefs.length > 0 && (
+                  <div className="wire-action-candidate-step-ref-list" role="group" aria-label={`${candidatePlan.candidateLabel} ${step.label}对象`}>
+                    {step.objectRefs.map((ref) => (
+                      <button
+                        data-action-candidate-step-object-id={ref.objectId}
+                        data-action-candidate-step-role={step.role}
+                        key={ref.key}
+                        onClick={() => onChooseObject?.(ref.objectId)}
+                        type="button"
+                      >
+                        <span>{ref.roleLabel}</span>
+                        <strong>{ref.label}</strong>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </li>
             ))}
           </ol>

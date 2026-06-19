@@ -139,6 +139,18 @@ assert.equal(plan.groups[0].roleCounts.find((role) => role.role === "source")?.c
 assert.equal(plan.groups[0].roleCounts.find((role) => role.role === "target")?.count, 1);
 assert.equal(plan.candidatePlanTotalCount, 3);
 assert.equal(plan.candidatePlans[0].action, "PLAY_CARD");
+assert.deepEqual(plan.candidatePlans[0].stepRows[0].objectRefs, [{
+  key: "PLAY_CARD:source:p1-hand-1:p1-hand-1",
+  label: "手牌法术",
+  objectId: "p1-hand-1",
+  roleLabel: "来源"
+}]);
+assert.deepEqual(plan.candidatePlans[0].stepRows[1].objectRefs, [{
+  key: "PLAY_CARD:target:p2-unit-1:p2-unit-1",
+  label: "敌方单位",
+  objectId: "p2-unit-1",
+  roleLabel: "目标"
+}]);
 assert.equal(plan.grammarCandidateTotalCount, 1);
 assert.equal(plan.grammarCandidates[0].commandType, "PLAY_CARD");
 assert.equal(plan.grammarCandidates[0].commandFieldCount, 3);

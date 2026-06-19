@@ -544,6 +544,8 @@ async function runWireClickSelectionSmoke(cdp) {
       candidatePlanEnabled: candidatePlan?.getAttribute("data-candidate-plan-enabled") ?? null,
       candidatePlanNext: candidatePlan?.querySelector("[data-candidate-plan-next-step]")?.textContent ?? "",
       candidatePlanText: candidatePlan?.textContent ?? "",
+      candidateStepRefCount: document.querySelectorAll("[data-action-candidate-step-object-id]").length,
+      candidateStepRefText: candidatePlan?.querySelector(".wire-action-candidate-step-ref-list")?.textContent ?? "",
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       focusBridgeState: focusBridge?.getAttribute("data-action-focus-state") ?? null,
@@ -562,6 +564,17 @@ async function runWireClickSelectionSmoke(cdp) {
       ruleLaneCount: document.querySelectorAll("[data-rule-lane]").length,
       ruleQueueState: ruleQueue?.getAttribute("data-wire-rule-queue-state") ?? null,
       ruleSequenceCount: document.querySelectorAll("[data-rule-sequence-lane]").length
+    };
+  })()`);
+
+  await clickActionCandidateStepObject(cdp, "p1-hand-spell");
+  await delay(150);
+  const actionCandidateStepResult = await evaluateJson(cdp, `(() => {
+    const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
+    return {
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      selected: sourceObject?.getAttribute("data-selected") ?? null,
+      selectedContext: Boolean(document.querySelector('[data-wire-selected-object-context="p1-hand-spell"]'))
     };
   })()`);
 
@@ -739,6 +752,11 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");
   if (!actionMapResult.candidatePlanText.includes("缺口 0")) failures.push("PLAY_CARD candidate plan gap summary missing");
   if (!actionMapResult.candidatePlanNext.includes("下一步")) failures.push("PLAY_CARD candidate plan next-step missing");
+  if (actionMapResult.candidateStepRefCount < 1) failures.push("action map candidate step object refs missing");
+  if (!actionMapResult.candidateStepRefText.includes("手牌法术")) failures.push("action map candidate source object ref missing");
+  if (actionCandidateStepResult.selected !== "true") failures.push("action candidate step ref did not focus source object");
+  if (!actionCandidateStepResult.selectedContext) failures.push("action candidate step ref did not expose selected object context");
+  if (actionCandidateStepResult.detailLayerOpen) failures.push("action candidate step ref opened detail");
   if (!actionMapResult.focusText.includes("服务端状态")) failures.push("action map focus did not refresh focused action summary");
   if (actionMapResult.detailLayerOpen) failures.push("action map object chip opened detail");
   if (actionFocusChoiceResult.sourceSelected !== "true") failures.push("action focus choice did not preserve source focus");
@@ -1088,6 +1106,21 @@ async function clickActionFocusChoiceObject(cdp, objectId) {
   });
   if (!result.result?.value) {
     throw new Error(`Action focus choice object not found: ${objectId}`);
+  }
+}
+
+async function clickActionCandidateStepObject(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-action-candidate-step-object-id="${objectId}"]`)});
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Action candidate step object not found: ${objectId}`);
   }
 }
 

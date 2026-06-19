@@ -1,5 +1,9 @@
 import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto, CardObjectView, SnapshotDto } from "../types/protocol";
-import { buildCandidateInteractionPlans, type CandidateInteractionPlan } from "./candidateInteractionPlan";
+import {
+  buildCandidateInteractionPlans,
+  type CandidateInteractionPlan,
+  type CandidateInteractionStepPlan
+} from "./candidateInteractionPlan";
 import { commandBindingDisplayLabel, commandBindingFieldKey } from "./commandFieldDisplay";
 import { promptActionLabel, promptReasonLabel } from "./formatters";
 import {
@@ -46,6 +50,15 @@ export type WireActionFocusObjectRef = {
   label: string;
   objectId: string;
   roleLabel: string;
+};
+
+export type WireActionCandidateStepPlan = CandidateInteractionStepPlan & {
+  objectRefs: WireActionFocusObjectRef[];
+};
+
+export type WireActionCandidatePlan = Omit<CandidateInteractionPlan, "nextRequiredStep" | "stepRows"> & {
+  nextRequiredStep?: WireActionCandidateStepPlan;
+  stepRows: WireActionCandidateStepPlan[];
 };
 
 export type WireActionFocusPlan = {
@@ -117,7 +130,7 @@ export type WireActionMapPlan = {
   blockedObjectEntries: WireActionObjectEntry[];
   blockedObjectEntryOverflowCount: number;
   candidatePlanTotalCount: number;
-  candidatePlans: CandidateInteractionPlan[];
+  candidatePlans: WireActionCandidatePlan[];
   contract?: WireActionContractPlan;
   disabledOnlyObjectCount: number;
   grammarCandidateTotalCount: number;
@@ -167,7 +180,9 @@ export function buildWireActionMapPlan({
   const knownEnabledObjects = enabledObjects.filter((objectId) => objects[objectId]);
   const knownDisabledOnlyObjects = disabledOnlyObjects.filter((objectId) => objects[objectId]);
   const groups = actionGroups(model);
-  const candidatePlans = buildCandidateInteractionPlans(model.candidates);
+  const candidateByKey = new Map(model.candidates.map((candidate) => [candidateKey(candidate), candidate]));
+  const candidatePlans = buildCandidateInteractionPlans(model.candidates)
+    .map((candidatePlan) => wireActionCandidatePlan(candidatePlan, candidateByKey.get(candidatePlan.key), objects));
   const grammarCandidates = model.candidates.filter((candidate) => candidate.enabled);
   const objectLimit = nonNegativeLimit(maxObjectEntries);
 
@@ -233,6 +248,25 @@ function focusPlan(
   };
 }
 
+function wireActionCandidatePlan(
+  candidatePlan: CandidateInteractionPlan,
+  candidate: PromptCandidateSummary | undefined,
+  objects: ObjectIndex
+): WireActionCandidatePlan {
+  const stepRows = candidatePlan.stepRows.map((step) => ({
+    ...step,
+    objectRefs: candidate ? objectRefsForStep(candidate, step.role, objects) : []
+  }));
+
+  return {
+    ...candidatePlan,
+    nextRequiredStep: candidatePlan.nextRequiredStep
+      ? stepRows.find((step) => step.key === candidatePlan.nextRequiredStep?.key)
+      : undefined,
+    stepRows
+  };
+}
+
 function focusCandidatePlan(
   candidate: PromptCandidateSummary,
   objectId: string,
@@ -251,7 +285,7 @@ function focusCandidatePlan(
     enabled: candidate.enabled,
     key: `${candidate.action}:${candidate.label}:${objectId}`,
     label: candidate.label,
-    nextObjectRefs: nextStep ? focusObjectRefsForStep(candidate, nextStep.role, objects) : [],
+    nextObjectRefs: nextStep ? objectRefsForStep(candidate, nextStep.role, objects) : [],
     nextStepLabel: nextStepLabelForFocusedCandidate(candidate, nextStep),
     reason: candidate.reason,
     roleLabels,
@@ -280,7 +314,7 @@ function nextStepLabelForFocusedCandidate(
   return candidate.enabled ? "可提交给服务端" : "等待服务端窗口";
 }
 
-function focusObjectRefsForStep(
+function objectRefsForStep(
   candidate: PromptCandidateSummary,
   role: PromptChoiceRole,
   objects: ObjectIndex
@@ -303,6 +337,10 @@ function focusObjectRefsForStep(
   }
 
   return refs.slice(0, 4);
+}
+
+function candidateKey(candidate: PromptCandidateSummary): string {
+  return `${candidate.action}:${candidate.label}`;
 }
 
 function focusStateLabel(candidateCount: number, enabledCount: number): string {

@@ -12584,6 +12584,35 @@ button.card-face:hover {
   padding: 3px;
 }
 
+.wire-action-candidate-step-ref-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.wire-action-candidate-step-ref-list button {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 2px 4px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-action-candidate-step-ref-list span,
+.wire-action-candidate-step-ref-list strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-action-grammar {
   display: grid;
   gap: 4px;
