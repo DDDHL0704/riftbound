@@ -13536,6 +13536,61 @@ button.card-face:hover {
   padding: 3px;
 }
 
+.wire-timeline-navigation-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 3px;
+  list-style: none;
+}
+
+.wire-timeline-navigation-list li {
+  min-width: 0;
+  display: grid;
+}
+
+.wire-timeline-navigation-button,
+.wire-timeline-navigation-static {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 72px 54px 54px;
+  gap: 3px 4px;
+  width: 100%;
+  padding: 2px 4px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+}
+
+.wire-timeline-navigation-button {
+  cursor: pointer;
+}
+
+.wire-timeline-navigation-list li[data-timeline-navigation-focus-state="selected"] .wire-timeline-navigation-button,
+.wire-timeline-navigation-list li[data-timeline-navigation-focus-state="selected"] .wire-timeline-navigation-static {
+  border-width: 2px;
+}
+
+.wire-timeline-navigation-list li[data-timeline-navigation-focus-state="hidden"] .wire-timeline-navigation-static,
+.wire-timeline-navigation-list li[data-timeline-navigation-focus-state="missing"] .wire-timeline-navigation-static {
+  border-style: dashed;
+}
+
+.wire-timeline-navigation-list li[data-timeline-navigation-action-state="available"] .wire-timeline-navigation-button,
+.wire-timeline-navigation-list li[data-timeline-navigation-action-state="available"] .wire-timeline-navigation-static {
+  border-width: 2px;
+}
+
+.wire-timeline-navigation-button > *,
+.wire-timeline-navigation-static > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-timeline-detail-status-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

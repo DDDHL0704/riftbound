@@ -55,6 +55,25 @@ export type WireTimelineActionHintRow = {
   zoneLabel: string;
 };
 
+export type WireTimelineNavigationActionState = "available" | "blocked" | "none";
+
+export type WireTimelineNavigationFocusState = "focusable" | "hidden" | "missing" | "selected";
+
+export type WireTimelineNavigationRow = {
+  actionLabel: string;
+  actionState: WireTimelineNavigationActionState;
+  canFocus: boolean;
+  focusLabel: string;
+  focusState: WireTimelineNavigationFocusState;
+  key: string;
+  label: string;
+  objectId?: string;
+  projectionState: WireTimelineProjectionState;
+  role: string;
+  selected: boolean;
+  zoneLabel: string;
+};
+
 export type WireTimelineInspectorProjection = {
   count: number;
   key: WireTimelineProjectionState;
@@ -88,6 +107,7 @@ export type WireTimelineDetailPlan = {
   headerSubtitle: string;
   headerTitle: string;
   inspector: WireTimelineDetailInspectorPlan;
+  navigationRows: WireTimelineNavigationRow[];
   projectionRows: WireTimelineProjectionRow[];
   statusCards: WireTimelineStatusCard[];
 };
@@ -107,6 +127,7 @@ export function buildWireTimelineDetailPlan({
 }): WireTimelineDetailPlan {
   const projectionRows = detail ? projectionRowsForDetail(detail, objectIndex, selectedObjectId) : [];
   const actionHintRows = detail ? actionHintRowsForDetail(detail, objectIndex, objectContextById) : [];
+  const navigationRows = navigationRowsForDetail(projectionRows, objectContextById);
   const selectedProjection = projectionRows.some((row) => row.state === "selected");
   const visibleProjectionCount = projectionRows.filter((row) => row.state === "selected" || row.state === "visible").length;
   const enabledActionHintCount = actionHintRows.reduce((sum, row) => sum + row.enabledCount, 0);
@@ -130,6 +151,7 @@ export function buildWireTimelineDetailPlan({
       projectionRows,
       visibleProjectionCount
     }),
+    navigationRows,
     projectionRows,
     statusCards: [
       { label: "详情来源", value: detail ? detailSourceLabel(detail.source) : "无" },
@@ -139,6 +161,32 @@ export function buildWireTimelineDetailPlan({
       { label: "关联候选", value: actionHintRows.length > 0 ? `${enabledActionHintCount} 可用 / ${disabledActionHintCount} 阻断` : "无候选" }
     ]
   };
+}
+
+function navigationRowsForDetail(
+  projectionRows: WireTimelineProjectionRow[],
+  objectContextById: Record<string, TableObjectContext>
+): WireTimelineNavigationRow[] {
+  return projectionRows.map((row) => {
+    const context = objectContextById[row.id];
+    const selected = row.state === "selected";
+    const canFocus = row.state === "selected" || row.state === "visible";
+    const actionState = navigationActionState(context);
+    return {
+      actionLabel: navigationActionLabel(actionState, context),
+      actionState,
+      canFocus,
+      focusLabel: navigationFocusLabel(row.state),
+      focusState: navigationFocusState(row.state),
+      key: row.key,
+      label: row.label,
+      objectId: canFocus ? row.id : undefined,
+      projectionState: row.state,
+      role: row.role,
+      selected,
+      zoneLabel: context?.zone.label ?? projectionStateLabel(row.state)
+    };
+  });
 }
 
 function inspectorPlan({
@@ -302,6 +350,59 @@ function projectionStateLabel(state: WireTimelineProjectionState): string {
       return "已选中";
     case "visible":
       return "可定位";
+  }
+}
+
+function navigationActionState(context?: TableObjectContext): WireTimelineNavigationActionState {
+  if (!context) {
+    return "none";
+  }
+
+  if (context.promptEnabledCount > 0) {
+    return "available";
+  }
+
+  if (context.promptDisabledCount > 0 || context.candidateLinks.length > 0) {
+    return "blocked";
+  }
+
+  return "none";
+}
+
+function navigationActionLabel(actionState: WireTimelineNavigationActionState, context?: TableObjectContext): string {
+  switch (actionState) {
+    case "available":
+      return `${context?.promptEnabledCount ?? 0} 可用`;
+    case "blocked":
+      return `${context?.promptDisabledCount ?? 0} 阻断`;
+    case "none":
+      return "无候选";
+  }
+}
+
+function navigationFocusState(state: WireTimelineProjectionState): WireTimelineNavigationFocusState {
+  switch (state) {
+    case "hidden":
+      return "hidden";
+    case "missing":
+      return "missing";
+    case "selected":
+      return "selected";
+    case "visible":
+      return "focusable";
+  }
+}
+
+function navigationFocusLabel(state: WireTimelineProjectionState): string {
+  switch (state) {
+    case "hidden":
+      return "隐藏";
+    case "missing":
+      return "未公开";
+    case "selected":
+      return "当前焦点";
+    case "visible":
+      return "可聚焦";
   }
 }
 

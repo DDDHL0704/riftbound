@@ -1,6 +1,10 @@
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { useState } from "react";
-import { buildWireTimelineDetailPlan, type WireTimelineDetailInspectorPlan } from "../../utils/wireTimelineDetailPlan";
+import {
+  buildWireTimelineDetailPlan,
+  type WireTimelineDetailInspectorPlan,
+  type WireTimelineNavigationRow
+} from "../../utils/wireTimelineDetailPlan";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
 
@@ -48,7 +52,17 @@ export function WireTimelineDetailPanel({
   const detailState = detail?.source ?? (selectedObjectContext ? "object" : "empty");
 
   return (
-    <section className="wire-timeline-detail" aria-label="规则与事件详情" data-wire-timeline-detail-state={detailState}>
+    <section
+      className="wire-timeline-detail"
+      aria-label="规则与事件详情"
+      data-wire-timeline-action-candidate-count={plan.inspector.actionCandidateCount}
+      data-wire-timeline-detail-id={detail?.id ?? ""}
+      data-wire-timeline-detail-state={detailState}
+      data-wire-timeline-hidden-ref-count={plan.inspector.hiddenRefCount}
+      data-wire-timeline-missing-ref-count={plan.inspector.missingRefCount}
+      data-wire-timeline-source={detail?.source ?? ""}
+      data-wire-timeline-visible-ref-count={plan.inspector.visibleRefCount}
+    >
       <header className="wire-timeline-detail-header">
         <div>
           <strong>{plan.headerTitle}</strong>
@@ -80,6 +94,10 @@ export function WireTimelineDetailPanel({
             >
               {inspectorOpen ? "收起事件检查" : "展开事件检查"}
             </button>
+            <TimelineNavigator
+              onInspectObject={onInspectObject}
+              rows={plan.navigationRows}
+            />
             <TimelineInspector open={inspectorOpen} plan={plan.inspector} />
             <div className="wire-timeline-detail-lines">
               {detail.lines.map((line) => (
@@ -137,6 +155,68 @@ export function WireTimelineDetailPanel({
         )}
       </div>
     </section>
+  );
+}
+
+function TimelineNavigator({
+  onInspectObject,
+  rows
+}: {
+  onInspectObject?: (objectId: string) => void;
+  rows: WireTimelineNavigationRow[];
+}) {
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <ol className="wire-timeline-navigation-list" aria-label="详情对象定位路径">
+      {rows.map((row) => (
+        <TimelineNavigatorRow key={row.key} onInspectObject={onInspectObject} row={row} />
+      ))}
+    </ol>
+  );
+}
+
+function TimelineNavigatorRow({
+  onInspectObject,
+  row
+}: {
+  onInspectObject?: (objectId: string) => void;
+  row: WireTimelineNavigationRow;
+}) {
+  const canInspect = Boolean(row.objectId && row.canFocus && onInspectObject);
+  const content = (
+    <>
+      <span>{row.role}</span>
+      <strong>{row.label}</strong>
+      <small>{row.zoneLabel}</small>
+      <small>{row.focusLabel}</small>
+      <small>{row.actionLabel}</small>
+    </>
+  );
+
+  return (
+    <li
+      data-timeline-navigation-action-state={row.actionState}
+      data-timeline-navigation-focus-state={row.focusState}
+      data-timeline-navigation-object-id={canInspect ? row.objectId : undefined}
+      data-timeline-navigation-projection-state={row.projectionState}
+      data-timeline-navigation-selected={row.selected ? "true" : undefined}
+    >
+      {canInspect ? (
+        <button
+          aria-label={`定位详情对象：${row.role} ${row.label}`}
+          className="wire-timeline-navigation-button"
+          onClick={() => onInspectObject?.(row.objectId ?? "")}
+          type="button"
+        >
+          {content}
+        </button>
+      ) : (
+        <div className="wire-timeline-navigation-static">{content}</div>
+      )}
+    </li>
   );
 }
 

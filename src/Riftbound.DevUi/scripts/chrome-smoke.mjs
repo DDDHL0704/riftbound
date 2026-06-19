@@ -1137,7 +1137,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     return {
       text: panel?.textContent ?? "",
+      actionCandidateCount: Number(panel?.getAttribute("data-wire-timeline-action-candidate-count") ?? "-1"),
+      detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
+      detailSource: panel?.getAttribute("data-wire-timeline-source") ?? "",
+      hiddenRefCount: Number(panel?.getAttribute("data-wire-timeline-hidden-ref-count") ?? "-1"),
+      missingRefCount: Number(panel?.getAttribute("data-wire-timeline-missing-ref-count") ?? "-1"),
       panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
+      visibleRefCount: Number(panel?.getAttribute("data-wire-timeline-visible-ref-count") ?? "-1"),
       bodyId: panel?.querySelector("#wire-timeline-detail-body")?.id ?? "",
       triggerAriaPressed: trigger?.getAttribute("aria-pressed") ?? null,
       triggerControls: trigger?.getAttribute("aria-controls") ?? "",
@@ -1150,6 +1156,15 @@ async function runWireRuleObjectRefSmoke(cdp) {
       projectionStates: Array.from(panel?.querySelectorAll(".wire-timeline-projection-list li") ?? [])
         .map((item) => item.getAttribute("data-projection-state")),
       projectionText: panel?.querySelector(".wire-timeline-projection-list")?.textContent ?? "",
+      navigationActionStates: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-navigation-action-state")),
+      navigationButtonCount: panel?.querySelectorAll(".wire-timeline-navigation-button").length ?? 0,
+      navigationCount: panel?.querySelectorAll(".wire-timeline-navigation-list li").length ?? 0,
+      navigationFocusStates: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-navigation-focus-state")),
+      navigationObjectIds: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-navigation-object-id") ?? ""),
+      navigationText: panel?.querySelector(".wire-timeline-navigation-list")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
       actionHintButtonCount: panel?.querySelectorAll(".wire-timeline-action-hint-button").length ?? 0,
@@ -1202,7 +1217,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     return {
       text: panel?.textContent ?? "",
+      actionCandidateCount: Number(panel?.getAttribute("data-wire-timeline-action-candidate-count") ?? "-1"),
+      detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
+      detailSource: panel?.getAttribute("data-wire-timeline-source") ?? "",
+      hiddenRefCount: Number(panel?.getAttribute("data-wire-timeline-hidden-ref-count") ?? "-1"),
+      missingRefCount: Number(panel?.getAttribute("data-wire-timeline-missing-ref-count") ?? "-1"),
       panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
+      visibleRefCount: Number(panel?.getAttribute("data-wire-timeline-visible-ref-count") ?? "-1"),
       triggerAriaPressed: trigger?.getAttribute("aria-pressed") ?? null,
       triggerControls: trigger?.getAttribute("aria-controls") ?? "",
       triggerLabel: trigger?.getAttribute("aria-label") ?? "",
@@ -1220,6 +1241,15 @@ async function runWireRuleObjectRefSmoke(cdp) {
       projectionStates: Array.from(panel?.querySelectorAll(".wire-timeline-projection-list li") ?? [])
         .map((item) => item.getAttribute("data-projection-state")),
       projectionText: panel?.querySelector(".wire-timeline-projection-list")?.textContent ?? "",
+      navigationActionStates: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-navigation-action-state")),
+      navigationButtonCount: panel?.querySelectorAll(".wire-timeline-navigation-button").length ?? 0,
+      navigationCount: panel?.querySelectorAll(".wire-timeline-navigation-list li").length ?? 0,
+      navigationFocusStates: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-navigation-focus-state")),
+      navigationObjectIds: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-navigation-object-id") ?? ""),
+      navigationText: panel?.querySelector(".wire-timeline-navigation-list")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
       actionHintText: panel?.querySelector(".wire-timeline-action-hint-list")?.textContent ?? "",
@@ -1267,6 +1297,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.triggerLabel.includes("结算链项目")) failures.push("rule detail trigger accessible label missing");
   if (ruleDetailResult.triggerSelected !== "true") failures.push("rule detail trigger selected state missing");
   if (ruleDetailResult.triggerSource !== "rule") failures.push("rule detail trigger source missing");
+  if (ruleDetailResult.detailId !== "rule:stack:fixture-stack-1") failures.push(`rule detail id missing: ${ruleDetailResult.detailId}`);
+  if (ruleDetailResult.detailSource !== "rule") failures.push("rule detail source data attr missing");
+  if (ruleDetailResult.visibleRefCount < 2) failures.push(`rule detail visible ref count too low: ${ruleDetailResult.visibleRefCount}`);
+  if (ruleDetailResult.actionCandidateCount < 1) failures.push("rule detail action candidate count missing");
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
   if (!ruleDetailResult.hasTargetRef) failures.push("rule detail target ref missing");
@@ -1276,6 +1310,14 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.projectionStates.includes("visible")) failures.push("rule detail did not expose visible projection rows");
   if (!ruleDetailResult.projectionText.includes("来源")) failures.push("rule detail projection source role missing");
   if (!ruleDetailResult.projectionText.includes("目标")) failures.push("rule detail projection target role missing");
+  if (ruleDetailResult.navigationCount < 2) failures.push("rule detail navigation rows missing");
+  if (ruleDetailResult.navigationButtonCount < 2) failures.push("rule detail navigation focus buttons missing");
+  if (!ruleDetailResult.navigationObjectIds.includes("p1-hand-spell")) failures.push("rule detail navigation source object missing");
+  if (!ruleDetailResult.navigationObjectIds.includes("p2-right-1")) failures.push("rule detail navigation target object missing");
+  if (!ruleDetailResult.navigationFocusStates.includes("focusable")) failures.push("rule detail navigation focusable state missing");
+  if (!ruleDetailResult.navigationActionStates.includes("available")) failures.push("rule detail navigation available action state missing");
+  if (!ruleDetailResult.navigationText.includes("可聚焦")) failures.push("rule detail navigation focus label missing");
+  if (!ruleDetailResult.navigationText.includes("可用")) failures.push("rule detail navigation action label missing");
   if (ruleDetailResult.actionHintCount < 1) failures.push("rule detail candidate hint rows missing");
   if (ruleDetailResult.actionHintButtonCount < 1) failures.push("rule detail candidate hint buttons missing");
   if (!ruleDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("rule detail candidate hint command type missing");
@@ -1305,6 +1347,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.triggerLabel.includes("加入结算链")) failures.push("event detail trigger accessible label missing");
   if (eventDetailResult.triggerSelected !== "true") failures.push("event detail trigger selected state missing");
   if (eventDetailResult.triggerSource !== "event") failures.push("event detail trigger source missing");
+  if (eventDetailResult.detailId !== "event:STACK_ITEM_ADDED:0") failures.push(`event detail id missing: ${eventDetailResult.detailId}`);
+  if (eventDetailResult.detailSource !== "event") failures.push("event detail source data attr missing");
+  if (eventDetailResult.visibleRefCount < 2) failures.push(`event detail visible ref count too low: ${eventDetailResult.visibleRefCount}`);
+  if (eventDetailResult.actionCandidateCount < 1) failures.push("event detail action candidate count missing");
   if (eventDetailResult.logState !== "events") failures.push(`event log plan state unexpected: ${eventDetailResult.logState}`);
   if (eventDetailResult.logVisibleCount < 1) failures.push("event log plan visible count missing");
   if (eventDetailResult.logHiddenCount !== 0) failures.push(`event log hidden count unexpected: ${eventDetailResult.logHiddenCount}`);
@@ -1318,6 +1364,14 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.statusText.includes("关联候选")) failures.push("event detail candidate status missing");
   if (!eventDetailResult.projectionStates.includes("visible")) failures.push("event detail did not expose visible projection rows");
   if (!eventDetailResult.projectionText.includes("来源")) failures.push("event detail projection source role missing");
+  if (eventDetailResult.navigationCount < 2) failures.push("event detail navigation rows missing");
+  if (eventDetailResult.navigationButtonCount < 2) failures.push("event detail navigation focus buttons missing");
+  if (!eventDetailResult.navigationObjectIds.includes("p1-hand-spell")) failures.push("event detail navigation source object missing");
+  if (!eventDetailResult.navigationObjectIds.includes("p2-right-1")) failures.push("event detail navigation target object missing");
+  if (!eventDetailResult.navigationFocusStates.includes("focusable")) failures.push("event detail navigation focusable state missing");
+  if (!eventDetailResult.navigationActionStates.includes("available")) failures.push("event detail navigation available action state missing");
+  if (!eventDetailResult.navigationText.includes("可聚焦")) failures.push("event detail navigation focus label missing");
+  if (!eventDetailResult.navigationText.includes("可用")) failures.push("event detail navigation action label missing");
   if (eventDetailResult.actionHintCount < 1) failures.push("event detail candidate hint rows missing");
   if (!eventDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("event detail candidate hint command type missing");
   if (!eventDetailResult.actionHintText.includes("必填")) failures.push("event detail candidate hint required fields missing");
