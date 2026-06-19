@@ -244,6 +244,7 @@ export type ActionPromptDto = {
   promptId?: string | null;
   snapshotTick?: number | null;
   candidates?: ActionPromptCandidateDto[] | null;
+  contract?: ActionPromptContractDto | null;
   view?: PromptViewDto | null;
 };
 

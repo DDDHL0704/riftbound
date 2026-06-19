@@ -1,4 +1,4 @@
-import type { ActionPromptCandidateDto, ActionPromptDto, CardObjectView, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto, CardObjectView, SnapshotDto } from "../../types/protocol";
 import { asRecord } from "../../utils/collections";
 import { promptActionLabel, promptReasonLabel } from "../../utils/formatters";
 import {
@@ -57,6 +57,8 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
         <Metric label="对象入口" value={`${knownEnabledObjects.length}`} />
         <Metric label="不可提交关联" value={`${knownDisabledOnlyObjects.length}`} />
       </div>
+
+      {prompt?.contract && <PromptContractStrip contract={prompt.contract} />}
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
         {knownEnabledObjects.length === 0 && <span className="empty-hint">当前没有服务端标记为可操作的场上对象。</span>}
@@ -125,6 +127,33 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
           ))}
       </div>
     </section>
+  );
+}
+
+function PromptContractStrip({ contract }: { contract: ActionPromptContractDto }) {
+  return (
+    <div className="wire-action-contract-strip" aria-label="当前提示服务端契约">
+      <div>
+        <strong>提示契约</strong>
+        <span>{contract.promptKind} / {contract.candidateAction}</span>
+      </div>
+      <ContractMetric label="提交字段" values={contract.requiredPayload} />
+      <ContractMetric label="合法选项" values={contract.legalChoices} />
+      <ContractMetric label="公开数据" values={contract.visibleMetadata} />
+      <span>
+        <b>隐藏数据</b>
+        <small>{contract.hiddenMetadata.length} 项由服务端保留</small>
+      </span>
+    </div>
+  );
+}
+
+function ContractMetric({ label, values }: { label: string; values: string[] }) {
+  return (
+    <span>
+      <b>{label}</b>
+      <small>{values.length} 项</small>
+    </span>
   );
 }
 
