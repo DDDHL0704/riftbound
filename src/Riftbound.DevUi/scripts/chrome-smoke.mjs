@@ -340,6 +340,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const actionChip = document.querySelector('[data-action-object-id="p1-hand-spell"]');
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
+      actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? ""
@@ -418,6 +419,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (destinationResult.detailLayerOpen) failures.push("destination click opened detail");
   if (actionMapResult.selected !== "true") failures.push("action map object chip did not focus table object");
   if (actionMapResult.chipSelected !== "true") failures.push("action map object chip did not show selected state");
+  if (!actionMapResult.actionMapText.includes("命令字段")) failures.push("action map command field list missing");
+  if (!actionMapResult.actionMapText.includes("PLAY_CARD")) failures.push("action map command type missing");
+  if (!actionMapResult.actionMapText.includes("服务端:cardNo*")) failures.push("action map metadata command field missing");
   if (!actionMapResult.focusText.includes("服务端状态")) failures.push("action map focus did not refresh focused action summary");
   if (actionMapResult.detailLayerOpen) failures.push("action map object chip opened detail");
   if (runeActionMapResult.selected !== "true") failures.push("rune action map object chip did not focus table object");
