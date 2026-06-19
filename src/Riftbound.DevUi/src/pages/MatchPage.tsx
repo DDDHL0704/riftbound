@@ -2,6 +2,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import { AppRoute } from "../app/router";
 import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { CardFace, InspectedCard } from "../components/cards/CardFace";
+import { candidateComposerKey, type CandidateSelectionDraft } from "../components/match/CandidateComposer";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
 import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
@@ -32,7 +33,7 @@ import { BehaviorSpec } from "../types/catalog";
 import { BattlefieldSnapshotView, CardObjectView, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
 import { asArray, asRecord, asString } from "../utils/collections";
 import { connectionStatusLabel, matchPhaseLabel, timingStateLabel } from "../utils/formatters";
-import { buildPromptInteractionModel, promptChoiceSummaryObjectIds, type PromptCandidateSummary, type PromptChoiceRole, type PromptObjectState } from "../utils/promptInteraction";
+import { buildPromptInteractionModel, promptChoiceSummaryObjectIds, type PromptCandidateSummary, type PromptChoiceRole, type PromptChoiceSummary, type PromptObjectState } from "../utils/promptInteraction";
 
 type PlayerEntry = {
   id: string;
@@ -54,6 +55,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const [inspectedCard, setInspectedCard] = useState<InspectedCard | undefined>();
   const [detailCard, setDetailCard] = useState<InspectedCard | undefined>();
   const [previewCard, setPreviewCard] = useState<InspectedCard | undefined>();
+  const [selectionDraft, setSelectionDraft] = useState<CandidateSelectionDraft | undefined>();
   const previewDelayRef = useRef<number | undefined>(undefined);
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
   const tableSnapshot = useMemo(
@@ -74,9 +76,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     [inspectedCard?.objectId, promptInteraction.candidates]
   );
   const tableInteraction = useMemo<WireTableInteraction>(() => ({
-    interactionByObjectId: buildWireInteractionMap(promptInteraction, focusedSourceCandidates, inspectedCard?.objectId),
+    interactionByObjectId: buildWireInteractionMap(promptInteraction, focusedSourceCandidates, inspectedCard?.objectId, selectionDraft),
     selectedObjectId: inspectedCard?.objectId
-  }), [focusedSourceCandidates, inspectedCard?.objectId, promptInteraction]);
+  }), [focusedSourceCandidates, inspectedCard?.objectId, promptInteraction, selectionDraft]);
 
   const playerEntries = useMemo(() => buildPlayerEntries(tableSnapshot, settings.playerId), [tableSnapshot, settings.playerId]);
   const self = playerEntries.find((entry) => entry.side === "self");
@@ -106,8 +108,26 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     }, 520);
   }, []);
   const inspectCard = useCallback((card: InspectedCard) => {
+    const clickedObjectId = card.objectId ?? card.object?.objectId;
+    if (!clickedObjectId) {
+      setInspectedCard(card);
+      setSelectionDraft(undefined);
+      return;
+    }
+
+    const focusedSourceObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
+    const selectedCandidateChoice = focusedSourceObjectId
+      ? candidateChoiceForObject(focusedSourceCandidates, clickedObjectId)
+      : undefined;
+    if (focusedSourceObjectId && selectedCandidateChoice && selectedCandidateChoice.choice.role !== "source") {
+      setSelectionDraft((current) => updateSelectionDraft(current, focusedSourceObjectId, selectedCandidateChoice.candidate, selectedCandidateChoice.choice));
+      return;
+    }
+
     setInspectedCard(card);
-  }, []);
+    const sourceCandidate = sourceCandidateForObject(promptInteraction.candidates, clickedObjectId);
+    setSelectionDraft(sourceCandidate ? emptySelectionDraft(clickedObjectId, sourceCandidate) : undefined);
+  }, [focusedSourceCandidates, inspectedCard?.object?.objectId, inspectedCard?.objectId, promptInteraction.candidates]);
   const tableRows = WIRE_TABLE_LAYOUT.table.rows.map((row) => {
     if (row.kind === "battlefield") {
       return (
@@ -167,6 +187,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     };
   }, []);
 
+  useEffect(() => {
+    setSelectionDraft(undefined);
+  }, [tablePrompt?.promptId, tablePrompt?.snapshotTick]);
+
   return (
     <div className="wire-match-page" style={wireMatchPageStyle()}>
       <header className="wire-topbar" aria-label="对战基础状态">
@@ -209,10 +233,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               disabledByConnection={controller.state.status !== "connected"}
               inspectedCard={inspectedCard}
               onCommand={(command) => void controller.submitCommand(command)}
-              onClearInspectedCard={() => setInspectedCard(undefined)}
+              onClearInspectedCard={() => {
+                setInspectedCard(undefined);
+                setSelectionDraft(undefined);
+              }}
               onOpenDetail={setDetailCard}
               playerId={settings.playerId}
               prompt={tablePrompt}
+              selectionDraft={selectionDraft}
               snapshot={tableSnapshot}
             />
           </section>
@@ -279,10 +307,89 @@ function focusedCandidateSummaries(
       && promptChoiceSummaryObjectIds(choice).includes(focusedObjectId)));
 }
 
+function sourceCandidateForObject(
+  candidates: PromptCandidateSummary[],
+  objectId: string
+): PromptCandidateSummary | undefined {
+  return candidates.find((candidate) =>
+    candidate.enabled
+    && candidate.choices.some((choice) =>
+      choice.role === "source"
+      && promptChoiceSummaryObjectIds(choice).includes(objectId)));
+}
+
+function candidateChoiceForObject(
+  candidates: PromptCandidateSummary[],
+  objectId: string
+): { candidate: PromptCandidateSummary; choice: PromptChoiceSummary } | undefined {
+  for (const candidate of candidates.filter((candidate) => candidate.enabled)) {
+    const choice = candidate.choices.find((candidateChoice) =>
+      candidateChoice.role !== "mode"
+      && promptChoiceSummaryObjectIds(candidateChoice).includes(objectId));
+    if (choice) {
+      return { candidate, choice };
+    }
+  }
+
+  return undefined;
+}
+
+function emptySelectionDraft(sourceObjectId: string, candidate: PromptCandidateSummary): CandidateSelectionDraft {
+  return {
+    candidateKey: candidateComposerKey(candidate),
+    optionalCostIds: [],
+    sourceObjectId,
+    targetChoiceIds: []
+  };
+}
+
+function updateSelectionDraft(
+  current: CandidateSelectionDraft | undefined,
+  sourceObjectId: string,
+  candidate: PromptCandidateSummary,
+  choice: PromptChoiceSummary
+): CandidateSelectionDraft {
+  const candidateKey = candidateComposerKey(candidate);
+  const base = current?.candidateKey === candidateKey && current.sourceObjectId === sourceObjectId
+    ? current
+    : emptySelectionDraft(sourceObjectId, candidate);
+
+  if (choice.role === "target") {
+    return {
+      ...base,
+      targetChoiceIds: uniqueSelectionIds([choice.id, ...base.targetChoiceIds.filter((id) => id !== choice.id)]).slice(0, 8)
+    };
+  }
+
+  if (choice.role === "destination") {
+    return {
+      ...base,
+      destinationId: choice.id
+    };
+  }
+
+  if (choice.role === "optionalCost") {
+    const selected = base.optionalCostIds.includes(choice.id);
+    return {
+      ...base,
+      optionalCostIds: selected
+        ? base.optionalCostIds.filter((id) => id !== choice.id)
+        : uniqueSelectionIds([...base.optionalCostIds, choice.id])
+    };
+  }
+
+  return base;
+}
+
+function uniqueSelectionIds(ids: string[]): string[] {
+  return Array.from(new Set(ids.filter((id) => id.trim().length > 0)));
+}
+
 function buildWireInteractionMap(
   model: ReturnType<typeof buildPromptInteractionModel>,
   focusedCandidates: PromptCandidateSummary[],
-  focusedObjectId?: string
+  focusedObjectId?: string,
+  selectionDraft?: CandidateSelectionDraft
 ): Record<string, PromptObjectState | undefined> {
   const states: Record<string, PromptObjectState | undefined> = Object.fromEntries([
     ...[...model.disabledObjectIds].map((objectId) => [objectId, "disabled" as const]),
@@ -306,6 +413,25 @@ function buildWireInteractionMap(
     states[focusedObjectId] = "source";
   }
 
+  if (selectionDraft) {
+    const selectedChoiceIds = new Set([
+      ...selectionDraft.targetChoiceIds,
+      selectionDraft.destinationId,
+      selectionDraft.mode,
+      ...selectionDraft.optionalCostIds
+    ].filter((id): id is string => Boolean(id)));
+    const draftCandidate = model.candidates.find((candidate) => candidateComposerKey(candidate) === selectionDraft.candidateKey);
+    for (const choice of draftCandidate?.choices ?? []) {
+      if (!selectedChoiceIds.has(choice.id)) {
+        continue;
+      }
+
+      for (const objectId of promptChoiceSummaryObjectIds(choice)) {
+        states[objectId] = mergePromptObjectState(states[objectId], "chosen");
+      }
+    }
+  }
+
   return states;
 }
 
@@ -319,6 +445,8 @@ function mergePromptObjectState(current: PromptObjectState | undefined, next: Pr
 
 function promptStatePriority(state: PromptObjectState | undefined): number {
   switch (state) {
+    case "chosen":
+      return 7;
     case "source":
       return 6;
     case "target":

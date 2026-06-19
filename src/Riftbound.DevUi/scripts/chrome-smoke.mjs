@@ -94,6 +94,11 @@ try {
     console.log(`Chrome smoke OK: ${route.path}`);
   }
 
+  await cdp.send("Page.navigate", { url: `${frontendUrl}/matches/local?fixture=layout` });
+  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "焦点 / 候选 / 规则队列"]);
+  await runWireClickSelectionSmoke(cdp);
+  console.log("Chrome smoke OK: wire click selection");
+
   if (browserErrors.length > 0) {
     throw new Error(`Chrome reported errors:\n${browserErrors.join("\n")}`);
   }
@@ -246,6 +251,105 @@ async function readBodyText(cdp) {
     returnByValue: true
   });
   return String(result.result?.value ?? "");
+}
+
+async function runWireClickSelectionSmoke(cdp) {
+  await clickObject(cdp, "p1-hand-spell");
+  await delay(150);
+  await clickObject(cdp, "p2-left-1");
+  await delay(150);
+  const targetResult = await evaluateJson(cdp, `(() => {
+    const attr = (id) => document.querySelector(\`[data-object-id="\${id}"]\`)?.getAttribute("data-prompt-state") ?? null;
+    const selected = (id) => document.querySelector(\`[data-object-id="\${id}"]\`)?.getAttribute("data-selected") ?? null;
+    const targetSelect = Array.from(document.querySelectorAll(".wire-focused-actions select")).find((select) =>
+      Array.from(select.options).some((option) => option.value === "p2-left-1"));
+    return {
+      sourceSelected: selected("p1-hand-spell"),
+      sourceState: attr("p1-hand-spell"),
+      chosenTargetState: attr("p2-left-1"),
+      otherTargetState: attr("p2-right-1"),
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
+      targetSelectValue: targetSelect?.value ?? null
+    };
+  })()`);
+
+  await clickObject(cdp, "p1-rune-2");
+  await delay(150);
+  const costResult = await evaluateJson(cdp, `(() => {
+    const attr = (id) => document.querySelector(\`[data-object-id="\${id}"]\`)?.getAttribute("data-prompt-state") ?? null;
+    const checkedCost = Array.from(document.querySelectorAll(".wire-focused-actions input[type='checkbox']"))
+      .filter((input) => input.checked)
+      .map((input) => input.closest("label")?.textContent?.trim() ?? "");
+    return {
+      exhaustedRuneState: attr("p1-rune-2"),
+      draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
+      checkedCost
+    };
+  })()`);
+
+  await clickObject(cdp, "p1-left-2");
+  await delay(150);
+  await clickObject(cdp, "fixture-right-battlefield");
+  await delay(150);
+  const destinationResult = await evaluateJson(cdp, `(() => {
+    const attr = (id) => document.querySelector(\`[data-object-id="\${id}"]\`)?.getAttribute("data-prompt-state") ?? null;
+    const selected = (id) => document.querySelector(\`[data-object-id="\${id}"]\`)?.getAttribute("data-selected") ?? null;
+    const destinationSelect = Array.from(document.querySelectorAll(".wire-focused-actions select")).find((select) =>
+      Array.from(select.options).some((option) => option.value === "BATTLEFIELD:fixture-right-battlefield"));
+    return {
+      moveSourceSelected: selected("p1-left-2"),
+      moveSourceState: attr("p1-left-2"),
+      destinationState: attr("fixture-right-battlefield"),
+      destinationSelectValue: destinationSelect?.value ?? null,
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      draftText: document.querySelector(".wire-selection-draft")?.textContent ?? ""
+    };
+  })()`);
+
+  const failures = [];
+  if (targetResult.sourceSelected !== "true") failures.push("source focus was not preserved after target click");
+  if (targetResult.sourceState !== "source") failures.push("source state missing after target click");
+  if (targetResult.chosenTargetState !== "chosen") failures.push("clicked target not chosen");
+  if (targetResult.otherTargetState !== "target") failures.push("other target no longer legal target");
+  if (targetResult.detailLayerOpen) failures.push("target click opened detail");
+  if (!targetResult.draftText.includes("目标 1")) failures.push("draft target count missing");
+  if (targetResult.targetSelectValue !== "p2-left-1") failures.push("composer target select did not follow target click");
+  if (costResult.exhaustedRuneState !== "chosen") failures.push("clicked optional cost not chosen");
+  if (!costResult.draftText.includes("费用 1")) failures.push("draft cost count missing");
+  if (!costResult.checkedCost.some((text) => text.includes("回收已抽出符文"))) failures.push("composer optional cost not checked");
+  if (destinationResult.moveSourceSelected !== "true") failures.push("move source focus was not preserved");
+  if (destinationResult.moveSourceState !== "source") failures.push("move source state missing");
+  if (destinationResult.destinationState !== "chosen") failures.push("destination not chosen");
+  if (destinationResult.destinationSelectValue !== "BATTLEFIELD:fixture-right-battlefield") failures.push("composer destination select did not follow click");
+  if (destinationResult.detailLayerOpen) failures.push("destination click opened detail");
+
+  if (failures.length > 0) {
+    throw new Error(`Wire click selection smoke failed:\n${failures.join("\n")}`);
+  }
+}
+
+async function clickObject(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-object-id="${objectId}"]`)});
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (result.result?.value !== true) {
+    throw new Error(`Missing clickable object ${objectId}`);
+  }
+}
+
+async function evaluateJson(cdp, expression) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression,
+    returnByValue: true
+  });
+  return result.result?.value ?? {};
 }
 
 async function waitForHttp(url, timeoutMs) {

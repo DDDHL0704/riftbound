@@ -4,7 +4,7 @@ import { promptActionLabel, promptReasonLabel } from "./formatters";
 import { redactInternalText } from "./redaction";
 
 export type PromptChoiceRole = "source" | "target" | "destination" | "mode" | "optionalCost";
-export type PromptObjectState = "enabled" | "disabled" | "source" | "target" | "destination" | "optionalCost";
+export type PromptObjectState = "enabled" | "disabled" | "source" | "target" | "destination" | "optionalCost" | "chosen";
 
 export type PromptChoiceSummary = {
   id: string;

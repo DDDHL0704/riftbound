@@ -11,7 +11,7 @@ import {
 } from "../../utils/promptInteraction";
 import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
 import { CardFace } from "../cards/CardFace";
-import { CandidateComposer, canComposeCandidate } from "./CandidateComposer";
+import { CandidateComposer, candidateComposerKey, canComposeCandidate, type CandidateSelectionDraft } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { WireEmpty } from "./wireCardFlow";
@@ -24,6 +24,7 @@ export function WireInteractionPanel({
   onOpenDetail,
   playerId,
   prompt,
+  selectionDraft,
   snapshot
 }: {
   disabledByConnection: boolean;
@@ -33,6 +34,7 @@ export function WireInteractionPanel({
   onOpenDetail: (card: InspectedCard) => void;
   playerId: string;
   prompt?: ActionPromptDto;
+  selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
 }) {
   const model = buildPromptInteractionModel(prompt);
@@ -87,6 +89,7 @@ export function WireInteractionPanel({
         model={model}
         onCommand={onCommand}
         prompt={prompt}
+        selectionDraft={selectionDraft}
         snapshot={snapshot}
       />
 
@@ -101,6 +104,7 @@ function FocusedActionList({
   model,
   onCommand,
   prompt,
+  selectionDraft,
   snapshot
 }: {
   disabledByConnection: boolean;
@@ -108,6 +112,7 @@ function FocusedActionList({
   model: PromptInteractionModel;
   onCommand?: (command: GameCommand) => void;
   prompt?: ActionPromptDto;
+  selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
 }) {
   const sourceObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
@@ -132,6 +137,14 @@ function FocusedActionList({
       </div>
       <p>只使用服务端当前候选；连接恢复前不会提交命令。</p>
       {candidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
+      {selectionDraft && selectionDraft.sourceObjectId === sourceObjectId && (
+        <div className="wire-selection-draft" aria-label="已点选候选草稿">
+          <strong>桌面点选</strong>
+          <span>目标 {selectionDraft.targetChoiceIds.length}</span>
+          <span>位置 {selectionDraft.destinationId ? "已选" : "未选"}</span>
+          <span>费用 {selectionDraft.optionalCostIds.length}</span>
+        </div>
+      )}
       {candidateSummaries.length > 0 && (
         <div className="wire-focused-path" aria-label="焦点候选路径">
           {candidateSummaries.slice(0, 2).map((candidate) => (
@@ -153,6 +166,9 @@ function FocusedActionList({
         const command = commandForSourceCandidate(candidate, sourceObjectId);
 
         if (canComposeCandidate(candidate) && onCommand) {
+          const candidateDraft = selectionDraft?.candidateKey === candidateComposerKey(candidate)
+            ? selectionDraft
+            : undefined;
           return (
             <CandidateComposer
               candidate={candidate}
@@ -161,6 +177,7 @@ function FocusedActionList({
               key={`${candidate.action}-${candidate.label}`}
               onCommand={onCommand}
               prompt={prompt}
+              selectionDraft={candidateDraft}
               snapshot={snapshot}
             />
           );

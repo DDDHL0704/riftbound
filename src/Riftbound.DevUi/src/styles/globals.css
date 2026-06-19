@@ -11618,6 +11618,7 @@ button.card-face:hover {
 .wire-selected-candidates,
 .wire-focused-actions,
 .wire-focused-actions-heading,
+.wire-selection-draft,
 .wire-focused-path,
 .wire-focused-path article,
 .wire-focused-path li,
@@ -11694,6 +11695,15 @@ button.card-face:hover {
   border-radius: 0 !important;
   background: #fff !important;
   color: #000 !important;
+}
+
+.wire-selection-draft {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+  font-size: 11px;
 }
 
 .wire-focused-path {
@@ -12229,6 +12239,14 @@ button.card-face:hover {
 .wire-table .card-back.is-prompt-optionalCost {
   outline: 3px dotted #000 !important;
   outline-offset: -6px !important;
+}
+
+.wire-table .card-face.is-prompt-chosen,
+.wire-table .card-image-only.is-prompt-chosen,
+.wire-table .card-back.is-prompt-chosen {
+  outline: 5px solid #000 !important;
+  outline-offset: -8px !important;
+  box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px #000 !important;
 }
 
 .wire-table .card-face.is-prompt-disabled,
