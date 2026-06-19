@@ -22,6 +22,15 @@ type CandidateComposerState = {
   targetIdsByGroup: Record<string, string>;
 };
 
+export type CandidateSelectionDraft = {
+  candidateKey: string;
+  destinationId?: string;
+  mode?: string;
+  optionalCostIds: string[];
+  sourceObjectId: string;
+  targetChoiceIds: string[];
+};
+
 type CandidateComposerModel = {
   resetKey: string;
   sourceRequirements: Array<Record<string, unknown>>;
@@ -47,6 +56,7 @@ type CandidateComposerProps = {
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
   forcedSourceObjectId?: string;
+  selectionDraft?: CandidateSelectionDraft;
 };
 
 const composerCandidateActions = new Set([
@@ -71,14 +81,15 @@ export function CandidateComposer({
   onCommand,
   onSubmitted,
   prompt,
+  selectionDraft,
   snapshot
 }: CandidateComposerProps) {
   const model = useMemo(() => buildCandidateComposerModel(candidate), [candidate]);
-  const [state, setState] = useState<CandidateComposerState>(() => initialComposerState(candidate, model, forcedSourceObjectId));
+  const [state, setState] = useState<CandidateComposerState>(() => initialComposerState(candidate, model, forcedSourceObjectId, selectionDraft));
 
   useEffect(() => {
-    setState(initialComposerState(candidate, model, forcedSourceObjectId));
-  }, [candidate.action, candidate.label, forcedSourceObjectId, model.resetKey, candidate]);
+    setState(initialComposerState(candidate, model, forcedSourceObjectId, selectionDraft));
+  }, [candidate.action, candidate.label, forcedSourceObjectId, model.resetKey, candidate, selectionDraft]);
 
   const requirement = selectedRequirement(model, state.sourceId);
   const controls = composerControls(candidate, model, requirement, forcedSourceObjectId);
@@ -219,6 +230,10 @@ export function CandidateComposer({
   );
 }
 
+export function candidateComposerKey(candidate: Pick<ActionPromptCandidateDto, "action" | "label">): string {
+  return `${candidate.action}::${candidate.label}`;
+}
+
 function buildCandidateComposerModel(candidate: ActionPromptCandidateDto): CandidateComposerModel {
   const sourceRequirements = recordArrayMetadata(candidate.metadata?.sourceRequirements);
   const sourceRequirementById = new Map<string, Record<string, unknown>>();
@@ -251,9 +266,11 @@ function buildCandidateComposerModel(candidate: ActionPromptCandidateDto): Candi
 function initialComposerState(
   candidate: ActionPromptCandidateDto,
   model: CandidateComposerModel,
-  forcedSourceId?: string
+  forcedSourceId?: string,
+  selectionDraft?: CandidateSelectionDraft
 ): CandidateComposerState {
   const fallbackSourceId = forcedSourceId
+    ?? selectionDraft?.sourceObjectId
     ?? candidate.sources?.[0]?.id
     ?? firstRequirementSourceId(model);
   const requirement = selectedRequirement(model, fallbackSourceId);
@@ -269,10 +286,31 @@ function initialComposerState(
     }
   }
 
+  if (selectionDraft?.candidateKey === candidateComposerKey(candidate)
+    && selectionDraft.sourceObjectId === sourceId) {
+    for (const [index, targetChoiceId] of selectionDraft.targetChoiceIds.entries()) {
+      const group = controls.targetGroups.find((candidateGroup) =>
+        !targetIdsByGroup[candidateGroup.key]
+        && candidateGroup.choices.some((choice) => choice.id === targetChoiceId))
+        ?? controls.targetGroups[index];
+      if (group?.choices.some((choice) => choice.id === targetChoiceId)) {
+        targetIdsByGroup[group.key] = targetChoiceId;
+      }
+    }
+  }
+
   return {
-    destinationId,
-    mode: controls.modeChoices[0]?.id,
-    optionalCostIds: [],
+    destinationId: selectionDraft?.candidateKey === candidateComposerKey(candidate)
+      && controls.destinationChoices.some((choice) => choice.id === selectionDraft.destinationId)
+      ? selectionDraft.destinationId
+      : destinationId,
+    mode: selectionDraft?.candidateKey === candidateComposerKey(candidate)
+      && controls.modeChoices.some((choice) => choice.id === selectionDraft.mode)
+      ? selectionDraft.mode
+      : controls.modeChoices[0]?.id,
+    optionalCostIds: selectionDraft?.candidateKey === candidateComposerKey(candidate)
+      ? uniqueStrings(selectionDraft.optionalCostIds.filter((id) => controls.optionalCostChoices.some((choice) => choice.id === id)))
+      : [],
     sourceId,
     targetIdsByGroup
   };
