@@ -6697,7 +6697,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in objects",
+                $"snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in objects; expected {P4ActivatedAbilityCatalog.BlueSentinelCardNo} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -7776,7 +7776,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in objects",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in objects; expected OGS·006/024 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -8413,7 +8413,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in objects",
+                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in objects; expected OGN·197/298 but got WRONG-CARD",
                 StringComparison.Ordinal));
     }
 
@@ -9120,7 +9120,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in objects",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in objects; expected OGN·096/298 but got WRONG-CARD",
                 StringComparison.Ordinal));
     }
 
@@ -11612,7 +11612,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in objects",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in objects; expected UNL-068/219 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -12353,7 +12353,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"snapshot for alice timing trigger queue item jhin movement resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in objects",
+                $"snapshot for alice timing trigger queue item jhin movement resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in objects; expected {P4ActivatedAbilityCatalog.JhinCardNo} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -13659,7 +13659,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 card no WRONG_CARD_NO must be OGN·190/298 in objects",
+                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 card no WRONG_CARD_NO must be OGN·190/298 in objects; expected OGN·190/298 but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -29858,7 +29858,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry",
+                $"authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.BlueSentinelCardNo} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -30638,7 +30638,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry; expected OGS·006/024 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -31109,7 +31109,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry; expected OGN·197/298 but got WRONG-CARD",
                 StringComparison.Ordinal));
     }
 
@@ -31564,7 +31564,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry; expected OGN·096/298 but got WRONG-CARD",
                 StringComparison.Ordinal));
     }
 
@@ -33485,7 +33485,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry; expected UNL-068/219 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -34010,7 +34010,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry",
+                $"authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.JhinCardNo} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -34987,7 +34987,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry; expected OGN·190/298 but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -139710,7 +139710,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry",
+                $"spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.BlueSentinelCardNo} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -139842,7 +139842,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry",
+                $"spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.BlueSentinelCardNo} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -142734,7 +142734,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry; expected OGS·006/024 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -142862,7 +142862,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 card no WRONG-CARD must be OGS·006/024 in authoritative state object registry; expected OGS·006/024 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -144721,7 +144721,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry; expected OGN·197/298 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -144833,7 +144833,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 card no WRONG-CARD must be OGN·197/298 in authoritative state object registry; expected OGN·197/298 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146900,7 +146900,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry; expected OGN·096/298 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -147005,7 +147005,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 card no WRONG-CARD must be OGN·096/298 in authoritative state object registry; expected OGN·096/298 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151980,7 +151980,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry; expected UNL-068/219 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -152090,7 +152090,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must be UNL-068/219 in authoritative state object registry; expected UNL-068/219 but got WRONG-CARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -156097,7 +156097,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry",
+                $"spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.JhinCardNo} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -156222,7 +156222,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                $"spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry",
+                $"spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source card no WRONG_CARD_NO must be {P4ActivatedAbilityCatalog.JhinCardNo} in authoritative state object registry; expected {P4ActivatedAbilityCatalog.JhinCardNo} but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160016,7 +160016,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry; expected OGN·190/298 but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160148,7 +160148,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source card no WRONG_CARD_NO must be OGN·190/298 in authoritative state object registry; expected OGN·190/298 but got WRONG_CARD_NO",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

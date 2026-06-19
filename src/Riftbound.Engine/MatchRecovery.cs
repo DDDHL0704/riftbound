@@ -18492,6 +18492,19 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} {diagnosticName} {subjectLabel} {actualControllerId} must match trigger controller id {expectedControllerId} in {contextLabel}; {FormatExpectedActualForRecovery(expectedControllerId, actualControllerId)}");
     }
 
+    private static void AddTriggerQueueSourceCardNoMismatch(
+        string payloadLabel,
+        string diagnosticName,
+        string sourceObjectId,
+        string actualCardNoLabel,
+        string expectedCardNoLabel,
+        string contextLabel,
+        List<string> errors)
+    {
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {actualCardNoLabel} must be {expectedCardNoLabel} in {contextLabel}; {FormatExpectedActualForRecovery(expectedCardNoLabel, actualCardNoLabel)}");
+    }
+
     private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
         string payloadLabel,
         string? triggerId,
@@ -18568,8 +18581,14 @@ public static class MatchRecoveryValidator
             && !string.Equals(sourceCardNo, P4ActivatedAbilityCatalog.BlueSentinelCardNo, StringComparison.Ordinal))
         {
             var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-            errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} card no {sourceCardNoLabel} must be {P4ActivatedAbilityCatalog.BlueSentinelCardNo} in {objectCardNoLabel}");
+            AddTriggerQueueSourceCardNoMismatch(
+                payloadLabel,
+                "blue sentinel delayed resource",
+                expectedSourceObjectId,
+                sourceCardNoLabel,
+                P4ActivatedAbilityCatalog.BlueSentinelCardNo,
+                objectCardNoLabel,
+                errors);
         }
 
         if (objectFaceDowns is not null
@@ -18871,8 +18890,14 @@ public static class MatchRecoveryValidator
             && !string.Equals(sourceCardNo, P4ActivatedAbilityCatalog.JhinCardNo, StringComparison.Ordinal))
         {
             var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-            errors.Add(
-                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} card no {sourceCardNoLabel} must be {P4ActivatedAbilityCatalog.JhinCardNo} in {objectCardNoLabel}");
+            AddTriggerQueueSourceCardNoMismatch(
+                payloadLabel,
+                "jhin movement resource",
+                expectedSourceObjectId,
+                sourceCardNoLabel,
+                P4ActivatedAbilityCatalog.JhinCardNo,
+                objectCardNoLabel,
+                errors);
         }
 
         if (objectFaceDowns is not null
@@ -19207,8 +19232,14 @@ public static class MatchRecoveryValidator
             && !string.Equals(sourceCardNo, KogmawCardNoForRecovery, StringComparison.Ordinal))
         {
             var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-            errors.Add(
-                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} card no {sourceCardNoLabel} must be {KogmawCardNoForRecovery} in {objectCardNoLabel}");
+            AddTriggerQueueSourceCardNoMismatch(
+                payloadLabel,
+                "kogmaw last breath",
+                sourceObjectId,
+                sourceCardNoLabel,
+                KogmawCardNoForRecovery,
+                objectCardNoLabel,
+                errors);
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -19406,8 +19437,14 @@ public static class MatchRecoveryValidator
                 && !string.Equals(sourceCardNo, OgsLuxHighCostSpellCardNoForRecovery, StringComparison.Ordinal))
             {
                 var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} card no {sourceCardNoLabel} must be {OgsLuxHighCostSpellCardNoForRecovery} in {objectCardNoLabel}");
+                AddTriggerQueueSourceCardNoMismatch(
+                    payloadLabel,
+                    "ogs lux high cost spell",
+                    sourceObjectId,
+                    sourceCardNoLabel,
+                    OgsLuxHighCostSpellCardNoForRecovery,
+                    objectCardNoLabel,
+                    errors);
             }
 
             if (objectFaceDowns is not null
@@ -19592,8 +19629,14 @@ public static class MatchRecoveryValidator
             if (!string.Equals(sourceCardNo, expectedSourceCardNo, StringComparison.Ordinal))
             {
                 var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                errors.Add(
-                    $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} card no {sourceCardNoLabel} must be {expectedSourceCardNo} in {objectCardNoLabel}");
+                AddTriggerQueueSourceCardNoMismatch(
+                    payloadLabel,
+                    "teemo on-play self-power",
+                    sourceObjectId,
+                    sourceCardNoLabel,
+                    expectedSourceCardNo,
+                    objectCardNoLabel,
+                    errors);
             }
         }
 
@@ -20868,8 +20911,14 @@ public static class MatchRecoveryValidator
                     expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
             {
                 var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                errors.Add(
-                    $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {sourceCardNoLabel} must be {FormatExpectedCardNosForRecovery(expectedSourceCardNos)} in {objectCardNoLabel}");
+                AddTriggerQueueSourceCardNoMismatch(
+                    payloadLabel,
+                    diagnosticName,
+                    sourceObjectId,
+                    sourceCardNoLabel,
+                    FormatExpectedCardNosForRecovery(expectedSourceCardNos),
+                    objectCardNoLabel,
+                    errors);
             }
         }
 
@@ -21734,8 +21783,14 @@ public static class MatchRecoveryValidator
                     expectedSourceCardNo => string.Equals(expectedSourceCardNo, sourceCardNo, StringComparison.Ordinal)))
             {
                 var sourceCardNoLabel = sourceCardNo is null ? "<null>" : sourceCardNo;
-                errors.Add(
-                    $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {sourceCardNoLabel} must be {FormatExpectedCardNosForRecovery(expectedSourceCardNos)} in {objectCardNoLabel}");
+                AddTriggerQueueSourceCardNoMismatch(
+                    payloadLabel,
+                    diagnosticName,
+                    sourceObjectId,
+                    sourceCardNoLabel,
+                    FormatExpectedCardNosForRecovery(expectedSourceCardNos),
+                    objectCardNoLabel,
+                    errors);
             }
         }
 
