@@ -15263,7 +15263,11 @@ public static class MatchRecoveryValidator
             if (!objectControllers.TryGetValue(normalizedParticipantObjectId, out var controllerId)
                 || string.IsNullOrWhiteSpace(controllerId))
             {
-                errors.Add($"{participantControllerLabel} for participant object id {normalizedParticipantObjectId} is missing from object controllers");
+                var detail = FormatExpectedActualForRecovery(
+                    $"contains {normalizedParticipantObjectId}",
+                    FormatObjectIdsForRecovery(objectControllers.Keys));
+                errors.Add(
+                    $"{participantControllerLabel} for participant object id {normalizedParticipantObjectId} is missing from object controllers; {detail}");
                 continue;
             }
 
@@ -15279,7 +15283,11 @@ public static class MatchRecoveryValidator
         {
             if (!expectedControllerIds.Contains(controllerId))
             {
-                errors.Add($"{participantControllerLabel} {controllerId} is not a controller for participant object ids");
+                var detail = FormatExpectedActualForRecovery(
+                    FormatObjectIdsForRecovery(expectedControllerIds),
+                    controllerId);
+                errors.Add(
+                    $"{participantControllerLabel} {controllerId} is not a controller for participant object ids; {detail}");
             }
         }
 
@@ -15287,7 +15295,11 @@ public static class MatchRecoveryValidator
         {
             if (!actualControllerIds.Contains(controllerId))
             {
-                errors.Add($"{participantControllerLabel} {controllerId} is required by participant object ids");
+                var detail = FormatExpectedActualForRecovery(
+                    $"contains {controllerId}",
+                    FormatObjectIdsForRecovery(actualControllerIds));
+                errors.Add(
+                    $"{participantControllerLabel} {controllerId} is required by participant object ids; {detail}");
             }
         }
     }

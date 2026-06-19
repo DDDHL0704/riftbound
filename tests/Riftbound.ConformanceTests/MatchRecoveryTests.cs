@@ -16870,6 +16870,11 @@ public sealed class MatchRecoveryTests
                 "bob",
                 "bob",
                 "BATTLEFIELD",
+                "battlefield-a"),
+            ["participant-missing-controller"] = SnapshotObjectPayloadWithoutEffectiveController(
+                "participant-missing-controller",
+                [CardObjectTags.UnitCard],
+                "BATTLEFIELD",
                 "battlefield-a")
         };
         players["alice"] = alicePayload;
@@ -16905,6 +16910,20 @@ public sealed class MatchRecoveryTests
                     "stackItemIds": [],
                     "battleId": "battle:battlefield-a"
                 }
+                """),
+            RawJson("""
+                {
+                    "taskId": "task-missing-object-controller",
+                    "kind": "START_BATTLE",
+                    "status": "PENDING",
+                    "reason": "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                    "battlefieldObjectId": "battlefield-a",
+                    "participantControllerIds": [],
+                    "participantObjectIds": ["participant-missing-controller"],
+                    "actingPlayerId": "alice",
+                    "stackItemIds": [],
+                    "battleId": "battle:battlefield-a"
+                }
                 """)
         };
         var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
@@ -16924,12 +16943,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item participant controller id bob is not a controller for participant object ids",
+                "snapshot for alice timing battlefield task item participant controller id bob is not a controller for participant object ids; expected [alice] but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item participant controller id bob is required by participant object ids",
+                "snapshot for alice timing battlefield task item participant controller id bob is required by participant object ids; expected contains bob but got [alice]",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item participant controller id for participant object id participant-missing-controller is missing from object controllers; expected contains participant-missing-controller but got [battlefield-a, participant-a, participant-b]",
                 StringComparison.Ordinal));
 
         static Dictionary<string, object?> SnapshotObjectPayload(
@@ -16956,6 +16980,31 @@ public sealed class MatchRecoveryTests
                 ["objectId"] = objectId,
                 ["ownerId"] = ownerId,
                 ["controllerId"] = controllerId,
+                ["isFaceDown"] = false,
+                ["tags"] = tags,
+                ["untilEndOfTurnEffects"] = Array.Empty<string>(),
+                ["location"] = location
+            };
+        }
+
+        static Dictionary<string, object?> SnapshotObjectPayloadWithoutEffectiveController(
+            string objectId,
+            string[] tags,
+            string zone,
+            string? battlefieldObjectId = null)
+        {
+            var location = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["zone"] = zone
+            };
+            if (battlefieldObjectId is not null)
+            {
+                location["battlefieldObjectId"] = battlefieldObjectId;
+            }
+
+            return new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = objectId,
                 ["isFaceDown"] = false,
                 ["tags"] = tags,
                 ["untilEndOfTurnEffects"] = Array.Empty<string>(),
@@ -57019,12 +57068,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item participant controller id bob is not a controller for participant object ids",
+                "spectator replay frame timing battlefield task item participant controller id bob is not a controller for participant object ids; expected [alice] but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item participant controller id bob is required by participant object ids",
+                "spectator replay frame timing battlefield task item participant controller id bob is required by participant object ids; expected contains bob but got [alice]",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
