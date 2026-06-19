@@ -1766,6 +1766,8 @@
 
 线框对战桌面战场单位归属继续工程化：前端协议类型补齐既有服务端 `battlefield.unitsBySide` 字段，`wireTableViewModel` 现在优先按该 authoritative 分组投影我方/对方战场单位，只有旧快照缺字段时才回退到对象 controller 推断。`check:wire-table-view-model` 增加 controller 与 `unitsBySide` 故意冲突的样例，确保控制权、据守、征服和战斗相关展示以后不会重新退化为 UI 侧猜测；项目仍 **NOT READY**。
 
+线框对战桌面交互投影继续工程化：新增 `wireTableInteractionModel.ts`，把焦点来源候选、桌面点选目标/位置/费用草稿、对象高亮优先级和规则详情对象投影从 `MatchPage` 抽成纯策略；`MatchPage` 现在负责状态协调和渲染，不再内联规则候选投影算法。新增 `check:wire-table-interaction-model` 构建门禁，断言 mode 选择不会被桌面对象误点选、可选费用二次点击会退回角色高亮、规则详情忽略 `HIDDEN` 占位并去重；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：
