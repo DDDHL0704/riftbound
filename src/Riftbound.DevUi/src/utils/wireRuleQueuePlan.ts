@@ -1,6 +1,8 @@
 import type { ActionPromptDto, SnapshotDto } from "../types/protocol";
 import { asArray, asRecord, asString } from "./collections";
 import { matchPhaseLabel, timingStateLabel } from "./formatters";
+import { redactInternalText } from "./redaction";
+import { buildCardObjectIndex, type SnapshotObjectIndex } from "./snapshotObjectIndex";
 
 export type WireRuleQueueLaneKey = "resolution" | "stack" | "task" | "trigger";
 
@@ -71,12 +73,51 @@ export type WireRuleQueueInspectorPlan = {
   summary: string;
 };
 
+export type WireRuleQueueDetailLine = {
+  label: string;
+  mine?: boolean;
+  value: string;
+};
+
+export type WireRuleQueueObjectRef = {
+  id: string;
+  label?: string;
+  role: string;
+};
+
+export type WireRuleQueueDetailPlan = {
+  id: string;
+  lines: WireRuleQueueDetailLine[];
+  refs: WireRuleQueueObjectRef[];
+  source: "rule";
+  subtitle?: string;
+  title: string;
+};
+
+export type WireRuleQueueItemPlan = {
+  detail: WireRuleQueueDetailPlan;
+  key: string;
+  lines: WireRuleQueueDetailLine[];
+  refs: WireRuleQueueObjectRef[];
+  subtitle: string;
+  title: string;
+};
+
+export type WireRuleQueueSectionPlan = {
+  emptyLabel: string;
+  items: WireRuleQueueItemPlan[];
+  key: WireRuleQueueLaneKey;
+  notes: string[];
+  title: string;
+};
+
 export type WireRuleQueuePlan = {
   activeLaneKey: WireRuleQueueLaneKey | "none";
   inspector: WireRuleQueueInspectorPlan;
   lanes: WireRuleQueueLane[];
   metrics: WireRuleQueueMetric[];
   nextStepLabel: string;
+  sections: WireRuleQueueSectionPlan[];
   sequence: WireRuleQueueSequenceItem[];
   state: WireRuleQueueState;
   stateLabel: string;
@@ -174,6 +215,17 @@ export function buildWireRuleQueuePlan({
   ];
   const sequence = queueSequence({ battleResolutions, battlefieldResolutions, stack, tasks, triggers });
   const nextStep = nextStepLabel(state);
+  const objectIndex = buildCardObjectIndex(snapshot);
+  const sections = ruleQueueSections({
+    battleResolutions,
+    battlefieldResolutions,
+    objects: objectIndex,
+    playerId,
+    queue,
+    stack,
+    tasks,
+    triggers
+  });
 
   return {
     activeLaneKey,
@@ -181,6 +233,7 @@ export function buildWireRuleQueuePlan({
     lanes,
     metrics,
     nextStepLabel: nextStep,
+    sections,
     sequence,
     state,
     stateLabel: queueStateLabel(state)
@@ -415,6 +468,419 @@ function queueSequence({
   ].slice(0, 8);
 }
 
+function ruleQueueSections({
+  battleResolutions,
+  battlefieldResolutions,
+  objects,
+  playerId,
+  queue,
+  stack,
+  tasks,
+  triggers
+}: {
+  battleResolutions: Array<Record<string, unknown>>;
+  battlefieldResolutions: Array<Record<string, unknown>>;
+  objects: SnapshotObjectIndex;
+  playerId: string;
+  queue: Record<string, unknown>;
+  stack: Array<Record<string, unknown>>;
+  tasks: Array<Record<string, unknown>>;
+  triggers: Array<Record<string, unknown>>;
+}): WireRuleQueueSectionPlan[] {
+  return [
+    {
+      emptyLabel: "当前无结算链项目。",
+      items: stack.map((item, index) => stackItemPlan(item, index, stack.length, playerId, objects)),
+      key: "stack",
+      notes: [],
+      title: "结算链"
+    },
+    {
+      emptyLabel: "当前无待处理规则任务。",
+      items: tasks.map((task, index) => taskItemPlan(task, index, playerId, objects)),
+      key: "task",
+      notes: tasks.length > 0 ? taskQueueNotes(queue) : [],
+      title: "规则任务"
+    },
+    {
+      emptyLabel: "当前无待排序或待结算触发。",
+      items: triggers.map((trigger, index) => triggerItemPlan(trigger, index, playerId, objects)),
+      key: "trigger",
+      notes: [],
+      title: "触发队列"
+    },
+    {
+      emptyLabel: "暂无近期战场或战斗结算。",
+      items: [
+        ...battlefieldResolutions.map((resolution, index) => battlefieldResolutionItemPlan(resolution, index, playerId, objects)),
+        ...battleResolutions.map((resolution, index) => battleResolutionItemPlan(resolution, index, playerId, objects))
+      ],
+      key: "resolution",
+      notes: [],
+      title: "近期规则事件"
+    }
+  ];
+}
+
+function stackItemPlan(
+  item: Record<string, unknown>,
+  index: number,
+  stackLength: number,
+  playerId: string,
+  objects: SnapshotObjectIndex
+): WireRuleQueueItemPlan {
+  const stackItemId = asString(item.stackItemId, String(index));
+  const controllerId = optionalString(item.controllerId);
+  const sourceObjectId = optionalString(item.sourceObjectId);
+  const cardNo = nullableString(item.cardNo);
+  const targetObjectIds = stringArray(item.targetObjectIds);
+  const effectKind = asString(item.effectKind, "");
+  const damageAmount = numberValue(item.damageAmount);
+  const destination = optionalString(item.destination);
+  const lines = compactLines([
+    detailLine("控制者", controllerId ?? "未知", controllerId === playerId),
+    detailLine("来源", sourceLabel(sourceObjectId, cardNo, objects)),
+    detailLine("目标", objectListLabel(targetObjectIds, objects)),
+    damageAmount != null && damageAmount > 0 ? detailLine("伤害", String(damageAmount)) : undefined,
+    destination ? detailLine("去向", zoneLabel(destination)) : undefined
+  ]);
+  const refs = [
+    objectRef("来源", sourceObjectId),
+    ...objectRefs("目标", targetObjectIds)
+  ];
+  const detail = detailPlan({
+    id: ruleDetailId("stack", stackItemId),
+    lines: compactLines([...lines, detailLine("服务端编号", idLabel(stackItemId))]),
+    refs,
+    subtitle: `${stackEffectLabel(effectKind)} / 项目 ${stackLength - index}`,
+    title: "结算链项目"
+  });
+
+  return {
+    detail,
+    key: `stack:${stackItemId}`,
+    lines,
+    refs,
+    subtitle: stackEffectLabel(effectKind),
+    title: `项目 ${stackLength - index}`
+  };
+}
+
+function taskItemPlan(
+  task: Record<string, unknown>,
+  index: number,
+  playerId: string,
+  objects: SnapshotObjectIndex
+): WireRuleQueueItemPlan {
+  const taskId = asString(task.taskId, String(index));
+  const actingPlayerId = nullableString(task.actingPlayerId);
+  const battlefieldObjectId = optionalString(task.battlefieldObjectId);
+  const participantObjectIds = stringArray(task.participantObjectIds);
+  const stackItemIds = stringArray(task.stackItemIds);
+  const spellDuelId = optionalString(task.spellDuelId);
+  const battleId = optionalString(task.battleId);
+  const status = optionalString(task.status);
+  const lines = compactLines([
+    detailLine("原因", taskReasonLabel(optionalString(task.reason))),
+    detailLine("战场", battlefieldObjectId ? objectLabel(battlefieldObjectId, objects) : "无"),
+    detailLine("行动玩家", actingPlayerId ?? "无", actingPlayerId === playerId),
+    detailLine("参与对象", objectListLabel(participantObjectIds, objects)),
+    stackItemIds.length > 0 ? detailLine("关联结算链", `${stackItemIds.length} 项`) : undefined,
+    spellDuelId ? detailLine("法术对决", "服务端已创建") : undefined,
+    battleId ? detailLine("战斗", "服务端已创建") : undefined
+  ]);
+  const refs = [
+    objectRef("战场", battlefieldObjectId),
+    ...objectRefs("参与", participantObjectIds)
+  ];
+  const detail = detailPlan({
+    id: ruleDetailId("task", taskId),
+    lines: compactLines([detailLine("状态", status ? protocolValue(status, "服务端状态") : "状态未提供"), ...lines]),
+    refs,
+    subtitle: status ? protocolValue(status, "服务端状态") : "状态未提供",
+    title: taskKindLabel(optionalString(task.kind))
+  });
+
+  return {
+    detail,
+    key: `task:${taskId}`,
+    lines: compactLines([detailLine("状态", status ? protocolValue(status, "服务端状态") : "状态未提供"), ...lines]),
+    refs,
+    subtitle: status ? protocolValue(status, "服务端状态") : "状态未提供",
+    title: taskKindLabel(optionalString(task.kind))
+  };
+}
+
+function triggerItemPlan(
+  trigger: Record<string, unknown>,
+  index: number,
+  playerId: string,
+  objects: SnapshotObjectIndex
+): WireRuleQueueItemPlan {
+  const triggerId = asString(trigger.triggerId, String(index));
+  const controllerId = optionalString(trigger.controllerId);
+  const sourceObjectId = optionalString(trigger.sourceObjectId);
+  const sourceVisibility = optionalString(trigger.sourceVisibility);
+  const refs = sourceVisibility === "HIDDEN" ? [objectRef("来源", "HIDDEN")] : [objectRef("来源", sourceObjectId)];
+  const lines = compactLines([
+    detailLine("控制者", controllerId ?? "无", controllerId === playerId),
+    detailLine("来源", sourceVisibility === "HIDDEN" ? "隐藏来源" : objectLabel(sourceObjectId, objects)),
+    detailLine("来源事件", eventLabel(optionalString(trigger.triggeredByEventKind)))
+  ]);
+  const detail = detailPlan({
+    id: ruleDetailId("trigger", triggerId),
+    lines: compactLines([...lines, detailLine("服务端编号", idLabel(triggerId))]),
+    refs,
+    subtitle: stackEffectLabel(optionalString(trigger.effectKind)),
+    title: `触发 ${index + 1}`
+  });
+
+  return {
+    detail,
+    key: `trigger:${triggerId}`,
+    lines,
+    refs,
+    subtitle: stackEffectLabel(optionalString(trigger.effectKind)),
+    title: `触发 ${index + 1}`
+  };
+}
+
+function battlefieldResolutionItemPlan(
+  resolution: Record<string, unknown>,
+  index: number,
+  playerId: string,
+  objects: SnapshotObjectIndex
+): WireRuleQueueItemPlan {
+  const resolutionId = asString(resolution.resolutionId, String(index));
+  const battlefieldObjectId = optionalString(resolution.battlefieldObjectId);
+  const playerOrController = nullableString(resolution.playerId) ?? nullableString(resolution.controllerId);
+  const participantObjectIds = stringArray(resolution.participantObjectIds);
+  const relatedEventKinds = stringArray(resolution.relatedEventKinds);
+  const tick = numberValue(resolution.tick);
+  const lines = compactLines([
+    detailLine("战场", objectLabel(battlefieldObjectId, objects)),
+    detailLine("控制者", playerOrController ?? "无", playerOrController === playerId),
+    detailLine("参与对象", objectListLabel(participantObjectIds, objects)),
+    detailLine("事件", eventListLabel(relatedEventKinds))
+  ]);
+  const refs = [
+    objectRef("战场", battlefieldObjectId),
+    objectRef("来源", nullableString(resolution.sourceObjectId)),
+    ...objectRefs("参与", participantObjectIds)
+  ];
+  const detail = detailPlan({
+    id: ruleDetailId("battlefield-resolution", resolutionId),
+    lines: compactLines([
+      ...lines,
+      detailLine("之前控制者", nullableString(resolution.previousControllerId) ?? "无", nullableString(resolution.previousControllerId) === playerId),
+      detailLine("tick", tick == null ? "无" : String(tick))
+    ]),
+    refs,
+    subtitle: `tick ${tick ?? "无"}`,
+    title: battlefieldResolutionLabel(optionalString(resolution.kind))
+  });
+
+  return {
+    detail,
+    key: `battlefield-resolution:${resolutionId}`,
+    lines: compactLines([...lines, detailLine("tick", tick == null ? "无" : String(tick))]),
+    refs,
+    subtitle: `tick ${tick ?? "无"}`,
+    title: battlefieldResolutionLabel(optionalString(resolution.kind))
+  };
+}
+
+function battleResolutionItemPlan(
+  resolution: Record<string, unknown>,
+  index: number,
+  playerId: string,
+  objects: SnapshotObjectIndex
+): WireRuleQueueItemPlan {
+  const resolutionId = asString(resolution.resolutionId, String(index));
+  const battlefieldId = optionalString(resolution.battlefieldId);
+  const destroyedObjectIds = stringArray(resolution.destroyedObjectIds);
+  const relatedEventKinds = stringArray(resolution.relatedEventKinds);
+  const winnerPlayerId = nullableString(resolution.winnerPlayerId);
+  const tick = numberValue(resolution.tick);
+  const lines = compactLines([
+    detailLine("战场", objectLabel(battlefieldId, objects)),
+    detailLine("胜者", winnerPlayerId ?? "无", winnerPlayerId === playerId),
+    detailLine("被摧毁", objectListLabel(destroyedObjectIds, objects)),
+    detailLine("事件", eventListLabel(relatedEventKinds))
+  ]);
+  const refs = [
+    objectRef("战场", battlefieldId),
+    ...objectRefs("攻击", stringArray(resolution.attackerObjectIds)),
+    ...objectRefs("防守", stringArray(resolution.defenderObjectIds)),
+    ...objectRefs("被摧毁", destroyedObjectIds)
+  ];
+  const detail = detailPlan({
+    id: ruleDetailId("battle-resolution", resolutionId),
+    lines: compactLines([
+      detailLine("攻击方", nullableString(resolution.attackingPlayerId) ?? "无", nullableString(resolution.attackingPlayerId) === playerId),
+      detailLine("防守方", nullableString(resolution.defendingPlayerId) ?? "无", nullableString(resolution.defendingPlayerId) === playerId),
+      ...lines,
+      detailLine("tick", tick == null ? "无" : String(tick))
+    ]),
+    refs,
+    subtitle: `tick ${tick ?? "无"}`,
+    title: battleResolutionLabel(optionalString(resolution.kind))
+  });
+
+  return {
+    detail,
+    key: `battle-resolution:${resolutionId}`,
+    lines: compactLines([...lines, detailLine("tick", tick == null ? "无" : String(tick))]),
+    refs,
+    subtitle: `tick ${tick ?? "无"}`,
+    title: battleResolutionLabel(optionalString(resolution.kind))
+  };
+}
+
+function taskQueueNotes(queue: Record<string, unknown>): string[] {
+  const phase = taskPhaseLabel(asString(queue.phase, ""));
+  const active = asString(queue.activeTaskId, "");
+  const blocking = Boolean(queue.isBlocking);
+  return [
+    `队列阶段：${phase}`,
+    `活动任务：${active ? "处理中" : "无"}`,
+    blocking ? "阻塞普通行动" : "不阻塞普通行动"
+  ];
+}
+
+function detailPlan({
+  id,
+  lines,
+  refs,
+  subtitle,
+  title
+}: {
+  id: string;
+  lines: WireRuleQueueDetailLine[];
+  refs: WireRuleQueueObjectRef[];
+  subtitle?: string;
+  title: string;
+}): WireRuleQueueDetailPlan {
+  return {
+    id,
+    lines,
+    refs,
+    source: "rule",
+    subtitle,
+    title
+  };
+}
+
+function detailLine(label: string, value: string | null | undefined, mine?: boolean): WireRuleQueueDetailLine {
+  return { label, mine, value: value || "无" };
+}
+
+function compactLines(lines: Array<WireRuleQueueDetailLine | undefined>): WireRuleQueueDetailLine[] {
+  return lines.filter((item): item is WireRuleQueueDetailLine => Boolean(item));
+}
+
+function objectRef(role: string, id: string | null | undefined): WireRuleQueueObjectRef {
+  return { id: id?.trim() ?? "", role };
+}
+
+function objectRefs(role: string, ids: string[] | undefined): WireRuleQueueObjectRef[] {
+  return (ids ?? []).map((id) => objectRef(role, id));
+}
+
+function ruleDetailId(kind: string, id: string): string {
+  return `rule:${kind}:${id}`;
+}
+
+function objectLabel(objectId: string | null | undefined, objects: SnapshotObjectIndex): string {
+  if (!objectId) {
+    return "无";
+  }
+
+  if (objectId === "HIDDEN") {
+    return "隐藏对象";
+  }
+
+  const object = objects[objectId];
+  return object?.cardNo ? `${object.cardNo}` : idLabel(objectId);
+}
+
+function sourceLabel(sourceObjectId: string | null | undefined, cardNo: string | null | undefined, objects: SnapshotObjectIndex): string {
+  if (cardNo) {
+    return sourceObjectId ? `${cardNo} / ${objectLabel(sourceObjectId, objects)}` : cardNo;
+  }
+
+  return objectLabel(sourceObjectId, objects);
+}
+
+function objectListLabel(objectIds: string[] | undefined, objects: SnapshotObjectIndex): string {
+  const ids = objectIds ?? [];
+  if (ids.length === 0) {
+    return "无";
+  }
+
+  if (ids.length <= 3) {
+    return ids.map((id) => objectLabel(id, objects)).join(" / ");
+  }
+
+  return `${ids.length} 个对象`;
+}
+
+function eventLabel(kind: string | null | undefined): string {
+  return kind && kind.trim().length > 0 ? labelFor({}, kind, "服务端事件", "无") : "无";
+}
+
+function eventListLabel(kinds: string[] | undefined): string {
+  const values = kinds ?? [];
+  if (values.length === 0) {
+    return "无";
+  }
+
+  if (values.length <= 2) {
+    return values.map(eventLabel).join(" / ");
+  }
+
+  return `${values.length} 个事件`;
+}
+
+function zoneLabel(value: string): string {
+  const labels: Record<string, string> = {
+    BASE: "基地",
+    GRAVEYARD: "已打出",
+    HAND: "手牌",
+    STACK: "结算链"
+  };
+  return labelFor(labels, value, "服务端区域", "无");
+}
+
+function protocolValue(value: string | null | undefined, fallback: string): string {
+  const raw = value?.trim() ?? "";
+  if (!raw) {
+    return "无";
+  }
+
+  return isProtocolToken(raw) ? fallback : raw;
+}
+
+function idLabel(value: string): string {
+  return isProtocolToken(value) ? "服务端对象" : redactInternalText(value);
+}
+
+function stringArray(value: unknown): string[] {
+  return asArray(value).filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+}
+
+function optionalString(value: unknown): string {
+  return typeof value === "string" && value.trim().length > 0 ? value : "";
+}
+
+function nullableString(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+function numberValue(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
 function topStackHeadline(item: Record<string, unknown>, stackLength: number): string {
   return `${stackEffectLabel(asString(item.effectKind, ""))} / 顶部 ${stackLength}`;
 }
@@ -492,6 +958,20 @@ function taskPhaseLabel(value: string): string {
     STATE_BASED_CLEANUP: "状态清理"
   };
   return labelFor(labels, value, "服务端阶段", "无");
+}
+
+function taskReasonLabel(value: string): string {
+  const labels: Record<string, string> = {
+    ADDITIONAL_COST: "额外费用",
+    BATTLE_CLEANUP: "战斗清理",
+    BATTLE_CLEANUP_ATTACKER_RECALL: "战斗后召回攻击者",
+    BATTLEFIELD_CONTROL_CLEANUP: "战场控制清理",
+    BATTLEFIELD_CONTESTED: "战场争夺",
+    LETHAL_DAMAGE: "致命伤害",
+    UNATTACHED_EQUIPMENT_CLEANUP: "装备脱离清理",
+    ZERO_POWER: "0 战力"
+  };
+  return labelFor(labels, value, "服务端原因", "无");
 }
 
 function battlefieldResolutionLabel(value: string): string {

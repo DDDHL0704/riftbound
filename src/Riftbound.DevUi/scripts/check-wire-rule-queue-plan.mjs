@@ -46,6 +46,23 @@ const helperModules = {
         SPELL_DUEL_OPEN: "法术对决开环"
       }[value] ?? (value ? "服务端窗口" : "未知窗口");
     }
+  },
+  "./redaction": {
+    redactInternalText(value) {
+      return value;
+    }
+  },
+  "./snapshotObjectIndex": {
+    buildCardObjectIndex(snapshot) {
+      const indexed = {};
+      for (const player of Object.values(snapshot?.players ?? {})) {
+        for (const [objectId, object] of Object.entries(player.objects ?? {})) {
+          indexed[object.objectId ?? objectId] = { ...object, objectId: object.objectId ?? objectId };
+        }
+      }
+
+      return indexed;
+    }
   }
 };
 
@@ -113,6 +130,9 @@ assert.equal(taskBlocked.lanes.find((lane) => lane.key === "task")?.state, "bloc
 assert.ok(taskBlocked.nextStepLabel.includes("阻塞规则任务"));
 assert.ok(taskBlocked.sequence[0].detailLabel.includes("战场控制检查"));
 assert.equal(taskBlocked.metrics.find((metric) => metric.key === "task")?.value, "1 项");
+assert.equal(taskBlocked.sections.find((section) => section.key === "task")?.items.length, 1);
+assert.ok(taskBlocked.sections.find((section) => section.key === "task")?.notes.some((note) => note.includes("阻塞普通行动")));
+assert.ok(taskBlocked.sections.find((section) => section.key === "task")?.items[0]?.detail.id.includes("rule:task:task-1"));
 
 const stackResponse = buildWireRuleQueuePlan({
   playerId: "P1",
@@ -139,6 +159,8 @@ assert.equal(stackResponse.inspector.sequence[0].objectCount, 2);
 assert.equal(stackResponse.lanes.find((lane) => lane.key === "stack")?.state, "active");
 assert.equal(stackResponse.sequence[0].lane, "stack");
 assert.equal(stackResponse.sequence[0].objectCount, 2);
+assert.equal(stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.title, "项目 1");
+assert.ok(stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.refs.some((ref) => ref.role === "目标" && ref.id === "unit-1"));
 
 const triggerPending = buildWireRuleQueuePlan({
   playerId: "P1",
@@ -163,6 +185,7 @@ assert.equal(triggerPending.state, "trigger-pending");
 assert.equal(triggerPending.activeLaneKey, "trigger");
 assert.ok(triggerPending.lanes.find((lane) => lane.key === "trigger")?.headline.includes("触发"));
 assert.equal(triggerPending.sequence[0].stateLabel, "P1");
+assert.ok(triggerPending.sections.find((section) => section.key === "trigger")?.items[0]?.detail.lines.some((line) => line.label === "来源事件"));
 
 const resolutionHistory = buildWireRuleQueuePlan({
   playerId: "P1",
@@ -198,6 +221,8 @@ assert.equal(resolutionHistory.activeLaneKey, "resolution");
 assert.equal(resolutionHistory.sequence.length, 2);
 assert.equal(resolutionHistory.sequence[0].tickLabel, "tick 8");
 assert.equal(resolutionHistory.sequence[1].detailLabel, "战斗无结果");
+assert.equal(resolutionHistory.sections.find((section) => section.key === "resolution")?.items.length, 2);
+assert.ok(resolutionHistory.sections.find((section) => section.key === "resolution")?.items.some((item) => item.key.startsWith("battle-resolution:")));
 
 const idle = buildWireRuleQueuePlan({ playerId: "P1", snapshot: baseSnapshot });
 assert.equal(idle.state, "idle");
@@ -205,5 +230,6 @@ assert.equal(idle.activeLaneKey, "none");
 assert.equal(idle.inspector.activeLaneLabel, "无活动通道");
 assert.equal(idle.sequence.length, 0);
 assert.ok(idle.lanes.every((lane) => lane.state === "empty"));
+assert.ok(idle.sections.every((section) => section.items.length === 0));
 
 console.log("Wire rule queue plan check passed.");

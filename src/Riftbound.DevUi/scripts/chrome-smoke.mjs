@@ -572,6 +572,8 @@ async function runWireClickSelectionSmoke(cdp) {
       priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null,
       ruleFlowText: ruleFlow?.textContent ?? "",
       ruleLaneCount: document.querySelectorAll("[data-rule-lane]").length,
+      ruleSectionKeys: Array.from(document.querySelectorAll("[data-rule-section-key]")).map((node) => node.getAttribute("data-rule-section-key")),
+      ruleItemKeys: Array.from(document.querySelectorAll("[data-rule-item-key]")).map((node) => node.getAttribute("data-rule-item-key")),
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
       ruleQueueState: ruleQueue?.getAttribute("data-wire-rule-queue-state") ?? null,
@@ -820,6 +822,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.ruleFlowText.includes("近期事件")) failures.push("wire rule queue resolution lane missing");
   if (!actionMapResult.ruleFlowText.includes("下一步")) failures.push("wire rule queue next step missing");
   if (actionMapResult.ruleSequenceCount < 1) failures.push("wire rule queue sequence items missing");
+  for (const sectionKey of ["stack", "task", "trigger", "resolution"]) {
+    if (!actionMapResult.ruleSectionKeys.includes(sectionKey)) failures.push(`wire rule queue section missing: ${sectionKey}`);
+  }
+  if (!actionMapResult.ruleItemKeys.some((key) => key?.startsWith("stack:"))) failures.push("wire rule queue stack items missing");
+  if (!actionMapResult.ruleItemKeys.some((key) => key?.startsWith("task:"))) failures.push("wire rule queue task items missing");
+  if (!actionMapResult.ruleItemKeys.some((key) => key?.startsWith("trigger:"))) failures.push("wire rule queue trigger items missing");
+  if (!actionMapResult.ruleItemKeys.some((key) => key?.startsWith("battlefield-resolution:"))) failures.push("wire rule queue battlefield resolution items missing");
   if (ruleInspectorResult.hidden) failures.push("wire rule inspector did not open");
   if (ruleInspectorResult.toggleExpanded !== "true") failures.push("wire rule inspector toggle aria state missing");
   if (!ruleInspectorResult.text.includes("规则检查")) failures.push("wire rule inspector header missing");
