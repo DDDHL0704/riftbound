@@ -325,7 +325,16 @@ function collectEventObjectRefs(record: Record<string, unknown>, objects: WireOb
       continue;
     }
 
-    if (value && typeof value === "object" && !Array.isArray(value)) {
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item && typeof item === "object") {
+          refs.push(...collectEventObjectRefs(asRecord(item), objects, depth + 1));
+        }
+      }
+      continue;
+    }
+
+    if (value && typeof value === "object") {
       refs.push(...collectEventObjectRefs(asRecord(value), objects, depth + 1));
     }
   }
