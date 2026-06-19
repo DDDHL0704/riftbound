@@ -1758,6 +1758,8 @@
 
 线框对战桌面动态卡流策略继续工程化：`buildWireCardFlowPlan` 已从 React 渲染组件拆到纯策略文件 `wireCardFlowPlan.ts`，`WireCardFlow` 只负责消费计划渲染；新增 `check:wire-card-flow-plan` 构建门禁，断言同类同数量区域得到一致计划、卡牌比例保持官方立牌比例、数量增加时尺寸不反向变大、40 张等超量区域仍使用 packed rail 策略且 slotCount 覆盖所有对象。该门禁用于保护基地、手牌和战场单位的无限区域缩放基础；项目仍 **NOT READY**。
 
+线框对战桌面真实浏览器几何门禁继续工程化：`smoke:chrome` 的本地线框对战 fixture 现在会用 DOM 几何检查 `.wire-card-flow`、`.wire-fixed-pile` 和 `.wire-battlefield-site`，断言同类同数量卡流在真实页面中尺寸一致、固定牌堆中的牌完整填满槽位且不越界、战场牌保持横向并接近填满战场槽。该门禁把上一批纯策略检查推进到浏览器渲染层，防止后续 CSS 调整把牌重新挤出区域；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：
