@@ -134,6 +134,10 @@ type ActionHintRowProps = {
 };
 
 function ActionHintRow({ onInspectObject, row }: ActionHintRowProps) {
+  const roleSummary = compactList(row.selectionRoleLabels, 3);
+  const requiredFieldSummary = compactList(row.requiredCommandFieldLabels, 3);
+  const commandFieldSummary = compactList(row.commandFieldLabels, 3);
+  const reasonSummary = compactList(row.reasonLabels, 2);
   const content = (
     <>
       <span>{row.role}</span>
@@ -141,7 +145,10 @@ function ActionHintRow({ onInspectObject, row }: ActionHintRowProps) {
       <small>{row.stateLabel}</small>
       <small>{row.zoneLabel}</small>
       <small>{row.commandTypes.length > 0 ? row.commandTypes.join(" / ") : "服务端候选"}</small>
-      {row.reasonLabels.length > 0 && <small>{row.reasonLabels.slice(0, 2).join(" / ")}</small>}
+      {roleSummary && <small>角色 {roleSummary}</small>}
+      {requiredFieldSummary && <small>必填 {requiredFieldSummary}</small>}
+      {!requiredFieldSummary && commandFieldSummary && <small>字段 {commandFieldSummary}</small>}
+      {reasonSummary && <small>阻断 {reasonSummary}</small>}
     </>
   );
 
@@ -162,6 +169,17 @@ function ActionHintRow({ onInspectObject, row }: ActionHintRowProps) {
       )}
     </li>
   );
+}
+
+function compactList(values: string[], limit: number): string {
+  const visible = values.slice(0, limit);
+  if (visible.length === 0) {
+    return "";
+  }
+
+  return values.length > limit
+    ? `${visible.join(" / ")} +${values.length - limit}`
+    : visible.join(" / ");
 }
 
 function ObjectContextDetail({

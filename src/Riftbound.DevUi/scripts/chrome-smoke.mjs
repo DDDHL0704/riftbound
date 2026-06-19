@@ -908,6 +908,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (ruleDetailResult.actionHintButtonCount < 1) failures.push("rule detail candidate hint buttons missing");
   if (!ruleDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("rule detail candidate hint command type missing");
   if (!ruleDetailResult.actionHintText.includes("可用")) failures.push("rule detail candidate hint state missing");
+  if (!ruleDetailResult.actionHintText.includes("角色")) failures.push("rule detail candidate hint role labels missing");
+  if (!ruleDetailResult.actionHintText.includes("必填")) failures.push("rule detail candidate hint required fields missing");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
   if (!ruleDetailResult.selectedRow) failures.push("rule detail selected row missing");
@@ -932,6 +934,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.projectionText.includes("来源")) failures.push("event detail projection source role missing");
   if (eventDetailResult.actionHintCount < 1) failures.push("event detail candidate hint rows missing");
   if (!eventDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("event detail candidate hint command type missing");
+  if (!eventDetailResult.actionHintText.includes("必填")) failures.push("event detail candidate hint required fields missing");
   if (eventDetailResult.sourceState !== "event") failures.push("event detail did not project source to table");
   if (eventDetailResult.targetState !== "event") failures.push("event detail did not project target to table");
   if (!eventDetailResult.selectedRow) failures.push("event detail selected row missing");

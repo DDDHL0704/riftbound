@@ -104,6 +104,11 @@ assert.equal(plan.projectionRows.find((row) => row.state === "hidden")?.label, "
 assert.equal(plan.actionHintRows.length, 2);
 assert.equal(plan.actionHintRows[0].objectId, "source-1");
 assert.equal(plan.actionHintRows[0].commandTypes[0], "PLAY_CARD");
+assert.deepEqual(plan.actionHintRows[0].selectionRoleLabels, ["来源"]);
+assert.deepEqual(plan.actionHintRows[0].commandFieldLabels, ["来源:sourceObjectId*"]);
+assert.deepEqual(plan.actionHintRows[0].requiredCommandFieldLabels, ["来源:sourceObjectId*"]);
 assert.equal(plan.actionHintRows[1].reasonLabels[0], "等待来源");
+assert.deepEqual(plan.actionHintRows[1].selectionRoleLabels, ["目标"]);
+assert.deepEqual(plan.actionHintRows[1].requiredCommandFieldLabels, ["目标:targetObjectIds*"]);
 
 console.log("Wire timeline detail plan check passed.");

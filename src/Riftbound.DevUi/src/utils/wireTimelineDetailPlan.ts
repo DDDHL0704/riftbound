@@ -39,6 +39,7 @@ export type WireTimelineProjectionRow = {
 };
 
 export type WireTimelineActionHintRow = {
+  commandFieldLabels: string[];
   commandTypes: string[];
   disabledCount: number;
   enabledCount: number;
@@ -46,7 +47,9 @@ export type WireTimelineActionHintRow = {
   label: string;
   objectId: string;
   reasonLabels: string[];
+  requiredCommandFieldLabels: string[];
   role: string;
+  selectionRoleLabels: string[];
   stateLabel: string;
   zoneLabel: string;
 };
@@ -122,6 +125,7 @@ function actionHintRowsForDetail(
     }
 
     rows.push({
+      commandFieldLabels: uniqueStrings(context.candidateLinks.flatMap((candidate) => candidate.commandFields).filter(isNonEmptyString)),
       commandTypes: uniqueStrings(context.candidateLinks.map((candidate) => candidate.commandType ?? candidate.label).filter(isNonEmptyString)),
       disabledCount: context.promptDisabledCount,
       enabledCount: context.promptEnabledCount,
@@ -129,7 +133,9 @@ function actionHintRowsForDetail(
       label: projectionLabel(ref, objectIndex),
       objectId: id,
       reasonLabels: uniqueStrings(context.candidateLinks.filter((candidate) => !candidate.enabled).map((candidate) => candidate.reason).filter(isNonEmptyString)),
+      requiredCommandFieldLabels: uniqueStrings(context.candidateLinks.flatMap((candidate) => candidate.requiredCommandFields).filter(isNonEmptyString)),
       role: ref.role || "对象",
+      selectionRoleLabels: uniqueStrings(context.candidateLinks.flatMap((candidate) => candidate.roles).filter(isNonEmptyString)),
       stateLabel: `${context.promptEnabledCount} 可用 / ${context.promptDisabledCount} 阻断`,
       zoneLabel: context.zone.label
     });
