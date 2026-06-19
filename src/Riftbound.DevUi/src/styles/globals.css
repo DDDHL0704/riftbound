@@ -11708,7 +11708,12 @@ button.card-face:hover {
 .wire-action-grammar,
 .wire-action-sequence,
 .wire-action-step,
-.wire-rule-queue {
+.wire-rule-queue,
+.wire-rule-flow,
+.wire-rule-flow-heading,
+.wire-rule-flow-next,
+.wire-rule-lanes li,
+.wire-rule-sequence li {
   min-width: 0;
   border: 1px solid #000;
   background: #fff;
@@ -12480,6 +12485,11 @@ button.card-face:hover {
 }
 
 .wire-rule-queue-header,
+.wire-rule-flow,
+.wire-rule-flow-heading,
+.wire-rule-flow-next,
+.wire-rule-lanes li,
+.wire-rule-sequence li,
 .wire-rule-state-grid,
 .wire-rule-section,
 .wire-rule-item,
@@ -12525,6 +12535,79 @@ button.card-face:hover {
   min-width: 0;
   display: grid;
   gap: 3px;
+}
+
+.wire-rule-flow {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-rule-flow-heading,
+.wire-rule-flow-next {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-rule-flow-heading strong,
+.wire-rule-flow-heading span,
+.wire-rule-flow-next {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-rule-lanes,
+.wire-rule-sequence {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-rule-lanes {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wire-rule-sequence {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wire-rule-lanes li,
+.wire-rule-sequence li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-rule-lanes li[data-rule-lane-state="active"],
+.wire-rule-lanes li[data-rule-lane-state="blocked"] {
+  border-width: 2px;
+}
+
+.wire-rule-lanes li[data-rule-lane-state="empty"] {
+  border-style: dashed;
+}
+
+.wire-rule-lanes small,
+.wire-rule-lanes strong,
+.wire-rule-lanes span,
+.wire-rule-lanes em,
+.wire-rule-sequence small,
+.wire-rule-sequence strong,
+.wire-rule-sequence span,
+.wire-rule-sequence em {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: normal;
 }
 
 .wire-rule-state-grid {
@@ -12835,6 +12918,11 @@ button.wire-object-ref {
 .wire-match-page .wire-action-role-grid span,
 .wire-match-page .wire-rule-queue,
 .wire-match-page .wire-rule-queue-header,
+.wire-match-page .wire-rule-flow,
+.wire-match-page .wire-rule-flow-heading,
+.wire-match-page .wire-rule-flow-next,
+.wire-match-page .wire-rule-lanes li,
+.wire-match-page .wire-rule-sequence li,
 .wire-match-page .wire-rule-state-grid,
 .wire-match-page .wire-rule-section,
 .wire-match-page .wire-rule-item,

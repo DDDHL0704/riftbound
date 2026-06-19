@@ -22,7 +22,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -341,6 +341,8 @@ async function runWireClickSelectionSmoke(cdp) {
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const windowPlan = document.querySelector(".wire-window-plan");
     const priorityRail = document.querySelector(".wire-priority-rail");
+    const ruleQueue = document.querySelector(".wire-rule-queue");
+    const ruleFlow = document.querySelector(".wire-rule-flow");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
@@ -355,7 +357,11 @@ async function runWireClickSelectionSmoke(cdp) {
       windowText: windowPlan?.textContent ?? "",
       priorityMode: windowPlan?.getAttribute("data-wire-priority-mode") ?? null,
       priorityRailText: priorityRail?.textContent ?? "",
-      priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null
+      priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null,
+      ruleFlowText: ruleFlow?.textContent ?? "",
+      ruleLaneCount: document.querySelectorAll("[data-rule-lane]").length,
+      ruleQueueState: ruleQueue?.getAttribute("data-wire-rule-queue-state") ?? null,
+      ruleSequenceCount: document.querySelectorAll("[data-rule-sequence-lane]").length
     };
   })()`);
 
@@ -453,6 +459,15 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.priorityRailText.includes("响应/焦点")) failures.push("wire priority rail focus step missing");
   if (!actionMapResult.priorityRailText.includes("规则任务")) failures.push("wire priority rail task step missing");
   if (!actionMapResult.priorityRailText.includes("操作入口")) failures.push("wire priority rail entry step missing");
+  if (!["task-blocked", "task-open", "stack-response"].includes(actionMapResult.ruleQueueState)) failures.push(`wire rule queue state did not reflect server queue context: ${actionMapResult.ruleQueueState}`);
+  if (actionMapResult.ruleLaneCount !== 4) failures.push(`wire rule queue lane count mismatch: ${actionMapResult.ruleLaneCount}`);
+  if (!actionMapResult.ruleFlowText.includes("规则队列地图")) failures.push("wire rule queue flow header missing");
+  if (!actionMapResult.ruleFlowText.includes("结算链")) failures.push("wire rule queue stack lane missing");
+  if (!actionMapResult.ruleFlowText.includes("规则任务")) failures.push("wire rule queue task lane missing");
+  if (!actionMapResult.ruleFlowText.includes("触发队列")) failures.push("wire rule queue trigger lane missing");
+  if (!actionMapResult.ruleFlowText.includes("近期事件")) failures.push("wire rule queue resolution lane missing");
+  if (!actionMapResult.ruleFlowText.includes("下一步")) failures.push("wire rule queue next step missing");
+  if (actionMapResult.ruleSequenceCount < 1) failures.push("wire rule queue sequence items missing");
   if (actionMapResult.candidatePlanCount < 1) failures.push("action map candidate plan cards missing");
   if (actionMapResult.candidatePlanEnabled !== "true") failures.push("PLAY_CARD candidate plan did not preserve enabled state");
   if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");

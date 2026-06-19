@@ -1742,6 +1742,8 @@
 
 线框对战桌面右侧优先权轨道继续工程化：新增 `wirePriorityRailPlan`，把服务端 `turnWindow`、`pendingTaskQueue`、`battlefieldTasks`、`stack`、`triggerQueue`、动态 `spellDuel` / `battle` 字段与 `ActionPrompt` 投影为固定五段“回合阶段 / 行动窗口 / 响应/焦点 / 规则任务 / 操作入口”。窗口总览面板现在首屏显示当前模式（普通行动、响应窗口、法术对决、战斗、战场任务、规则任务或连接恢复）、活动步骤和下一交互点；新增 `check:wire-priority-rail-plan` 构建门禁、Chrome smoke 与 appshot 基线覆盖。前端仍只展示服务端权威状态，不根据牌文或隐藏信息自行裁决规则；项目仍 **NOT READY**。
 
+线框对战桌面右侧规则队列地图继续工程化：新增 `wireRuleQueuePlan`，把服务端 `stack`、`pendingTaskQueue.tasks`、`battlefieldTasks`、`triggerQueue`、`battlefieldResolutions` 与 `battleResolutions` 投影为固定四泳道“结算链 / 规则任务 / 触发队列 / 近期事件”，并输出当前队列状态、下一步、顺序摘要与对象数量。`WireRuleQueuePanel` 现在由该计划驱动顶部地图和状态指标，详细结算链/任务/触发/事件列表仍只读取服务端快照；新增 `check:wire-rule-queue-plan` 构建门禁、Chrome smoke 与 appshot 基线覆盖。前端仍不根据牌文、隐藏信息或本地状态自行推进规则；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：
