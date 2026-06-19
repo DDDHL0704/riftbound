@@ -18656,7 +18656,7 @@ public static class MatchRecoveryValidator
             && isFaceDown)
         {
             errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must not be face down in {objectFaceDownLabel}");
+                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must not be face down in {objectFaceDownLabel}; {FormatExpectedActualForRecovery(false, isFaceDown)}");
         }
 
         if (objectTags is not null
@@ -18965,7 +18965,7 @@ public static class MatchRecoveryValidator
             && isFaceDown)
         {
             errors.Add(
-                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must not be face down in {objectFaceDownLabel}");
+                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must not be face down in {objectFaceDownLabel}; {FormatExpectedActualForRecovery(false, isFaceDown)}");
         }
 
         if (objectTags is not null
@@ -19315,7 +19315,7 @@ public static class MatchRecoveryValidator
             && isFaceDown)
         {
             errors.Add(
-                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}; {FormatExpectedActualForRecovery(false, isFaceDown)}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -19524,7 +19524,7 @@ public static class MatchRecoveryValidator
                 && isFaceDown)
             {
                 errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}; {FormatExpectedActualForRecovery(false, isFaceDown)}");
             }
 
             if (objectTags is not null
@@ -19719,7 +19719,7 @@ public static class MatchRecoveryValidator
             && isFaceDown)
         {
             errors.Add(
-                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}; {FormatExpectedActualForRecovery(false, isFaceDown)}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -21248,7 +21248,7 @@ public static class MatchRecoveryValidator
             && isFaceDown)
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}; {FormatExpectedActualForRecovery(false, isFaceDown)}");
         }
 
         if (objectTags is not null
@@ -21999,7 +21999,7 @@ public static class MatchRecoveryValidator
             && isFaceDown)
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}; {FormatExpectedActualForRecovery(false, isFaceDown)}");
         }
 
         if (!IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind)
