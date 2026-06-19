@@ -44240,7 +44240,9 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot stack item ids disagree with authoritative state stack item ids", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot stack item ids disagree with authoritative state stack item ids; expected [stack-1] but got [stack-2]",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -54388,7 +54390,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains("spectator replay frame timing battlefield task acting players disagree with authoritative state battlefield task acting players", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing battlefield task stack item ids disagree with authoritative state battlefield task stack item ids", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing battlefield task stack item ids disagree with authoritative state battlefield task stack item ids; expected [[], []] but got [[stack-drift], []]",
+                StringComparison.Ordinal));
     }
 
     [Fact]

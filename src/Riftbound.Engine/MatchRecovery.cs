@@ -14533,6 +14533,7 @@ public static class MatchRecoveryValidator
             IReadOnlyDictionary<string, int> values => FormatRecoveryDiagnosticIntDictionary(values),
             IReadOnlyDictionary<string, IReadOnlyList<string>> values => FormatRecoveryDiagnosticStringListDictionary(values),
             IReadOnlyList<BattleRequiredAssignmentView> values => FormatRecoveryDiagnosticRequiredAssignments(values),
+            IReadOnlyList<IReadOnlyList<string>> values => FormatRecoveryDiagnosticStringListCollection(values),
             IReadOnlyList<string> values => values.Count == 0 ? "[]" : $"[{string.Join(", ", values)}]",
             IEnumerable<string> values => FormatRecoveryDiagnosticValue(values.ToArray()),
             _ => value.ToString() ?? "<unreadable>"
@@ -14569,6 +14570,18 @@ public static class MatchRecoveryValidator
         return values.Count == 0
             ? "{}"
             : $"{{{string.Join(", ", formattedEntries)}}}";
+    }
+
+    private static string FormatRecoveryDiagnosticStringListCollection(
+        IReadOnlyList<IReadOnlyList<string>> values)
+    {
+        if (values.Count == 0)
+        {
+            return "[]";
+        }
+
+        var formattedItems = values.Select(FormatRecoveryDiagnosticValue);
+        return $"[{string.Join(", ", formattedItems)}]";
     }
 
     private static string FormatRecoveryDiagnosticRequiredAssignments(
@@ -23571,11 +23584,18 @@ public static class MatchRecoveryValidator
             errors.Add("spectator replay frame timing battlefield task acting players disagree with authoritative state battlefield task acting players");
         }
 
+        var spectatorBattlefieldTaskStackItemIds = ExtractObjectStringListValues(
+            spectatorBattlefieldTasks,
+            "stackItemIds");
+        var authoritativeBattlefieldTaskStackItemIds = authoritativeBattlefieldTasks
+            .Select(task => task.StackItemIds)
+            .ToArray();
         if (!StringListCollectionsEqual(
-                ExtractObjectStringListValues(spectatorBattlefieldTasks, "stackItemIds"),
-                authoritativeBattlefieldTasks.Select(task => task.StackItemIds).ToArray()))
+                spectatorBattlefieldTaskStackItemIds,
+                authoritativeBattlefieldTaskStackItemIds))
         {
-            errors.Add("spectator replay frame timing battlefield task stack item ids disagree with authoritative state battlefield task stack item ids");
+            errors.Add(
+                $"spectator replay frame timing battlefield task stack item ids disagree with authoritative state battlefield task stack item ids; {FormatExpectedActualForRecovery(authoritativeBattlefieldTaskStackItemIds, spectatorBattlefieldTaskStackItemIds)}");
         }
 
         if (!StringListsEqual(
@@ -27904,7 +27924,8 @@ public static class MatchRecoveryValidator
                 .ToArray();
             if (!StringListsEqual(spectatorStackItemIds, authoritativeStackItemIds))
             {
-                errors.Add("spectator replay frame snapshot stack item ids disagree with authoritative state stack item ids");
+                errors.Add(
+                    $"spectator replay frame snapshot stack item ids disagree with authoritative state stack item ids; {FormatExpectedActualForRecovery(authoritativeStackItemIds, spectatorStackItemIds)}");
             }
 
             var spectatorStackControllerIds = ExtractStackItemStringValues(
