@@ -1884,6 +1884,11 @@ button.card-face:hover {
   min-height: 44px;
 }
 
+.action-render-entry {
+  display: grid;
+  min-width: 0;
+}
+
 .match-diagnostics {
   display: grid;
   border: 1px solid var(--border-subtle);

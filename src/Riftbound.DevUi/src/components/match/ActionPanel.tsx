@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { promptStampedCommand as withPromptStamp } from "../../utils/actionPromptCandidates";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../../utils/actionPanelChoiceModels";
 import { buildActionPanelCandidateCommandPlan, type ActionPanelCandidateButtonIcon, type ActionPanelDirectActionKind } from "../../utils/actionPanelCommandPlan";
 import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
+import { buildActionPanelRenderPlan, type ActionPanelRenderEntry } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
@@ -28,18 +29,13 @@ type ActionPanelProps = {
 };
 
 export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
-  const allCandidates = prompt?.candidates ?? [];
-  const candidates = allCandidates.filter((candidate) => candidate.enabled);
   const connected = connectionStatus === "connected";
   const promptPlan = buildActionPanelPromptPlan({ connectionStatus, playerId, prompt });
-  const canAct = promptPlan.canAct;
-  const promptView = prompt?.view;
-  const orderTriggersCandidate = allCandidates.find((candidate) => candidate.action === "ORDER_TRIGGERS");
-  const handChoiceCandidate = allCandidates.find((candidate) => candidate.action === "CHOOSE_HAND_CARDS");
-  const showReadonlyOrderTriggers = promptView?.type === "ORDER_TRIGGERS"
-    && !candidates.some((candidate) => candidate.action === "ORDER_TRIGGERS");
-  const showReadonlyHandChoice = promptView?.type === "HAND_CHOICE"
-    && !candidates.some((candidate) => candidate.action === "CHOOSE_HAND_CARDS");
+  const renderPlan = buildActionPanelRenderPlan({
+    canAct: promptPlan.canAct,
+    connected,
+    prompt
+  });
 
   return (
     <section className="side-panel action-panel">
@@ -54,71 +50,21 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             {promptPlan.rows.map((row) => <span key={row.key}>{row.text}</span>)}
           </div>
           {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
-          <div className="action-buttons">
-            {showReadonlyOrderTriggers && (
-              <OrderTriggersCandidate
-                canAct={false}
-                candidate={orderTriggersCandidate}
+          <div
+            className="action-buttons"
+            data-action-render-count={renderPlan.entries.length}
+            data-action-render-prompt-type={renderPlan.promptType}
+            data-action-render-state={renderPlan.state}
+          >
+            {renderPlan.entries.length === 0 && <span className="empty-hint">{renderPlan.emptyLabel}</span>}
+            {renderPlan.entries.map((entry) => (
+              <ActionPanelRenderEntryView
                 disabledByConnection={!connected}
-                onCommand={onCommand}
-                prompt={prompt}
-                readOnly
-              />
-            )}
-            {showReadonlyHandChoice && (
-              <HandChoiceCandidate
-                canAct={false}
-                candidate={handChoiceCandidate}
-                disabledByConnection={!connected}
-                onCommand={onCommand}
-                prompt={prompt}
-                readOnly
-              />
-            )}
-            {candidates.length === 0 && !showReadonlyOrderTriggers && !showReadonlyHandChoice && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
-            {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
-              <MulliganCandidate
-                candidate={candidate}
-                disabledByConnection={!connected}
-                key={`${candidate.action}-${candidate.label}`}
-                onCommand={onCommand}
-                prompt={prompt}
-              />
-            ) : candidate.action === "CHOOSE_HAND_CARDS" ? (
-              <HandChoiceCandidate
-                canAct={Boolean(canAct)}
-                candidate={candidate}
-                disabledByConnection={!connected}
-                key={`${candidate.action}-${candidate.label}`}
-                onCommand={onCommand}
-                prompt={prompt}
-              />
-            ) : candidate.action === "ASSIGN_COMBAT_DAMAGE" ? (
-              <DamageAssignmentCandidate
-                candidate={candidate}
-                disabledByConnection={!connected}
-                key={`${candidate.action}-${candidate.label}`}
-                onCommand={onCommand}
-                prompt={prompt}
-                snapshot={snapshot}
-              />
-            ) : candidate.action === "ORDER_TRIGGERS" ? (
-              <OrderTriggersCandidate
-                canAct={Boolean(canAct)}
-                candidate={candidate}
-                disabledByConnection={!connected}
-                key={`${candidate.action}-${candidate.label}`}
-                onCommand={onCommand}
-                prompt={prompt}
-              />
-            ) : (
-              <CandidateButton
-                candidate={candidate}
-                key={`${candidate.action}-${candidate.label}`}
+                entry={entry}
+                key={entry.key}
                 onCommand={onCommand}
                 onReady={onReady}
                 onSubmitStarterDeck={onSubmitStarterDeck}
-                disabledByConnection={!connected}
                 prompt={prompt}
                 snapshot={snapshot}
               />
@@ -127,6 +73,103 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
         </div>
       </ScrollArea>
     </section>
+  );
+}
+
+function ActionPanelRenderEntryView({
+  disabledByConnection,
+  entry,
+  onCommand,
+  onReady,
+  onSubmitStarterDeck,
+  prompt,
+  snapshot
+}: {
+  disabledByConnection: boolean;
+  entry: ActionPanelRenderEntry;
+  onCommand: (command: GameCommand) => void;
+  onReady: () => void;
+  onSubmitStarterDeck: () => void;
+  prompt?: ActionPromptDto;
+  snapshot?: SnapshotDto;
+}) {
+  const candidate = entry.candidate;
+  let content: ReactNode = null;
+
+  switch (entry.kind) {
+    case "mulligan":
+      content = candidate ? (
+        <MulliganCandidate
+          candidate={candidate}
+          disabledByConnection={disabledByConnection || !entry.canAct}
+          onCommand={onCommand}
+          prompt={prompt}
+        />
+      ) : null;
+      break;
+    case "hand-choice":
+      content = (
+        <HandChoiceCandidate
+          canAct={entry.canAct}
+          candidate={candidate}
+          disabledByConnection={disabledByConnection}
+          onCommand={onCommand}
+          prompt={prompt}
+          readOnly={entry.readOnly}
+        />
+      );
+      break;
+    case "damage-assignment":
+      content = candidate ? (
+        <DamageAssignmentCandidate
+          candidate={candidate}
+          disabledByConnection={disabledByConnection || !entry.canAct}
+          onCommand={onCommand}
+          prompt={prompt}
+          snapshot={snapshot}
+        />
+      ) : null;
+      break;
+    case "order-triggers":
+      content = (
+        <OrderTriggersCandidate
+          canAct={entry.canAct}
+          candidate={candidate}
+          disabledByConnection={disabledByConnection}
+          onCommand={onCommand}
+          prompt={prompt}
+          readOnly={entry.readOnly}
+        />
+      );
+      break;
+    case "candidate-button":
+      content = candidate ? (
+        <CandidateButton
+          candidate={candidate}
+          disabledByConnection={disabledByConnection || !entry.canAct}
+          onCommand={onCommand}
+          onReady={onReady}
+          onSubmitStarterDeck={onSubmitStarterDeck}
+          prompt={prompt}
+          snapshot={snapshot}
+        />
+      ) : null;
+      break;
+  }
+
+  if (!content) {
+    return null;
+  }
+
+  return (
+    <div
+      className="action-render-entry"
+      data-action-render-entry={entry.key}
+      data-action-render-kind={entry.kind}
+      data-action-render-readonly={entry.readOnly ? "true" : "false"}
+    >
+      {content}
+    </div>
   );
 }
 

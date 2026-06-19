@@ -554,9 +554,15 @@ async function runWireClickSelectionSmoke(cdp) {
     const ruleFlow = document.querySelector(".wire-rule-flow");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector(".wire-action-route-strip");
+    const actionButtons = document.querySelector(".wire-action-panel .action-buttons");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
+      actionRenderCount: Number(actionButtons?.getAttribute("data-action-render-count") ?? "0"),
+      actionRenderKinds: Array.from(actionButtons?.querySelectorAll("[data-action-render-kind]") ?? [])
+        .map((node) => node.getAttribute("data-action-render-kind")),
+      actionRenderPromptType: actionButtons?.getAttribute("data-action-render-prompt-type") ?? null,
+      actionRenderState: actionButtons?.getAttribute("data-action-render-state") ?? null,
       candidatePlanCount: document.querySelectorAll(".wire-action-candidate-plan-card").length,
       candidatePlanEnabled: candidatePlan?.getAttribute("data-candidate-plan-enabled") ?? null,
       candidatePlanNext: candidatePlan?.querySelector("[data-candidate-plan-next-step]")?.textContent ?? "",
@@ -794,6 +800,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (destinationResult.detailLayerOpen) failures.push("destination click opened detail");
   if (actionMapResult.selected !== "true") failures.push("action map object chip did not focus table object");
   if (actionMapResult.chipSelected !== "true") failures.push("action map object chip did not show selected state");
+  if (actionMapResult.actionRenderState !== "ready") failures.push(`action panel render plan state unexpected: ${actionMapResult.actionRenderState}`);
+  if (actionMapResult.actionRenderPromptType !== "MAIN_ACTION") failures.push(`action panel render prompt type unexpected: ${actionMapResult.actionRenderPromptType}`);
+  if (actionMapResult.actionRenderCount < 1) failures.push("action panel render entries missing");
+  if (!actionMapResult.actionRenderKinds.includes("candidate-button")) failures.push("action panel render candidate button entry missing");
   if (!actionMapResult.actionMapText.includes("命令字段")) failures.push("action map command field list missing");
   if (!actionMapResult.actionMapText.includes("候选步骤")) failures.push("action map candidate step plan missing");
   if (!actionMapResult.actionMapText.includes("下一步")) failures.push("action map candidate next-step text missing");
