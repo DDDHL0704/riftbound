@@ -346,6 +346,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               onClear={clearTimelineDetail}
               onInspectObject={inspectObjectFromTable}
               prompt={tablePrompt}
+              selectionDraft={selectionDraft}
               selectedObjectContext={selectedObjectContext}
               selectedObjectId={selectedObjectId}
             />

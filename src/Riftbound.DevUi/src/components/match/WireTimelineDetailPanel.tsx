@@ -1,6 +1,7 @@
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { useState } from "react";
 import type { ActionPromptDto } from "../../types/protocol";
+import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
   buildWireTimelineDetailPlan,
   type WireTimelineCommandBridgeRow,
@@ -33,6 +34,7 @@ export function WireTimelineDetailPanel({
   onClear,
   onInspectObject,
   prompt,
+  selectionDraft,
   selectedObjectContext,
   selectedObjectId
 }: {
@@ -43,6 +45,7 @@ export function WireTimelineDetailPanel({
   onClear: () => void;
   onInspectObject?: (objectId: string) => void;
   prompt?: ActionPromptDto;
+  selectionDraft?: CandidateSelectionDraft;
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
 }) {
@@ -52,6 +55,7 @@ export function WireTimelineDetailPanel({
     objectContextById,
     objectIndex,
     prompt,
+    selectionDraft,
     selectedObjectContext,
     selectedObjectId
   });
@@ -190,14 +194,17 @@ function TimelineCommandBridge({
       <ol>
         {rows.map((row) => (
           <li
+            data-timeline-command-bridge-draft-active={row.draftActive ? "true" : "false"}
             data-timeline-command-bridge-enabled={row.enabled ? "true" : "false"}
             data-timeline-command-bridge-object-id={row.detailObjectId}
+            data-timeline-command-bridge-route-state={row.routeState}
             key={row.key}
           >
             <div className="wire-timeline-command-bridge-main">
               <span>{row.label}</span>
               <strong>{row.nextStepLabel}</strong>
               <small>{row.roleLabels.join(" / ")} / {row.commandType ?? "未公开命令"} / {row.stateLabel}</small>
+              <small>{row.selectionLabel} / {row.routeStateLabel} / {row.selectedStepCount}/{row.totalStepCount}</small>
               {!row.enabled && <small>{row.reasonLabel}</small>}
             </div>
             {row.nextObjectRefs.length > 0 && (

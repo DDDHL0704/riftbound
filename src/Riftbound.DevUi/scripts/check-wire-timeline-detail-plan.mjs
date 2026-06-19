@@ -41,6 +41,7 @@ new Function(
   "exports",
   "module",
   "buildPromptInteractionModel",
+  "candidateComposerKey",
   "promptChoiceRoleLabel",
   "promptChoiceSummaryObjectIds",
   "summarizePromptCandidateSemantics",
@@ -49,6 +50,7 @@ new Function(
   moduleShim.exports,
   moduleShim,
   buildPromptInteractionModel,
+  candidateComposerKey,
   promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
   candidateSemanticsModuleShim.exports.summarizePromptCandidateSemantics
@@ -175,8 +177,13 @@ assert.equal(plan.inspector.candidateRows[0].label, "OGN-001/298");
 assert.equal(plan.commandBridgeRows.length, 2);
 assert.equal(plan.commandBridgeRows[0].detailObjectId, "source-1");
 assert.equal(plan.commandBridgeRows[0].commandType, "PLAY_CARD");
+assert.equal(plan.commandBridgeRows[0].draftActive, false);
 assert.equal(plan.commandBridgeRows[0].enabled, true);
+assert.equal(plan.commandBridgeRows[0].routeState, "inactive");
+assert.equal(plan.commandBridgeRows[0].routeStateLabel, "未进入草稿");
 assert.deepEqual(plan.commandBridgeRows[0].roleLabels, ["来源"]);
+assert.deepEqual(plan.commandBridgeRows[0].selectedRoleLabels, []);
+assert.equal(plan.commandBridgeRows[0].selectionLabel, "未进入草稿");
 assert.equal(plan.commandBridgeRows[0].nextStepLabel, "可选目标");
 assert.deepEqual(plan.commandBridgeRows[0].nextObjectRefs, [{
   key: "PLAY_CARD:target:target-1:target-1",
@@ -187,6 +194,63 @@ assert.deepEqual(plan.commandBridgeRows[0].nextObjectRefs, [{
 assert.equal(plan.commandBridgeRows[1].detailObjectId, "target-1");
 assert.deepEqual(plan.commandBridgeRows[1].roleLabels, ["目标"]);
 assert.equal(plan.commandBridgeRows[1].nextStepLabel, "需要来源");
+
+const draftPlan = buildWireTimelineDetailPlan({
+  detail: {
+    id: "rule:stack:fixture-stack-1",
+    lines: [{ label: "来源", value: "闪电" }],
+    refs: [
+      { id: "source-1", role: "来源" },
+      { id: "target-1", label: "目标牌", role: "目标" }
+    ],
+    source: "rule",
+    subtitle: "法术",
+    title: "结算链项目"
+  },
+  objectIndex: {
+    "source-1": { objectId: "source-1", cardNo: "OGN-001/298" },
+    "target-1": { objectId: "target-1", cardNo: "SFD-001/221" }
+  },
+  prompt: {
+    __model: {
+      candidates: [
+        {
+          action: "PLAY_CARD",
+          choices: [
+            { id: "source-1", label: "手牌闪电", objectIds: ["source-1"], role: "source" },
+            { id: "target-1", label: "目标牌", objectIds: ["target-1"], role: "target" }
+          ],
+          command: { bindings: [], cmdType: "PLAY_CARD" },
+          enabled: true,
+          label: "打出卡牌",
+          reason: "可提交",
+          steps: [
+            { count: 1, label: "来源", required: true, role: "source", sampleLabels: ["手牌闪电"] },
+            { count: 1, label: "目标", required: false, role: "target", sampleLabels: ["目标牌"] }
+          ]
+        }
+      ]
+    }
+  },
+  selectionDraft: {
+    candidateKey: "PLAY_CARD::打出卡牌",
+    optionalCostIds: [],
+    sourceObjectId: "source-1",
+    targetChoiceIds: ["target-1"]
+  }
+});
+
+assert.equal(draftPlan.statusCards.find((card) => card.label === "候选路径")?.value, "2 条 / 2 草稿");
+assert.equal(draftPlan.commandBridgeRows[0].draftActive, true);
+assert.equal(draftPlan.commandBridgeRows[0].routeState, "ready");
+assert.equal(draftPlan.commandBridgeRows[0].routeStateLabel, "可送服务端校验");
+assert.deepEqual(draftPlan.commandBridgeRows[0].selectedRoleLabels, ["来源", "目标"]);
+assert.equal(draftPlan.commandBridgeRows[0].selectionLabel, "已选 来源 / 目标");
+assert.equal(draftPlan.commandBridgeRows[0].selectedStepCount, 2);
+assert.equal(draftPlan.commandBridgeRows[0].totalStepCount, 2);
+assert.equal(draftPlan.commandBridgeRows[0].missingRequiredCount, 0);
+assert.equal(draftPlan.commandBridgeRows[0].nextStepLabel, "草稿可送服务端校验");
+assert.deepEqual(draftPlan.commandBridgeRows[0].nextObjectRefs, []);
 assert.equal(plan.navigationRows.length, 4);
 assert.deepEqual(plan.navigationRows.map((row) => row.focusState), ["selected", "focusable", "missing", "hidden"]);
 assert.deepEqual(plan.navigationRows.map((row) => row.projectionState), ["selected", "visible", "missing", "hidden"]);
@@ -221,6 +285,10 @@ console.log("Wire timeline detail plan check passed.");
 
 function buildPromptInteractionModel(prompt) {
   return prompt?.__model ?? { candidates: [] };
+}
+
+function candidateComposerKey(candidate) {
+  return `${candidate.action}::${candidate.label}`;
 }
 
 function promptChoiceRoleLabel(role) {

@@ -13626,6 +13626,11 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-timeline-command-bridge li[data-timeline-command-bridge-draft-active="true"],
+.wire-timeline-command-bridge li[data-timeline-command-bridge-route-state="ready"] {
+  border-width: 2px;
+}
+
 .wire-timeline-command-bridge-main {
   min-width: 0;
   display: grid;

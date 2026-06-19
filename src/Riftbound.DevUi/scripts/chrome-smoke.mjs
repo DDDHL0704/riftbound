@@ -1168,9 +1168,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
       navigationText: panel?.querySelector(".wire-timeline-navigation-list")?.textContent ?? "",
       commandBridgeEnabledStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-enabled")),
+      commandBridgeDraftActiveStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
+      commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
       commandBridgeRowCount: panel?.querySelectorAll(".wire-timeline-command-bridge li").length ?? 0,
       commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
@@ -1219,6 +1223,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
+      commandBridgeDraftActiveStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
+      commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
+      commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
+      commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
       sourceSelected: sourceObject?.getAttribute("data-selected") ?? null,
       sourceStepProgress: sourceStep?.getAttribute("data-step-progress") ?? null,
       targetRouteStepState: targetRouteStep?.getAttribute("data-route-step-state") ?? null,
@@ -1291,9 +1301,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
       navigationText: panel?.querySelector(".wire-timeline-navigation-list")?.textContent ?? "",
       commandBridgeEnabledStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-enabled")),
+      commandBridgeDraftActiveStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
+      commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
       commandBridgeRowCount: panel?.querySelectorAll(".wire-timeline-command-bridge li").length ?? 0,
       commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
@@ -1369,9 +1383,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (ruleDetailResult.commandBridgeNextButtonCount < 1) failures.push("rule detail command bridge next object buttons missing");
   if (!ruleDetailResult.commandBridgeNextObjectIds.includes("p2-right-1")) failures.push("rule detail command bridge target object missing");
   if (!ruleDetailResult.commandBridgeEnabledStates.includes("true")) failures.push("rule detail command bridge enabled state missing");
+  if (!ruleDetailResult.commandBridgeDraftActiveStates.includes("true")) failures.push("rule detail command bridge draft state missing");
+  if (!ruleDetailResult.commandBridgeRouteStates.includes("ready")) failures.push("rule detail command bridge route state missing");
   if (!ruleDetailResult.commandBridgeText.includes("候选路径")) failures.push("rule detail command bridge title missing");
   if (!ruleDetailResult.commandBridgeText.includes("PLAY_CARD")) failures.push("rule detail command bridge command type missing");
   if (!ruleDetailResult.commandBridgeText.includes("可选目标")) failures.push("rule detail command bridge next step missing");
+  if (!ruleDetailResult.commandBridgeText.includes("已选 来源")) failures.push("rule detail command bridge source draft label missing");
   if (ruleDetailResult.actionHintCount < 1) failures.push("rule detail candidate hint rows missing");
   if (ruleDetailResult.actionHintButtonCount < 1) failures.push("rule detail candidate hint buttons missing");
   if (!ruleDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("rule detail candidate hint command type missing");
@@ -1398,6 +1415,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (commandBridgeFocusResult.routeState !== "ready") failures.push(`command bridge route state unexpected: ${commandBridgeFocusResult.routeState}`);
   if (!commandBridgeFocusResult.draftText.includes("目标 1")) failures.push("command bridge draft target count missing");
   if (!commandBridgeFocusResult.routeText.includes("PLAY_CARD")) failures.push("command bridge route command type missing");
+  if (!commandBridgeFocusResult.commandBridgeDraftActiveStates.includes("true")) failures.push("command bridge detail draft state missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeRouteStates.includes("ready")) failures.push("command bridge detail route state missing after target selection");
+  if (commandBridgeFocusResult.commandBridgeNextButtonCount < 1) failures.push("command bridge detail should still offer optional next choices after target selection");
+  if (!commandBridgeFocusResult.commandBridgeText.includes("已选 来源 / 目标")) failures.push("command bridge detail selected roles missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeText.includes("可选位置")) failures.push("command bridge detail optional next step missing after target selection");
   if (commandBridgeFocusResult.detailLayerOpen) failures.push("command bridge button opened card detail layer");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");

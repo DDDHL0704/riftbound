@@ -1,4 +1,6 @@
 import type { ActionPromptDto, CardObjectView } from "../types/protocol";
+import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
+import { candidateComposerKey } from "./candidateComposerModel";
 import { summarizePromptCandidateSemantics } from "./promptCandidateSemantics";
 import {
   buildPromptInteractionModel,
@@ -88,17 +90,27 @@ export type WireTimelineCommandBridgeObjectRef = {
   roleLabel: string;
 };
 
+export type WireTimelineCommandBridgeRouteState = "blocked" | "inactive" | "ready" | "selecting";
+
 export type WireTimelineCommandBridgeRow = {
   commandType?: string;
   detailObjectId: string;
+  draftActive: boolean;
   enabled: boolean;
   key: string;
   label: string;
+  missingRequiredCount: number;
   nextObjectRefs: WireTimelineCommandBridgeObjectRef[];
   nextStepLabel: string;
   reasonLabel: string;
   roleLabels: string[];
+  routeState: WireTimelineCommandBridgeRouteState;
+  routeStateLabel: string;
+  selectedRoleLabels: string[];
+  selectedStepCount: number;
+  selectionLabel: string;
   stateLabel: string;
+  totalStepCount: number;
 };
 
 export type WireTimelineInspectorProjection = {
@@ -146,6 +158,7 @@ export function buildWireTimelineDetailPlan({
   objectContextById = {},
   objectIndex,
   prompt,
+  selectionDraft,
   selectedObjectContext,
   selectedObjectId
 }: {
@@ -153,12 +166,13 @@ export function buildWireTimelineDetailPlan({
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: Record<string, CardObjectView>;
   prompt?: ActionPromptDto;
+  selectionDraft?: CandidateSelectionDraft;
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
 }): WireTimelineDetailPlan {
   const projectionRows = detail ? projectionRowsForDetail(detail, objectIndex, selectedObjectId) : [];
   const actionHintRows = detail ? actionHintRowsForDetail(detail, objectIndex, objectContextById) : [];
-  const commandBridgeRows = detail ? commandBridgeRowsForDetail(detail, objectIndex, prompt) : [];
+  const commandBridgeRows = detail ? commandBridgeRowsForDetail(detail, objectIndex, prompt, selectionDraft) : [];
   const navigationRows = navigationRowsForDetail(projectionRows, objectContextById);
   const selectedProjection = projectionRows.some((row) => row.state === "selected");
   const visibleProjectionCount = projectionRows.filter((row) => row.state === "selected" || row.state === "visible").length;
@@ -193,7 +207,7 @@ export function buildWireTimelineDetailPlan({
       { label: "当前焦点", value: focusValue },
       { label: "焦点关联", value: selectedProjection ? "已命中详情对象" : detail ? "未命中详情对象" : "无详情" },
       { label: "关联候选", value: actionHintRows.length > 0 ? `${enabledActionHintCount} 可用 / ${disabledActionHintCount} 阻断` : "无候选" },
-      { label: "候选路径", value: commandBridgeRows.length > 0 ? `${commandBridgeRows.length} 条` : "无路径" }
+      { label: "候选路径", value: commandBridgeRows.length > 0 ? commandBridgeStatusLabel(commandBridgeRows) : "无路径" }
     ]
   };
 }
@@ -201,7 +215,8 @@ export function buildWireTimelineDetailPlan({
 function commandBridgeRowsForDetail(
   detail: WireTimelineDetailLike,
   objectIndex: Record<string, CardObjectView>,
-  prompt?: ActionPromptDto
+  prompt?: ActionPromptDto,
+  selectionDraft?: CandidateSelectionDraft
 ): WireTimelineCommandBridgeRow[] {
   const promptModel = buildPromptInteractionModel(prompt);
   const rows: WireTimelineCommandBridgeRow[] = [];
@@ -223,27 +238,142 @@ function commandBridgeRowsForDetail(
       }
       seen.add(key);
 
-      const nextStep = nextStepForCommandBridge(candidate, roleLabels);
+      const draftState = commandBridgeDraftState(candidate, selectionDraft);
+      const progressRoleLabels = draftState.draftActive ? draftState.selectedRoleLabels : roleLabels;
+      const nextStep = nextStepForCommandBridge(candidate, progressRoleLabels);
       rows.push({
         commandType: candidate.command?.cmdType ?? candidate.action,
         detailObjectId: objectId,
+        draftActive: draftState.draftActive,
         enabled: candidate.enabled,
         key,
         label: candidate.label,
+        missingRequiredCount: draftState.missingRequiredCount,
         nextObjectRefs: nextStep ? objectRefsForCommandBridge(candidate, nextStep.role, objectIndex) : [],
-        nextStepLabel: nextStepLabelForCommandBridge(candidate, nextStep),
+        nextStepLabel: nextStepLabelForCommandBridge(candidate, nextStep, draftState.draftActive),
         reasonLabel: candidate.reason,
         roleLabels,
-        stateLabel: candidate.enabled ? "可提交" : "暂不可提交"
+        routeState: draftState.routeState,
+        routeStateLabel: routeStateLabel(draftState.routeState),
+        selectedRoleLabels: draftState.selectedRoleLabels,
+        selectedStepCount: draftState.selectedStepCount,
+        selectionLabel: selectionLabel(draftState.draftActive, draftState.selectedRoleLabels),
+        stateLabel: candidate.enabled ? "可提交" : "暂不可提交",
+        totalStepCount: candidate.steps.length
       });
     }
   }
 
   return rows.sort((left, right) =>
     Number(right.enabled) - Number(left.enabled)
+    || Number(right.draftActive) - Number(left.draftActive)
     || right.nextObjectRefs.length - left.nextObjectRefs.length
     || left.label.localeCompare(right.label, "zh-Hans-CN")
   ).slice(0, 6);
+}
+
+function commandBridgeStatusLabel(rows: WireTimelineCommandBridgeRow[]): string {
+  const draftCount = rows.filter((row) => row.draftActive).length;
+  return draftCount > 0 ? `${rows.length} 条 / ${draftCount} 草稿` : `${rows.length} 条`;
+}
+
+type CommandBridgeDraftState = {
+  draftActive: boolean;
+  missingRequiredCount: number;
+  routeState: WireTimelineCommandBridgeRouteState;
+  selectedRoleLabels: string[];
+  selectedStepCount: number;
+};
+
+function commandBridgeDraftState(
+  candidate: PromptCandidateSummary,
+  selectionDraft?: CandidateSelectionDraft
+): CommandBridgeDraftState {
+  const draftActive = selectionDraft?.candidateKey === candidateComposerKey(candidate);
+  const selectedRoles = draftActive ? selectedRolesForDraft(candidate, selectionDraft) : new Set<PromptChoiceRole>();
+  const missingRequiredCount = draftActive
+    ? candidate.steps.filter((step) => step.required && !selectedRoles.has(step.role)).length
+    : 0;
+  const selectedStepCount = draftActive
+    ? candidate.steps.filter((step) => selectedRoles.has(step.role)).length
+    : 0;
+  const routeState: WireTimelineCommandBridgeRouteState = !draftActive
+    ? "inactive"
+    : !candidate.enabled
+      ? "blocked"
+      : missingRequiredCount > 0
+        ? "selecting"
+        : "ready";
+
+  return {
+    draftActive,
+    missingRequiredCount,
+    routeState,
+    selectedRoleLabels: uniqueStrings([...selectedRoles].map(promptChoiceRoleLabel)),
+    selectedStepCount
+  };
+}
+
+function selectedRolesForDraft(
+  candidate: PromptCandidateSummary,
+  selectionDraft?: CandidateSelectionDraft
+): Set<PromptChoiceRole> {
+  const selectedRoles = new Set<PromptChoiceRole>();
+  if (!selectionDraft) {
+    return selectedRoles;
+  }
+
+  for (const choice of candidate.choices) {
+    if (choiceSelectedForDraft(choice, selectionDraft)) {
+      selectedRoles.add(choice.role);
+    }
+  }
+
+  return selectedRoles;
+}
+
+function choiceSelectedForDraft(choice: PromptCandidateSummary["choices"][number], selectionDraft: CandidateSelectionDraft): boolean {
+  switch (choice.role) {
+    case "source":
+      return choiceMatchesDraftValue(choice, selectionDraft.sourceObjectId);
+    case "target":
+      return selectionDraft.targetChoiceIds.some((id) => choiceMatchesDraftValue(choice, id));
+    case "destination":
+      return choiceMatchesDraftValue(choice, selectionDraft.destinationId);
+    case "mode":
+      return choiceMatchesDraftValue(choice, selectionDraft.mode);
+    case "optionalCost":
+      return selectionDraft.optionalCostIds.some((id) => choiceMatchesDraftValue(choice, id));
+  }
+}
+
+function choiceMatchesDraftValue(choice: PromptCandidateSummary["choices"][number], value?: string): boolean {
+  if (!value) {
+    return false;
+  }
+
+  return choice.id === value || promptChoiceSummaryObjectIds(choice).includes(value);
+}
+
+function routeStateLabel(state: WireTimelineCommandBridgeRouteState): string {
+  switch (state) {
+    case "blocked":
+      return "草稿阻断";
+    case "inactive":
+      return "未进入草稿";
+    case "ready":
+      return "可送服务端校验";
+    case "selecting":
+      return "缺少必需选择";
+  }
+}
+
+function selectionLabel(draftActive: boolean, selectedRoleLabels: string[]): string {
+  if (!draftActive) {
+    return "未进入草稿";
+  }
+
+  return selectedRoleLabels.length > 0 ? `已选 ${selectedRoleLabels.join(" / ")}` : "草稿未选步骤";
 }
 
 function navigationRowsForDetail(
@@ -457,13 +587,14 @@ function nextStepForCommandBridge(
 
 function nextStepLabelForCommandBridge(
   candidate: PromptCandidateSummary,
-  nextStep: PromptCandidateSummary["steps"][number] | undefined
+  nextStep: PromptCandidateSummary["steps"][number] | undefined,
+  draftActive: boolean
 ): string {
   if (nextStep) {
     return nextStep.required ? `需要${nextStep.label}` : `可选${nextStep.label}`;
   }
 
-  return candidate.enabled ? "可提交给服务端" : "等待服务端窗口";
+  return draftActive && candidate.enabled ? "草稿可送服务端校验" : candidate.enabled ? "可提交给服务端" : "等待服务端窗口";
 }
 
 function objectRefsForCommandBridge(
