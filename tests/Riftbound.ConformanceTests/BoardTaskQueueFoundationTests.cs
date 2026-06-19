@@ -100,7 +100,7 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.Equal(CommandTypes.MoveUnit, moveCandidate.CommandType);
         Assert.Contains("来源", moveCandidate.Roles);
         Assert.Contains("来源:sourceObjectId*", moveCandidate.RequiredCommandFields ?? []);
-        Assert.Contains("服务端:origin*", moveCandidate.RequiredCommandFields ?? []);
+        Assert.Contains("服务端字段*", moveCandidate.RequiredCommandFields ?? []);
         Assert.Contains("位置:destination", moveCandidate.CommandFields ?? []);
     }
 

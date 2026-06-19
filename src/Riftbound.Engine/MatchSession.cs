@@ -5439,6 +5439,11 @@ internal static class ActionPromptBuilder
 
     private static string CommandBindingLabel(ActionPromptCommandBindingDto binding)
     {
+        if (string.Equals(binding.Source, "requirementMetadata", StringComparison.Ordinal))
+        {
+            return $"服务端字段{(binding.Required ? "*" : "")}";
+        }
+
         var label = string.IsNullOrWhiteSpace(binding.Label) ? binding.Source : binding.Label.Trim();
         return $"{label}:{binding.Field}{(binding.Required ? "*" : "")}";
     }

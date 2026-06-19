@@ -244,12 +244,12 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         candidates: [
           {
             action: "PLAY_CARD",
-            commandFields: ["来源:sourceObjectId*", "服务端:cardNo*", "目标:targetObjectIds", "位置:destination", "费用:optionalCosts"],
+            commandFields: ["来源:sourceObjectId*", "服务端字段*", "目标:targetObjectIds", "位置:destination", "费用:optionalCosts"],
             commandType: "PLAY_CARD",
             enabled: true,
             label: "打出手牌样例",
             reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
-            requiredCommandFields: ["来源:sourceObjectId*", "服务端:cardNo*"],
+            requiredCommandFields: ["来源:sourceObjectId*", "服务端字段*"],
             roles: ["来源"]
           }
         ],
@@ -278,12 +278,12 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         candidates: [
           {
             action: "MOVE_UNIT",
-            commandFields: ["来源:sourceObjectId*", "服务端:origin*", "位置:destination", "费用:optionalCosts"],
+            commandFields: ["来源:sourceObjectId*", "服务端字段*", "位置:destination", "费用:optionalCosts"],
             commandType: "MOVE_UNIT",
             enabled: true,
             label: "移动单位样例",
             reason: "前端线框样例；移动窗口、费用和目标由服务端决定。",
-            requiredCommandFields: ["来源:sourceObjectId*", "服务端:origin*"],
+            requiredCommandFields: ["来源:sourceObjectId*", "服务端字段*"],
             roles: ["来源"]
           }
         ],
@@ -295,22 +295,22 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         candidates: [
           {
             action: "PLAY_CARD",
-            commandFields: ["来源:sourceObjectId*", "服务端:cardNo*", "目标:targetObjectIds", "位置:destination", "费用:optionalCosts"],
+            commandFields: ["来源:sourceObjectId*", "服务端字段*", "目标:targetObjectIds", "位置:destination", "费用:optionalCosts"],
             commandType: "PLAY_CARD",
             enabled: true,
             label: "打出手牌样例",
             reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
-            requiredCommandFields: ["来源:sourceObjectId*", "服务端:cardNo*"],
+            requiredCommandFields: ["来源:sourceObjectId*", "服务端字段*"],
             roles: ["目标"]
           },
           {
             action: "ACTIVATE_ABILITY",
-            commandFields: ["来源:sourceObjectId*", "服务端:abilityId*", "目标:targetObjectIds", "费用:optionalCosts"],
+            commandFields: ["来源:sourceObjectId*", "服务端字段*", "目标:targetObjectIds", "费用:optionalCosts"],
             commandType: "ACTIVATE_ABILITY",
             enabled: false,
             label: "激活技能禁用样例",
             reason: "前端线框样例；真实不可提交原因由服务端规则窗口提供。",
-            requiredCommandFields: ["来源:sourceObjectId*", "服务端:abilityId*"],
+            requiredCommandFields: ["来源:sourceObjectId*", "服务端字段*"],
             roles: ["目标"]
           }
         ],
