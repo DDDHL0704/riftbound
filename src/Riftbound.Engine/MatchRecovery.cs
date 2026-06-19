@@ -26657,7 +26657,8 @@ public static class MatchRecoveryValidator
 
         if (!seatPlayerIds.Contains(normalizedPlayerId))
         {
-            errors.Add($"authoritative state {playerLabel} {normalizedPlayerId} is missing from seats");
+            errors.Add(
+                $"authoritative state {playerLabel} {normalizedPlayerId} is missing from seats; {FormatAuthoritativeStateExpectedPlayerDetail(seatPlayerIds, normalizedPlayerId)}");
         }
     }
 
