@@ -536,6 +536,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const priorityRail = document.querySelector(".wire-priority-rail");
     const ruleQueue = document.querySelector(".wire-rule-queue");
     const ruleFlow = document.querySelector(".wire-rule-flow");
+    const focusBridge = document.querySelector(".wire-action-focus-bridge");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
@@ -545,6 +546,8 @@ async function runWireClickSelectionSmoke(cdp) {
       candidatePlanText: candidatePlan?.textContent ?? "",
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      focusBridgeState: focusBridge?.getAttribute("data-action-focus-state") ?? null,
+      focusBridgeText: focusBridge?.textContent ?? "",
       focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? "",
       windowState: windowPlan?.getAttribute("data-wire-window-state") ?? null,
       windowText: windowPlan?.textContent ?? "",
@@ -663,6 +666,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.actionMapText.includes("PLAY_CARD")) failures.push("action map command type missing");
   if (!actionMapResult.actionMapText.includes("服务端字段")) failures.push("action map metadata command field summary missing");
   if (actionMapResult.actionMapText.includes("服务端:cardNo*")) failures.push("action map leaked raw metadata command field");
+  if (actionMapResult.focusBridgeState !== "enabled") failures.push(`action map focus bridge state unexpected: ${actionMapResult.focusBridgeState}`);
+  if (!actionMapResult.focusBridgeText.includes("角色 来源")) failures.push("action map focus bridge role summary missing");
+  if (!actionMapResult.focusBridgeText.includes("可选目标")) failures.push("action map focus bridge next step missing");
+  if (!actionMapResult.focusBridgeText.includes("PLAY_CARD")) failures.push("action map focus bridge command type missing");
   if (!["resolving", "you-action"].includes(actionMapResult.windowState)) failures.push(`wire window plan did not show a server-derived active state: ${actionMapResult.windowState}`);
   if (!actionMapResult.windowText.includes("窗口总览")) failures.push("wire window plan header missing");
   if (!actionMapResult.windowText.includes("下一步")) failures.push("wire window plan next step missing");

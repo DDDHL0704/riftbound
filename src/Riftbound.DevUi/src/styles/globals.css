@@ -12380,6 +12380,76 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-action-focus-bridge {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #000;
+  padding: 5px;
+}
+
+.wire-action-focus-bridge[data-action-focus-state="enabled"] {
+  border-width: 2px;
+}
+
+.wire-action-focus-bridge[data-action-focus-state="blocked"] {
+  border-style: dashed;
+}
+
+.wire-action-focus-bridge-heading {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-action-focus-bridge-heading strong,
+.wire-action-focus-bridge-heading span,
+.wire-action-focus-bridge-metrics small,
+.wire-action-focus-candidate-list small,
+.wire-action-focus-candidate-list span,
+.wire-action-focus-candidate-list strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-action-focus-bridge-metrics {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 4px;
+}
+
+.wire-action-focus-bridge-metrics small {
+  border: 1px solid #000;
+  padding: 2px 3px;
+}
+
+.wire-action-focus-candidate-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-action-focus-candidate-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: 2px 5px;
+  border: 1px solid #000;
+  padding: 3px;
+}
+
+.wire-action-focus-candidate-list li.is-enabled {
+  border-width: 2px;
+}
+
+.wire-action-focus-candidate-list small {
+  grid-column: 1 / -1;
+}
+
 .wire-action-group-list {
   display: grid;
   gap: 4px;

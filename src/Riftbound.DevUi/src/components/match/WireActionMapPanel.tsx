@@ -53,6 +53,8 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
         {plan.objectEntryOverflowCount > 0 && <span className="wire-action-object-chip">等 {plan.objectEntryOverflowCount} 个对象</span>}
       </div>
 
+      {plan.focus && <FocusedActionBridge plan={plan} />}
+
       <div className="wire-action-group-list">
         {plan.groups.length === 0 && <span className="empty-hint">等待服务端行动窗口。</span>}
         {plan.groups.map((group) => (
@@ -97,6 +99,45 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+function FocusedActionBridge({ plan }: { plan: WireActionMapPlan }) {
+  const focus = plan.focus;
+  if (!focus) {
+    return null;
+  }
+
+  return (
+    <section
+      aria-label="焦点对象合法操作联动"
+      className="wire-action-focus-bridge"
+      data-action-focus-state={focus.enabledCandidateCount > 0 ? "enabled" : focus.candidateCount > 0 ? "blocked" : "empty"}
+    >
+      <div className="wire-action-focus-bridge-heading">
+        <strong>{focus.label}</strong>
+        <span>{focus.stateLabel}</span>
+      </div>
+      <div className="wire-action-focus-bridge-metrics">
+        <small>对象 {focus.objectId}</small>
+        <small>{focus.roleLabels.length > 0 ? `角色 ${focus.roleLabels.join(" / ")}` : "无候选角色"}</small>
+        <small>{focus.enabledCandidateCount} 可提交 / {focus.disabledCandidateCount} 阻断</small>
+      </div>
+      {focus.relatedCandidates.length > 0 ? (
+        <ol className="wire-action-focus-candidate-list">
+          {focus.relatedCandidates.map((candidate) => (
+            <li className={candidate.enabled ? "is-enabled" : "is-disabled"} key={candidate.key}>
+              <span>{candidate.label}</span>
+              <strong>{candidate.nextStepLabel}</strong>
+              <small>{candidate.roleLabels.join(" / ")} / {candidate.commandType ?? "未公开命令"} / {candidate.stateLabel}</small>
+              {!candidate.enabled && <small>{candidate.reason}</small>}
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <span className="empty-hint">焦点对象当前没有服务端候选。</span>
+      )}
     </section>
   );
 }

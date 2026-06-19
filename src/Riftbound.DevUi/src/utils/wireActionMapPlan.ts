@@ -4,6 +4,7 @@ import { commandBindingDisplayLabel, commandBindingFieldKey } from "./commandFie
 import { promptActionLabel, promptReasonLabel } from "./formatters";
 import {
   buildPromptInteractionModel,
+  promptChoiceSummaryObjectIds,
   promptChoiceRoleOrder,
   promptChoiceRoleLabel,
   promptCommandBindingLabel,
@@ -25,6 +26,28 @@ export type WireActionObjectEntry = {
   label: string;
   objectId: string;
   selected: boolean;
+};
+
+export type WireActionFocusCandidatePlan = {
+  commandType?: string;
+  enabled: boolean;
+  key: string;
+  label: string;
+  nextStepLabel: string;
+  reason: string;
+  roleLabels: string[];
+  stateLabel: string;
+};
+
+export type WireActionFocusPlan = {
+  candidateCount: number;
+  disabledCandidateCount: number;
+  enabledCandidateCount: number;
+  label: string;
+  objectId: string;
+  relatedCandidates: WireActionFocusCandidatePlan[];
+  roleLabels: string[];
+  stateLabel: string;
 };
 
 export type WireActionRoleCount = {
@@ -90,6 +113,7 @@ export type WireActionMapPlan = {
   grammarCandidates: WireActionGrammarCandidatePlan[];
   groupTotalCount: number;
   groups: WireActionGroupPlan[];
+  focus?: WireActionFocusPlan;
   metrics: WireActionMapMetric[];
   objectEntries: WireActionObjectEntry[];
   objectEntryOverflowCount: number;
@@ -150,6 +174,7 @@ export function buildWireActionMapPlan({
     groups: groups
       .slice(0, nonNegativeLimit(maxActionGroups))
       .map(actionGroupPlan),
+    focus: focusPlan(selectedObjectId, objects, model),
     metrics: [
       { key: "enabled", label: "可提交", value: `${enabledCandidates.length}` },
       { key: "total", label: "全部候选", value: `${model.candidates.length}` },
@@ -161,6 +186,95 @@ export function buildWireActionMapPlan({
       .map((objectId) => objectEntryPlan(objectId, objects, model, selectedObjectId)),
     objectEntryOverflowCount: Math.max(knownEnabledObjects.length - objectLimit, 0)
   };
+}
+
+function focusPlan(
+  selectedObjectId: string | undefined,
+  objects: ObjectIndex,
+  model: PromptInteractionModel
+): WireActionFocusPlan | undefined {
+  if (!selectedObjectId) {
+    return undefined;
+  }
+
+  const relatedCandidates = model.candidates
+    .map((candidate) => focusCandidatePlan(candidate, selectedObjectId))
+    .filter((candidate): candidate is WireActionFocusCandidatePlan => Boolean(candidate))
+    .sort(focusCandidateSort);
+  const summary = model.objectById.get(selectedObjectId);
+  const roleLabels = uniqueStrings(relatedCandidates.flatMap((candidate) => candidate.roleLabels));
+  const enabledCandidateCount = summary?.enabledCandidateCount ?? relatedCandidates.filter((candidate) => candidate.enabled).length;
+  const disabledCandidateCount = summary?.disabledCandidateCount ?? relatedCandidates.filter((candidate) => !candidate.enabled).length;
+
+  return {
+    candidateCount: relatedCandidates.length,
+    disabledCandidateCount,
+    enabledCandidateCount,
+    label: objectLabel(selectedObjectId, objects),
+    objectId: selectedObjectId,
+    relatedCandidates: relatedCandidates.slice(0, 4),
+    roleLabels,
+    stateLabel: focusStateLabel(relatedCandidates.length, enabledCandidateCount)
+  };
+}
+
+function focusCandidatePlan(
+  candidate: PromptCandidateSummary,
+  objectId: string
+): WireActionFocusCandidatePlan | undefined {
+  const roleLabels = uniqueStrings(candidate.choices
+    .filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId))
+    .map((choice) => promptChoiceRoleLabel(choice.role)));
+  if (roleLabels.length === 0) {
+    return undefined;
+  }
+
+  return {
+    commandType: candidate.command?.cmdType,
+    enabled: candidate.enabled,
+    key: `${candidate.action}:${candidate.label}:${objectId}`,
+    label: candidate.label,
+    nextStepLabel: nextStepLabelForFocusedCandidate(candidate, roleLabels),
+    reason: candidate.reason,
+    roleLabels,
+    stateLabel: candidate.enabled ? "可提交" : "暂不可提交"
+  };
+}
+
+function nextStepLabelForFocusedCandidate(
+  candidate: PromptCandidateSummary,
+  selectedRoleLabels: string[]
+): string {
+  const nextStep = candidate.steps.find((step) =>
+    step.required && !selectedRoleLabels.includes(promptChoiceRoleLabel(step.role)))
+    ?? candidate.steps.find((step) =>
+      step.count > 0 && !selectedRoleLabels.includes(promptChoiceRoleLabel(step.role)));
+
+  if (nextStep) {
+    return nextStep.required ? `需要${nextStep.label}` : `可选${nextStep.label}`;
+  }
+
+  return candidate.enabled ? "可提交给服务端" : "等待服务端窗口";
+}
+
+function focusStateLabel(candidateCount: number, enabledCount: number): string {
+  if (candidateCount === 0) {
+    return "焦点对象不在服务端候选中";
+  }
+
+  if (enabledCount > 0) {
+    return `${enabledCount} 个可提交候选`;
+  }
+
+  return "仅有关联但当前阻断";
+}
+
+function focusCandidateSort(left: WireActionFocusCandidatePlan, right: WireActionFocusCandidatePlan): number {
+  if (left.enabled !== right.enabled) {
+    return left.enabled ? -1 : 1;
+  }
+
+  return left.label.localeCompare(right.label, "zh-Hans-CN");
 }
 
 function objectEntryPlan(
@@ -318,4 +432,8 @@ function safeChoiceId(value: string): string {
 
 function nonNegativeLimit(value: number): number {
   return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }

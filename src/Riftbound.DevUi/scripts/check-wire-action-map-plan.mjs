@@ -22,6 +22,7 @@ const actionMapExports = loadTsModule(resolve(scriptDir, "../src/utils/wireActio
   commandBindingDisplayLabel: commandFieldDisplayExports.commandBindingDisplayLabel,
   commandBindingFieldKey: commandFieldDisplayExports.commandBindingFieldKey,
   promptActionLabel,
+  promptChoiceSummaryObjectIds: promptInteractionExports.promptChoiceSummaryObjectIds,
   promptChoiceRoleOrder: promptInteractionExports.promptChoiceRoleOrder,
   promptChoiceRoleLabel: promptInteractionExports.promptChoiceRoleLabel,
   promptCommandBindingLabel: promptInteractionExports.promptCommandBindingLabel,
@@ -108,6 +109,17 @@ assert.equal(plan.objectEntries.length, 2);
 assert.equal(plan.objectEntries[0].label, "OGN-001/298");
 assert.equal(plan.objectEntries[0].selected, true);
 assert.equal(plan.objectEntries[0].enabledCandidateCount, 1);
+assert.equal(plan.focus.objectId, "p1-hand-1");
+assert.equal(plan.focus.label, "OGN-001/298");
+assert.equal(plan.focus.stateLabel, "1 个可提交候选");
+assert.deepEqual(plan.focus.roleLabels, ["来源"]);
+assert.equal(plan.focus.enabledCandidateCount, 1);
+assert.equal(plan.focus.disabledCandidateCount, 1);
+assert.equal(plan.focus.relatedCandidates.length, 2);
+assert.equal(plan.focus.relatedCandidates[0].label, "打出手牌");
+assert.equal(plan.focus.relatedCandidates[0].commandType, "PLAY_CARD");
+assert.deepEqual(plan.focus.relatedCandidates[0].roleLabels, ["来源"]);
+assert.equal(plan.focus.relatedCandidates[0].nextStepLabel, "可选目标");
 assert.equal(plan.disabledOnlyObjectCount, 1);
 assert.equal(plan.groups[0].label, "打出手牌");
 assert.equal(plan.groups[0].enabledCount, 1);
@@ -131,6 +143,7 @@ const readOnlyPlan = buildWireActionMapPlan({
   snapshot
 });
 assert.equal(readOnlyPlan.canAct, false);
+assert.equal(readOnlyPlan.focus, undefined);
 
 const limitedPlan = buildWireActionMapPlan({
   maxObjectEntries: 1,
