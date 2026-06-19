@@ -11889,6 +11889,18 @@ button.card-face:hover {
   display: grid;
   gap: 2px;
   padding: 4px;
+  appearance: none;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.wire-action-object-chip[data-selected="true"] {
+  border-width: 2px;
 }
 
 .wire-action-group-list {

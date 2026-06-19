@@ -319,6 +319,19 @@ async function runWireClickSelectionSmoke(cdp) {
     };
   })()`);
 
+  await clickActionMapObject(cdp, "p1-hand-spell");
+  await delay(150);
+  const actionMapResult = await evaluateJson(cdp, `(() => {
+    const tableObject = document.querySelector('[data-object-id="p1-hand-spell"]');
+    const actionChip = document.querySelector('[data-action-object-id="p1-hand-spell"]');
+    return {
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      chipSelected: actionChip?.getAttribute("data-selected") ?? null,
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? ""
+    };
+  })()`);
+
   const failures = [];
   if (focusResult.state !== "server-candidate") failures.push("focused action summary did not use server candidate state");
   if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
@@ -341,6 +354,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (destinationResult.destinationState !== "chosen") failures.push("destination not chosen");
   if (destinationResult.destinationSelectValue !== "BATTLEFIELD:fixture-right-battlefield") failures.push("composer destination select did not follow click");
   if (destinationResult.detailLayerOpen) failures.push("destination click opened detail");
+  if (actionMapResult.selected !== "true") failures.push("action map object chip did not focus table object");
+  if (actionMapResult.chipSelected !== "true") failures.push("action map object chip did not show selected state");
+  if (!actionMapResult.focusText.includes("服务端状态")) failures.push("action map focus did not refresh focused action summary");
+  if (actionMapResult.detailLayerOpen) failures.push("action map object chip opened detail");
 
   if (failures.length > 0) {
     throw new Error(`Wire click selection smoke failed:\n${failures.join("\n")}`);
@@ -493,6 +510,21 @@ async function clickEventObjectRef(cdp, objectId) {
   });
   if (!result.result?.value) {
     throw new Error(`Event object ref not found: ${objectId}`);
+  }
+}
+
+async function clickActionMapObject(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-action-object-id="${objectId}"]`)});
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Action map object chip not found: ${objectId}`);
   }
 }
 

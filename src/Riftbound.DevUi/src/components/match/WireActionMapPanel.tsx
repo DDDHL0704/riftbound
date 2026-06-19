@@ -11,8 +11,10 @@ import {
 import { StatusPill } from "../ui/StatusPill";
 
 type WireActionMapPanelProps = {
+  onInspectObject?: (objectId: string) => void;
   playerId: string;
   prompt?: ActionPromptDto;
+  selectedObjectId?: string;
   snapshot?: SnapshotDto;
 };
 
@@ -26,7 +28,7 @@ type ActionGroup = {
 
 const roleOrder: PromptChoiceRole[] = ["source", "target", "destination", "optionalCost", "mode"];
 
-export function WireActionMapPanel({ playerId, prompt, snapshot }: WireActionMapPanelProps) {
+export function WireActionMapPanel({ onInspectObject, playerId, prompt, selectedObjectId, snapshot }: WireActionMapPanelProps) {
   const model = buildPromptInteractionModel(prompt);
   const objects = objectIndex(snapshot);
   const groups = actionGroups(model);
@@ -59,10 +61,17 @@ export function WireActionMapPanel({ playerId, prompt, snapshot }: WireActionMap
         {knownEnabledObjects.slice(0, 6).map((objectId) => {
           const summary = model.objectById.get(objectId);
           return (
-            <span className="wire-action-object-chip" key={objectId}>
+            <button
+              className="wire-action-object-chip"
+              data-action-object-id={objectId}
+              data-selected={selectedObjectId === objectId ? "true" : "false"}
+              key={objectId}
+              onClick={() => onInspectObject?.(objectId)}
+              type="button"
+            >
               <strong>{objectLabel(objectId, objects)}</strong>
               <small>{summary?.enabledCandidateCount ?? 0} 项</small>
-            </span>
+            </button>
           );
         })}
         {knownEnabledObjects.length > 6 && <span className="wire-action-object-chip">等 {knownEnabledObjects.length} 个对象</span>}
