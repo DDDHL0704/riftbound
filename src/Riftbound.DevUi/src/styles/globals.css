@@ -2573,6 +2573,49 @@ button.card-face:hover {
   overflow-wrap: anywhere;
 }
 
+.detail-inspector,
+.detail-inspector-heading,
+.detail-inspector-groups,
+.detail-inspector-group,
+.detail-inspector-group dl,
+.detail-inspector-summary {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.detail-inspector-heading span,
+.detail-inspector-group dd,
+.detail-inspector-summary dd {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.detail-inspector-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.detail-inspector-summary div,
+.detail-inspector-group {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.detail-inspector-summary dt,
+.detail-inspector-group dt {
+  color: var(--accent-gold);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.detail-inspector-summary dd,
+.detail-inspector-group dd {
+  margin: 3px 0 0;
+}
+
 .detail-actions {
   display: grid;
   gap: 10px;
@@ -13620,6 +13663,24 @@ button.wire-object-ref {
 .wire-match-page .detail-action-list {
   display: grid;
   gap: 8px;
+}
+
+.wire-match-page .detail-inspector,
+.wire-match-page .detail-inspector *,
+.wire-match-page .detail-inspector-heading span {
+  color: #000 !important;
+}
+
+.wire-match-page .detail-inspector-summary div,
+.wire-match-page .detail-inspector-group {
+  border: 1px solid #000 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+}
+
+.wire-match-page .detail-inspector-summary dt,
+.wire-match-page .detail-inspector-group dt {
+  color: #000 !important;
 }
 
 .wire-match-page input,

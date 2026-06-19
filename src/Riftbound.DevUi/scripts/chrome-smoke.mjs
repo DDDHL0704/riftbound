@@ -455,10 +455,15 @@ async function runWireClickSelectionSmoke(cdp) {
   await delay(150);
   const detailContextResult = await evaluateJson(cdp, `(() => {
     const detail = document.querySelector(".detail-layer");
+    const inspector = detail?.querySelector("[data-card-detail-inspector]");
     return {
       activeText: document.activeElement?.textContent ?? "",
+      groups: Array.from(inspector?.querySelectorAll("[data-card-detail-inspector-group]") ?? []).map((node) => node.getAttribute("data-card-detail-inspector-group")),
+      inspectorOpen: Boolean(inspector),
+      inspectorText: inspector?.textContent ?? "",
       labelledBy: detail?.getAttribute("aria-labelledby") ?? "",
       state: detail?.getAttribute("data-detail-dialog-state") ?? null,
+      summaryKeys: Array.from(inspector?.querySelectorAll("[data-card-detail-inspector-summary]") ?? []).map((node) => node.getAttribute("data-card-detail-inspector-summary")),
       text: detail?.textContent ?? "",
       open: Boolean(detail)
     };
@@ -712,6 +717,16 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.text.includes("来源:sourceObjectId*")) failures.push("card detail command field missing");
   if (!detailContextResult.text.includes("服务端字段")) failures.push("card detail command metadata summary missing");
   if (detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail leaked raw metadata command field");
+  if (!detailContextResult.inspectorOpen) failures.push("card detail inspector missing");
+  if (!detailContextResult.inspectorText.includes("卡牌检查")) failures.push("card detail inspector header missing");
+  if (!detailContextResult.inspectorText.includes("公开对象")) failures.push("card detail inspector boundary missing");
+  if (!detailContextResult.summaryKeys.includes("zone")) failures.push("card detail inspector zone summary missing");
+  if (!detailContextResult.summaryKeys.includes("candidate")) failures.push("card detail inspector candidate summary missing");
+  if (!detailContextResult.groups.includes("identity")) failures.push("card detail inspector identity group missing");
+  if (!detailContextResult.groups.includes("candidate")) failures.push("card detail inspector candidate group missing");
+  if (!detailContextResult.groups.includes("events")) failures.push("card detail inspector event group missing");
+  if (!detailContextResult.inspectorText.includes("服务端对象上下文")) failures.push("card detail inspector server context source missing");
+  if (!detailContextResult.inspectorText.includes("结算链")) failures.push("card detail inspector stack boundary missing");
   if (detailEscapeResult.open) failures.push("card detail did not close on Escape");
   if (detailEscapeResult.activeObjectId !== "p1-hand-spell") failures.push("card detail did not restore focus to source card");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");

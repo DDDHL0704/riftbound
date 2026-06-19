@@ -33,6 +33,26 @@ export type CardDetailSection = {
   title: string;
 };
 
+export type CardDetailInspectorRow = {
+  key: string;
+  label: string;
+  value: string;
+  tone?: CardDetailTone;
+};
+
+export type CardDetailInspectorGroup = {
+  emptyLabel?: string;
+  key: string;
+  rows: CardDetailInspectorRow[];
+  title: string;
+};
+
+export type CardDetailInspectorPlan = {
+  boundaryLabel: string;
+  groups: CardDetailInspectorGroup[];
+  summaryRows: CardDetailInspectorRow[];
+};
+
 export type CardDetailPlan = {
   actionCandidates: ActionPromptCandidateDto[];
   actionEmptyLabel: string;
@@ -40,6 +60,7 @@ export type CardDetailPlan = {
   detailRows: CardDetailRow[];
   hidden: boolean;
   hiddenMessage?: string;
+  inspector: CardDetailInspectorPlan;
   sections: CardDetailSection[];
   sourceObjectId?: string;
   title: string;
@@ -79,6 +100,7 @@ export function buildCardDetailPlan({
       detailRows: [],
       hidden,
       hiddenMessage: "该对象未向当前玩家公开。前端只展示服务端快照允许的信息，不读取或推断卡名、费用、类型或规则文本。",
+      inspector: buildHiddenInspectorPlan(sourceObjectId),
       sections: [],
       sourceObjectId,
       title
@@ -87,6 +109,13 @@ export function buildCardDetailPlan({
 
   const states = objectStateLabels(card.object);
   const actionCandidates = sourceCandidatesForPrompt(prompt, sourceObjectId);
+  const detailRows: CardDetailRow[] = [
+    { key: "cost", label: "费用", value: costText(card.spec) },
+    { key: "power", label: "战力", value: `${card.object?.effectivePower ?? card.object?.power ?? card.object?.basePower ?? "未知"}` },
+    { key: "owner", label: "所属方", value: card.object?.ownerId ?? "未知" },
+    { key: "controller", label: "控制方", value: card.object?.controllerId ?? "未知" },
+    { key: "zone", label: "位置", value: objectContext?.zone.label ?? formatLocation(card.object?.location) }
+  ];
   const sections: CardDetailSection[] = [
     { key: "keywords", title: "关键词", body: keywordsText(card.spec) },
     { key: "rules", title: "规则文本", body: rulesText(card.spec?.officialText) },
@@ -114,17 +143,134 @@ export function buildCardDetailPlan({
           ] satisfies CardDetailBadge[]
         : [])
     ],
-    detailRows: [
-      { key: "cost", label: "费用", value: costText(card.spec) },
-      { key: "power", label: "战力", value: `${card.object?.effectivePower ?? card.object?.power ?? card.object?.basePower ?? "未知"}` },
-      { key: "owner", label: "所属方", value: card.object?.ownerId ?? "未知" },
-      { key: "controller", label: "控制方", value: card.object?.controllerId ?? "未知" },
-      { key: "zone", label: "位置", value: objectContext?.zone.label ?? formatLocation(card.object?.location) }
-    ],
+    detailRows,
     hidden,
+    inspector: buildVisibleInspectorPlan({
+      actionCandidateCount: actionCandidates.length,
+      card,
+      detailRows,
+      objectContext,
+      prompt,
+      sourceObjectId
+    }),
     sections,
     sourceObjectId,
     title
+  };
+}
+
+function buildHiddenInspectorPlan(sourceObjectId?: string): CardDetailInspectorPlan {
+  return {
+    boundaryLabel: "隐藏对象：只展示服务端公开外壳，不展示卡名、费用、规则文本或前端推断操作。",
+    summaryRows: [
+      { key: "visibility", label: "信息边界", value: "隐藏信息", tone: "warn" },
+      { key: "object", label: "对象", value: sourceObjectId || "服务端未公开", tone: "neutral" },
+      { key: "candidates", label: "候选", value: "不从隐藏对象推导", tone: "neutral" }
+    ],
+    groups: [
+      {
+        key: "safe-boundary",
+        title: "安全边界",
+        rows: [
+          { key: "card", label: "卡牌身份", value: "未公开", tone: "warn" },
+          { key: "rules", label: "规则文本", value: "未公开", tone: "warn" },
+          { key: "actions", label: "服务端候选", value: "不展示/不提交", tone: "neutral" }
+        ]
+      }
+    ]
+  };
+}
+
+function buildVisibleInspectorPlan({
+  actionCandidateCount,
+  card,
+  detailRows,
+  objectContext,
+  prompt,
+  sourceObjectId
+}: {
+  actionCandidateCount: number;
+  card: CardDetailPlanCard;
+  detailRows: CardDetailRow[];
+  objectContext?: TableObjectContext;
+  prompt?: ActionPromptDto;
+  sourceObjectId?: string;
+}): CardDetailInspectorPlan {
+  const candidateRows = objectContext?.candidateLinks.map((candidate, index) => ({
+    key: `candidate-${index}`,
+    label: candidate.enabled ? "可提交" : "阻断",
+    tone: candidate.enabled ? "good" : "warn",
+    value: [
+      candidate.commandType ?? candidate.label,
+      candidate.roles.length > 0 ? candidate.roles.join("/") : "",
+      candidate.requiredCommandFields.length > 0 ? `需 ${candidate.requiredCommandFields.join("/")}` : "",
+      candidate.enabled ? "" : candidate.reason
+    ].filter(Boolean).join(" / ")
+  } satisfies CardDetailInspectorRow)) ?? [];
+  const eventRows = objectContext?.eventLinks.map((event, index) => ({
+    key: `event-${index}`,
+    label: event.role,
+    value: `${event.kind}：${event.description}`
+  } satisfies CardDetailInspectorRow)) ?? [];
+  const stackRows = objectContext?.stackRoles.map((role, index) => ({
+    key: `stack-${index}`,
+    label: "结算链",
+    tone: "info",
+    value: role
+  } satisfies CardDetailInspectorRow)) ?? [];
+  const stateRows = (objectContext?.stateLabels.length ? objectContext.stateLabels : objectStateLabels(card.object)).map((state, index) => ({
+    key: `state-${index}`,
+    label: "状态",
+    value: state
+  } satisfies CardDetailInspectorRow));
+
+  return {
+    boundaryLabel: "公开对象：详情只汇总当前快照、行动提示、结算链和公开事件，不在前端重算规则。",
+    summaryRows: [
+      { key: "object", label: "对象", value: sourceObjectId || card.object?.objectId || "服务端未公开" },
+      { key: "zone", label: "区域", value: objectContext?.zone.label ?? detailRows.find((row) => row.key === "zone")?.value ?? "服务端未公开" },
+      { key: "candidate", label: "候选", value: `${objectContext?.promptEnabledCount ?? actionCandidateCount} 可提交 / ${objectContext?.promptDisabledCount ?? 0} 阻断` },
+      { key: "source", label: "来源", value: candidateSourceLabel(objectContext?.candidateSource) }
+    ],
+    groups: [
+      {
+        key: "identity",
+        title: "对象身份",
+        rows: [
+          { key: "card-no", label: "编号", value: card.spec?.cardNo ?? card.object?.cardNo ?? "服务端未公开" },
+          { key: "owner", label: "所属方", value: card.object?.ownerId ?? objectContext?.ownerId ?? "未知" },
+          { key: "controller", label: "控制方", value: card.object?.controllerId ?? objectContext?.controllerId ?? "未知" },
+          { key: "prompt", label: "行动窗口", value: prompt?.promptId ? `prompt ${prompt.promptId}` : prompt?.actionable ? "当前可行动" : "无当前行动窗口" },
+          { key: "tick", label: "快照", value: prompt?.snapshotTick != null ? `tick ${prompt.snapshotTick}` : "未随 prompt 公布" }
+        ]
+      },
+      {
+        key: "state",
+        title: "状态与区域",
+        rows: [
+          { key: "zone", label: "区域", value: objectContext?.zone.label ?? detailRows.find((row) => row.key === "zone")?.value ?? "服务端未公开" },
+          ...stateRows
+        ]
+      },
+      {
+        emptyLabel: "当前 prompt 没有把这张牌关联到公开候选。",
+        key: "candidate",
+        title: "服务端候选",
+        rows: candidateRows
+      },
+      {
+        emptyLabel: "当前结算链没有公开引用这张牌。",
+        key: "stack",
+        title: "结算链关联",
+        rows: stackRows
+      },
+      {
+        emptyLabel: "最近事件没有公开引用这张牌。",
+        key: "events",
+        title: "近期事件",
+        rows: eventRows
+      }
+    ]
   };
 }
 
@@ -154,6 +300,19 @@ function formatLocation(location?: Record<string, unknown> | null): string {
   const playerId = typeof location.playerId === "string" ? location.playerId : "";
   const zone = typeof location.zone === "string" ? location.zone : "";
   return [playerId, zoneLabel(zone)].filter(Boolean).join(" / ") || "服务端未公开";
+}
+
+function candidateSourceLabel(source: TableObjectContext["candidateSource"] | undefined): string {
+  switch (source) {
+    case "server":
+      return "服务端对象上下文";
+    case "derived":
+      return "公开 prompt 派生";
+    case "none":
+      return "无候选关联";
+    default:
+      return "未建立上下文";
+  }
 }
 
 function zoneLabel(zone: string): string {

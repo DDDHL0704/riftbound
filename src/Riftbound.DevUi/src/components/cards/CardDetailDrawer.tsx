@@ -2,7 +2,7 @@ import { Play, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
-import { buildCardDetailPlan } from "../../utils/cardDetailPlan";
+import { buildCardDetailPlan, type CardDetailInspectorPlan } from "../../utils/cardDetailPlan";
 import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
 import { buildPromptInteractionModel } from "../../utils/promptInteraction";
 import { buildSourceCandidateActionPlan } from "../../utils/sourceCandidateActionPlan";
@@ -99,7 +99,10 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
           ))}
         </div>
         {detailPlan.hidden ? (
-          <p className="detail-muted">{detailPlan.hiddenMessage}</p>
+          <>
+            <p className="detail-muted">{detailPlan.hiddenMessage}</p>
+            <DetailInspector inspector={detailPlan.inspector} />
+          </>
         ) : (
           <>
             <dl className="detail-grid">
@@ -111,6 +114,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
               ))}
             </dl>
             <DetailObjectContext context={objectContext} contract={prompt?.contract} focusModel={detailFocusModel} />
+            <DetailInspector inspector={detailPlan.inspector} />
             {detailPlan.sections.map((section) => (
               <section className="detail-section" key={section.key}>
                 <strong>{section.title}</strong>
@@ -172,6 +176,44 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
         )}
       </aside>
     </div>
+  );
+}
+
+function DetailInspector({ inspector }: { inspector: CardDetailInspectorPlan }) {
+  return (
+    <section className="detail-section detail-inspector" aria-label="卡牌检查" data-card-detail-inspector>
+      <div className="detail-inspector-heading">
+        <strong>卡牌检查</strong>
+        <span>{inspector.boundaryLabel}</span>
+      </div>
+      <dl className="detail-inspector-summary">
+        {inspector.summaryRows.map((row) => (
+          <div data-card-detail-inspector-summary={row.key} key={row.key}>
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="detail-inspector-groups">
+        {inspector.groups.map((group) => (
+          <section className="detail-inspector-group" data-card-detail-inspector-group={group.key} key={group.key}>
+            <strong>{group.title}</strong>
+            {group.rows.length === 0 ? (
+              <p className="detail-muted">{group.emptyLabel ?? "当前没有公开记录。"}</p>
+            ) : (
+              <dl>
+                {group.rows.slice(0, 6).map((row) => (
+                  <div data-card-detail-inspector-row={`${group.key}:${row.key}`} key={row.key}>
+                    <dt>{row.label}</dt>
+                    <dd>{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </section>
+        ))}
+      </div>
+    </section>
   );
 }
 

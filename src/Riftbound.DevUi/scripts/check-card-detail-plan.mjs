@@ -67,6 +67,8 @@ assert.equal(hiddenPlan.title, "未公开卡牌");
 assert.equal(hiddenPlan.actionCandidates.length, 0);
 assert.equal(hiddenPlan.badges[0].label, "隐藏信息");
 assert.ok(hiddenPlan.hiddenMessage.includes("不读取或推断"));
+assert.equal(hiddenPlan.inspector.summaryRows.find((row) => row.key === "visibility")?.value, "隐藏信息");
+assert.equal(hiddenPlan.inspector.groups[0].rows.find((row) => row.key === "rules")?.value, "未公开");
 assert.equal(JSON.stringify(hiddenPlan).includes("PLAY_CARD"), false);
 
 const visiblePlan = buildCardDetailPlan({
@@ -95,20 +97,40 @@ const visiblePlan = buildCardDetailPlan({
     }
   },
   objectContext: {
-    candidateLinks: [],
+    candidateLinks: [
+      {
+        commandFields: ["来源"],
+        commandType: "PLAY_CARD",
+        enabled: true,
+        label: "打出手牌",
+        reason: "可提交",
+        requiredCommandFields: ["sourceObjectId"],
+        roles: ["来源"]
+      },
+      {
+        commandFields: ["目标"],
+        commandType: "ACTIVATE_ABILITY",
+        enabled: false,
+        label: "激活能力",
+        reason: "缺少合法目标",
+        requiredCommandFields: ["targetObjectIds"],
+        roles: ["目标"]
+      }
+    ],
     candidateSource: "server",
     cardNo: "OGN-001/298",
     controllerId: "P1",
-    eventLinks: [],
+    eventLinks: [{ description: "测试法术加入结算链", kind: "STACK_ITEM_ADDED", role: "来源" }],
     objectId: "p1-hand-spell",
     ownerId: "P1",
-    promptDisabledCount: 0,
+    promptDisabledCount: 1,
     promptEnabledCount: 1,
-    stackRoles: [],
+    stackRoles: ["结算链来源"],
     stateLabels: ["4 战力"],
     zone: { kind: "hand", label: "我方手牌", playerId: "P1" }
   },
   prompt: {
+    actionable: true,
     candidates: [
       {
         action: "PLAY_CARD",
@@ -124,7 +146,11 @@ const visiblePlan = buildCardDetailPlan({
         reason: "错误来源",
         sources: [{ id: "other-object", label: "其他对象" }]
       }
-    ]
+    ],
+    playerId: "P1",
+    promptId: "prompt-1",
+    reason: "测试窗口",
+    snapshotTick: 12
   }
 });
 
@@ -138,6 +164,13 @@ assert.ok(visiblePlan.sections.find((section) => section.key === "evidence")?.bo
 assert.ok(visiblePlan.sections.find((section) => section.key === "state")?.body.includes("1 伤害"));
 assert.equal(visiblePlan.actionCandidates.length, 1);
 assert.equal(visiblePlan.actionCandidates[0].action, "PLAY_CARD");
+assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "zone")?.value, "我方手牌");
+assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "candidate")?.value, "1 可提交 / 1 阻断");
+assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "source")?.value, "服务端对象上下文");
+assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "identity")?.rows.some((row) => row.value.includes("prompt-1")));
+assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "candidate")?.rows.some((row) => row.value.includes("缺少合法目标")));
+assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "stack")?.rows.some((row) => row.value === "结算链来源"));
+assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "events")?.rows.some((row) => row.value.includes("STACK_ITEM_ADDED")));
 
 console.log("Card detail plan check passed.");
 
