@@ -21,11 +21,14 @@ import {
   wireObjectRef,
   wireObjectRefs
 } from "./WireObjectRefChips";
+import type { WireTimelineDetail, WireTimelineDetailLine } from "./WireTimelineDetailPanel";
 
 type WireRuleQueuePanelProps = {
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
   onInspectObject?: (objectId: string) => void;
   playerId: string;
   prompt?: ActionPromptDto;
+  selectedDetailId?: string;
   selectedObjectId?: string;
   snapshot?: SnapshotDto;
 };
@@ -81,7 +84,7 @@ const battleResolutionLabels: Record<string, string> = {
   NO_RESULT: "战斗无结果"
 };
 
-export function WireRuleQueuePanel({ onInspectObject, playerId, prompt, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
+export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
   const timing = asRecord(snapshot?.timing);
   const queue = asRecord(timing.pendingTaskQueue);
   const turnWindow = asRecord(timing.turnWindow);
@@ -124,10 +127,11 @@ export function WireRuleQueuePanel({ onInspectObject, playerId, prompt, selected
 
       <RuleSection title="结算链" emptyLabel="当前无结算链项目。">
         {stack.map((item, index) => (
-          <article className="wire-rule-item" key={item.stackItemId ?? `stack-${index}`}>
+          <article className={isSelectedRuleDetail(selectedDetailId, "stack", item.stackItemId ?? String(index)) ? "wire-rule-item is-detail-selected" : "wire-rule-item"} key={item.stackItemId ?? `stack-${index}`}>
             <div>
               <strong>项目 {stack.length - index}</strong>
               <span>{stackEffectLabel(item.effectKind)}</span>
+              <RuleDetailButton detail={stackDetail(item, index, stack.length, playerId, objects)} onSelectDetail={onSelectDetail} />
             </div>
             <RuleLine label="控制者" mine={item.controllerId === playerId} value={item.controllerId ?? "未知"} />
             <RuleLine label="来源" value={sourceLabel(item.sourceObjectId, item.cardNo, objects)} />
@@ -148,10 +152,11 @@ export function WireRuleQueuePanel({ onInspectObject, playerId, prompt, selected
           </div>
         )}
         {[...pendingTasks, ...battlefieldTasks].map((task, index) => (
-          <article className="wire-rule-item" key={task.taskId ?? `task-${index}`}>
+          <article className={isSelectedRuleDetail(selectedDetailId, "task", task.taskId ?? String(index)) ? "wire-rule-item is-detail-selected" : "wire-rule-item"} key={task.taskId ?? `task-${index}`}>
             <div>
               <strong>{taskKindLabel(task.kind)}</strong>
               <span>{task.status ? protocolValue(task.status, "服务端状态") : "状态未提供"}</span>
+              <RuleDetailButton detail={taskDetail(task, index, playerId, objects)} onSelectDetail={onSelectDetail} />
             </div>
             <RuleLine label="原因" value={taskReasonLabel(task.reason)} />
             <RuleLine label="战场" value={task.battlefieldObjectId ? objectLabel(task.battlefieldObjectId, objects) : "无"} />
@@ -167,10 +172,11 @@ export function WireRuleQueuePanel({ onInspectObject, playerId, prompt, selected
 
       <RuleSection title="触发队列" emptyLabel="当前无待排序或待结算触发。">
         {triggerQueue.map((trigger, index) => (
-          <article className="wire-rule-item" key={trigger.triggerId ?? `trigger-${index}`}>
+          <article className={isSelectedRuleDetail(selectedDetailId, "trigger", trigger.triggerId ?? String(index)) ? "wire-rule-item is-detail-selected" : "wire-rule-item"} key={trigger.triggerId ?? `trigger-${index}`}>
             <div>
               <strong>触发 {index + 1}</strong>
               <span>{stackEffectLabel(trigger.effectKind)}</span>
+              <RuleDetailButton detail={triggerDetail(trigger, index, playerId, objects)} onSelectDetail={onSelectDetail} />
             </div>
             <RuleLine label="控制者" mine={trigger.controllerId === playerId} value={trigger.controllerId ?? "无"} />
             <RuleLine label="来源" value={trigger.sourceVisibility === "HIDDEN" ? "隐藏来源" : objectLabel(trigger.sourceObjectId, objects)} />
@@ -182,10 +188,11 @@ export function WireRuleQueuePanel({ onInspectObject, playerId, prompt, selected
 
       <RuleSection title="近期规则事件" emptyLabel="暂无近期战场或战斗结算。">
         {battlefieldResolutions.map((resolution, index) => (
-          <article className="wire-rule-item" key={resolution.resolutionId ?? `battlefield-resolution-${index}`}>
+          <article className={isSelectedRuleDetail(selectedDetailId, "battlefield-resolution", resolution.resolutionId ?? String(index)) ? "wire-rule-item is-detail-selected" : "wire-rule-item"} key={resolution.resolutionId ?? `battlefield-resolution-${index}`}>
             <div>
               <strong>{battlefieldResolutionLabel(resolution.kind)}</strong>
               <span>tick {resolution.tick ?? "无"}</span>
+              <RuleDetailButton detail={battlefieldResolutionDetail(resolution, index, playerId, objects)} onSelectDetail={onSelectDetail} />
             </div>
             <RuleLine label="战场" value={objectLabel(resolution.battlefieldObjectId, objects)} />
             <RuleLine label="控制者" mine={(resolution.playerId ?? resolution.controllerId) === playerId} value={resolution.playerId ?? resolution.controllerId ?? "无"} />
@@ -195,10 +202,11 @@ export function WireRuleQueuePanel({ onInspectObject, playerId, prompt, selected
           </article>
         ))}
         {battleResolutions.map((resolution, index) => (
-          <article className="wire-rule-item" key={resolution.resolutionId ?? `battle-resolution-${index}`}>
+          <article className={isSelectedRuleDetail(selectedDetailId, "battle-resolution", resolution.resolutionId ?? String(index)) ? "wire-rule-item is-detail-selected" : "wire-rule-item"} key={resolution.resolutionId ?? `battle-resolution-${index}`}>
             <div>
               <strong>{battleResolutionLabel(resolution.kind)}</strong>
               <span>tick {resolution.tick ?? "无"}</span>
+              <RuleDetailButton detail={battleResolutionDetail(resolution, index, playerId, objects)} onSelectDetail={onSelectDetail} />
             </div>
             <RuleLine label="战场" value={objectLabel(resolution.battlefieldId, objects)} />
             <RuleLine label="胜者" mine={resolution.winnerPlayerId === playerId} value={resolution.winnerPlayerId ?? "无"} />
@@ -245,6 +253,24 @@ function RuleLine({ label, mine, value }: { label: string; mine?: boolean; value
       <span>{label}</span>
       <strong>{value || "无"}</strong>
     </span>
+  );
+}
+
+function RuleDetailButton({
+  detail,
+  onSelectDetail
+}: {
+  detail: WireTimelineDetail;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+}) {
+  if (!onSelectDetail) {
+    return null;
+  }
+
+  return (
+    <button className="wire-detail-trigger" data-wire-detail-id={detail.id} onClick={() => onSelectDetail(detail)} type="button">
+      详情
+    </button>
   );
 }
 
@@ -322,6 +348,134 @@ function battleResolutionFromRecord(record: Record<string, unknown>): BattleReso
     tick: asNumber(record.tick, 0),
     winnerPlayerId: nullableString(record.winnerPlayerId)
   };
+}
+
+function stackDetail(
+  item: StackItemView,
+  index: number,
+  stackLength: number,
+  playerId: string,
+  objects: ObjectIndex
+): WireTimelineDetail {
+  const idSeed = item.stackItemId ?? String(index);
+  return {
+    id: ruleDetailId("stack", idSeed),
+    lines: compactDetailLines([
+      line("控制者", item.controllerId ?? "未知", item.controllerId === playerId),
+      line("来源", sourceLabel(item.sourceObjectId, item.cardNo, objects)),
+      line("目标", objectListLabel(item.targetObjectIds, objects)),
+      item.damageAmount != null && item.damageAmount > 0 ? line("伤害", String(item.damageAmount)) : undefined,
+      item.destination ? line("去向", zoneLabel(item.destination)) : undefined,
+      item.stackItemId ? line("服务端编号", idLabel(item.stackItemId)) : undefined
+    ]),
+    refs: stackObjectRefs(item),
+    source: "rule",
+    subtitle: `${stackEffectLabel(item.effectKind)} / 项目 ${stackLength - index}`,
+    title: "结算链项目"
+  };
+}
+
+function taskDetail(task: PendingTaskView, index: number, playerId: string, objects: ObjectIndex): WireTimelineDetail {
+  const idSeed = task.taskId ?? String(index);
+  return {
+    id: ruleDetailId("task", idSeed),
+    lines: compactDetailLines([
+      line("状态", task.status ? protocolValue(task.status, "服务端状态") : "状态未提供"),
+      line("原因", taskReasonLabel(task.reason)),
+      line("战场", task.battlefieldObjectId ? objectLabel(task.battlefieldObjectId, objects) : "无"),
+      line("行动玩家", task.actingPlayerId ?? "无", task.actingPlayerId === playerId),
+      line("参与对象", objectListLabel(task.participantObjectIds, objects)),
+      task.stackItemIds && task.stackItemIds.length > 0 ? line("关联结算链", `${task.stackItemIds.length} 项`) : undefined,
+      task.spellDuelId ? line("法术对决", "服务端已创建") : undefined,
+      task.battleId ? line("战斗", "服务端已创建") : undefined
+    ]),
+    refs: taskObjectRefs(task),
+    source: "rule",
+    subtitle: task.status ? protocolValue(task.status, "服务端状态") : "状态未提供",
+    title: taskKindLabel(task.kind)
+  };
+}
+
+function triggerDetail(trigger: TriggerQueueItemView, index: number, playerId: string, objects: ObjectIndex): WireTimelineDetail {
+  const idSeed = trigger.triggerId ?? String(index);
+  return {
+    id: ruleDetailId("trigger", idSeed),
+    lines: compactDetailLines([
+      line("控制者", trigger.controllerId ?? "无", trigger.controllerId === playerId),
+      line("来源", trigger.sourceVisibility === "HIDDEN" ? "隐藏来源" : objectLabel(trigger.sourceObjectId, objects)),
+      line("来源事件", eventLabel(trigger.triggeredByEventKind)),
+      trigger.triggerId ? line("服务端编号", idLabel(trigger.triggerId)) : undefined
+    ]),
+    refs: triggerObjectRefs(trigger),
+    source: "rule",
+    subtitle: stackEffectLabel(trigger.effectKind),
+    title: `触发 ${index + 1}`
+  };
+}
+
+function battlefieldResolutionDetail(
+  resolution: BattlefieldResolutionView,
+  index: number,
+  playerId: string,
+  objects: ObjectIndex
+): WireTimelineDetail {
+  const idSeed = resolution.resolutionId ?? String(index);
+  return {
+    id: ruleDetailId("battlefield-resolution", idSeed),
+    lines: compactDetailLines([
+      line("战场", objectLabel(resolution.battlefieldObjectId, objects)),
+      line("控制者", resolution.playerId ?? resolution.controllerId ?? "无", (resolution.playerId ?? resolution.controllerId) === playerId),
+      line("之前控制者", resolution.previousControllerId ?? "无", resolution.previousControllerId === playerId),
+      line("参与对象", objectListLabel(resolution.participantObjectIds, objects)),
+      line("事件", eventListLabel(resolution.relatedEventKinds)),
+      line("tick", String(resolution.tick ?? "无"))
+    ]),
+    refs: battlefieldResolutionObjectRefs(resolution),
+    source: "rule",
+    subtitle: `tick ${resolution.tick ?? "无"}`,
+    title: battlefieldResolutionLabel(resolution.kind)
+  };
+}
+
+function battleResolutionDetail(
+  resolution: BattleResolutionView,
+  index: number,
+  playerId: string,
+  objects: ObjectIndex
+): WireTimelineDetail {
+  const idSeed = resolution.resolutionId ?? String(index);
+  return {
+    id: ruleDetailId("battle-resolution", idSeed),
+    lines: compactDetailLines([
+      line("战场", objectLabel(resolution.battlefieldId, objects)),
+      line("攻击方", resolution.attackingPlayerId ?? "无", resolution.attackingPlayerId === playerId),
+      line("防守方", resolution.defendingPlayerId ?? "无", resolution.defendingPlayerId === playerId),
+      line("胜者", resolution.winnerPlayerId ?? "无", resolution.winnerPlayerId === playerId),
+      line("被摧毁", objectListLabel(resolution.destroyedObjectIds, objects)),
+      line("事件", eventListLabel(resolution.relatedEventKinds)),
+      line("tick", String(resolution.tick ?? "无"))
+    ]),
+    refs: battleResolutionObjectRefs(resolution),
+    source: "rule",
+    subtitle: `tick ${resolution.tick ?? "无"}`,
+    title: battleResolutionLabel(resolution.kind)
+  };
+}
+
+function ruleDetailId(kind: string, id: string): string {
+  return `rule:${kind}:${id}`;
+}
+
+function isSelectedRuleDetail(selectedDetailId: string | undefined, kind: string, id: string): boolean {
+  return selectedDetailId === ruleDetailId(kind, id);
+}
+
+function line(label: string, value: string, mine?: boolean): WireTimelineDetailLine {
+  return { label, mine, value };
+}
+
+function compactDetailLines(lines: Array<WireTimelineDetailLine | undefined>): WireTimelineDetailLine[] {
+  return lines.filter((item): item is WireTimelineDetailLine => Boolean(item));
 }
 
 function stackObjectRefs(item: StackItemView): WireObjectRef[] {
@@ -462,6 +616,10 @@ function nullableString(value: unknown): string | null {
 
 function stringArray(value: unknown): string[] {
   return asArray<unknown>(value).filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+}
+
+function idLabel(value: string): string {
+  return isProtocolToken(value) ? "服务端对象" : redactInternalText(value);
 }
 
 function isProtocolToken(value: string): boolean {

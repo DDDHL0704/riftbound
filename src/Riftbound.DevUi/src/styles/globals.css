@@ -11939,6 +11939,12 @@ button.card-face:hover {
 .wire-rule-note,
 .wire-rule-metric,
 .wire-rule-line,
+.wire-timeline-detail,
+.wire-timeline-detail-header,
+.wire-timeline-detail-lines,
+.wire-timeline-detail-line,
+.wire-detail-trigger,
+.wire-detail-clear,
 .wire-object-refs,
 .wire-object-ref,
 .wire-rule-object-refs,
@@ -12010,6 +12016,11 @@ button.card-face:hover {
   line-height: 1.2;
 }
 
+.wire-rule-item.is-detail-selected,
+.log-row.is-detail-selected {
+  border-width: 2px !important;
+}
+
 .wire-rule-item > div {
   min-width: 0;
   display: flex;
@@ -12020,9 +12031,19 @@ button.card-face:hover {
   padding-bottom: 3px;
 }
 
+.log-row-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
 .wire-rule-item > div > strong,
 .wire-rule-line > strong,
-.wire-rule-metric > strong {
+.wire-rule-metric > strong,
+.wire-timeline-detail-line > strong,
+.log-row-heading > strong {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -12042,6 +12063,53 @@ button.card-face:hover {
   padding: 4px;
   font-size: 11px;
   line-height: 1.2;
+}
+
+.wire-timeline-detail {
+  display: grid;
+  gap: 5px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-timeline-detail-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px;
+}
+
+.wire-timeline-detail-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-timeline-detail-lines {
+  display: grid;
+  gap: 3px;
+  padding: 3px;
+}
+
+.wire-timeline-detail-line {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 4px;
+  padding: 2px 4px;
+}
+
+.wire-timeline-detail-line.is-mine {
+  border-width: 2px;
+}
+
+.wire-detail-trigger,
+.wire-detail-clear {
+  padding: 2px 5px;
+  font: inherit;
+  line-height: 1.15;
+  cursor: pointer;
 }
 
 .wire-object-refs {
@@ -12122,6 +12190,12 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-note,
 .wire-match-page .wire-rule-metric,
 .wire-match-page .wire-rule-line,
+.wire-match-page .wire-timeline-detail,
+.wire-match-page .wire-timeline-detail-header,
+.wire-match-page .wire-timeline-detail-lines,
+.wire-match-page .wire-timeline-detail-line,
+.wire-match-page .wire-detail-trigger,
+.wire-match-page .wire-detail-clear,
 .wire-match-page .wire-object-refs,
 .wire-match-page .wire-object-ref,
 .wire-match-page .wire-rule-object-refs,
