@@ -550,6 +550,7 @@ async function runWireClickSelectionSmoke(cdp) {
   await delay(150);
   const focusResult = await evaluateJson(cdp, `(() => {
     const summary = document.querySelector(".wire-focused-action-summary");
+    const readiness = document.querySelector(".wire-focused-readiness");
     return {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
       text: summary?.textContent ?? "",
@@ -557,6 +558,12 @@ async function runWireClickSelectionSmoke(cdp) {
       grammarState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-state") ?? null,
       grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
       grammarRoles: Array.from(document.querySelectorAll("[data-wire-grammar-role]")).map((node) => node.getAttribute("data-wire-grammar-role")),
+      readinessCanSubmit: readiness?.getAttribute("data-wire-focused-readiness-can-submit") ?? null,
+      readinessCommand: readiness?.getAttribute("data-wire-focused-readiness-command") ?? null,
+      readinessEnabledCount: readiness?.getAttribute("data-wire-focused-readiness-enabled-count") ?? null,
+      readinessMissingRequiredCount: readiness?.getAttribute("data-wire-focused-readiness-missing-required-count") ?? null,
+      readinessState: readiness?.getAttribute("data-wire-focused-readiness-state") ?? null,
+      readinessText: readiness?.textContent ?? "",
       nextStep: document.querySelector("[data-wire-focused-next-step]")?.textContent ?? "",
       candidatePlanCount: document.querySelectorAll(".wire-focused-candidate-plan li").length,
       focusedPathCount: document.querySelectorAll(".wire-focused-path article").length,
@@ -845,6 +852,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (battlefieldPreviewResult.orientation !== "landscape-counterclockwise") failures.push(`battlefield card preview orientation unexpected: ${battlefieldPreviewResult.orientation}`);
   if (battlefieldPreviewResult.objectId !== "fixture-left-battlefield") failures.push(`battlefield card preview object id unexpected: ${battlefieldPreviewResult.objectId}`);
   if (focusResult.state !== "server-candidate") failures.push("focused action summary did not use server candidate state");
+  if (focusResult.readinessState !== "ready") failures.push(`focused readiness state unexpected: ${focusResult.readinessState}`);
+  if (focusResult.readinessCanSubmit !== "true") failures.push("focused readiness did not allow submit");
+  if (focusResult.readinessCommand !== "PLAY_CARD") failures.push(`focused readiness command unexpected: ${focusResult.readinessCommand}`);
+  if (focusResult.readinessEnabledCount !== "1") failures.push(`focused readiness enabled count unexpected: ${focusResult.readinessEnabledCount}`);
+  if (focusResult.readinessMissingRequiredCount !== "0") failures.push(`focused readiness missing count unexpected: ${focusResult.readinessMissingRequiredCount}`);
+  if (!focusResult.readinessText.includes("行动状态")) failures.push("focused readiness text missing heading");
   if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
   if (!focusResult.text.includes("可提交")) failures.push("focused action summary enabled count missing");
   if (!focusResult.contextText.includes("位置")) failures.push("object context position missing");

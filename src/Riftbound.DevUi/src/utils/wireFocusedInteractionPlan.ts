@@ -48,6 +48,29 @@ export type WireFocusedObjectPlan = {
   summary?: PromptObjectSummary;
 };
 
+export type WireFocusedReadinessState =
+  | "connection-blocked"
+  | "needs-selection"
+  | "no-focus"
+  | "not-candidate"
+  | "ready"
+  | "server-blocked";
+
+export type WireFocusedReadinessTone = "good" | "neutral" | "warn";
+
+export type WireFocusedReadinessPlan = {
+  blockedCount: number;
+  candidateLabel: string;
+  canSubmit: boolean;
+  commandType?: string;
+  enabledCount: number;
+  missingRequiredCount: number;
+  nextStepLabel: string;
+  state: WireFocusedReadinessState;
+  stateLabel: string;
+  tone: WireFocusedReadinessTone;
+};
+
 export type WireFocusedInteractionPlan = {
   actionEntries: WireFocusedActionEntryPlan[];
   draft?: WireFocusedSelectionDraftPlan;
@@ -56,6 +79,7 @@ export type WireFocusedInteractionPlan = {
   model: PromptInteractionModel;
   objectIndex: SnapshotObjectIndex;
   promptCandidateList: WirePromptCandidateListPlan;
+  readiness: WireFocusedReadinessPlan;
   relatedCandidateRows: WirePromptCandidateRowPlan[];
   sourceCandidatePaths: WireFocusedCandidatePathPlan[];
   sourceCandidates: ActionPromptCandidateDto[];
@@ -117,6 +141,12 @@ export function buildWireFocusedInteractionPlan({
     selectionDraft,
     sourceObjectId
   }));
+  const readiness = readinessPlanFor({
+    disabledByConnection,
+    focusModel,
+    grammarPlan,
+    sourceObjectId
+  });
 
   return {
     actionEntries,
@@ -135,6 +165,7 @@ export function buildWireFocusedInteractionPlan({
       promptType: prompt?.view?.type,
       snapshotTick: prompt?.snapshotTick
     }),
+    readiness,
     relatedCandidateRows,
     sourceCandidatePaths: candidatePathsFor(sourceCandidateSummaries),
     sourceCandidates,
@@ -147,6 +178,128 @@ export function buildWireFocusedInteractionPlan({
     },
     sourceObjectId
   };
+}
+
+function readinessPlanFor({
+  disabledByConnection,
+  focusModel,
+  grammarPlan,
+  sourceObjectId
+}: {
+  disabledByConnection: boolean;
+  focusModel: FocusedActionModel;
+  grammarPlan: FocusedInteractionGrammarPlan;
+  sourceObjectId?: string;
+}): WireFocusedReadinessPlan {
+  const state = readinessStateFor({
+    disabledByConnection,
+    focusModel,
+    grammarPlan,
+    sourceObjectId
+  });
+
+  return {
+    blockedCount: focusModel.blockedCount,
+    candidateLabel: grammarPlan.candidateLabel,
+    canSubmit: state === "ready",
+    commandType: grammarPlan.commandType,
+    enabledCount: focusModel.enabledCount,
+    missingRequiredCount: grammarPlan.missingRequiredCount,
+    nextStepLabel: readinessNextStepLabel(state, focusModel, grammarPlan),
+    state,
+    stateLabel: readinessStateLabel(state),
+    tone: readinessTone(state)
+  };
+}
+
+function readinessStateFor({
+  disabledByConnection,
+  focusModel,
+  grammarPlan,
+  sourceObjectId
+}: {
+  disabledByConnection: boolean;
+  focusModel: FocusedActionModel;
+  grammarPlan: FocusedInteractionGrammarPlan;
+  sourceObjectId?: string;
+}): WireFocusedReadinessState {
+  if (!sourceObjectId) {
+    return "no-focus";
+  }
+
+  if (!focusModel.submittedByServer) {
+    return "not-candidate";
+  }
+
+  if (disabledByConnection) {
+    return "connection-blocked";
+  }
+
+  if (focusModel.enabledCount <= 0) {
+    return "server-blocked";
+  }
+
+  if (grammarPlan.state === "ready") {
+    return "ready";
+  }
+
+  if (grammarPlan.state === "incomplete") {
+    return "needs-selection";
+  }
+
+  return "server-blocked";
+}
+
+function readinessNextStepLabel(
+  state: WireFocusedReadinessState,
+  focusModel: FocusedActionModel,
+  grammarPlan: FocusedInteractionGrammarPlan
+): string {
+  switch (state) {
+    case "connection-blocked":
+      return "等待连接恢复后再提交服务端候选。";
+    case "needs-selection":
+      return grammarPlan.nextStepLabel;
+    case "no-focus":
+      return focusModel.nextStepLabel;
+    case "not-candidate":
+      return "该对象当前没有服务端候选。";
+    case "ready":
+      return "可以提交服务端候选。";
+    case "server-blocked":
+      return focusModel.blockingReasons[0] || focusModel.nextStepLabel;
+  }
+}
+
+function readinessStateLabel(state: WireFocusedReadinessState): string {
+  switch (state) {
+    case "connection-blocked":
+      return "连接阻断";
+    case "needs-selection":
+      return "待选择";
+    case "no-focus":
+      return "无焦点";
+    case "not-candidate":
+      return "非候选";
+    case "ready":
+      return "可提交";
+    case "server-blocked":
+      return "服务端阻断";
+  }
+}
+
+function readinessTone(state: WireFocusedReadinessState): WireFocusedReadinessTone {
+  switch (state) {
+    case "ready":
+      return "good";
+    case "connection-blocked":
+    case "needs-selection":
+    case "server-blocked":
+      return "warn";
+    case "no-focus":
+    case "not-candidate":
+      return "neutral";
+  }
 }
 
 function actionEntryFor({

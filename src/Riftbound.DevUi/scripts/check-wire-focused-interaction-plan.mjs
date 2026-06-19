@@ -125,8 +125,100 @@ assert.equal(plan.grammarPlan.steps.find((step) => step.role === "target")?.stat
 assert.equal(plan.draft?.targetCount, 1);
 assert.equal(plan.promptCandidateList.versionLabel, "版本：prompt-1 / tick 42");
 assert.ok(plan.sourceCandidatePaths[0]?.steps.some((step) => step.label === "目标"));
+assert.equal(plan.readiness.state, "ready");
+assert.equal(plan.readiness.canSubmit, true);
+assert.equal(plan.readiness.commandType, "PLAY_CARD");
+assert.equal(plan.readiness.enabledCount, 2);
+assert.equal(plan.readiness.missingRequiredCount, 0);
+
+const noFocusPlan = buildWireFocusedInteractionPlan({
+  canSubmitCommands: true,
+  disabledByConnection: false,
+  prompt: promptFor([playCandidate]),
+  snapshot: emptySnapshot()
+});
+assert.equal(noFocusPlan.readiness.state, "no-focus");
+assert.equal(noFocusPlan.readiness.canSubmit, false);
+
+const notCandidatePlan = buildWireFocusedInteractionPlan({
+  canSubmitCommands: true,
+  disabledByConnection: false,
+  prompt: promptFor([playCandidate]),
+  snapshot: emptySnapshot(),
+  sourceObjectId: "object-not-in-server-candidates"
+});
+assert.equal(notCandidatePlan.readiness.state, "not-candidate");
+assert.equal(notCandidatePlan.readiness.canSubmit, false);
+
+const disconnectedPlan = buildWireFocusedInteractionPlan({
+  canSubmitCommands: true,
+  disabledByConnection: true,
+  prompt: promptFor([playCandidate]),
+  snapshot: emptySnapshot(),
+  sourceObjectId
+});
+assert.equal(disconnectedPlan.readiness.state, "connection-blocked");
+assert.equal(disconnectedPlan.readiness.canSubmit, false);
+
+const blockedPlan = buildWireFocusedInteractionPlan({
+  canSubmitCommands: true,
+  disabledByConnection: false,
+  prompt: promptFor([{ ...playCandidate, enabled: false, reason: "法力不足" }]),
+  snapshot: emptySnapshot(),
+  sourceObjectId
+});
+assert.equal(blockedPlan.readiness.state, "server-blocked");
+assert.equal(blockedPlan.readiness.canSubmit, false);
+assert.equal(blockedPlan.readiness.nextStepLabel, "法力不足");
+
+const requiredTargetCandidate = {
+  ...playCandidate,
+  selectionSteps: playCandidate.selectionSteps.map((step) =>
+    step.role === "target" ? { ...step, required: true } : step)
+};
+const needsSelectionPlan = buildWireFocusedInteractionPlan({
+  canSubmitCommands: true,
+  disabledByConnection: false,
+  prompt: promptFor([requiredTargetCandidate]),
+  snapshot: emptySnapshot(),
+  sourceObjectId
+});
+assert.equal(needsSelectionPlan.readiness.state, "needs-selection");
+assert.equal(needsSelectionPlan.readiness.canSubmit, false);
+assert.equal(needsSelectionPlan.readiness.missingRequiredCount, 1);
+assert.ok(needsSelectionPlan.readiness.nextStepLabel.includes("目标"));
 
 console.log("Wire focused interaction plan check passed.");
+
+function promptFor(candidates) {
+  return {
+    actionable: true,
+    actions: candidates.map((candidate) => candidate.action),
+    candidates,
+    playerId: "P1",
+    promptId: "prompt-check",
+    reason: "等待行动",
+    snapshotTick: 1,
+    view: {
+      message: "检查焦点状态。",
+      title: "检查",
+      type: "MAIN_ACTION"
+    }
+  };
+}
+
+function emptySnapshot() {
+  return {
+    activePlayerId: "P1",
+    lanes: {},
+    players: {},
+    stack: [],
+    tick: 1,
+    timing: {},
+    turnNumber: 1,
+    turnState: "MAIN"
+  };
+}
 
 function loadTsModule(filename) {
   const resolved = resolve(filename);

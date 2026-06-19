@@ -126,6 +126,22 @@ assert.equal(missingSourcePlan.nextStepLabel, "等待服务端提供来源");
 assert.equal(missingSourcePlan.steps.find((step) => step.role === "source")?.state, "missing");
 assert.equal(missingSourcePlan.steps.find((step) => step.role === "submit")?.state, "blocked");
 
+const requiredTargetPlan = buildFocusedInteractionGrammarPlan({
+  candidates: [{
+    ...playCardCandidate,
+    steps: playCardCandidate.steps.map((step) => step.role === "target" ? { ...step, required: true } : step)
+  }],
+  disabledByConnection: false,
+  sourceObjectId: "P1-HAND-1"
+});
+
+assert.equal(requiredTargetPlan.state, "incomplete");
+assert.equal(requiredTargetPlan.missingRequiredCount, 1);
+assert.equal(requiredTargetPlan.nextStepLabel, "选择目标");
+assert.equal(requiredTargetPlan.steps.find((step) => step.role === "source")?.state, "locked");
+assert.equal(requiredTargetPlan.steps.find((step) => step.role === "target")?.state, "available");
+assert.equal(requiredTargetPlan.steps.find((step) => step.role === "submit")?.state, "blocked");
+
 const emptyPlan = buildFocusedInteractionGrammarPlan({
   candidates: [],
   disabledByConnection: false

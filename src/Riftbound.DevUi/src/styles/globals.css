@@ -12084,6 +12084,7 @@ button.card-face:hover {
 
 .wire-focus-copy,
 .wire-selected-candidates,
+.wire-focused-readiness,
 .wire-focused-actions,
 .wire-prompt-candidates,
 .wire-prompt-contract,
@@ -12104,6 +12105,49 @@ button.card-face:hover {
   flex-wrap: wrap;
   gap: 4px;
   padding: 4px;
+}
+
+.wire-focused-readiness {
+  display: grid;
+  gap: 5px;
+}
+
+.wire-focused-readiness-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-focused-readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-focused-readiness-grid span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-focused-readiness-grid small,
+.wire-focused-readiness-next {
+  color: #000;
+}
+
+.wire-focused-readiness-grid strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-focused-readiness-next {
+  border: 1px solid #000;
+  padding: 4px;
+  font-weight: 700;
 }
 
 .wire-focused-actions-heading {

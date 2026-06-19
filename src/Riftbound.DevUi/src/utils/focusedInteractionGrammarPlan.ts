@@ -80,7 +80,7 @@ export function buildFocusedInteractionGrammarPlan({
   const draftApplies = selectionDraft?.candidateKey === candidateKey
     && (!sourceObjectId || selectionDraft.sourceObjectId === sourceObjectId);
   const steps = grammarSteps(candidate, draftApplies ? selectionDraft : undefined, sourceObjectId);
-  const missingRequiredCount = steps.filter((step) => step.state === "missing").length;
+  const missingRequiredCount = steps.filter((step) => step.required && (step.state === "available" || step.state === "missing")).length;
   const submitBlocked = disabledByConnection || !candidate.enabled || missingRequiredCount > 0;
   const submitStep = submitGrammarStep({
     blocked: submitBlocked,
