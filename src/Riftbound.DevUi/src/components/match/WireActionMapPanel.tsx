@@ -1,5 +1,6 @@
 import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto, CardObjectView, SnapshotDto } from "../../types/protocol";
 import { asRecord } from "../../utils/collections";
+import { buildCandidateInteractionPlans, type CandidateInteractionPlan } from "../../utils/candidateInteractionPlan";
 import { promptActionLabel, promptReasonLabel } from "../../utils/formatters";
 import {
   buildPromptInteractionModel,
@@ -34,6 +35,7 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
   const model = buildPromptInteractionModel(prompt);
   const objects = objectIndex(snapshot);
   const groups = actionGroups(model);
+  const candidatePlans = buildCandidateInteractionPlans(model.candidates);
   const enabledCandidates = model.candidates.filter((candidate) => candidate.enabled);
   const canAct = Boolean(prompt?.actionable && prompt.playerId === playerId);
   const enabledObjects = [...model.enabledObjectIds];
@@ -101,6 +103,8 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
         ))}
       </div>
 
+      <CandidateInteractionPlanList plans={candidatePlans} />
+
       <div className="wire-action-grammar" role="group" aria-label="服务端候选交互语法">
         <strong>交互语法</strong>
         {model.candidates.length === 0 && <span className="empty-hint">暂无候选步骤。</span>}
@@ -127,6 +131,49 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
           ))}
       </div>
     </section>
+  );
+}
+
+function CandidateInteractionPlanList({ plans }: { plans: CandidateInteractionPlan[] }) {
+  return (
+    <div className="wire-action-candidate-plan" role="group" aria-label="服务端候选步骤计划">
+      <div className="wire-action-candidate-plan-heading">
+        <strong>候选步骤</strong>
+        <span>{plans.length} 项</span>
+      </div>
+      {plans.length === 0 && <span className="empty-hint">暂无服务端候选。</span>}
+      {plans.slice(0, 5).map((plan) => (
+        <article
+          className={plan.enabled ? "wire-action-candidate-plan-card is-enabled" : "wire-action-candidate-plan-card"}
+          data-candidate-plan-action={plan.action}
+          data-candidate-plan-enabled={plan.enabled ? "true" : "false"}
+          key={plan.key}
+        >
+          <div className="wire-action-candidate-plan-title">
+            <span>{plan.candidateLabel}</span>
+            <small>{plan.summary}</small>
+          </div>
+          <div className="wire-action-candidate-plan-next" data-candidate-plan-next-step={plan.nextRequiredStep?.role ?? "none"}>
+            下一步：{plan.nextRequiredStep?.label ?? "等待服务端候选"}
+          </div>
+          <ol>
+            {plan.stepRows.slice(0, 4).map((step) => (
+              <li
+                className={step.required ? "is-required" : ""}
+                data-step-role={step.role}
+                data-step-state={step.state}
+                key={step.key}
+              >
+                <span>{step.label}</span>
+                <strong>{step.count}</strong>
+                <small>{step.stateLabel} / {step.sampleLabels.length > 0 ? step.sampleLabels.join(" / ") : "由服务端候选决定"}</small>
+              </li>
+            ))}
+          </ol>
+          <small>命令字段 {plan.commandFieldCount}{plan.commandType ? ` / ${plan.commandType}` : ""}</small>
+        </article>
+      ))}
+    </div>
   );
 }
 

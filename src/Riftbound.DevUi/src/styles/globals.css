@@ -11690,6 +11690,9 @@ button.card-face:hover {
 .wire-action-entry-strip,
 .wire-action-object-chip,
 .wire-action-group,
+.wire-action-candidate-plan,
+.wire-action-candidate-plan-card,
+.wire-action-candidate-plan-next,
 .wire-action-grammar,
 .wire-action-sequence,
 .wire-action-step,
@@ -12147,6 +12150,67 @@ button.card-face:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-action-candidate-plan {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-action-candidate-plan-heading,
+.wire-action-candidate-plan-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-action-candidate-plan-heading span,
+.wire-action-candidate-plan-title span,
+.wire-action-candidate-plan-title small,
+.wire-action-candidate-plan-card > small,
+.wire-action-candidate-plan li small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-action-candidate-plan-card {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-action-candidate-plan-card.is-enabled,
+.wire-action-candidate-plan li.is-required {
+  border-width: 2px;
+}
+
+.wire-action-candidate-plan-next {
+  padding: 3px;
+  font-weight: 700;
+}
+
+.wire-action-candidate-plan ol {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-action-candidate-plan li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px 22px minmax(0, 1fr);
+  gap: 4px;
+  align-items: center;
+  border: 1px solid #000;
+  padding: 3px;
 }
 
 .wire-action-grammar {
