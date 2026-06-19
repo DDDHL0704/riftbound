@@ -7,7 +7,7 @@ import {
   type PromptInteractionModel,
   type PromptObjectState
 } from "../../utils/promptInteraction";
-import { candidateComposerKey } from "./CandidateComposer";
+import { candidateComposerKey } from "../../utils/candidateComposerModel";
 import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 import type { WireTimelineObjectState } from "./wireCardFlow";
 

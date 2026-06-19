@@ -12,10 +12,11 @@ import {
 import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
 import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import { candidateComposerKey } from "../../utils/candidateComposerModel";
 import { buildFocusedInteractionGrammarPlan, type FocusedInteractionGrammarPlan } from "../../utils/focusedInteractionGrammarPlan";
 import { buildWirePromptCandidateListPlan, type WirePromptCandidateRowPlan } from "../../utils/wirePromptCandidatePlan";
 import { CardFace } from "../cards/CardFace";
-import { CandidateComposer, candidateComposerKey, canComposeCandidate } from "./CandidateComposer";
+import { CandidateComposer, canComposeCandidate } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
