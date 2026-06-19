@@ -18425,6 +18425,24 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} triggered event kind {triggeredEventKind} is invalid; {FormatExpectedActualForRecovery(KnownTriggerQueueTriggeredEventKinds, triggeredEventKind)}");
     }
 
+    private static void ValidateTriggerQueueTriggeredEventKindMustBe(
+        string payloadLabel,
+        string diagnosticName,
+        string? triggeredEventKind,
+        string expectedTriggeredEventKind,
+        List<string> errors)
+    {
+        if (triggeredEventKind is null
+            || string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
+            || string.Equals(triggeredEventKind, expectedTriggeredEventKind, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} triggered event kind {triggeredEventKind} must be {expectedTriggeredEventKind}; {FormatExpectedActualForRecovery(expectedTriggeredEventKind, triggeredEventKind)}");
+    }
+
     private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
         string payloadLabel,
         string? triggerId,
@@ -18586,12 +18604,12 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} blue sentinel delayed resource effect kind {effectKind} must be {P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind}");
         }
 
-        if (triggeredEventKind is not null
-            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(triggeredEventKind, "BATTLEFIELD_HELD", StringComparison.Ordinal))
-        {
-            errors.Add($"{payloadLabel} blue sentinel delayed resource triggered event kind {triggeredEventKind} must be BATTLEFIELD_HELD");
-        }
+        ValidateTriggerQueueTriggeredEventKindMustBe(
+            payloadLabel,
+            "blue sentinel delayed resource",
+            triggeredEventKind,
+            "BATTLEFIELD_HELD",
+            errors);
     }
 
     private static void ValidateBlueSentinelDelayedResourceSourceLocationForRecovery(
@@ -18828,13 +18846,12 @@ public static class MatchRecoveryValidator
         var expectedTriggeredEventKind = destination.StartsWith("BATTLEFIELD", StringComparison.Ordinal)
             ? "UNIT_MOVED_TO_BATTLEFIELD"
             : "UNIT_MOVED_TO_BASE";
-        if (triggeredEventKind is not null
-            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(triggeredEventKind, expectedTriggeredEventKind, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} jhin movement resource triggered event kind {triggeredEventKind} must be {expectedTriggeredEventKind}");
-        }
+        ValidateTriggerQueueTriggeredEventKindMustBe(
+            payloadLabel,
+            "jhin movement resource",
+            triggeredEventKind,
+            expectedTriggeredEventKind,
+            errors);
     }
 
     private static bool IsJhinMovementResourceTriggerIdForRecovery(string triggerId)
@@ -19169,13 +19186,12 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} kogmaw last breath effect kind {effectKind} must be {KogmawLastBreathAoeEffectKindForRecovery}");
         }
 
-        if (triggeredEventKind is not null
-            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(triggeredEventKind, "UNIT_DESTROYED", StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} kogmaw last breath triggered event kind {triggeredEventKind} must be UNIT_DESTROYED");
-        }
+        ValidateTriggerQueueTriggeredEventKindMustBe(
+            payloadLabel,
+            "kogmaw last breath",
+            triggeredEventKind,
+            "UNIT_DESTROYED",
+            errors);
     }
 
     private static bool IsKogmawLastBreathTriggerIdForRecovery(
@@ -19392,13 +19408,12 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} ogs lux high cost spell effect kind {effectKind} must be {OgsLuxHighCostSpellPowerEffectKindForRecovery}");
         }
 
-        if (triggeredEventKind is not null
-            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(triggeredEventKind, "CARD_PLAYED", StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} ogs lux high cost spell triggered event kind {triggeredEventKind} must be CARD_PLAYED");
-        }
+        ValidateTriggerQueueTriggeredEventKindMustBe(
+            payloadLabel,
+            "ogs lux high cost spell",
+            triggeredEventKind,
+            "CARD_PLAYED",
+            errors);
     }
 
     private static bool IsOgsLuxHighCostSpellTriggerForRecovery(
@@ -19557,13 +19572,12 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} teemo on-play self-power effect kind {effectKind} must be {expectedEffectKind}");
         }
 
-        if (triggeredEventKind is not null
-            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(triggeredEventKind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} teemo on-play self-power triggered event kind {triggeredEventKind} must be UNIT_PLAYED_TO_BASE");
-        }
+        ValidateTriggerQueueTriggeredEventKindMustBe(
+            payloadLabel,
+            "teemo on-play self-power",
+            triggeredEventKind,
+            "UNIT_PLAYED_TO_BASE",
+            errors);
     }
 
     private static bool IsTeemoOnPlaySelfPowerTriggerForRecovery(
@@ -21185,13 +21199,12 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} {diagnosticName} effect kind {effectKind} must be {expectedEffectKind}");
         }
 
-        if (triggeredEventKind is not null
-            && !string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(triggeredEventKind, "UNIT_DESTROYED", StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} triggered event kind {triggeredEventKind} must be UNIT_DESTROYED");
-        }
+        ValidateTriggerQueueTriggeredEventKindMustBe(
+            payloadLabel,
+            diagnosticName,
+            triggeredEventKind,
+            "UNIT_DESTROYED",
+            errors);
     }
 
     private static bool IsStandardLastBreathTriggerForRecovery(

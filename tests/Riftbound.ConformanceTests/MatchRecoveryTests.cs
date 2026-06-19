@@ -6622,7 +6622,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD; expected BATTLEFIELD_HELD but got UNIT_DESTROYED",
                 StringComparison.Ordinal));
     }
 
@@ -7597,7 +7597,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell triggered event kind UNIT_DESTROYED must be CARD_PLAYED",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell triggered event kind UNIT_DESTROYED must be CARD_PLAYED; expected CARD_PLAYED but got UNIT_DESTROYED",
                 StringComparison.Ordinal));
     }
 
@@ -8298,7 +8298,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE",
+                "snapshot for alice timing trigger queue item teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE; expected UNIT_PLAYED_TO_BASE but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -8919,7 +8919,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10039,7 +10039,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10185,7 +10185,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10252,7 +10252,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10319,7 +10319,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item loyal poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item loyal poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10386,7 +10386,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10453,7 +10453,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10520,7 +10520,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10587,7 +10587,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10654,7 +10654,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item muddy dredger last-breath create warhawk triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item muddy dredger last-breath create warhawk triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -10721,7 +10721,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -12094,7 +12094,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -12161,7 +12161,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -12228,7 +12228,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -12294,7 +12294,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD",
+                "snapshot for alice timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD; expected UNIT_MOVED_TO_BATTLEFIELD but got UNIT_MOVED_TO_BASE",
                 StringComparison.Ordinal));
     }
 
@@ -13134,7 +13134,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED",
+                "snapshot for alice timing trigger queue item kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED; expected UNIT_DESTROYED but got UNIT_MOVED_TO_BASE",
                 StringComparison.Ordinal));
     }
 
@@ -29792,7 +29792,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1 blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1 blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD; expected BATTLEFIELD_HELD but got UNIT_DESTROYED",
                 StringComparison.Ordinal));
     }
 
@@ -30483,7 +30483,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell triggered event kind UNIT_DESTROYED must be CARD_PLAYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell triggered event kind UNIT_DESTROYED must be CARD_PLAYED; expected CARD_PLAYED but got UNIT_DESTROYED",
                 StringComparison.Ordinal));
     }
 
@@ -31006,7 +31006,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE",
+                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE; expected UNIT_PLAYED_TO_BASE but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -31460,7 +31460,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32266,7 +32266,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32320,7 +32320,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32374,7 +32374,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1 sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1 sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32428,7 +32428,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-LOYAL_PORO_LAST_BREATH_DRAW_1 loyal poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-LOYAL_PORO_LAST_BREATH_DRAW_1 loyal poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32482,7 +32482,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-HONEST_BROKER_LAST_BREATH_CREATE_GOLD honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-HONEST_BROKER_LAST_BREATH_CREATE_GOLD honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32536,7 +32536,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32590,7 +32590,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32644,7 +32644,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32698,7 +32698,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK muddy dredger last-breath create warhawk triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-MUDDY_DREDGER_LAST_BREATH_CREATE_WARHAWK muddy dredger last-breath create warhawk triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -32752,7 +32752,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -33784,7 +33784,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -33838,7 +33838,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -33892,7 +33892,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
     }
 
@@ -33950,7 +33950,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD",
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD; expected UNIT_MOVED_TO_BATTLEFIELD but got UNIT_MOVED_TO_BASE",
                 StringComparison.Ordinal));
     }
 
@@ -34607,7 +34607,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED; expected UNIT_DESTROYED but got UNIT_MOVED_TO_BASE",
                 StringComparison.Ordinal));
     }
 
@@ -139466,7 +139466,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD; expected BATTLEFIELD_HELD but got UNIT_DESTROYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -139587,7 +139587,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource triggered event kind UNIT_DESTROYED must be BATTLEFIELD_HELD; expected BATTLEFIELD_HELD but got UNIT_DESTROYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -142094,7 +142094,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell triggered event kind UNIT_DESTROYED must be CARD_PLAYED",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell triggered event kind UNIT_DESTROYED must be CARD_PLAYED; expected CARD_PLAYED but got UNIT_DESTROYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -142205,7 +142205,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell triggered event kind UNIT_DESTROYED must be CARD_PLAYED",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell triggered event kind UNIT_DESTROYED must be CARD_PLAYED; expected CARD_PLAYED but got UNIT_DESTROYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -144294,7 +144294,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE",
+                "spectator replay frame timing trigger queue item teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE; expected UNIT_PLAYED_TO_BASE but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -144405,7 +144405,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE",
+                "spectator replay frame timing trigger queue item teemo on-play self-power triggered event kind CARD_PLAYED must be UNIT_PLAYED_TO_BASE; expected UNIT_PLAYED_TO_BASE but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146268,7 +146268,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -146385,7 +146385,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149282,7 +149282,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -149399,7 +149399,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149728,7 +149728,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -149845,7 +149845,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149958,7 +149958,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -150075,7 +150075,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item sad poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150188,7 +150188,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item loyal poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item loyal poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -150305,7 +150305,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item loyal poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item loyal poro last-breath draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150418,7 +150418,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -150535,7 +150535,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item honest broker last-breath create gold triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150648,7 +150648,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -150765,7 +150765,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150878,7 +150878,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -150995,7 +150995,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item undercover agent last-breath triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151108,7 +151108,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -151225,7 +151225,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151338,7 +151338,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -151455,7 +151455,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151568,7 +151568,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -151685,7 +151685,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155166,7 +155166,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -155283,7 +155283,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155396,7 +155396,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -155513,7 +155513,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155626,7 +155626,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -155743,7 +155743,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155860,7 +155860,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD",
+                "spectator replay frame timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD; expected UNIT_MOVED_TO_BATTLEFIELD but got UNIT_MOVED_TO_BASE",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -155981,7 +155981,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD",
+                "spectator replay frame timing trigger queue item jhin movement resource triggered event kind UNIT_MOVED_TO_BASE must be UNIT_MOVED_TO_BATTLEFIELD; expected UNIT_MOVED_TO_BATTLEFIELD but got UNIT_MOVED_TO_BASE",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -158636,7 +158636,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED; expected UNIT_DESTROYED but got UNIT_MOVED_TO_BASE",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -158747,7 +158747,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED",
+                "spectator replay frame timing trigger queue item kogmaw last breath triggered event kind UNIT_MOVED_TO_BASE must be UNIT_DESTROYED; expected UNIT_DESTROYED but got UNIT_MOVED_TO_BASE",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
