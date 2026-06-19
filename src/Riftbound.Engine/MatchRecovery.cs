@@ -14512,6 +14512,15 @@ public static class MatchRecoveryValidator
         return objectIds.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray();
     }
 
+    private static string FormatObjectTagPresenceForRecovery(
+        IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
+        string objectId)
+    {
+        return FormatExpectedActualForRecovery(
+            $"contains {objectId}",
+            FormatObjectIdsForRecovery(objectTags.Keys));
+    }
+
     private static string FormatRecoveryDiagnosticValue(object? value)
     {
         return value switch
@@ -15097,7 +15106,8 @@ public static class MatchRecoveryValidator
         var normalizedBattlefieldObjectId = battlefieldObjectId.Trim();
         if (!objectTags.TryGetValue(normalizedBattlefieldObjectId, out var tags))
         {
-            errors.Add($"{battlefieldObjectLabel} {normalizedBattlefieldObjectId} is missing from object tags");
+            errors.Add(
+                $"{battlefieldObjectLabel} {normalizedBattlefieldObjectId} is missing from object tags; {FormatObjectTagPresenceForRecovery(objectTags, normalizedBattlefieldObjectId)}");
             return;
         }
 
@@ -15156,7 +15166,8 @@ public static class MatchRecoveryValidator
 
             if (!objectTags.TryGetValue(normalizedParticipantObjectId, out var tags))
             {
-                errors.Add($"{participantObjectLabel} {normalizedParticipantObjectId} is missing from object tags");
+                errors.Add(
+                    $"{participantObjectLabel} {normalizedParticipantObjectId} is missing from object tags; {FormatObjectTagPresenceForRecovery(objectTags, normalizedParticipantObjectId)}");
                 continue;
             }
 
@@ -19211,7 +19222,7 @@ public static class MatchRecoveryValidator
             {
                 battlefieldObjectIsBattlefieldCard = false;
                 errors.Add(
-                    $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from object tags");
+                    $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from object tags; {FormatObjectTagPresenceForRecovery(objectTags, battlefieldObjectId)}");
             }
             else if (!battlefieldObjectTags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))
             {

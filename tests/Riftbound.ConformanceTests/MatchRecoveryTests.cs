@@ -13442,7 +13442,7 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueKogmawLastBreathBattlefieldCardContextDrift()
+    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueKogmawLastBreathBattlefieldObjectTagContextDrift()
     {
         const string nonBattlefieldObjectId = "non-battlefield-object";
         const string triggerId = $"TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::{nonBattlefieldObjectId}";
@@ -13590,7 +13590,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-1 is missing from object tags",
+                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-1 is missing from object tags; expected contains battlefield-1 but got [source-1]",
                 StringComparison.Ordinal));
     }
 
@@ -16109,6 +16109,123 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskBattlefieldObjectTagContextDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-a"] = SnapshotObjectPayloadWithoutTags(
+                "battlefield-a",
+                "alice",
+                "alice",
+                "alice",
+                "BATTLEFIELD",
+                "battlefield-a"),
+            ["participant-a"] = SnapshotObjectPayload(
+                "participant-a",
+                [CardObjectTags.UnitCard],
+                "alice",
+                "alice",
+                "alice",
+                "BATTLEFIELD",
+                "battlefield-a")
+        };
+        players["alice"] = alicePayload;
+
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldTasks"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "taskId": "task-missing-battlefield-tags",
+                    "kind": "START_BATTLE",
+                    "status": "PENDING",
+                    "reason": "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                    "battlefieldObjectId": "battlefield-a",
+                    "participantControllerIds": ["alice"],
+                    "participantObjectIds": ["participant-a"],
+                    "actingPlayerId": "alice",
+                    "stackItemIds": [],
+                    "battleId": "battle:battlefield-a"
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item battlefield object id battlefield-a is missing from object tags; expected contains battlefield-a but got [participant-a]",
+                StringComparison.Ordinal));
+
+        static Dictionary<string, object?> SnapshotObjectPayload(
+            string objectId,
+            string[] tags,
+            string ownerId,
+            string controllerId,
+            string playerId,
+            string zone,
+            string? battlefieldObjectId = null)
+        {
+            var payload = SnapshotObjectPayloadWithoutTags(
+                objectId,
+                ownerId,
+                controllerId,
+                playerId,
+                zone,
+                battlefieldObjectId);
+            payload["tags"] = tags;
+            return payload;
+        }
+
+        static Dictionary<string, object?> SnapshotObjectPayloadWithoutTags(
+            string objectId,
+            string ownerId,
+            string controllerId,
+            string playerId,
+            string zone,
+            string? battlefieldObjectId = null)
+        {
+            var location = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["playerId"] = playerId,
+                ["zone"] = zone
+            };
+            if (battlefieldObjectId is not null)
+            {
+                location["battlefieldObjectId"] = battlefieldObjectId;
+            }
+
+            return new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = objectId,
+                ["ownerId"] = ownerId,
+                ["controllerId"] = controllerId,
+                ["isFaceDown"] = false,
+                ["untilEndOfTurnEffects"] = Array.Empty<string>(),
+                ["location"] = location
+            };
+        }
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskBattlefieldObjectOutsideBattlefieldStates()
     {
         var alice = PlayerView("alice", 0, 0);
@@ -16585,6 +16702,123 @@ public sealed class MatchRecoveryTests
                 ["controllerId"] = controllerId,
                 ["isFaceDown"] = false,
                 ["tags"] = tags,
+                ["untilEndOfTurnEffects"] = Array.Empty<string>(),
+                ["location"] = location
+            };
+        }
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSnapshotTimingBattlefieldTaskParticipantObjectTagContextDrift()
+    {
+        var alice = PlayerView("alice", 0, 0);
+        var players = alice.Snapshot.Players
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var alicePayload = Assert.IsType<Dictionary<string, object?>>(players["alice"])
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        alicePayload["objects"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["battlefield-a"] = SnapshotObjectPayload(
+                "battlefield-a",
+                [P6TokenFactoryCatalog.BattlefieldCardTag],
+                "alice",
+                "alice",
+                "alice",
+                "BATTLEFIELD",
+                "battlefield-a"),
+            ["participant-a"] = SnapshotObjectPayloadWithoutTags(
+                "participant-a",
+                "alice",
+                "alice",
+                "alice",
+                "BATTLEFIELD",
+                "battlefield-a")
+        };
+        players["alice"] = alicePayload;
+
+        var timing = alice.Snapshot.Timing
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        timing["battlefieldTasks"] = new object?[]
+        {
+            RawJson("""
+                {
+                    "taskId": "task-missing-participant-tags",
+                    "kind": "START_BATTLE",
+                    "status": "PENDING",
+                    "reason": "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                    "battlefieldObjectId": "battlefield-a",
+                    "participantControllerIds": ["alice"],
+                    "participantObjectIds": ["participant-a"],
+                    "actingPlayerId": "alice",
+                    "stackItemIds": [],
+                    "battleId": "battle:battlefield-a"
+                }
+                """)
+        };
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = alice with
+            {
+                Snapshot = alice.Snapshot with
+                {
+                    Players = players,
+                    Timing = timing
+                }
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item participant object id participant-a is missing from object tags; expected contains participant-a but got [battlefield-a]",
+                StringComparison.Ordinal));
+
+        static Dictionary<string, object?> SnapshotObjectPayload(
+            string objectId,
+            string[] tags,
+            string ownerId,
+            string controllerId,
+            string playerId,
+            string zone,
+            string? battlefieldObjectId = null)
+        {
+            var payload = SnapshotObjectPayloadWithoutTags(
+                objectId,
+                ownerId,
+                controllerId,
+                playerId,
+                zone,
+                battlefieldObjectId);
+            payload["tags"] = tags;
+            return payload;
+        }
+
+        static Dictionary<string, object?> SnapshotObjectPayloadWithoutTags(
+            string objectId,
+            string ownerId,
+            string controllerId,
+            string playerId,
+            string zone,
+            string? battlefieldObjectId = null)
+        {
+            var location = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["playerId"] = playerId,
+                ["zone"] = zone
+            };
+            if (battlefieldObjectId is not null)
+            {
+                location["battlefieldObjectId"] = battlefieldObjectId;
+            }
+
+            return new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = objectId,
+                ["ownerId"] = ownerId,
+                ["controllerId"] = controllerId,
+                ["isFaceDown"] = false,
                 ["untilEndOfTurnEffects"] = Array.Empty<string>(),
                 ["location"] = location
             };
