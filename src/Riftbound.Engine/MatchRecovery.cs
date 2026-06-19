@@ -14502,6 +14502,11 @@ public static class MatchRecoveryValidator
         return $"expected {FormatRecoveryDiagnosticValue(expected)} but got {FormatRecoveryDiagnosticValue(actual)}";
     }
 
+    private static IReadOnlyList<string> FormatObjectTagsForRecovery(IEnumerable<string> tags)
+    {
+        return tags.OrderBy(tag => tag, StringComparer.Ordinal).ToArray();
+    }
+
     private static string FormatRecoveryDiagnosticValue(object? value)
     {
         return value switch
@@ -18664,7 +18669,7 @@ public static class MatchRecoveryValidator
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}");
+                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
         }
 
         if (objectTags is not null
@@ -18973,7 +18978,7 @@ public static class MatchRecoveryValidator
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
-                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}");
+                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
         }
 
         if (objectTags is not null
@@ -19325,7 +19330,7 @@ public static class MatchRecoveryValidator
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
-                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -19532,7 +19537,7 @@ public static class MatchRecoveryValidator
                 && !sourceTags.Contains(CardObjectTags.UnitCard))
             {
                 errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
             }
 
             if (objectTags is not null
@@ -19729,7 +19734,7 @@ public static class MatchRecoveryValidator
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
-                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -20871,7 +20876,7 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add(
-            $"{payloadLabel} viktor destroyed non-minion create minion destroyed object id {destroyedObjectId} must be a unit card in {objectTagLabel}");
+            $"{payloadLabel} viktor destroyed non-minion create minion destroyed object id {destroyedObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(destroyedTags))}");
     }
 
     private static void ValidateTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContext(
@@ -21062,7 +21067,7 @@ public static class MatchRecoveryValidator
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
         }
     }
 
@@ -21990,7 +21995,7 @@ public static class MatchRecoveryValidator
             && !unitSourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be a unit card in {objectTagLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(unitSourceTags))}");
         }
 
         if (!IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind)
