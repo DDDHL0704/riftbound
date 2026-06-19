@@ -1,0 +1,113 @@
+import type { CardObjectView } from "../../types/protocol";
+import { redactInternalText } from "../../utils/redaction";
+
+export type WireObjectRef = {
+  id: string;
+  role: string;
+};
+
+export type WireObjectIndex = Record<string, CardObjectView>;
+
+export function WireObjectRefChips({
+  className = "",
+  objects,
+  onInspectObject,
+  refs,
+  selectedObjectId,
+  source
+}: {
+  className?: string;
+  objects: WireObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  refs: WireObjectRef[];
+  selectedObjectId?: string;
+  source: "event" | "rule";
+}) {
+  const visibleRefs = uniqueWireObjectRefs(refs);
+  if (visibleRefs.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={`wire-object-refs wire-${source}-object-refs ${className}`.trim()} aria-label="关联桌面对象">
+      {visibleRefs.map((ref) => {
+        const object = objects[ref.id];
+        const hidden = ref.id === "HIDDEN";
+        const canInspect = Boolean(object && onInspectObject && !hidden);
+        const selected = selectedObjectId === ref.id;
+        const label = `${ref.role} ${wireObjectLabel(ref.id, objects)}`;
+        const dataProps = {
+          "data-object-ref": ref.id,
+          "data-object-ref-role": ref.role,
+          "data-event-object-ref": source === "event" ? ref.id : undefined,
+          "data-rule-object-ref": source === "rule" ? ref.id : undefined,
+          "data-selected": selected ? "true" : undefined
+        };
+
+        if (!canInspect) {
+          return (
+            <span className={`wire-object-ref wire-${source}-object-ref is-disabled`} key={`${ref.role}-${ref.id}`} {...dataProps}>
+              {label}
+            </span>
+          );
+        }
+
+        return (
+          <button
+            className={selected ? `wire-object-ref wire-${source}-object-ref is-selected` : `wire-object-ref wire-${source}-object-ref`}
+            key={`${ref.role}-${ref.id}`}
+            onClick={() => onInspectObject?.(ref.id)}
+            type="button"
+            {...dataProps}
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function wireObjectLabel(objectId: string | null | undefined, objects: WireObjectIndex): string {
+  if (!objectId) {
+    return "无";
+  }
+
+  if (objectId === "HIDDEN") {
+    return "隐藏对象";
+  }
+
+  const object = objects[objectId];
+  return object?.cardNo ? `${object.cardNo}` : idLabel(objectId);
+}
+
+export function wireObjectRef(role: string, id: string | null | undefined): WireObjectRef {
+  return { id: id?.trim() ?? "", role };
+}
+
+export function wireObjectRefs(role: string, ids: string[] | undefined): WireObjectRef[] {
+  return (ids ?? []).map((id) => wireObjectRef(role, id));
+}
+
+function uniqueWireObjectRefs(refs: WireObjectRef[]): WireObjectRef[] {
+  const seen = new Set<string>();
+  const unique: WireObjectRef[] = [];
+  for (const item of refs) {
+    if (!item.id || seen.has(item.id)) {
+      continue;
+    }
+
+    seen.add(item.id);
+    unique.push(item);
+  }
+
+  return unique;
+}
+
+function idLabel(value: string): string {
+  return isProtocolToken(value) ? "服务端对象" : redactInternalText(value);
+}
+
+function isProtocolToken(value: string): boolean {
+  return /^[A-Z0-9_:-]+$/.test(value) || /^[a-z0-9]+(?:[-_:][a-z0-9]+)+$/.test(value);
+}
