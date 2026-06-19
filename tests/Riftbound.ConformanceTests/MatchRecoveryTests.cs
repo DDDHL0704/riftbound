@@ -98234,7 +98234,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item trigger id trigger-visible is required by authoritative state trigger queue",
+                "spectator replay frame timing trigger queue item trigger id trigger-visible is required by authoritative state trigger queue; expected [trigger-visible] but got []",
                 StringComparison.Ordinal));
     }
 
@@ -98759,17 +98759,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item trigger id wrong-trigger is not present in authoritative state trigger queue",
+                "spectator replay frame timing trigger queue item trigger id wrong-trigger is not present in authoritative state trigger queue; expected [trigger-hidden, trigger-visible] but got wrong-trigger",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item trigger id trigger-extra is not present in authoritative state trigger queue",
+                "spectator replay frame timing trigger queue item trigger id trigger-extra is not present in authoritative state trigger queue; expected [trigger-hidden, trigger-visible] but got trigger-extra",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item trigger id trigger-visible is required by authoritative state trigger queue",
+                "spectator replay frame timing trigger queue item trigger id trigger-visible is required by authoritative state trigger queue; expected [trigger-hidden, trigger-visible] but got [trigger-extra, trigger-hidden, wrong-trigger]",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

@@ -17716,6 +17716,9 @@ public static class MatchRecoveryValidator
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
         var actualTriggerIds = new HashSet<string>(StringComparer.Ordinal);
+        var expectedTriggerIds = authoritativeTriggersById.Keys
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToArray();
         foreach (var triggerPayload in triggerPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(triggerPayload)
@@ -17730,16 +17733,19 @@ public static class MatchRecoveryValidator
             if (!authoritativeTriggersById.ContainsKey(normalizedTriggerId))
             {
                 errors.Add(
-                    $"{payloadLabel} trigger id {normalizedTriggerId} is not present in authoritative state trigger queue");
+                    $"{payloadLabel} trigger id {normalizedTriggerId} is not present in authoritative state trigger queue; {FormatExpectedActualForRecovery(expectedTriggerIds, normalizedTriggerId)}");
             }
         }
 
-        foreach (var authoritativeTriggerId in authoritativeTriggersById.Keys.OrderBy(id => id, StringComparer.Ordinal))
+        var actualTriggerIdValues = actualTriggerIds
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToArray();
+        foreach (var authoritativeTriggerId in expectedTriggerIds)
         {
             if (!actualTriggerIds.Contains(authoritativeTriggerId))
             {
                 errors.Add(
-                    $"{payloadLabel} trigger id {authoritativeTriggerId} is required by authoritative state trigger queue");
+                    $"{payloadLabel} trigger id {authoritativeTriggerId} is required by authoritative state trigger queue; {FormatExpectedActualForRecovery(expectedTriggerIds, actualTriggerIdValues)}");
             }
         }
     }
