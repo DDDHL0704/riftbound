@@ -12,15 +12,22 @@ import { Children, type ReactNode } from "react";
 import { asArray, asNumber, asRecord, asString } from "../../utils/collections";
 import { matchPhaseLabel, timingStateLabel } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
+import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
 
 type WireRuleQueuePanelProps = {
+  onInspectObject?: (objectId: string) => void;
   playerId: string;
   prompt?: ActionPromptDto;
+  selectedObjectId?: string;
   snapshot?: SnapshotDto;
 };
 
 type ObjectIndex = Record<string, CardObjectView>;
+type RuleObjectRef = {
+  id: string;
+  role: string;
+};
 
 const stackEffectLabels: Record<string, string> = {
   ABILITY: "技能",
@@ -71,7 +78,7 @@ const battleResolutionLabels: Record<string, string> = {
   NO_RESULT: "战斗无结果"
 };
 
-export function WireRuleQueuePanel({ playerId, prompt, snapshot }: WireRuleQueuePanelProps) {
+export function WireRuleQueuePanel({ onInspectObject, playerId, prompt, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
   const timing = asRecord(snapshot?.timing);
   const queue = asRecord(timing.pendingTaskQueue);
   const turnWindow = asRecord(timing.turnWindow);
@@ -81,7 +88,7 @@ export function WireRuleQueuePanel({ playerId, prompt, snapshot }: WireRuleQueue
   const triggerQueue = asArray<Record<string, unknown>>(timing.triggerQueue).map(triggerFromRecord);
   const battlefieldResolutions = asArray<Record<string, unknown>>(timing.battlefieldResolutions).map(battlefieldResolutionFromRecord);
   const battleResolutions = asArray<Record<string, unknown>>(timing.battleResolutions).map(battleResolutionFromRecord);
-  const objects = objectIndex(snapshot);
+  const objects = buildCardObjectIndex(snapshot);
   const phase = asString(timing.phase, snapshot?.turnState ?? "");
   const timingState = asString(timing.timingState, snapshot?.turnState ?? "");
   const actingPlayerId = asString(turnWindow.actingPlayerId, asString(timing.priorityPlayerId, ""));
@@ -124,6 +131,7 @@ export function WireRuleQueuePanel({ playerId, prompt, snapshot }: WireRuleQueue
             <RuleLine label="目标" value={objectListLabel(item.targetObjectIds, objects)} />
             {item.damageAmount != null && item.damageAmount > 0 && <RuleLine label="伤害" value={String(item.damageAmount)} />}
             {item.destination && <RuleLine label="去向" value={zoneLabel(item.destination)} />}
+            <RuleObjectRefs objects={objects} onInspectObject={onInspectObject} refs={stackObjectRefs(item)} selectedObjectId={selectedObjectId} />
           </article>
         ))}
       </RuleSection>
@@ -149,6 +157,7 @@ export function WireRuleQueuePanel({ playerId, prompt, snapshot }: WireRuleQueue
             {task.stackItemIds && task.stackItemIds.length > 0 && <RuleLine label="关联结算链" value={`${task.stackItemIds.length} 项`} />}
             {task.spellDuelId && <RuleLine label="法术对决" value="服务端已创建" />}
             {task.battleId && <RuleLine label="战斗" value="服务端已创建" />}
+            <RuleObjectRefs objects={objects} onInspectObject={onInspectObject} refs={taskObjectRefs(task)} selectedObjectId={selectedObjectId} />
           </article>
         ))}
       </RuleSection>
@@ -163,6 +172,7 @@ export function WireRuleQueuePanel({ playerId, prompt, snapshot }: WireRuleQueue
             <RuleLine label="控制者" mine={trigger.controllerId === playerId} value={trigger.controllerId ?? "无"} />
             <RuleLine label="来源" value={trigger.sourceVisibility === "HIDDEN" ? "隐藏来源" : objectLabel(trigger.sourceObjectId, objects)} />
             <RuleLine label="来源事件" value={eventLabel(trigger.triggeredByEventKind)} />
+            <RuleObjectRefs objects={objects} onInspectObject={onInspectObject} refs={triggerObjectRefs(trigger)} selectedObjectId={selectedObjectId} />
           </article>
         ))}
       </RuleSection>
@@ -178,6 +188,7 @@ export function WireRuleQueuePanel({ playerId, prompt, snapshot }: WireRuleQueue
             <RuleLine label="控制者" mine={(resolution.playerId ?? resolution.controllerId) === playerId} value={resolution.playerId ?? resolution.controllerId ?? "无"} />
             <RuleLine label="参与对象" value={objectListLabel(resolution.participantObjectIds, objects)} />
             <RuleLine label="事件" value={eventListLabel(resolution.relatedEventKinds)} />
+            <RuleObjectRefs objects={objects} onInspectObject={onInspectObject} refs={battlefieldResolutionObjectRefs(resolution)} selectedObjectId={selectedObjectId} />
           </article>
         ))}
         {battleResolutions.map((resolution, index) => (
@@ -190,6 +201,7 @@ export function WireRuleQueuePanel({ playerId, prompt, snapshot }: WireRuleQueue
             <RuleLine label="胜者" mine={resolution.winnerPlayerId === playerId} value={resolution.winnerPlayerId ?? "无"} />
             <RuleLine label="被摧毁" value={objectListLabel(resolution.destroyedObjectIds, objects)} />
             <RuleLine label="事件" value={eventListLabel(resolution.relatedEventKinds)} />
+            <RuleObjectRefs objects={objects} onInspectObject={onInspectObject} refs={battleResolutionObjectRefs(resolution)} selectedObjectId={selectedObjectId} />
           </article>
         ))}
       </RuleSection>
@@ -230,6 +242,55 @@ function RuleLine({ label, mine, value }: { label: string; mine?: boolean; value
       <span>{label}</span>
       <strong>{value || "无"}</strong>
     </span>
+  );
+}
+
+function RuleObjectRefs({
+  objects,
+  onInspectObject,
+  refs,
+  selectedObjectId
+}: {
+  objects: ObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  refs: RuleObjectRef[];
+  selectedObjectId?: string;
+}) {
+  const visibleRefs = uniqueRuleObjectRefs(refs);
+  if (visibleRefs.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="wire-rule-object-refs" aria-label="关联桌面对象">
+      {visibleRefs.map((ref) => {
+        const object = objects[ref.id];
+        const hidden = ref.id === "HIDDEN";
+        const canInspect = Boolean(object && onInspectObject && !hidden);
+        const label = `${ref.role} ${objectLabel(ref.id, objects)}`;
+        if (!canInspect) {
+          return (
+            <span className="wire-rule-object-ref is-disabled" data-rule-object-ref={ref.id} data-rule-object-role={ref.role} key={`${ref.role}-${ref.id}`}>
+              {label}
+            </span>
+          );
+        }
+
+        return (
+          <button
+            className={selectedObjectId === ref.id ? "wire-rule-object-ref is-selected" : "wire-rule-object-ref"}
+            data-rule-object-ref={ref.id}
+            data-rule-object-role={ref.role}
+            data-selected={selectedObjectId === ref.id ? "true" : undefined}
+            key={`${ref.role}-${ref.id}`}
+            onClick={() => onInspectObject?.(ref.id)}
+            type="button"
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -309,15 +370,62 @@ function battleResolutionFromRecord(record: Record<string, unknown>): BattleReso
   };
 }
 
-function objectIndex(snapshot?: SnapshotDto): ObjectIndex {
-  return Object.values(snapshot?.players ?? {}).reduce<ObjectIndex>((index, player) => {
-    const objects = asRecord(player.objects);
-    Object.entries(objects).forEach(([objectId, value]) => {
-      const object = value as CardObjectView;
-      index[object.objectId ?? objectId] = object;
-    });
-    return index;
-  }, {});
+function stackObjectRefs(item: StackItemView): RuleObjectRef[] {
+  return [
+    ref("来源", item.sourceObjectId),
+    ...refs("目标", item.targetObjectIds)
+  ];
+}
+
+function taskObjectRefs(task: PendingTaskView): RuleObjectRef[] {
+  return [
+    ref("战场", task.battlefieldObjectId),
+    ...refs("参与", task.participantObjectIds)
+  ];
+}
+
+function triggerObjectRefs(trigger: TriggerQueueItemView): RuleObjectRef[] {
+  return trigger.sourceVisibility === "HIDDEN" ? [ref("来源", "HIDDEN")] : [ref("来源", trigger.sourceObjectId)];
+}
+
+function battlefieldResolutionObjectRefs(resolution: BattlefieldResolutionView): RuleObjectRef[] {
+  return [
+    ref("战场", resolution.battlefieldObjectId),
+    ref("来源", resolution.sourceObjectId),
+    ...refs("参与", resolution.participantObjectIds)
+  ];
+}
+
+function battleResolutionObjectRefs(resolution: BattleResolutionView): RuleObjectRef[] {
+  return [
+    ref("战场", resolution.battlefieldId),
+    ...refs("攻击", resolution.attackerObjectIds),
+    ...refs("防守", resolution.defenderObjectIds),
+    ...refs("被摧毁", resolution.destroyedObjectIds)
+  ];
+}
+
+function ref(role: string, id: string | null | undefined): RuleObjectRef {
+  return { id: id?.trim() ?? "", role };
+}
+
+function refs(role: string, ids: string[] | undefined): RuleObjectRef[] {
+  return (ids ?? []).map((id) => ref(role, id));
+}
+
+function uniqueRuleObjectRefs(refs: RuleObjectRef[]): RuleObjectRef[] {
+  const seen = new Set<string>();
+  const unique: RuleObjectRef[] = [];
+  for (const item of refs) {
+    if (!item.id || seen.has(item.id)) {
+      continue;
+    }
+
+    seen.add(item.id);
+    unique.push(item);
+  }
+
+  return unique;
 }
 
 function objectLabel(objectId: string | null | undefined, objects: ObjectIndex): string {

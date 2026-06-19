@@ -98,6 +98,8 @@ try {
   await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "焦点 / 候选 / 规则队列"]);
   await runWireClickSelectionSmoke(cdp);
   console.log("Chrome smoke OK: wire click selection");
+  await runWireRuleObjectRefSmoke(cdp);
+  console.log("Chrome smoke OK: wire rule object refs");
 
   if (browserErrors.length > 0) {
     throw new Error(`Chrome reported errors:\n${browserErrors.join("\n")}`);
@@ -329,6 +331,53 @@ async function runWireClickSelectionSmoke(cdp) {
   }
 }
 
+async function runWireRuleObjectRefSmoke(cdp) {
+  const initial = await evaluateJson(cdp, `(() => ({
+    battlefieldRefs: document.querySelectorAll('[data-rule-object-ref="fixture-left-battlefield"]').length,
+    unitRefs: document.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length,
+    hiddenRefs: document.querySelectorAll('[data-rule-object-ref="HIDDEN"]').length
+  }))()`);
+
+  await clickRuleObjectRef(cdp, "fixture-left-battlefield");
+  await delay(150);
+  const battlefieldResult = await evaluateJson(cdp, `(() => {
+    const tableObject = document.querySelector('[data-object-id="fixture-left-battlefield"]');
+    const selectedRef = document.querySelector('[data-rule-object-ref="fixture-left-battlefield"][data-selected="true"]');
+    return {
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      selectedRef: Boolean(selectedRef),
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
+    };
+  })()`);
+
+  await clickRuleObjectRef(cdp, "p2-right-1");
+  await delay(150);
+  const unitResult = await evaluateJson(cdp, `(() => {
+    const tableObject = document.querySelector('[data-object-id="p2-right-1"]');
+    const selectedRef = document.querySelector('[data-rule-object-ref="p2-right-1"][data-selected="true"]');
+    return {
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      selectedRef: Boolean(selectedRef),
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
+    };
+  })()`);
+
+  const failures = [];
+  if (initial.battlefieldRefs < 1) failures.push("battlefield rule object ref missing");
+  if (initial.unitRefs < 1) failures.push("unit rule object ref missing");
+  if (initial.hiddenRefs < 1) failures.push("hidden rule object ref missing");
+  if (battlefieldResult.selected !== "true") failures.push("battlefield ref did not focus battlefield card");
+  if (!battlefieldResult.selectedRef) failures.push("battlefield ref did not show selected state");
+  if (battlefieldResult.detailLayerOpen) failures.push("battlefield ref opened detail layer");
+  if (unitResult.selected !== "true") failures.push("unit ref did not focus unit card");
+  if (!unitResult.selectedRef) failures.push("unit ref did not show selected state");
+  if (unitResult.detailLayerOpen) failures.push("unit ref opened detail layer");
+
+  if (failures.length > 0) {
+    throw new Error(`Wire rule object ref smoke failed:\n${failures.join("\n")}`);
+  }
+}
+
 async function clickObject(cdp, objectId) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
@@ -341,6 +390,21 @@ async function clickObject(cdp, objectId) {
   });
   if (result.result?.value !== true) {
     throw new Error(`Missing clickable object ${objectId}`);
+  }
+}
+
+async function clickRuleObjectRef(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-rule-object-ref="${objectId}"]`)});
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Rule object ref not found: ${objectId}`);
   }
 }
 
