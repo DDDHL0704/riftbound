@@ -351,8 +351,11 @@ async function runWireClickSelectionSmoke(cdp) {
   const runeActionMapResult = await evaluateJson(cdp, `(() => {
     const tableObject = document.querySelector('[data-object-id="p1-rune-3"]');
     const actionChip = document.querySelector('[data-action-object-id="p1-rune-3"]');
+    const actionButton = Array.from(document.querySelectorAll(".wire-action-panel button"))
+      .find((button) => button.textContent?.includes("横置符文样例"));
     const selectedObjectContext = document.querySelector('[data-wire-selected-object-context="p1-rune-3"]');
     return {
+      actionButtonText: actionButton?.textContent ?? "",
       selected: tableObject?.getAttribute("data-selected") ?? null,
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
       detailContextText: selectedObjectContext?.textContent ?? "",
@@ -418,6 +421,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!runeActionMapResult.hasSelectedObjectContext) failures.push("rune action map did not render selected object context");
   if (!runeActionMapResult.detailContextText.includes("TAP_RUNE")) failures.push("rune object context did not expose server tap command template");
   if (!runeActionMapResult.detailContextText.includes("来源:sourceObjectId*")) failures.push("rune object context did not expose required source binding");
+  if (!runeActionMapResult.actionButtonText.includes("横置符文样例")) failures.push("rune action panel template button missing");
+  if (runeActionMapResult.actionButtonText.includes("需选择")) failures.push("rune action panel did not build direct command from server template");
   if (!runeActionMapResult.focusText.includes("服务端状态")) failures.push("rune action map focus did not refresh focused action summary");
   if (candidateRefResult.hasCandidateRefs < 1) failures.push("candidate object refs missing");
   if (candidateRefResult.selected !== "true") failures.push("candidate object ref did not focus table object");
