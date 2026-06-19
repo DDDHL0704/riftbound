@@ -969,6 +969,19 @@ public static class MatchRecoveryValidator
     private const string SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery = "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     private const string ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery = "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
 
+    private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
+    [
+        "UNIT_PLAYED_TO_BASE",
+        "UNIT_DESTROYED",
+        "BATTLEFIELD_HELD",
+        "UNIT_MOVED_TO_BATTLEFIELD",
+        "UNIT_MOVED_TO_BASE",
+        "CARD_PLAYED",
+        "BATTLE_DECLARED",
+        "OBJECT_DESTROYED",
+        "UNIT_READY"
+    ];
+
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
         int Damage,
@@ -6727,15 +6740,7 @@ public static class MatchRecoveryValidator
 
     private static bool IsKnownTriggerQueueTriggeredEventKind(string value)
     {
-        return string.Equals(value, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            || string.Equals(value, "UNIT_DESTROYED", StringComparison.Ordinal)
-            || string.Equals(value, "BATTLEFIELD_HELD", StringComparison.Ordinal)
-            || string.Equals(value, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal)
-            || string.Equals(value, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
-            || string.Equals(value, "CARD_PLAYED", StringComparison.Ordinal)
-            || string.Equals(value, "BATTLE_DECLARED", StringComparison.Ordinal)
-            || string.Equals(value, "OBJECT_DESTROYED", StringComparison.Ordinal)
-            || string.Equals(value, "UNIT_READY", StringComparison.Ordinal);
+        return KnownTriggerQueueTriggeredEventKinds.Contains(value, StringComparer.Ordinal);
     }
 
     private static bool IsKnownContinuousEffectScope(string value)
@@ -18382,7 +18387,8 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        errors.Add($"{payloadLabel} triggered event kind {triggeredEventKind} is invalid");
+        errors.Add(
+            $"{payloadLabel} triggered event kind {triggeredEventKind} is invalid; {FormatExpectedActualForRecovery(KnownTriggerQueueTriggeredEventKinds, triggeredEventKind)}");
     }
 
     private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
