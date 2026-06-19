@@ -1750,6 +1750,8 @@
 
 线框对战桌面规则/事件详情入口继续工程化：新增共享 `WireDetailTrigger`，规则队列与事件日志的“详情”按钮统一暴露 `aria-controls`、`aria-pressed`、`data-detail-selected`、`data-wire-detail-source` 和可读 `aria-label`；`WireTimelineDetailPanel` 现在有稳定 `wire-timeline-detail-body` 与 `data-wire-timeline-detail-state`，可区分规则详情、日志事件、焦点对象和空状态。Chrome smoke 覆盖规则详情、事件详情、按钮选中态、详情来源、清除后回到焦点对象上下文；前端仍只消费服务端 refs、事件和候选，不自行生成规则结果；项目仍 **NOT READY**。
 
+线框对战桌面规则详情关联候选继续工程化：`WireTimelineDetailPanel` 的“详情对象服务端候选”行现在可作为线框按钮聚焦对应桌面对象，复用服务端 refs 与 `TableObjectContext`，只改变当前检查焦点，不提交命令、不修改规则状态、不打开卡牌详情弹窗。Chrome smoke 覆盖规则详情内候选行点击后桌面对象选中、对象上下文出现且详情面板仍保持规则来源；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：

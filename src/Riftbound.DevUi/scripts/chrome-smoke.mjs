@@ -602,12 +602,29 @@ async function runWireRuleObjectRefSmoke(cdp) {
       projectionText: panel?.querySelector(".wire-timeline-projection-list")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
+      actionHintButtonCount: panel?.querySelectorAll(".wire-timeline-action-hint-button").length ?? 0,
       actionHintText: panel?.querySelector(".wire-timeline-action-hint-list")?.textContent ?? "",
       sourceState: sourceObject?.getAttribute("data-timeline-state") ?? null,
       targetState: targetObject?.getAttribute("data-timeline-state") ?? null,
       sourcePromptState: sourceObject?.getAttribute("data-prompt-state") ?? null,
       targetPromptState: targetObject?.getAttribute("data-prompt-state") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
+    };
+  })()`);
+
+  const actionHintObjectId = await clickTimelineActionHint(cdp);
+  await delay(150);
+  const actionHintFocusResult = await evaluateJson(cdp, `(() => {
+    const objectId = ${JSON.stringify(actionHintObjectId)};
+    const tableObject = document.querySelector(\`[data-object-id="\${objectId}"]\`);
+    const selectedObjectContext = document.querySelector(\`[data-wire-selected-object-context="\${objectId}"]\`);
+    const panel = document.querySelector(".wire-timeline-detail");
+    return {
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      objectId,
+      panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      selectedContext: Boolean(selectedObjectContext)
     };
   })()`);
 
@@ -689,12 +706,17 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.projectionText.includes("来源")) failures.push("rule detail projection source role missing");
   if (!ruleDetailResult.projectionText.includes("目标")) failures.push("rule detail projection target role missing");
   if (ruleDetailResult.actionHintCount < 1) failures.push("rule detail candidate hint rows missing");
+  if (ruleDetailResult.actionHintButtonCount < 1) failures.push("rule detail candidate hint buttons missing");
   if (!ruleDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("rule detail candidate hint command type missing");
   if (!ruleDetailResult.actionHintText.includes("可用")) failures.push("rule detail candidate hint state missing");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
   if (!ruleDetailResult.selectedRow) failures.push("rule detail selected row missing");
   if (ruleDetailResult.detailLayerOpen) failures.push("rule detail opened card detail layer");
+  if (actionHintFocusResult.panelState !== "rule") failures.push(`action hint focus changed detail panel state: ${actionHintFocusResult.panelState}`);
+  if (actionHintFocusResult.selected !== "true") failures.push("action hint button did not focus table object");
+  if (!actionHintFocusResult.selectedContext) failures.push("action hint button did not expose selected object context");
+  if (actionHintFocusResult.detailLayerOpen) failures.push("action hint button opened card detail layer");
   if (!eventDetailResult.text.includes("加入结算链")) failures.push("event detail title missing");
   if (eventDetailResult.panelState !== "event") failures.push(`event detail panel state unexpected: ${eventDetailResult.panelState}`);
   if (eventDetailResult.triggerAriaPressed !== "true") failures.push("event detail trigger aria-pressed missing");
@@ -861,6 +883,23 @@ async function clickWireDetail(cdp, detailId) {
   if (!result.result?.value) {
     throw new Error(`Wire detail trigger not found: ${detailId}`);
   }
+}
+
+async function clickTimelineActionHint(cdp) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(".wire-timeline-action-hint-button");
+      if (!element) return "";
+      element.click();
+      return element.getAttribute("data-action-hint-object-id") ?? "";
+    })()`,
+    returnByValue: true
+  });
+  const objectId = String(result.result?.value ?? "");
+  if (!objectId) {
+    throw new Error("Wire timeline action hint button not found");
+  }
+  return objectId;
 }
 
 async function clickDetailClear(cdp) {

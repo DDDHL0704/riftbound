@@ -91,14 +91,7 @@ export function WireTimelineDetailPanel({
             {plan.actionHintRows.length > 0 && (
               <ol className="wire-timeline-action-hint-list" aria-label="详情对象服务端候选">
                 {plan.actionHintRows.map((row) => (
-                  <li data-action-object-id={row.objectId} key={row.key}>
-                    <span>{row.role}</span>
-                    <strong>{row.label}</strong>
-                    <small>{row.stateLabel}</small>
-                    <small>{row.zoneLabel}</small>
-                    <small>{row.commandTypes.length > 0 ? row.commandTypes.join(" / ") : "服务端候选"}</small>
-                    {row.reasonLabels.length > 0 && <small>{row.reasonLabels.slice(0, 2).join(" / ")}</small>}
-                  </li>
+                  <ActionHintRow key={row.key} onInspectObject={onInspectObject} row={row} />
                 ))}
               </ol>
             )}
@@ -132,6 +125,42 @@ export function WireTimelineDetailPanel({
         )}
       </div>
     </section>
+  );
+}
+
+type ActionHintRowProps = {
+  onInspectObject?: (objectId: string) => void;
+  row: ReturnType<typeof buildWireTimelineDetailPlan>["actionHintRows"][number];
+};
+
+function ActionHintRow({ onInspectObject, row }: ActionHintRowProps) {
+  const content = (
+    <>
+      <span>{row.role}</span>
+      <strong>{row.label}</strong>
+      <small>{row.stateLabel}</small>
+      <small>{row.zoneLabel}</small>
+      <small>{row.commandTypes.length > 0 ? row.commandTypes.join(" / ") : "服务端候选"}</small>
+      {row.reasonLabels.length > 0 && <small>{row.reasonLabels.slice(0, 2).join(" / ")}</small>}
+    </>
+  );
+
+  return (
+    <li data-action-hint-clickable={onInspectObject ? "true" : "false"} data-action-object-id={row.objectId}>
+      {onInspectObject ? (
+        <button
+          aria-label={`聚焦关联候选：${row.label}`}
+          className="wire-timeline-action-hint-button"
+          data-action-hint-object-id={row.objectId}
+          onClick={() => onInspectObject(row.objectId)}
+          type="button"
+        >
+          {content}
+        </button>
+      ) : (
+        content
+      )}
+    </li>
   );
 }
 

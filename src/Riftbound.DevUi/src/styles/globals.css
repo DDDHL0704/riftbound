@@ -12874,7 +12874,21 @@ button.card-face:hover {
   padding: 2px 4px;
 }
 
-.wire-timeline-action-hint-list li > small {
+.wire-timeline-action-hint-button {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 70px;
+  gap: 3px 4px;
+  width: 100%;
+  padding: 2px 4px;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-timeline-action-hint-list li > small,
+.wire-timeline-action-hint-button > small {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
