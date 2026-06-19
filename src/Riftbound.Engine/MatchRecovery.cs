@@ -4678,7 +4678,8 @@ public static class MatchRecoveryValidator
 
         if (!string.Equals(taskId, expectedTaskId, StringComparison.Ordinal))
         {
-            errors.Add($"{taskLabel} task id {taskId} does not match battlefield task id {expectedTaskId}");
+            errors.Add(
+                $"{taskLabel} task id {taskId} does not match battlefield task id {expectedTaskId}; {FormatExpectedActualForRecovery(expectedTaskId, taskId)}");
         }
     }
 
@@ -4723,7 +4724,8 @@ public static class MatchRecoveryValidator
 
             if (!string.Equals(spellDuelId, expectedSpellDuelId, StringComparison.Ordinal))
             {
-                errors.Add($"{taskLabel} spell duel id {spellDuelId} does not match battlefield spell duel id {expectedSpellDuelId}");
+                errors.Add(
+                    $"{taskLabel} spell duel id {spellDuelId} does not match battlefield spell duel id {expectedSpellDuelId}; {FormatExpectedActualForRecovery(expectedSpellDuelId, spellDuelId)}");
             }
 
             return;
@@ -4755,7 +4757,8 @@ public static class MatchRecoveryValidator
 
             if (!string.Equals(battleId, expectedBattleId, StringComparison.Ordinal))
             {
-                errors.Add($"{taskLabel} battle id {battleId} does not match battlefield battle id {expectedBattleId}");
+                errors.Add(
+                    $"{taskLabel} battle id {battleId} does not match battlefield battle id {expectedBattleId}; {FormatExpectedActualForRecovery(expectedBattleId, battleId)}");
             }
         }
     }
@@ -4806,7 +4809,8 @@ public static class MatchRecoveryValidator
             if (reason is { Length: > 0 }
                 && !string.Equals(reason, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal))
             {
-                errors.Add($"{taskLabel} reason {reason} does not match START_SPELL_DUEL reason BATTLEFIELD_CONTESTED");
+                errors.Add(
+                    $"{taskLabel} reason {reason} does not match START_SPELL_DUEL reason BATTLEFIELD_CONTESTED; {FormatExpectedActualForRecovery("BATTLEFIELD_CONTESTED", reason)}");
             }
 
             if (string.Equals(status, "WAITING_FOR_SPELL_DUEL", StringComparison.Ordinal))
@@ -4822,7 +4826,8 @@ public static class MatchRecoveryValidator
             if (reason is { Length: > 0 }
                 && !string.Equals(reason, "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", StringComparison.Ordinal))
             {
-                errors.Add($"{taskLabel} reason {reason} does not match START_BATTLE reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST");
+                errors.Add(
+                    $"{taskLabel} reason {reason} does not match START_BATTLE reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST; {FormatExpectedActualForRecovery("SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", reason)}");
             }
 
             if (string.Equals(status, "COMPLETED", StringComparison.Ordinal))

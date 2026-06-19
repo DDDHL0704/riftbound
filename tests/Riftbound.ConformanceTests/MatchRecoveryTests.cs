@@ -15075,7 +15075,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST does not match START_SPELL_DUEL reason BATTLEFIELD_CONTESTED",
+                "snapshot for alice timing battlefield task item reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST does not match START_SPELL_DUEL reason BATTLEFIELD_CONTESTED; expected BATTLEFIELD_CONTESTED but got SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -15085,7 +15085,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item reason BATTLEFIELD_CONTESTED does not match START_BATTLE reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                "snapshot for alice timing battlefield task item reason BATTLEFIELD_CONTESTED does not match START_BATTLE reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST; expected SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST but got BATTLEFIELD_CONTESTED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -15169,7 +15169,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item spell duel id spell-duel:drift does not match battlefield spell duel id spell-duel:battlefield-a",
+                "snapshot for alice timing battlefield task item spell duel id spell-duel:drift does not match battlefield spell duel id spell-duel:battlefield-a; expected spell-duel:battlefield-a but got spell-duel:drift",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -15179,7 +15179,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item battle id battle:drift does not match battlefield battle id battle:battlefield-c",
+                "snapshot for alice timing battlefield task item battle id battle:drift does not match battlefield battle id battle:battlefield-c; expected battle:battlefield-c but got battle:drift",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -15239,12 +15239,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item task id task:start-battle:battlefield-a does not match battlefield task id task:start-spell-duel:battlefield-a",
+                "snapshot for alice timing battlefield task item task id task:start-battle:battlefield-a does not match battlefield task id task:start-spell-duel:battlefield-a; expected task:start-spell-duel:battlefield-a but got task:start-battle:battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item task id task:start-spell-duel:battlefield-b does not match battlefield task id task:start-battle:battlefield-b",
+                "snapshot for alice timing battlefield task item task id task:start-spell-duel:battlefield-b does not match battlefield task id task:start-battle:battlefield-b; expected task:start-battle:battlefield-b but got task:start-spell-duel:battlefield-b",
                 StringComparison.Ordinal));
     }
 
@@ -55073,12 +55073,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item task id task:start-battle:battlefield-a does not match battlefield task id task:start-spell-duel:battlefield-a",
+                "spectator replay frame timing battlefield task item task id task:start-battle:battlefield-a does not match battlefield task id task:start-spell-duel:battlefield-a; expected task:start-spell-duel:battlefield-a but got task:start-battle:battlefield-a",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item task id task:start-spell-duel:battlefield-b does not match battlefield task id task:start-battle:battlefield-b",
+                "spectator replay frame timing battlefield task item task id task:start-spell-duel:battlefield-b does not match battlefield task id task:start-battle:battlefield-b; expected task:start-battle:battlefield-b but got task:start-spell-duel:battlefield-b",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -55819,7 +55819,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item spell duel id spell-duel:drift does not match battlefield spell duel id spell-duel:battlefield-a",
+                "spectator replay frame timing battlefield task item spell duel id spell-duel:drift does not match battlefield spell duel id spell-duel:battlefield-a; expected spell-duel:battlefield-a but got spell-duel:drift",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -55829,7 +55829,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item battle id battle:drift does not match battlefield battle id battle:battlefield-c",
+                "spectator replay frame timing battlefield task item battle id battle:drift does not match battlefield battle id battle:battlefield-c; expected battle:battlefield-c but got battle:drift",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -56132,7 +56132,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST does not match START_SPELL_DUEL reason BATTLEFIELD_CONTESTED",
+                "spectator replay frame timing battlefield task item reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST does not match START_SPELL_DUEL reason BATTLEFIELD_CONTESTED; expected BATTLEFIELD_CONTESTED but got SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -56142,7 +56142,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item reason BATTLEFIELD_CONTESTED does not match START_BATTLE reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                "spectator replay frame timing battlefield task item reason BATTLEFIELD_CONTESTED does not match START_BATTLE reason SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST; expected SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST but got BATTLEFIELD_CONTESTED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
