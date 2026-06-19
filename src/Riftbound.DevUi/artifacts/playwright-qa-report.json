@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T07:42:33.514Z",
+  "generatedAt": "2026-06-19T08:07:32.280Z",
   "frontendUrl": "http://127.0.0.1:5176",
   "serverUrl": "http://127.0.0.1:5088",
   "updateBaseline": false,
@@ -65,8 +65,8 @@
       "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/match-midgame-showcase.png",
       "visual": {
         "status": "compared",
-        "ratio": 0.003417352537722908,
-        "diffPixels": 3986
+        "ratio": 0.005,
+        "diffPixels": 5832
       },
       "accessibility": {
         "checked": true,
@@ -79,8 +79,8 @@
       "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/prompt-pay-cost.png",
       "visual": {
         "status": "compared",
-        "ratio": 0.005532407407407408,
-        "diffPixels": 6453
+        "ratio": 0.008531378600823045,
+        "diffPixels": 9951
       },
       "accessibility": {
         "checked": true,

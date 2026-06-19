@@ -508,6 +508,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
       selectedRow: Boolean(selectedRow),
       hasSourceRef: Boolean(panel?.querySelector('[data-rule-object-ref="p1-hand-spell"]')),
       hasTargetRef: Boolean(panel?.querySelector('[data-rule-object-ref="p2-right-1"]')),
+      projectionStates: Array.from(panel?.querySelectorAll(".wire-timeline-projection-list li") ?? [])
+        .map((item) => item.getAttribute("data-projection-state")),
+      projectionText: panel?.querySelector(".wire-timeline-projection-list")?.textContent ?? "",
+      statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       sourceState: sourceObject?.getAttribute("data-timeline-state") ?? null,
       targetState: targetObject?.getAttribute("data-timeline-state") ?? null,
       sourcePromptState: sourceObject?.getAttribute("data-prompt-state") ?? null,
@@ -528,6 +532,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
       selectedRow: Boolean(selectedRow),
       hasSourceRef: Boolean(panel?.querySelector('[data-event-object-ref="p1-hand-spell"]')),
       hasTargetRef: Boolean(panel?.querySelector('[data-event-object-ref="p2-right-1"]')),
+      projectionStates: Array.from(panel?.querySelectorAll(".wire-timeline-projection-list li") ?? [])
+        .map((item) => item.getAttribute("data-projection-state")),
+      projectionText: panel?.querySelector(".wire-timeline-projection-list")?.textContent ?? "",
+      statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       sourceState: sourceObject?.getAttribute("data-timeline-state") ?? null,
       targetState: targetObject?.getAttribute("data-timeline-state") ?? null,
       sourcePromptState: sourceObject?.getAttribute("data-prompt-state") ?? null,
@@ -554,6 +562,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
   if (!ruleDetailResult.hasTargetRef) failures.push("rule detail target ref missing");
+  if (!ruleDetailResult.statusText.includes("桌面投影")) failures.push("rule detail projection status missing");
+  if (!ruleDetailResult.statusText.includes("当前焦点")) failures.push("rule detail focus status missing");
+  if (!ruleDetailResult.projectionStates.includes("visible")) failures.push("rule detail did not expose visible projection rows");
+  if (!ruleDetailResult.projectionText.includes("来源")) failures.push("rule detail projection source role missing");
+  if (!ruleDetailResult.projectionText.includes("目标")) failures.push("rule detail projection target role missing");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
   if (!ruleDetailResult.selectedRow) failures.push("rule detail selected row missing");
@@ -562,6 +575,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.text.includes("服务端摘要")) failures.push("event detail did not use server object refs");
   if (!eventDetailResult.hasSourceRef) failures.push("event detail source ref missing");
   if (!eventDetailResult.hasTargetRef) failures.push("event detail target ref missing");
+  if (!eventDetailResult.statusText.includes("日志事件")) failures.push("event detail did not label event source");
+  if (!eventDetailResult.projectionStates.includes("visible")) failures.push("event detail did not expose visible projection rows");
+  if (!eventDetailResult.projectionText.includes("来源")) failures.push("event detail projection source role missing");
   if (eventDetailResult.sourceState !== "event") failures.push("event detail did not project source to table");
   if (eventDetailResult.targetState !== "event") failures.push("event detail did not project target to table");
   if (!eventDetailResult.selectedRow) failures.push("event detail selected row missing");
