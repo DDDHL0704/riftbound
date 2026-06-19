@@ -60,6 +60,9 @@ public sealed class BoardTaskQueueFoundationTests
             requirement =>
                 requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
                 && string.Equals(sourceObjectId as string, "P1-BASE-MOVER", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            prompt.ObjectContexts ?? [],
+            context => string.Equals(context.ObjectId, "P1-BASE-MOVER", StringComparison.Ordinal));
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -72,6 +75,33 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.Empty(result.Events);
         Assert.Equal(new ObjectLocationState("P1", "BASE"), result.State.ObjectLocations["P1-BASE-MOVER"]);
         Assert.True(result.State.CardObjects["P1-BASE-MOVER"].IsExhausted);
+    }
+
+    [Fact]
+    public void MainActionPromptProjectsObjectCandidateContextsFromServer()
+    {
+        var state = BaseMoveState(occupied: false);
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+
+        Assert.True(prompt.Actionable);
+        var context = Assert.Single(
+            prompt.ObjectContexts ?? [],
+            candidateContext => string.Equals(candidateContext.ObjectId, "P1-BASE-MOVER", StringComparison.Ordinal));
+        Assert.Equal(1, context.EnabledCandidateCount);
+        Assert.Equal(0, context.DisabledCandidateCount);
+        var moveCandidate = Assert.Single(
+            context.Candidates,
+            candidate => string.Equals(candidate.Action, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.True(moveCandidate.Enabled);
+        Assert.Equal(CommandTypes.MoveUnit, moveCandidate.CommandType);
+        Assert.Contains("来源", moveCandidate.Roles);
+        Assert.Contains("来源:sourceObjectId*", moveCandidate.RequiredCommandFields ?? []);
+        Assert.Contains("服务端:origin*", moveCandidate.RequiredCommandFields ?? []);
+        Assert.Contains("位置:destination", moveCandidate.CommandFields ?? []);
     }
 
     [Fact]

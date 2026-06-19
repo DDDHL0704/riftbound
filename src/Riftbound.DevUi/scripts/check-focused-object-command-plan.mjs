@@ -41,6 +41,7 @@ const plan = buildFocusedObjectCommandPlan({
         roles: ["来源"]
       }
     ],
+    candidateSource: "server",
     cardNo: "OGN-001/298",
     controllerId: "P1",
     eventLinks: [
@@ -101,8 +102,9 @@ const plan = buildFocusedObjectCommandPlan({
   }
 });
 
-assert.equal(plan.statusCards.length, 4);
+assert.equal(plan.statusCards.length, 5);
 assert.equal(plan.statusCards[0].value, "我方手牌");
+assert.equal(plan.statusCards[3].value, "服务端索引");
 assert.equal(plan.commandRows.length, 2);
 assert.equal(plan.commandRows[0].commandType, "PLAY_CARD");
 assert.deepEqual(plan.commandRows[0].requiredFields, ["来源:sourceObjectId*"]);

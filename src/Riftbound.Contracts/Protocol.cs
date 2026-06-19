@@ -340,7 +340,24 @@ public sealed record ActionPromptDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? SnapshotTick = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptCandidateDto>? Candidates = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PromptViewDto? View = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptContractDto? Contract = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptContractDto? Contract = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectContextDto>? ObjectContexts = null);
+
+public sealed record ActionPromptObjectContextDto(
+    string ObjectId,
+    int EnabledCandidateCount,
+    int DisabledCandidateCount,
+    IReadOnlyList<ActionPromptObjectCandidateDto> Candidates);
+
+public sealed record ActionPromptObjectCandidateDto(
+    string Action,
+    string Label,
+    bool Enabled,
+    string Reason,
+    IReadOnlyList<string> Roles,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CommandType = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? RequiredCommandFields = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? CommandFields = null);
 
 public sealed record ActionPromptSelectionChoiceDto(
     string Id,

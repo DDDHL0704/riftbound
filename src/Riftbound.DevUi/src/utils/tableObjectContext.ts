@@ -1,5 +1,16 @@
-import type { ActionPromptDto, BattlefieldSnapshotView, CardObjectView, GameEvent, GameEventObjectRef, SnapshotDto, StackItemView } from "../types/protocol";
+import type {
+  ActionPromptDto,
+  ActionPromptObjectCandidateDto,
+  ActionPromptObjectContextDto,
+  BattlefieldSnapshotView,
+  CardObjectView,
+  GameEvent,
+  GameEventObjectRef,
+  SnapshotDto,
+  StackItemView
+} from "../types/protocol";
 import { asArray, asRecord, asString } from "./collections";
+import { promptReasonLabel } from "./formatters";
 import {
   buildPromptInteractionModel,
   promptCommandBindingLabel,
@@ -47,8 +58,11 @@ export type TableObjectCandidateContext = {
   roles: string[];
 };
 
+export type TableObjectCandidateSource = "derived" | "none" | "server";
+
 export type TableObjectContext = {
   candidateLinks: TableObjectCandidateContext[];
+  candidateSource: TableObjectCandidateSource;
   cardNo?: string | null;
   controllerId?: string | null;
   eventLinks: TableObjectEventContext[];
@@ -129,12 +143,14 @@ export function buildTableObjectContextModel({
   const objects = buildCardObjectIndex(snapshot);
   const zoneById = buildZoneIndex(snapshot, objects, perspectivePlayerId);
   const promptModel = buildPromptInteractionModel(prompt);
+  const serverObjectContextById = buildServerObjectContextIndex(prompt?.objectContexts);
   const eventLinksById = buildEventLinks(events);
   const stackRolesById = buildStackRoles(snapshot?.stack ?? []);
   const objectIds = new Set<string>([
     ...Object.keys(objects),
     ...Object.keys(zoneById),
     ...promptModel.objectById.keys(),
+    ...serverObjectContextById.keys(),
     ...Object.keys(eventLinksById),
     ...Object.keys(stackRolesById)
   ]);
@@ -143,18 +159,24 @@ export function buildTableObjectContextModel({
   for (const objectId of objectIds) {
     const object = objects[objectId];
     const promptSummary = promptModel.objectById.get(objectId);
+    const serverContext = serverObjectContextById.get(objectId);
+    const derivedCandidateLinks = promptModel.candidates
+      .filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId)))
+      .map((candidate) => candidateContextForObject(candidate, objectId));
+    const candidateLinks = serverContext
+      ? serverContext.candidates.map(candidateContextFromServerObjectCandidate)
+      : derivedCandidateLinks;
     byId[objectId] = {
-      candidateLinks: promptModel.candidates
-        .filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId)))
-        .map((candidate) => candidateContextForObject(candidate, objectId)),
+      candidateLinks,
+      candidateSource: serverContext ? "server" : candidateLinks.length > 0 ? "derived" : "none",
       cardNo: object?.cardNo,
       controllerId: object?.controllerId,
       eventLinks: eventLinksById[objectId] ?? [],
       object,
       objectId,
       ownerId: object?.ownerId,
-      promptDisabledCount: promptSummary?.disabledCandidateCount ?? 0,
-      promptEnabledCount: promptSummary?.enabledCandidateCount ?? 0,
+      promptDisabledCount: serverContext?.disabledCandidateCount ?? promptSummary?.disabledCandidateCount ?? 0,
+      promptEnabledCount: serverContext?.enabledCandidateCount ?? promptSummary?.enabledCandidateCount ?? 0,
       stackRoles: stackRolesById[objectId] ?? [],
       stateLabels: objectStateLabels(object),
       zone: zoneById[objectId] ?? { kind: "unknown", label: "未定位区域" }
@@ -162,6 +184,31 @@ export function buildTableObjectContextModel({
   }
 
   return { byId };
+}
+
+function buildServerObjectContextIndex(
+  contexts: ActionPromptObjectContextDto[] | null | undefined
+): Map<string, ActionPromptObjectContextDto> {
+  const byId = new Map<string, ActionPromptObjectContextDto>();
+  for (const context of contexts ?? []) {
+    const objectId = context.objectId?.trim();
+    if (objectId) {
+      byId.set(objectId, context);
+    }
+  }
+  return byId;
+}
+
+function candidateContextFromServerObjectCandidate(candidate: ActionPromptObjectCandidateDto): TableObjectCandidateContext {
+  return {
+    commandFields: candidate.commandFields ?? [],
+    commandType: candidate.commandType ?? candidate.action,
+    enabled: candidate.enabled,
+    label: candidate.label || candidate.action,
+    reason: promptReasonLabel(candidate.reason, candidate.enabled ? "可提交" : "暂不可提交"),
+    requiredCommandFields: candidate.requiredCommandFields ?? [],
+    roles: candidate.roles ?? []
+  };
 }
 
 function candidateContextForObject(candidate: PromptCandidateSummary, objectId: string): TableObjectCandidateContext {
