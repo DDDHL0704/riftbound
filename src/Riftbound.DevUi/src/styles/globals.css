@@ -11612,7 +11612,7 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: minmax(132px, auto) minmax(150px, 0.5fr) minmax(170px, 0.55fr) minmax(250px, 1fr) minmax(210px, 0.75fr) minmax(120px, 0.35fr) minmax(150px, 0.45fr);
+  grid-template-rows: minmax(248px, auto) minmax(150px, 0.5fr) minmax(170px, 0.55fr) minmax(250px, 1fr) minmax(210px, 0.75fr) minmax(120px, 0.35fr) minmax(150px, 0.45fr);
   gap: 4px;
   overflow: auto;
   padding: 4px;
@@ -11668,6 +11668,11 @@ button.card-face:hover {
 .wire-window-plan-primary,
 .wire-window-plan-primary span,
 .wire-window-plan-next,
+.wire-priority-rail,
+.wire-priority-rail-heading,
+.wire-priority-rail li,
+.wire-priority-rail-next,
+.wire-priority-rail-blocker,
 .wire-window-plan-metrics span,
 .wire-window-plan-contract,
 .wire-interaction-panel,
@@ -11786,6 +11791,67 @@ button.card-face:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
+}
+
+.wire-priority-rail {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-priority-rail-heading,
+.wire-priority-rail-next,
+.wire-priority-rail-blocker {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-priority-rail-heading strong,
+.wire-priority-rail-heading span,
+.wire-priority-rail-next,
+.wire-priority-rail-blocker {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-priority-rail ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-priority-rail li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-priority-rail li.is-active,
+.wire-priority-rail li.is-blocked,
+.wire-priority-rail li.is-mine {
+  border-width: 2px;
+}
+
+.wire-priority-rail li strong,
+.wire-priority-rail li small,
+.wire-priority-rail li span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-priority-rail li span {
+  font-size: 10px;
 }
 
 .wire-interaction-heading {
@@ -12737,6 +12803,11 @@ button.wire-object-ref {
 .wire-match-page .wire-window-plan-primary,
 .wire-match-page .wire-window-plan-primary span,
 .wire-match-page .wire-window-plan-next,
+.wire-match-page .wire-priority-rail,
+.wire-match-page .wire-priority-rail-heading,
+.wire-match-page .wire-priority-rail li,
+.wire-match-page .wire-priority-rail-next,
+.wire-match-page .wire-priority-rail-blocker,
 .wire-match-page .wire-window-plan-metrics span,
 .wire-match-page .wire-window-plan-contract,
 .wire-match-page .wire-interaction-panel,

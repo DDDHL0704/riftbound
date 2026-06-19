@@ -22,7 +22,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "窗口总览", "合法操作地图", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -340,6 +340,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const actionChip = document.querySelector('[data-action-object-id="p1-hand-spell"]');
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const windowPlan = document.querySelector(".wire-window-plan");
+    const priorityRail = document.querySelector(".wire-priority-rail");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
@@ -351,7 +352,10 @@ async function runWireClickSelectionSmoke(cdp) {
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? "",
       windowState: windowPlan?.getAttribute("data-wire-window-state") ?? null,
-      windowText: windowPlan?.textContent ?? ""
+      windowText: windowPlan?.textContent ?? "",
+      priorityMode: windowPlan?.getAttribute("data-wire-priority-mode") ?? null,
+      priorityRailText: priorityRail?.textContent ?? "",
+      priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null
     };
   })()`);
 
@@ -443,6 +447,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.windowText.includes("可提交")) failures.push("wire window plan candidate metric missing");
   if (!actionMapResult.windowText.includes("结算链")) failures.push("wire window plan stack metric missing");
   if (!actionMapResult.windowText.includes("任务")) failures.push("wire window plan task metric missing");
+  if (!["battle", "battlefield-task", "task"].includes(actionMapResult.priorityMode)) failures.push(`wire priority rail mode did not reflect server task context: ${actionMapResult.priorityMode}`);
+  if (actionMapResult.priorityActiveStep !== "focus" && actionMapResult.priorityActiveStep !== "tasks") failures.push(`wire priority rail active step missing task/focus state: ${actionMapResult.priorityActiveStep}`);
+  if (!actionMapResult.priorityRailText.includes("优先权轨道")) failures.push("wire priority rail header missing");
+  if (!actionMapResult.priorityRailText.includes("响应/焦点")) failures.push("wire priority rail focus step missing");
+  if (!actionMapResult.priorityRailText.includes("规则任务")) failures.push("wire priority rail task step missing");
+  if (!actionMapResult.priorityRailText.includes("操作入口")) failures.push("wire priority rail entry step missing");
   if (actionMapResult.candidatePlanCount < 1) failures.push("action map candidate plan cards missing");
   if (actionMapResult.candidatePlanEnabled !== "true") failures.push("PLAY_CARD candidate plan did not preserve enabled state");
   if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");
