@@ -73,6 +73,15 @@ export type WireRuleQueueInspectorPlan = {
   summary: string;
 };
 
+export type WireRuleQueueStatusTone = "bad" | "good" | "info" | "neutral" | "warn";
+
+export type WireRuleQueueHeaderPlan = {
+  statusLabel: string;
+  statusTone: WireRuleQueueStatusTone;
+  subtitle: string;
+  title: string;
+};
+
 export type WireRuleQueueDetailLine = {
   label: string;
   mine?: boolean;
@@ -111,8 +120,18 @@ export type WireRuleQueueSectionPlan = {
   title: string;
 };
 
+export type WireRuleQueueFocusPlan = {
+  detail?: WireRuleQueueDetailPlan;
+  emptyLabel: string;
+  laneKey: WireRuleQueueLaneKey | "none";
+  laneLabel: string;
+  reasonLabel: string;
+};
+
 export type WireRuleQueuePlan = {
   activeLaneKey: WireRuleQueueLaneKey | "none";
+  focus: WireRuleQueueFocusPlan;
+  header: WireRuleQueueHeaderPlan;
   inspector: WireRuleQueueInspectorPlan;
   lanes: WireRuleQueueLane[];
   metrics: WireRuleQueueMetric[];
@@ -226,9 +245,16 @@ export function buildWireRuleQueuePlan({
     tasks,
     triggers
   });
+  const focus = focusPlanFor({ activeLaneKey, sections, state });
 
   return {
     activeLaneKey,
+    focus,
+    header: headerPlanFor({
+      promptId: prompt?.promptId,
+      snapshotTick: snapshot?.tick,
+      state
+    }),
     inspector: inspectorPlan({ activeLaneKey, lanes, nextStepLabel: nextStep, sequence, state }),
     lanes,
     metrics,
@@ -238,6 +264,77 @@ export function buildWireRuleQueuePlan({
     state,
     stateLabel: queueStateLabel(state)
   };
+}
+
+function headerPlanFor({
+  promptId,
+  snapshotTick,
+  state
+}: {
+  promptId?: string | null;
+  snapshotTick?: number;
+  state: WireRuleQueueState;
+}): WireRuleQueueHeaderPlan {
+  return {
+    statusLabel: queueStateLabel(state),
+    statusTone: statusToneForState(state),
+    subtitle: `tick ${snapshotTick ?? "无"} / prompt ${promptId ? "已提供" : "无"}`,
+    title: "结算链 / 规则事件"
+  };
+}
+
+function statusToneForState(state: WireRuleQueueState): WireRuleQueueStatusTone {
+  switch (state) {
+    case "task-blocked":
+      return "warn";
+    case "stack-response":
+    case "trigger-pending":
+      return "info";
+    case "task-open":
+    case "resolution-history":
+      return "neutral";
+    case "idle":
+      return "neutral";
+  }
+}
+
+function focusPlanFor({
+  activeLaneKey,
+  sections,
+  state
+}: {
+  activeLaneKey: WireRuleQueueLaneKey | "none";
+  sections: WireRuleQueueSectionPlan[];
+  state: WireRuleQueueState;
+}): WireRuleQueueFocusPlan {
+  const activeSection = sections.find((section) => section.key === activeLaneKey);
+  const detail = activeSection?.items[0]?.detail;
+  return {
+    detail,
+    emptyLabel: "当前没有活动规则对象。",
+    laneKey: activeLaneKey,
+    laneLabel: activeSection?.title ?? "无活动通道",
+    reasonLabel: focusReasonLabel(state, activeSection?.title)
+  };
+}
+
+function focusReasonLabel(state: WireRuleQueueState, laneTitle: string | undefined): string {
+  switch (state) {
+    case "idle":
+      return "等待服务端下一条规则事件。";
+    case "resolution-history":
+      return "最近完成的规则事件可用于回看桌面投影。";
+    case "stack-response":
+      return "当前优先查看结算链顶部项目。";
+    case "task-blocked":
+      return "阻塞普通行动的规则任务优先展示。";
+    case "task-open":
+      return "当前服务端规则任务可检查。";
+    case "trigger-pending":
+      return "当前触发队列等待服务端处理。";
+    default:
+      return laneTitle ? `${laneTitle} 可检查。` : "当前规则焦点可检查。";
+  }
 }
 
 function queueState({ counts, isBlocking }: { counts: RuleQueueCounts; isBlocking: boolean }): WireRuleQueueState {

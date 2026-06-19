@@ -550,6 +550,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const promptInspection = document.querySelector("[data-wire-prompt-inspection]");
     const priorityRail = document.querySelector(".wire-priority-rail");
     const ruleQueue = document.querySelector(".wire-rule-queue");
+    const ruleFocus = document.querySelector(".wire-rule-focus");
     const ruleFlow = document.querySelector(".wire-rule-flow");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector(".wire-action-route-strip");
@@ -580,6 +581,10 @@ async function runWireClickSelectionSmoke(cdp) {
       priorityRailText: priorityRail?.textContent ?? "",
       priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null,
       ruleFlowText: ruleFlow?.textContent ?? "",
+      ruleFocusDetailId: ruleFocus?.getAttribute("data-rule-focus-detail-id") ?? null,
+      ruleFocusLane: ruleFocus?.getAttribute("data-rule-focus-lane") ?? null,
+      ruleFocusRefCount: ruleFocus?.querySelectorAll("[data-rule-object-ref]").length ?? 0,
+      ruleFocusText: ruleFocus?.textContent ?? "",
       ruleLaneCount: document.querySelectorAll("[data-rule-lane]").length,
       ruleSectionKeys: Array.from(document.querySelectorAll("[data-rule-section-key]")).map((node) => node.getAttribute("data-rule-section-key")),
       ruleItemKeys: Array.from(document.querySelectorAll("[data-rule-item-key]")).map((node) => node.getAttribute("data-rule-item-key")),
@@ -834,6 +839,11 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!["task-blocked", "task-open", "stack-response"].includes(actionMapResult.ruleQueueState)) failures.push(`wire rule queue state did not reflect server queue context: ${actionMapResult.ruleQueueState}`);
   if (actionMapResult.ruleLaneCount !== 4) failures.push(`wire rule queue lane count mismatch: ${actionMapResult.ruleLaneCount}`);
   if (!actionMapResult.ruleFlowText.includes("规则队列地图")) failures.push("wire rule queue flow header missing");
+  if (actionMapResult.ruleFocusLane !== "task") failures.push(`wire rule focus lane unexpected: ${actionMapResult.ruleFocusLane}`);
+  if (!actionMapResult.ruleFocusDetailId?.includes("rule:task:fixture-task-1")) failures.push("wire rule focus did not expose active task detail id");
+  if (!actionMapResult.ruleFocusText.includes("当前规则焦点")) failures.push("wire rule focus heading missing");
+  if (!actionMapResult.ruleFocusText.includes("阻塞普通行动")) failures.push("wire rule focus reason missing");
+  if (actionMapResult.ruleFocusRefCount < 1) failures.push("wire rule focus object refs missing");
   if (!actionMapResult.ruleFlowText.includes("结算链")) failures.push("wire rule queue stack lane missing");
   if (!actionMapResult.ruleFlowText.includes("规则任务")) failures.push("wire rule queue task lane missing");
   if (!actionMapResult.ruleFlowText.includes("触发队列")) failures.push("wire rule queue trigger lane missing");

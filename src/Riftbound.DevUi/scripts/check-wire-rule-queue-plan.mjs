@@ -123,6 +123,13 @@ const taskBlocked = buildWireRuleQueuePlan({
 
 assert.equal(taskBlocked.state, "task-blocked");
 assert.equal(taskBlocked.activeLaneKey, "task");
+assert.equal(taskBlocked.header.statusLabel, "规则阻塞");
+assert.equal(taskBlocked.header.statusTone, "warn");
+assert.equal(taskBlocked.header.subtitle, "tick 8 / prompt 无");
+assert.equal(taskBlocked.focus.laneKey, "task");
+assert.equal(taskBlocked.focus.laneLabel, "规则任务");
+assert.ok(taskBlocked.focus.reasonLabel.includes("阻塞普通行动"));
+assert.ok(taskBlocked.focus.detail?.id.includes("rule:task:task-1"));
 assert.equal(taskBlocked.inspector.activeLaneLabel, "规则任务");
 assert.equal(taskBlocked.inspector.lanes.find((lane) => lane.key === "task")?.stateLabel, "阻塞");
 assert.ok(taskBlocked.inspector.summary.includes("规则阻塞"));
@@ -153,6 +160,12 @@ const stackResponse = buildWireRuleQueuePlan({
 
 assert.equal(stackResponse.state, "stack-response");
 assert.equal(stackResponse.activeLaneKey, "stack");
+assert.equal(stackResponse.header.statusLabel, "等待响应");
+assert.equal(stackResponse.header.statusTone, "info");
+assert.equal(stackResponse.focus.laneKey, "stack");
+assert.equal(stackResponse.focus.laneLabel, "结算链");
+assert.ok(stackResponse.focus.reasonLabel.includes("结算链顶部"));
+assert.equal(stackResponse.focus.detail?.title, "结算链项目");
 assert.equal(stackResponse.inspector.activeLaneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].laneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].objectCount, 2);
@@ -183,6 +196,10 @@ const triggerPending = buildWireRuleQueuePlan({
 
 assert.equal(triggerPending.state, "trigger-pending");
 assert.equal(triggerPending.activeLaneKey, "trigger");
+assert.equal(triggerPending.header.statusLabel, "触发待处理");
+assert.equal(triggerPending.header.statusTone, "info");
+assert.equal(triggerPending.focus.laneKey, "trigger");
+assert.equal(triggerPending.focus.detail?.title, "触发 1");
 assert.ok(triggerPending.lanes.find((lane) => lane.key === "trigger")?.headline.includes("触发"));
 assert.equal(triggerPending.sequence[0].stateLabel, "P1");
 assert.ok(triggerPending.sections.find((section) => section.key === "trigger")?.items[0]?.detail.lines.some((line) => line.label === "来源事件"));
@@ -218,6 +235,9 @@ const resolutionHistory = buildWireRuleQueuePlan({
 
 assert.equal(resolutionHistory.state, "resolution-history");
 assert.equal(resolutionHistory.activeLaneKey, "resolution");
+assert.equal(resolutionHistory.header.statusLabel, "近期规则事件");
+assert.equal(resolutionHistory.focus.laneKey, "resolution");
+assert.equal(resolutionHistory.focus.detail?.title, "据守");
 assert.equal(resolutionHistory.sequence.length, 2);
 assert.equal(resolutionHistory.sequence[0].tickLabel, "tick 8");
 assert.equal(resolutionHistory.sequence[1].detailLabel, "战斗无结果");
@@ -227,6 +247,11 @@ assert.ok(resolutionHistory.sections.find((section) => section.key === "resoluti
 const idle = buildWireRuleQueuePlan({ playerId: "P1", snapshot: baseSnapshot });
 assert.equal(idle.state, "idle");
 assert.equal(idle.activeLaneKey, "none");
+assert.equal(idle.header.statusLabel, "空闲");
+assert.equal(idle.header.statusTone, "neutral");
+assert.equal(idle.focus.laneKey, "none");
+assert.equal(idle.focus.detail, undefined);
+assert.equal(idle.focus.laneLabel, "无活动通道");
 assert.equal(idle.inspector.activeLaneLabel, "无活动通道");
 assert.equal(idle.sequence.length, 0);
 assert.ok(idle.lanes.every((lane) => lane.state === "empty"));

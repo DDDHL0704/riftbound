@@ -1,6 +1,6 @@
 import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
 import { Children, type ReactNode, useState } from "react";
-import { buildWireRuleQueuePlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
+import { buildWireRuleQueuePlan, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
 import { WireDetailTrigger } from "./WireDetailTrigger";
@@ -23,19 +23,15 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const plan = buildWireRuleQueuePlan({ playerId, prompt, snapshot });
   const objects = buildCardObjectIndex(snapshot);
-  const isBlocking = plan.state === "task-blocked";
-  const stackCount = plan.lanes.find((lane) => lane.key === "stack")?.count ?? 0;
 
   return (
     <section className="wire-rule-queue" aria-label="服务端规则队列" data-wire-rule-queue-state={plan.state}>
       <header className="wire-rule-queue-header">
         <div>
-          <strong>结算链 / 规则事件</strong>
-          <span>tick {snapshot?.tick ?? "无"} / prompt {prompt?.promptId ? "已提供" : "无"}</span>
+          <strong>{plan.header.title}</strong>
+          <span>{plan.header.subtitle}</span>
         </div>
-        <StatusPill tone={isBlocking ? "warn" : stackCount > 0 ? "info" : "neutral"}>
-          {isBlocking ? "规则阻塞" : stackCount > 0 ? "等待响应" : "空闲"}
-        </StatusPill>
+        <StatusPill tone={plan.header.statusTone}>{plan.header.statusLabel}</StatusPill>
       </header>
 
       <section className="wire-rule-flow" aria-label="服务端规则队列地图">
@@ -70,6 +66,15 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
         <RuleQueueInspector open={inspectorOpen} plan={plan.inspector} />
       </section>
 
+      <RuleFocus
+        focus={plan.focus}
+        objects={objects}
+        onInspectObject={onInspectObject}
+        onSelectDetail={onSelectDetail}
+        selectedDetailId={selectedDetailId}
+        selectedObjectId={selectedObjectId}
+      />
+
       <div className="wire-rule-state-grid">
         {plan.metrics.map((metric) => (
           <RuleMetric key={metric.key} label={metric.label} mine={metric.mine} value={metric.value} />
@@ -98,6 +103,52 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
           ))}
         </RuleSection>
       ))}
+    </section>
+  );
+}
+
+function RuleFocus({
+  focus,
+  objects,
+  onInspectObject,
+  onSelectDetail,
+  selectedDetailId,
+  selectedObjectId
+}: {
+  focus: WireRuleQueueFocusPlan;
+  objects: ObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
+  selectedObjectId?: string;
+}) {
+  return (
+    <section
+      className="wire-rule-focus"
+      data-rule-focus-detail-id={focus.detail?.id ?? ""}
+      data-rule-focus-lane={focus.laneKey}
+    >
+      <div className="wire-rule-focus-heading">
+        <div>
+          <strong>当前规则焦点</strong>
+          <span>{focus.laneLabel} / {focus.reasonLabel}</span>
+        </div>
+        {focus.detail && (
+          <RuleDetailButton detail={focus.detail} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
+        )}
+      </div>
+      {focus.detail ? (
+        <>
+          <div className="wire-rule-focus-lines">
+            {focus.detail.lines.slice(0, 4).map((line) => (
+              <RuleLine key={`${line.label}-${line.value}`} label={line.label} mine={line.mine} value={line.value} />
+            ))}
+          </div>
+          <WireObjectRefChips objects={objects} onInspectObject={onInspectObject} refs={focus.detail.refs} selectedObjectId={selectedObjectId} source="rule" />
+        </>
+      ) : (
+        <span className="empty-hint">{focus.emptyLabel}</span>
+      )}
     </section>
   );
 }

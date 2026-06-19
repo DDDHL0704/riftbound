@@ -13030,6 +13030,9 @@ button.card-face:hover {
 .wire-rule-inspector footer,
 .wire-rule-inspector li,
 .wire-rule-inspector-toggle,
+.wire-rule-focus,
+.wire-rule-focus-heading,
+.wire-rule-focus-lines,
 .wire-rule-lanes li,
 .wire-rule-sequence li,
 .wire-rule-state-grid,
@@ -13124,6 +13127,34 @@ button.card-face:hover {
   cursor: pointer;
 }
 
+.wire-rule-focus {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-rule-focus-heading {
+  min-width: 0;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-rule-focus-heading > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-rule-focus-lines {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  padding: 4px;
+}
+
 .wire-rule-inspector {
   display: grid;
   gap: 4px;
@@ -13216,6 +13247,8 @@ button.card-face:hover {
 .wire-rule-lanes strong,
 .wire-rule-lanes span,
 .wire-rule-lanes em,
+.wire-rule-focus-heading strong,
+.wire-rule-focus-heading span,
 .wire-rule-sequence small,
 .wire-rule-sequence strong,
 .wire-rule-sequence span,
@@ -13250,6 +13283,10 @@ button.card-face:hover {
 .wire-rule-metric.is-mine,
 .wire-rule-line.is-mine {
   border-width: 2px;
+}
+
+.wire-rule-focus[data-rule-focus-lane="none"] {
+  border-style: dashed;
 }
 
 .wire-rule-section {
@@ -13660,6 +13697,9 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-inspector footer,
 .wire-match-page .wire-rule-inspector li,
 .wire-match-page .wire-rule-inspector-toggle,
+.wire-match-page .wire-rule-focus,
+.wire-match-page .wire-rule-focus-heading,
+.wire-match-page .wire-rule-focus-lines,
 .wire-match-page .wire-rule-lanes li,
 .wire-match-page .wire-rule-sequence li,
 .wire-match-page .wire-rule-state-grid,
