@@ -16524,7 +16524,14 @@ public sealed class MatchRecoveryTests
                 "participant-base",
                 [CardObjectTags.UnitCard],
                 "alice",
-                "BASE")
+                "BASE"),
+            ["participant-missing-location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["objectId"] = "participant-missing-location",
+                ["isFaceDown"] = false,
+                ["tags"] = new[] { CardObjectTags.UnitCard },
+                ["untilEndOfTurnEffects"] = Array.Empty<string>()
+            }
         };
         players["alice"] = alicePayload;
 
@@ -16540,7 +16547,7 @@ public sealed class MatchRecoveryTests
                     "reason": "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
                     "battlefieldObjectId": "battlefield-a",
                     "participantControllerIds": ["alice", "bob"],
-                    "participantObjectIds": ["participant-a", "participant-other", "participant-base"],
+                    "participantObjectIds": ["participant-a", "participant-other", "participant-base", "participant-missing-location"],
                     "actingPlayerId": "alice",
                     "stackItemIds": [],
                     "battleId": "battle:battlefield-a"
@@ -16564,12 +16571,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item participant object id participant-other is not located at battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item participant object id participant-other is not located at battlefield object id battlefield-a; expected BATTLEFIELD @ battlefield-a but got BATTLEFIELD @ battlefield-b",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item participant object id participant-base is not located at battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item participant object id participant-base is not located at battlefield object id battlefield-a; expected BATTLEFIELD @ battlefield-a but got BASE @ <empty>",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item participant object id participant-missing-location is missing from object locations; expected contains participant-missing-location but got [battlefield-a, participant-a, participant-base, participant-other]",
                 StringComparison.Ordinal));
 
         static Dictionary<string, object?> SnapshotObjectPayload(
@@ -56625,6 +56637,7 @@ public sealed class MatchRecoveryTests
         const string participantObjectId = "participant-a";
         const string otherParticipantObjectId = "participant-other";
         const string baseParticipantObjectId = "participant-base";
+        const string missingLocationParticipantObjectId = "participant-missing-location";
         var authoritativeState = new MatchState(
             "room-a",
             3,
@@ -56682,6 +56695,12 @@ public sealed class MatchRecoveryTests
                     cardNo: "SFD-BASE-UNIT",
                     ownerId: "alice",
                     controllerId: "alice",
+                    tags: [CardObjectTags.UnitCard]),
+                [missingLocationParticipantObjectId] = new(
+                    missingLocationParticipantObjectId,
+                    cardNo: "SFD-MISSING-LOCATION-UNIT",
+                    ownerId: "alice",
+                    controllerId: "alice",
                     tags: [CardObjectTags.UnitCard])
             },
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
@@ -56716,7 +56735,7 @@ public sealed class MatchRecoveryTests
             ["reason"] = "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
             ["battlefieldObjectId"] = battlefieldObjectId,
             ["participantControllerIds"] = new[] { "alice", "bob" },
-            ["participantObjectIds"] = new[] { participantObjectId, otherParticipantObjectId, baseParticipantObjectId },
+            ["participantObjectIds"] = new[] { participantObjectId, otherParticipantObjectId, baseParticipantObjectId, missingLocationParticipantObjectId },
             ["actingPlayerId"] = "alice",
             ["stackItemIds"] = Array.Empty<string>(),
             ["battleId"] = $"battle:{battlefieldObjectId}"
@@ -56743,12 +56762,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item participant object id participant-other is not located at battlefield object id battlefield-a",
+                "spectator replay frame timing battlefield task item participant object id participant-other is not located at battlefield object id battlefield-a; expected BATTLEFIELD @ battlefield-a but got BATTLEFIELD @ battlefield-b",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item participant object id participant-base is not located at battlefield object id battlefield-a",
+                "spectator replay frame timing battlefield task item participant object id participant-base is not located at battlefield object id battlefield-a; expected BATTLEFIELD @ battlefield-a but got BASE @ <empty>",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing battlefield task item participant object id participant-missing-location is missing from object locations; expected contains participant-missing-location but got [participant-a, participant-base, participant-other]",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

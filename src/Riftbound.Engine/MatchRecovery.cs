@@ -15074,7 +15074,11 @@ public static class MatchRecoveryValidator
 
             if (!objectLocations.TryGetValue(normalizedParticipantObjectId, out var location))
             {
-                errors.Add($"{participantObjectLabel} {normalizedParticipantObjectId} is missing from object locations");
+                var detail = FormatExpectedActualForRecovery(
+                    $"contains {normalizedParticipantObjectId}",
+                    FormatObjectIdsForRecovery(objectLocations.Keys));
+                errors.Add(
+                    $"{participantObjectLabel} {normalizedParticipantObjectId} is missing from object locations; {detail}");
                 continue;
             }
 
@@ -15084,10 +15088,20 @@ public static class MatchRecoveryValidator
                     normalizedBattlefieldObjectId,
                     StringComparison.Ordinal))
             {
+                var expectedLocation = FormatBattlefieldTaskLocationForRecovery("BATTLEFIELD", normalizedBattlefieldObjectId);
+                var actualLocation = FormatBattlefieldTaskLocationForRecovery(location.Zone, location.BattlefieldObjectId);
+                var detail = FormatExpectedActualForRecovery(expectedLocation, actualLocation);
                 errors.Add(
-                    $"{participantObjectLabel} {normalizedParticipantObjectId} is not located at battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{participantObjectLabel} {normalizedParticipantObjectId} is not located at battlefield object id {normalizedBattlefieldObjectId}; {detail}");
             }
         }
+    }
+
+    private static string FormatBattlefieldTaskLocationForRecovery(string? zone, string? battlefieldObjectId)
+    {
+        var normalizedZone = string.IsNullOrWhiteSpace(zone) ? string.Empty : zone.Trim();
+        var normalizedBattlefieldObjectId = string.IsNullOrWhiteSpace(battlefieldObjectId) ? string.Empty : battlefieldObjectId.Trim();
+        return $"{FormatRecoveryDiagnosticValue(normalizedZone)} @ {FormatRecoveryDiagnosticValue(normalizedBattlefieldObjectId)}";
     }
 
     private static void ValidateBattlefieldTaskBattlefieldObjectCardMembership(
