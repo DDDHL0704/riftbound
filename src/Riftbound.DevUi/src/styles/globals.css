@@ -1993,6 +1993,7 @@ button.card-face:hover {
 
 .generic-prompt-option,
 .generic-prompt-metadata,
+.generic-prompt-contract,
 .candidate-composer-field,
 .candidate-composer-costs,
 .candidate-command-preview,
@@ -2053,6 +2054,7 @@ button.card-face:hover {
 
 .generic-prompt-option small,
 .generic-prompt-metadata span,
+.generic-prompt-contract span,
 .candidate-composer-note,
 .hand-choice-summary span,
 .hand-choice-row small,
@@ -2069,6 +2071,31 @@ button.card-face:hover {
 
 .snapshot-debug-panel {
   gap: 10px;
+}
+
+.generic-prompt-contract {
+  display: grid;
+  gap: 4px;
+}
+
+.generic-prompt-contract-heading,
+.generic-prompt-contract span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.generic-prompt-contract-heading {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  align-items: center;
+}
+
+.generic-prompt-contract-heading span,
+.generic-prompt-contract small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .match-status-panel {
@@ -11984,6 +12011,35 @@ button.card-face:hover {
   padding: 3px;
 }
 
+.wire-action-contract-strip {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1.15fr repeat(4, minmax(0, 1fr));
+  gap: 3px;
+  padding: 2px 4px;
+  font-size: 10px;
+  line-height: 1.05;
+}
+
+.wire-action-contract-strip > div,
+.wire-action-contract-strip > span {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  border: 1px solid #000;
+  padding: 2px;
+}
+
+.wire-action-contract-strip span,
+.wire-action-contract-strip small,
+.wire-action-contract-strip b,
+.wire-action-contract-strip strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-action-map-metric strong,
 .wire-action-object-chip strong,
 .wire-action-group-heading strong {
@@ -12416,6 +12472,7 @@ button.wire-object-ref {
 .wire-match-page .damage-assignment-panel,
 .wire-match-page .trigger-order-panel,
 .wire-match-page .generic-prompt-details,
+.wire-match-page .generic-prompt-contract,
 .wire-match-page .candidate-composer,
 .wire-match-page .candidate-composer-field,
 .wire-match-page .candidate-composer-costs,
@@ -12440,6 +12497,9 @@ button.wire-object-ref {
 .wire-match-page .wire-action-map-header,
 .wire-match-page .wire-action-map-metrics,
 .wire-match-page .wire-action-map-metric,
+.wire-match-page .wire-action-contract-strip,
+.wire-match-page .wire-action-contract-strip > div,
+.wire-match-page .wire-action-contract-strip > span,
 .wire-match-page .wire-action-entry-strip,
 .wire-match-page .wire-action-object-chip,
 .wire-match-page .wire-action-group,
@@ -12490,6 +12550,8 @@ button.wire-object-ref {
 .wire-match-page .eyebrow,
 .wire-match-page .empty-hint,
 .wire-match-page .prompt-summary span,
+.wire-match-page .generic-prompt-contract,
+.wire-match-page .generic-prompt-contract *,
 .wire-match-page .candidate-composer-field span,
 .wire-match-page .candidate-composer-costs > strong,
 .wire-match-page .candidate-composer-note,

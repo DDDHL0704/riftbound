@@ -58,7 +58,7 @@ const scenarioShots = [
     name: "prompt-pay-cost",
     scenario: "pay-cost-window",
     playerId: "P1",
-    texts: ["符文战场对战线框", "支付费用", "服务端行动提示"]
+    texts: ["符文战场对战线框", "支付费用", "服务端行动提示", "提示契约", "paymentId"]
   }
 ];
 

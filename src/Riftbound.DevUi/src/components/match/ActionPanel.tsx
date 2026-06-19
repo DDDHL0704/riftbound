@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptContractDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { commandFromActionPromptTemplate } from "../../utils/actionPromptCommandTemplate";
 import { promptStampedCommand as withPromptStamp, sourceRequirementFor } from "../../utils/actionPromptCandidates";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
@@ -169,7 +169,50 @@ function GenericPromptDetails({ prompt }: { prompt: ActionPromptDto }) {
           ))}
         </div>
       )}
+      {prompt.contract && <PromptContractSummary contract={prompt.contract} />}
     </div>
+  );
+}
+
+function PromptContractSummary({ contract }: { contract: ActionPromptContractDto }) {
+  return (
+    <div className="generic-prompt-contract" aria-label="服务端提示契约">
+      <div className="generic-prompt-contract-heading">
+        <strong>提示契约</strong>
+        <span>{contract.promptKind} / {contract.candidateAction}</span>
+      </div>
+      <ContractLine label="提交字段" values={contract.requiredPayload} />
+      <ContractLine label="合法选项" values={contract.legalChoices} />
+      <ContractLine label="公开数据" values={contract.visibleMetadata} />
+      <HiddenContractLine values={contract.hiddenMetadata} />
+      <ContractLine label="服务端校验" values={contract.validationErrors} />
+    </div>
+  );
+}
+
+function ContractLine({ label, values }: { label: string; values?: string[] | null }) {
+  if (!values?.length) {
+    return null;
+  }
+
+  return (
+    <span>
+      <b>{label}</b>
+      <small>{values.slice(0, 5).map(redactInternalText).join(" / ")}{values.length > 5 ? ` 等 ${values.length} 项` : ""}</small>
+    </span>
+  );
+}
+
+function HiddenContractLine({ values }: { values?: string[] | null }) {
+  if (!values?.length) {
+    return null;
+  }
+
+  return (
+    <span>
+      <b>隐藏数据</b>
+      <small>{values.length} 项由服务端保留，不向客户端展开。</small>
+    </span>
   );
 }
 

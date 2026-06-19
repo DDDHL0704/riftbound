@@ -5329,7 +5329,15 @@ internal static class ActionPromptBuilder
             promptId,
             state.Tick,
             candidates,
-            view);
+            view,
+            ContractForPromptView(view));
+    }
+
+    private static ActionPromptContractDto? ContractForPromptView(PromptViewDto view)
+    {
+        return ActionPromptContracts.ByPromptKind.TryGetValue(view.Type, out var contract)
+            ? contract
+            : null;
     }
 
     private static PromptViewDto BuildView(

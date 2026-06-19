@@ -339,7 +339,8 @@ public sealed record ActionPromptDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? PromptId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? SnapshotTick = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptCandidateDto>? Candidates = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PromptViewDto? View = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PromptViewDto? View = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptContractDto? Contract = null);
 
 public sealed record ActionPromptSelectionChoiceDto(
     string Id,

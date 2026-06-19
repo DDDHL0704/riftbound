@@ -2298,6 +2298,21 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void PayCostPromptCarriesServerPromptContract()
+    {
+        var prompt = ResolutionResult.BuildPrompts(BuildP0ContractPaymentState())["P1"];
+
+        Assert.Equal(PromptTypes.PayCost, prompt.View?.Type);
+        var contract = Assert.IsType<ActionPromptContractDto>(prompt.Contract);
+        Assert.Equal(PromptTypes.PayCost, contract.PromptKind);
+        Assert.Equal(CommandTypes.PayCost, contract.CandidateAction);
+        Assert.Contains("paymentId", contract.RequiredPayload);
+        Assert.Contains("candidate.metadata.paymentChoices", contract.LegalChoices);
+        Assert.Contains("paymentChoices", contract.VisibleMetadata);
+        Assert.Contains("serverPaymentState", contract.HiddenMetadata);
+    }
+
+    [Fact]
     public async Task P0ContractCommandShellsRejectMalformedPayloads()
     {
         var state = BuildP0ContractMainState();
