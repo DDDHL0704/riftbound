@@ -7230,7 +7230,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 is missing from battlefield states",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 is missing from battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -12843,7 +12843,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item jhin movement resource destination battlefield object id battlefield-2 is missing from battlefield states",
+                "snapshot for alice timing trigger queue item jhin movement resource destination battlefield object id battlefield-2 is missing from battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -12927,7 +12927,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item jhin movement resource origin battlefield object id battlefield-2 is missing from battlefield states",
+                "snapshot for alice timing trigger queue item jhin movement resource origin battlefield object id battlefield-2 is missing from battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -13672,7 +13672,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-2 is missing from battlefield states",
+                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-2 is missing from battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -30310,7 +30310,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-2 blue sentinel delayed resource battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-2 blue sentinel delayed resource battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -34504,7 +34504,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD:battlefield-2 jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD:battlefield-2 jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -34578,7 +34578,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BATTLEFIELD:battlefield-2::BASE jhin movement resource origin battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BATTLEFIELD:battlefield-2::BASE jhin movement resource origin battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -35077,7 +35077,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-2 kogmaw last breath battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-2 kogmaw last breath battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -141333,7 +141333,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -141457,7 +141457,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -157733,7 +157733,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "spectator replay frame timing trigger queue item jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -157857,7 +157857,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "spectator replay frame timing trigger queue item jhin movement resource destination battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -157977,7 +157977,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource origin battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "spectator replay frame timing trigger queue item jhin movement resource origin battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -158101,7 +158101,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource origin battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "spectator replay frame timing trigger queue item jhin movement resource origin battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160022,7 +160022,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "spectator replay frame timing trigger queue item kogmaw last breath battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -160143,7 +160143,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath battlefield object id battlefield-2 is missing from authoritative state battlefield states",
+                "spectator replay frame timing trigger queue item kogmaw last breath battlefield object id battlefield-2 is missing from authoritative state battlefield states; expected [battlefield-1] but got battlefield-2",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

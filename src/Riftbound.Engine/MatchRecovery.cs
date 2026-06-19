@@ -18689,7 +18689,7 @@ public static class MatchRecoveryValidator
             && !battlefieldStateObjectIds.Contains(battlefieldObjectId))
         {
             errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
+                $"{payloadLabel} blue sentinel delayed resource battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}; {FormatExpectedActualForRecovery(FormatObjectIdsForRecovery(battlefieldStateObjectIds), battlefieldObjectId)}");
         }
 
         if (controllerId is not null
@@ -19035,7 +19035,7 @@ public static class MatchRecoveryValidator
         if (!battlefieldStateObjectIds.Contains(battlefieldObjectId))
         {
             errors.Add(
-                $"{payloadLabel} jhin movement resource {endpointLabel} battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
+                $"{payloadLabel} jhin movement resource {endpointLabel} battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}; {FormatExpectedActualForRecovery(FormatObjectIdsForRecovery(battlefieldStateObjectIds), battlefieldObjectId)}");
         }
     }
 
@@ -19231,7 +19231,7 @@ public static class MatchRecoveryValidator
             && !battlefieldStateObjectIds.Contains(battlefieldObjectId))
         {
             errors.Add(
-                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}");
+                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {battlefieldStateLabel}; {FormatExpectedActualForRecovery(FormatObjectIdsForRecovery(battlefieldStateObjectIds), battlefieldObjectId)}");
         }
 
         if (battlefieldObjectKnown
