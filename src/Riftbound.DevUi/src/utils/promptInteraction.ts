@@ -4,7 +4,7 @@ import { promptActionLabel, promptReasonLabel } from "./formatters";
 import { redactInternalText } from "./redaction";
 
 export type PromptChoiceRole = "source" | "target" | "destination" | "mode" | "optionalCost";
-export type PromptObjectState = "enabled" | "disabled";
+export type PromptObjectState = "enabled" | "disabled" | "source" | "target" | "destination" | "optionalCost";
 
 export type PromptChoiceSummary = {
   id: string;
@@ -66,7 +66,7 @@ export function buildPromptInteractionModel(prompt?: ActionPromptDto): PromptInt
   const candidates = (prompt?.candidates ?? []).map((candidate) => {
     const choices = candidateChoices(candidate);
     for (const choice of choices) {
-      for (const objectId of candidateChoiceObjectIds(choice.id)) {
+      for (const objectId of promptChoiceObjectIds(choice.id)) {
         const existing = objectById.get(objectId) ?? {
           choices: [],
           disabledCandidateCount: 0,
@@ -278,7 +278,7 @@ const sourceDrivenActions = new Set<string>([
   "LEGEND_ACT"
 ]);
 
-function candidateChoiceObjectIds(choiceId: string): string[] {
+export function promptChoiceObjectIds(choiceId: string): string[] {
   const cleaned = choiceId.trim();
   if (!cleaned) {
     return [];

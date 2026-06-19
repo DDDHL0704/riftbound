@@ -32,7 +32,7 @@ import { BehaviorSpec } from "../types/catalog";
 import { BattlefieldSnapshotView, CardObjectView, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
 import { asArray, asRecord, asString } from "../utils/collections";
 import { connectionStatusLabel, matchPhaseLabel, timingStateLabel } from "../utils/formatters";
-import { buildPromptInteractionModel, type PromptObjectState } from "../utils/promptInteraction";
+import { buildPromptInteractionModel, promptChoiceObjectIds, type PromptCandidateSummary, type PromptChoiceRole, type PromptObjectState } from "../utils/promptInteraction";
 
 type PlayerEntry = {
   id: string;
@@ -69,13 +69,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     [layoutFixtureEnabled, specByNo]
   );
   const promptInteraction = useMemo(() => buildPromptInteractionModel(tablePrompt), [tablePrompt]);
+  const focusedSourceCandidates = useMemo(
+    () => focusedCandidateSummaries(promptInteraction.candidates, inspectedCard?.objectId),
+    [inspectedCard?.objectId, promptInteraction.candidates]
+  );
   const tableInteraction = useMemo<WireTableInteraction>(() => ({
-    interactionByObjectId: Object.fromEntries([
-      ...[...promptInteraction.disabledObjectIds].map((objectId) => [objectId, "disabled" as const]),
-      ...[...promptInteraction.enabledObjectIds].map((objectId) => [objectId, "enabled" as const])
-    ]),
+    interactionByObjectId: buildWireInteractionMap(promptInteraction, focusedSourceCandidates, inspectedCard?.objectId),
     selectedObjectId: inspectedCard?.objectId
-  }), [inspectedCard?.objectId, promptInteraction]);
+  }), [focusedSourceCandidates, inspectedCard?.objectId, promptInteraction]);
 
   const playerEntries = useMemo(() => buildPlayerEntries(tableSnapshot, settings.playerId), [tableSnapshot, settings.playerId]);
   const self = playerEntries.find((entry) => entry.side === "self");
@@ -261,6 +262,78 @@ function buildPlayerEntries(snapshot: SnapshotDto | undefined, perspectivePlayer
 
 function sideOrder(side: PlayerEntry["side"]): number {
   return side === "opponent" ? 0 : 1;
+}
+
+function focusedCandidateSummaries(
+  candidates: PromptCandidateSummary[],
+  focusedObjectId?: string
+): PromptCandidateSummary[] {
+  if (!focusedObjectId) {
+    return [];
+  }
+
+  return candidates.filter((candidate) =>
+    candidate.enabled
+    && candidate.choices.some((choice) =>
+      choice.role === "source"
+      && promptChoiceObjectIds(choice.id).includes(focusedObjectId)));
+}
+
+function buildWireInteractionMap(
+  model: ReturnType<typeof buildPromptInteractionModel>,
+  focusedCandidates: PromptCandidateSummary[],
+  focusedObjectId?: string
+): Record<string, PromptObjectState | undefined> {
+  const states: Record<string, PromptObjectState | undefined> = Object.fromEntries([
+    ...[...model.disabledObjectIds].map((objectId) => [objectId, "disabled" as const]),
+    ...[...model.enabledObjectIds].map((objectId) => [objectId, "enabled" as const])
+  ]);
+
+  for (const candidate of focusedCandidates.filter((candidate) => candidate.enabled)) {
+    for (const choice of candidate.choices) {
+      const roleState = promptRoleState(choice.role);
+      if (!roleState) {
+        continue;
+      }
+
+      for (const objectId of promptChoiceObjectIds(choice.id)) {
+        states[objectId] = mergePromptObjectState(states[objectId], roleState);
+      }
+    }
+  }
+
+  if (focusedObjectId && focusedCandidates.some((candidate) => candidate.enabled)) {
+    states[focusedObjectId] = "source";
+  }
+
+  return states;
+}
+
+function promptRoleState(role: PromptChoiceRole): PromptObjectState | undefined {
+  return role === "mode" ? undefined : role;
+}
+
+function mergePromptObjectState(current: PromptObjectState | undefined, next: PromptObjectState): PromptObjectState {
+  return promptStatePriority(next) >= promptStatePriority(current) ? next : current ?? next;
+}
+
+function promptStatePriority(state: PromptObjectState | undefined): number {
+  switch (state) {
+    case "source":
+      return 6;
+    case "target":
+      return 5;
+    case "destination":
+      return 4;
+    case "optionalCost":
+      return 3;
+    case "enabled":
+      return 2;
+    case "disabled":
+      return 1;
+    default:
+      return 0;
+  }
 }
 
 function WirePlayerHome({

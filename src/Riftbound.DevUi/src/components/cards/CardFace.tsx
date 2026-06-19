@@ -2,6 +2,7 @@ import { BehaviorSpec } from "../../types/catalog";
 import { CardObjectView } from "../../types/protocol";
 import { conformanceLabel, conformanceTone, costText, keywordsText, objectTypeText, rulesText, statusLabel } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
+import type { PromptObjectState } from "../../utils/promptInteraction";
 import { StatusPill } from "../ui/StatusPill";
 
 type CardFaceProps = {
@@ -9,7 +10,7 @@ type CardFaceProps = {
   object?: CardObjectView;
   spec?: BehaviorSpec;
   compact?: boolean;
-  interactionState?: "enabled" | "disabled";
+  interactionState?: PromptObjectState;
   selected?: boolean;
   onInspect?: (card: InspectedCard) => void;
   onPreview?: (card?: InspectedCard) => void;

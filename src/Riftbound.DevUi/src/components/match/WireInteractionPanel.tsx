@@ -4,6 +4,7 @@ import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/prot
 import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
 import {
   buildPromptInteractionModel,
+  promptChoiceObjectIds,
   promptChoiceRoleLabel,
   type PromptCandidateSummary,
   type PromptInteractionModel
@@ -78,6 +79,7 @@ export function WireInteractionPanel({
       <FocusedActionList
         disabledByConnection={disabledByConnection}
         inspectedCard={inspectedCard}
+        model={model}
         onCommand={onCommand}
         prompt={prompt}
         snapshot={snapshot}
@@ -91,18 +93,27 @@ export function WireInteractionPanel({
 function FocusedActionList({
   disabledByConnection,
   inspectedCard,
+  model,
   onCommand,
   prompt,
   snapshot
 }: {
   disabledByConnection: boolean;
   inspectedCard?: InspectedCard;
+  model: PromptInteractionModel;
   onCommand?: (command: GameCommand) => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
 }) {
   const sourceObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
   const candidates = sourceCandidatesForPrompt(prompt, sourceObjectId);
+  const candidateSummaries = sourceObjectId
+    ? model.candidates.filter((candidate) =>
+      candidate.enabled
+      && candidate.choices.some((choice) =>
+        choice.role === "source"
+        && promptChoiceObjectIds(choice.id).includes(sourceObjectId)))
+    : [];
 
   if (!inspectedCard) {
     return null;
@@ -116,6 +127,23 @@ function FocusedActionList({
       </div>
       <p>只使用服务端当前候选；连接恢复前不会提交命令。</p>
       {candidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
+      {candidateSummaries.length > 0 && (
+        <div className="wire-focused-path" aria-label="焦点候选路径">
+          {candidateSummaries.slice(0, 2).map((candidate) => (
+            <article key={`${candidate.action}-${candidate.label}`}>
+              <strong>{candidate.label}</strong>
+              <ol>
+                {candidate.steps.map((step) => (
+                  <li className={step.required ? "is-required" : ""} key={`${candidate.action}-${step.role}`}>
+                    <span>{step.label}</span>
+                    <small>{step.required ? "必需；" : ""}{step.sampleLabels.length > 0 ? step.sampleLabels.join(" / ") : "服务端候选"}</small>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
+      )}
       {candidates.slice(0, 4).map((candidate) => {
         const command = commandForSourceCandidate(candidate, sourceObjectId);
 

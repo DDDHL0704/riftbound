@@ -2,6 +2,7 @@ import { type CSSProperties } from "react";
 import { CardFace, type InspectedCard } from "../cards/CardFace";
 import { BehaviorSpec } from "../../types/catalog";
 import { CardObjectView } from "../../types/protocol";
+import type { PromptObjectState } from "../../utils/promptInteraction";
 
 export type WireCardFlowKind = "battlefield-unit" | "base" | "hand" | "signature";
 
@@ -20,7 +21,7 @@ export type WireCardFlowPlan = {
 type WireCardFlowProps = {
   className?: string;
   emptyLabel?: string;
-  interactionByObjectId?: Record<string, "enabled" | "disabled" | undefined>;
+  interactionByObjectId?: Record<string, PromptObjectState | undefined>;
   ids: string[];
   kind: WireCardFlowKind;
   minSlots?: number;
@@ -161,7 +162,7 @@ export function WirePublicPile({
   specs
 }: {
   ids: string[];
-  interactionByObjectId?: Record<string, "enabled" | "disabled" | undefined>;
+  interactionByObjectId?: Record<string, PromptObjectState | undefined>;
   label: string;
   objects: Record<string, CardObjectView | undefined>;
   onInspectCard: (card: InspectedCard) => void;

@@ -22,7 +22,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场", "等待开局", "中央战场", "待命区", "服务端行动提示", "正式桌面状态", "行动", "结算链", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "合法操作地图", "交互语法", "焦点 / 候选 / 规则队列", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
