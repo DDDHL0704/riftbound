@@ -5,7 +5,6 @@ import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
 import {
   buildPromptInteractionModel,
-  promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
   type PromptCandidateSummary,
   type PromptInteractionModel
@@ -14,12 +13,13 @@ import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/fo
 import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import { buildFocusedInteractionGrammarPlan, type FocusedInteractionGrammarPlan } from "../../utils/focusedInteractionGrammarPlan";
+import { buildWirePromptCandidateListPlan, type WirePromptCandidateRowPlan } from "../../utils/wirePromptCandidatePlan";
 import { CardFace } from "../cards/CardFace";
 import { CandidateComposer, candidateComposerKey, canComposeCandidate } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
-import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
+import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireEmpty } from "./wireCardFlow";
 
@@ -62,6 +62,17 @@ export function WireInteractionPanel({
   const relatedCandidates = inspectedObjectId
     ? model.candidates.filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(inspectedObjectId)))
     : [];
+  const relatedCandidatePlan = buildWirePromptCandidateListPlan({
+    model: {
+      ...model,
+      candidates: relatedCandidates
+    },
+    objects: objectIndex
+  });
+  const relatedCandidateRows = [
+    ...relatedCandidatePlan.enabledRows,
+    ...relatedCandidatePlan.disabledRows
+  ];
 
   return (
     <section className="wire-interaction-panel">
@@ -97,12 +108,12 @@ export function WireInteractionPanel({
         <div className="wire-selected-candidates">
           <strong>焦点候选</strong>
           {relatedCandidates.length === 0 && <span className="empty-hint">该卡当前未出现在服务端候选中。</span>}
-          {relatedCandidates.slice(0, 5).map((candidate) => (
+          {relatedCandidateRows.slice(0, 5).map((row) => (
             <CandidateSummaryRow
-              candidate={candidate}
-              key={`${candidate.action}-${candidate.label}`}
+              key={row.key}
               objects={objectIndex}
               onInspectObject={onInspectObject}
+              row={row}
               selectedObjectId={selectedObjectId}
             />
           ))}
@@ -345,34 +356,41 @@ function PromptCandidateList({
   prompt?: ActionPromptDto;
   selectedObjectId?: string;
 }) {
-  const enabled = model.candidates.filter((candidate) => candidate.enabled);
-  const disabled = model.candidates.filter((candidate) => !candidate.enabled);
-  const promptType = prompt?.view?.type ?? "无";
+  const plan = buildWirePromptCandidateListPlan({
+    model,
+    objects,
+    promptId: prompt?.promptId,
+    promptMessage: prompt?.view?.message,
+    promptReason: prompt?.reason,
+    promptTitle: prompt?.view?.title,
+    promptType: prompt?.view?.type,
+    snapshotTick: prompt?.snapshotTick
+  });
 
   return (
     <div className="wire-prompt-candidates">
       <div className="wire-prompt-contract">
-        <strong>{prompt?.view?.title?.trim() || "当前行动窗口"}</strong>
-        <span>类型：{promptType}</span>
-        <span>提示：{prompt?.view?.message?.trim() || prompt?.reason || "等待服务端提示"}</span>
-        <span>版本：{prompt?.promptId ?? "无"} / tick {prompt?.snapshotTick ?? "无"}</span>
+        <strong>{plan.promptTitle}</strong>
+        <span>类型：{plan.promptType}</span>
+        <span>提示：{plan.message}</span>
+        <span>{plan.versionLabel}</span>
       </div>
-      {model.candidates.length === 0 && <span className="empty-hint">服务端暂未提供候选行动。</span>}
-      {enabled.slice(0, 6).map((candidate) => (
+      {plan.emptyLabel && <span className="empty-hint">{plan.emptyLabel}</span>}
+      {plan.enabledRows.map((row) => (
         <CandidateSummaryRow
-          candidate={candidate}
-          key={`enabled-${candidate.action}-${candidate.label}`}
+          key={row.key}
           objects={objects}
           onInspectObject={onInspectObject}
+          row={row}
           selectedObjectId={selectedObjectId}
         />
       ))}
-      {disabled.slice(0, 4).map((candidate) => (
+      {plan.disabledRows.map((row) => (
         <CandidateSummaryRow
-          candidate={candidate}
-          key={`disabled-${candidate.action}-${candidate.label}`}
+          key={row.key}
           objects={objects}
           onInspectObject={onInspectObject}
+          row={row}
           selectedObjectId={selectedObjectId}
         />
       ))}
@@ -381,50 +399,34 @@ function PromptCandidateList({
 }
 
 function CandidateSummaryRow({
-  candidate,
   objects,
   onInspectObject,
+  row,
   selectedObjectId
 }: {
-  candidate: PromptCandidateSummary;
   objects: WireObjectIndex;
   onInspectObject?: (objectId: string) => void;
+  row: WirePromptCandidateRowPlan;
   selectedObjectId?: string;
 }) {
-  const choiceGroups = candidate.choices.reduce<Record<string, string[]>>((groups, choice) => {
-    const key = promptChoiceRoleLabel(choice.role);
-    groups[key] = [...(groups[key] ?? []), choice.label];
-    return groups;
-  }, {});
-  const objectRefs = candidateObjectRefs(candidate, objects);
-
   return (
-    <article className={`wire-candidate-row ${candidate.enabled ? "is-enabled" : "is-disabled"}`}>
+    <article className={`wire-candidate-row ${row.enabled ? "is-enabled" : "is-disabled"}`}>
       <div>
-        <strong>{candidate.label}</strong>
-        <StatusPill tone={candidate.enabled ? "good" : "neutral"}>{candidate.enabled ? "可提交" : "不可提交"}</StatusPill>
+        <strong>{row.label}</strong>
+        <StatusPill tone={row.enabled ? "good" : "neutral"}>{row.enabled ? "可提交" : "不可提交"}</StatusPill>
       </div>
-      <span>{candidate.reason}</span>
-      {Object.entries(choiceGroups).slice(0, 5).map(([role, labels]) => (
-        <small key={role}>{role}：{labels.slice(0, 3).join("、")}{labels.length > 3 ? ` 等 ${labels.length} 项` : ""}</small>
+      <span>{row.reason}</span>
+      {row.choiceGroups.map((group) => (
+        <small key={group.key}>{group.summary}</small>
       ))}
       <WireObjectRefChips
         className="wire-candidate-object-ref-list"
         objects={objects}
         onInspectObject={onInspectObject}
-        refs={objectRefs}
+        refs={row.objectRefs}
         selectedObjectId={selectedObjectId}
         source="candidate"
       />
     </article>
   );
-}
-
-function candidateObjectRefs(candidate: PromptCandidateSummary, objects: WireObjectIndex): WireObjectRef[] {
-  return candidate.choices.flatMap((choice) => {
-    const role = promptChoiceRoleLabel(choice.role);
-    return promptChoiceSummaryObjectIds(choice)
-      .filter((objectId) => Boolean(objects[objectId]))
-      .map((objectId) => ({ id: objectId, label: choice.label, role }));
-  });
 }
