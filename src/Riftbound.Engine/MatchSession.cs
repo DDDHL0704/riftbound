@@ -3858,6 +3858,11 @@ public sealed record ResolutionResult(
                 .ToArray();
         var hiddenBattlefieldStandbyCount = zones.Battlefields.Count(objectId =>
             !ownView && IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId));
+        var baseRunes = BaseRuneObjectIds(state, zones);
+        var baseRuneSet = baseRunes.ToHashSet(StringComparer.Ordinal);
+        var baseCards = zones.Base
+            .Where(objectId => !baseRuneSet.Contains(objectId))
+            .ToArray();
 
         return new Dictionary<string, object?>
         {
@@ -3866,6 +3871,8 @@ public sealed record ResolutionResult(
             ["hand"] = ownView ? zones.Hand : [],
             ["handHidden"] = ownView ? 0 : zones.Hand.Count,
             ["base"] = zones.Base,
+            ["baseCards"] = baseCards,
+            ["baseRunes"] = baseRunes,
             ["battlefields"] = visibleBattlefields,
             ["battlefieldHiddenStandbyCount"] = hiddenBattlefieldStandbyCount,
             ["graveyard"] = zones.Graveyard,
@@ -3873,6 +3880,15 @@ public sealed record ResolutionResult(
             ["legendZone"] = zones.LegendZone,
             ["championZone"] = zones.ChampionZone
         };
+    }
+
+    private static IReadOnlyList<string> BaseRuneObjectIds(MatchState state, PlayerZones zones)
+    {
+        return zones.Base
+            .Where(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+            .ToArray();
     }
 
     private static Dictionary<string, object?> BuildLaneSnapshotView(MatchState state, string viewerPlayerId)

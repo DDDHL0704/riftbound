@@ -281,6 +281,8 @@ export type ZoneView = {
   hand?: string[];
   handHidden?: number;
   base?: string[];
+  baseCards?: string[];
+  baseRunes?: string[];
   battlefields?: string[];
   graveyard?: string[];
   banished?: string[];

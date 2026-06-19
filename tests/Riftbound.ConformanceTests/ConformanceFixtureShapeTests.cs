@@ -10562,6 +10562,8 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(2, Assert.IsType<int>(p1View["cardsPlayedThisTurn"]));
         Assert.True(Assert.IsType<bool>(p1View["mulliganCompleted"]));
         Assert.Contains("P1-SHOWCASE-RUNE-READY", StringList(p1Zones["base"]));
+        Assert.Contains("P1-SHOWCASE-RUNE-READY", StringList(p1Zones["baseRunes"]));
+        Assert.DoesNotContain("P1-SHOWCASE-RUNE-READY", StringList(p1Zones["baseCards"]));
         Assert.Contains("P1-SHOWCASE-ARENA", StringList(p1Zones["battlefields"]));
         Assert.Contains("P1-SHOWCASE-STANDBY", StringList(p1Zones["battlefields"]));
         Assert.Contains("P1-SHOWCASE-GRAVE-UNIT", StringList(p1Zones["graveyard"]));
@@ -10583,6 +10585,8 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(2, Assert.IsType<int>(p2OwnView["cardsPlayedThisTurn"]));
         Assert.True(Assert.IsType<bool>(p2OwnView["mulliganCompleted"]));
         Assert.Contains("P2-SHOWCASE-RUNE-READY", StringList(p2OwnZones["base"]));
+        Assert.Contains("P2-SHOWCASE-RUNE-READY", StringList(p2OwnZones["baseRunes"]));
+        Assert.DoesNotContain("P2-SHOWCASE-RUNE-READY", StringList(p2OwnZones["baseCards"]));
         Assert.Contains("P2-SHOWCASE-ARENA", StringList(p2OwnZones["battlefields"]));
         Assert.Contains("P2-SHOWCASE-STANDBY", StringList(p2OwnZones["battlefields"]));
         Assert.Contains("P2-SHOWCASE-GRAVE-UNIT", StringList(p2OwnZones["graveyard"]));

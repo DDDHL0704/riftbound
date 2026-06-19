@@ -1762,6 +1762,8 @@
 
 线框对战桌面桌面视图模型继续工程化：新增 `wireTableViewModel.ts`，把玩家中心对称排序、符文/基地拆分、隐藏手牌、左右战场单位归属、战场对象索引和共享战场单位布局计划从 `MatchPage` 中抽出为纯数据投影；`MatchPage` 现在只消费该视图模型渲染线框，不再在页面层各自推导区域结构。新增 `check:wire-table-view-model` 构建门禁，断言 P1/P2 视角翻转不改变同类区域卡牌尺寸、基础符文从基地中稳定拆出、隐藏手牌 id 稳定、战场四象限共享同一单位布局计划。前端仍只展示服务端 authoritative snapshot / prompt，不根据牌文或隐藏信息自行裁决规则；项目仍 **NOT READY**。
 
+线框对战桌面服务端分区协议继续工程化：服务端 `MatchSession` 的 zone snapshot 现在在兼容原有 `base` 列表的同时显式公开 `baseCards` / `baseRunes`，由 `CardObjectTags.RuneCard` 从权威状态拆分基地中的符文牌与基地牌；`MatchRecoveryValidator` 对新字段采用存在即校验的兼容策略，旧快照不被强制要求，新快照若携带则必须保持字符串列表且与 authoritative state 匹配。前端 `wireTableViewModel` 优先消费服务端分区字段，只在旧快照缺字段时回退到本地只读分类，避免把规则分区逻辑压在 UI 层；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：

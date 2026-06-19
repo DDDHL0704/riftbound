@@ -112,11 +112,13 @@ function buildWirePlayerEntry(
   const zones = player.zones ?? {};
   const objects = player.objects ?? {};
   const baseIds = zones.base ?? [];
-  const runeIds = baseIds.filter((objectId) => isRuneCard(objects[objectId], specs[objects[objectId]?.cardNo ?? ""]));
+  const serverRuneIds = zonePartitionIds(zones.baseRunes, baseIds);
+  const runeIds = serverRuneIds ?? baseIds.filter((objectId) => isRuneCard(objects[objectId], specs[objects[objectId]?.cardNo ?? ""]));
   const runeSet = new Set(runeIds);
+  const serverBaseCardIds = zonePartitionIds(zones.baseCards, baseIds);
 
   const entry: WirePlayerEntry = {
-    baseObjectIds: baseIds.filter((objectId) => !runeSet.has(objectId)),
+    baseObjectIds: serverBaseCardIds ?? baseIds.filter((objectId) => !runeSet.has(objectId)),
     handIds: zones.hand ?? [],
     hiddenHandIds: hiddenCards(player.handSize ?? zones.handHidden ?? 0, id),
     id,
@@ -165,6 +167,15 @@ function buildWireObjectIndex(snapshot?: SnapshotDto): WireZoneObjects {
 
 function hiddenCards(count: number, playerId: string): string[] {
   return Array.from({ length: count }, (_, index) => `hidden-${playerId}-${index}`);
+}
+
+function zonePartitionIds(ids: string[] | undefined, parentIds: string[]): string[] | undefined {
+  if (!ids) {
+    return undefined;
+  }
+
+  const parentSet = new Set(parentIds);
+  return ids.filter((id) => parentSet.has(id));
 }
 
 function sideOrder(side: WirePlayerSide): number {

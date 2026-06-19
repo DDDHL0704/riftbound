@@ -24795,6 +24795,8 @@ public sealed class MatchRecoveryTests
             ["hand"] = RawJson("""{"objectId":"hand-1"}"""),
             ["handHidden"] = 0,
             ["base"] = 7,
+            ["baseCards"] = RawJson("""{"objectId":"base-card-1"}"""),
+            ["baseRunes"] = 7,
             ["battlefields"] = false,
             ["battlefieldHiddenStandbyCount"] = 0,
             ["graveyard"] = "not-graveyard-list",
@@ -24825,6 +24827,16 @@ public sealed class MatchRecoveryTests
             errors,
             error => error.Contains(
                 "snapshot for alice player alice zones base object list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones base card object list payload is required",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice player alice zones base rune object list payload is required",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
