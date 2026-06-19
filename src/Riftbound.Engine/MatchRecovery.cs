@@ -6755,6 +6755,22 @@ public static class MatchRecoveryValidator
             KnownTriggerSourceVisibilities);
     }
 
+    private static void ValidateTriggerQueueSourceVisibilityMustBeVisible(
+        string payloadLabel,
+        string diagnosticName,
+        string? sourceVisibility,
+        List<string> errors)
+    {
+        if (sourceVisibility is null
+            || string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} source visibility must be VISIBLE; {FormatExpectedActualForRecovery("VISIBLE", sourceVisibility)}");
+    }
+
     private static bool IsKnownTriggerQueueTriggeredEventKind(string value)
     {
         return KnownTriggerQueueTriggeredEventKinds.Contains(value, StringComparer.Ordinal);
@@ -18548,11 +18564,11 @@ public static class MatchRecoveryValidator
                 errors);
         }
 
-        if (sourceVisibility is not null
-            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
-        {
-            errors.Add($"{payloadLabel} blue sentinel delayed resource source visibility must be VISIBLE");
-        }
+        ValidateTriggerQueueSourceVisibilityMustBeVisible(
+            payloadLabel,
+            "blue sentinel delayed resource",
+            sourceVisibility,
+            errors);
 
         if (sourceObjectId is not null
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
@@ -19139,11 +19155,11 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
         }
 
-        if (sourceVisibility is not null
-            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
-        {
-            errors.Add($"{payloadLabel} kogmaw last breath source visibility must be VISIBLE");
-        }
+        ValidateTriggerQueueSourceVisibilityMustBeVisible(
+            payloadLabel,
+            "kogmaw last breath",
+            sourceVisibility,
+            errors);
 
         if (effectKind is not null
             && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
@@ -19362,11 +19378,11 @@ public static class MatchRecoveryValidator
             }
         }
 
-        if (sourceVisibility is not null
-            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
-        {
-            errors.Add($"{payloadLabel} ogs lux high cost spell source visibility must be VISIBLE");
-        }
+        ValidateTriggerQueueSourceVisibilityMustBeVisible(
+            payloadLabel,
+            "ogs lux high cost spell",
+            sourceVisibility,
+            errors);
 
         if (effectKind is not null
             && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
@@ -19527,11 +19543,11 @@ public static class MatchRecoveryValidator
             }
         }
 
-        if (sourceVisibility is not null
-            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
-        {
-            errors.Add($"{payloadLabel} teemo on-play self-power source visibility must be VISIBLE");
-        }
+        ValidateTriggerQueueSourceVisibilityMustBeVisible(
+            payloadLabel,
+            "teemo on-play self-power",
+            sourceVisibility,
+            errors);
 
         if (effectKind is not null
             && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
@@ -21155,11 +21171,11 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (sourceVisibility is not null
-            && !string.Equals(sourceVisibility, "VISIBLE", StringComparison.Ordinal))
-        {
-            errors.Add($"{payloadLabel} {diagnosticName} source visibility must be VISIBLE");
-        }
+        ValidateTriggerQueueSourceVisibilityMustBeVisible(
+            payloadLabel,
+            diagnosticName,
+            sourceVisibility,
+            errors);
 
         if (effectKind is not null
             && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)

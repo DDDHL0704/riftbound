@@ -6968,7 +6968,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
     }
 
@@ -8236,7 +8236,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
     }
 
@@ -8852,7 +8852,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item teemo on-play self-power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
     }
 
@@ -8909,7 +8909,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -8998,7 +8998,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
     }
 
@@ -10029,7 +10029,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item unsung hero last-breath powerful draw source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item unsung hero last-breath powerful draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10118,7 +10118,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
     }
 
@@ -10175,7 +10175,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10242,7 +10242,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item sad poro last-breath draw source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item sad poro last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10309,7 +10309,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item loyal poro last-breath draw source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item loyal poro last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10376,7 +10376,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item honest broker last-breath create gold source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item honest broker last-breath create gold source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10443,7 +10443,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item mechanical trickster last-breath create minions source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item mechanical trickster last-breath create minions source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10510,7 +10510,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item undercover agent last-breath source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item undercover agent last-breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10577,7 +10577,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ironclad vanguard last-breath create robots source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item ironclad vanguard last-breath create robots source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10644,7 +10644,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item muddy dredger last-breath create warhawk source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item muddy dredger last-breath create warhawk source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -10711,7 +10711,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -11821,7 +11821,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
     }
 
@@ -12084,7 +12084,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -12151,7 +12151,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -12218,7 +12218,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -13824,7 +13824,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item kogmaw last breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -13940,7 +13940,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source visibility must be VISIBLE",
+                "snapshot for alice timing trigger queue item kogmaw last breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
     }
 
@@ -140477,7 +140477,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -140593,7 +140593,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -144077,7 +144077,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -144187,7 +144187,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146045,7 +146045,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -146155,7 +146155,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146258,7 +146258,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146375,7 +146375,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146491,7 +146491,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -146601,7 +146601,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149272,7 +149272,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149389,7 +149389,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149505,7 +149505,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -149615,7 +149615,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149718,7 +149718,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149835,7 +149835,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -149948,7 +149948,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item sad poro last-breath draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item sad poro last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150065,7 +150065,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item sad poro last-breath draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item sad poro last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150178,7 +150178,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item loyal poro last-breath draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item loyal poro last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150295,7 +150295,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item loyal poro last-breath draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item loyal poro last-breath draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150408,7 +150408,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item honest broker last-breath create gold source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item honest broker last-breath create gold source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150525,7 +150525,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item honest broker last-breath create gold source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item honest broker last-breath create gold source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150638,7 +150638,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150755,7 +150755,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item mechanical trickster last-breath create minions source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150868,7 +150868,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item undercover agent last-breath source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item undercover agent last-breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -150985,7 +150985,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item undercover agent last-breath source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item undercover agent last-breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151098,7 +151098,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151215,7 +151215,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item ironclad vanguard last-breath create robots source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151328,7 +151328,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151445,7 +151445,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item muddy dredger last-breath create warhawk source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151558,7 +151558,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -151675,7 +151675,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -152627,7 +152627,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -152739,7 +152739,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155156,7 +155156,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155273,7 +155273,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155386,7 +155386,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155503,7 +155503,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155616,7 +155616,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155733,7 +155733,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160531,7 +160531,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item kogmaw last breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160671,7 +160671,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item kogmaw last breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160795,7 +160795,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item kogmaw last breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -160913,7 +160913,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source visibility must be VISIBLE",
+                "spectator replay frame timing trigger queue item kogmaw last breath source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
