@@ -16,6 +16,8 @@ import { CardFace } from "../cards/CardFace";
 import { CandidateComposer, candidateComposerKey, canComposeCandidate } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
+import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
+import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
 import { WireEmpty } from "./wireCardFlow";
 
 export function WireInteractionPanel({
@@ -24,6 +26,7 @@ export function WireInteractionPanel({
   onCommand,
   onClearInspectedCard,
   onOpenDetail,
+  onInspectObject,
   playerId,
   prompt,
   selectionDraft,
@@ -33,6 +36,7 @@ export function WireInteractionPanel({
   inspectedCard?: InspectedCard;
   onCommand?: (command: GameCommand) => void;
   onClearInspectedCard: () => void;
+  onInspectObject?: (objectId: string) => void;
   onOpenDetail: (card: InspectedCard) => void;
   playerId: string;
   prompt?: ActionPromptDto;
@@ -41,9 +45,11 @@ export function WireInteractionPanel({
 }) {
   const model = buildPromptInteractionModel(prompt);
   const inspectedObjectId = inspectedCard?.objectId;
+  const objectIndex = buildCardObjectIndex(snapshot);
+  const selectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
   const objectSummary = inspectedObjectId ? model.objectById.get(inspectedObjectId) : undefined;
   const relatedCandidates = inspectedObjectId
-    ? model.candidates.filter((candidate) => candidate.choices.some((choice) => choice.id === inspectedObjectId || choice.id.endsWith(`:${inspectedObjectId}`)))
+    ? model.candidates.filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(inspectedObjectId)))
     : [];
 
   return (
@@ -80,7 +86,13 @@ export function WireInteractionPanel({
           <strong>焦点候选</strong>
           {relatedCandidates.length === 0 && <span className="empty-hint">该卡当前未出现在服务端候选中。</span>}
           {relatedCandidates.slice(0, 5).map((candidate) => (
-            <CandidateSummaryRow candidate={candidate} key={`${candidate.action}-${candidate.label}`} />
+            <CandidateSummaryRow
+              candidate={candidate}
+              key={`${candidate.action}-${candidate.label}`}
+              objects={objectIndex}
+              onInspectObject={onInspectObject}
+              selectedObjectId={selectedObjectId}
+            />
           ))}
         </div>
       )}
@@ -95,7 +107,13 @@ export function WireInteractionPanel({
         snapshot={snapshot}
       />
 
-      <PromptCandidateList model={model} prompt={prompt} />
+      <PromptCandidateList
+        model={model}
+        objects={objectIndex}
+        onInspectObject={onInspectObject}
+        prompt={prompt}
+        selectedObjectId={selectedObjectId}
+      />
     </section>
   );
 }
@@ -258,7 +276,19 @@ function FocusedActionSummary({ focusModel }: { focusModel: FocusedActionModel }
   );
 }
 
-function PromptCandidateList({ model, prompt }: { model: PromptInteractionModel; prompt?: ActionPromptDto }) {
+function PromptCandidateList({
+  model,
+  objects,
+  onInspectObject,
+  prompt,
+  selectedObjectId
+}: {
+  model: PromptInteractionModel;
+  objects: WireObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  prompt?: ActionPromptDto;
+  selectedObjectId?: string;
+}) {
   const enabled = model.candidates.filter((candidate) => candidate.enabled);
   const disabled = model.candidates.filter((candidate) => !candidate.enabled);
   const promptType = prompt?.view?.type ?? "无";
@@ -273,21 +303,44 @@ function PromptCandidateList({ model, prompt }: { model: PromptInteractionModel;
       </div>
       {model.candidates.length === 0 && <span className="empty-hint">服务端暂未提供候选行动。</span>}
       {enabled.slice(0, 6).map((candidate) => (
-        <CandidateSummaryRow candidate={candidate} key={`enabled-${candidate.action}-${candidate.label}`} />
+        <CandidateSummaryRow
+          candidate={candidate}
+          key={`enabled-${candidate.action}-${candidate.label}`}
+          objects={objects}
+          onInspectObject={onInspectObject}
+          selectedObjectId={selectedObjectId}
+        />
       ))}
       {disabled.slice(0, 4).map((candidate) => (
-        <CandidateSummaryRow candidate={candidate} key={`disabled-${candidate.action}-${candidate.label}`} />
+        <CandidateSummaryRow
+          candidate={candidate}
+          key={`disabled-${candidate.action}-${candidate.label}`}
+          objects={objects}
+          onInspectObject={onInspectObject}
+          selectedObjectId={selectedObjectId}
+        />
       ))}
     </div>
   );
 }
 
-function CandidateSummaryRow({ candidate }: { candidate: PromptCandidateSummary }) {
+function CandidateSummaryRow({
+  candidate,
+  objects,
+  onInspectObject,
+  selectedObjectId
+}: {
+  candidate: PromptCandidateSummary;
+  objects: WireObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  selectedObjectId?: string;
+}) {
   const choiceGroups = candidate.choices.reduce<Record<string, string[]>>((groups, choice) => {
     const key = promptChoiceRoleLabel(choice.role);
     groups[key] = [...(groups[key] ?? []), choice.label];
     return groups;
   }, {});
+  const objectRefs = candidateObjectRefs(candidate, objects);
 
   return (
     <article className={`wire-candidate-row ${candidate.enabled ? "is-enabled" : "is-disabled"}`}>
@@ -299,6 +352,23 @@ function CandidateSummaryRow({ candidate }: { candidate: PromptCandidateSummary 
       {Object.entries(choiceGroups).slice(0, 5).map(([role, labels]) => (
         <small key={role}>{role}：{labels.slice(0, 3).join("、")}{labels.length > 3 ? ` 等 ${labels.length} 项` : ""}</small>
       ))}
+      <WireObjectRefChips
+        className="wire-candidate-object-ref-list"
+        objects={objects}
+        onInspectObject={onInspectObject}
+        refs={objectRefs}
+        selectedObjectId={selectedObjectId}
+        source="candidate"
+      />
     </article>
   );
+}
+
+function candidateObjectRefs(candidate: PromptCandidateSummary, objects: WireObjectIndex): WireObjectRef[] {
+  return candidate.choices.flatMap((choice) => {
+    const role = promptChoiceRoleLabel(choice.role);
+    return promptChoiceSummaryObjectIds(choice)
+      .filter((objectId) => Boolean(objects[objectId]))
+      .map((objectId) => ({ id: objectId, label: choice.label, role }));
+  });
 }

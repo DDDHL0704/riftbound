@@ -12021,7 +12021,9 @@ button.card-face:hover {
 .wire-rule-object-refs,
 .wire-rule-object-ref,
 .wire-event-object-refs,
-.wire-event-object-ref {
+.wire-event-object-ref,
+.wire-candidate-object-refs,
+.wire-candidate-object-ref {
   min-width: 0;
   border: 1px solid #000;
   background: #fff;
@@ -12277,6 +12279,8 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-object-ref,
 .wire-match-page .wire-event-object-refs,
 .wire-match-page .wire-event-object-ref,
+.wire-match-page .wire-candidate-object-refs,
+.wire-match-page .wire-candidate-object-ref,
 .wire-match-page .log-row,
 .wire-match-page .event-log {
   border-color: #000 !important;
