@@ -1,6 +1,7 @@
 import { Play, X } from "lucide-react";
-import { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
+import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
 import {
   conformanceLabel,
   conformanceTone,
@@ -13,8 +14,10 @@ import {
   statusLabel
 } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
+import { buildPromptInteractionModel } from "../../utils/promptInteraction";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { CandidateComposer, canComposeCandidate } from "../match/CandidateComposer";
+import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { InspectedCard, objectStateLabels } from "./CardFace";
@@ -38,6 +41,11 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
   const states = objectStateLabels(card.object);
   const sourceObjectId = card.objectId ?? card.object?.objectId;
   const sourceActions = hidden ? [] : sourceCandidatesForPrompt(prompt, sourceObjectId);
+  const detailFocusModel = buildFocusedActionModel({
+    interactionModel: buildPromptInteractionModel(prompt),
+    prompt,
+    sourceObjectId
+  });
   const stampedOnCommand = onCommand
     ? (command: GameCommand) => onCommand(promptStampedCommand(command, prompt))
     : undefined;
@@ -85,7 +93,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
                 <dd>{objectContext?.zone.label ?? formatLocation(card.object?.location)}</dd>
               </div>
             </dl>
-            <DetailObjectContext context={objectContext} />
+            <DetailObjectContext context={objectContext} contract={prompt?.contract} focusModel={detailFocusModel} />
             <section className="detail-section">
               <strong>关键词</strong>
               <p>{keywordsText(card.spec)}</p>
@@ -157,7 +165,15 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
   );
 }
 
-function DetailObjectContext({ context }: { context?: TableObjectContext }) {
+function DetailObjectContext({
+  context,
+  contract,
+  focusModel
+}: {
+  context?: TableObjectContext;
+  contract?: ActionPromptContractDto | null;
+  focusModel?: FocusedActionModel;
+}) {
   if (!context) {
     return (
       <section className="detail-section">
@@ -167,54 +183,10 @@ function DetailObjectContext({ context }: { context?: TableObjectContext }) {
     );
   }
 
-  const events = context.eventLinks.slice(-4).reverse();
-  const commandCandidates = context.candidateLinks.filter((candidate) => candidate.commandType);
   return (
     <section className="detail-section detail-context" aria-label="卡牌规则上下文">
       <strong>规则上下文</strong>
-      <div className="detail-context-grid">
-        <span>
-          <small>区域</small>
-          <b>{context.zone.label}</b>
-        </span>
-        <span>
-          <small>服务端候选</small>
-          <b>{context.promptEnabledCount} 可用 / {context.promptDisabledCount} 阻断</b>
-        </span>
-        <span>
-          <small>状态</small>
-          <b>{context.stateLabels.join(" / ")}</b>
-        </span>
-      </div>
-      {context.stackRoles.length > 0 && <p>结算链：{context.stackRoles.join(" / ")}</p>}
-      {context.candidateLinks.length > 0 && (
-        <p>候选：{context.candidateLinks.slice(0, 3).map((candidate) => `${candidate.label}（${candidate.roles.join("/") || "关联"}）`).join("、")}</p>
-      )}
-      {commandCandidates.length > 0 && (
-        <div className="detail-context-command-block">
-          <p>服务端命令</p>
-          <ol className="detail-context-commands" aria-label="卡牌服务端命令字段">
-            {commandCandidates.slice(0, 4).map((candidate, index) => (
-              <li key={`${candidate.commandType}-${candidate.label}-${index}`}>
-                <span>{candidate.enabled ? "可提交" : "阻断"}</span>
-                <b>{candidate.commandType}{candidate.commandFields.length > 0 ? `：${candidate.commandFields.join(" / ")}` : ""}</b>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
-      {events.length > 0 ? (
-        <ol className="detail-context-events">
-          {events.map((event, index) => (
-            <li key={`${event.kind}-${event.role}-${index}`}>
-              <span>{event.role}</span>
-              <b>{event.description}</b>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <p className="detail-muted">暂无公开关联事件。</p>
-      )}
+      <WireObjectContextSummary context={context} contract={contract} focusModel={focusModel} />
     </section>
   );
 }
