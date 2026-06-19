@@ -14507,6 +14507,11 @@ public static class MatchRecoveryValidator
         return tags.OrderBy(tag => tag, StringComparer.Ordinal).ToArray();
     }
 
+    private static IReadOnlyList<string> FormatObjectIdsForRecovery(IEnumerable<string> objectIds)
+    {
+        return objectIds.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray();
+    }
+
     private static string FormatRecoveryDiagnosticValue(object? value)
     {
         return value switch
@@ -18835,7 +18840,7 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add(
-            $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} must be in trigger controller battlefield zone in {playerZoneLabel}");
+            $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} must be in trigger controller battlefield zone in {playerZoneLabel}; {FormatExpectedActualForRecovery($"contains {sourceObjectId}", FormatObjectIdsForRecovery(battlefieldObjectIds))}");
     }
 
     private static bool IsBlueSentinelDelayedTriggerIdForRecovery(string triggerId)
@@ -19506,7 +19511,7 @@ public static class MatchRecoveryValidator
                 && !fieldObjectIds.Contains(sourceObjectId))
             {
                 errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must be in trigger controller field zone in {playerZoneLabel}");
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must be in trigger controller field zone in {playerZoneLabel}; {FormatExpectedActualForRecovery($"contains {sourceObjectId}", FormatObjectIdsForRecovery(fieldObjectIds))}");
             }
 
             if (objectCardNos is not null
@@ -19694,7 +19699,7 @@ public static class MatchRecoveryValidator
             && !baseObjectIds.Contains(sourceObjectId))
         {
             errors.Add(
-                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must be in trigger controller base zone in {playerZoneLabel}");
+                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} must be in trigger controller base zone in {playerZoneLabel}; {FormatExpectedActualForRecovery($"contains {sourceObjectId}", FormatObjectIdsForRecovery(baseObjectIds))}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -21464,7 +21469,7 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add(
-            $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be in trigger controller field zone in {playerZoneLabel}");
+            $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be in trigger controller field zone in {playerZoneLabel}; {FormatExpectedActualForRecovery($"contains {sourceObjectId}", FormatObjectIdsForRecovery(fieldObjectIds))}");
     }
 
     private static void ValidateTriggerQueueStandardLastBreathContext(

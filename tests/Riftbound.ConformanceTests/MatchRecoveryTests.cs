@@ -7626,7 +7626,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in player zones",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in player zones; expected contains source-1 but got [battlefield-1]",
                 StringComparison.Ordinal));
     }
 
@@ -8248,7 +8248,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 must be in trigger controller field zone in player zones",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 must be in trigger controller field zone in player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
     }
 
@@ -8864,7 +8864,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 must be in trigger controller base zone in player zones",
+                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 must be in trigger controller base zone in player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
     }
 
@@ -12061,7 +12061,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in player zones",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
     }
 
@@ -30589,7 +30589,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in authoritative state player zones",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in authoritative state player zones; expected contains source-1 but got [battlefield-1]",
                 StringComparison.Ordinal));
     }
 
@@ -31112,7 +31112,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 must be in trigger controller field zone in authoritative state player zones",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
     }
 
@@ -31566,7 +31566,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 must be in trigger controller base zone in authoritative state player zones",
+                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 must be in trigger controller base zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
     }
 
@@ -33890,7 +33890,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
     }
 
@@ -142125,7 +142125,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in authoritative state player zones",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in authoritative state player zones; expected contains source-1 but got [battlefield-1]",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -142237,7 +142237,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in authoritative state player zones",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 must be in trigger controller battlefield zone in authoritative state player zones; expected contains source-1 but got [battlefield-1]",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -144112,7 +144112,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must be in trigger controller field zone in authoritative state player zones",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -144221,7 +144221,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must be in trigger controller field zone in authoritative state player zones",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146080,7 +146080,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 must be in trigger controller base zone in authoritative state player zones",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 must be in trigger controller base zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -146189,7 +146189,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 must be in trigger controller base zone in authoritative state player zones",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 must be in trigger controller base zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -153321,7 +153321,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -153429,7 +153429,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
