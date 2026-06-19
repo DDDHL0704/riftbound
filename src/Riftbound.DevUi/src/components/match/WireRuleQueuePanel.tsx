@@ -13,6 +13,7 @@ import { redactInternalText } from "../../utils/redaction";
 import { buildWireRuleQueuePlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
+import { WireDetailTrigger } from "./WireDetailTrigger";
 import {
   WireObjectRefChips,
   type WireObjectIndex,
@@ -144,7 +145,7 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
             <div>
               <strong>项目 {stack.length - index}</strong>
               <span>{stackEffectLabel(item.effectKind)}</span>
-              <RuleDetailButton detail={stackDetail(item, index, stack.length, playerId, objects)} onSelectDetail={onSelectDetail} />
+              <RuleDetailButton detail={stackDetail(item, index, stack.length, playerId, objects)} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
             </div>
             <RuleLine label="控制者" mine={item.controllerId === playerId} value={item.controllerId ?? "未知"} />
             <RuleLine label="来源" value={sourceLabel(item.sourceObjectId, item.cardNo, objects)} />
@@ -169,7 +170,7 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
             <div>
               <strong>{taskKindLabel(task.kind)}</strong>
               <span>{task.status ? protocolValue(task.status, "服务端状态") : "状态未提供"}</span>
-              <RuleDetailButton detail={taskDetail(task, index, playerId, objects)} onSelectDetail={onSelectDetail} />
+              <RuleDetailButton detail={taskDetail(task, index, playerId, objects)} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
             </div>
             <RuleLine label="原因" value={taskReasonLabel(task.reason)} />
             <RuleLine label="战场" value={task.battlefieldObjectId ? objectLabel(task.battlefieldObjectId, objects) : "无"} />
@@ -189,7 +190,7 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
             <div>
               <strong>触发 {index + 1}</strong>
               <span>{stackEffectLabel(trigger.effectKind)}</span>
-              <RuleDetailButton detail={triggerDetail(trigger, index, playerId, objects)} onSelectDetail={onSelectDetail} />
+              <RuleDetailButton detail={triggerDetail(trigger, index, playerId, objects)} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
             </div>
             <RuleLine label="控制者" mine={trigger.controllerId === playerId} value={trigger.controllerId ?? "无"} />
             <RuleLine label="来源" value={trigger.sourceVisibility === "HIDDEN" ? "隐藏来源" : objectLabel(trigger.sourceObjectId, objects)} />
@@ -205,7 +206,7 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
             <div>
               <strong>{battlefieldResolutionLabel(resolution.kind)}</strong>
               <span>tick {resolution.tick ?? "无"}</span>
-              <RuleDetailButton detail={battlefieldResolutionDetail(resolution, index, playerId, objects)} onSelectDetail={onSelectDetail} />
+              <RuleDetailButton detail={battlefieldResolutionDetail(resolution, index, playerId, objects)} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
             </div>
             <RuleLine label="战场" value={objectLabel(resolution.battlefieldObjectId, objects)} />
             <RuleLine label="控制者" mine={(resolution.playerId ?? resolution.controllerId) === playerId} value={resolution.playerId ?? resolution.controllerId ?? "无"} />
@@ -219,7 +220,7 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
             <div>
               <strong>{battleResolutionLabel(resolution.kind)}</strong>
               <span>tick {resolution.tick ?? "无"}</span>
-              <RuleDetailButton detail={battleResolutionDetail(resolution, index, playerId, objects)} onSelectDetail={onSelectDetail} />
+              <RuleDetailButton detail={battleResolutionDetail(resolution, index, playerId, objects)} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
             </div>
             <RuleLine label="战场" value={objectLabel(resolution.battlefieldId, objects)} />
             <RuleLine label="胜者" mine={resolution.winnerPlayerId === playerId} value={resolution.winnerPlayerId ?? "无"} />
@@ -293,20 +294,14 @@ function RuleLine({ label, mine, value }: { label: string; mine?: boolean; value
 
 function RuleDetailButton({
   detail,
-  onSelectDetail
+  onSelectDetail,
+  selectedDetailId
 }: {
   detail: WireTimelineDetail;
   onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
 }) {
-  if (!onSelectDetail) {
-    return null;
-  }
-
-  return (
-    <button className="wire-detail-trigger" data-wire-detail-id={detail.id} onClick={() => onSelectDetail(detail)} type="button">
-      详情
-    </button>
-  );
+  return <WireDetailTrigger detail={detail} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />;
 }
 
 function stackItemFromRecord(record: Record<string, unknown>): StackItemView {

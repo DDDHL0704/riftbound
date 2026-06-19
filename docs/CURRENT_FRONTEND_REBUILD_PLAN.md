@@ -1748,6 +1748,8 @@
 
 线框对战桌面卡牌详情弹窗继续工程化：`CardDetailDrawer` 现在在打开时锁定页面滚动、聚焦关闭按钮、支持 Escape 关闭、Tab 焦点环绕，并在关闭后把焦点回收到原桌面对象；dialog 使用 `aria-labelledby` 与 `data-detail-dialog-state` 暴露可验证状态。Chrome smoke 覆盖焦点手牌打开详情、关闭按钮聚焦、Escape 关闭和焦点回收；前端仍只展示服务端快照与候选，不根据牌文、隐藏信息或本地状态自行裁决规则；项目仍 **NOT READY**。
 
+线框对战桌面规则/事件详情入口继续工程化：新增共享 `WireDetailTrigger`，规则队列与事件日志的“详情”按钮统一暴露 `aria-controls`、`aria-pressed`、`data-detail-selected`、`data-wire-detail-source` 和可读 `aria-label`；`WireTimelineDetailPanel` 现在有稳定 `wire-timeline-detail-body` 与 `data-wire-timeline-detail-state`，可区分规则详情、日志事件、焦点对象和空状态。Chrome smoke 覆盖规则详情、事件详情、按钮选中态、详情来源、清除后回到焦点对象上下文；前端仍只消费服务端 refs、事件和候选，不自行生成规则结果；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：

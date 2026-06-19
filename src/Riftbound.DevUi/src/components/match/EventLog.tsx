@@ -2,6 +2,7 @@ import { CardObjectView, ErrorDto, GameEvent, GameEventObjectRef } from "../../t
 import { asArray, asRecord } from "../../utils/collections";
 import { errorCodeLabel, errorMessageLabel } from "../../utils/errors";
 import { redactInternalText } from "../../utils/redaction";
+import { WireDetailTrigger } from "./WireDetailTrigger";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef, wireObjectRef, wireObjectRefs } from "./WireObjectRefChips";
 import type { WireTimelineDetail, WireTimelineDetailLine } from "./WireTimelineDetailPanel";
 
@@ -202,11 +203,7 @@ export function EventLog({
           <article className={selectedDetailId === detail.id ? "log-row is-detail-selected" : "log-row"} key={`${event.kind}-${index}`}>
             <div className="log-row-heading">
               <strong>{eventKindLabel(event.kind)}</strong>
-              {onSelectDetail && (
-                <button className="wire-detail-trigger" data-wire-detail-id={detail.id} onClick={() => onSelectDetail(detail)} type="button">
-                  详情
-                </button>
-              )}
+              <WireDetailTrigger detail={detail} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
             </div>
             <span>{eventDescriptionLabel(event)}</span>
             <WireObjectRefChips
