@@ -7804,6 +7804,30 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "base object",
             errors);
+        ValidateSnapshotPayloadOptionalStringListPayloadShape(
+            zonesPayload,
+            "baseCards",
+            payloadLabel,
+            "base card object",
+            errors);
+        ValidateSnapshotPayloadOptionalStringListValues(
+            zonesPayload,
+            "baseCards",
+            payloadLabel,
+            "base card object",
+            errors);
+        ValidateSnapshotPayloadOptionalStringListPayloadShape(
+            zonesPayload,
+            "baseRunes",
+            payloadLabel,
+            "base rune object",
+            errors);
+        ValidateSnapshotPayloadOptionalStringListValues(
+            zonesPayload,
+            "baseRunes",
+            payloadLabel,
+            "base rune object",
+            errors);
         ValidateSnapshotPayloadRequiredStringListPayloadShape(
             zonesPayload,
             "battlefields",
@@ -8413,6 +8437,27 @@ public static class MatchRecoveryValidator
         }
 
         return ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue);
+    }
+
+    private static IReadOnlyList<string>? ValidateSnapshotPayloadOptionalStringListValues(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors,
+        Func<string, bool>? isKnownValue = null)
+    {
+        return ValidateSnapshotPayloadStringListValues(payload, key, payloadLabel, itemLabel, errors, isKnownValue);
+    }
+
+    private static void ValidateSnapshotPayloadOptionalStringListPayloadShape(
+        object? payload,
+        string key,
+        string payloadLabel,
+        string itemLabel,
+        List<string> errors)
+    {
+        ValidateSnapshotPayloadRequiredStringListPayloadShape(payload, key, payloadLabel, itemLabel, errors);
     }
 
     private static void ValidateSnapshotPayloadRequiredStringListPayloadShape(
@@ -9513,6 +9558,20 @@ public static class MatchRecoveryValidator
             zones.Base,
             "base objects",
             errors);
+        ValidateSpectatorSnapshotPlayerOptionalZoneStringList(
+            playerId,
+            zonePayload,
+            "baseCards",
+            BaseCardObjectIds(authoritativeState, zones),
+            "base card objects",
+            errors);
+        ValidateSpectatorSnapshotPlayerOptionalZoneStringList(
+            playerId,
+            zonePayload,
+            "baseRunes",
+            BaseRuneObjectIds(authoritativeState, zones),
+            "base rune objects",
+            errors);
         ValidateSpectatorSnapshotPlayerZoneStringList(
             playerId,
             zonePayload,
@@ -9610,6 +9669,30 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "base object",
             errors);
+        ValidateSnapshotPayloadOptionalStringListPayloadShape(
+            zonePayload,
+            "baseCards",
+            payloadLabel,
+            "base card object",
+            errors);
+        ValidateSnapshotPayloadOptionalStringListValues(
+            zonePayload,
+            "baseCards",
+            payloadLabel,
+            "base card object",
+            errors);
+        ValidateSnapshotPayloadOptionalStringListPayloadShape(
+            zonePayload,
+            "baseRunes",
+            payloadLabel,
+            "base rune object",
+            errors);
+        ValidateSnapshotPayloadOptionalStringListValues(
+            zonePayload,
+            "baseRunes",
+            payloadLabel,
+            "base rune object",
+            errors);
         ValidateSpectatorRequiredStringListPayloadShape(
             zonePayload,
             payloadLabel,
@@ -9693,6 +9776,46 @@ public static class MatchRecoveryValidator
             errors.Add(
                 $"spectator replay frame snapshot player {playerId} {description} do not match authoritative state {description}; {FormatExpectedActualForRecovery(expected, FormatReadableStringListValue(hasValue, value, zonePayload, key))}");
         }
+    }
+
+    private static void ValidateSpectatorSnapshotPlayerOptionalZoneStringList(
+        string playerId,
+        object? zonePayload,
+        string key,
+        IReadOnlyList<string> expected,
+        string description,
+        List<string> errors)
+    {
+        if (!TryReadObjectValue(zonePayload, key, out var rawValue)
+            || IsNullSnapshotPayloadValue(rawValue))
+        {
+            return;
+        }
+
+        var hasValue = TryReadObjectStringList(zonePayload, key, out var value);
+        if (!hasValue
+            || !StringListsEqual(value, expected))
+        {
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} {description} do not match authoritative state {description}; {FormatExpectedActualForRecovery(expected, FormatReadableStringListValue(hasValue, value, zonePayload, key))}");
+        }
+    }
+
+    private static IReadOnlyList<string> BaseRuneObjectIds(MatchState state, PlayerZones zones)
+    {
+        return zones.Base
+            .Where(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> BaseCardObjectIds(MatchState state, PlayerZones zones)
+    {
+        var runeSet = BaseRuneObjectIds(state, zones).ToHashSet(StringComparer.Ordinal);
+        return zones.Base
+            .Where(objectId => !runeSet.Contains(objectId))
+            .ToArray();
     }
 
     private static void ValidateSpectatorSnapshotPlayerObjectPayloads(

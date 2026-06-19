@@ -56,7 +56,7 @@ const snapshot = {
       objects: {
         "p1-base-1": object("p1-base-1", "BASE-001", "P1"),
         "p1-rune-1": object("p1-rune-1", "RUNE-001", "P1"),
-        "p1-rune-tagged": object("p1-rune-tagged", "RUNE-002", "P1", ["CARD_TYPE:RUNE"]),
+        "p1-rune-tagged": object("p1-rune-tagged", "RUNE-002", "P1"),
         "p1-hand-1": object("p1-hand-1", "UNIT-001", "P1"),
         "p1-left-1": object("p1-left-1", "UNIT-001", "P1"),
         "p1-left-2": object("p1-left-2", "UNIT-002", "P1"),
@@ -64,6 +64,8 @@ const snapshot = {
       },
       zones: {
         base: ["p1-base-1", "p1-rune-1", "p1-rune-tagged"],
+        baseCards: ["p1-base-1"],
+        baseRunes: ["p1-rune-1", "p1-rune-tagged"],
         hand: ["p1-hand-1"],
         handHidden: 9,
         mainDeckCount: 31,
@@ -82,6 +84,8 @@ const snapshot = {
       },
       zones: {
         base: ["p2-rune-1", "p2-base-1"],
+        baseCards: ["p2-base-1"],
+        baseRunes: ["p2-rune-1"],
         handHidden: 4,
         mainDeckCount: 28,
         runeDeckCount: 10
@@ -126,7 +130,7 @@ assert.deepEqual(p2Perspective.lanes[0].opposingOccupants, ["p1-left-1", "p1-lef
 assert.deepEqual(p2Perspective.unitPlan, battlefield.unitPlan, "perspective flips ownership but not card sizing");
 
 assert.equal(isRuneCard(snapshot.players.P1.objects["p1-rune-1"], specs["RUNE-001"]), true);
-assert.equal(isRuneCard(snapshot.players.P1.objects["p1-rune-tagged"], specs["RUNE-002"]), true);
+assert.equal(isRuneCard(snapshot.players.P1.objects["p1-rune-tagged"], specs["RUNE-002"]), false);
 assert.equal(isRuneCard(snapshot.players.P1.objects["p1-base-1"], specs["BASE-001"]), false);
 assert.equal(ownerOrController({ ownerId: "OWNER", controllerId: "CTRL" }), "CTRL");
 assert.equal(ownerOrController({ ownerId: "OWNER" }), "OWNER");
