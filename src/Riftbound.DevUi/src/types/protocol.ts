@@ -336,6 +336,7 @@ export type BattlefieldSnapshotView = {
   contested?: boolean;
   occupantObjectIds?: string[];
   occupantControllerIds?: string[];
+  unitsBySide?: Record<string, string[]>;
   standbyObjectIds?: string[];
   faceDownStandbyCount?: number;
   pendingTaskKinds?: string[];

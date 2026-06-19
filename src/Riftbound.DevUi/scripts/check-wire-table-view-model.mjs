@@ -38,6 +38,10 @@ const snapshot = {
         cardNo: "SITE-LEFT",
         controllerId: "P1",
         occupantObjectIds: ["p1-left-1", "p1-left-2", "p2-left-1"],
+        unitsBySide: {
+          P1: ["p1-left-1", "p1-left-2"],
+          P2: ["p2-left-1"]
+        },
         zonePlayerId: "P1"
       },
       {
@@ -45,6 +49,10 @@ const snapshot = {
         cardNo: "SITE-RIGHT",
         controllerId: "P2",
         occupantObjectIds: ["p2-right-1", "p2-right-2", "p1-right-1"],
+        unitsBySide: {
+          P1: ["p1-right-1"],
+          P2: ["p2-right-1", "p2-right-2"]
+        },
         zonePlayerId: "P2"
       }
     ]
@@ -78,7 +86,7 @@ const snapshot = {
       objects: {
         "p2-base-1": object("p2-base-1", "BASE-001", "P2"),
         "p2-rune-1": object("p2-rune-1", "RUNE-001", "P2"),
-        "p2-left-1": object("p2-left-1", "UNIT-001", "P2"),
+        "p2-left-1": { ...object("p2-left-1", "UNIT-001", "P2"), controllerId: "P1" },
         "p2-right-1": object("p2-right-1", "UNIT-001", "P2"),
         "p2-right-2": object("p2-right-2", "UNIT-004", "P2")
       },
@@ -118,6 +126,11 @@ const battlefield = buildWireBattlefieldModel(snapshot, "P1");
 assert.equal(battlefield.lanes.length, 2);
 assert.deepEqual(battlefield.lanes[0].ownOccupants, ["p1-left-1", "p1-left-2"]);
 assert.deepEqual(battlefield.lanes[0].opposingOccupants, ["p2-left-1"]);
+assert.equal(
+  ownerOrController(snapshot.players.P2.objects["p2-left-1"]),
+  "P1",
+  "fixture must prove server unitsBySide wins over local controller fallback"
+);
 assert.deepEqual(battlefield.lanes[1].ownOccupants, ["p1-right-1"]);
 assert.deepEqual(battlefield.lanes[1].opposingOccupants, ["p2-right-1", "p2-right-2"]);
 assert.deepEqual(table.battlefield.unitPlan, battlefield.unitPlan, "table and battlefield builders must share one unit plan");

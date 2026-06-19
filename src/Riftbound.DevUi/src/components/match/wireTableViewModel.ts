@@ -143,15 +143,38 @@ function buildWireBattlefieldLane(
   perspectivePlayerId: string
 ): WireBattlefieldLane {
   const occupants = asArray<string>(battlefield?.occupantObjectIds);
+  const splitOccupants = splitBattlefieldOccupants(battlefield?.unitsBySide, occupants, objects, perspectivePlayerId);
   return {
     battlefield,
     battlefieldId: asString(battlefield?.battlefieldObjectId, `empty-battlefield-${index}`),
     cardNo: asString(battlefield?.cardNo, ""),
     controllerId: asString(battlefield?.controllerId, ""),
     index,
-    ownOccupants: occupants.filter((id) => ownerOrController(objects[id]) === perspectivePlayerId),
-    opposingOccupants: occupants.filter((id) => ownerOrController(objects[id]) !== perspectivePlayerId),
+    ownOccupants: splitOccupants.own,
+    opposingOccupants: splitOccupants.opposing,
     zonePlayerId: asString(battlefield?.zonePlayerId, "")
+  };
+}
+
+function splitBattlefieldOccupants(
+  unitsBySide: Record<string, string[]> | undefined,
+  occupants: string[],
+  objects: WireZoneObjects,
+  perspectivePlayerId: string
+): { own: string[]; opposing: string[] } {
+  const sideMap = asStringArrayRecord(unitsBySide);
+  if (sideMap) {
+    const occupantSet = new Set(occupants);
+    const ownSet = new Set((sideMap[perspectivePlayerId] ?? []).filter((id) => occupantSet.has(id)));
+    return {
+      own: occupants.filter((id) => ownSet.has(id)),
+      opposing: occupants.filter((id) => !ownSet.has(id))
+    };
+  }
+
+  return {
+    own: occupants.filter((id) => ownerOrController(objects[id]) === perspectivePlayerId),
+    opposing: occupants.filter((id) => ownerOrController(objects[id]) !== perspectivePlayerId)
   };
 }
 
@@ -188,6 +211,23 @@ function asArray<T>(value: unknown): T[] {
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function asStringArrayRecord(value: unknown): Record<string, string[]> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const result: Record<string, string[]> = {};
+  for (const [key, rawValue] of Object.entries(value)) {
+    if (typeof key !== "string" || !Array.isArray(rawValue)) {
+      return undefined;
+    }
+
+    result[key] = rawValue.filter((item): item is string => typeof item === "string");
+  }
+
+  return result;
 }
 
 function asString(value: unknown, fallback = ""): string {

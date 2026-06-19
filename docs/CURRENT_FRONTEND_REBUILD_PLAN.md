@@ -1764,6 +1764,8 @@
 
 线框对战桌面服务端分区协议继续工程化：服务端 `MatchSession` 的 zone snapshot 现在在兼容原有 `base` 列表的同时显式公开 `baseCards` / `baseRunes`，由 `CardObjectTags.RuneCard` 从权威状态拆分基地中的符文牌与基地牌；`MatchRecoveryValidator` 对新字段采用存在即校验的兼容策略，旧快照不被强制要求，新快照若携带则必须保持字符串列表且与 authoritative state 匹配。前端 `wireTableViewModel` 优先消费服务端分区字段，只在旧快照缺字段时回退到本地只读分类，避免把规则分区逻辑压在 UI 层；项目仍 **NOT READY**。
 
+线框对战桌面战场单位归属继续工程化：前端协议类型补齐既有服务端 `battlefield.unitsBySide` 字段，`wireTableViewModel` 现在优先按该 authoritative 分组投影我方/对方战场单位，只有旧快照缺字段时才回退到对象 controller 推断。`check:wire-table-view-model` 增加 controller 与 `unitsBySide` 故意冲突的样例，确保控制权、据守、征服和战斗相关展示以后不会重新退化为 UI 侧猜测；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：
