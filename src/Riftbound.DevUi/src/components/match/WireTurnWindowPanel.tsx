@@ -1,5 +1,6 @@
 import type { ActionPromptDto, ConnectionStatus, SnapshotDto } from "../../types/protocol";
 import { matchPhaseLabel, roomStatusLabel, timingStateLabel } from "../../utils/formatters";
+import { buildWirePriorityRailPlan } from "../../utils/wirePriorityRailPlan";
 import { buildWireTurnWindowPlan } from "../../utils/wireTurnWindowPlan";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -15,9 +16,15 @@ export function WireTurnWindowPanel({
   snapshot?: SnapshotDto;
 }) {
   const plan = buildWireTurnWindowPlan({ connectionStatus, playerId, prompt, snapshot });
+  const rail = buildWirePriorityRailPlan({ connectionStatus, playerId, prompt, snapshot });
 
   return (
-    <section className="wire-window-plan" aria-label="服务端窗口总览" data-wire-window-state={plan.state}>
+    <section
+      className="wire-window-plan"
+      aria-label="服务端窗口总览"
+      data-wire-priority-mode={rail.mode}
+      data-wire-window-state={plan.state}
+    >
       <header className="wire-window-plan-header">
         <div>
           <strong>窗口总览</strong>
@@ -43,6 +50,33 @@ export function WireTurnWindowPanel({
 
       <div className="wire-window-plan-next" data-wire-window-next-step>
         下一步：{plan.nextStepLabel}
+      </div>
+
+      <div className="wire-priority-rail" aria-label="服务端优先权轨道">
+        <div className="wire-priority-rail-heading">
+          <strong>优先权轨道</strong>
+          <span>{rail.modeLabel}</span>
+        </div>
+        <ol>
+          {rail.steps.map((step) => (
+            <li
+              className={`${step.state === "active" ? "is-active" : ""} ${step.state === "blocked" ? "is-blocked" : ""} ${step.mine ? "is-mine" : ""}`}
+              data-priority-step={step.key}
+              data-priority-step-state={step.state}
+              key={step.key}
+            >
+              <small>{step.label}</small>
+              <strong>{step.value}</strong>
+              <span>{step.hint}</span>
+            </li>
+          ))}
+        </ol>
+        <div className="wire-priority-rail-next" data-wire-priority-next-step={rail.activeStepKey}>
+          {rail.headline}
+        </div>
+        <div className="wire-priority-rail-blocker">
+          {rail.blockingReasonLabel}
+        </div>
       </div>
 
       <div className="wire-window-plan-metrics">

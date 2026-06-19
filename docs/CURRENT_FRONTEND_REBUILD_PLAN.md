@@ -1740,6 +1740,8 @@
 
 线框对战桌面右侧窗口总览继续工程化：新增 `wireTurnWindowPlan` 与 `WireTurnWindowPanel`，从服务端 `snapshot.timing`、`pendingTaskQueue`、`stack`、`triggerQueue` 与 `ActionPrompt` 生成当前窗口/优先权/下一步投影；右侧首屏显示当前玩家、提示归属、可提交候选、结算链、任务和触发数量。layout fixture 仅在本地样例中把有效连接态视为 connected，真实对局仍使用 SignalR 连接状态。新增 `check:wire-turn-window-plan`、Chrome smoke 与 appshot 基线覆盖；前端仍不根据牌文或隐藏状态裁决规则，项目仍 **NOT READY**。
 
+线框对战桌面右侧优先权轨道继续工程化：新增 `wirePriorityRailPlan`，把服务端 `turnWindow`、`pendingTaskQueue`、`battlefieldTasks`、`stack`、`triggerQueue`、动态 `spellDuel` / `battle` 字段与 `ActionPrompt` 投影为固定五段“回合阶段 / 行动窗口 / 响应/焦点 / 规则任务 / 操作入口”。窗口总览面板现在首屏显示当前模式（普通行动、响应窗口、法术对决、战斗、战场任务、规则任务或连接恢复）、活动步骤和下一交互点；新增 `check:wire-priority-rail-plan` 构建门禁、Chrome smoke 与 appshot 基线覆盖。前端仍只展示服务端权威状态，不根据牌文或隐藏信息自行裁决规则；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：
