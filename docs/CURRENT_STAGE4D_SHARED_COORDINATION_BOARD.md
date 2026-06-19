@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted state: Stage 4D-223DJ triggerQueue source-object context diagnostic detail accepted on local `main` as code commit `da1851bd`; docs checkpoint follows in this batch. Runtime changed: yes, diagnostic detail only in `MatchRecoveryValidator`. Frontend changed: no. Blue Sentinel delayed resource and Jhin movement resource context-specific `source object id X must match trigger id source object id Y` checks now route through a shared helper, preserving existing prefixes while appending stable expected/actual detail. Validation passed: focused `MatchRecoveryTests` triggerQueue filter `744/744`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`; `git diff --check`; anchored conflict-marker scan had no findings. Prior 223DI / post-merge validations remain valid, including DevUi build after `2cc1bef8` and backend full `8312/8312` after merge commit `20d58505`. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` remained clean; after code commit `da1851bd`, `main...codex/ui-followup-20260616` divergence was `253 0`; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` had no commits ahead of `main`; after code commit `da1851bd`, divergence was `326 0`; root PDF text remained available. Project remains **NOT READY**.
+Current A_MAIN latest accepted state: Stage 4D-223DJ post-merge main sync accepted on local `main` as merge commit `6577aa14`; contains 223DJ code commit `da1851bd`, docs checkpoint `f986fdcc`, and remote `main` commit `6331874d` (`展示服务端元数据命令字段`). Runtime changed: yes, 223DJ diagnostic detail only in `MatchRecoveryValidator`. Frontend changed: yes through incoming DevUi metadata command-field display, Chrome smoke and wire fixture updates. Blue Sentinel delayed resource and Jhin movement resource context-specific `source object id X must match trigger id source object id Y` checks now route through a shared helper, preserving existing prefixes while appending stable expected/actual detail. Validation passed before merge: focused `MatchRecoveryTests` triggerQueue filter `744/744`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`; `git diff --check`; anchored conflict-marker scan had no findings. Validation added after merge: DevUi build passed after `6331874d`; backend full `8312/8312` after merge commit `6577aa14`. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` remained clean; after merge commit `6577aa14`, `main...codex/ui-followup-20260616` divergence was `256 0`; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` had no commits ahead of `main`; after merge commit `6577aa14`, divergence was `329 0`; root PDF text remained available. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,11 +65,27 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223DJ code commit is `da1851bd`, with docs checkpoint in this batch. A_MAIN will continue directly on this `main` worktree per user request.
-- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 14:29 CST; after code commit `da1851bd`, `main...codex/ui-followup-20260616` divergence was `253 0`. Exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223DJ post-merge sync is merge commit `6577aa14`, containing code commit `da1851bd`, docs checkpoint `f986fdcc`, and remote `main` commit `6331874d`. A_MAIN will continue directly on this `main` worktree per user request.
+- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 14:34 CST; after merge commit `6577aa14`, `main...codex/ui-followup-20260616` divergence was `256 0`. Exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
 - Historical DOC_MATRIX handoff `17bde0c3` and source `7cb78f27` have already been integrated into `main`; no current DOC_MATRIX worktree is active unless the user opens one explicitly.
 
 ## Current Entries
+
+### 2026-06-19 14:34 A_MAIN post-merge
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at merge commit `6577aa14`; contains 223DJ code commit `da1851bd`, docs checkpoint `f986fdcc`, and remote `main` commit `6331874d`.
+
+Write locks: A_MAIN touched current completion/P0-P1/dispatch docs and this board for the post-merge sync. Runtime/test files remain as committed in `da1851bd`; incoming remote `6331874d` touched DevUi metadata command-field display, Chrome smoke and wire fixture files.
+
+Status: Post-223DJ remote `main` import merged cleanly. Runtime changed in this sync: no beyond `da1851bd`. Frontend changed: yes through accepted incoming DevUi metadata command-field work. External UI followup worktree remained clean with divergence `256 0`; `codex/rule-audit-remaining-20260615` remained no-ahead with divergence `329 0`.
+
+Validation: prior 223DJ server validation remains: focused MatchRecoveryTests triggerQueue filter `744/744`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`. Added post-merge validation: `npm --prefix src/Riftbound.DevUi run build` passed; backend full via `Riftbound.slnx` passed `8312/8312` on merge commit `6577aa14`.
+
+Requested action: none. Next A_MAIN slice should continue directly on `/Users/dinghaolin/IdeaProjects/riftbound` `main`, rechecking this board, `AGENTS.md`, PDF gate, UI followup, and `codex/rule-audit-remaining-20260615` first.
 
 ### 2026-06-19 14:29 A_MAIN
 
