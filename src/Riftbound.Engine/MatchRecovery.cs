@@ -19234,7 +19234,7 @@ public static class MatchRecoveryValidator
         {
             var battlefieldObjectZone = battlefieldObjectLocation.Zone.Trim();
             errors.Add(
-                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} location zone {battlefieldObjectZone} must be BATTLEFIELD in {objectLocationLabel}");
+                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} location zone {battlefieldObjectZone} must be BATTLEFIELD in {objectLocationLabel}; {FormatExpectedActualForRecovery("BATTLEFIELD", battlefieldObjectZone)}");
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)

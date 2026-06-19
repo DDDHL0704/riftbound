@@ -14124,7 +14124,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-1 location zone BASE must be BATTLEFIELD in object locations",
+                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-1 location zone BASE must be BATTLEFIELD in object locations; expected BATTLEFIELD but got BASE",
                 StringComparison.Ordinal));
     }
 
@@ -35282,7 +35282,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath battlefield object id battlefield-1 location zone BASE must be BATTLEFIELD in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath battlefield object id battlefield-1 location zone BASE must be BATTLEFIELD in authoritative state object locations; expected BATTLEFIELD but got BASE",
                 StringComparison.Ordinal));
     }
 
@@ -161289,7 +161289,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath battlefield object id battlefield-2 location zone BASE must be BATTLEFIELD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item kogmaw last breath battlefield object id battlefield-2 location zone BASE must be BATTLEFIELD in authoritative state object locations; expected BATTLEFIELD but got BASE",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -161415,7 +161415,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath battlefield object id battlefield-2 location zone BASE must be BATTLEFIELD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item kogmaw last breath battlefield object id battlefield-2 location zone BASE must be BATTLEFIELD in authoritative state object locations; expected BATTLEFIELD but got BASE",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
