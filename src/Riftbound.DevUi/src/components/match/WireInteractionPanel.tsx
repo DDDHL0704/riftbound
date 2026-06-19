@@ -1,5 +1,5 @@
 import type { InspectedCard } from "../cards/CardFace";
-import { Play } from "lucide-react";
+import { Maximize2, Play } from "lucide-react";
 import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
 import {
@@ -21,6 +21,7 @@ export function WireInteractionPanel({
   inspectedCard,
   onCommand,
   onClearInspectedCard,
+  onOpenDetail,
   playerId,
   prompt,
   snapshot
@@ -29,6 +30,7 @@ export function WireInteractionPanel({
   inspectedCard?: InspectedCard;
   onCommand?: (command: GameCommand) => void;
   onClearInspectedCard: () => void;
+  onOpenDetail: (card: InspectedCard) => void;
   playerId: string;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
@@ -58,7 +60,10 @@ export function WireInteractionPanel({
               <span>对象：{inspectedCard.objectId ?? "无对象 ID"}</span>
               <span>控制：{inspectedCard.object?.controllerId ?? "未知"}</span>
               <span>服务端关联：{objectSummary ? `${objectSummary.enabledCandidateCount} 可用 / ${objectSummary.disabledCandidateCount} 禁用` : "无候选"}</span>
-              <button type="button" onClick={onClearInspectedCard}>清除焦点</button>
+              <div className="wire-focus-actions">
+                <Button icon={<Maximize2 size={16} />} onClick={() => onOpenDetail(inspectedCard)} variant="secondary">查看详情</Button>
+                <Button onClick={onClearInspectedCard} variant="ghost">清除焦点</Button>
+              </div>
             </div>
           </>
         ) : (

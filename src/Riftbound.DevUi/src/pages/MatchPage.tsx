@@ -107,7 +107,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   }, []);
   const inspectCard = useCallback((card: InspectedCard) => {
     setInspectedCard(card);
-    setDetailCard(card);
   }, []);
   const tableRows = WIRE_TABLE_LAYOUT.table.rows.map((row) => {
     if (row.kind === "battlefield") {
@@ -211,6 +210,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               inspectedCard={inspectedCard}
               onCommand={(command) => void controller.submitCommand(command)}
               onClearInspectedCard={() => setInspectedCard(undefined)}
+              onOpenDetail={setDetailCard}
               playerId={settings.playerId}
               prompt={tablePrompt}
               snapshot={tableSnapshot}

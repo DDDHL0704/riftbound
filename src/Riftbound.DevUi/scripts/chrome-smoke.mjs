@@ -106,7 +106,7 @@ try {
   }
 
   if (userDataDir) {
-    await rm(userDataDir, { force: true, recursive: true });
+    await rm(userDataDir, { force: true, maxRetries: 5, recursive: true, retryDelay: 120 });
   }
 }
 

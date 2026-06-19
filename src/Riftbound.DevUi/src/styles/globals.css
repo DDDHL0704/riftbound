@@ -11613,6 +11613,7 @@ button.card-face:hover {
 }
 
 .wire-focus-copy,
+.wire-focus-actions,
 .wire-interaction-panel,
 .wire-selected-candidates,
 .wire-focused-actions,
@@ -11668,6 +11669,13 @@ button.card-face:hover {
 
 .wire-focus-copy button {
   justify-self: start;
+}
+
+.wire-focus-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
 }
 
 .wire-focused-actions-heading {
