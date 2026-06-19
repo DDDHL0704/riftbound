@@ -1,22 +1,21 @@
 import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
-import { commandFromActionPromptTemplate } from "../../utils/actionPromptCommandTemplate";
-import { promptStampedCommand as withPromptStamp, sourceRequirementFor } from "../../utils/actionPromptCandidates";
+import { promptStampedCommand as withPromptStamp } from "../../utils/actionPromptCandidates";
 import {
   buildDamageAssignmentModel,
   buildHandChoiceModel,
   buildOrderTriggersModel,
   clampDamageInput,
-  findCardNo,
   type TriggerOrderItem
 } from "../../utils/actionPanelChoiceModels";
+import { buildActionPanelCandidateCommandPlan, type ActionPanelCandidateButtonIcon, type ActionPanelDirectActionKind } from "../../utils/actionPanelCommandPlan";
 import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
 import { StatusPill } from "../ui/StatusPill";
-import { CandidateComposer, canComposeCandidate } from "./CandidateComposer";
+import { CandidateComposer } from "./CandidateComposer";
 
 type ActionPanelProps = {
   prompt?: ActionPromptDto;
@@ -618,24 +617,22 @@ function CandidateButton({
   snapshot?: SnapshotDto;
 }) {
   const [confirmingSurrender, setConfirmingSurrender] = useState(false);
-  const command = simpleCommand(candidate, snapshot);
-  const directAction = directCandidateAction(candidate, onReady, onSubmitStarterDeck);
-  const disabled = disabledByConnection || !candidate.enabled || (!command && !directAction);
+  const plan = buildActionPanelCandidateCommandPlan({ candidate, disabledByConnection, snapshot });
 
   useEffect(() => {
     setConfirmingSurrender(false);
   }, [candidate.action, candidate.enabled, candidate.label, disabledByConnection]);
 
-  if (candidate.action === "SURRENDER" && command) {
+  if (candidate.action === "SURRENDER" && plan.command) {
     if (confirmingSurrender) {
       return (
         <div className="surrender-confirm">
           <span>对手将获得本局胜利。</span>
           <div className="surrender-confirm-actions">
             <Button
-              disabled={disabled}
+              disabled={plan.disabled}
               icon={<Flag size={16} />}
-              onClick={() => onCommand(withPromptStamp(command, prompt))}
+              onClick={() => onCommand(withPromptStamp(plan.command!, prompt))}
               title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
               variant="danger"
             >
@@ -651,7 +648,7 @@ function CandidateButton({
 
     return (
       <Button
-        disabled={disabled}
+        disabled={plan.disabled}
         icon={<Flag size={16} />}
         onClick={() => setConfirmingSurrender(true)}
         title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
@@ -662,7 +659,7 @@ function CandidateButton({
     );
   }
 
-  if (!command && !directAction && canComposeCandidate(candidate)) {
+  if (plan.needsComposer) {
     return (
       <CandidateComposer
         candidate={candidate}
@@ -676,133 +673,51 @@ function CandidateButton({
 
   return (
     <Button
-      disabled={disabled}
-      icon={candidateIcon(candidate, command || directAction)}
+      disabled={plan.disabled}
+      icon={candidateIcon(plan.icon)}
       onClick={() => {
-        if (directAction) {
-          directAction();
-        } else if (command) {
-          onCommand(withPromptStamp(command, prompt));
+        if (plan.directAction) {
+          runDirectAction(plan.directAction, onReady, onSubmitStarterDeck);
+        } else if (plan.command) {
+          onCommand(withPromptStamp(plan.command, prompt));
         }
       }}
       title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
-      variant={candidate.action === "SURRENDER" && candidate.enabled ? "danger" : candidate.enabled ? "primary" : "ghost"}
+      variant={plan.variant}
     >
       {promptActionLabel(candidate)}
-      {!command && !directAction && candidate.action !== "WAIT" ? `（需选择）` : ""}
+      {plan.labelSuffix}
     </Button>
   );
 }
 
-function directCandidateAction(candidate: ActionPromptCandidateDto, onReady: () => void, onSubmitStarterDeck: () => void): (() => void) | undefined {
-  if (candidate.action === "SUBMIT_DECK") {
-    return onSubmitStarterDeck;
+function runDirectAction(kind: ActionPanelDirectActionKind, onReady: () => void, onSubmitStarterDeck: () => void) {
+  if (kind === "submitDeck") {
+    onSubmitStarterDeck();
+    return;
   }
-  if (candidate.action === "READY") {
-    return onReady;
-  }
-  return undefined;
+
+  onReady();
 }
 
-function candidateIcon(candidate: ActionPromptCandidateDto, executable: unknown) {
-  if (candidate.action === "SUBMIT_DECK") {
-    return <Send size={16} />;
+function candidateIcon(icon: ActionPanelCandidateButtonIcon) {
+  switch (icon) {
+    case "check":
+      return <Check size={16} />;
+    case "flag":
+      return <Flag size={16} />;
+    case "hourglass":
+      return <Hourglass size={16} />;
+    case "play":
+      return <Play size={16} />;
+    case "send":
+      return <Send size={16} />;
   }
-  if (candidate.action === "READY") {
-    return <Check size={16} />;
-  }
-  if (candidate.action === "SURRENDER") {
-    return <Flag size={16} />;
-  }
-  return executable ? <Play size={16} /> : <Hourglass size={16} />;
-}
-
-function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotDto): GameCommand | undefined {
-  switch (candidate.action) {
-    case "PASS_PRIORITY":
-      return { cmdType: "PASS_PRIORITY" };
-    case "PASS_FOCUS":
-      return { cmdType: "PASS_FOCUS" };
-    case "PASS":
-      return { cmdType: "PASS" };
-    case "END_TURN":
-      return { cmdType: "END_TURN" };
-    case "SURRENDER":
-      return { cmdType: "SURRENDER" };
-    case "PAY_COST":
-      return payCostCommand(candidate);
-    case "WAIT":
-      return undefined;
-    default:
-      if (hasSingleChoice(candidate.sources) && candidate.commandTemplate && !requiresFurtherChoice(candidate)) {
-        const source = candidate.sources![0].id;
-        const templatedCommand = commandFromActionPromptTemplate(
-          candidate.commandTemplate,
-          { sourceId: source },
-          sourceRequirementFor(candidate, source)
-        );
-        if (templatedCommand) {
-          return templatedCommand;
-        }
-      }
-      if (hasSingleChoice(candidate.sources) && candidate.action === "PLAY_CARD" && !candidate.commandTemplate) {
-        const source = candidate.sources![0].id;
-        const cardNo = findCardNo(snapshot, source);
-        return cardNo && !requiresFurtherChoice(candidate)
-          ? { cmdType: "PLAY_CARD", sourceObjectId: source, cardNo, targetObjectIds: [] }
-          : undefined;
-      }
-      return undefined;
-  }
-}
-
-function payCostCommand(candidate: ActionPromptCandidateDto): GameCommand | undefined {
-  const metadata = candidate.metadata ?? {};
-  const paymentId = stringMetadata(metadata, "paymentId");
-  const paymentWindow = stringMetadata(metadata, "paymentWindow");
-  const paymentChoiceIds = stringArrayMetadata(metadata, "paymentChoiceIds");
-  if (!paymentId || !paymentWindow || paymentChoiceIds == null) {
-    return undefined;
-  }
-
-  return { cmdType: "PAY_COST", paymentId, paymentWindow, paymentChoiceIds };
-}
-
-function requiresFurtherChoice(candidate: ActionPromptCandidateDto): boolean {
-  return Boolean(
-    (candidate.targets?.length ?? 0) > 0
-    || (candidate.destinations?.length ?? 0) > 0
-    || (candidate.modes?.length ?? 0) > 0
-    || (candidate.optionalCosts?.length ?? 0) > 0
-  );
-}
-
-function hasSingleChoice(choices?: Array<{ id: string }> | null): boolean {
-  return Array.isArray(choices) && choices.length === 1;
 }
 
 function numberMetadata(metadata: Record<string, unknown> | null | undefined, key: string): number | undefined {
   const value = metadata?.[key];
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-function stringMetadata(metadata: Record<string, unknown>, key: string): string | undefined {
-  const value = metadata[key];
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
-}
-
-function stringArrayMetadata(metadata: Record<string, unknown>, key: string): string[] | undefined {
-  const value = metadata[key];
-  return stringArrayFromValue(value);
-}
-
-function stringArrayFromValue(value: unknown, requireNonEmpty = false): string[] | undefined {
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
-
-  const values = value.map((item) => typeof item === "string" ? item.trim() : "");
-  return (!requireNonEmpty || values.length > 0) && values.every((item) => item.length > 0) ? values : undefined;
 }
 
 export function candidateListLabel(prompt?: ActionPromptDto): string {

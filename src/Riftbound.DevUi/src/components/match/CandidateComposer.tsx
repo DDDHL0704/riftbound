@@ -10,6 +10,7 @@ import type {
 import { commandFromActionPromptTemplate } from "../../utils/actionPromptCommandTemplate";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import { canComposeActionCandidate } from "../../utils/candidateComposerSupport";
 import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
@@ -58,19 +59,8 @@ type CandidateComposerProps = {
   selectionDraft?: CandidateSelectionDraft;
 };
 
-const composerCandidateActions = new Set([
-  "PLAY_CARD",
-  "HIDE_CARD",
-  "REVEAL_CARD",
-  "MOVE_UNIT",
-  "ASSEMBLE_EQUIPMENT",
-  "DECLARE_BATTLE",
-  "ACTIVATE_ABILITY",
-  "LEGEND_ACT"
-]);
-
 export function canComposeCandidate(candidate: ActionPromptCandidateDto): boolean {
-  return Boolean(candidate.commandTemplate) || composerCandidateActions.has(candidate.action);
+  return canComposeActionCandidate(candidate);
 }
 
 export function CandidateComposer({
