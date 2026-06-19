@@ -17586,33 +17586,96 @@ public static class MatchRecoveryValidator
 
         if (!triggerIdsMatch)
         {
-            errors.Add("spectator replay frame timing trigger queue ids disagree with authoritative state trigger queue ids");
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "ids",
+                authoritativeTriggers.Select(trigger => trigger.TriggerId),
+                spectatorTriggers,
+                "triggerId",
+                errors);
         }
 
         if (!controllerIdsMatch)
         {
-            errors.Add("spectator replay frame timing trigger queue controller ids disagree with authoritative state trigger queue controller ids");
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "controller ids",
+                authoritativeTriggers.Select(trigger => trigger.ControllerId),
+                spectatorTriggers,
+                "controllerId",
+                errors);
         }
 
         if (!sourceObjectIdsMatch)
         {
-            errors.Add("spectator replay frame timing trigger queue source object ids disagree with authoritative state trigger queue source object ids");
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "source object ids",
+                authoritativeTriggers.Select(trigger =>
+                    IsHiddenBattlefieldStandbyForSpectator(authoritativeState, trigger.SourceObjectId)
+                        ? "HIDDEN"
+                        : trigger.SourceObjectId),
+                spectatorTriggers,
+                "sourceObjectId",
+                errors);
         }
 
         if (!sourceVisibilitiesMatch)
         {
-            errors.Add("spectator replay frame timing trigger queue source visibilities disagree with authoritative state trigger queue source visibilities");
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "source visibilities",
+                authoritativeTriggers.Select(trigger =>
+                    IsHiddenBattlefieldStandbyForSpectator(authoritativeState, trigger.SourceObjectId)
+                        ? "HIDDEN"
+                        : "VISIBLE"),
+                spectatorTriggers,
+                "sourceVisibility",
+                errors);
         }
 
         if (!effectKindsMatch)
         {
-            errors.Add("spectator replay frame timing trigger queue effect kinds disagree with authoritative state trigger queue effect kinds");
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "effect kinds",
+                authoritativeTriggers.Select(trigger =>
+                    IsHiddenBattlefieldStandbyForSpectator(authoritativeState, trigger.SourceObjectId)
+                        ? "HIDDEN"
+                        : trigger.EffectKind),
+                spectatorTriggers,
+                "effectKind",
+                errors);
         }
 
         if (!triggeredEventKindsMatch)
         {
-            errors.Add("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds");
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "triggered event kinds",
+                authoritativeTriggers.Select(trigger => trigger.TriggeredByEventKind),
+                spectatorTriggers,
+                "triggeredByEventKind",
+                errors);
         }
+    }
+
+    private static void AddSpectatorTriggerQueueStringAggregateMismatch(
+        string fieldLabel,
+        IEnumerable<string?> expectedValues,
+        IReadOnlyList<object?> triggerPayloads,
+        string key,
+        List<string> errors)
+    {
+        AddSpectatorTriggerQueueAggregateMismatch(
+            fieldLabel,
+            expectedValues.Select(value => FormatRecoveryDiagnosticValue(value ?? string.Empty)).ToArray(),
+            ExtractObjectStringDiagnosticValues(triggerPayloads, key),
+            errors);
+    }
+
+    private static void AddSpectatorTriggerQueueAggregateMismatch(
+        string fieldLabel,
+        IReadOnlyList<string> expectedValues,
+        IReadOnlyList<string> actualValues,
+        List<string> errors)
+    {
+        errors.Add(
+            $"spectator replay frame timing trigger queue {fieldLabel} disagree with authoritative state trigger queue {fieldLabel}; {FormatExpectedActualForRecovery(expectedValues, actualValues)}");
     }
 
     private static IReadOnlyDictionary<string, TriggerQueueItemState> BuildAuthoritativeTriggerQueueById(

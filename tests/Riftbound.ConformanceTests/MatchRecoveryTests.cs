@@ -98583,22 +98583,34 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing trigger queue ids disagree with authoritative state trigger queue ids", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing trigger queue ids disagree with authoritative state trigger queue ids; expected [trigger-visible, trigger-hidden] but got [wrong-trigger, trigger-hidden]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing trigger queue controller ids disagree with authoritative state trigger queue controller ids", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing trigger queue controller ids disagree with authoritative state trigger queue controller ids; expected [alice, bob] but got [bob, bob]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing trigger queue source object ids disagree with authoritative state trigger queue source object ids", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing trigger queue source object ids disagree with authoritative state trigger queue source object ids; expected [visible-source-1, HIDDEN] but got [wrong-source, HIDDEN]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing trigger queue source visibilities disagree with authoritative state trigger queue source visibilities", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing trigger queue source visibilities disagree with authoritative state trigger queue source visibilities; expected [VISIBLE, HIDDEN] but got [VISIBLE, VISIBLE]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing trigger queue effect kinds disagree with authoritative state trigger queue effect kinds", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing trigger queue effect kinds disagree with authoritative state trigger queue effect kinds; expected [LAST_BREATH, HIDDEN] but got [WRONG_EFFECT, HIDDEN]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame timing trigger queue triggered event kinds disagree with authoritative state trigger queue triggered event kinds; expected [OBJECT_DESTROYED, BATTLEFIELD_HELD] but got [WRONG_EVENT, BATTLEFIELD_HELD]",
+                StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
