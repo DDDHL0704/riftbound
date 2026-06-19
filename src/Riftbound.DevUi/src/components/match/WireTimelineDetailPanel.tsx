@@ -205,8 +205,23 @@ function TimelineCommandBridge({
               <strong>{row.nextStepLabel}</strong>
               <small>{row.roleLabels.join(" / ")} / {row.commandType ?? "未公开命令"} / {row.stateLabel}</small>
               <small>{row.selectionLabel} / {row.routeStateLabel} / {row.selectedStepCount}/{row.totalStepCount}</small>
+              <small>{row.commandFieldSummary}</small>
               {!row.enabled && <small>{row.reasonLabel}</small>}
             </div>
+            {row.commandFields.length > 0 && (
+              <ol className="wire-timeline-command-bridge-fields" aria-label={`${row.label} 命令字段覆盖`}>
+                {row.commandFields.map((field) => (
+                  <li
+                    data-timeline-command-field={field.field}
+                    data-timeline-command-field-state={field.state}
+                    key={field.key}
+                  >
+                    <span>{field.label}</span>
+                    <small>{field.required ? "必需" : "可选"} / {field.sourceLabel} / {field.stateLabel}</small>
+                  </li>
+                ))}
+              </ol>
+            )}
             {row.nextObjectRefs.length > 0 && (
               <div className="wire-timeline-command-bridge-refs" role="group" aria-label={`${row.label} 下一步对象`}>
                 {row.nextObjectRefs.map((ref) => (

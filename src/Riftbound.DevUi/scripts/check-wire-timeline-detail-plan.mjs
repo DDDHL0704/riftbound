@@ -42,6 +42,8 @@ new Function(
   "module",
   "buildPromptInteractionModel",
   "candidateComposerKey",
+  "promptCommandBindingLabel",
+  "promptCommandBindingSourceLabel",
   "promptChoiceRoleLabel",
   "promptChoiceSummaryObjectIds",
   "summarizePromptCandidateSemantics",
@@ -51,6 +53,8 @@ new Function(
   moduleShim,
   buildPromptInteractionModel,
   candidateComposerKey,
+  promptCommandBindingLabel,
+  promptCommandBindingSourceLabel,
   promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
   candidateSemanticsModuleShim.exports.summarizePromptCandidateSemantics
@@ -86,8 +90,9 @@ const plan = buildWireTimelineDetailPlan({
           ],
           command: {
             bindings: [
-              { field: "sourceObjectId", required: true, role: "source", source: "selectedSource" },
-              { field: "targetObjectIds", required: false, role: "target", source: "selectedTargets" }
+              { field: "sourceObjectId", required: true, role: "source", roleLabel: "来源", source: "selectedSource" },
+              { field: "targetObjectIds", required: false, role: "target", roleLabel: "目标", source: "selectedTargets" },
+              { field: "cardNo", required: true, source: "requirementMetadata" }
             ],
             cmdType: "PLAY_CARD"
           },
@@ -181,6 +186,8 @@ assert.equal(plan.commandBridgeRows[0].draftActive, false);
 assert.equal(plan.commandBridgeRows[0].enabled, true);
 assert.equal(plan.commandBridgeRows[0].routeState, "inactive");
 assert.equal(plan.commandBridgeRows[0].routeStateLabel, "未进入草稿");
+assert.equal(plan.commandBridgeRows[0].commandFieldSummary, "0 覆盖 / 1 缺少 / 1 服务端");
+assert.deepEqual(plan.commandBridgeRows[0].commandFields.map((field) => field.state), ["missing", "optional", "server"]);
 assert.deepEqual(plan.commandBridgeRows[0].roleLabels, ["来源"]);
 assert.deepEqual(plan.commandBridgeRows[0].selectedRoleLabels, []);
 assert.equal(plan.commandBridgeRows[0].selectionLabel, "未进入草稿");
@@ -220,7 +227,14 @@ const draftPlan = buildWireTimelineDetailPlan({
             { id: "source-1", label: "手牌闪电", objectIds: ["source-1"], role: "source" },
             { id: "target-1", label: "目标牌", objectIds: ["target-1"], role: "target" }
           ],
-          command: { bindings: [], cmdType: "PLAY_CARD" },
+          command: {
+            bindings: [
+              { field: "sourceObjectId", required: true, role: "source", roleLabel: "来源", source: "selectedSource" },
+              { field: "targetObjectIds", required: false, role: "target", roleLabel: "目标", source: "selectedTargets" },
+              { field: "cardNo", required: true, source: "requirementMetadata" }
+            ],
+            cmdType: "PLAY_CARD"
+          },
           enabled: true,
           label: "打出卡牌",
           reason: "可提交",
@@ -244,6 +258,8 @@ assert.equal(draftPlan.statusCards.find((card) => card.label === "候选路径")
 assert.equal(draftPlan.commandBridgeRows[0].draftActive, true);
 assert.equal(draftPlan.commandBridgeRows[0].routeState, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].routeStateLabel, "可送服务端校验");
+assert.equal(draftPlan.commandBridgeRows[0].commandFieldSummary, "2 覆盖 / 0 缺少 / 1 服务端");
+assert.deepEqual(draftPlan.commandBridgeRows[0].commandFields.map((field) => field.state), ["covered", "covered", "server"]);
 assert.deepEqual(draftPlan.commandBridgeRows[0].selectedRoleLabels, ["来源", "目标"]);
 assert.equal(draftPlan.commandBridgeRows[0].selectionLabel, "已选 来源 / 目标");
 assert.equal(draftPlan.commandBridgeRows[0].selectedStepCount, 2);
@@ -289,6 +305,15 @@ function buildPromptInteractionModel(prompt) {
 
 function candidateComposerKey(candidate) {
   return `${candidate.action}::${candidate.label}`;
+}
+
+function promptCommandBindingLabel(binding) {
+  const prefix = binding.roleLabel ? `${binding.roleLabel}:` : binding.source === "requirementMetadata" ? "服务端:" : "";
+  return `${prefix}${binding.field}${binding.required ? "*" : ""}`;
+}
+
+function promptCommandBindingSourceLabel(binding) {
+  return binding.source === "requirementMetadata" ? "服务端注入" : binding.roleLabel ? "玩家选择" : binding.source;
 }
 
 function promptChoiceRoleLabel(role) {

@@ -4,9 +4,12 @@ import { candidateComposerKey } from "./candidateComposerModel";
 import { summarizePromptCandidateSemantics } from "./promptCandidateSemantics";
 import {
   buildPromptInteractionModel,
+  promptCommandBindingLabel,
+  promptCommandBindingSourceLabel,
   promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
   type PromptCandidateSummary,
+  type PromptCommandBindingSummary,
   type PromptChoiceRole
 } from "./promptInteraction";
 import type { TableObjectContext } from "./tableObjectContext";
@@ -92,7 +95,22 @@ export type WireTimelineCommandBridgeObjectRef = {
 
 export type WireTimelineCommandBridgeRouteState = "blocked" | "inactive" | "ready" | "selecting";
 
+export type WireTimelineCommandBridgeFieldState = "covered" | "missing" | "optional" | "server";
+
+export type WireTimelineCommandBridgeFieldRow = {
+  field: string;
+  key: string;
+  label: string;
+  required: boolean;
+  roleLabel?: string;
+  sourceLabel: string;
+  state: WireTimelineCommandBridgeFieldState;
+  stateLabel: string;
+};
+
 export type WireTimelineCommandBridgeRow = {
+  commandFieldSummary: string;
+  commandFields: WireTimelineCommandBridgeFieldRow[];
   commandType?: string;
   detailObjectId: string;
   draftActive: boolean;
@@ -241,7 +259,10 @@ function commandBridgeRowsForDetail(
       const draftState = commandBridgeDraftState(candidate, selectionDraft);
       const progressRoleLabels = draftState.draftActive ? draftState.selectedRoleLabels : roleLabels;
       const nextStep = nextStepForCommandBridge(candidate, progressRoleLabels);
+      const commandFields = commandBridgeFieldRows(candidate, draftState);
       rows.push({
+        commandFieldSummary: commandFieldSummary(commandFields),
+        commandFields,
         commandType: candidate.command?.cmdType ?? candidate.action,
         detailObjectId: objectId,
         draftActive: draftState.draftActive,
@@ -272,6 +293,64 @@ function commandBridgeRowsForDetail(
   ).slice(0, 6);
 }
 
+function commandBridgeFieldRows(
+  candidate: PromptCandidateSummary,
+  draftState: CommandBridgeDraftState
+): WireTimelineCommandBridgeFieldRow[] {
+  return (candidate.command?.bindings ?? []).map((binding, index) => {
+    const state = commandBridgeFieldState(binding, draftState);
+    return {
+      field: binding.field,
+      key: `${candidate.action}:${candidate.label}:${binding.field}:${index}`,
+      label: promptCommandBindingLabel(binding),
+      required: binding.required,
+      roleLabel: binding.roleLabel,
+      sourceLabel: promptCommandBindingSourceLabel(binding),
+      state,
+      stateLabel: commandBridgeFieldStateLabel(state)
+    };
+  });
+}
+
+function commandBridgeFieldState(
+  binding: PromptCommandBindingSummary,
+  draftState: CommandBridgeDraftState
+): WireTimelineCommandBridgeFieldState {
+  if (binding.source === "requirementMetadata") {
+    return "server";
+  }
+
+  if (binding.role && draftState.selectedRoles.has(binding.role)) {
+    return "covered";
+  }
+
+  return binding.required ? "missing" : "optional";
+}
+
+function commandBridgeFieldStateLabel(state: WireTimelineCommandBridgeFieldState): string {
+  switch (state) {
+    case "covered":
+      return "已覆盖";
+    case "missing":
+      return "缺少选择";
+    case "optional":
+      return "可选";
+    case "server":
+      return "服务端注入";
+  }
+}
+
+function commandFieldSummary(fields: WireTimelineCommandBridgeFieldRow[]): string {
+  if (fields.length === 0) {
+    return "命令字段未公开";
+  }
+
+  const coveredCount = fields.filter((field) => field.state === "covered").length;
+  const missingCount = fields.filter((field) => field.state === "missing").length;
+  const serverCount = fields.filter((field) => field.state === "server").length;
+  return `${coveredCount} 覆盖 / ${missingCount} 缺少 / ${serverCount} 服务端`;
+}
+
 function commandBridgeStatusLabel(rows: WireTimelineCommandBridgeRow[]): string {
   const draftCount = rows.filter((row) => row.draftActive).length;
   return draftCount > 0 ? `${rows.length} 条 / ${draftCount} 草稿` : `${rows.length} 条`;
@@ -281,6 +360,7 @@ type CommandBridgeDraftState = {
   draftActive: boolean;
   missingRequiredCount: number;
   routeState: WireTimelineCommandBridgeRouteState;
+  selectedRoles: Set<PromptChoiceRole>;
   selectedRoleLabels: string[];
   selectedStepCount: number;
 };
@@ -309,6 +389,7 @@ function commandBridgeDraftState(
     draftActive,
     missingRequiredCount,
     routeState,
+    selectedRoles,
     selectedRoleLabels: uniqueStrings([...selectedRoles].map(promptChoiceRoleLabel)),
     selectedStepCount
   };
