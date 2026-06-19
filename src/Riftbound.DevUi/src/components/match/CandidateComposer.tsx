@@ -9,14 +9,12 @@ import type {
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
-  booleanFromRecord,
   buildCandidateComposerModel,
+  buildCandidateComposerSubmissionPlan,
+  buildCandidateCommandPreviewPlan,
   choiceLabel,
-  choiceLabelById,
-  composerCommand,
   composerControls,
   initialComposerState,
-  safePromptSummary,
   selectedRequirement,
   uniqueStrings,
   type CandidateComposerControls,
@@ -61,34 +59,25 @@ export function CandidateComposer({
 
   const requirement = selectedRequirement(model, state.sourceId);
   const controls = composerControls(candidate, model, requirement, forcedSourceObjectId);
-  const selectedTargetIds = controls.targetGroups
-    .map((group) => state.targetIdsByGroup[group.key])
-    .filter((id): id is string => Boolean(id));
-  const optionalCostIds = uniqueStrings([...controls.requiredOptionalCostIds, ...state.optionalCostIds]);
-  const command = composerCommand(candidate, snapshot, state, requirement, selectedTargetIds, optionalCostIds);
-  const unsupportedReason = requirement && !booleanFromRecord(requirement, "composable", true)
-    ? safePromptSummary(requirement.unsupportedReason) ?? "服务端暂未开放该候选的组合提交。"
-    : undefined;
-  const missingRequiredTarget = controls.targetGroups
-    .some((group) => group.required && !state.targetIdsByGroup[group.key]);
-  const canSubmit = !disabledByConnection
-    && candidate.enabled
-    && !unsupportedReason
-    && Boolean(command)
-    && (!controls.sourceRequired || Boolean(state.sourceId))
-    && (!controls.destinationRequired || Boolean(state.destinationId))
-    && !missingRequiredTarget;
+  const submission = buildCandidateComposerSubmissionPlan({
+    candidate,
+    controls,
+    disabledByConnection,
+    requirement,
+    snapshot,
+    state
+  });
 
   return (
     <div className="candidate-composer">
       <div className="candidate-composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <StatusPill tone={canSubmit ? "warn" : "neutral"}>{canSubmit ? "待服务端校验" : "需要选择"}</StatusPill>
+        <StatusPill tone={submission.canSubmit ? "warn" : "neutral"}>{submission.canSubmit ? "待服务端校验" : "需要选择"}</StatusPill>
       </div>
       <p className="candidate-composer-note">
         仅使用服务端候选组装命令；费用、目标和结果仍由服务端按规则校验。
       </p>
-      {unsupportedReason && <span className="candidate-composer-warning">{unsupportedReason}</span>}
+      {submission.unsupportedReason && <span className="candidate-composer-warning">{submission.unsupportedReason}</span>}
       {controls.sources.length > 0 && (
         <label className="candidate-composer-field">
           <span>来源</span>
@@ -179,23 +168,23 @@ export function CandidateComposer({
         </div>
       )}
       <CandidateCommandPreview
-        canSubmit={canSubmit}
+        canSubmit={submission.canSubmit}
         controls={controls}
         state={state}
       />
       <Button
-        disabled={!canSubmit}
+        disabled={!submission.canSubmit}
         icon={<Send size={16} />}
         onClick={() => {
-          if (!command) {
+          if (!submission.command) {
             return;
           }
 
-          onCommand(promptStampedCommand(command, prompt));
+          onCommand(promptStampedCommand(submission.command, prompt));
           onSubmitted?.();
         }}
         title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
-        variant={canSubmit ? "primary" : "ghost"}
+        variant={submission.canSubmit ? "primary" : "ghost"}
       >
         提交服务端候选
       </Button>
@@ -212,18 +201,7 @@ function CandidateCommandPreview({
   controls: CandidateComposerControls;
   state: CandidateComposerState;
 }) {
-  const sourceLabel = choiceLabelById(controls.sources, state.sourceId) ?? "未选择";
-  const modeLabel = choiceLabelById(controls.modeChoices, state.mode);
-  const destinationLabel = choiceLabelById(controls.destinationChoices, state.destinationId);
-  const targetLabels = controls.targetGroups
-    .map((group) => choiceLabelById(group.choices, state.targetIdsByGroup[group.key]))
-    .filter((label): label is string => Boolean(label));
-  const costLabels = uniqueStrings([
-    ...controls.requiredOptionalCostIds
-      .map((costId) => choiceLabelById(controls.optionalCostChoices, costId) ?? costId),
-    ...state.optionalCostIds
-      .map((costId) => choiceLabelById(controls.optionalCostChoices, costId) ?? costId)
-  ]);
+  const plan = buildCandidateCommandPreviewPlan(controls, state);
 
   return (
     <div className="candidate-command-preview" role="group" aria-label="候选提交摘要">
@@ -231,11 +209,11 @@ function CandidateCommandPreview({
         <strong>提交摘要</strong>
         <StatusPill tone={canSubmit ? "warn" : "neutral"}>{canSubmit ? "可送服务端" : "缺少选择"}</StatusPill>
       </div>
-      <span>来源：{sourceLabel}</span>
-      {modeLabel && <span>模式：{modeLabel}</span>}
-      {destinationLabel && <span>位置：{destinationLabel}</span>}
-      <span>目标：{targetLabels.length > 0 ? targetLabels.join("、") : "无"}</span>
-      <span>费用：{costLabels.length > 0 ? costLabels.join("、") : "无"}</span>
+      <span>来源：{plan.sourceLabel}</span>
+      {plan.modeLabel && <span>模式：{plan.modeLabel}</span>}
+      {plan.destinationLabel && <span>位置：{plan.destinationLabel}</span>}
+      <span>目标：{plan.targetLabels.length > 0 ? plan.targetLabels.join("、") : "无"}</span>
+      <span>费用：{plan.costLabels.length > 0 ? plan.costLabels.join("、") : "无"}</span>
     </div>
   );
 }

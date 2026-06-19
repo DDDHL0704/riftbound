@@ -31,6 +31,8 @@ new Function(
 const {
   booleanFromRecord,
   buildCandidateComposerModel,
+  buildCandidateComposerSubmissionPlan,
+  buildCandidateCommandPreviewPlan,
   candidateComposerKey,
   choiceLabel,
   choiceLabelById,
@@ -117,6 +119,25 @@ assert.deepEqual(state.targetIdsByGroup, {
 
 const selectedTargetIds = controls.targetGroups.map((group) => state.targetIdsByGroup[group.key]);
 const optionalCostIds = uniqueStrings([...controls.requiredOptionalCostIds, ...state.optionalCostIds]);
+const submission = buildCandidateComposerSubmissionPlan({
+  candidate: playCandidate,
+  controls,
+  disabledByConnection: false,
+  requirement,
+  snapshot: undefined,
+  state
+});
+assert.equal(submission.canSubmit, true);
+assert.deepEqual(submission.selectedTargetIds, ["target-a", "target-b"]);
+assert.deepEqual(submission.optionalCostIds, ["rune-main", "rune-extra"]);
+assert.equal(submission.unsupportedReason, undefined);
+assert.deepEqual(buildCandidateCommandPreviewPlan(controls, state), {
+  costLabels: ["rune-main", "额外符文"],
+  destinationLabel: "右战场",
+  modeLabel: "爆发",
+  sourceLabel: "手牌 1",
+  targetLabels: ["目标 A", "目标 B"]
+});
 assert.deepEqual(optionalCostIds, ["rune-main", "rune-extra"]);
 assert.deepEqual(composerCommand(playCandidate, undefined, state, requirement, selectedTargetIds, optionalCostIds), {
   cardNo: "OGN-001/298",
@@ -130,6 +151,32 @@ assert.deepEqual(composerCommand(playCandidate, undefined, state, requirement, s
 
 const forcedControls = composerControls(playCandidate, model, requirement, "hand-1");
 assert.deepEqual(forcedControls.sources.map((choice) => choice.id), ["hand-1"]);
+
+const blockedRequirement = {
+  ...requirement,
+  composable: false,
+  unsupportedReason: { summary: "需要后端补齐窗口" }
+};
+const blockedSubmission = buildCandidateComposerSubmissionPlan({
+  candidate: playCandidate,
+  controls,
+  disabledByConnection: false,
+  requirement: blockedRequirement,
+  snapshot: undefined,
+  state
+});
+assert.equal(blockedSubmission.canSubmit, false);
+assert.equal(blockedSubmission.unsupportedReason, "需要后端补齐窗口");
+
+const disconnectedSubmission = buildCandidateComposerSubmissionPlan({
+  candidate: playCandidate,
+  controls,
+  disabledByConnection: true,
+  requirement,
+  snapshot: undefined,
+  state
+});
+assert.equal(disconnectedSubmission.canSubmit, false);
 
 const battleCandidate = {
   action: "DECLARE_BATTLE",

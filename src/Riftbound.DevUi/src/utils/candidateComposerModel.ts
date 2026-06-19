@@ -40,6 +40,23 @@ export type CandidateComposerControls = {
   targetGroups: ChoiceGroup[];
 };
 
+export type CandidateComposerSubmissionPlan = {
+  canSubmit: boolean;
+  command?: GameCommand;
+  missingRequiredTarget: boolean;
+  optionalCostIds: string[];
+  selectedTargetIds: string[];
+  unsupportedReason?: string;
+};
+
+export type CandidateCommandPreviewPlan = {
+  costLabels: string[];
+  destinationLabel?: string;
+  modeLabel?: string;
+  sourceLabel: string;
+  targetLabels: string[];
+};
+
 export function candidateComposerKey(candidate: Pick<ActionPromptCandidateDto, "action" | "label">): string {
   return `${candidate.action}::${candidate.label}`;
 }
@@ -265,6 +282,75 @@ export function composerCommand(
     default:
       return undefined;
   }
+}
+
+export function buildCandidateComposerSubmissionPlan({
+  candidate,
+  controls,
+  disabledByConnection,
+  requirement,
+  snapshot,
+  state
+}: {
+  candidate: ActionPromptCandidateDto;
+  controls: CandidateComposerControls;
+  disabledByConnection: boolean;
+  requirement: Record<string, unknown> | undefined;
+  snapshot: SnapshotDto | undefined;
+  state: CandidateComposerState;
+}): CandidateComposerSubmissionPlan {
+  const selectedTargetIds = controls.targetGroups
+    .map((group) => state.targetIdsByGroup[group.key])
+    .filter((id): id is string => Boolean(id));
+  const optionalCostIds = uniqueStrings([...controls.requiredOptionalCostIds, ...state.optionalCostIds]);
+  const command = composerCommand(candidate, snapshot, state, requirement, selectedTargetIds, optionalCostIds);
+  const unsupportedReason = requirement && !booleanFromRecord(requirement, "composable", true)
+    ? safePromptSummary(requirement.unsupportedReason) ?? "服务端暂未开放该候选的组合提交。"
+    : undefined;
+  const missingRequiredTarget = controls.targetGroups
+    .some((group) => group.required && !state.targetIdsByGroup[group.key]);
+  const canSubmit = !disabledByConnection
+    && candidate.enabled
+    && !unsupportedReason
+    && Boolean(command)
+    && (!controls.sourceRequired || Boolean(state.sourceId))
+    && (!controls.destinationRequired || Boolean(state.destinationId))
+    && !missingRequiredTarget;
+
+  return {
+    canSubmit,
+    command,
+    missingRequiredTarget,
+    optionalCostIds,
+    selectedTargetIds,
+    unsupportedReason
+  };
+}
+
+export function buildCandidateCommandPreviewPlan(
+  controls: CandidateComposerControls,
+  state: CandidateComposerState
+): CandidateCommandPreviewPlan {
+  const sourceLabel = choiceLabelById(controls.sources, state.sourceId) ?? "未选择";
+  const modeLabel = choiceLabelById(controls.modeChoices, state.mode);
+  const destinationLabel = choiceLabelById(controls.destinationChoices, state.destinationId);
+  const targetLabels = controls.targetGroups
+    .map((group) => choiceLabelById(group.choices, state.targetIdsByGroup[group.key]))
+    .filter((label): label is string => Boolean(label));
+  const costLabels = uniqueStrings([
+    ...controls.requiredOptionalCostIds
+      .map((costId) => choiceLabelById(controls.optionalCostChoices, costId) ?? costId),
+    ...state.optionalCostIds
+      .map((costId) => choiceLabelById(controls.optionalCostChoices, costId) ?? costId)
+  ]);
+
+  return {
+    costLabels,
+    destinationLabel,
+    modeLabel,
+    sourceLabel,
+    targetLabels
+  };
 }
 
 export function uniqueStrings(values: string[]): string[] {
