@@ -310,6 +310,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               objectIndex={tableObjectIndex}
               onClear={() => setTimelineDetail(undefined)}
               onInspectObject={inspectObjectFromTable}
+              selectedObjectContext={selectedObjectContext}
               selectedObjectId={selectedObjectId}
             />
           </section>

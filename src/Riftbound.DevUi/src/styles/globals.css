@@ -12121,6 +12121,7 @@ button.card-face:hover {
 .wire-timeline-detail-header,
 .wire-timeline-detail-lines,
 .wire-timeline-detail-line,
+.wire-selected-object-context,
 .wire-detail-trigger,
 .wire-detail-clear,
 .wire-object-refs,
@@ -12284,6 +12285,12 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-selected-object-context {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+}
+
 .wire-detail-trigger,
 .wire-detail-clear {
   padding: 2px 5px;
@@ -12379,6 +12386,7 @@ button.wire-object-ref {
 .wire-match-page .wire-timeline-detail-header,
 .wire-match-page .wire-timeline-detail-lines,
 .wire-match-page .wire-timeline-detail-line,
+.wire-match-page .wire-selected-object-context,
 .wire-match-page .wire-detail-trigger,
 .wire-match-page .wire-detail-clear,
 .wire-match-page .wire-object-refs,
