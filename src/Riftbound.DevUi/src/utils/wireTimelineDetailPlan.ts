@@ -38,7 +38,21 @@ export type WireTimelineProjectionRow = {
   stateLabel: string;
 };
 
+export type WireTimelineActionHintRow = {
+  commandTypes: string[];
+  disabledCount: number;
+  enabledCount: number;
+  key: string;
+  label: string;
+  objectId: string;
+  reasonLabels: string[];
+  role: string;
+  stateLabel: string;
+  zoneLabel: string;
+};
+
 export type WireTimelineDetailPlan = {
+  actionHintRows: WireTimelineActionHintRow[];
   headerSubtitle: string;
   headerTitle: string;
   projectionRows: WireTimelineProjectionRow[];
@@ -47,18 +61,23 @@ export type WireTimelineDetailPlan = {
 
 export function buildWireTimelineDetailPlan({
   detail,
+  objectContextById = {},
   objectIndex,
   selectedObjectContext,
   selectedObjectId
 }: {
   detail?: WireTimelineDetailLike;
+  objectContextById?: Record<string, TableObjectContext>;
   objectIndex: Record<string, CardObjectView>;
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
 }): WireTimelineDetailPlan {
   const projectionRows = detail ? projectionRowsForDetail(detail, objectIndex, selectedObjectId) : [];
+  const actionHintRows = detail ? actionHintRowsForDetail(detail, objectIndex, objectContextById) : [];
   const selectedProjection = projectionRows.some((row) => row.state === "selected");
   const visibleProjectionCount = projectionRows.filter((row) => row.state === "selected" || row.state === "visible").length;
+  const enabledActionHintCount = actionHintRows.reduce((sum, row) => sum + row.enabledCount, 0);
+  const disabledActionHintCount = actionHintRows.reduce((sum, row) => sum + row.disabledCount, 0);
   const focusValue = selectedObjectContext
     ? selectedObjectContext.zone.label
     : selectedObjectId
@@ -66,6 +85,7 @@ export function buildWireTimelineDetailPlan({
       : "无";
 
   return {
+    actionHintRows,
     headerSubtitle: detail?.subtitle
       ?? (selectedObjectContext
         ? "来自服务端快照、行动窗口、结算链和事件索引。"
@@ -76,9 +96,50 @@ export function buildWireTimelineDetailPlan({
       { label: "详情来源", value: detail ? detailSourceLabel(detail.source) : "无" },
       { label: "桌面投影", value: projectionRows.length > 0 ? `${visibleProjectionCount} / ${projectionRows.length} 可定位` : "无对象" },
       { label: "当前焦点", value: focusValue },
-      { label: "焦点关联", value: selectedProjection ? "已命中详情对象" : detail ? "未命中详情对象" : "无详情" }
+      { label: "焦点关联", value: selectedProjection ? "已命中详情对象" : detail ? "未命中详情对象" : "无详情" },
+      { label: "关联候选", value: actionHintRows.length > 0 ? `${enabledActionHintCount} 可用 / ${disabledActionHintCount} 阻断` : "无候选" }
     ]
   };
+}
+
+function actionHintRowsForDetail(
+  detail: WireTimelineDetailLike,
+  objectIndex: Record<string, CardObjectView>,
+  objectContextById: Record<string, TableObjectContext>
+): WireTimelineActionHintRow[] {
+  const seen = new Set<string>();
+  const rows: WireTimelineActionHintRow[] = [];
+  for (const ref of detail.refs) {
+    const id = ref.id.trim();
+    if (!id || id === "HIDDEN" || seen.has(id)) {
+      continue;
+    }
+    seen.add(id);
+
+    const context = objectContextById[id];
+    if (!context?.candidateLinks.length) {
+      continue;
+    }
+
+    rows.push({
+      commandTypes: uniqueStrings(context.candidateLinks.map((candidate) => candidate.commandType ?? candidate.label).filter(isNonEmptyString)),
+      disabledCount: context.promptDisabledCount,
+      enabledCount: context.promptEnabledCount,
+      key: `${ref.role || "对象"}:${id}`,
+      label: projectionLabel(ref, objectIndex),
+      objectId: id,
+      reasonLabels: uniqueStrings(context.candidateLinks.filter((candidate) => !candidate.enabled).map((candidate) => candidate.reason).filter(isNonEmptyString)),
+      role: ref.role || "对象",
+      stateLabel: `${context.promptEnabledCount} 可用 / ${context.promptDisabledCount} 阻断`,
+      zoneLabel: context.zone.label
+    });
+  }
+
+  return rows.sort((left, right) =>
+    (right.enabledCount - left.enabledCount)
+    || (left.disabledCount - right.disabledCount)
+    || left.role.localeCompare(right.role, "zh-Hans-CN")
+  );
 }
 
 function projectionRowsForDetail(
@@ -154,4 +215,12 @@ function projectionStateLabel(state: WireTimelineProjectionState): string {
 
 function detailSourceLabel(source: WireTimelineDetailLike["source"]): string {
   return source === "event" ? "日志事件" : "规则队列";
+}
+
+function isNonEmptyString(value: string | undefined): value is string {
+  return Boolean(value?.trim());
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
