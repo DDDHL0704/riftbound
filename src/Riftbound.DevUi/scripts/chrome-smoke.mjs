@@ -272,17 +272,25 @@ async function runWireClickSelectionSmoke(cdp) {
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
+  await focusObject(cdp, "p1-hand-spell");
   await clickButtonByText(cdp, "查看详情");
   await delay(150);
   const detailContextResult = await evaluateJson(cdp, `(() => {
     const detail = document.querySelector(".detail-layer");
     return {
+      activeText: document.activeElement?.textContent ?? "",
+      labelledBy: detail?.getAttribute("aria-labelledby") ?? "",
+      state: detail?.getAttribute("data-detail-dialog-state") ?? null,
       text: detail?.textContent ?? "",
       open: Boolean(detail)
     };
   })()`);
-  await clickButtonByText(cdp, "关闭");
+  await pressEscape(cdp);
   await delay(100);
+  const detailEscapeResult = await evaluateJson(cdp, `(() => ({
+    activeObjectId: document.activeElement?.getAttribute("data-object-id") ?? null,
+    open: Boolean(document.querySelector(".detail-layer"))
+  }))()`);
   await clickObject(cdp, "p2-left-1");
   await delay(150);
   const targetResult = await evaluateJson(cdp, `(() => {
@@ -418,6 +426,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.contextText.includes("近期事件")) failures.push("object context event section missing");
   if (focusResult.contextText.includes("serverPaymentState")) failures.push("object context leaked hidden server state");
   if (!detailContextResult.open) failures.push("card detail did not open");
+  if (detailContextResult.state !== "open") failures.push("card detail dialog state missing");
+  if (detailContextResult.labelledBy !== "card-detail-title") failures.push("card detail dialog label binding missing");
+  if (!detailContextResult.activeText.includes("关闭")) failures.push("card detail close button did not receive focus");
   if (!detailContextResult.text.includes("规则上下文")) failures.push("card detail context section missing");
   if (!detailContextResult.text.includes("我方手牌")) failures.push("card detail did not reuse object context location");
   if (!detailContextResult.text.includes("服务端命令")) failures.push("card detail command context missing");
@@ -425,6 +436,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.text.includes("PLAY_CARD")) failures.push("card detail command type missing");
   if (!detailContextResult.text.includes("来源:sourceObjectId*")) failures.push("card detail command field missing");
   if (!detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail command metadata field missing");
+  if (detailEscapeResult.open) failures.push("card detail did not close on Escape");
+  if (detailEscapeResult.activeObjectId !== "p1-hand-spell") failures.push("card detail did not restore focus to source card");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
   if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
   if (focusResult.grammarState !== "ready") failures.push(`focused interaction grammar state unexpected: ${focusResult.grammarState}`);
@@ -682,6 +695,21 @@ async function clickObject(cdp, objectId) {
   }
 }
 
+async function focusObject(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-object-id="${objectId}"]`)});
+      if (!element) return false;
+      element.focus();
+      return document.activeElement === element;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Object could not receive focus: ${objectId}`);
+  }
+}
+
 async function clickRuleObjectRef(cdp, objectId) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
@@ -755,6 +783,23 @@ async function clickButtonByText(cdp, text) {
   if (!result.result?.value) {
     throw new Error(`Button not found: ${text}`);
   }
+}
+
+async function pressEscape(cdp) {
+  await cdp.send("Input.dispatchKeyEvent", {
+    type: "keyDown",
+    key: "Escape",
+    code: "Escape",
+    windowsVirtualKeyCode: 27,
+    nativeVirtualKeyCode: 27
+  });
+  await cdp.send("Input.dispatchKeyEvent", {
+    type: "keyUp",
+    key: "Escape",
+    code: "Escape",
+    windowsVirtualKeyCode: 27,
+    nativeVirtualKeyCode: 27
+  });
 }
 
 async function clickWireDetail(cdp, detailId) {

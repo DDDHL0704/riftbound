@@ -1746,6 +1746,8 @@
 
 线框对战桌面焦点交互语法继续工程化：新增 `focusedInteractionGrammarPlan`，把点击焦点牌后的服务端候选、桌面点选草稿和连接状态投影为固定 source / mode / destination / target / optional cost / submit 步骤，显示每一步已锁定、已选择、可选、缺少或阻断状态。`WireInteractionPanel` 现在在焦点操作入口中展示该语法计划，`CandidateComposer` 仍只按服务端候选组装命令并由服务端最终校验；新增 `check:focused-interaction-grammar-plan` 构建门禁，Chrome smoke 覆盖点击来源、目标、费用后的语法状态，appshot 覆盖中局桌面存在交互语法入口。前端仍不根据牌文、隐藏信息或本地状态自行决定合法性；项目仍 **NOT READY**。
 
+线框对战桌面卡牌详情弹窗继续工程化：`CardDetailDrawer` 现在在打开时锁定页面滚动、聚焦关闭按钮、支持 Escape 关闭、Tab 焦点环绕，并在关闭后把焦点回收到原桌面对象；dialog 使用 `aria-labelledby` 与 `data-detail-dialog-state` 暴露可验证状态。Chrome smoke 覆盖焦点手牌打开详情、关闭按钮聚焦、Escape 关闭和焦点回收；前端仍只展示服务端快照与候选，不根据牌文、隐藏信息或本地状态自行裁决规则；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：
