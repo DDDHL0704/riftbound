@@ -12278,8 +12278,12 @@ button.card-face:hover {
 .wire-rule-line,
 .wire-timeline-detail,
 .wire-timeline-detail-header,
+.wire-timeline-detail-status-grid,
+.wire-timeline-detail-status-grid span,
 .wire-timeline-detail-lines,
 .wire-timeline-detail-line,
+.wire-timeline-projection-list,
+.wire-timeline-projection-list li,
 .wire-selected-object-context,
 .wire-detail-trigger,
 .wire-detail-clear,
@@ -12382,7 +12386,9 @@ button.card-face:hover {
 .wire-rule-item > div > strong,
 .wire-rule-line > strong,
 .wire-rule-metric > strong,
+.wire-timeline-detail-status-grid strong,
 .wire-timeline-detail-line > strong,
+.wire-timeline-projection-list strong,
 .log-row-heading > strong {
   min-width: 0;
   overflow: hidden;
@@ -12433,6 +12439,20 @@ button.card-face:hover {
   padding: 3px;
 }
 
+.wire-timeline-detail-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+}
+
+.wire-timeline-detail-status-grid span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 3px;
+}
+
 .wire-timeline-detail-line {
   display: grid;
   grid-template-columns: 62px minmax(0, 1fr);
@@ -12442,6 +12462,31 @@ button.card-face:hover {
 
 .wire-timeline-detail-line.is-mine {
   border-width: 2px;
+}
+
+.wire-timeline-projection-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 3px;
+  list-style: none;
+}
+
+.wire-timeline-projection-list li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 48px;
+  gap: 4px;
+  padding: 2px 4px;
+}
+
+.wire-timeline-projection-list li[data-projection-state="selected"] {
+  border-width: 2px;
+}
+
+.wire-timeline-projection-list li[data-projection-state="hidden"],
+.wire-timeline-projection-list li[data-projection-state="missing"] {
+  border-style: dashed;
 }
 
 .wire-selected-object-context {

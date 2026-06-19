@@ -1,4 +1,5 @@
 import type { TableObjectContext } from "../../utils/tableObjectContext";
+import { buildWireTimelineDetailPlan } from "../../utils/wireTimelineDetailPlan";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
 
@@ -32,18 +33,19 @@ export function WireTimelineDetailPanel({
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
 }) {
-  const headerTitle = detail ? detail.title : selectedObjectContext ? "焦点对象规则上下文" : "未选择规则事件";
-  const headerSubtitle = detail?.subtitle
-    ?? (selectedObjectContext
-      ? "来自服务端快照、行动窗口、结算链和事件索引。"
-      : "从结算链、规则任务、触发队列或日志中选择一项。");
+  const plan = buildWireTimelineDetailPlan({
+    detail,
+    objectIndex,
+    selectedObjectContext,
+    selectedObjectId
+  });
 
   return (
     <section className="wire-timeline-detail" aria-label="规则与事件详情">
       <header className="wire-timeline-detail-header">
         <div>
-          <strong>{headerTitle}</strong>
-          <span>{headerSubtitle}</span>
+          <strong>{plan.headerTitle}</strong>
+          <span>{plan.headerSubtitle}</span>
         </div>
         {detail && (
           <button className="wire-detail-clear" onClick={onClear} type="button">
@@ -51,6 +53,14 @@ export function WireTimelineDetailPanel({
           </button>
         )}
       </header>
+      <div className="wire-timeline-detail-status-grid" aria-label="规则详情桌面投影摘要">
+        {plan.statusCards.map((card) => (
+          <span key={card.label}>
+            <small>{card.label}</small>
+            <strong>{card.value}</strong>
+          </span>
+        ))}
+      </div>
       {detail ? (
         <>
           <div className="wire-timeline-detail-lines">
@@ -61,6 +71,17 @@ export function WireTimelineDetailPanel({
               </span>
             ))}
           </div>
+          {plan.projectionRows.length > 0 && (
+            <ol className="wire-timeline-projection-list" aria-label="详情对象桌面投影">
+              {plan.projectionRows.map((row) => (
+                <li data-projection-state={row.state} key={row.key}>
+                  <span>{row.role}</span>
+                  <strong>{row.label}</strong>
+                  <small>{row.stateLabel}</small>
+                </li>
+              ))}
+            </ol>
+          )}
           <WireObjectRefChips
             objects={objectIndex}
             onInspectObject={onInspectObject}
