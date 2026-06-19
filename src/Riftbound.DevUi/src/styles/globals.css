@@ -11617,6 +11617,9 @@ button.card-face:hover {
 .wire-selected-candidates,
 .wire-focused-actions,
 .wire-focused-actions-heading,
+.wire-focused-path,
+.wire-focused-path article,
+.wire-focused-path li,
 .wire-prompt-candidates,
 .wire-prompt-contract,
 .wire-candidate-row,
@@ -11683,6 +11686,45 @@ button.card-face:hover {
   border-radius: 0 !important;
   background: #fff !important;
   color: #000 !important;
+}
+
+.wire-focused-path {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-focused-path article {
+  display: grid;
+  gap: 3px;
+  padding: 4px;
+}
+
+.wire-focused-path ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-focused-path li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 4px;
+  padding: 3px;
+}
+
+.wire-focused-path li.is-required {
+  border-width: 2px;
+}
+
+.wire-focused-path small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-candidate-row {
@@ -12151,6 +12193,34 @@ button.card-face:hover {
 .wire-table .card-back.is-prompt-enabled {
   outline: 2px solid #000 !important;
   outline-offset: -5px !important;
+}
+
+.wire-table .card-face.is-prompt-source,
+.wire-table .card-image-only.is-prompt-source,
+.wire-table .card-back.is-prompt-source {
+  outline: 4px solid #000 !important;
+  outline-offset: -6px !important;
+}
+
+.wire-table .card-face.is-prompt-target,
+.wire-table .card-image-only.is-prompt-target,
+.wire-table .card-back.is-prompt-target {
+  outline: 3px double #000 !important;
+  outline-offset: -6px !important;
+}
+
+.wire-table .card-face.is-prompt-destination,
+.wire-table .card-image-only.is-prompt-destination,
+.wire-table .card-back.is-prompt-destination {
+  outline: 3px dashed #000 !important;
+  outline-offset: -6px !important;
+}
+
+.wire-table .card-face.is-prompt-optionalCost,
+.wire-table .card-image-only.is-prompt-optionalCost,
+.wire-table .card-back.is-prompt-optionalCost {
+  outline: 3px dotted #000 !important;
+  outline-offset: -6px !important;
 }
 
 .wire-table .card-face.is-prompt-disabled,
