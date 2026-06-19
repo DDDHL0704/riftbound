@@ -4,6 +4,7 @@ import { commandBindingDisplayLabel, commandBindingFieldKey } from "./commandFie
 import { promptActionLabel, promptReasonLabel } from "./formatters";
 import {
   buildPromptInteractionModel,
+  promptChoiceRoleOrder,
   promptChoiceRoleLabel,
   promptCommandBindingLabel,
   promptCommandBindingSourceLabel,
@@ -113,8 +114,6 @@ type ActionGroup = {
   enabledCount: number;
 };
 
-const roleOrder: PromptChoiceRole[] = ["source", "target", "destination", "optionalCost", "mode"];
-
 export function buildWireActionMapPlan({
   maxActionGroups = 5,
   maxCandidatePlans = 5,
@@ -187,7 +186,7 @@ function actionGroupPlan(group: ActionGroup): WireActionGroupPlan {
     key: group.action,
     label: actionGroupLabel(group.action, group.candidates),
     reason: groupReason(group.candidates),
-    roleCounts: roleOrder.map((role) => ({
+    roleCounts: promptChoiceRoleOrder.map((role) => ({
       count: roleCount(group.candidates, role),
       label: promptChoiceRoleLabel(role),
       role

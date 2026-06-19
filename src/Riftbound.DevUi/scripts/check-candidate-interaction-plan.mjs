@@ -6,7 +6,7 @@ import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const sourcePath = resolve(scriptDir, "../src/utils/candidateInteractionPlan.ts");
-const source = readFileSync(sourcePath, "utf8");
+const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
 const output = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.CommonJS,
@@ -15,7 +15,11 @@ const output = ts.transpileModule(source, {
 }).outputText;
 const moduleShim = { exports: {} };
 
-new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+new Function("exports", "module", "promptChoiceRoleLabel", output)(
+  moduleShim.exports,
+  moduleShim,
+  promptChoiceRoleLabel
+);
 
 const { buildCandidateInteractionPlans } = moduleShim.exports;
 
@@ -97,3 +101,13 @@ assert.equal(plans[1].nextRequiredStep?.stateLabel, "缺少必需项");
 assert.ok(plans[1].summary.includes("缺口 1"));
 
 console.log("Candidate interaction plan check passed.");
+
+function promptChoiceRoleLabel(role) {
+  return {
+    destination: "位置",
+    mode: "模式",
+    optionalCost: "费用",
+    source: "来源",
+    target: "目标"
+  }[role] ?? role;
+}

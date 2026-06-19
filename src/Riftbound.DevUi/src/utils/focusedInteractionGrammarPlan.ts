@@ -1,5 +1,10 @@
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
-import type { PromptCandidateSummary, PromptChoiceRole } from "./promptInteraction";
+import {
+  promptChoiceRoleLabel,
+  promptChoiceRoleOrder,
+  type PromptCandidateSummary,
+  type PromptChoiceRole
+} from "./promptInteraction";
 
 export type FocusedInteractionGrammarState = "blocked" | "empty" | "incomplete" | "ready";
 
@@ -39,22 +44,10 @@ export type FocusedInteractionGrammarPlan = {
   summary: string;
 };
 
-const roleOrder: Array<PromptChoiceRole | "submit"> = [
-  "source",
-  "mode",
-  "destination",
-  "target",
-  "optionalCost",
-  "submit"
-];
+const roleOrder: Array<PromptChoiceRole | "submit"> = [...promptChoiceRoleOrder, "submit"];
 
-const roleLabels: Record<PromptChoiceRole | "submit", string> = {
-  destination: "位置",
-  mode: "模式",
-  optionalCost: "费用",
-  source: "来源",
+const roleLabels: Record<"submit", string> = {
   submit: "提交",
-  target: "目标"
 };
 
 export function buildFocusedInteractionGrammarPlan({
@@ -177,7 +170,7 @@ function grammarSteps(
       return {
         availableCount,
         key: `${candidate.action}:${role}`,
-        label: step?.label || roleLabels[role],
+        label: step?.label || promptChoiceRoleLabel(role),
         required,
         role,
         sampleLabels: step?.sampleLabels ?? [],

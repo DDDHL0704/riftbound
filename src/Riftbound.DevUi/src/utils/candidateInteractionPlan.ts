@@ -1,4 +1,8 @@
-import type { PromptCandidateSummary, PromptChoiceRole } from "./promptInteraction";
+import {
+  promptChoiceRoleLabel,
+  type PromptCandidateSummary,
+  type PromptChoiceRole
+} from "./promptInteraction";
 
 export type CandidateInteractionStepState = "available" | "missing-required" | "optional" | "satisfied";
 
@@ -32,21 +36,13 @@ export function buildCandidateInteractionPlans(candidates: PromptCandidateSummar
   return candidates.map(candidateInteractionPlan).sort(compareCandidateInteractionPlans);
 }
 
-const roleLabels: Record<PromptChoiceRole, string> = {
-  destination: "位置",
-  mode: "模式",
-  optionalCost: "费用",
-  source: "来源",
-  target: "目标"
-};
-
 function candidateInteractionPlan(candidate: PromptCandidateSummary): CandidateInteractionPlan {
   const stepRows = candidate.steps.map((step) => {
     const state = stepState(step.required, step.count);
     return {
       count: step.count,
       key: `${candidate.action}:${step.role}:${step.label}`,
-      label: step.label || roleLabels[step.role],
+      label: step.label || promptChoiceRoleLabel(step.role),
       required: step.required,
       role: step.role,
       sampleLabels: step.sampleLabels,

@@ -69,6 +69,14 @@ const choiceGroups: Array<{ key: keyof ActionPromptCandidateDto; role: PromptCho
   { key: "optionalCosts", role: "optionalCost" }
 ];
 
+export const promptChoiceRoleOrder: PromptChoiceRole[] = [
+  "source",
+  "mode",
+  "destination",
+  "target",
+  "optionalCost"
+];
+
 const roleLabels: Record<PromptChoiceRole, string> = {
   destination: "位置",
   mode: "模式",
@@ -149,6 +157,10 @@ export function promptObjectState(model: PromptInteractionModel, objectId?: stri
 
 export function promptChoiceRoleLabel(role: PromptChoiceRole): string {
   return roleLabels[role];
+}
+
+export function promptChoiceRoleFromString(role: string): PromptChoiceRole | undefined {
+  return choiceGroups.some((group) => group.role === role) ? role as PromptChoiceRole : undefined;
 }
 
 export function promptCommandBindingLabel(binding: PromptCommandBindingSummary): string {
@@ -352,10 +364,6 @@ function uniqueChoiceSummaries(choices: PromptChoiceSummary[]): PromptChoiceSumm
 
 function uniqueLabels(labels: string[]): string[] {
   return Array.from(new Set(labels.map((label) => label.trim()).filter(Boolean)));
-}
-
-function promptChoiceRoleFromString(role: string): PromptChoiceRole | undefined {
-  return choiceGroups.some((group) => group.role === role) ? role as PromptChoiceRole : undefined;
 }
 
 function normalizedObjectIds(objectIds: string[] | null | undefined): string[] | undefined {

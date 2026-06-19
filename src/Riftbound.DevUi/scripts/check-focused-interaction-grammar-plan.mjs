@@ -6,7 +6,7 @@ import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const sourcePath = resolve(scriptDir, "../src/utils/focusedInteractionGrammarPlan.ts");
-const source = readFileSync(sourcePath, "utf8");
+const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
 const output = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.CommonJS,
@@ -15,7 +15,12 @@ const output = ts.transpileModule(source, {
 }).outputText;
 const moduleShim = { exports: {} };
 
-new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+new Function("exports", "module", "promptChoiceRoleLabel", "promptChoiceRoleOrder", output)(
+  moduleShim.exports,
+  moduleShim,
+  promptChoiceRoleLabel,
+  ["source", "mode", "destination", "target", "optionalCost"]
+);
 
 const { buildFocusedInteractionGrammarPlan, candidateGrammarKey } = moduleShim.exports;
 
@@ -131,3 +136,13 @@ assert.equal(emptyPlan.steps.length, 0);
 assert.equal(emptyPlan.nextStepLabel, "点击含服务端候选的卡牌");
 
 console.log("Focused interaction grammar plan check passed.");
+
+function promptChoiceRoleLabel(role) {
+  return {
+    destination: "位置",
+    mode: "模式",
+    optionalCost: "费用",
+    source: "来源",
+    target: "目标"
+  }[role] ?? role;
+}

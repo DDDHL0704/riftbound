@@ -6,7 +6,9 @@ import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 
-const candidatePlanExports = loadTsModule(resolve(scriptDir, "../src/utils/candidateInteractionPlan.ts"));
+const candidatePlanExports = loadTsModule(resolve(scriptDir, "../src/utils/candidateInteractionPlan.ts"), {
+  promptChoiceRoleLabel
+});
 const commandFieldDisplayExports = loadTsModule(resolve(scriptDir, "../src/utils/commandFieldDisplay.ts"));
 const promptInteractionExports = loadTsModule(resolve(scriptDir, "../src/utils/promptInteraction.ts"), {
   promptActionLabel,
@@ -20,6 +22,7 @@ const actionMapExports = loadTsModule(resolve(scriptDir, "../src/utils/wireActio
   commandBindingDisplayLabel: commandFieldDisplayExports.commandBindingDisplayLabel,
   commandBindingFieldKey: commandFieldDisplayExports.commandBindingFieldKey,
   promptActionLabel,
+  promptChoiceRoleOrder: promptInteractionExports.promptChoiceRoleOrder,
   promptChoiceRoleLabel: promptInteractionExports.promptChoiceRoleLabel,
   promptCommandBindingLabel: promptInteractionExports.promptCommandBindingLabel,
   promptCommandBindingSourceLabel: promptInteractionExports.promptCommandBindingSourceLabel,
@@ -146,6 +149,16 @@ function promptActionLabel(candidate) {
 
 function promptReasonLabel(reason, fallback = "服务端候选") {
   return reason || fallback;
+}
+
+function promptChoiceRoleLabel(role) {
+  return {
+    destination: "位置",
+    mode: "模式",
+    optionalCost: "费用",
+    source: "来源",
+    target: "目标"
+  }[role] ?? role;
 }
 
 function loadTsModule(sourcePath, injectedValues = {}) {
