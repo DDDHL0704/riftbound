@@ -22,7 +22,7 @@ export function WireObjectRefChips({
   onInspectObject?: (objectId: string) => void;
   refs: WireObjectRef[];
   selectedObjectId?: string;
-  source: "event" | "rule";
+  source: "candidate" | "event" | "rule";
 }) {
   const visibleRefs = uniqueWireObjectRefs(refs);
   if (visibleRefs.length === 0) {
@@ -42,6 +42,7 @@ export function WireObjectRefChips({
           "data-object-ref-role": ref.role,
           "data-event-object-ref": source === "event" ? ref.id : undefined,
           "data-rule-object-ref": source === "rule" ? ref.id : undefined,
+          "data-candidate-object-ref": source === "candidate" ? ref.id : undefined,
           "data-selected": selected ? "true" : undefined
         };
 

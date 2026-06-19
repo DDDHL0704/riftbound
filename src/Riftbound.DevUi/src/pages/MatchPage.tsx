@@ -270,6 +270,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 setInspectedCard(undefined);
                 setSelectionDraft(undefined);
               }}
+              onInspectObject={inspectObjectFromTable}
               onOpenDetail={setDetailCard}
               playerId={settings.playerId}
               prompt={tablePrompt}
