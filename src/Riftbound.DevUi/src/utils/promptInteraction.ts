@@ -14,8 +14,22 @@ export type PromptChoiceSummary = {
   role: PromptChoiceRole;
 };
 
+export type PromptCommandBindingSummary = {
+  field: string;
+  required: boolean;
+  role?: PromptChoiceRole;
+  roleLabel?: string;
+  source: string;
+};
+
+export type PromptCandidateCommandSummary = {
+  bindings: PromptCommandBindingSummary[];
+  cmdType: string;
+};
+
 export type PromptCandidateSummary = {
   action: string;
+  command?: PromptCandidateCommandSummary;
   enabled: boolean;
   label: string;
   reason: string;
@@ -62,6 +76,15 @@ const roleLabels: Record<PromptChoiceRole, string> = {
   target: "目标"
 };
 
+const bindingSourceRoles: Record<string, PromptChoiceRole | undefined> = {
+  selectedDestination: "destination",
+  selectedMode: "mode",
+  selectedOptionalCosts: "optionalCost",
+  selectedSource: "source",
+  selectedTarget: "target",
+  selectedTargets: "target"
+};
+
 export function buildPromptInteractionModel(prompt?: ActionPromptDto): PromptInteractionModel {
   const objectById = new Map<string, PromptObjectSummary>();
   const candidates = (prompt?.candidates ?? []).map((candidate) => {
@@ -88,6 +111,7 @@ export function buildPromptInteractionModel(prompt?: ActionPromptDto): PromptInt
 
     return {
       action: candidate.action,
+      command: commandTemplateSummary(candidate),
       enabled: candidate.enabled,
       label: promptActionLabel(candidate),
       reason: promptReasonLabel(candidate.reason, candidate.enabled ? "可提交" : "暂不可提交"),
@@ -146,6 +170,27 @@ function candidateChoices(candidate: ActionPromptCandidateDto): PromptChoiceSumm
     ...topLevelChoices,
     ...sourceRequirementChoices(candidate)
   ]);
+}
+
+function commandTemplateSummary(candidate: ActionPromptCandidateDto): PromptCandidateCommandSummary | undefined {
+  const template = candidate.commandTemplate;
+  if (!template) {
+    return undefined;
+  }
+
+  return {
+    bindings: template.bindings.map((binding) => {
+      const role = bindingSourceRoles[binding.source];
+      return {
+        field: binding.field,
+        required: Boolean(binding.required),
+        role,
+        roleLabel: role ? promptChoiceRoleLabel(role) : undefined,
+        source: binding.source
+      };
+    }),
+    cmdType: template.cmdType || candidate.action
+  };
 }
 
 function candidateSteps(candidate: ActionPromptCandidateDto, choices: PromptChoiceSummary[]): PromptCandidateStep[] {

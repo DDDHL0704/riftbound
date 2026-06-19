@@ -8,6 +8,7 @@ export function WireObjectContextSummary({ context }: { context?: TableObjectCon
   const latestEvents = context.eventLinks.slice(-3).reverse();
   const enabledCandidates = context.candidateLinks.filter((candidate) => candidate.enabled);
   const disabledCandidates = context.candidateLinks.filter((candidate) => !candidate.enabled);
+  const commandCandidates = context.candidateLinks.filter((candidate) => candidate.commandType);
 
   return (
     <div className="wire-object-context" role="group" aria-label="焦点对象上下文">
@@ -33,6 +34,19 @@ export function WireObjectContextSummary({ context }: { context?: TableObjectCon
       )}
       {disabledCandidates.length > 0 && enabledCandidates.length === 0 && (
         <span className="wire-object-context-line">阻断：{disabledCandidates.slice(0, 2).map(candidate => candidate.reason).join("、")}</span>
+      )}
+      {commandCandidates.length > 0 && (
+        <div className="wire-object-command-block">
+          <span className="wire-object-context-line">服务端命令</span>
+          <ol className="wire-object-command-list" aria-label="焦点对象服务端命令字段">
+            {commandCandidates.slice(0, 3).map((candidate, index) => (
+              <li key={`${candidate.commandType}-${candidate.label}-${index}`}>
+                <span>{candidate.enabled ? "可提交" : "阻断"}</span>
+                <strong>{candidate.commandType}{candidate.commandFields.length > 0 ? `：${candidate.commandFields.join(" / ")}` : ""}</strong>
+              </li>
+            ))}
+          </ol>
+        </div>
       )}
       {latestEvents.length > 0 ? (
         <div className="wire-object-event-block">
