@@ -6865,7 +6865,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 must not be a standby card in objects",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -7882,7 +7882,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in objects",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -9706,7 +9706,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in objects",
+                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -11833,7 +11833,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in objects",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -12572,7 +12572,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in objects",
+                "snapshot for alice timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -13925,7 +13925,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 must not be a standby card in objects",
+                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -30097,7 +30097,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 must not be a standby card in authoritative state object registry",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -30813,7 +30813,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -32096,7 +32096,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -33764,7 +33764,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -34303,7 +34303,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry",
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -35300,7 +35300,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 must not be a standby card in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
     }
 
@@ -140392,7 +140392,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -140525,7 +140525,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -142999,7 +142999,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -143127,7 +143127,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -148337,7 +148337,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -148449,7 +148449,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -152652,7 +152652,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -152769,7 +152769,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -156815,7 +156815,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -156927,7 +156927,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160791,7 +160791,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -160931,7 +160931,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source must not be a standby card in authoritative state object registry",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

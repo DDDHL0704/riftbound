@@ -18672,7 +18672,7 @@ public static class MatchRecoveryValidator
             && standbySourceTags.Contains(CardObjectTags.Standby))
         {
             errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}");
+                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
         }
 
         if (battlefieldStateObjectIds is not null
@@ -18981,7 +18981,7 @@ public static class MatchRecoveryValidator
             && standbySourceTags.Contains(CardObjectTags.Standby))
         {
             errors.Add(
-                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}");
+                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
         }
 
         ValidateTriggerQueueEffectKindMustBe(
@@ -19335,7 +19335,7 @@ public static class MatchRecoveryValidator
             && standbySourceTags.Contains(CardObjectTags.Standby))
         {
             errors.Add(
-                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
         }
 
         ValidateTriggerQueueSourceVisibilityMustBeVisible(
@@ -19540,7 +19540,7 @@ public static class MatchRecoveryValidator
                 && standbySourceTags.Contains(CardObjectTags.Standby))
             {
                 errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
             }
 
             if (objectTags is not null
@@ -21256,7 +21256,7 @@ public static class MatchRecoveryValidator
             && standbySourceTags.Contains(CardObjectTags.Standby))
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
         }
     }
 
@@ -22008,7 +22008,7 @@ public static class MatchRecoveryValidator
             && standbySourceTags.Contains(CardObjectTags.Standby))
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
         }
     }
 
