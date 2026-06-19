@@ -253,7 +253,13 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
         <aside className="wire-side-panel" aria-label="行动与日志">
           <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" tabIndex={0}>
-            <WireActionMapPanel playerId={settings.playerId} prompt={tablePrompt} snapshot={tableSnapshot} />
+            <WireActionMapPanel
+              onInspectObject={inspectObjectFromTable}
+              playerId={settings.playerId}
+              prompt={tablePrompt}
+              selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
+              snapshot={tableSnapshot}
+            />
           </section>
           <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>
             <WireInteractionPanel
