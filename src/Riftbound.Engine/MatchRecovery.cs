@@ -10904,7 +10904,7 @@ public static class MatchRecoveryValidator
         if (battlefieldCount is null || battlefieldCount != expectedBattlefieldObjectPairs.Count)
         {
             errors.Add(
-                $"spectator replay frame snapshot lane battlefield count {battlefieldCount.GetValueOrDefault()} does not match authoritative state battlefield object count {expectedBattlefieldObjectPairs.Count}");
+                $"spectator replay frame snapshot lane battlefield count {battlefieldCount.GetValueOrDefault()} does not match authoritative state battlefield object count {expectedBattlefieldObjectPairs.Count}; {FormatExpectedActualForRecovery(expectedBattlefieldObjectPairs.Count, battlefieldCount.GetValueOrDefault())}");
         }
 
         if (!TryReadObjectList(snapshot.Lanes, "battlefieldObjectIds", out var battlefieldObjectItems))
@@ -10976,7 +10976,11 @@ public static class MatchRecoveryValidator
 
             if (!BattlefieldObjectPairsEqual(spectatorBattlefieldObjectPairs, expectedBattlefieldObjectPairs))
             {
-                errors.Add("spectator replay frame snapshot lane battlefield object ids disagree with authoritative state battlefield object ids");
+                errors.Add(
+                    "spectator replay frame snapshot lane battlefield object ids disagree with authoritative state battlefield object ids"
+                    + $"; {FormatExpectedActualForRecovery(
+                        FormatBattlefieldObjectPairsForRecovery(expectedBattlefieldObjectPairs),
+                        FormatBattlefieldObjectPairsForRecovery(spectatorBattlefieldObjectPairs))}");
             }
         }
 
@@ -10994,7 +10998,8 @@ public static class MatchRecoveryValidator
             .ToArray();
         if (!StringListsEqual(spectatorBattlefieldObjectIds, authoritativeBattlefieldObjectIds))
         {
-            errors.Add("spectator replay frame snapshot lane battlefields disagree with authoritative state battlefields");
+            errors.Add(
+                $"spectator replay frame snapshot lane battlefields disagree with authoritative state battlefields; {FormatExpectedActualForRecovery(authoritativeBattlefieldObjectIds, spectatorBattlefieldObjectIds)}");
         }
 
         ValidateSpectatorSnapshotBattlefieldPayloadPropertyNames(battlefieldItems, authoritativeState, errors);
@@ -11960,6 +11965,14 @@ public static class MatchRecoveryValidator
             .SelectMany(entry => entry.Value.Battlefields
                 .Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId))
                 .Select(objectId => (entry.Key, objectId)))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> FormatBattlefieldObjectPairsForRecovery(
+        IReadOnlyList<(string PlayerId, string ObjectId)> pairs)
+    {
+        return pairs
+            .Select(pair => $"{pair.PlayerId}:{pair.ObjectId}")
             .ToArray();
     }
 

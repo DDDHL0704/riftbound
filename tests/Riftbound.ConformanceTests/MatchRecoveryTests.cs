@@ -40713,13 +40713,19 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot lane battlefield count 1 does not match authoritative state battlefield object count 3", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield count 1 does not match authoritative state battlefield object count 3; expected 3 but got 1",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot lane battlefield object ids disagree with authoritative state battlefield object ids", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefield object ids disagree with authoritative state battlefield object ids; expected [alice:battlefield-a, alice:alice-unit-a, bob:bob-unit-a] but got [bob:wrong-object, alice:alice-unit-a, bob:bob-unit-a]",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot lane battlefields disagree with authoritative state battlefields", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot lane battlefields disagree with authoritative state battlefields; expected [battlefield-a] but got [wrong-battlefield]",
+                StringComparison.Ordinal));
     }
 
     [Fact]
@@ -40816,12 +40822,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 2 does not match authoritative state battlefield object count 1",
+                "spectator replay frame snapshot lane battlefield count 2 does not match authoritative state battlefield object count 1; expected 1 but got 2",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield object ids disagree with authoritative state battlefield object ids",
+                "spectator replay frame snapshot lane battlefield object ids disagree with authoritative state battlefield object ids; expected [alice:battlefield-a] but got [alice:battlefield-a, charlie:forged-battlefield]",
                 StringComparison.Ordinal));
     }
 
@@ -40911,7 +40917,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 2 does not match authoritative state battlefield object count 1",
+                "spectator replay frame snapshot lane battlefield count 2 does not match authoritative state battlefield object count 1; expected 1 but got 2",
                 StringComparison.Ordinal));
     }
 
@@ -41247,7 +41253,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 2 does not match authoritative state battlefield object count 1",
+                "spectator replay frame snapshot lane battlefield count 2 does not match authoritative state battlefield object count 1; expected 1 but got 2",
                 StringComparison.Ordinal));
     }
 
@@ -41803,7 +41809,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -41947,7 +41953,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 5 does not match authoritative state battlefield object count 4",
+                "spectator replay frame snapshot lane battlefield count 5 does not match authoritative state battlefield object count 4; expected 4 but got 5",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -42078,7 +42084,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 4 does not match authoritative state battlefield object count 3",
+                "spectator replay frame snapshot lane battlefield count 4 does not match authoritative state battlefield object count 3; expected 3 but got 4",
                 StringComparison.Ordinal));
     }
 
@@ -42901,7 +42907,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -43012,7 +43018,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -43123,7 +43129,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -43235,7 +43241,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -43352,7 +43358,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
                 StringComparison.Ordinal));
     }
 
