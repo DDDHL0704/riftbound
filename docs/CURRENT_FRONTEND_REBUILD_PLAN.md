@@ -1736,6 +1736,8 @@
 - 服务端补齐金克丝弃牌触发代表路径：`OGN·202/298`、`OGN·202a/298` 与 `ARC-005/006` 现在在服务端实际弃置任意数量手牌后，由 Core 广播 `TRIGGER_RESOLVED`、`UNIT_READIED` 和 `POWER_MODIFIED_UNTIL_END_OF_TURN`，且 face-down、待命和对手控制来源不会误触发；前端只需继续展示服务端事件和 authoritative snapshot，不在浏览器侧自行判断弃牌触发。验证：后端 build 通过；相关弃牌/金克丝/乐芙兰/战场征服回归 13/13 通过；后端 full test 3186/3186 通过；前端 build 通过。本批无 DevUi 运行时代码变更，未启动新的 API/Vite/Chrome 业务 smoke；完成度仍约 **99%**，整体结论仍 **NOT READY**。
 - 服务端补齐《粗鲁的海盗》额外弃置减费代表路径：`OGN·002/298` 现在可在 `PLAY_CARD` 中提交服务端 prompt 给出的 `DISCARD_HAND_CARD:<objectId>`，Core 只允许弃置同玩家另一张手牌并把费用减少 2，`COST_PAID.optionalCostManaReduction`、`CARD_DISCARDED`、废牌堆和弃牌回合记忆均来自 authoritative 结算；ActionPrompt 的 `sourceRequirements.optionalCostChoices` 会按具体来源牌过滤，避免前端猜 token 或把来源牌自身当作费用。验证：后端 build 通过；`P79RudePirate` 3/3、后端 full test 3213/3213 通过；前端 build 通过。本批无 DevUi 运行时代码变更，未启动新的 API/Vite/Chrome 业务 smoke；完成度仍约 **99%**，整体结论仍 **NOT READY**。
 
+线框对战桌面右侧合法操作地图继续工程化：新增 `candidateInteractionPlan`，把服务端 `selectionSteps` / `commandTemplate` 组织为候选步骤计划，右侧面板显示可提交状态、缺口数量、下一步、步骤样本和命令字段数；新增 `check:candidate-interaction-plan` 构建门禁并扩展 Chrome smoke 覆盖“候选步骤 / 下一步 / 命令字段 / PLAY_CARD”。前端仍只消费服务端候选和公开命令模板，不根据牌文或隐藏状态自行裁决规则；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：

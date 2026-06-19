@@ -22,7 +22,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "合法操作地图", "交互语法", "焦点 / 候选 / 规则队列", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "合法操作地图", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -338,9 +338,14 @@ async function runWireClickSelectionSmoke(cdp) {
   const actionMapResult = await evaluateJson(cdp, `(() => {
     const tableObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     const actionChip = document.querySelector('[data-action-object-id="p1-hand-spell"]');
+    const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
+      candidatePlanCount: document.querySelectorAll(".wire-action-candidate-plan-card").length,
+      candidatePlanEnabled: candidatePlan?.getAttribute("data-candidate-plan-enabled") ?? null,
+      candidatePlanNext: candidatePlan?.querySelector("[data-candidate-plan-next-step]")?.textContent ?? "",
+      candidatePlanText: candidatePlan?.textContent ?? "",
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? ""
@@ -425,8 +430,15 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.selected !== "true") failures.push("action map object chip did not focus table object");
   if (actionMapResult.chipSelected !== "true") failures.push("action map object chip did not show selected state");
   if (!actionMapResult.actionMapText.includes("命令字段")) failures.push("action map command field list missing");
+  if (!actionMapResult.actionMapText.includes("候选步骤")) failures.push("action map candidate step plan missing");
+  if (!actionMapResult.actionMapText.includes("下一步")) failures.push("action map candidate next-step text missing");
   if (!actionMapResult.actionMapText.includes("PLAY_CARD")) failures.push("action map command type missing");
   if (!actionMapResult.actionMapText.includes("服务端:cardNo*")) failures.push("action map metadata command field missing");
+  if (actionMapResult.candidatePlanCount < 1) failures.push("action map candidate plan cards missing");
+  if (actionMapResult.candidatePlanEnabled !== "true") failures.push("PLAY_CARD candidate plan did not preserve enabled state");
+  if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");
+  if (!actionMapResult.candidatePlanText.includes("缺口 0")) failures.push("PLAY_CARD candidate plan gap summary missing");
+  if (!actionMapResult.candidatePlanNext.includes("下一步")) failures.push("PLAY_CARD candidate plan next-step missing");
   if (!actionMapResult.focusText.includes("服务端状态")) failures.push("action map focus did not refresh focused action summary");
   if (actionMapResult.detailLayerOpen) failures.push("action map object chip opened detail");
   if (runeActionMapResult.selected !== "true") failures.push("rune action map object chip did not focus table object");
