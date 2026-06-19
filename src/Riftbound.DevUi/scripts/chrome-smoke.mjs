@@ -618,7 +618,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.text.includes("服务端索引")) failures.push("card detail did not use server object candidate index");
   if (!detailContextResult.text.includes("PLAY_CARD")) failures.push("card detail command type missing");
   if (!detailContextResult.text.includes("来源:sourceObjectId*")) failures.push("card detail command field missing");
-  if (!detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail command metadata field missing");
+  if (!detailContextResult.text.includes("服务端字段")) failures.push("card detail command metadata summary missing");
+  if (detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail leaked raw metadata command field");
   if (detailEscapeResult.open) failures.push("card detail did not close on Escape");
   if (detailEscapeResult.activeObjectId !== "p1-hand-spell") failures.push("card detail did not restore focus to source card");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
@@ -660,7 +661,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.actionMapText.includes("候选步骤")) failures.push("action map candidate step plan missing");
   if (!actionMapResult.actionMapText.includes("下一步")) failures.push("action map candidate next-step text missing");
   if (!actionMapResult.actionMapText.includes("PLAY_CARD")) failures.push("action map command type missing");
-  if (!actionMapResult.actionMapText.includes("服务端:cardNo*")) failures.push("action map metadata command field missing");
+  if (!actionMapResult.actionMapText.includes("服务端字段")) failures.push("action map metadata command field summary missing");
+  if (actionMapResult.actionMapText.includes("服务端:cardNo*")) failures.push("action map leaked raw metadata command field");
   if (!["resolving", "you-action"].includes(actionMapResult.windowState)) failures.push(`wire window plan did not show a server-derived active state: ${actionMapResult.windowState}`);
   if (!actionMapResult.windowText.includes("窗口总览")) failures.push("wire window plan header missing");
   if (!actionMapResult.windowText.includes("下一步")) failures.push("wire window plan next step missing");
@@ -719,7 +721,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.detailContextText.includes("服务端命令")) failures.push("timeline selected object context command section missing");
   if (!candidateRefResult.detailContextText.includes("服务端索引")) failures.push("timeline selected object context did not use server object candidate index");
   if (!candidateRefResult.detailContextText.includes("PLAY_CARD")) failures.push("timeline selected object context command type missing");
-  if (!candidateRefResult.detailContextText.includes("服务端:cardNo*")) failures.push("timeline selected object context command metadata field missing");
+  if (!candidateRefResult.detailContextText.includes("服务端字段")) failures.push("timeline selected object context command metadata summary missing");
+  if (candidateRefResult.detailContextText.includes("服务端:cardNo*")) failures.push("timeline selected object context leaked raw metadata command field");
   if (!candidateRefResult.detailContextText.includes("近期事件")) failures.push("timeline selected object context event section missing");
   if (candidateRefResult.detailLayerOpen) failures.push("candidate object ref opened detail");
 

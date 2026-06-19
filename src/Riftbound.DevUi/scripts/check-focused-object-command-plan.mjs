@@ -5,9 +5,20 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
+const commandFieldDisplayPath = resolve(scriptDir, "../src/utils/commandFieldDisplay.ts");
+const commandFieldDisplaySource = readFileSync(commandFieldDisplayPath, "utf8");
+const commandFieldDisplayOutput = ts.transpileModule(commandFieldDisplaySource.replace(/^import[\s\S]*?;\n/gm, ""), {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022
+  }
+}).outputText;
+const commandFieldModuleShim = { exports: {} };
+new Function("exports", "module", commandFieldDisplayOutput)(commandFieldModuleShim.exports, commandFieldModuleShim);
+
 const sourcePath = resolve(scriptDir, "../src/utils/focusedObjectCommandPlan.ts");
 const source = readFileSync(sourcePath, "utf8");
-const output = ts.transpileModule(source, {
+const output = ts.transpileModule(source.replace(/^import[\s\S]*?;\n/gm, ""), {
   compilerOptions: {
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2022
@@ -15,7 +26,12 @@ const output = ts.transpileModule(source, {
 }).outputText;
 const moduleShim = { exports: {} };
 
-new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+new Function(
+  "exports",
+  "module",
+  "commandFieldDisplayLabel",
+  output
+)(moduleShim.exports, moduleShim, commandFieldModuleShim.exports.commandFieldDisplayLabel);
 
 const { buildFocusedObjectCommandPlan } = moduleShim.exports;
 
@@ -23,12 +39,12 @@ const plan = buildFocusedObjectCommandPlan({
   context: {
     candidateLinks: [
       {
-        commandFields: ["来源:sourceObjectId*", "目标:targetObjectId"],
+        commandFields: ["来源:sourceObjectId*", "服务端:cardNo*", "目标:targetObjectId"],
         commandType: "PLAY_CARD",
         enabled: true,
         label: "打出卡牌",
         reason: "可提交",
-        requiredCommandFields: ["来源:sourceObjectId*"],
+        requiredCommandFields: ["来源:sourceObjectId*", "服务端:cardNo*"],
         roles: ["来源"]
       },
       {
@@ -107,13 +123,14 @@ assert.equal(plan.statusCards[0].value, "我方手牌");
 assert.equal(plan.statusCards[3].value, "服务端索引");
 assert.equal(plan.commandRows.length, 2);
 assert.equal(plan.commandRows[0].commandType, "PLAY_CARD");
-assert.deepEqual(plan.commandRows[0].requiredFields, ["来源:sourceObjectId*"]);
+assert.deepEqual(plan.commandRows[0].requiredFields, ["来源:sourceObjectId*", "服务端字段*"]);
 assert.deepEqual(plan.commandRows[0].secondaryFields, ["目标:targetObjectId"]);
 assert.equal(plan.commandRows[1].enabled, false);
 assert.equal(plan.nextStepRows[0].nextStepLabel, "目标");
 assert.equal(plan.eventRows[0].kind, "OBJECT_EXHAUSTED");
 assert.equal(plan.contract.hiddenMetadataCount, 1);
 assert.equal(plan.contract.requiredPayloadCount, 2);
+assert.equal(JSON.stringify(plan).includes("服务端:cardNo"), false);
 assert.equal(JSON.stringify(plan).includes("serverPaymentState"), false);
 
 console.log("Focused object command plan check passed.");

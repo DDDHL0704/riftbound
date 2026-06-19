@@ -1,4 +1,5 @@
 import type { ActionPromptContractDto } from "../types/protocol";
+import { commandFieldDisplayLabel } from "./commandFieldDisplay";
 import type { FocusedActionModel } from "./focusedActionModel";
 import type { TableObjectCandidateContext, TableObjectContext, TableObjectEventContext } from "./tableObjectContext";
 
@@ -107,8 +108,8 @@ function candidateSourceLabel(source: TableObjectContext["candidateSource"]): st
 }
 
 function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: number): FocusedObjectCommandRow {
-  const requiredFields = uniqueStrings(candidate.requiredCommandFields);
-  const fields = uniqueStrings(candidate.commandFields);
+  const requiredFields = uniqueStrings(candidate.requiredCommandFields.map(commandFieldDisplayLabel));
+  const fields = uniqueStrings(candidate.commandFields.map(commandFieldDisplayLabel));
   const secondaryFields = fields.filter((field) => !requiredFields.includes(field));
 
   return {

@@ -1,16 +1,11 @@
-import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto, CardObjectView, SnapshotDto } from "../../types/protocol";
-import { asRecord } from "../../utils/collections";
-import { buildCandidateInteractionPlans, type CandidateInteractionPlan } from "../../utils/candidateInteractionPlan";
-import { promptActionLabel, promptReasonLabel } from "../../utils/formatters";
+import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
 import {
-  buildPromptInteractionModel,
-  promptCommandBindingLabel,
-  promptCommandBindingSourceLabel,
-  promptChoiceRoleLabel,
-  type PromptCandidateSummary,
-  type PromptChoiceRole,
-  type PromptInteractionModel
-} from "../../utils/promptInteraction";
+  buildWireActionMapPlan,
+  type WireActionContractPlan,
+  type WireActionGrammarCandidatePlan,
+  type WireActionMapMetric,
+  type WireActionMapPlan
+} from "../../utils/wireActionMapPlan";
 import { StatusPill } from "../ui/StatusPill";
 
 type WireActionMapPanelProps = {
@@ -21,27 +16,8 @@ type WireActionMapPanelProps = {
   snapshot?: SnapshotDto;
 };
 
-type ObjectIndex = Record<string, CardObjectView>;
-
-type ActionGroup = {
-  action: string;
-  candidates: PromptCandidateSummary[];
-  enabledCount: number;
-};
-
-const roleOrder: PromptChoiceRole[] = ["source", "target", "destination", "optionalCost", "mode"];
-
 export function WireActionMapPanel({ onInspectObject, playerId, prompt, selectedObjectId, snapshot }: WireActionMapPanelProps) {
-  const model = buildPromptInteractionModel(prompt);
-  const objects = objectIndex(snapshot);
-  const groups = actionGroups(model);
-  const candidatePlans = buildCandidateInteractionPlans(model.candidates);
-  const enabledCandidates = model.candidates.filter((candidate) => candidate.enabled);
-  const canAct = Boolean(prompt?.actionable && prompt.playerId === playerId);
-  const enabledObjects = [...model.enabledObjectIds];
-  const disabledOnlyObjects = [...model.disabledObjectIds];
-  const knownEnabledObjects = enabledObjects.filter((objectId) => objects[objectId]);
-  const knownDisabledOnlyObjects = disabledOnlyObjects.filter((objectId) => objects[objectId]);
+  const plan = buildWireActionMapPlan({ playerId, prompt, selectedObjectId, snapshot });
 
   return (
     <section className="wire-action-map" aria-label="服务端合法操作地图">
@@ -50,114 +26,105 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
           <strong>合法操作地图</strong>
           <span>只投影服务端候选，不在前端推断规则。</span>
         </div>
-        <StatusPill tone={canAct ? "good" : "neutral"}>{canAct ? "可操作窗口" : "只读窗口"}</StatusPill>
+        <StatusPill tone={plan.canAct ? "good" : "neutral"}>{plan.canAct ? "可操作窗口" : "只读窗口"}</StatusPill>
       </header>
 
       <div className="wire-action-map-metrics">
-        <Metric label="可提交" value={`${enabledCandidates.length}`} />
-        <Metric label="全部候选" value={`${model.candidates.length}`} />
-        <Metric label="对象入口" value={`${knownEnabledObjects.length}`} />
-        <Metric label="不可提交关联" value={`${knownDisabledOnlyObjects.length}`} />
+        {plan.metrics.map((metric) => <Metric key={metric.key} metric={metric} />)}
       </div>
 
-      {prompt?.contract && <PromptContractStrip contract={prompt.contract} />}
+      {plan.contract && <PromptContractStrip contract={plan.contract} />}
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
-        {knownEnabledObjects.length === 0 && <span className="empty-hint">当前没有服务端标记为可操作的场上对象。</span>}
-        {knownEnabledObjects.slice(0, 6).map((objectId) => {
-          const summary = model.objectById.get(objectId);
-          return (
-            <button
-              className="wire-action-object-chip"
-              data-action-object-id={objectId}
-              data-selected={selectedObjectId === objectId ? "true" : "false"}
-              key={objectId}
-              onClick={() => onInspectObject?.(objectId)}
-              type="button"
-            >
-              <strong>{objectLabel(objectId, objects)}</strong>
-              <small>{summary?.enabledCandidateCount ?? 0} 项</small>
-            </button>
-          );
-        })}
-        {knownEnabledObjects.length > 6 && <span className="wire-action-object-chip">等 {knownEnabledObjects.length} 个对象</span>}
+        {plan.objectEntries.length === 0 && <span className="empty-hint">当前没有服务端标记为可操作的场上对象。</span>}
+        {plan.objectEntries.map((entry) => (
+          <button
+            className="wire-action-object-chip"
+            data-action-object-id={entry.objectId}
+            data-selected={entry.selected ? "true" : "false"}
+            key={entry.objectId}
+            onClick={() => onInspectObject?.(entry.objectId)}
+            type="button"
+          >
+            <strong>{entry.label}</strong>
+            <small>{entry.enabledCandidateCount} 项</small>
+          </button>
+        ))}
+        {plan.objectEntryOverflowCount > 0 && <span className="wire-action-object-chip">等 {plan.objectEntryOverflowCount} 个对象</span>}
       </div>
 
       <div className="wire-action-group-list">
-        {groups.length === 0 && <span className="empty-hint">等待服务端行动窗口。</span>}
-        {groups.slice(0, 5).map((group) => (
-          <article className={group.enabledCount > 0 ? "wire-action-group is-enabled" : "wire-action-group"} key={group.action}>
+        {plan.groups.length === 0 && <span className="empty-hint">等待服务端行动窗口。</span>}
+        {plan.groups.map((group) => (
+          <article className={group.enabled ? "wire-action-group is-enabled" : "wire-action-group"} key={group.key}>
             <div className="wire-action-group-heading">
-              <strong>{actionGroupLabel(group.action, group.candidates)}</strong>
-              <span>{group.enabledCount} / {group.candidates.length}</span>
+              <strong>{group.label}</strong>
+              <span>{group.enabledCount} / {group.totalCount}</span>
             </div>
             <div className="wire-action-role-grid">
-              {roleOrder.map((role) => (
-                <span key={role}>
-                  {promptChoiceRoleLabel(role)} {roleCount(group.candidates, role)}
+              {group.roleCounts.map((role) => (
+                <span key={role.role}>
+                  {role.label} {role.count}
                 </span>
               ))}
             </div>
-            <small>{groupReason(group.candidates)}</small>
+            <small>{group.reason}</small>
           </article>
         ))}
       </div>
 
-      <CandidateInteractionPlanList plans={candidatePlans} />
+      <CandidateInteractionPlanList plan={plan} />
 
       <div className="wire-action-grammar" role="group" aria-label="服务端候选交互语法">
         <strong>交互语法</strong>
-        {model.candidates.length === 0 && <span className="empty-hint">暂无候选步骤。</span>}
-        {model.candidates
-          .filter((candidate) => candidate.enabled)
-          .slice(0, 4)
-          .map((candidate) => (
-            <article className="wire-action-sequence" key={`${candidate.action}-${candidate.label}`}>
-              <div className="wire-action-sequence-title">
-                <span>{candidate.label}</span>
-                <small>{candidate.steps.length} 步 / {candidate.command?.bindings.length ?? 0} 字段</small>
-              </div>
-              <ol>
-                {candidate.steps.map((step) => (
-                  <li className={`wire-action-step wire-action-step-${step.role} ${step.required ? "is-required" : ""}`} key={`${candidate.action}-${step.role}`}>
-                    <span>{step.label}</span>
-                    <strong>{step.count}</strong>
-                    <small>{step.required ? "必需；" : ""}{step.sampleLabels.length > 0 ? step.sampleLabels.join(" / ") : "由服务端候选决定"}</small>
-                  </li>
-                ))}
-              </ol>
-              <CommandFieldList candidate={candidate} />
-            </article>
-          ))}
+        {plan.grammarCandidateTotalCount === 0 && <span className="empty-hint">暂无候选步骤。</span>}
+        {plan.grammarCandidates.map((candidate) => (
+          <article className="wire-action-sequence" key={candidate.key}>
+            <div className="wire-action-sequence-title">
+              <span>{candidate.label}</span>
+              <small>{candidate.stepCount} 步 / {candidate.commandFieldCount} 字段</small>
+            </div>
+            <ol>
+              {candidate.steps.map((step) => (
+                <li className={`wire-action-step wire-action-step-${step.role} ${step.required ? "is-required" : ""}`} key={step.key}>
+                  <span>{step.label}</span>
+                  <strong>{step.count}</strong>
+                  <small>{step.required ? "必需；" : ""}{step.sampleLabel}</small>
+                </li>
+              ))}
+            </ol>
+            <CommandFieldList candidate={candidate} />
+          </article>
+        ))}
       </div>
     </section>
   );
 }
 
-function CandidateInteractionPlanList({ plans }: { plans: CandidateInteractionPlan[] }) {
+function CandidateInteractionPlanList({ plan }: { plan: WireActionMapPlan }) {
   return (
     <div className="wire-action-candidate-plan" role="group" aria-label="服务端候选步骤计划">
       <div className="wire-action-candidate-plan-heading">
         <strong>候选步骤</strong>
-        <span>{plans.length} 项</span>
+        <span>{plan.candidatePlanTotalCount} 项</span>
       </div>
-      {plans.length === 0 && <span className="empty-hint">暂无服务端候选。</span>}
-      {plans.slice(0, 5).map((plan) => (
+      {plan.candidatePlans.length === 0 && <span className="empty-hint">暂无服务端候选。</span>}
+      {plan.candidatePlans.map((candidatePlan) => (
         <article
-          className={plan.enabled ? "wire-action-candidate-plan-card is-enabled" : "wire-action-candidate-plan-card"}
-          data-candidate-plan-action={plan.action}
-          data-candidate-plan-enabled={plan.enabled ? "true" : "false"}
-          key={plan.key}
+          className={candidatePlan.enabled ? "wire-action-candidate-plan-card is-enabled" : "wire-action-candidate-plan-card"}
+          data-candidate-plan-action={candidatePlan.action}
+          data-candidate-plan-enabled={candidatePlan.enabled ? "true" : "false"}
+          key={candidatePlan.key}
         >
           <div className="wire-action-candidate-plan-title">
-            <span>{plan.candidateLabel}</span>
-            <small>{plan.summary}</small>
+            <span>{candidatePlan.candidateLabel}</span>
+            <small>{candidatePlan.summary}</small>
           </div>
-          <div className="wire-action-candidate-plan-next" data-candidate-plan-next-step={plan.nextRequiredStep?.role ?? "none"}>
-            下一步：{plan.nextRequiredStep?.label ?? "等待服务端候选"}
+          <div className="wire-action-candidate-plan-next" data-candidate-plan-next-step={candidatePlan.nextRequiredStep?.role ?? "none"}>
+            下一步：{candidatePlan.nextRequiredStep?.label ?? "等待服务端候选"}
           </div>
           <ol>
-            {plan.stepRows.slice(0, 4).map((step) => (
+            {candidatePlan.stepRows.slice(0, 4).map((step) => (
               <li
                 className={step.required ? "is-required" : ""}
                 data-step-role={step.role}
@@ -170,42 +137,42 @@ function CandidateInteractionPlanList({ plans }: { plans: CandidateInteractionPl
               </li>
             ))}
           </ol>
-          <small>命令字段 {plan.commandFieldCount}{plan.commandType ? ` / ${plan.commandType}` : ""}</small>
+          <small>命令字段 {candidatePlan.commandFieldCount}{candidatePlan.commandType ? ` / ${candidatePlan.commandType}` : ""}</small>
         </article>
       ))}
     </div>
   );
 }
 
-function PromptContractStrip({ contract }: { contract: ActionPromptContractDto }) {
+function PromptContractStrip({ contract }: { contract: WireActionContractPlan }) {
   return (
     <div className="wire-action-contract-strip" aria-label="当前提示服务端契约">
       <div>
         <strong>提示契约</strong>
         <span>{contract.promptKind} / {contract.candidateAction}</span>
       </div>
-      <ContractMetric label="提交字段" values={contract.requiredPayload} />
-      <ContractMetric label="合法选项" values={contract.legalChoices} />
-      <ContractMetric label="公开数据" values={contract.visibleMetadata} />
+      <ContractMetric label="提交字段" value={contract.requiredPayloadCount} />
+      <ContractMetric label="合法选项" value={contract.legalChoicesCount} />
+      <ContractMetric label="公开数据" value={contract.visibleMetadataCount} />
       <span>
         <b>隐藏数据</b>
-        <small>{contract.hiddenMetadata.length} 项由服务端保留</small>
+        <small>{contract.hiddenMetadataCount} 项由服务端保留</small>
       </span>
     </div>
   );
 }
 
-function ContractMetric({ label, values }: { label: string; values: string[] }) {
+function ContractMetric({ label, value }: { label: string; value: number }) {
   return (
     <span>
       <b>{label}</b>
-      <small>{values.length} 项</small>
+      <small>{value} 项</small>
     </span>
   );
 }
 
-function CommandFieldList({ candidate }: { candidate: PromptCandidateSummary }) {
-  if (!candidate.command) {
+function CommandFieldList({ candidate }: { candidate: WireActionGrammarCandidatePlan }) {
+  if (candidate.commandFields.length === 0) {
     return <span className="wire-action-command-empty">命令字段：服务端未公开模板</span>;
   }
 
@@ -213,13 +180,13 @@ function CommandFieldList({ candidate }: { candidate: PromptCandidateSummary }) 
     <div className="wire-action-command" aria-label={`${candidate.label} 服务端命令字段`}>
       <div className="wire-action-command-title">
         <span>命令字段</span>
-        <strong>{candidate.command.cmdType}</strong>
+        <strong>{candidate.commandType}</strong>
       </div>
       <ol>
-        {candidate.command.bindings.map((binding, index) => (
-          <li className={binding.required ? "is-required" : ""} data-command-field={binding.field} key={`${candidate.action}-${binding.field}-${binding.source}-${index}`}>
-            <span>{promptCommandBindingLabel(binding)}</span>
-            <small>{binding.required ? "必需" : "可选"} / {promptCommandBindingSourceLabel(binding)}</small>
+        {candidate.commandFields.map((field) => (
+          <li className={field.required ? "is-required" : ""} data-command-field={field.field} key={field.key}>
+            <span>{field.label}</span>
+            <small>{field.required ? "必需" : "可选"} / {field.sourceLabel}</small>
           </li>
         ))}
       </ol>
@@ -227,70 +194,11 @@ function CommandFieldList({ candidate }: { candidate: PromptCandidateSummary }) 
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({ metric }: { metric: WireActionMapMetric }) {
   return (
     <span className="wire-action-map-metric">
-      <span>{label}</span>
-      <strong>{value}</strong>
+      <span>{metric.label}</span>
+      <strong>{metric.value}</strong>
     </span>
   );
-}
-
-function actionGroups(model: PromptInteractionModel): ActionGroup[] {
-  const byAction = new Map<string, PromptCandidateSummary[]>();
-  for (const candidate of model.candidates) {
-    byAction.set(candidate.action, [...(byAction.get(candidate.action) ?? []), candidate]);
-  }
-
-  return [...byAction.entries()]
-    .map(([action, candidates]) => ({
-      action,
-      candidates,
-      enabledCount: candidates.filter((candidate) => candidate.enabled).length
-    }))
-    .sort((left, right) => right.enabledCount - left.enabledCount || right.candidates.length - left.candidates.length || left.action.localeCompare(right.action));
-}
-
-function actionGroupLabel(action: string, candidates: PromptCandidateSummary[]): string {
-  const source = { action, label: candidates[0]?.label ?? action, enabled: true, reason: "" } satisfies ActionPromptCandidateDto;
-  return promptActionLabel(source);
-}
-
-function roleCount(candidates: PromptCandidateSummary[], role: PromptChoiceRole): number {
-  return new Set(candidates.flatMap((candidate) => candidate.choices.filter((choice) => choice.role === role).map((choice) => choice.id))).size;
-}
-
-function groupReason(candidates: PromptCandidateSummary[]): string {
-  const enabled = candidates.find((candidate) => candidate.enabled);
-  if (enabled) {
-    return enabled.reason;
-  }
-
-  return candidates[0]?.reason ?? "服务端未提供候选原因。";
-}
-
-function objectIndex(snapshot?: SnapshotDto): ObjectIndex {
-  return Object.values(snapshot?.players ?? {}).reduce<ObjectIndex>((index, player) => {
-    const objects = asRecord(player.objects);
-    Object.entries(objects).forEach(([objectId, value]) => {
-      const object = value as CardObjectView;
-      index[object.objectId ?? objectId] = object;
-    });
-    return index;
-  }, {});
-}
-
-function objectLabel(objectId: string, objects: ObjectIndex): string {
-  if (objectId === "HIDDEN") {
-    return "隐藏对象";
-  }
-
-  const object = objects[objectId];
-  return object?.cardNo ?? safeChoiceId(objectId);
-}
-
-function safeChoiceId(value: string): string {
-  return /^[A-Z0-9_:-]+$/.test(value) || /^[a-z0-9]+(?:[-_:][a-z0-9]+)+$/.test(value)
-    ? "服务端对象"
-    : promptReasonLabel(value, "服务端对象");
 }
