@@ -706,6 +706,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const detailClearResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
     return {
+      activeDetailId: document.activeElement?.getAttribute("data-wire-detail-id") ?? null,
       clearButton: Boolean(document.querySelector(".wire-detail-clear")),
       panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
       selectedDetailCount: document.querySelectorAll('[data-detail-selected="true"]').length,
@@ -779,6 +780,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (eventDetailResult.detailLayerOpen) failures.push("event detail opened card detail layer");
   if (detailClearResult.clearButton) failures.push("detail clear button remained after clearing");
   if (detailClearResult.panelState !== "object") failures.push(`detail clear did not return to selected object context: ${detailClearResult.panelState}`);
+  if (detailClearResult.activeDetailId !== "event:STACK_ITEM_ADDED:0") failures.push("detail clear did not restore focus to source detail trigger");
   if (detailClearResult.selectedDetailCount !== 0) failures.push("detail clear left selected detail trigger");
   if (detailClearResult.selectedRowCount !== 0) failures.push("detail clear left selected detail row");
   if (!detailClearResult.text.includes("焦点对象")) failures.push("detail clear did not keep selected object context");
