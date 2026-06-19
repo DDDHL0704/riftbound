@@ -22,7 +22,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "合法操作地图", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "窗口总览", "合法操作地图", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -339,6 +339,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const tableObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     const actionChip = document.querySelector('[data-action-object-id="p1-hand-spell"]');
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
+    const windowPlan = document.querySelector(".wire-window-plan");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
@@ -348,7 +349,9 @@ async function runWireClickSelectionSmoke(cdp) {
       candidatePlanText: candidatePlan?.textContent ?? "",
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
-      focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? ""
+      focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? "",
+      windowState: windowPlan?.getAttribute("data-wire-window-state") ?? null,
+      windowText: windowPlan?.textContent ?? ""
     };
   })()`);
 
@@ -434,6 +437,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.actionMapText.includes("下一步")) failures.push("action map candidate next-step text missing");
   if (!actionMapResult.actionMapText.includes("PLAY_CARD")) failures.push("action map command type missing");
   if (!actionMapResult.actionMapText.includes("服务端:cardNo*")) failures.push("action map metadata command field missing");
+  if (!["resolving", "you-action"].includes(actionMapResult.windowState)) failures.push(`wire window plan did not show a server-derived active state: ${actionMapResult.windowState}`);
+  if (!actionMapResult.windowText.includes("窗口总览")) failures.push("wire window plan header missing");
+  if (!actionMapResult.windowText.includes("下一步")) failures.push("wire window plan next step missing");
+  if (!actionMapResult.windowText.includes("可提交")) failures.push("wire window plan candidate metric missing");
+  if (!actionMapResult.windowText.includes("结算链")) failures.push("wire window plan stack metric missing");
+  if (!actionMapResult.windowText.includes("任务")) failures.push("wire window plan task metric missing");
   if (actionMapResult.candidatePlanCount < 1) failures.push("action map candidate plan cards missing");
   if (actionMapResult.candidatePlanEnabled !== "true") failures.push("PLAY_CARD candidate plan did not preserve enabled state");
   if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");
