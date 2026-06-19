@@ -1995,6 +1995,7 @@ button.card-face:hover {
 .generic-prompt-metadata,
 .candidate-composer-field,
 .candidate-composer-costs,
+.candidate-command-preview,
 .snapshot-debug-section,
 .snapshot-player-row {
   display: grid;
@@ -2005,6 +2006,7 @@ button.card-face:hover {
 
 .candidate-composer-field span,
 .candidate-composer-costs > strong,
+.candidate-command-preview span,
 .generic-prompt-option span {
   color: var(--text-primary);
   font-size: 0.84rem;
@@ -2018,6 +2020,26 @@ button.card-face:hover {
   color: var(--text-primary);
   font-size: 0.78rem;
   line-height: 1.3;
+}
+
+.candidate-command-preview {
+  display: grid;
+  gap: 4px;
+  font-size: 0.78rem;
+}
+
+.candidate-command-preview > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.candidate-command-preview span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .candidate-composer-warning {
@@ -11833,6 +11855,7 @@ button.card-face:hover {
 .wire-focused-actions .candidate-composer,
 .wire-focused-actions .candidate-composer-field,
 .wire-focused-actions .candidate-composer-costs,
+.wire-focused-actions .candidate-command-preview,
 .wire-focused-actions .candidate-composer-warning {
   border-color: #000 !important;
   border-radius: 0 !important;
@@ -12319,6 +12342,7 @@ button.wire-object-ref {
 .wire-match-page .candidate-composer,
 .wire-match-page .candidate-composer-field,
 .wire-match-page .candidate-composer-costs,
+.wire-match-page .candidate-command-preview,
 .wire-match-page .candidate-composer-warning,
 .wire-match-page .detail-drawer,
 .wire-match-page .detail-section,

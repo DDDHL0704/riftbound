@@ -294,6 +294,7 @@ async function runWireClickSelectionSmoke(cdp) {
       otherTargetState: attr("p2-right-1"),
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
+      previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
       targetSelectValue: targetSelect?.value ?? null
     };
   })()`);
@@ -308,7 +309,8 @@ async function runWireClickSelectionSmoke(cdp) {
     return {
       exhaustedRuneState: attr("p1-rune-2"),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
-      checkedCost
+      checkedCost,
+      previewText: document.querySelector(".candidate-command-preview")?.textContent ?? ""
     };
   })()`);
 
@@ -377,10 +379,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (targetResult.otherTargetState !== "target") failures.push("other target no longer legal target");
   if (targetResult.detailLayerOpen) failures.push("target click opened detail");
   if (!targetResult.draftText.includes("目标 1")) failures.push("draft target count missing");
+  if (!targetResult.previewText.includes("提交摘要")) failures.push("candidate command preview missing");
+  if (targetResult.previewText.includes("目标：无")) failures.push("candidate command preview did not include chosen target");
   if (targetResult.targetSelectValue !== "p2-left-1") failures.push("composer target select did not follow target click");
   if (costResult.exhaustedRuneState !== "chosen") failures.push("clicked optional cost not chosen");
   if (!costResult.draftText.includes("费用 1")) failures.push("draft cost count missing");
   if (!costResult.checkedCost.some((text) => text.includes("回收已抽出符文"))) failures.push("composer optional cost not checked");
+  if (!costResult.previewText.includes("回收已抽出符文")) failures.push("candidate command preview did not include chosen optional cost");
   if (destinationResult.moveSourceSelected !== "true") failures.push("move source focus was not preserved");
   if (destinationResult.moveSourceState !== "source") failures.push("move source state missing");
   if (destinationResult.destinationState !== "chosen") failures.push("destination not chosen");
