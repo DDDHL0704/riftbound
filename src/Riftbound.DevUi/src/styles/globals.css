@@ -12116,6 +12116,66 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-action-command,
+.wire-action-command ol {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.wire-action-command {
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+.wire-action-command-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-action-command-title strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-action-command ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-action-command li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 82px;
+  gap: 4px;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid #000;
+}
+
+.wire-action-command li.is-required {
+  border-width: 2px;
+}
+
+.wire-action-command li span,
+.wire-action-command li small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-action-command-empty {
+  border: 1px dashed #000;
+  padding: 3px;
+}
+
 .wire-rule-queue {
   align-content: start;
 }

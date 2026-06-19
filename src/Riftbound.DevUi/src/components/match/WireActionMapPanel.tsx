@@ -5,6 +5,7 @@ import {
   buildPromptInteractionModel,
   promptChoiceRoleLabel,
   type PromptCandidateSummary,
+  type PromptCommandBindingSummary,
   type PromptChoiceRole,
   type PromptInteractionModel
 } from "../../utils/promptInteraction";
@@ -107,7 +108,7 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
             <article className="wire-action-sequence" key={`${candidate.action}-${candidate.label}`}>
               <div className="wire-action-sequence-title">
                 <span>{candidate.label}</span>
-                <small>{candidate.steps.length} 步</small>
+                <small>{candidate.steps.length} 步 / {candidate.command?.bindings.length ?? 0} 字段</small>
               </div>
               <ol>
                 {candidate.steps.map((step) => (
@@ -118,10 +119,34 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
                   </li>
                 ))}
               </ol>
+              <CommandFieldList candidate={candidate} />
             </article>
           ))}
       </div>
     </section>
+  );
+}
+
+function CommandFieldList({ candidate }: { candidate: PromptCandidateSummary }) {
+  if (!candidate.command) {
+    return <span className="wire-action-command-empty">命令字段：服务端未公开模板</span>;
+  }
+
+  return (
+    <div className="wire-action-command" aria-label={`${candidate.label} 服务端命令字段`}>
+      <div className="wire-action-command-title">
+        <span>命令字段</span>
+        <strong>{candidate.command.cmdType}</strong>
+      </div>
+      <ol>
+        {candidate.command.bindings.map((binding, index) => (
+          <li className={binding.required ? "is-required" : ""} data-command-field={binding.field} key={`${candidate.action}-${binding.field}-${binding.source}-${index}`}>
+            <span>{commandBindingLabel(binding)}</span>
+            <small>{binding.required ? "必需" : "可选"} / {commandBindingSourceLabel(binding)}</small>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 
@@ -132,6 +157,20 @@ function Metric({ label, value }: { label: string; value: string }) {
       <strong>{value}</strong>
     </span>
   );
+}
+
+function commandBindingLabel(binding: PromptCommandBindingSummary): string {
+  const label = binding.label ?? binding.roleLabel ?? (binding.source === "requirementMetadata" ? "服务端" : "");
+  const prefix = label ? `${label}:` : "";
+  return `${prefix}${binding.field}${binding.required ? "*" : ""}`;
+}
+
+function commandBindingSourceLabel(binding: PromptCommandBindingSummary): string {
+  if (binding.source === "requirementMetadata") {
+    return "服务端注入";
+  }
+
+  return binding.roleLabel ? "玩家选择" : binding.source;
 }
 
 function actionGroups(model: PromptInteractionModel): ActionGroup[] {
