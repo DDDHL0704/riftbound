@@ -1,5 +1,12 @@
-import type { CardObjectView } from "../types/protocol";
+import type { ActionPromptDto, CardObjectView } from "../types/protocol";
 import { summarizePromptCandidateSemantics } from "./promptCandidateSemantics";
+import {
+  buildPromptInteractionModel,
+  promptChoiceRoleLabel,
+  promptChoiceSummaryObjectIds,
+  type PromptCandidateSummary,
+  type PromptChoiceRole
+} from "./promptInteraction";
 import type { TableObjectContext } from "./tableObjectContext";
 
 export type WireTimelineDetailLineLike = {
@@ -74,6 +81,26 @@ export type WireTimelineNavigationRow = {
   zoneLabel: string;
 };
 
+export type WireTimelineCommandBridgeObjectRef = {
+  key: string;
+  label: string;
+  objectId: string;
+  roleLabel: string;
+};
+
+export type WireTimelineCommandBridgeRow = {
+  commandType?: string;
+  detailObjectId: string;
+  enabled: boolean;
+  key: string;
+  label: string;
+  nextObjectRefs: WireTimelineCommandBridgeObjectRef[];
+  nextStepLabel: string;
+  reasonLabel: string;
+  roleLabels: string[];
+  stateLabel: string;
+};
+
 export type WireTimelineInspectorProjection = {
   count: number;
   key: WireTimelineProjectionState;
@@ -92,6 +119,7 @@ export type WireTimelineInspectorCandidate = {
 
 export type WireTimelineDetailInspectorPlan = {
   actionCandidateCount: number;
+  commandBridgeCount: number;
   hiddenRefCount: number;
   missingRefCount: number;
   projectionRows: WireTimelineInspectorProjection[];
@@ -104,6 +132,7 @@ export type WireTimelineDetailInspectorPlan = {
 
 export type WireTimelineDetailPlan = {
   actionHintRows: WireTimelineActionHintRow[];
+  commandBridgeRows: WireTimelineCommandBridgeRow[];
   headerSubtitle: string;
   headerTitle: string;
   inspector: WireTimelineDetailInspectorPlan;
@@ -116,17 +145,20 @@ export function buildWireTimelineDetailPlan({
   detail,
   objectContextById = {},
   objectIndex,
+  prompt,
   selectedObjectContext,
   selectedObjectId
 }: {
   detail?: WireTimelineDetailLike;
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: Record<string, CardObjectView>;
+  prompt?: ActionPromptDto;
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
 }): WireTimelineDetailPlan {
   const projectionRows = detail ? projectionRowsForDetail(detail, objectIndex, selectedObjectId) : [];
   const actionHintRows = detail ? actionHintRowsForDetail(detail, objectIndex, objectContextById) : [];
+  const commandBridgeRows = detail ? commandBridgeRowsForDetail(detail, objectIndex, prompt) : [];
   const navigationRows = navigationRowsForDetail(projectionRows, objectContextById);
   const selectedProjection = projectionRows.some((row) => row.state === "selected");
   const visibleProjectionCount = projectionRows.filter((row) => row.state === "selected" || row.state === "visible").length;
@@ -147,20 +179,71 @@ export function buildWireTimelineDetailPlan({
     headerTitle: detail ? detail.title : selectedObjectContext ? "焦点对象规则上下文" : "未选择规则事件",
     inspector: inspectorPlan({
       actionHintRows,
+      commandBridgeRows,
       detail,
       projectionRows,
       visibleProjectionCount
     }),
     navigationRows,
+    commandBridgeRows,
     projectionRows,
     statusCards: [
       { label: "详情来源", value: detail ? detailSourceLabel(detail.source) : "无" },
       { label: "桌面投影", value: projectionRows.length > 0 ? `${visibleProjectionCount} / ${projectionRows.length} 可定位` : "无对象" },
       { label: "当前焦点", value: focusValue },
       { label: "焦点关联", value: selectedProjection ? "已命中详情对象" : detail ? "未命中详情对象" : "无详情" },
-      { label: "关联候选", value: actionHintRows.length > 0 ? `${enabledActionHintCount} 可用 / ${disabledActionHintCount} 阻断` : "无候选" }
+      { label: "关联候选", value: actionHintRows.length > 0 ? `${enabledActionHintCount} 可用 / ${disabledActionHintCount} 阻断` : "无候选" },
+      { label: "候选路径", value: commandBridgeRows.length > 0 ? `${commandBridgeRows.length} 条` : "无路径" }
     ]
   };
+}
+
+function commandBridgeRowsForDetail(
+  detail: WireTimelineDetailLike,
+  objectIndex: Record<string, CardObjectView>,
+  prompt?: ActionPromptDto
+): WireTimelineCommandBridgeRow[] {
+  const promptModel = buildPromptInteractionModel(prompt);
+  const rows: WireTimelineCommandBridgeRow[] = [];
+  const seen = new Set<string>();
+  const visibleRefIds = detail.refs
+    .map((ref) => ref.id.trim())
+    .filter((id) => id && id !== "HIDDEN" && objectIndex[id]);
+
+  for (const objectId of visibleRefIds) {
+    for (const candidate of promptModel.candidates) {
+      const roleLabels = roleLabelsForObject(candidate, objectId);
+      if (roleLabels.length === 0) {
+        continue;
+      }
+
+      const key = `${candidate.action}:${candidate.label}:${objectId}`;
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+
+      const nextStep = nextStepForCommandBridge(candidate, roleLabels);
+      rows.push({
+        commandType: candidate.command?.cmdType ?? candidate.action,
+        detailObjectId: objectId,
+        enabled: candidate.enabled,
+        key,
+        label: candidate.label,
+        nextObjectRefs: nextStep ? objectRefsForCommandBridge(candidate, nextStep.role, objectIndex) : [],
+        nextStepLabel: nextStepLabelForCommandBridge(candidate, nextStep),
+        reasonLabel: candidate.reason,
+        roleLabels,
+        stateLabel: candidate.enabled ? "可提交" : "暂不可提交"
+      });
+    }
+  }
+
+  return rows.sort((left, right) =>
+    Number(right.enabled) - Number(left.enabled)
+    || right.nextObjectRefs.length - left.nextObjectRefs.length
+    || left.label.localeCompare(right.label, "zh-Hans-CN")
+  ).slice(0, 6);
 }
 
 function navigationRowsForDetail(
@@ -191,11 +274,13 @@ function navigationRowsForDetail(
 
 function inspectorPlan({
   actionHintRows,
+  commandBridgeRows,
   detail,
   projectionRows,
   visibleProjectionCount
 }: {
   actionHintRows: WireTimelineActionHintRow[];
+  commandBridgeRows: WireTimelineCommandBridgeRow[];
   detail?: WireTimelineDetailLike;
   projectionRows: WireTimelineProjectionRow[];
   visibleProjectionCount: number;
@@ -208,6 +293,7 @@ function inspectorPlan({
 
   return {
     actionCandidateCount,
+    commandBridgeCount: commandBridgeRows.length,
     hiddenRefCount,
     missingRefCount,
     projectionRows: projectionStateRows(projectionRows),
@@ -223,7 +309,7 @@ function inspectorPlan({
     selectedProjectionCount,
     sourceLabel,
     summary: detail
-      ? `${sourceLabel} / 可定位 ${visibleProjectionCount} / 隐藏 ${hiddenRefCount} / 未公开 ${missingRefCount} / 候选 ${actionCandidateCount}`
+      ? `${sourceLabel} / 可定位 ${visibleProjectionCount} / 隐藏 ${hiddenRefCount} / 未公开 ${missingRefCount} / 候选 ${actionCandidateCount} / 路径 ${commandBridgeRows.length}`
       : "未选择详情",
     visibleRefCount: visibleProjectionCount
   };
@@ -353,6 +439,58 @@ function projectionStateLabel(state: WireTimelineProjectionState): string {
   }
 }
 
+function roleLabelsForObject(candidate: PromptCandidateSummary, objectId: string): string[] {
+  return uniqueStrings(candidate.choices
+    .filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId))
+    .map((choice) => promptChoiceRoleLabel(choice.role)));
+}
+
+function nextStepForCommandBridge(
+  candidate: PromptCandidateSummary,
+  selectedRoleLabels: string[]
+): PromptCandidateSummary["steps"][number] | undefined {
+  return candidate.steps.find((step) =>
+    step.required && !selectedRoleLabels.includes(promptChoiceRoleLabel(step.role)))
+    ?? candidate.steps.find((step) =>
+      step.count > 0 && !selectedRoleLabels.includes(promptChoiceRoleLabel(step.role)));
+}
+
+function nextStepLabelForCommandBridge(
+  candidate: PromptCandidateSummary,
+  nextStep: PromptCandidateSummary["steps"][number] | undefined
+): string {
+  if (nextStep) {
+    return nextStep.required ? `需要${nextStep.label}` : `可选${nextStep.label}`;
+  }
+
+  return candidate.enabled ? "可提交给服务端" : "等待服务端窗口";
+}
+
+function objectRefsForCommandBridge(
+  candidate: PromptCandidateSummary,
+  role: PromptChoiceRole,
+  objectIndex: Record<string, CardObjectView>
+): WireTimelineCommandBridgeObjectRef[] {
+  const refs: WireTimelineCommandBridgeObjectRef[] = [];
+  const seen = new Set<string>();
+  for (const choice of candidate.choices.filter((item) => item.role === role)) {
+    const objectId = promptChoiceSummaryObjectIds(choice).find((id) => objectIndex[id]);
+    if (!objectId || seen.has(objectId)) {
+      continue;
+    }
+
+    seen.add(objectId);
+    refs.push({
+      key: `${candidate.action}:${role}:${choice.id}:${objectId}`,
+      label: choice.label || objectIndex[objectId]?.cardNo || "服务端对象",
+      objectId,
+      roleLabel: promptChoiceRoleLabel(role)
+    });
+  }
+
+  return refs.slice(0, 4);
+}
+
 function navigationActionState(context?: TableObjectContext): WireTimelineNavigationActionState {
   if (!context) {
     return "none";
@@ -408,4 +546,8 @@ function navigationFocusLabel(state: WireTimelineProjectionState): string {
 
 function detailSourceLabel(source: WireTimelineDetailLike["source"]): string {
   return source === "event" ? "日志事件" : "规则队列";
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }

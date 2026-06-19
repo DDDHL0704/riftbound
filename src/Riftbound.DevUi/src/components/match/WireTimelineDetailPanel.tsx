@@ -1,7 +1,9 @@
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { useState } from "react";
+import type { ActionPromptDto } from "../../types/protocol";
 import {
   buildWireTimelineDetailPlan,
+  type WireTimelineCommandBridgeRow,
   type WireTimelineDetailInspectorPlan,
   type WireTimelineNavigationRow
 } from "../../utils/wireTimelineDetailPlan";
@@ -29,6 +31,7 @@ export function WireTimelineDetailPanel({
   objectIndex,
   onClear,
   onInspectObject,
+  prompt,
   selectedObjectContext,
   selectedObjectId
 }: {
@@ -37,6 +40,7 @@ export function WireTimelineDetailPanel({
   objectIndex: WireObjectIndex;
   onClear: () => void;
   onInspectObject?: (objectId: string) => void;
+  prompt?: ActionPromptDto;
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
 }) {
@@ -45,6 +49,7 @@ export function WireTimelineDetailPanel({
     detail,
     objectContextById,
     objectIndex,
+    prompt,
     selectedObjectContext,
     selectedObjectId
   });
@@ -56,6 +61,7 @@ export function WireTimelineDetailPanel({
       className="wire-timeline-detail"
       aria-label="规则与事件详情"
       data-wire-timeline-action-candidate-count={plan.inspector.actionCandidateCount}
+      data-wire-timeline-command-bridge-count={plan.inspector.commandBridgeCount}
       data-wire-timeline-detail-id={detail?.id ?? ""}
       data-wire-timeline-detail-state={detailState}
       data-wire-timeline-hidden-ref-count={plan.inspector.hiddenRefCount}
@@ -97,6 +103,10 @@ export function WireTimelineDetailPanel({
             <TimelineNavigator
               onInspectObject={onInspectObject}
               rows={plan.navigationRows}
+            />
+            <TimelineCommandBridge
+              onInspectObject={onInspectObject}
+              rows={plan.commandBridgeRows}
             />
             <TimelineInspector open={inspectorOpen} plan={plan.inspector} />
             <div className="wire-timeline-detail-lines">
@@ -154,6 +164,59 @@ export function WireTimelineDetailPanel({
           <span className="empty-hint">暂无焦点事件。</span>
         )}
       </div>
+    </section>
+  );
+}
+
+function TimelineCommandBridge({
+  onInspectObject,
+  rows
+}: {
+  onInspectObject?: (objectId: string) => void;
+  rows: WireTimelineCommandBridgeRow[];
+}) {
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="wire-timeline-command-bridge" aria-label="详情候选路径">
+      <header>
+        <strong>候选路径</strong>
+        <span>{rows.length} 条服务端候选关联</span>
+      </header>
+      <ol>
+        {rows.map((row) => (
+          <li
+            data-timeline-command-bridge-enabled={row.enabled ? "true" : "false"}
+            data-timeline-command-bridge-object-id={row.detailObjectId}
+            key={row.key}
+          >
+            <div className="wire-timeline-command-bridge-main">
+              <span>{row.label}</span>
+              <strong>{row.nextStepLabel}</strong>
+              <small>{row.roleLabels.join(" / ")} / {row.commandType ?? "未公开命令"} / {row.stateLabel}</small>
+              {!row.enabled && <small>{row.reasonLabel}</small>}
+            </div>
+            {row.nextObjectRefs.length > 0 && (
+              <div className="wire-timeline-command-bridge-refs" role="group" aria-label={`${row.label} 下一步对象`}>
+                {row.nextObjectRefs.map((ref) => (
+                  <button
+                    data-timeline-command-bridge-next-object-id={ref.objectId}
+                    data-timeline-command-bridge-next-role={ref.roleLabel}
+                    key={ref.key}
+                    onClick={() => onInspectObject?.(ref.objectId)}
+                    type="button"
+                  >
+                    <span>{ref.roleLabel}</span>
+                    <strong>{ref.label}</strong>
+                  </button>
+                ))}
+              </div>
+            )}
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
@@ -266,6 +329,7 @@ function TimelineInspector({ open, plan }: { open: boolean; plan: WireTimelineDe
         <span>隐藏 {plan.hiddenRefCount}</span>
         <span>未公开 {plan.missingRefCount}</span>
         <span>候选 {plan.actionCandidateCount}</span>
+        <span>路径 {plan.commandBridgeCount}</span>
       </footer>
     </aside>
   );

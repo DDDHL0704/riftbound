@@ -1138,6 +1138,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
     return {
       text: panel?.textContent ?? "",
       actionCandidateCount: Number(panel?.getAttribute("data-wire-timeline-action-candidate-count") ?? "-1"),
+      commandBridgeCount: Number(panel?.getAttribute("data-wire-timeline-command-bridge-count") ?? "-1"),
       detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
       detailSource: panel?.getAttribute("data-wire-timeline-source") ?? "",
       hiddenRefCount: Number(panel?.getAttribute("data-wire-timeline-hidden-ref-count") ?? "-1"),
@@ -1165,6 +1166,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
       navigationObjectIds: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
         .map((item) => item.getAttribute("data-timeline-navigation-object-id") ?? ""),
       navigationText: panel?.querySelector(".wire-timeline-navigation-list")?.textContent ?? "",
+      commandBridgeEnabledStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-enabled")),
+      commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
+      commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
+      commandBridgeRowCount: panel?.querySelectorAll(".wire-timeline-command-bridge li").length ?? 0,
+      commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
       actionHintButtonCount: panel?.querySelectorAll(".wire-timeline-action-hint-button").length ?? 0,
@@ -1187,6 +1195,22 @@ async function runWireRuleObjectRefSmoke(cdp) {
       projectionCount: inspector?.querySelectorAll("[data-timeline-inspector-projection]").length ?? 0,
       text: inspector?.textContent ?? "",
       toggleExpanded: document.querySelector("[data-timeline-inspector-toggle]")?.getAttribute("aria-expanded") ?? null
+    };
+  })()`);
+
+  const commandBridgeObjectId = await clickTimelineCommandBridgeNext(cdp);
+  await delay(150);
+  const commandBridgeFocusResult = await evaluateJson(cdp, `(() => {
+    const objectId = ${JSON.stringify(commandBridgeObjectId)};
+    const tableObject = document.querySelector(\`[data-object-id="\${objectId}"]\`);
+    const selectedObjectContext = document.querySelector(\`[data-wire-selected-object-context="\${objectId}"]\`);
+    const panel = document.querySelector(".wire-timeline-detail");
+    return {
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      objectId,
+      panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      selectedContext: Boolean(selectedObjectContext)
     };
   })()`);
 
@@ -1218,6 +1242,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
     return {
       text: panel?.textContent ?? "",
       actionCandidateCount: Number(panel?.getAttribute("data-wire-timeline-action-candidate-count") ?? "-1"),
+      commandBridgeCount: Number(panel?.getAttribute("data-wire-timeline-command-bridge-count") ?? "-1"),
       detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
       detailSource: panel?.getAttribute("data-wire-timeline-source") ?? "",
       hiddenRefCount: Number(panel?.getAttribute("data-wire-timeline-hidden-ref-count") ?? "-1"),
@@ -1250,6 +1275,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
       navigationObjectIds: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
         .map((item) => item.getAttribute("data-timeline-navigation-object-id") ?? ""),
       navigationText: panel?.querySelector(".wire-timeline-navigation-list")?.textContent ?? "",
+      commandBridgeEnabledStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-enabled")),
+      commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
+      commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
+      commandBridgeRowCount: panel?.querySelectorAll(".wire-timeline-command-bridge li").length ?? 0,
+      commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
       actionHintText: panel?.querySelector(".wire-timeline-action-hint-list")?.textContent ?? "",
@@ -1301,6 +1333,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (ruleDetailResult.detailSource !== "rule") failures.push("rule detail source data attr missing");
   if (ruleDetailResult.visibleRefCount < 2) failures.push(`rule detail visible ref count too low: ${ruleDetailResult.visibleRefCount}`);
   if (ruleDetailResult.actionCandidateCount < 1) failures.push("rule detail action candidate count missing");
+  if (ruleDetailResult.commandBridgeCount < 1) failures.push("rule detail command bridge count missing");
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
   if (!ruleDetailResult.hasTargetRef) failures.push("rule detail target ref missing");
@@ -1318,6 +1351,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.navigationActionStates.includes("available")) failures.push("rule detail navigation available action state missing");
   if (!ruleDetailResult.navigationText.includes("可聚焦")) failures.push("rule detail navigation focus label missing");
   if (!ruleDetailResult.navigationText.includes("可用")) failures.push("rule detail navigation action label missing");
+  if (ruleDetailResult.commandBridgeRowCount < 1) failures.push("rule detail command bridge rows missing");
+  if (ruleDetailResult.commandBridgeNextButtonCount < 1) failures.push("rule detail command bridge next object buttons missing");
+  if (!ruleDetailResult.commandBridgeNextObjectIds.includes("p2-right-1")) failures.push("rule detail command bridge target object missing");
+  if (!ruleDetailResult.commandBridgeEnabledStates.includes("true")) failures.push("rule detail command bridge enabled state missing");
+  if (!ruleDetailResult.commandBridgeText.includes("候选路径")) failures.push("rule detail command bridge title missing");
+  if (!ruleDetailResult.commandBridgeText.includes("PLAY_CARD")) failures.push("rule detail command bridge command type missing");
+  if (!ruleDetailResult.commandBridgeText.includes("可选目标")) failures.push("rule detail command bridge next step missing");
   if (ruleDetailResult.actionHintCount < 1) failures.push("rule detail candidate hint rows missing");
   if (ruleDetailResult.actionHintButtonCount < 1) failures.push("rule detail candidate hint buttons missing");
   if (!ruleDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("rule detail candidate hint command type missing");
@@ -1332,6 +1372,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!timelineInspectorResult.text.includes("隐藏")) failures.push("timeline inspector hidden boundary missing");
   if (timelineInspectorResult.projectionCount < 4) failures.push("timeline inspector projection states missing");
   if (timelineInspectorResult.candidateCount < 1) failures.push("timeline inspector candidate rows missing");
+  if (commandBridgeFocusResult.panelState !== "rule") failures.push(`command bridge focus changed detail panel state: ${commandBridgeFocusResult.panelState}`);
+  if (commandBridgeFocusResult.objectId !== "p2-right-1") failures.push(`command bridge focused unexpected object: ${commandBridgeFocusResult.objectId}`);
+  if (commandBridgeFocusResult.selected !== "true") failures.push("command bridge button did not focus table object");
+  if (!commandBridgeFocusResult.selectedContext) failures.push("command bridge button did not expose selected object context");
+  if (commandBridgeFocusResult.detailLayerOpen) failures.push("command bridge button opened card detail layer");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
   if (!ruleDetailResult.selectedRow) failures.push("rule detail selected row missing");
@@ -1351,6 +1396,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (eventDetailResult.detailSource !== "event") failures.push("event detail source data attr missing");
   if (eventDetailResult.visibleRefCount < 2) failures.push(`event detail visible ref count too low: ${eventDetailResult.visibleRefCount}`);
   if (eventDetailResult.actionCandidateCount < 1) failures.push("event detail action candidate count missing");
+  if (eventDetailResult.commandBridgeCount < 1) failures.push("event detail command bridge count missing");
   if (eventDetailResult.logState !== "events") failures.push(`event log plan state unexpected: ${eventDetailResult.logState}`);
   if (eventDetailResult.logVisibleCount < 1) failures.push("event log plan visible count missing");
   if (eventDetailResult.logHiddenCount !== 0) failures.push(`event log hidden count unexpected: ${eventDetailResult.logHiddenCount}`);
@@ -1372,6 +1418,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.navigationActionStates.includes("available")) failures.push("event detail navigation available action state missing");
   if (!eventDetailResult.navigationText.includes("可聚焦")) failures.push("event detail navigation focus label missing");
   if (!eventDetailResult.navigationText.includes("可用")) failures.push("event detail navigation action label missing");
+  if (eventDetailResult.commandBridgeRowCount < 1) failures.push("event detail command bridge rows missing");
+  if (eventDetailResult.commandBridgeNextButtonCount < 1) failures.push("event detail command bridge next object buttons missing");
+  if (!eventDetailResult.commandBridgeNextObjectIds.includes("p2-right-1")) failures.push("event detail command bridge target object missing");
+  if (!eventDetailResult.commandBridgeEnabledStates.includes("true")) failures.push("event detail command bridge enabled state missing");
+  if (!eventDetailResult.commandBridgeText.includes("候选路径")) failures.push("event detail command bridge title missing");
+  if (!eventDetailResult.commandBridgeText.includes("PLAY_CARD")) failures.push("event detail command bridge command type missing");
+  if (!eventDetailResult.commandBridgeText.includes("可选目标")) failures.push("event detail command bridge next step missing");
   if (eventDetailResult.actionHintCount < 1) failures.push("event detail candidate hint rows missing");
   if (!eventDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("event detail candidate hint command type missing");
   if (!eventDetailResult.actionHintText.includes("必填")) failures.push("event detail candidate hint required fields missing");
@@ -1617,6 +1670,24 @@ async function clickTimelineActionHint(cdp) {
   const objectId = String(result.result?.value ?? "");
   if (!objectId) {
     throw new Error("Wire timeline action hint button not found");
+  }
+  return objectId;
+}
+
+async function clickTimelineCommandBridgeNext(cdp) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector("[data-timeline-command-bridge-next-object-id]");
+      if (!element) return "";
+      const objectId = element.getAttribute("data-timeline-command-bridge-next-object-id") ?? "";
+      element.click();
+      return objectId;
+    })()`,
+    returnByValue: true
+  });
+  const objectId = String(result.result?.value ?? "");
+  if (!objectId) {
+    throw new Error("Wire timeline command bridge next object button not found");
   }
   return objectId;
 }

@@ -40,11 +40,17 @@ const moduleShim = { exports: {} };
 new Function(
   "exports",
   "module",
+  "buildPromptInteractionModel",
+  "promptChoiceRoleLabel",
+  "promptChoiceSummaryObjectIds",
   "summarizePromptCandidateSemantics",
   output
 )(
   moduleShim.exports,
   moduleShim,
+  buildPromptInteractionModel,
+  promptChoiceRoleLabel,
+  promptChoiceSummaryObjectIds,
   candidateSemanticsModuleShim.exports.summarizePromptCandidateSemantics
 );
 
@@ -66,6 +72,33 @@ const plan = buildWireTimelineDetailPlan({
   objectIndex: {
     "source-1": { objectId: "source-1", cardNo: "OGN-001/298" },
     "target-1": { objectId: "target-1", cardNo: "SFD-001/221" }
+  },
+  prompt: {
+    __model: {
+      candidates: [
+        {
+          action: "PLAY_CARD",
+          choices: [
+            { id: "source-1", label: "手牌闪电", objectIds: ["source-1"], role: "source" },
+            { id: "target-1", label: "目标牌", objectIds: ["target-1"], role: "target" }
+          ],
+          command: {
+            bindings: [
+              { field: "sourceObjectId", required: true, role: "source", source: "selectedSource" },
+              { field: "targetObjectIds", required: false, role: "target", source: "selectedTargets" }
+            ],
+            cmdType: "PLAY_CARD"
+          },
+          enabled: true,
+          label: "打出卡牌",
+          reason: "可提交",
+          steps: [
+            { count: 1, label: "来源", required: true, role: "source", sampleLabels: ["手牌闪电"] },
+            { count: 1, label: "目标", required: false, role: "target", sampleLabels: ["目标牌"] }
+          ]
+        }
+      ]
+    }
   },
   objectContextById: {
     "source-1": {
@@ -128,15 +161,32 @@ assert.equal(plan.statusCards[1].value, "2 / 4 可定位");
 assert.equal(plan.statusCards[2].value, "我方手牌");
 assert.equal(plan.statusCards[3].value, "已命中详情对象");
 assert.equal(plan.statusCards[4].value, "1 可用 / 1 阻断");
+assert.equal(plan.statusCards[5].value, "2 条");
 assert.equal(plan.inspector.sourceLabel, "规则队列");
 assert.equal(plan.inspector.visibleRefCount, 2);
 assert.equal(plan.inspector.selectedProjectionCount, 1);
 assert.equal(plan.inspector.hiddenRefCount, 1);
 assert.equal(plan.inspector.missingRefCount, 1);
 assert.equal(plan.inspector.actionCandidateCount, 2);
+assert.equal(plan.inspector.commandBridgeCount, 2);
 assert.equal(plan.inspector.projectionRows.find((row) => row.key === "selected")?.count, 1);
 assert.equal(plan.inspector.projectionRows.find((row) => row.key === "visible")?.count, 1);
 assert.equal(plan.inspector.candidateRows[0].label, "OGN-001/298");
+assert.equal(plan.commandBridgeRows.length, 2);
+assert.equal(plan.commandBridgeRows[0].detailObjectId, "source-1");
+assert.equal(plan.commandBridgeRows[0].commandType, "PLAY_CARD");
+assert.equal(plan.commandBridgeRows[0].enabled, true);
+assert.deepEqual(plan.commandBridgeRows[0].roleLabels, ["来源"]);
+assert.equal(plan.commandBridgeRows[0].nextStepLabel, "可选目标");
+assert.deepEqual(plan.commandBridgeRows[0].nextObjectRefs, [{
+  key: "PLAY_CARD:target:target-1:target-1",
+  label: "目标牌",
+  objectId: "target-1",
+  roleLabel: "目标"
+}]);
+assert.equal(plan.commandBridgeRows[1].detailObjectId, "target-1");
+assert.deepEqual(plan.commandBridgeRows[1].roleLabels, ["目标"]);
+assert.equal(plan.commandBridgeRows[1].nextStepLabel, "需要来源");
 assert.equal(plan.navigationRows.length, 4);
 assert.deepEqual(plan.navigationRows.map((row) => row.focusState), ["selected", "focusable", "missing", "hidden"]);
 assert.deepEqual(plan.navigationRows.map((row) => row.projectionState), ["selected", "visible", "missing", "hidden"]);
@@ -168,3 +218,28 @@ assert.deepEqual(plan.actionHintRows[1].selectionRoleLabels, ["目标"]);
 assert.deepEqual(plan.actionHintRows[1].requiredCommandFieldLabels, ["目标:targetObjectIds*"]);
 
 console.log("Wire timeline detail plan check passed.");
+
+function buildPromptInteractionModel(prompt) {
+  return prompt?.__model ?? { candidates: [] };
+}
+
+function promptChoiceRoleLabel(role) {
+  switch (role) {
+    case "source":
+      return "来源";
+    case "target":
+      return "目标";
+    case "destination":
+      return "位置";
+    case "optionalCost":
+      return "费用";
+    case "mode":
+      return "模式";
+    default:
+      return role;
+  }
+}
+
+function promptChoiceSummaryObjectIds(choice) {
+  return choice.objectIds ?? [choice.id];
+}
