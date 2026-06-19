@@ -1,13 +1,13 @@
 import { Play, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
-import { commandForSourceCandidate, promptStampedCommand } from "../../utils/actionPromptCandidates";
+import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import { buildCardDetailPlan } from "../../utils/cardDetailPlan";
 import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
-import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
 import { buildPromptInteractionModel } from "../../utils/promptInteraction";
+import { buildSourceCandidateActionPlan } from "../../utils/sourceCandidateActionPlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
-import { CandidateComposer, canComposeCandidate } from "../match/CandidateComposer";
+import { CandidateComposer } from "../match/CandidateComposer";
 import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -124,9 +124,14 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
               ) : (
                 <div className="detail-action-list">
                   {sourceActions.map((candidate) => {
-                    const command = commandForSourceCandidate(candidate, sourceObjectId);
+                    const actionPlan = buildSourceCandidateActionPlan({
+                      canSubmitCommands: Boolean(stampedOnCommand),
+                      candidate,
+                      disabledByConnection: false,
+                      sourceObjectId
+                    });
 
-                    if (canComposeCandidate(candidate) && stampedOnCommand) {
+                    if (actionPlan.needsComposer && stampedOnCommand) {
                       return (
                         <CandidateComposer
                           candidate={candidate}
@@ -143,19 +148,20 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
 
                     return (
                       <Button
-                        disabled={!candidate.enabled || !command || !stampedOnCommand}
+                        disabled={actionPlan.disabled}
                         icon={<Play size={16} />}
                         key={candidate.action}
                         onClick={() => {
-                          if (command && stampedOnCommand) {
-                            stampedOnCommand(command);
+                          if (actionPlan.command && stampedOnCommand) {
+                            stampedOnCommand(actionPlan.command);
                             onClose();
                           }
                         }}
-                        title={command ? promptReasonTitle(candidate.reason) : "该操作还需要服务端提供目标、模式或费用选择后才能提交"}
-                        variant={candidate.enabled && command ? "primary" : "ghost"}
+                        title={actionPlan.title}
+                        variant={actionPlan.variant}
                       >
-                        {promptActionLabel(candidate)}
+                        {actionPlan.label}
+                        {actionPlan.labelSuffix}
                       </Button>
                     );
                   })}

@@ -2,7 +2,7 @@ import type { InspectedCard } from "../cards/CardFace";
 import { Maximize2, Play } from "lucide-react";
 import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
-import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
+import { promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
 import {
   buildPromptInteractionModel,
   promptChoiceSummaryObjectIds,
@@ -10,13 +10,13 @@ import {
   type PromptInteractionModel
 } from "../../utils/promptInteraction";
 import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
-import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import { candidateComposerKey } from "../../utils/candidateComposerModel";
 import { buildFocusedInteractionGrammarPlan, type FocusedInteractionGrammarPlan } from "../../utils/focusedInteractionGrammarPlan";
+import { buildSourceCandidateActionPlan } from "../../utils/sourceCandidateActionPlan";
 import { buildWirePromptCandidateListPlan, type WirePromptCandidateRowPlan } from "../../utils/wirePromptCandidatePlan";
 import { CardFace } from "../cards/CardFace";
-import { CandidateComposer, canComposeCandidate } from "./CandidateComposer";
+import { CandidateComposer } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
@@ -218,9 +218,14 @@ function FocusedActionList({
         </div>
       )}
       {candidates.slice(0, 4).map((candidate) => {
-        const command = commandForSourceCandidate(candidate, sourceObjectId);
+        const actionPlan = buildSourceCandidateActionPlan({
+          canSubmitCommands: Boolean(onCommand),
+          candidate,
+          disabledByConnection,
+          sourceObjectId
+        });
 
-        if (canComposeCandidate(candidate) && onCommand) {
+        if (actionPlan.needsComposer && onCommand) {
           const candidateDraft = selectionDraft?.candidateKey === candidateComposerKey(candidate)
             ? selectionDraft
             : undefined;
@@ -240,18 +245,19 @@ function FocusedActionList({
 
         return (
           <Button
-            disabled={disabledByConnection || !candidate.enabled || !command || !onCommand}
+            disabled={actionPlan.disabled}
             icon={<Play size={16} />}
             key={`${candidate.action}-${candidate.label}`}
             onClick={() => {
-              if (command && onCommand) {
-                onCommand(promptStampedCommand(command, prompt));
+              if (actionPlan.command && onCommand) {
+                onCommand(promptStampedCommand(actionPlan.command, prompt));
               }
             }}
-            title={command ? promptReasonTitle(candidate.reason) : "该候选还需要服务端提供完整选择后才能提交"}
-            variant={candidate.enabled && command ? "primary" : "ghost"}
+            title={actionPlan.title}
+            variant={actionPlan.variant}
           >
-            {promptActionLabel(candidate)}
+            {actionPlan.label}
+            {actionPlan.labelSuffix}
           </Button>
         );
       })}
