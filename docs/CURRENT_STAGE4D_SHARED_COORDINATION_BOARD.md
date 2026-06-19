@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted state: Stage 4D-223DE trigger-queue source-visibility detail validation accepted on local `main` as code commit `e2000662`; docs checkpoint follows. Runtime changed: yes, diagnostic detail only in `MatchRecoveryValidator`. Frontend changed: no. Trigger-queue invalid `sourceVisibility` diagnostics now append stable expected/actual details from a shared known-value set while preserving existing prefixes. Validation passed: focused source-visibility detail tests `7/7`; focused spectator replay timing triggerQueue shard `525/525`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`; `git diff --check` passed; anchored conflict-marker scan had no findings. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2`; pre-docs-sync recorded `main...codex/ui-followup-20260616` divergence was `228 0`; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` had no commits ahead of `main`; pre-docs-sync recorded divergence was `301 0`; root PDF text remained available. Project remains **NOT READY**.
+Current A_MAIN latest accepted state: Stage 4D-223DF trigger-queue source-visibility detail lock accepted on local `main` as code commit `7e6bb5b5`; docs checkpoint follows. Runtime changed: yes, helper routing / diagnostic detail only in `MatchRecoveryValidator`. Frontend changed: no. Trigger-queue `sourceVisibility` validation now uses a dedicated helper so snapshot and spectator replay timing paths consistently carry the `[VISIBLE, HIDDEN]` expected/actual detail, and remaining spectator replay invalid-value assertions require the full suffix. Validation passed: focused source-visibility detail lock tests `7/7`; focused spectator replay timing triggerQueue shard `525/525`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`; `git diff --check` passed; anchored conflict-marker scan had no findings. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2`; pre-docs-sync recorded `main...codex/ui-followup-20260616` divergence was `230 0`; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` had no commits ahead of `main`; pre-docs-sync recorded divergence was `303 0`; root PDF text remained available. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,11 +65,27 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223DE trigger-queue source-visibility detail validation is code commit `e2000662`; docs checkpoint follows. A_MAIN will continue directly on this `main` worktree per user request.
-- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 13:12 CST at `01364ee2`; pre-docs-sync recorded `main...codex/ui-followup-20260616` divergence was `228 0` after the 223DE code commit. Exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223DF trigger-queue source-visibility detail lock is code commit `7e6bb5b5`; docs checkpoint follows. A_MAIN will continue directly on this `main` worktree per user request.
+- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 13:20 CST at `01364ee2`; pre-docs-sync recorded `main...codex/ui-followup-20260616` divergence was `230 0` after the 223DF code commit. Exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
 - Historical DOC_MATRIX handoff `17bde0c3` and source `7cb78f27` have already been integrated into `main`; no current DOC_MATRIX worktree is active unless the user opens one explicitly.
 
 ## Current Entries
+
+### 2026-06-19 13:20 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at code commit `7e6bb5b5`; docs checkpoint follows.
+
+Write locks: A_MAIN touched `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current completion/P0-P1/dispatch docs, this board, and `docs/CURRENT_STAGE4D_223DF_TRIGGER_QUEUE_SOURCE_VISIBILITY_DETAIL_LOCK_AUDIT.md`.
+
+Status: 223DF triggerQueue source-visibility diagnostic detail lock accepted. Runtime changed: yes, helper routing / diagnostic detail only. Frontend changed: no. External UI followup worktree remained clean at `01364ee2`; pre-docs-sync recorded divergence was `230 0`; `codex/rule-audit-remaining-20260615` remained no-ahead with pre-docs-sync recorded divergence `303 0`; exact divergence must be rechecked before integration.
+
+Validation: focused source-visibility detail lock tests `7/7`; focused spectator replay timing triggerQueue shard `525/525`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`; `git diff --check`; anchored conflict-marker scan.
+
+Requested action: none. Next A_MAIN slice should continue directly on `/Users/dinghaolin/IdeaProjects/riftbound` `main`, rechecking this board, `AGENTS.md`, PDF gate, UI followup, and `codex/rule-audit-remaining-20260615` first.
 
 ### 2026-06-19 13:12 A_MAIN
 
