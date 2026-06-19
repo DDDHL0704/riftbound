@@ -610,6 +610,21 @@ async function runWireClickSelectionSmoke(cdp) {
     };
   })()`);
 
+  await clickButtonByText(cdp, "展开路线检查");
+  await delay(150);
+  const routeInspectorResult = await evaluateJson(cdp, `(() => {
+    const inspector = document.querySelector(".wire-action-route-inspector");
+    return {
+      fieldStates: Array.from(inspector?.querySelectorAll("[data-route-inspector-field-state]") ?? [])
+        .map((node) => node.getAttribute("data-route-inspector-field-state")),
+      hidden: inspector?.hasAttribute("hidden") ?? true,
+      stepStates: Array.from(inspector?.querySelectorAll("[data-route-inspector-step-state]") ?? [])
+        .map((node) => node.getAttribute("data-route-inspector-step-state")),
+      text: inspector?.textContent ?? "",
+      toggleExpanded: document.querySelector("[data-action-route-inspector-toggle]")?.getAttribute("aria-expanded") ?? null
+    };
+  })()`);
+
   await clickActionMapObject(cdp, "p1-base-equip");
   await delay(150);
   const blockedActionMapResult = await evaluateJson(cdp, `(() => {
@@ -795,6 +810,14 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionFocusChoiceResult.draftText.includes("目标 1")) failures.push("action focus choice did not update target draft");
   if (actionFocusChoiceResult.previewText.includes("目标：无")) failures.push("action focus choice command preview missed target");
   if (actionFocusChoiceResult.detailLayerOpen) failures.push("action focus choice opened detail");
+  if (routeInspectorResult.hidden) failures.push("route inspector did not open");
+  if (routeInspectorResult.toggleExpanded !== "true") failures.push("route inspector toggle aria state missing");
+  if (!routeInspectorResult.text.includes("路线检查")) failures.push("route inspector header missing");
+  if (!routeInspectorResult.text.includes("字段覆盖")) failures.push("route inspector field section missing");
+  if (!routeInspectorResult.text.includes("服务端字段")) failures.push("route inspector server field safe label missing");
+  if (!routeInspectorResult.stepStates.includes("selected")) failures.push("route inspector selected step missing");
+  if (!routeInspectorResult.fieldStates.includes("covered")) failures.push("route inspector covered field missing");
+  if (!routeInspectorResult.fieldStates.includes("server")) failures.push("route inspector server field missing");
   if (blockedActionMapResult.selected !== "true") failures.push("blocked action map object chip did not focus table object");
   if (blockedActionMapResult.chipSelected !== "true") failures.push("blocked action map object chip did not show selected state");
   if (blockedActionMapResult.chipState !== "blocked") failures.push(`blocked action map chip state unexpected: ${blockedActionMapResult.chipState}`);

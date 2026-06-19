@@ -1,4 +1,5 @@
 import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
+import { useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
   buildWireActionMapPlan,
@@ -133,6 +134,8 @@ export function WireActionMapPanel({
 }
 
 function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
+  const [inspectorOpen, setInspectorOpen] = useState(false);
+
   if (!route) {
     return (
       <div className="wire-action-route-strip" data-action-route-state="empty" role="group" aria-label="当前候选路径">
@@ -179,6 +182,55 @@ function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
           ))}
         </div>
       )}
+      <button
+        aria-expanded={inspectorOpen}
+        className="wire-action-route-inspector-toggle"
+        data-action-route-inspector-toggle="true"
+        onClick={() => setInspectorOpen((open) => !open)}
+        type="button"
+      >
+        {inspectorOpen ? "收起路线检查" : "展开路线检查"}
+      </button>
+      <aside
+        aria-label={`${route.candidateLabel} 路线检查器`}
+        className="wire-action-route-inspector"
+        data-action-route-inspector-state={inspectorOpen ? "open" : "closed"}
+        hidden={!inspectorOpen}
+        role="dialog"
+      >
+        <header>
+          <strong>路线检查</strong>
+          <span>{route.summary}</span>
+        </header>
+        <section>
+          <strong>步骤覆盖</strong>
+          <ol>
+            {route.steps.map((step) => (
+              <li data-route-inspector-step-role={step.role} data-route-inspector-step-state={step.state} key={step.key}>
+                <span>{step.label}</span>
+                <small>{step.required ? "必需" : "可选"} / {step.stateLabel} / 候选 {step.totalCount} / 已选 {step.selectedCount}</small>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section>
+          <strong>字段覆盖</strong>
+          <ol>
+            {route.fields.map((field) => (
+              <li data-route-inspector-field={field.field} data-route-inspector-field-state={field.state} key={field.key}>
+                <span>{field.label}</span>
+                <small>{field.required ? "必需" : "可选"} / {field.sourceLabel} / {field.stateLabel}</small>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <footer>
+          <span>服务端候选 {route.enabled ? "开放" : "阻断"}</span>
+          <span>缺少选择 {route.missingRequiredSelectionCount}</span>
+          <span>缺少字段 {route.missingRequiredFieldCount}</span>
+          <span>服务端字段 {route.serverInjectedFieldCount}</span>
+        </footer>
+      </aside>
     </div>
   );
 }
