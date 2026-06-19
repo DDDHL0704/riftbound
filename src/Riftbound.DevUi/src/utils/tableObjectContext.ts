@@ -2,6 +2,7 @@ import type { ActionPromptDto, BattlefieldSnapshotView, CardObjectView, GameEven
 import { asArray, asRecord, asString } from "./collections";
 import {
   buildPromptInteractionModel,
+  promptCommandBindingLabel,
   promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
   type PromptCandidateSummary,
@@ -169,12 +170,12 @@ function candidateContextForObject(candidate: PromptCandidateSummary, objectId: 
   const commandBindings = commandBindingsForRoles(candidate.command?.bindings, roleKeys);
 
   return {
-    commandFields: commandBindings.map(commandBindingLabel),
+    commandFields: commandBindings.map(promptCommandBindingLabel),
     commandType: candidate.command?.cmdType,
     enabled: candidate.enabled,
     label: candidate.label,
     reason: candidate.reason,
-    requiredCommandFields: commandBindings.filter((binding) => binding.required).map(commandBindingLabel),
+    requiredCommandFields: commandBindings.filter((binding) => binding.required).map(promptCommandBindingLabel),
     roles: uniqueStrings(linkedChoices.map((choice) => promptChoiceRoleLabel(choice.role)))
   };
 }
@@ -190,12 +191,6 @@ function commandBindingsForRoles(
   return bindings.filter((binding) =>
     binding.source === "requirementMetadata"
     || (binding.role && roles.includes(binding.role)));
-}
-
-function commandBindingLabel(binding: PromptCommandBindingSummary): string {
-  const label = binding.label ?? binding.roleLabel ?? (binding.source === "requirementMetadata" ? "服务端" : "");
-  const prefix = label ? `${label}:` : "";
-  return `${prefix}${binding.field}${binding.required ? "*" : ""}`;
 }
 
 function buildZoneIndex(
