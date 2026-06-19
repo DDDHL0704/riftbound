@@ -18770,7 +18770,7 @@ public static class MatchRecoveryValidator
         if (!string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal))
         {
             errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} location zone {sourceZone} must be BATTLEFIELD in {objectLocationLabel}");
+                $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} location zone {sourceZone} must be BATTLEFIELD in {objectLocationLabel}; {FormatExpectedActualForRecovery("BATTLEFIELD", sourceZone)}");
             return;
         }
 
