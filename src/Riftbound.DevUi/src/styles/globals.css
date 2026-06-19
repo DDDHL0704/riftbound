@@ -2627,6 +2627,10 @@ button.card-face:hover {
   gap: 8px;
 }
 
+.detail-action-entry {
+  min-width: 0;
+}
+
 .play-card-composer {
   display: grid;
   gap: 10px;

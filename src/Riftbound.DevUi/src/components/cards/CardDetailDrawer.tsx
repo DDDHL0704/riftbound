@@ -5,8 +5,8 @@ import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import { buildCardDetailPlan, type CardDetailInspectorPlan } from "../../utils/cardDetailPlan";
 import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
 import { buildPromptInteractionModel } from "../../utils/promptInteraction";
-import { buildSourceCandidateActionPlan } from "../../utils/sourceCandidateActionPlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
+import { buildWireCardDetailActionPlan } from "../../utils/wireCardDetailActionPlan";
 import { CandidateComposer } from "../match/CandidateComposer";
 import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
 import { Button } from "../ui/Button";
@@ -72,7 +72,6 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
   }
 
   const sourceObjectId = detailPlan.sourceObjectId;
-  const sourceActions = detailPlan.actionCandidates;
   const detailFocusModel = buildFocusedActionModel({
     interactionModel: buildPromptInteractionModel(prompt),
     prompt,
@@ -81,6 +80,11 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
   const stampedOnCommand = onCommand
     ? (command: GameCommand) => onCommand(promptStampedCommand(command, prompt))
     : undefined;
+  const detailActionPlan = buildWireCardDetailActionPlan({
+    canSubmitCommands: Boolean(stampedOnCommand),
+    detailPlan,
+    disabledByConnection: false
+  });
 
   return (
     <div className="detail-layer" role="dialog" aria-modal="true" aria-labelledby="card-detail-title" data-detail-dialog-state="open">
@@ -121,52 +125,61 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
                 <p className={section.key === "rules" ? "card-rules" : undefined}>{section.body}</p>
               </section>
             ))}
-            <section className="detail-section detail-actions">
+            <section
+              className="detail-section detail-actions"
+              data-card-detail-actions-state={detailActionPlan.state}
+              data-card-detail-actions-source={detailActionPlan.sourceObjectId ?? ""}
+            >
               <strong>服务端可提交操作</strong>
-              {sourceActions.length === 0 ? (
-                <p className="detail-muted">{detailPlan.actionEmptyLabel}</p>
+              {detailActionPlan.entries.length === 0 ? (
+                <p className="detail-muted">{detailActionPlan.emptyLabel}</p>
               ) : (
-                <div className="detail-action-list">
-                  {sourceActions.map((candidate) => {
-                    const actionPlan = buildSourceCandidateActionPlan({
-                      canSubmitCommands: Boolean(stampedOnCommand),
-                      candidate,
-                      disabledByConnection: false,
-                      sourceObjectId
-                    });
-
-                    if (actionPlan.needsComposer && stampedOnCommand) {
+                <div className="detail-action-list" data-card-detail-action-count={detailActionPlan.entries.length}>
+                  {detailActionPlan.entries.map((entry) => {
+                    if (entry.mode === "composer" && stampedOnCommand) {
                       return (
-                        <CandidateComposer
-                          candidate={candidate}
-                          disabledByConnection={false}
-                          forcedSourceObjectId={sourceObjectId}
-                          key={candidate.action}
-                          onCommand={stampedOnCommand}
-                          onSubmitted={onClose}
-                          prompt={prompt}
-                          snapshot={snapshot}
-                        />
+                        <div
+                          className="detail-action-entry"
+                          data-card-detail-action-entry={entry.key}
+                          data-card-detail-action-mode={entry.mode}
+                          key={entry.key}
+                        >
+                          <CandidateComposer
+                            candidate={entry.candidate}
+                            disabledByConnection={false}
+                            forcedSourceObjectId={sourceObjectId}
+                            onCommand={stampedOnCommand}
+                            onSubmitted={onClose}
+                            prompt={prompt}
+                            snapshot={snapshot}
+                          />
+                        </div>
                       );
                     }
 
                     return (
-                      <Button
-                        disabled={actionPlan.disabled}
-                        icon={<Play size={16} />}
-                        key={candidate.action}
-                        onClick={() => {
-                          if (actionPlan.command && stampedOnCommand) {
-                            stampedOnCommand(actionPlan.command);
-                            onClose();
-                          }
-                        }}
-                        title={actionPlan.title}
-                        variant={actionPlan.variant}
+                      <div
+                        className="detail-action-entry"
+                        data-card-detail-action-entry={entry.key}
+                        data-card-detail-action-mode={entry.mode}
+                        key={entry.key}
                       >
-                        {actionPlan.label}
-                        {actionPlan.labelSuffix}
-                      </Button>
+                        <Button
+                          disabled={entry.actionPlan.disabled}
+                          icon={<Play size={16} />}
+                          onClick={() => {
+                            if (entry.actionPlan.command && stampedOnCommand) {
+                              stampedOnCommand(entry.actionPlan.command);
+                              onClose();
+                            }
+                          }}
+                          title={entry.actionPlan.title}
+                          variant={entry.actionPlan.variant}
+                        >
+                          {entry.actionPlan.label}
+                          {entry.actionPlan.labelSuffix}
+                        </Button>
+                      </div>
                     );
                   })}
                 </div>

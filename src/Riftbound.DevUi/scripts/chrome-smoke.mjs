@@ -459,7 +459,13 @@ async function runWireClickSelectionSmoke(cdp) {
   const detailContextResult = await evaluateJson(cdp, `(() => {
     const detail = document.querySelector(".detail-layer");
     const inspector = detail?.querySelector("[data-card-detail-inspector]");
+    const actions = detail?.querySelector("[data-card-detail-actions-state]");
     return {
+      actionCount: Number(actions?.querySelector("[data-card-detail-action-count]")?.getAttribute("data-card-detail-action-count") ?? "0"),
+      actionModes: Array.from(actions?.querySelectorAll("[data-card-detail-action-mode]") ?? []).map((node) => node.getAttribute("data-card-detail-action-mode")),
+      actionSource: actions?.getAttribute("data-card-detail-actions-source") ?? "",
+      actionState: actions?.getAttribute("data-card-detail-actions-state") ?? null,
+      actionText: actions?.textContent ?? "",
       activeText: document.activeElement?.textContent ?? "",
       groups: Array.from(inspector?.querySelectorAll("[data-card-detail-inspector-group]") ?? []).map((node) => node.getAttribute("data-card-detail-inspector-group")),
       inspectorOpen: Boolean(inspector),
@@ -726,6 +732,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.text.includes("来源:sourceObjectId*")) failures.push("card detail command field missing");
   if (!detailContextResult.text.includes("服务端字段")) failures.push("card detail command metadata summary missing");
   if (detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail leaked raw metadata command field");
+  if (detailContextResult.actionState !== "ready") failures.push(`card detail action state unexpected: ${detailContextResult.actionState}`);
+  if (detailContextResult.actionSource !== "p1-hand-spell") failures.push("card detail action source binding missing");
+  if (detailContextResult.actionCount < 1) failures.push("card detail action entries missing");
+  if (!detailContextResult.actionModes.includes("composer")) failures.push("card detail composer action entry missing");
+  if (!detailContextResult.actionText.includes("服务端可提交操作")) failures.push("card detail action section text missing");
+  if (!detailContextResult.actionText.includes("提交服务端候选")) failures.push("card detail composer submit control missing");
   if (!detailContextResult.inspectorOpen) failures.push("card detail inspector missing");
   if (!detailContextResult.inspectorText.includes("卡牌检查")) failures.push("card detail inspector header missing");
   if (!detailContextResult.inspectorText.includes("服务端只公开")) failures.push("card detail inspector boundary missing");
