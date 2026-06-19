@@ -32,7 +32,7 @@ Checked `docs/CURRENT_CORE_RULE_PDF_READING_NOTES.md` and `/tmp/riftbound_rules_
 
 ## Coordination
 
-A_MAIN created no subagent and continued directly on `/Users/dinghaolin/IdeaProjects/riftbound` `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` remained clean at `01364ee2`; current `main...codex/ui-followup-20260616` divergence after the code commit and remote merge was `225 0`. `codex/rule-audit-remaining-20260615` had no commits ahead of `main`; divergence was `298 0`.
+A_MAIN created no subagent and continued directly on `/Users/dinghaolin/IdeaProjects/riftbound` `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` remained clean at `01364ee2`; the pre-docs-sync recorded `main...codex/ui-followup-20260616` divergence after the code commit and remote merge was `225 0`. `codex/rule-audit-remaining-20260615` had no commits ahead of `main`; the pre-docs-sync recorded divergence was `298 0`. Exact divergence must be rechecked before integration.
 
 ## Non-Goals
 
