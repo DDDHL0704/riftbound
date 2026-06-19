@@ -8035,7 +8035,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 location zone GRAVEYARD must be BASE or BATTLEFIELD in object locations",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 location zone GRAVEYARD must be BASE or BATTLEFIELD in object locations; expected BASE or BATTLEFIELD but got GRAVEYARD",
                 StringComparison.Ordinal));
     }
 
@@ -30937,7 +30937,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 location zone GRAVEYARD must be BASE or BATTLEFIELD in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 location zone GRAVEYARD must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got GRAVEYARD",
                 StringComparison.Ordinal));
     }
 
@@ -143455,7 +143455,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 location zone GRAVEYARD must be BASE or BATTLEFIELD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 location zone GRAVEYARD must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got GRAVEYARD",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -143567,7 +143567,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 location zone GRAVEYARD must be BASE or BATTLEFIELD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 location zone GRAVEYARD must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got GRAVEYARD",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

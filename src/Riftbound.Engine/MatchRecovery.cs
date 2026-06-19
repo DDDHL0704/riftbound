@@ -19560,7 +19560,7 @@ public static class MatchRecoveryValidator
                     && !string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal))
                 {
                     errors.Add(
-                        $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} location zone {sourceZone} must be BASE or BATTLEFIELD in {objectLocationLabel}");
+                        $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} location zone {sourceZone} must be BASE or BATTLEFIELD in {objectLocationLabel}; {FormatExpectedActualForRecovery("BASE or BATTLEFIELD", sourceZone)}");
                 }
 
                 if (controllerId is not null
