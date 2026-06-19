@@ -11977,7 +11977,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in object locations",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in object locations; expected BASE or BATTLEFIELD but got HAND",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -33826,7 +33826,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got HAND",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -153096,7 +153096,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got HAND",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -153212,7 +153212,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got HAND",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

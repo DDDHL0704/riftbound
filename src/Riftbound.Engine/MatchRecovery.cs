@@ -21345,7 +21345,7 @@ public static class MatchRecoveryValidator
             && !string.Equals(sourceZone, "BATTLEFIELD", StringComparison.Ordinal))
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location zone {sourceZone} must be BASE or BATTLEFIELD in {objectLocationLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location zone {sourceZone} must be BASE or BATTLEFIELD in {objectLocationLabel}; {FormatExpectedActualForRecovery("BASE or BATTLEFIELD", sourceZone)}");
         }
 
         if (controllerId is not null
