@@ -10853,7 +10853,7 @@ public static class MatchRecoveryValidator
                     knownPlayerIds,
                     "seats",
                     errors);
-                ValidateTimingObjectReference(
+                ValidateTimingObjectReferenceWithExpectedDetails(
                     $"{itemLabel} object id",
                     objectId,
                     expectedBattlefieldObjectIds,
@@ -11417,7 +11417,7 @@ public static class MatchRecoveryValidator
             var battlefieldObjectId = authoritativeBattlefield.BattlefieldObjectId;
             var payloadLabel = $"spectator replay frame snapshot lane battlefield {battlefieldObjectId}";
             var occupantObjectIds = BuildNormalizedObjectIdSet(authoritativeBattlefield.OccupantObjectIds);
-            ValidateTimingObjectReferenceList(
+            ValidateTimingObjectReferenceListWithExpectedDetails(
                 spectatorBattlefield,
                 "occupantObjectIds",
                 $"{payloadLabel} occupant object id",
@@ -11432,7 +11432,7 @@ public static class MatchRecoveryValidator
 
             var visibleStandbyObjectIds = authoritativeBattlefield.StandbyObjectIds
                 .Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId));
-            ValidateTimingObjectReferenceList(
+            ValidateTimingObjectReferenceListWithExpectedDetails(
                 spectatorBattlefield,
                 "standbyObjectIds",
                 $"{payloadLabel} standby object id",
@@ -11458,7 +11458,7 @@ public static class MatchRecoveryValidator
             var normalizedPlayerId = playerId.Trim();
             foreach (var unitObjectId in unitObjectIds)
             {
-                ValidateTimingObjectReference(
+                ValidateTimingObjectReferenceWithExpectedDetails(
                     $"{payloadLabel} units by side {normalizedPlayerId} unit object id",
                     unitObjectId,
                     knownOccupantObjectIds,
@@ -11801,7 +11801,7 @@ public static class MatchRecoveryValidator
                 errors);
             if (objectId is not null)
             {
-                ValidateTimingObjectReference(
+                ValidateTimingObjectReferenceWithExpectedDetails(
                     $"{payloadLabel} object id",
                     objectId,
                     visibleStandbyObjectIds,
@@ -14952,7 +14952,11 @@ public static class MatchRecoveryValidator
         var normalizedObjectId = objectId.Trim();
         if (!knownObjectIds.Contains(normalizedObjectId))
         {
-            errors.Add($"{objectLabel} {normalizedObjectId} is missing from {knownObjectLabel}");
+            var expectedObjectIds = knownObjectIds
+                .OrderBy(knownObjectId => knownObjectId, StringComparer.Ordinal)
+                .ToArray();
+            errors.Add(
+                $"{objectLabel} {normalizedObjectId} is missing from {knownObjectLabel}; {FormatExpectedActualForRecovery(expectedObjectIds, normalizedObjectId)}");
         }
     }
 
@@ -18496,8 +18500,11 @@ public static class MatchRecoveryValidator
         var battlefieldObjectKnown = knownObjectIds is null || knownObjectIds.Contains(battlefieldObjectId);
         if (!battlefieldObjectKnown)
         {
+            var expectedObjectIds = knownObjectIds!
+                .OrderBy(knownObjectId => knownObjectId, StringComparer.Ordinal)
+                .ToArray();
             errors.Add(
-                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {knownObjectLabel}");
+                $"{payloadLabel} kogmaw last breath battlefield object id {battlefieldObjectId} is missing from {knownObjectLabel}; {FormatExpectedActualForRecovery(expectedObjectIds, battlefieldObjectId)}");
         }
 
         var battlefieldObjectIsBattlefieldCard = objectTags is null;
@@ -19616,8 +19623,11 @@ public static class MatchRecoveryValidator
 
         if (!knownObjectIds.Contains(destroyedObjectId))
         {
+            var expectedObjectIds = knownObjectIds
+                .OrderBy(knownObjectId => knownObjectId, StringComparer.Ordinal)
+                .ToArray();
             errors.Add(
-                $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} is missing from {knownObjectLabel}");
+                $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} is missing from {knownObjectLabel}; {FormatExpectedActualForRecovery(expectedObjectIds, destroyedObjectId)}");
         }
     }
 
@@ -21299,7 +21309,11 @@ public static class MatchRecoveryValidator
 
         if (!knownObjectIds.Contains(sourceObjectId))
         {
-            errors.Add($"{payloadLabel} visible source object id {sourceObjectId} is missing from {knownObjectLabel}");
+            var expectedObjectIds = knownObjectIds
+                .OrderBy(knownObjectId => knownObjectId, StringComparer.Ordinal)
+                .ToArray();
+            errors.Add(
+                $"{payloadLabel} visible source object id {sourceObjectId} is missing from {knownObjectLabel}; {FormatExpectedActualForRecovery(expectedObjectIds, sourceObjectId)}");
         }
     }
 

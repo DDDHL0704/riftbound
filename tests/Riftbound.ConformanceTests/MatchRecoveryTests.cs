@@ -10874,7 +10874,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-404 is missing from objects",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-404 is missing from objects; expected [source-1] but got destroyed-404",
                 StringComparison.Ordinal));
     }
 
@@ -13341,7 +13341,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-2 is missing from objects",
+                "snapshot for alice timing trigger queue item kogmaw last breath battlefield object id battlefield-2 is missing from objects; expected [battlefield-1, source-1] but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -14422,7 +14422,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item visible source object id missing-source is missing from objects",
+                "snapshot for alice timing trigger queue item visible source object id missing-source is missing from objects; expected [source-1] but got missing-source",
                 StringComparison.Ordinal));
     }
 
@@ -14460,7 +14460,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item visible source object id source-1 is missing from objects",
+                "snapshot for alice timing trigger queue item visible source object id source-1 is missing from objects; expected [] but got source-1",
                 StringComparison.Ordinal));
     }
 
@@ -14521,7 +14521,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item visible source object id source-1 is missing from objects",
+                "snapshot for alice timing trigger queue item visible source object id source-1 is missing from objects; expected [actual-source] but got source-1",
                 StringComparison.Ordinal));
     }
 
@@ -40282,7 +40282,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield object id item 2 object id forged-battlefield is missing from authoritative state battlefield object ids",
+                "spectator replay frame snapshot lane battlefield object id item 2 object id forged-battlefield is missing from authoritative state battlefield object ids; expected [battlefield-a] but got forged-battlefield",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -41403,17 +41403,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield battlefield-a occupant object id forged-occupant is missing from authoritative state occupant object ids",
+                "spectator replay frame snapshot lane battlefield battlefield-a occupant object id forged-occupant is missing from authoritative state occupant object ids; expected [alice-unit-a, bob-unit-a] but got forged-occupant",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield battlefield-a units by side alice unit object id forged-unit is missing from authoritative state occupant object ids",
+                "spectator replay frame snapshot lane battlefield battlefield-a units by side alice unit object id forged-unit is missing from authoritative state occupant object ids; expected [alice-unit-a, bob-unit-a] but got forged-unit",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield battlefield-a standby object id forged-standby is missing from authoritative state visible standby object ids",
+                "spectator replay frame snapshot lane battlefield battlefield-a standby object id forged-standby is missing from authoritative state visible standby object ids; expected [alice-standby-a] but got forged-standby",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -42473,7 +42473,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:1 object id forged-standby is missing from authoritative state visible standby object ids",
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:1 object id forged-standby is missing from authoritative state visible standby object ids; expected [standby-visible-a] but got forged-standby",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
