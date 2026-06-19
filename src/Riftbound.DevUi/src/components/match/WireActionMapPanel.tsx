@@ -41,6 +41,7 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
           <button
             className="wire-action-object-chip"
             data-action-object-id={entry.objectId}
+            data-action-object-state="enabled"
             data-selected={entry.selected ? "true" : "false"}
             key={entry.objectId}
             onClick={() => onInspectObject?.(entry.objectId)}
@@ -51,6 +52,21 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
           </button>
         ))}
         {plan.objectEntryOverflowCount > 0 && <span className="wire-action-object-chip">等 {plan.objectEntryOverflowCount} 个对象</span>}
+        {plan.blockedObjectEntries.map((entry) => (
+          <button
+            className="wire-action-object-chip"
+            data-action-object-id={entry.objectId}
+            data-action-object-state="blocked"
+            data-selected={entry.selected ? "true" : "false"}
+            key={`blocked:${entry.objectId}`}
+            onClick={() => onInspectObject?.(entry.objectId)}
+            type="button"
+          >
+            <strong>{entry.label}</strong>
+            <small>{entry.disabledCandidateCount} 阻断</small>
+          </button>
+        ))}
+        {plan.blockedObjectEntryOverflowCount > 0 && <span className="wire-action-object-chip" data-action-object-state="blocked">等 {plan.blockedObjectEntryOverflowCount} 个阻断对象</span>}
       </div>
 
       {plan.focus && <FocusedActionBridge plan={plan} />}

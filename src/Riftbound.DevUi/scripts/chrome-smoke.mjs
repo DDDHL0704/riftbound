@@ -565,6 +565,22 @@ async function runWireClickSelectionSmoke(cdp) {
     };
   })()`);
 
+  await clickActionMapObject(cdp, "p1-base-equip");
+  await delay(150);
+  const blockedActionMapResult = await evaluateJson(cdp, `(() => {
+    const tableObject = document.querySelector('[data-object-id="p1-base-equip"]');
+    const actionChip = document.querySelector('[data-action-object-id="p1-base-equip"]');
+    const focusBridge = document.querySelector(".wire-action-focus-bridge");
+    return {
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      chipSelected: actionChip?.getAttribute("data-selected") ?? null,
+      chipState: actionChip?.getAttribute("data-action-object-state") ?? null,
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      focusBridgeState: focusBridge?.getAttribute("data-action-focus-state") ?? null,
+      focusBridgeText: focusBridge?.textContent ?? ""
+    };
+  })()`);
+
   await clickActionMapObject(cdp, "p1-rune-3");
   await delay(150);
   const runeActionMapResult = await evaluateJson(cdp, `(() => {
@@ -710,6 +726,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.candidatePlanNext.includes("下一步")) failures.push("PLAY_CARD candidate plan next-step missing");
   if (!actionMapResult.focusText.includes("服务端状态")) failures.push("action map focus did not refresh focused action summary");
   if (actionMapResult.detailLayerOpen) failures.push("action map object chip opened detail");
+  if (blockedActionMapResult.selected !== "true") failures.push("blocked action map object chip did not focus table object");
+  if (blockedActionMapResult.chipSelected !== "true") failures.push("blocked action map object chip did not show selected state");
+  if (blockedActionMapResult.chipState !== "blocked") failures.push(`blocked action map chip state unexpected: ${blockedActionMapResult.chipState}`);
+  if (blockedActionMapResult.focusBridgeState !== "blocked") failures.push(`blocked action map focus bridge state unexpected: ${blockedActionMapResult.focusBridgeState}`);
+  if (!blockedActionMapResult.focusBridgeText.includes("ACTIVATE_ABILITY")) failures.push("blocked action map focus bridge command type missing");
+  if (!blockedActionMapResult.focusBridgeText.includes("暂不可提交")) failures.push("blocked action map focus bridge blocked state missing");
+  if (blockedActionMapResult.detailLayerOpen) failures.push("blocked action map object chip opened detail");
   if (runeActionMapResult.selected !== "true") failures.push("rune action map object chip did not focus table object");
   if (runeActionMapResult.chipSelected !== "true") failures.push("rune action map object chip did not show selected state");
   if (!runeActionMapResult.hasSelectedObjectContext) failures.push("rune action map did not render selected object context");

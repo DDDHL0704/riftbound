@@ -12380,6 +12380,10 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-action-object-chip[data-action-object-state="blocked"] {
+  border-style: dashed;
+}
+
 .wire-action-focus-bridge {
   display: grid;
   gap: 4px;

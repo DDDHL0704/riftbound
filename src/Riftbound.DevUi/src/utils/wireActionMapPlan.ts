@@ -22,6 +22,7 @@ export type WireActionMapMetric = {
 };
 
 export type WireActionObjectEntry = {
+  disabledCandidateCount: number;
   enabledCandidateCount: number;
   label: string;
   objectId: string;
@@ -105,6 +106,8 @@ export type WireActionGrammarCandidatePlan = {
 
 export type WireActionMapPlan = {
   canAct: boolean;
+  blockedObjectEntries: WireActionObjectEntry[];
+  blockedObjectEntryOverflowCount: number;
   candidatePlanTotalCount: number;
   candidatePlans: CandidateInteractionPlan[];
   contract?: WireActionContractPlan;
@@ -162,6 +165,10 @@ export function buildWireActionMapPlan({
 
   return {
     canAct: Boolean(prompt?.actionable && prompt.playerId === playerId),
+    blockedObjectEntries: knownDisabledOnlyObjects
+      .slice(0, objectLimit)
+      .map((objectId) => objectEntryPlan(objectId, objects, model, selectedObjectId)),
+    blockedObjectEntryOverflowCount: Math.max(knownDisabledOnlyObjects.length - objectLimit, 0),
     candidatePlanTotalCount: candidatePlans.length,
     candidatePlans: candidatePlans.slice(0, nonNegativeLimit(maxCandidatePlans)),
     contract: contractPlan(prompt?.contract),
@@ -230,7 +237,7 @@ function focusCandidatePlan(
   }
 
   return {
-    commandType: candidate.command?.cmdType,
+    commandType: candidate.command?.cmdType ?? candidate.action,
     enabled: candidate.enabled,
     key: `${candidate.action}:${candidate.label}:${objectId}`,
     label: candidate.label,
@@ -285,6 +292,7 @@ function objectEntryPlan(
 ): WireActionObjectEntry {
   const summary = model.objectById.get(objectId);
   return {
+    disabledCandidateCount: summary?.disabledCandidateCount ?? 0,
     enabledCandidateCount: summary?.enabledCandidateCount ?? 0,
     label: objectLabel(objectId, objects),
     objectId,

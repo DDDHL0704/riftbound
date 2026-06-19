@@ -109,6 +109,12 @@ assert.equal(plan.objectEntries.length, 2);
 assert.equal(plan.objectEntries[0].label, "OGN-001/298");
 assert.equal(plan.objectEntries[0].selected, true);
 assert.equal(plan.objectEntries[0].enabledCandidateCount, 1);
+assert.equal(plan.objectEntries[0].disabledCandidateCount, 1);
+assert.equal(plan.blockedObjectEntries.length, 1);
+assert.equal(plan.blockedObjectEntries[0].objectId, "blocked-unit");
+assert.equal(plan.blockedObjectEntries[0].label, "OGN-002/298");
+assert.equal(plan.blockedObjectEntries[0].disabledCandidateCount, 1);
+assert.equal(plan.blockedObjectEntries[0].selected, false);
 assert.equal(plan.focus.objectId, "p1-hand-1");
 assert.equal(plan.focus.label, "OGN-001/298");
 assert.equal(plan.focus.stateLabel, "1 个可提交候选");
@@ -145,6 +151,21 @@ const readOnlyPlan = buildWireActionMapPlan({
 assert.equal(readOnlyPlan.canAct, false);
 assert.equal(readOnlyPlan.focus, undefined);
 
+const blockedFocusPlan = buildWireActionMapPlan({
+  playerId: "P1",
+  prompt,
+  selectedObjectId: "blocked-unit",
+  snapshot
+});
+assert.equal(blockedFocusPlan.blockedObjectEntries[0].selected, true);
+assert.equal(blockedFocusPlan.focus.objectId, "blocked-unit");
+assert.equal(blockedFocusPlan.focus.stateLabel, "仅有关联但当前阻断");
+assert.equal(blockedFocusPlan.focus.enabledCandidateCount, 0);
+assert.equal(blockedFocusPlan.focus.disabledCandidateCount, 1);
+assert.deepEqual(blockedFocusPlan.focus.roleLabels, ["来源"]);
+assert.equal(blockedFocusPlan.focus.relatedCandidates[0].commandType, "MOVE_UNIT");
+assert.equal(blockedFocusPlan.focus.relatedCandidates[0].stateLabel, "暂不可提交");
+
 const limitedPlan = buildWireActionMapPlan({
   maxObjectEntries: 1,
   playerId: "P1",
@@ -153,6 +174,8 @@ const limitedPlan = buildWireActionMapPlan({
 });
 assert.equal(limitedPlan.objectEntries.length, 1);
 assert.equal(limitedPlan.objectEntryOverflowCount, 1);
+assert.equal(limitedPlan.blockedObjectEntries.length, 1);
+assert.equal(limitedPlan.blockedObjectEntryOverflowCount, 0);
 
 console.log("Wire action map plan check passed.");
 
