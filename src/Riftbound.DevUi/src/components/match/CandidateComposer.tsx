@@ -202,6 +202,11 @@ export function CandidateComposer({
           })}
         </div>
       )}
+      <CandidateCommandPreview
+        canSubmit={canSubmit}
+        controls={controls}
+        state={state}
+      />
       <Button
         disabled={!canSubmit}
         icon={<Send size={16} />}
@@ -218,6 +223,43 @@ export function CandidateComposer({
       >
         提交服务端候选
       </Button>
+    </div>
+  );
+}
+
+function CandidateCommandPreview({
+  canSubmit,
+  controls,
+  state
+}: {
+  canSubmit: boolean;
+  controls: CandidateComposerControls;
+  state: CandidateComposerState;
+}) {
+  const sourceLabel = choiceLabelById(controls.sources, state.sourceId) ?? "未选择";
+  const modeLabel = choiceLabelById(controls.modeChoices, state.mode);
+  const destinationLabel = choiceLabelById(controls.destinationChoices, state.destinationId);
+  const targetLabels = controls.targetGroups
+    .map((group) => choiceLabelById(group.choices, state.targetIdsByGroup[group.key]))
+    .filter((label): label is string => Boolean(label));
+  const costLabels = uniqueStrings([
+    ...controls.requiredOptionalCostIds
+      .map((costId) => choiceLabelById(controls.optionalCostChoices, costId) ?? costId),
+    ...state.optionalCostIds
+      .map((costId) => choiceLabelById(controls.optionalCostChoices, costId) ?? costId)
+  ]);
+
+  return (
+    <div className="candidate-command-preview" role="group" aria-label="候选提交摘要">
+      <div>
+        <strong>提交摘要</strong>
+        <StatusPill tone={canSubmit ? "warn" : "neutral"}>{canSubmit ? "可送服务端" : "缺少选择"}</StatusPill>
+      </div>
+      <span>来源：{sourceLabel}</span>
+      {modeLabel && <span>模式：{modeLabel}</span>}
+      {destinationLabel && <span>位置：{destinationLabel}</span>}
+      <span>目标：{targetLabels.length > 0 ? targetLabels.join("、") : "无"}</span>
+      <span>费用：{costLabels.length > 0 ? costLabels.join("、") : "无"}</span>
     </div>
   );
 }
@@ -601,6 +643,15 @@ function booleanFromRecord(record: Record<string, unknown>, key: string, fallbac
 
 function choiceLabel(choice: ActionPromptChoiceDto): string {
   return redactInternalText(choice.label || choice.id || "服务端选项");
+}
+
+function choiceLabelById(choices: ActionPromptChoiceDto[], id: string | undefined): string | undefined {
+  if (!id) {
+    return undefined;
+  }
+
+  const choice = choices.find((candidate) => candidate.id === id);
+  return choice ? choiceLabel(choice) : undefined;
 }
 
 function choiceArrayMetadata(value: unknown): ActionPromptChoiceDto[] {
