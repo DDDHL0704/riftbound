@@ -11776,6 +11776,8 @@ button.card-face:hover {
 }
 
 .wire-match-page .detail-context-grid,
+.wire-match-page .detail-context-command-block,
+.wire-match-page .detail-context-commands,
 .wire-match-page .detail-context-events {
   display: grid;
   gap: 4px;
@@ -11786,6 +11788,7 @@ button.card-face:hover {
 }
 
 .wire-match-page .detail-context-grid span,
+.wire-match-page .detail-context-commands li,
 .wire-match-page .detail-context-events li {
   min-width: 0;
   display: grid;
@@ -11794,6 +11797,7 @@ button.card-face:hover {
   padding: 4px;
 }
 
+.wire-match-page .detail-context-commands,
 .wire-match-page .detail-context-events {
   margin: 0;
   padding: 0;
@@ -11801,6 +11805,7 @@ button.card-face:hover {
 }
 
 .wire-match-page .detail-context-grid b,
+.wire-match-page .detail-context-commands b,
 .wire-match-page .detail-context-events b {
   min-width: 0;
   overflow: hidden;
