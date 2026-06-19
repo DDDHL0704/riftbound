@@ -424,6 +424,40 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    for (const pile of Array.from(document.querySelectorAll("[data-wire-pile-kind]"))) {
+      const capacity = pile.getAttribute("data-wire-pile-capacity") ?? "";
+      const count = Number(pile.getAttribute("data-wire-pile-count") ?? "-1");
+      const face = pile.getAttribute("data-wire-pile-face") ?? "";
+      const kind = pile.getAttribute("data-wire-pile-kind") ?? "";
+      const overflowCount = Number(pile.getAttribute("data-wire-pile-overflow-count") ?? "-1");
+      const topObjectId = pile.getAttribute("data-wire-pile-top-object-id") ?? "";
+      const visibleCount = Number(pile.getAttribute("data-wire-pile-visible-count") ?? "-1");
+      if (!["banished", "graveyard", "library", "runeDeck"].includes(kind)) {
+        failures.push(\`pile has unsupported kind metadata: \${kind}\`);
+      }
+      if (capacity !== "unbounded") {
+        failures.push(\`pile \${kind} must be unbounded, got \${capacity}\`);
+      }
+      if (count < 0) {
+        failures.push(\`pile \${kind} has negative count metadata\`);
+      }
+      if (![0, 1].includes(visibleCount)) {
+        failures.push(\`pile \${kind} visible count should be 0 or 1, got \${visibleCount}\`);
+      }
+      if (overflowCount !== Math.max(0, count - visibleCount)) {
+        failures.push(\`pile \${kind} overflow mismatch: count \${count}, visible \${visibleCount}, overflow \${overflowCount}\`);
+      }
+      if (face === "public-top" && (!topObjectId || visibleCount !== 1)) {
+        failures.push(\`public pile \${kind} must expose exactly one top object id\`);
+      }
+      if ((face === "hidden-stack" || face === "empty") && topObjectId) {
+        failures.push(\`non-public pile \${kind} leaked top object id \${topObjectId}\`);
+      }
+      if (!["empty", "hidden-stack", "public-top"].includes(face)) {
+        failures.push(\`pile \${kind} has unsupported face metadata: \${face}\`);
+      }
+    }
+
     for (const pile of Array.from(document.querySelectorAll(".wire-fixed-pile"))) {
       const pileRect = rectOf(pile);
       const child = pile.querySelector(":scope > .card-face, :scope > .card-image-only, :scope > .card-back, :scope > .wire-stack-box");

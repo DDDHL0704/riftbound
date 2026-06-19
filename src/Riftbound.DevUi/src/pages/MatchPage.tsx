@@ -413,7 +413,7 @@ function WirePlayerHome({
   const baseSections = {
     banish: (
       <section className="wire-banish-main" key="banish" aria-label={`${ownerLabel} 放逐区`}>
-        <WirePublicPile ids={zones.banished ?? []} interactionByObjectId={interaction.interactionByObjectId} label="放逐" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WirePublicPile ids={zones.banished ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="banished" label="放逐" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </section>
     ),
     base: (
@@ -476,12 +476,12 @@ function WireHandRail({
   const pileSections = {
     library: (
       <div className="wire-hand-library-pile" key="library">
-        <WireStackCount count={zones.mainDeckCount ?? 0} label="牌库" />
+        <WireStackCount count={zones.mainDeckCount ?? 0} kind="library" label="牌库" />
       </div>
     ),
     played: (
       <div className="wire-hand-played-pile" key="played">
-        <WirePublicPile ids={zones.graveyard ?? []} interactionByObjectId={interaction.interactionByObjectId} label="已打出" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WirePublicPile ids={zones.graveyard ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="graveyard" label="已打出" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </div>
     )
   } satisfies Record<string, ReactNode>;
@@ -507,7 +507,7 @@ function WireHandRail({
     ),
     runeDeck: (
       <div className="wire-hand-rune-deck" key="runeDeck">
-        <WireStackCount count={zones.runeDeckCount ?? WIRE_TABLE_LAYOUT.runeDeckSize} label="符文牌堆" />
+        <WireStackCount count={zones.runeDeckCount ?? WIRE_TABLE_LAYOUT.runeDeckSize} kind="runeDeck" label="符文牌堆" />
       </div>
     ),
     runeTrack: (

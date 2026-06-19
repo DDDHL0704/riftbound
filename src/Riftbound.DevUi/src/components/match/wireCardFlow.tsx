@@ -8,8 +8,10 @@ import {
   type WireCardFlowKind,
   type WireCardFlowPlan
 } from "./wireCardFlowPlan";
+import { buildWirePilePlan, type WirePileKind, type WirePilePlan } from "./wirePilePlan";
 
 export { buildWireCardFlowPlan, type WireCardFlowKind, type WireCardFlowPlan } from "./wireCardFlowPlan";
+export { buildWirePilePlan, type WirePileKind, type WirePilePlan } from "./wirePilePlan";
 
 export type WireTimelineObjectState = "event" | "rule";
 
@@ -104,6 +106,7 @@ export function WireCardSlot({ label }: { label: string }) {
 export function WirePublicPile({
   ids,
   interactionByObjectId,
+  kind,
   label,
   objects,
   onInspectCard,
@@ -114,6 +117,7 @@ export function WirePublicPile({
 }: {
   ids: string[];
   interactionByObjectId?: Record<string, PromptObjectState | undefined>;
+  kind: Extract<WirePileKind, "banished" | "graveyard">;
   label: string;
   objects: Record<string, CardObjectView | undefined>;
   onInspectCard: (card: InspectedCard) => void;
@@ -122,11 +126,12 @@ export function WirePublicPile({
   specs: Record<string, BehaviorSpec>;
   timelineByObjectId?: Record<string, WireTimelineObjectState | undefined>;
 }) {
-  const topId = ids.at(-1);
+  const pilePlan = buildWirePilePlan({ ids, kind });
+  const topId = pilePlan.topObjectId;
   const topObject = topId ? objects[topId] : undefined;
 
   return (
-    <div className="wire-stack-count wire-fixed-pile" role="group" aria-label={`${label} ${ids.length} 张`}>
+    <div className="wire-stack-count wire-fixed-pile" role="group" aria-label={`${label} ${pilePlan.count} 张`} {...wirePileDataAttrs(pilePlan)}>
       {topId ? (
         <CardFace
           compact
@@ -146,9 +151,10 @@ export function WirePublicPile({
   );
 }
 
-export function WireStackCount({ count, label }: { count: number; label: string }) {
+export function WireStackCount({ count, kind, label }: { count: number; kind: Extract<WirePileKind, "library" | "runeDeck">; label: string }) {
+  const pilePlan = buildWirePilePlan({ count, kind });
   return (
-    <div className="wire-stack-count" role="group" aria-label={`${label} ${count} 张`}>
+    <div className="wire-stack-count" role="group" aria-label={`${label} ${pilePlan.count} 张`} {...wirePileDataAttrs(pilePlan)}>
       <div className="wire-stack-box" aria-hidden="true" />
     </div>
   );
@@ -164,6 +170,18 @@ function wireCardFlowStyle(flowPlan: WireCardFlowPlan): WireCssProperties {
     "--wire-card-w": `${flowPlan.cardWidth}px`,
     "--wire-flow-gap": `${flowPlan.gap}px`,
     "--wire-flow-visible-slots": flowPlan.visibleSlotCount
+  };
+}
+
+function wirePileDataAttrs(pilePlan: WirePilePlan) {
+  return {
+    "data-wire-pile-capacity": pilePlan.capacity,
+    "data-wire-pile-count": pilePlan.count,
+    "data-wire-pile-face": pilePlan.face,
+    "data-wire-pile-kind": pilePlan.kind,
+    "data-wire-pile-overflow-count": pilePlan.overflowCount,
+    "data-wire-pile-top-object-id": pilePlan.topObjectId ?? "",
+    "data-wire-pile-visible-count": pilePlan.visibleCount
   };
 }
 
