@@ -183,15 +183,17 @@ function commandBindingsForRoles(
   bindings: PromptCommandBindingSummary[] | undefined,
   roles: PromptChoiceRole[]
 ): PromptCommandBindingSummary[] {
-  if (!bindings?.length || roles.length === 0) {
+  if (!bindings?.length) {
     return [];
   }
 
-  return bindings.filter((binding) => binding.role && roles.includes(binding.role));
+  return bindings.filter((binding) =>
+    binding.source === "requirementMetadata"
+    || (binding.role && roles.includes(binding.role)));
 }
 
 function commandBindingLabel(binding: PromptCommandBindingSummary): string {
-  const role = binding.roleLabel ? `${binding.roleLabel}:` : "";
+  const role = binding.roleLabel ? `${binding.roleLabel}:` : binding.source === "requirementMetadata" ? "服务端:" : "";
   return `${role}${binding.field}${binding.required ? "*" : ""}`;
 }
 

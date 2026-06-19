@@ -394,6 +394,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.text.includes("服务端命令")) failures.push("card detail command context missing");
   if (!detailContextResult.text.includes("PLAY_CARD")) failures.push("card detail command type missing");
   if (!detailContextResult.text.includes("来源:sourceObjectId*")) failures.push("card detail command field missing");
+  if (!detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail command metadata field missing");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
   if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
   if (focusResult.detailLayerOpen) failures.push("focused action summary opened detail");
@@ -435,6 +436,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.detailContextText.includes("右战场 / 对方单位")) failures.push("timeline selected object context did not use server zone");
   if (!candidateRefResult.detailContextText.includes("服务端命令")) failures.push("timeline selected object context command section missing");
   if (!candidateRefResult.detailContextText.includes("PLAY_CARD")) failures.push("timeline selected object context command type missing");
+  if (!candidateRefResult.detailContextText.includes("服务端:cardNo*")) failures.push("timeline selected object context command metadata field missing");
   if (!candidateRefResult.detailContextText.includes("近期事件")) failures.push("timeline selected object context event section missing");
   if (candidateRefResult.detailLayerOpen) failures.push("candidate object ref opened detail");
 

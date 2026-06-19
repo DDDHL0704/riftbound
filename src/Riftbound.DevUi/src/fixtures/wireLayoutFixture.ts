@@ -56,6 +56,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         commandTemplate: {
           bindings: [
             { field: "sourceObjectId", required: true, source: "selectedSource" },
+            { field: "cardNo", metadataKeys: ["cardNo", "equipmentCardNo"], required: true, source: "requirementMetadata" },
             { field: "targetObjectIds", asArray: true, omitEmpty: false, source: "selectedTargets" },
             { field: "destination", source: "selectedDestination" },
             { field: "optionalCosts", asArray: true, source: "selectedOptionalCosts" }
@@ -122,6 +123,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         commandTemplate: {
           bindings: [
             { field: "sourceObjectId", required: true, source: "selectedSource" },
+            { field: "origin", metadataKey: "origin", required: true, source: "requirementMetadata" },
             { field: "destination", source: "selectedDestination" },
             { field: "optionalCosts", asArray: true, source: "selectedOptionalCosts" }
           ],
