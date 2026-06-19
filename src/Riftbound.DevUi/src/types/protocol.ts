@@ -136,6 +136,7 @@ export type MatchTimingView = Record<string, unknown> & {
 export type ActionPromptChoiceDto = {
   id: string;
   label: string;
+  objectIds?: string[] | null;
   reason?: string | null;
 };
 

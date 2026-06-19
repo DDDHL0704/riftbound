@@ -5608,11 +5608,11 @@ internal static class ActionPromptBuilder
         bool promptActionable,
         string promptReason)
     {
-        var sources = SourcesFor(state, playerId, action);
-        var targets = TargetsFor(state, playerId, action);
-        var destinations = DestinationsFor(state, playerId, action);
-        var modes = ModesFor(state, playerId, action);
-        var optionalCosts = OptionalCostsFor(state, playerId, action);
+        var sources = AnnotatePromptChoiceObjectIds(SourcesFor(state, playerId, action));
+        var targets = AnnotatePromptChoiceObjectIds(TargetsFor(state, playerId, action));
+        var destinations = AnnotatePromptChoiceObjectIds(DestinationsFor(state, playerId, action));
+        var modes = AnnotatePromptChoiceObjectIds(ModesFor(state, playerId, action));
+        var optionalCosts = AnnotatePromptChoiceObjectIds(OptionalCostsFor(state, playerId, action));
         var requiresSourceChoices = string.Equals(action, "PLAY_CARD", StringComparison.Ordinal)
             || string.Equals(action, "MOVE_UNIT", StringComparison.Ordinal)
             || string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
@@ -5700,8 +5700,22 @@ internal static class ActionPromptBuilder
         return new ActionPromptSelectionChoiceDto(
             choice.Id,
             choice.Label,
-            SelectionChoiceObjectIds(choice.Id),
+            choice.ObjectIds is { Count: > 0 } ? choice.ObjectIds : SelectionChoiceObjectIds(choice.Id),
             choice.Reason);
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? AnnotatePromptChoiceObjectIds(IReadOnlyList<ActionPromptChoiceDto>? choices)
+    {
+        if (choices is null)
+        {
+            return null;
+        }
+
+        return choices
+            .Select(choice => choice.ObjectIds is { Count: > 0 }
+                ? choice
+                : choice with { ObjectIds = SelectionChoiceObjectIds(choice.Id) })
+            .ToArray();
     }
 
     private static IReadOnlyList<string> SelectionChoiceObjectIds(string choiceId)

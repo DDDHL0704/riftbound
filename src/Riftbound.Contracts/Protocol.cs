@@ -369,7 +369,8 @@ public sealed record ActionPromptCandidateDto(
 public sealed record ActionPromptChoiceDto(
     string Id,
     string Label,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Reason = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Reason = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? ObjectIds = null);
 
 public sealed record ClientIntentDto(
     string RoomId,

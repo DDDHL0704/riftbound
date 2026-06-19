@@ -136,6 +136,7 @@ function candidateChoices(candidate: ActionPromptCandidateDto): PromptChoiceSumm
     return (choices ?? []).map((choice) => ({
       id: choice.id,
       label: promptChoiceLabel(choice),
+      objectIds: normalizedObjectIds(choice.objectIds),
       reason: choice.reason ?? undefined,
       role
     }));
@@ -270,6 +271,7 @@ function choiceSummariesFromValue(value: unknown, role: PromptChoiceRole): Promp
     .map((choice) => ({
       id: choice.id,
       label: promptChoiceLabel(choice),
+      objectIds: normalizedObjectIds(choice.objectIds),
       reason: typeof choice.reason === "string" ? choice.reason : undefined,
       role
     }));

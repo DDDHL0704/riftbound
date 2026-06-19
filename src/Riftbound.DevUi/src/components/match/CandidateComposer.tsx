@@ -583,6 +583,7 @@ function uniqueChoices(choices: ActionPromptChoiceDto[]): ActionPromptChoiceDto[
     byId.set(choice.id, {
       id: choice.id,
       label: choice.label || choice.id,
+      objectIds: normalizedObjectIds(choice.objectIds),
       reason: choice.reason
     });
   }
@@ -610,12 +611,24 @@ function choiceArrayMetadata(value: unknown): ActionPromptChoiceDto[] {
       choices.push({
         id,
         label: firstStringFromRecord(record, ["label", "summary", "visibleText", "text", "title", "name"]) ?? id,
+        objectIds: stringArrayFromValue(record.objectIds),
         reason: firstStringFromRecord(record, ["reason", "description"])
       });
     }
   }
 
   return choices;
+}
+
+function normalizedObjectIds(objectIds: string[] | null | undefined): string[] | undefined {
+  if (!Array.isArray(objectIds)) {
+    return undefined;
+  }
+
+  const normalized = objectIds
+    .map((objectId) => objectId.trim())
+    .filter(Boolean);
+  return normalized.length > 0 ? [...new Set(normalized)] : undefined;
 }
 
 function recordArrayMetadata(value: unknown): Array<Record<string, unknown>> {
