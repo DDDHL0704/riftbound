@@ -3,6 +3,7 @@ import { redactInternalText } from "../../utils/redaction";
 
 export type WireObjectRef = {
   id: string;
+  label?: string;
   role: string;
 };
 
@@ -35,7 +36,7 @@ export function WireObjectRefChips({
         const hidden = ref.id === "HIDDEN";
         const canInspect = Boolean(object && onInspectObject && !hidden);
         const selected = selectedObjectId === ref.id;
-        const label = `${ref.role} ${wireObjectLabel(ref.id, objects)}`;
+        const label = `${ref.role} ${ref.label ?? wireObjectLabel(ref.id, objects)}`;
         const dataProps = {
           "data-object-ref": ref.id,
           "data-object-ref-role": ref.role,

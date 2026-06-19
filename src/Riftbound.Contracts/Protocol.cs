@@ -217,10 +217,22 @@ public sealed record PlayerIntent(
     string PlayerId,
     string CommandType);
 
+public sealed record GameEventObjectRef(
+    string ObjectId,
+    string Role,
+    string? CardNo = null,
+    string? OwnerId = null,
+    string? ControllerId = null,
+    string? Zone = null,
+    string? BattlefieldObjectId = null,
+    bool IsFaceDown = false,
+    bool IsHidden = false);
+
 public sealed record GameEvent(
     string Kind,
     string Description,
-    IReadOnlyDictionary<string, object?> Payload);
+    IReadOnlyDictionary<string, object?> Payload,
+    IReadOnlyList<GameEventObjectRef>? ObjectRefs = null);
 
 public sealed record SnapshotDto(
     long Tick,

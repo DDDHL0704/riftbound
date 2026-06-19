@@ -1,4 +1,4 @@
-import { CardObjectView, ErrorDto, GameEvent } from "../../types/protocol";
+import { CardObjectView, ErrorDto, GameEvent, GameEventObjectRef } from "../../types/protocol";
 import { asArray, asRecord } from "../../utils/collections";
 import { errorCodeLabel, errorMessageLabel } from "../../utils/errors";
 import { redactInternalText } from "../../utils/redaction";
@@ -246,7 +246,23 @@ const arrayObjectKeyRoles: Record<string, string> = {
 };
 
 function eventObjectRefs(event: GameEvent, objects: WireObjectIndex): WireObjectRef[] {
-  return collectEventObjectRefs(event.payload, objects, 0);
+  const serverRefs = event.objectRefs
+    ?.map(serverObjectRef)
+    .filter((ref): ref is WireObjectRef => Boolean(ref));
+  return serverRefs?.length ? serverRefs : collectEventObjectRefs(event.payload, objects, 0);
+}
+
+function serverObjectRef(ref: GameEventObjectRef): WireObjectRef | undefined {
+  const objectId = ref.objectId?.trim();
+  if (!objectId) {
+    return undefined;
+  }
+
+  return {
+    id: objectId,
+    label: ref.isHidden ? "隐藏对象" : ref.cardNo?.trim() || undefined,
+    role: ref.role?.trim() || "对象"
+  };
 }
 
 function collectEventObjectRefs(record: Record<string, unknown>, objects: WireObjectIndex, depth: number): WireObjectRef[] {
