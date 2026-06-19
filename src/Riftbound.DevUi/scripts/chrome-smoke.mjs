@@ -447,6 +447,9 @@ async function runWireClickSelectionSmoke(cdp) {
       grammarRoles: Array.from(document.querySelectorAll("[data-wire-grammar-role]")).map((node) => node.getAttribute("data-wire-grammar-role")),
       nextStep: document.querySelector("[data-wire-focused-next-step]")?.textContent ?? "",
       candidatePlanCount: document.querySelectorAll(".wire-focused-candidate-plan li").length,
+      focusedPathCount: document.querySelectorAll(".wire-focused-path article").length,
+      composerCount: document.querySelectorAll(".wire-focused-actions .candidate-composer").length,
+      focusedActionButtonCount: document.querySelectorAll(".wire-focused-actions button").length,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
@@ -738,6 +741,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (detailEscapeResult.activeObjectId !== "p1-hand-spell") failures.push("card detail did not restore focus to source card");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
   if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
+  if (focusResult.focusedPathCount < 1) failures.push("focused interaction candidate path missing");
+  if (focusResult.composerCount < 1) failures.push("focused interaction composer entry missing");
+  if (focusResult.focusedActionButtonCount < 1) failures.push("focused interaction action controls missing");
   if (focusResult.grammarState !== "ready") failures.push(`focused interaction grammar state unexpected: ${focusResult.grammarState}`);
   if (!focusResult.grammarText.includes("交互语法")) failures.push("focused interaction grammar header missing");
   if (!focusResult.grammarText.includes("来源")) failures.push("focused interaction grammar source step missing");

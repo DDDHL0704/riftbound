@@ -2,24 +2,19 @@ import type { InspectedCard } from "../cards/CardFace";
 import { Maximize2, Play } from "lucide-react";
 import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
-import { promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
-import {
-  buildPromptInteractionModel,
-  promptChoiceSummaryObjectIds,
-  type PromptCandidateSummary,
-  type PromptInteractionModel
-} from "../../utils/promptInteraction";
-import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
+import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
-import { candidateComposerKey } from "../../utils/candidateComposerModel";
-import { buildFocusedInteractionGrammarPlan, type FocusedInteractionGrammarPlan } from "../../utils/focusedInteractionGrammarPlan";
-import { buildSourceCandidateActionPlan } from "../../utils/sourceCandidateActionPlan";
-import { buildWirePromptCandidateListPlan, type WirePromptCandidateRowPlan } from "../../utils/wirePromptCandidatePlan";
+import type { FocusedActionModel } from "../../utils/focusedActionModel";
+import type { FocusedInteractionGrammarPlan } from "../../utils/focusedInteractionGrammarPlan";
+import {
+  buildWireFocusedInteractionPlan,
+  type WireFocusedInteractionPlan
+} from "../../utils/wireFocusedInteractionPlan";
+import type { WirePromptCandidateListPlan, WirePromptCandidateRowPlan } from "../../utils/wirePromptCandidatePlan";
 import { CardFace } from "../cards/CardFace";
 import { CandidateComposer } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
-import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireEmpty } from "./wireCardFlow";
@@ -49,31 +44,16 @@ export function WireInteractionPanel({
   selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
 }) {
-  const model = buildPromptInteractionModel(prompt);
-  const inspectedObjectId = inspectedCard?.objectId;
-  const objectIndex = buildCardObjectIndex(snapshot);
   const selectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
-  const objectSummary = inspectedObjectId ? model.objectById.get(inspectedObjectId) : undefined;
-  const focusModel = buildFocusedActionModel({
-    interactionModel: model,
+  const plan = buildWireFocusedInteractionPlan({
+    canSubmitCommands: Boolean(onCommand),
+    disabledByConnection,
     prompt,
     selectionDraft,
+    snapshot,
+    sourceControllerId: inspectedCard?.object?.controllerId,
     sourceObjectId: selectedObjectId
   });
-  const relatedCandidates = inspectedObjectId
-    ? model.candidates.filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(inspectedObjectId)))
-    : [];
-  const relatedCandidatePlan = buildWirePromptCandidateListPlan({
-    model: {
-      ...model,
-      candidates: relatedCandidates
-    },
-    objects: objectIndex
-  });
-  const relatedCandidateRows = [
-    ...relatedCandidatePlan.enabledRows,
-    ...relatedCandidatePlan.disabledRows
-  ];
 
   return (
     <section className="wire-interaction-panel">
@@ -88,15 +68,15 @@ export function WireInteractionPanel({
         {inspectedCard ? (
           <>
             <CardFace object={inspectedCard.object} objectId={inspectedCard.objectId} selected spec={inspectedCard.spec} />
-            <div className="wire-focus-copy">
-              <strong>{inspectedCard.spec?.cardName ?? inspectedCard.object?.cardNo ?? inspectedCard.objectId ?? "卡牌"}</strong>
-              <span>对象：{inspectedCard.objectId ?? "无对象 ID"}</span>
-              <span>控制：{inspectedCard.object?.controllerId ?? "未知"}</span>
-              <span>服务端关联：{objectSummary ? `${objectSummary.enabledCandidateCount} 可用 / ${objectSummary.disabledCandidateCount} 禁用` : "无候选"}</span>
-              <WireObjectContextSummary context={objectContext} contract={prompt?.contract} focusModel={focusModel} />
-              <div className="wire-focus-actions">
-                <Button icon={<Maximize2 size={16} />} onClick={() => onOpenDetail(inspectedCard)} variant="secondary">查看详情</Button>
-                <Button onClick={onClearInspectedCard} variant="ghost">清除焦点</Button>
+              <div className="wire-focus-copy">
+                <strong>{inspectedCard.spec?.cardName ?? inspectedCard.object?.cardNo ?? inspectedCard.objectId ?? "卡牌"}</strong>
+                <span>对象：{plan.sourceObject.objectIdLabel}</span>
+                <span>控制：{plan.sourceObject.controllerLabel}</span>
+                <span>服务端关联：{plan.sourceObject.serverCandidateLabel}</span>
+                <WireObjectContextSummary context={objectContext} contract={prompt?.contract} focusModel={plan.focusModel} />
+                <div className="wire-focus-actions">
+                  <Button icon={<Maximize2 size={16} />} onClick={() => onOpenDetail(inspectedCard)} variant="secondary">查看详情</Button>
+                  <Button onClick={onClearInspectedCard} variant="ghost">清除焦点</Button>
               </div>
             </div>
           </>
@@ -108,11 +88,11 @@ export function WireInteractionPanel({
       {inspectedCard && (
         <div className="wire-selected-candidates">
           <strong>焦点候选</strong>
-          {relatedCandidates.length === 0 && <span className="empty-hint">该卡当前未出现在服务端候选中。</span>}
-          {relatedCandidateRows.slice(0, 5).map((row) => (
+          {plan.relatedCandidateRows.length === 0 && <span className="empty-hint">该卡当前未出现在服务端候选中。</span>}
+          {plan.relatedCandidateRows.slice(0, 5).map((row) => (
             <CandidateSummaryRow
               key={row.key}
-              objects={objectIndex}
+              objects={plan.objectIndex}
               onInspectObject={onInspectObject}
               row={row}
               selectedObjectId={selectedObjectId}
@@ -124,19 +104,16 @@ export function WireInteractionPanel({
       <FocusedActionList
         disabledByConnection={disabledByConnection}
         inspectedCard={inspectedCard}
-        focusModel={focusModel}
-        model={model}
         onCommand={onCommand}
+        plan={plan}
         prompt={prompt}
-        selectionDraft={selectionDraft}
         snapshot={snapshot}
       />
 
       <PromptCandidateList
-        model={model}
-        objects={objectIndex}
+        objects={plan.objectIndex}
         onInspectObject={onInspectObject}
-        prompt={prompt}
+        plan={plan.promptCandidateList}
         selectedObjectId={selectedObjectId}
       />
     </section>
@@ -145,39 +122,19 @@ export function WireInteractionPanel({
 
 function FocusedActionList({
   disabledByConnection,
-  focusModel,
   inspectedCard,
-  model,
   onCommand,
+  plan,
   prompt,
-  selectionDraft,
   snapshot
 }: {
   disabledByConnection: boolean;
-  focusModel: FocusedActionModel;
   inspectedCard?: InspectedCard;
-  model: PromptInteractionModel;
   onCommand?: (command: GameCommand) => void;
+  plan: WireFocusedInteractionPlan;
   prompt?: ActionPromptDto;
-  selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
 }) {
-  const sourceObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
-  const candidates = sourceCandidatesForPrompt(prompt, sourceObjectId);
-  const candidateSummaries = sourceObjectId
-    ? model.candidates.filter((candidate) =>
-      candidate.enabled
-      && candidate.choices.some((choice) =>
-        choice.role === "source"
-        && promptChoiceSummaryObjectIds(choice).includes(sourceObjectId)))
-    : [];
-  const grammarPlan = buildFocusedInteractionGrammarPlan({
-    candidates: candidateSummaries,
-    disabledByConnection,
-    selectionDraft,
-    sourceObjectId
-  });
-
   if (!inspectedCard) {
     return null;
   }
@@ -186,30 +143,30 @@ function FocusedActionList({
     <div className="wire-focused-actions">
       <div className="wire-focused-actions-heading">
         <strong>焦点操作入口</strong>
-        <StatusPill tone={candidates.length > 0 ? "good" : "neutral"}>{candidates.length > 0 ? `${candidates.length} 项` : "无可提交"}</StatusPill>
+        <StatusPill tone={plan.sourceCandidates.length > 0 ? "good" : "neutral"}>{plan.sourceCandidates.length > 0 ? `${plan.sourceCandidates.length} 项` : "无可提交"}</StatusPill>
       </div>
       <p>只使用服务端当前候选；连接恢复前不会提交命令。</p>
-      <FocusedActionSummary focusModel={focusModel} />
-      <FocusedInteractionGrammar plan={grammarPlan} />
-      {candidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
-      {selectionDraft && selectionDraft.sourceObjectId === sourceObjectId && (
+      <FocusedActionSummary focusModel={plan.focusModel} />
+      <FocusedInteractionGrammar plan={plan.grammarPlan} />
+      {plan.sourceCandidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
+      {plan.draft && (
         <div className="wire-selection-draft" role="group" aria-label="已点选候选草稿">
           <strong>桌面点选</strong>
-          <span>目标 {selectionDraft.targetChoiceIds.length}</span>
-          <span>位置 {selectionDraft.destinationId ? "已选" : "未选"}</span>
-          <span>费用 {selectionDraft.optionalCostIds.length}</span>
+          <span>目标 {plan.draft.targetCount}</span>
+          <span>位置 {plan.draft.destinationSelected ? "已选" : "未选"}</span>
+          <span>费用 {plan.draft.optionalCostCount}</span>
         </div>
       )}
-      {candidateSummaries.length > 0 && (
+      {plan.sourceCandidatePaths.length > 0 && (
         <div className="wire-focused-path" role="group" aria-label="焦点候选路径">
-          {candidateSummaries.slice(0, 2).map((candidate) => (
-            <article key={`${candidate.action}-${candidate.label}`}>
-              <strong>{candidate.label}</strong>
+          {plan.sourceCandidatePaths.map((path) => (
+            <article key={path.key}>
+              <strong>{path.label}</strong>
               <ol>
-                {candidate.steps.map((step) => (
-                  <li className={step.required ? "is-required" : ""} key={`${candidate.action}-${step.role}`}>
+                {path.steps.map((step) => (
+                  <li className={step.required ? "is-required" : ""} key={step.key}>
                     <span>{step.label}</span>
-                    <small>{step.required ? "必需；" : ""}{step.sampleLabels.length > 0 ? step.sampleLabels.join(" / ") : "服务端候选"}</small>
+                    <small>{step.required ? "必需；" : ""}{step.sampleLabel}</small>
                   </li>
                 ))}
               </ol>
@@ -217,24 +174,14 @@ function FocusedActionList({
           ))}
         </div>
       )}
-      {candidates.slice(0, 4).map((candidate) => {
-        const actionPlan = buildSourceCandidateActionPlan({
-          canSubmitCommands: Boolean(onCommand),
-          candidate,
-          disabledByConnection,
-          sourceObjectId
-        });
-
-        if (actionPlan.needsComposer && onCommand) {
-          const candidateDraft = selectionDraft?.candidateKey === candidateComposerKey(candidate)
-            ? selectionDraft
-            : undefined;
+      {plan.actionEntries.slice(0, 4).map(({ actionPlan, candidate, candidateDraft, key, mode }) => {
+        if (mode === "composer" && onCommand) {
           return (
             <CandidateComposer
               candidate={candidate}
               disabledByConnection={disabledByConnection}
-              forcedSourceObjectId={sourceObjectId}
-              key={`${candidate.action}-${candidate.label}`}
+              forcedSourceObjectId={plan.sourceObjectId}
+              key={key}
               onCommand={onCommand}
               prompt={prompt}
               selectionDraft={candidateDraft}
@@ -247,7 +194,7 @@ function FocusedActionList({
           <Button
             disabled={actionPlan.disabled}
             icon={<Play size={16} />}
-            key={`${candidate.action}-${candidate.label}`}
+            key={key}
             onClick={() => {
               if (actionPlan.command && onCommand) {
                 onCommand(promptStampedCommand(actionPlan.command, prompt));
@@ -351,29 +298,16 @@ function FocusedActionSummary({ focusModel }: { focusModel: FocusedActionModel }
 }
 
 function PromptCandidateList({
-  model,
   objects,
   onInspectObject,
-  prompt,
+  plan,
   selectedObjectId
 }: {
-  model: PromptInteractionModel;
   objects: WireObjectIndex;
   onInspectObject?: (objectId: string) => void;
-  prompt?: ActionPromptDto;
+  plan: WirePromptCandidateListPlan;
   selectedObjectId?: string;
 }) {
-  const plan = buildWirePromptCandidateListPlan({
-    model,
-    objects,
-    promptId: prompt?.promptId,
-    promptMessage: prompt?.view?.message,
-    promptReason: prompt?.reason,
-    promptTitle: prompt?.view?.title,
-    promptType: prompt?.view?.type,
-    snapshotTick: prompt?.snapshotTick
-  });
-
   return (
     <div className="wire-prompt-candidates">
       <div className="wire-prompt-contract">
