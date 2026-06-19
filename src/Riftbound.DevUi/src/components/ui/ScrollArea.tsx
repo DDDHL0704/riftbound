@@ -8,7 +8,7 @@ type ScrollAreaProps = ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
 export function ScrollArea({ children, className = "", viewportClassName = "", ...props }: ScrollAreaProps) {
   return (
     <ScrollAreaPrimitive.Root className={`scroll-area ${className}`.trim()} {...props}>
-      <ScrollAreaPrimitive.Viewport className={`scroll-area-viewport ${viewportClassName}`.trim()}>
+      <ScrollAreaPrimitive.Viewport className={`scroll-area-viewport ${viewportClassName}`.trim()} tabIndex={0}>
         {children}
       </ScrollAreaPrimitive.Viewport>
       <ScrollAreaPrimitive.Scrollbar className="scroll-area-scrollbar" orientation="vertical">

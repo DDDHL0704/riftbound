@@ -225,7 +225,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <h1>符文战场对战线框</h1>
           <span>房间 {matchId}</span>
         </div>
-        <div className="wire-status-line" aria-label="服务端状态">
+        <div className="wire-status-line" role="group" aria-label="服务端状态">
           <span>连接 {connectionStatusLabel(controller.state.status)}</span>
           <span>回合 {tableSnapshot?.turnNumber ?? 0}</span>
           <span>阶段 {matchPhaseLabel(phase)}</span>
@@ -650,7 +650,7 @@ function WireHandRail({
       </div>
     ),
     runeTrack: (
-      <div className="wire-hand-rune-track" key="runeTrack" aria-label={entry ? `${playerLabel(entry)} 已抽出符文` : "已抽出符文占位"}>
+      <div className="wire-hand-rune-track" key="runeTrack" role="group" aria-label={entry ? `${playerLabel(entry)} 已抽出符文` : "已抽出符文占位"}>
         <WireRuneTrack ids={runeIds} interaction={interaction} objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} reverse={layout.runeReverse} specs={specs} />
       </div>
     )
@@ -853,7 +853,7 @@ function WireRuneTrack({
   const slotIndexes = Array.from({ length: runeDeckSize }, (_, index) => reverse ? runeDeckSize - 1 - index : index);
 
   return (
-    <div className="wire-rune-track" aria-label="12 个符文槽">
+    <div className="wire-rune-track" role="group" aria-label="12 个符文槽">
       {slotIndexes.map((slotIndex) => {
         const id = ids[slotIndex];
         const object = id ? objects[id] : undefined;
@@ -864,6 +864,7 @@ function WireRuneTrack({
               <div
                 aria-label={exhausted ? "已横置符文" : "竖置符文"}
                 className={`wire-rune-card-frame ${exhausted ? (reverse ? "is-exhausted-counter" : "is-exhausted-clockwise") : ""}`}
+                role="group"
               >
                 <CardFace compact interactionState={interaction.interactionByObjectId[id]} object={object} objectId={id} onInspect={onInspectCard} onPreview={onPreviewCard} selected={interaction.selectedObjectId === id} spec={object?.cardNo ? specs[object.cardNo] : undefined} />
               </div>

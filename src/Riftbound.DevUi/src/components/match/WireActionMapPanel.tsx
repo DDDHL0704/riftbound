@@ -56,7 +56,7 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
         <Metric label="不可提交关联" value={`${knownDisabledOnlyObjects.length}`} />
       </div>
 
-      <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" tabIndex={0}>
+      <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
         {knownEnabledObjects.length === 0 && <span className="empty-hint">当前没有服务端标记为可操作的场上对象。</span>}
         {knownEnabledObjects.slice(0, 6).map((objectId) => {
           const summary = model.objectById.get(objectId);
@@ -97,7 +97,7 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
         ))}
       </div>
 
-      <div className="wire-action-grammar" aria-label="服务端候选交互语法">
+      <div className="wire-action-grammar" role="group" aria-label="服务端候选交互语法">
         <strong>交互语法</strong>
         {model.candidates.length === 0 && <span className="empty-hint">暂无候选步骤。</span>}
         {model.candidates
