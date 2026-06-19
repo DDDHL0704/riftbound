@@ -3,21 +3,15 @@ import { CardFace, type InspectedCard } from "../cards/CardFace";
 import { BehaviorSpec } from "../../types/catalog";
 import { CardObjectView } from "../../types/protocol";
 import type { PromptObjectState } from "../../utils/promptInteraction";
+import {
+  buildWireCardFlowPlan,
+  type WireCardFlowKind,
+  type WireCardFlowPlan
+} from "./wireCardFlowPlan";
 
-export type WireCardFlowKind = "battlefield-unit" | "base" | "hand" | "signature";
+export { buildWireCardFlowPlan, type WireCardFlowKind, type WireCardFlowPlan } from "./wireCardFlowPlan";
+
 export type WireTimelineObjectState = "event" | "rule";
-
-export type WireCardFlowPlan = {
-  cardHeight: number;
-  cardWidth: number;
-  density: "single" | "sparse" | "normal" | "dense" | "packed";
-  gap: number;
-  itemCount: number;
-  kind: WireCardFlowKind;
-  layout: "grid" | "rail";
-  minSlots: number;
-  slotCount: number;
-};
 
 type WireCardFlowProps = {
   className?: string;
@@ -37,65 +31,6 @@ type WireCardFlowProps = {
 };
 
 type WireCssProperties = CSSProperties & Record<`--${string}`, string | number>;
-
-const CARD_RATIO = 744 / 1039;
-
-export function buildWireCardFlowPlan({
-  itemCount,
-  kind,
-  minSlots = 0
-}: {
-  itemCount: number;
-  kind: WireCardFlowKind;
-  minSlots?: number;
-}): WireCardFlowPlan {
-  const effectiveCount = Math.max(itemCount, minSlots);
-  const slotCount = Math.max(itemCount, minSlots);
-
-  if (kind === "signature") {
-    return plan(kind, itemCount, minSlots, slotCount, "single", 100, "grid", 4);
-  }
-
-  if (kind === "battlefield-unit") {
-    if (effectiveCount <= 3) {
-      return plan(kind, itemCount, minSlots, slotCount, "sparse", 74, "rail", 4);
-    }
-    if (effectiveCount <= 5) {
-      return plan(kind, itemCount, minSlots, slotCount, "normal", 68, "rail", 4);
-    }
-    if (effectiveCount <= 8) {
-      return plan(kind, itemCount, minSlots, slotCount, "dense", 58, "rail", 4);
-    }
-    if (effectiveCount <= 12) {
-      return plan(kind, itemCount, minSlots, slotCount, "packed", 48, "rail", 3);
-    }
-    return plan(kind, itemCount, minSlots, slotCount, "packed", 42, "rail", 3);
-  }
-
-  if (kind === "base") {
-    if (effectiveCount <= 3) {
-      return plan(kind, itemCount, minSlots, slotCount, "sparse", 86, "rail", 4);
-    }
-    if (effectiveCount <= 6) {
-      return plan(kind, itemCount, minSlots, slotCount, "normal", 74, "rail", 4);
-    }
-    if (effectiveCount <= 10) {
-      return plan(kind, itemCount, minSlots, slotCount, "dense", 62, "rail", 3);
-    }
-    return plan(kind, itemCount, minSlots, slotCount, "packed", 52, "rail", 3);
-  }
-
-  if (effectiveCount <= 5) {
-    return plan(kind, itemCount, minSlots, slotCount, "sparse", 86, "rail", 4);
-  }
-  if (effectiveCount <= 8) {
-    return plan(kind, itemCount, minSlots, slotCount, "normal", 74, "rail", 4);
-  }
-  if (effectiveCount <= 12) {
-    return plan(kind, itemCount, minSlots, slotCount, "dense", 62, "rail", 3);
-  }
-  return plan(kind, itemCount, minSlots, slotCount, "packed", 52, "rail", 3);
-}
 
 export function WireCardFlow({
   className = "",
@@ -210,29 +145,6 @@ export function WireStackCount({ count, label }: { count: number; label: string 
 
 export function WireEmpty({ label }: { label: string }) {
   return <span className="wire-empty">{label}</span>;
-}
-
-function plan(
-  kind: WireCardFlowKind,
-  itemCount: number,
-  minSlots: number,
-  slotCount: number,
-  density: WireCardFlowPlan["density"],
-  cardWidth: number,
-  layout: WireCardFlowPlan["layout"],
-  gap: number
-): WireCardFlowPlan {
-  return {
-    cardHeight: Math.round(cardWidth / CARD_RATIO),
-    cardWidth,
-    density,
-    gap,
-    itemCount,
-    kind,
-    layout,
-    minSlots,
-    slotCount
-  };
 }
 
 function wireCardFlowStyle(flowPlan: WireCardFlowPlan): WireCssProperties {
