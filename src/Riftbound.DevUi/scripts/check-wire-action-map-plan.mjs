@@ -126,6 +126,12 @@ assert.equal(plan.focus.relatedCandidates[0].label, "打出手牌");
 assert.equal(plan.focus.relatedCandidates[0].commandType, "PLAY_CARD");
 assert.deepEqual(plan.focus.relatedCandidates[0].roleLabels, ["来源"]);
 assert.equal(plan.focus.relatedCandidates[0].nextStepLabel, "可选目标");
+assert.deepEqual(plan.focus.relatedCandidates[0].nextObjectRefs, [{
+  key: "PLAY_CARD:target:p2-unit-1:p2-unit-1",
+  label: "敌方单位",
+  objectId: "p2-unit-1",
+  roleLabel: "目标"
+}]);
 assert.equal(plan.disabledOnlyObjectCount, 1);
 assert.equal(plan.groups[0].label, "打出手牌");
 assert.equal(plan.groups[0].enabledCount, 1);

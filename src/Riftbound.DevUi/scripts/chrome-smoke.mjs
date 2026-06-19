@@ -565,6 +565,20 @@ async function runWireClickSelectionSmoke(cdp) {
     };
   })()`);
 
+  await clickActionFocusChoiceObject(cdp, "p2-right-1");
+  await delay(150);
+  const actionFocusChoiceResult = await evaluateJson(cdp, `(() => {
+    const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
+    const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
+    return {
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
+      previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
+      sourceSelected: sourceObject?.getAttribute("data-selected") ?? null,
+      targetState: targetObject?.getAttribute("data-prompt-state") ?? null
+    };
+  })()`);
+
   await clickActionMapObject(cdp, "p1-base-equip");
   await delay(150);
   const blockedActionMapResult = await evaluateJson(cdp, `(() => {
@@ -686,6 +700,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.focusBridgeText.includes("角色 来源")) failures.push("action map focus bridge role summary missing");
   if (!actionMapResult.focusBridgeText.includes("可选目标")) failures.push("action map focus bridge next step missing");
   if (!actionMapResult.focusBridgeText.includes("PLAY_CARD")) failures.push("action map focus bridge command type missing");
+  if (!actionMapResult.focusBridgeText.includes("对方单位")) failures.push("action map focus bridge next object ref missing");
   if (!["resolving", "you-action"].includes(actionMapResult.windowState)) failures.push(`wire window plan did not show a server-derived active state: ${actionMapResult.windowState}`);
   if (!actionMapResult.windowText.includes("窗口总览")) failures.push("wire window plan header missing");
   if (!actionMapResult.windowText.includes("下一步")) failures.push("wire window plan next step missing");
@@ -726,6 +741,11 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.candidatePlanNext.includes("下一步")) failures.push("PLAY_CARD candidate plan next-step missing");
   if (!actionMapResult.focusText.includes("服务端状态")) failures.push("action map focus did not refresh focused action summary");
   if (actionMapResult.detailLayerOpen) failures.push("action map object chip opened detail");
+  if (actionFocusChoiceResult.sourceSelected !== "true") failures.push("action focus choice did not preserve source focus");
+  if (actionFocusChoiceResult.targetState !== "chosen") failures.push("action focus choice did not mark target chosen");
+  if (!actionFocusChoiceResult.draftText.includes("目标 1")) failures.push("action focus choice did not update target draft");
+  if (actionFocusChoiceResult.previewText.includes("目标：无")) failures.push("action focus choice command preview missed target");
+  if (actionFocusChoiceResult.detailLayerOpen) failures.push("action focus choice opened detail");
   if (blockedActionMapResult.selected !== "true") failures.push("blocked action map object chip did not focus table object");
   if (blockedActionMapResult.chipSelected !== "true") failures.push("blocked action map object chip did not show selected state");
   if (blockedActionMapResult.chipState !== "blocked") failures.push(`blocked action map chip state unexpected: ${blockedActionMapResult.chipState}`);
@@ -1053,6 +1073,21 @@ async function clickActionMapObject(cdp, objectId) {
   });
   if (!result.result?.value) {
     throw new Error(`Action map object chip not found: ${objectId}`);
+  }
+}
+
+async function clickActionFocusChoiceObject(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-action-focus-choice-object-id="${objectId}"]`)});
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Action focus choice object not found: ${objectId}`);
   }
 }
 

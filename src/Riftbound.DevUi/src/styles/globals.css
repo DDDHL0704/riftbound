@@ -12454,6 +12454,35 @@ button.card-face:hover {
   grid-column: 1 / -1;
 }
 
+.wire-action-focus-choice-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.wire-action-focus-choice-list button {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 2px 4px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-action-focus-choice-list span,
+.wire-action-focus-choice-list strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-action-group-list {
   display: grid;
   gap: 4px;

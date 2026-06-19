@@ -34,10 +34,18 @@ export type WireActionFocusCandidatePlan = {
   enabled: boolean;
   key: string;
   label: string;
+  nextObjectRefs: WireActionFocusObjectRef[];
   nextStepLabel: string;
   reason: string;
   roleLabels: string[];
   stateLabel: string;
+};
+
+export type WireActionFocusObjectRef = {
+  key: string;
+  label: string;
+  objectId: string;
+  roleLabel: string;
 };
 
 export type WireActionFocusPlan = {
@@ -205,7 +213,7 @@ function focusPlan(
   }
 
   const relatedCandidates = model.candidates
-    .map((candidate) => focusCandidatePlan(candidate, selectedObjectId))
+    .map((candidate) => focusCandidatePlan(candidate, selectedObjectId, objects))
     .filter((candidate): candidate is WireActionFocusCandidatePlan => Boolean(candidate))
     .sort(focusCandidateSort);
   const summary = model.objectById.get(selectedObjectId);
@@ -227,7 +235,8 @@ function focusPlan(
 
 function focusCandidatePlan(
   candidate: PromptCandidateSummary,
-  objectId: string
+  objectId: string,
+  objects: ObjectIndex
 ): WireActionFocusCandidatePlan | undefined {
   const roleLabels = uniqueStrings(candidate.choices
     .filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId))
@@ -236,32 +245,64 @@ function focusCandidatePlan(
     return undefined;
   }
 
+  const nextStep = nextStepForFocusedCandidate(candidate, roleLabels);
   return {
     commandType: candidate.command?.cmdType ?? candidate.action,
     enabled: candidate.enabled,
     key: `${candidate.action}:${candidate.label}:${objectId}`,
     label: candidate.label,
-    nextStepLabel: nextStepLabelForFocusedCandidate(candidate, roleLabels),
+    nextObjectRefs: nextStep ? focusObjectRefsForStep(candidate, nextStep.role, objects) : [],
+    nextStepLabel: nextStepLabelForFocusedCandidate(candidate, nextStep),
     reason: candidate.reason,
     roleLabels,
     stateLabel: candidate.enabled ? "可提交" : "暂不可提交"
   };
 }
 
-function nextStepLabelForFocusedCandidate(
+function nextStepForFocusedCandidate(
   candidate: PromptCandidateSummary,
   selectedRoleLabels: string[]
-): string {
-  const nextStep = candidate.steps.find((step) =>
+): PromptCandidateSummary["steps"][number] | undefined {
+  return candidate.steps.find((step) =>
     step.required && !selectedRoleLabels.includes(promptChoiceRoleLabel(step.role)))
     ?? candidate.steps.find((step) =>
       step.count > 0 && !selectedRoleLabels.includes(promptChoiceRoleLabel(step.role)));
+}
 
+function nextStepLabelForFocusedCandidate(
+  candidate: PromptCandidateSummary,
+  nextStep: PromptCandidateSummary["steps"][number] | undefined
+): string {
   if (nextStep) {
     return nextStep.required ? `需要${nextStep.label}` : `可选${nextStep.label}`;
   }
 
   return candidate.enabled ? "可提交给服务端" : "等待服务端窗口";
+}
+
+function focusObjectRefsForStep(
+  candidate: PromptCandidateSummary,
+  role: PromptChoiceRole,
+  objects: ObjectIndex
+): WireActionFocusObjectRef[] {
+  const refs: WireActionFocusObjectRef[] = [];
+  const seen = new Set<string>();
+  for (const choice of candidate.choices.filter((item) => item.role === role)) {
+    const objectId = promptChoiceSummaryObjectIds(choice).find((id) => objects[id]);
+    if (!objectId || seen.has(objectId)) {
+      continue;
+    }
+
+    seen.add(objectId);
+    refs.push({
+      key: `${candidate.action}:${role}:${choice.id}:${objectId}`,
+      label: choice.label || objectLabel(objectId, objects),
+      objectId,
+      roleLabel: promptChoiceRoleLabel(role)
+    });
+  }
+
+  return refs.slice(0, 4);
 }
 
 function focusStateLabel(candidateCount: number, enabledCount: number): string {

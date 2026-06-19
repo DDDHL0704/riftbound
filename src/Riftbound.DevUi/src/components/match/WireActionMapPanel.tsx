@@ -9,6 +9,7 @@ import {
 import { StatusPill } from "../ui/StatusPill";
 
 type WireActionMapPanelProps = {
+  onChooseObject?: (objectId: string) => void;
   onInspectObject?: (objectId: string) => void;
   playerId: string;
   prompt?: ActionPromptDto;
@@ -16,7 +17,7 @@ type WireActionMapPanelProps = {
   snapshot?: SnapshotDto;
 };
 
-export function WireActionMapPanel({ onInspectObject, playerId, prompt, selectedObjectId, snapshot }: WireActionMapPanelProps) {
+export function WireActionMapPanel({ onChooseObject, onInspectObject, playerId, prompt, selectedObjectId, snapshot }: WireActionMapPanelProps) {
   const plan = buildWireActionMapPlan({ playerId, prompt, selectedObjectId, snapshot });
 
   return (
@@ -69,7 +70,7 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
         {plan.blockedObjectEntryOverflowCount > 0 && <span className="wire-action-object-chip" data-action-object-state="blocked">等 {plan.blockedObjectEntryOverflowCount} 个阻断对象</span>}
       </div>
 
-      {plan.focus && <FocusedActionBridge plan={plan} />}
+      {plan.focus && <FocusedActionBridge onChooseObject={onChooseObject ?? onInspectObject} plan={plan} />}
 
       <div className="wire-action-group-list">
         {plan.groups.length === 0 && <span className="empty-hint">等待服务端行动窗口。</span>}
@@ -119,7 +120,7 @@ export function WireActionMapPanel({ onInspectObject, playerId, prompt, selected
   );
 }
 
-function FocusedActionBridge({ plan }: { plan: WireActionMapPlan }) {
+function FocusedActionBridge({ onChooseObject, plan }: { onChooseObject?: (objectId: string) => void; plan: WireActionMapPlan }) {
   const focus = plan.focus;
   if (!focus) {
     return null;
@@ -148,6 +149,21 @@ function FocusedActionBridge({ plan }: { plan: WireActionMapPlan }) {
               <strong>{candidate.nextStepLabel}</strong>
               <small>{candidate.roleLabels.join(" / ")} / {candidate.commandType ?? "未公开命令"} / {candidate.stateLabel}</small>
               {!candidate.enabled && <small>{candidate.reason}</small>}
+              {candidate.nextObjectRefs.length > 0 && (
+                <div className="wire-action-focus-choice-list" role="group" aria-label={`${candidate.label} 下一步对象`}>
+                  {candidate.nextObjectRefs.map((ref) => (
+                    <button
+                      data-action-focus-choice-object-id={ref.objectId}
+                      key={ref.key}
+                      onClick={() => onChooseObject?.(ref.objectId)}
+                      type="button"
+                    >
+                      <span>{ref.roleLabel}</span>
+                      <strong>{ref.label}</strong>
+                    </button>
+                  ))}
+                </div>
+              )}
             </li>
           ))}
         </ol>

@@ -182,6 +182,18 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     });
     setSelectionDraft(sourceCandidate ? emptySelectionDraft(objectId, sourceCandidate) : undefined);
   }, [promptInteraction.candidates, tableObjectIndex, tableSpecByNo]);
+  const chooseObjectFromActionMap = useCallback((objectId: string) => {
+    const object = tableObjectIndex[objectId];
+    if (!object) {
+      return;
+    }
+
+    inspectCard({
+      object,
+      objectId,
+      spec: object.cardNo ? tableSpecByNo[object.cardNo] : undefined
+    });
+  }, [inspectCard, tableObjectIndex, tableSpecByNo]);
   const tableRows = WIRE_TABLE_LAYOUT.table.rows.map((row) => {
     if (row.kind === "battlefield") {
       return (
@@ -311,6 +323,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </section>
           <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" tabIndex={0}>
             <WireActionMapPanel
+              onChooseObject={chooseObjectFromActionMap}
               onInspectObject={inspectObjectFromTable}
               playerId={settings.playerId}
               prompt={tablePrompt}
