@@ -89,16 +89,18 @@ try {
   await cdp.send("Log.enable");
 
   for (const route of routes) {
-    await cdp.send("Page.navigate", { url: `${frontendUrl}${route.path}` });
+    await navigateAndWait(cdp, `${frontendUrl}${route.path}`);
     await waitForText(cdp, route.texts);
     await expectAbsentText(cdp, route.absentTexts ?? []);
     await runAccessibilitySmoke(cdp, route.path);
     console.log(`Chrome smoke OK: ${route.path}`);
   }
 
-  await cdp.send("Page.navigate", { url: `${frontendUrl}/matches/local?fixture=layout` });
+  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
   await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "焦点 / 候选 / 规则队列"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
+  await runWireLayoutGeometrySmoke(cdp);
+  console.log("Chrome smoke OK: wire layout geometry");
   await runWireClickSelectionSmoke(cdp);
   console.log("Chrome smoke OK: wire click selection");
   await runWireRuleObjectRefSmoke(cdp);
@@ -224,8 +226,30 @@ async function connectCdp(webSocketDebuggerUrl) {
   };
 }
 
+async function navigateAndWait(cdp, url) {
+  await cdp.send("Page.navigate", { url });
+  const deadline = Date.now() + 20_000;
+  while (Date.now() < deadline) {
+    const state = await cdp.send("Runtime.evaluate", {
+      expression: `(() => ({
+        hasBody: Boolean(document.body),
+        readyState: document.readyState,
+        rootChildCount: document.getElementById("root")?.childElementCount ?? 0
+      }))()`,
+      returnByValue: true
+    }).then((result) => result.result?.value ?? {}).catch(() => ({}));
+
+    if (state.hasBody && state.readyState !== "loading" && state.rootChildCount > 0) {
+      return;
+    }
+    await delay(250);
+  }
+
+  throw new Error(`Timed out waiting for document to become ready: ${url}`);
+}
+
 async function waitForText(cdp, texts) {
-  const deadline = Date.now() + 10_000;
+  const deadline = Date.now() + 20_000;
   let bodyText = "";
   while (Date.now() < deadline) {
     bodyText = await readBodyText(cdp);
@@ -293,6 +317,120 @@ async function readBodyText(cdp) {
     returnByValue: true
   });
   return String(result.result?.value ?? "");
+}
+
+async function runWireLayoutGeometrySmoke(cdp) {
+  const result = await evaluateJson(cdp, `(() => {
+    const failures = [];
+    const round = (value) => Math.round(value * 10) / 10;
+    const rectOf = (element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        bottom: rect.bottom,
+        height: rect.height,
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        width: rect.width
+      };
+    };
+    const sizeKey = (rect) => \`\${round(rect.width)}x\${round(rect.height)}\`;
+    const childCards = (element) => Array.from(element.querySelectorAll(":scope > .card-face, :scope > .card-image-only, :scope > .card-back, :scope > .wire-card-slot"));
+    const flowGroups = new Map();
+
+    for (const flow of Array.from(document.querySelectorAll(".wire-card-flow"))) {
+      const kind = flow.getAttribute("data-flow-kind") ?? "unknown";
+      const count = Number(flow.getAttribute("data-flow-count") ?? "0");
+      const slots = Number(flow.getAttribute("data-flow-slots") ?? "0");
+      const cards = childCards(flow);
+      if (slots < count) {
+        failures.push(\`flow \${kind} has fewer slots than cards: \${slots} < \${count}\`);
+      }
+      if (cards.length < count) {
+        failures.push(\`flow \${kind} rendered fewer card/slot elements than count: \${cards.length} < \${count}\`);
+      }
+
+      const firstCard = cards[0];
+      if (!firstCard) {
+        continue;
+      }
+
+      const rect = rectOf(firstCard);
+      if (rect.width <= 0 || rect.height <= 0) {
+        failures.push(\`flow \${kind} has non-positive card rect\`);
+      }
+      if (Math.abs((rect.width / rect.height) - (744 / 1039)) > 0.04 && kind !== "battlefield-unit") {
+        failures.push(\`flow \${kind} card ratio drifted: \${sizeKey(rect)}\`);
+      }
+
+      const groupKey = \`\${kind}:\${count}\`;
+      const group = flowGroups.get(groupKey) ?? new Set();
+      group.add(sizeKey(rect));
+      flowGroups.set(groupKey, group);
+    }
+
+    for (const [groupKey, sizes] of flowGroups.entries()) {
+      if (sizes.size > 1) {
+        failures.push(\`matching flow group \${groupKey} produced inconsistent card sizes: \${Array.from(sizes).join(", ")}\`);
+      }
+    }
+
+    for (const pile of Array.from(document.querySelectorAll(".wire-fixed-pile"))) {
+      const pileRect = rectOf(pile);
+      const child = pile.querySelector(":scope > .card-face, :scope > .card-image-only, :scope > .card-back, :scope > .wire-stack-box");
+      if (!child) {
+        failures.push("fixed pile missing card or stack box child");
+        continue;
+      }
+
+      const childRect = rectOf(child);
+      if (Math.abs(childRect.width - pileRect.width) > 1 || Math.abs(childRect.height - pileRect.height) > 1) {
+        failures.push(\`fixed pile child does not fill slot: pile \${sizeKey(pileRect)} child \${sizeKey(childRect)}\`);
+      }
+      if (childRect.left < pileRect.left - 1 || childRect.right > pileRect.right + 1 || childRect.top < pileRect.top - 1 || childRect.bottom > pileRect.bottom + 1) {
+        failures.push("fixed pile child escaped slot bounds");
+      }
+    }
+
+    for (const site of Array.from(document.querySelectorAll(".wire-battlefield-site"))) {
+      const siteRect = rectOf(site);
+      const card = site.querySelector(".card-battlefield-image, .wire-card-slot");
+      if (!card) {
+        failures.push("battlefield site missing horizontal card or slot");
+        continue;
+      }
+
+      const cardRect = rectOf(card);
+      if (cardRect.width <= cardRect.height) {
+        failures.push(\`battlefield site card is not horizontal: \${sizeKey(cardRect)}\`);
+      }
+      if (cardRect.width < siteRect.width * 0.9 || cardRect.height < siteRect.height * 0.9) {
+        failures.push(\`battlefield site card does not fill slot enough: site \${sizeKey(siteRect)} card \${sizeKey(cardRect)}\`);
+      }
+    }
+
+    return {
+      failures,
+      fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
+      flowCount: document.querySelectorAll(".wire-card-flow").length,
+      siteCount: document.querySelectorAll(".wire-battlefield-site").length
+    };
+  })()`);
+
+  const failures = result.failures ?? [];
+  if (failures.length > 0) {
+    throw new Error(`Wire layout geometry smoke failed:\n${failures.join("\n")}`);
+  }
+
+  if ((result.flowCount ?? 0) < 1) {
+    throw new Error("Wire layout geometry smoke did not find card flows");
+  }
+  if ((result.fixedPileCount ?? 0) < 1) {
+    throw new Error("Wire layout geometry smoke did not find fixed piles");
+  }
+  if ((result.siteCount ?? 0) < 2) {
+    throw new Error("Wire layout geometry smoke did not find battlefield sites");
+  }
 }
 
 async function runWireClickSelectionSmoke(cdp) {
