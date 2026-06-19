@@ -89,9 +89,21 @@ export function buildFocusedObjectCommandPlan({
       { label: "位置", value: context.zone.label },
       { label: "状态", value: stateValue },
       { label: "候选", value: candidateValue },
+      { label: "候选来源", value: candidateSourceLabel(context.candidateSource) },
       { label: "下一步", value: focusModel?.nextStepLabel ?? "点击桌面对象查看服务端候选" }
     ]
   };
+}
+
+function candidateSourceLabel(source: TableObjectContext["candidateSource"]): string {
+  switch (source) {
+    case "derived":
+      return "前端兜底";
+    case "server":
+      return "服务端索引";
+    case "none":
+      return "无候选";
+  }
 }
 
 function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: number): FocusedObjectCommandRow {

@@ -5330,7 +5330,101 @@ internal static class ActionPromptBuilder
             state.Tick,
             candidates,
             view,
-            ContractForPromptView(view));
+            ContractForPromptView(view),
+            ObjectContextsFor(candidates));
+    }
+
+    private static IReadOnlyList<ActionPromptObjectContextDto>? ObjectContextsFor(IReadOnlyList<ActionPromptCandidateDto> candidates)
+    {
+        var rowsByObjectId = new Dictionary<string, List<ActionPromptObjectCandidateDto>>(StringComparer.Ordinal);
+        foreach (var candidate in candidates)
+        {
+            foreach (var (objectId, roles) in CandidateObjectRoles(candidate))
+            {
+                if (!rowsByObjectId.TryGetValue(objectId, out var rows))
+                {
+                    rows = [];
+                    rowsByObjectId[objectId] = rows;
+                }
+
+                rows.Add(new ActionPromptObjectCandidateDto(
+                    candidate.Action,
+                    candidate.Label,
+                    candidate.Enabled,
+                    candidate.Reason,
+                    roles,
+                    candidate.CommandTemplate?.CmdType ?? candidate.Action,
+                    CommandFieldLabels(candidate.CommandTemplate, requiredOnly: true),
+                    CommandFieldLabels(candidate.CommandTemplate, requiredOnly: false)));
+            }
+        }
+
+        if (rowsByObjectId.Count == 0)
+        {
+            return null;
+        }
+
+        return rowsByObjectId
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => new ActionPromptObjectContextDto(
+                entry.Key,
+                entry.Value.Count(candidate => candidate.Enabled),
+                entry.Value.Count(candidate => !candidate.Enabled),
+                entry.Value
+                    .OrderByDescending(candidate => candidate.Enabled)
+                    .ThenBy(candidate => candidate.Action, StringComparer.Ordinal)
+                    .ThenBy(candidate => candidate.Label, StringComparer.Ordinal)
+                    .ToArray()))
+            .ToArray();
+    }
+
+    private static IEnumerable<(string ObjectId, IReadOnlyList<string> Roles)> CandidateObjectRoles(ActionPromptCandidateDto candidate)
+    {
+        var rolesByObjectId = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (var step in candidate.SelectionSteps ?? [])
+        {
+            var role = string.IsNullOrWhiteSpace(step.Label) ? step.Role : step.Label;
+            foreach (var choice in step.Choices)
+            {
+                foreach (var objectId in choice.ObjectIds)
+                {
+                    if (string.IsNullOrWhiteSpace(objectId))
+                    {
+                        continue;
+                    }
+
+                    if (!rolesByObjectId.TryGetValue(objectId, out var roles))
+                    {
+                        roles = new HashSet<string>(StringComparer.Ordinal);
+                        rolesByObjectId[objectId] = roles;
+                    }
+
+                    roles.Add(role.Trim());
+                }
+            }
+        }
+
+        return rolesByObjectId
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => (entry.Key, (IReadOnlyList<string>)entry.Value.OrderBy(role => role, StringComparer.Ordinal).ToArray()));
+    }
+
+    private static IReadOnlyList<string>? CommandFieldLabels(
+        ActionPromptCommandTemplateDto? template,
+        bool requiredOnly)
+    {
+        var labels = (template?.Bindings ?? [])
+            .Where(binding => !requiredOnly || binding.Required)
+            .Select(CommandBindingLabel)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        return labels.Length == 0 ? null : labels;
+    }
+
+    private static string CommandBindingLabel(ActionPromptCommandBindingDto binding)
+    {
+        var label = string.IsNullOrWhiteSpace(binding.Label) ? binding.Source : binding.Label.Trim();
+        return $"{label}:{binding.Field}{(binding.Required ? "*" : "")}";
     }
 
     private static ActionPromptContractDto? ContractForPromptView(PromptViewDto view)

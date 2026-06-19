@@ -193,6 +193,24 @@ export type ActionPromptCandidateDto = {
   commandTemplate?: ActionPromptCommandTemplateDto | null;
 };
 
+export type ActionPromptObjectCandidateDto = {
+  action: string;
+  label: string;
+  enabled: boolean;
+  reason: string;
+  roles: string[];
+  commandType?: string | null;
+  requiredCommandFields?: string[] | null;
+  commandFields?: string[] | null;
+};
+
+export type ActionPromptObjectContextDto = {
+  objectId: string;
+  enabledCandidateCount: number;
+  disabledCandidateCount: number;
+  candidates: ActionPromptObjectCandidateDto[];
+};
+
 export type KnownPromptType =
   | "ROOM_SETUP"
   | "MULLIGAN"
@@ -245,6 +263,7 @@ export type ActionPromptDto = {
   snapshotTick?: number | null;
   candidates?: ActionPromptCandidateDto[] | null;
   contract?: ActionPromptContractDto | null;
+  objectContexts?: ActionPromptObjectContextDto[] | null;
   view?: PromptViewDto | null;
 };
 
