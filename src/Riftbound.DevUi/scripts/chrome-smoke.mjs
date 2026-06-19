@@ -404,6 +404,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.contextText.includes("右战场 / 对方单位")) failures.push("candidate object ref did not refresh object context");
   if (!candidateRefResult.hasSelectedObjectContext) failures.push("timeline detail did not render selected object context");
   if (!candidateRefResult.detailContextText.includes("右战场 / 对方单位")) failures.push("timeline selected object context did not use server zone");
+  if (!candidateRefResult.detailContextText.includes("服务端命令")) failures.push("timeline selected object context command section missing");
+  if (!candidateRefResult.detailContextText.includes("PLAY_CARD")) failures.push("timeline selected object context command type missing");
   if (!candidateRefResult.detailContextText.includes("近期事件")) failures.push("timeline selected object context event section missing");
   if (candidateRefResult.detailLayerOpen) failures.push("candidate object ref opened detail");
 

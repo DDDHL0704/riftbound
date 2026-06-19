@@ -11735,6 +11735,7 @@ button.card-face:hover {
 }
 
 .wire-object-context-grid span,
+.wire-object-command-list li,
 .wire-object-event-list li {
   min-width: 0;
   display: grid;
@@ -11744,12 +11745,14 @@ button.card-face:hover {
 
 .wire-object-context-grid small,
 .wire-object-context-line,
+.wire-object-command-list span,
 .wire-object-event-list span {
   color: #000;
 }
 
 .wire-object-context-grid strong,
 .wire-object-context-line,
+.wire-object-command-list strong,
 .wire-object-event-list strong {
   min-width: 0;
   overflow: hidden;
@@ -11757,6 +11760,7 @@ button.card-face:hover {
   white-space: nowrap;
 }
 
+.wire-object-command-list,
 .wire-object-event-list {
   display: grid;
   gap: 3px;
@@ -11765,6 +11769,7 @@ button.card-face:hover {
   list-style: none;
 }
 
+.wire-object-command-block,
 .wire-object-event-block {
   display: grid;
   gap: 3px;

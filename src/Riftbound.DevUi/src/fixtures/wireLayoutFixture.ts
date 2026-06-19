@@ -53,6 +53,15 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
     candidates: [
       {
         action: "PLAY_CARD",
+        commandTemplate: {
+          bindings: [
+            { field: "sourceObjectId", required: true, source: "selectedSource" },
+            { field: "targetObjectIds", asArray: true, omitEmpty: false, source: "selectedTargets" },
+            { field: "destination", source: "selectedDestination" },
+            { field: "optionalCosts", asArray: true, source: "selectedOptionalCosts" }
+          ],
+          cmdType: "PLAY_CARD"
+        },
         destinations: [{ id: "STACK", label: "结算链" }],
         enabled: true,
         label: "打出手牌样例",
@@ -110,6 +119,14 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       },
       {
         action: "MOVE_UNIT",
+        commandTemplate: {
+          bindings: [
+            { field: "sourceObjectId", required: true, source: "selectedSource" },
+            { field: "destination", source: "selectedDestination" },
+            { field: "optionalCosts", asArray: true, source: "selectedOptionalCosts" }
+          ],
+          cmdType: "MOVE_UNIT"
+        },
         destinations: [{ id: "BATTLEFIELD:fixture-right-battlefield", label: "右战场" }],
         enabled: true,
         label: "移动单位样例",

@@ -1,6 +1,13 @@
 import type { ActionPromptDto, BattlefieldSnapshotView, CardObjectView, GameEvent, GameEventObjectRef, SnapshotDto, StackItemView } from "../types/protocol";
 import { asArray, asRecord, asString } from "./collections";
-import { buildPromptInteractionModel, promptChoiceRoleLabel, promptChoiceSummaryObjectIds } from "./promptInteraction";
+import {
+  buildPromptInteractionModel,
+  promptChoiceRoleLabel,
+  promptChoiceSummaryObjectIds,
+  type PromptCandidateSummary,
+  type PromptChoiceRole,
+  type PromptCommandBindingSummary
+} from "./promptInteraction";
 import { buildCardObjectIndex } from "./snapshotObjectIndex";
 
 export type TableObjectZoneKind =
@@ -30,9 +37,12 @@ export type TableObjectEventContext = {
 };
 
 export type TableObjectCandidateContext = {
+  commandFields: string[];
+  commandType?: string;
   enabled: boolean;
   label: string;
   reason: string;
+  requiredCommandFields: string[];
   roles: string[];
 };
 
@@ -135,14 +145,7 @@ export function buildTableObjectContextModel({
     byId[objectId] = {
       candidateLinks: promptModel.candidates
         .filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId)))
-        .map((candidate) => ({
-          enabled: candidate.enabled,
-          label: candidate.label,
-          reason: candidate.reason,
-          roles: uniqueStrings(candidate.choices
-            .filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId))
-            .map((choice) => promptChoiceRoleLabel(choice.role)))
-        })),
+        .map((candidate) => candidateContextForObject(candidate, objectId)),
       cardNo: object?.cardNo,
       controllerId: object?.controllerId,
       eventLinks: eventLinksById[objectId] ?? [],
@@ -158,6 +161,38 @@ export function buildTableObjectContextModel({
   }
 
   return { byId };
+}
+
+function candidateContextForObject(candidate: PromptCandidateSummary, objectId: string): TableObjectCandidateContext {
+  const linkedChoices = candidate.choices.filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId));
+  const roleKeys = uniquePromptRoles(linkedChoices.map((choice) => choice.role));
+  const commandBindings = commandBindingsForRoles(candidate.command?.bindings, roleKeys);
+
+  return {
+    commandFields: commandBindings.map(commandBindingLabel),
+    commandType: candidate.command?.cmdType,
+    enabled: candidate.enabled,
+    label: candidate.label,
+    reason: candidate.reason,
+    requiredCommandFields: commandBindings.filter((binding) => binding.required).map(commandBindingLabel),
+    roles: uniqueStrings(linkedChoices.map((choice) => promptChoiceRoleLabel(choice.role)))
+  };
+}
+
+function commandBindingsForRoles(
+  bindings: PromptCommandBindingSummary[] | undefined,
+  roles: PromptChoiceRole[]
+): PromptCommandBindingSummary[] {
+  if (!bindings?.length || roles.length === 0) {
+    return [];
+  }
+
+  return bindings.filter((binding) => binding.role && roles.includes(binding.role));
+}
+
+function commandBindingLabel(binding: PromptCommandBindingSummary): string {
+  const role = binding.roleLabel ? `${binding.roleLabel}:` : "";
+  return `${role}${binding.field}${binding.required ? "*" : ""}`;
 }
 
 function buildZoneIndex(
@@ -327,6 +362,10 @@ function playerSideLabel(playerId: string | null | undefined, perspectivePlayerI
 
 function uniqueStrings(values: string[]): string[] {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+function uniquePromptRoles(values: PromptChoiceRole[]): PromptChoiceRole[] {
+  return [...new Set(values)];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
