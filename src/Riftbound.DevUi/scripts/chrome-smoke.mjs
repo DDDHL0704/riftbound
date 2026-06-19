@@ -434,6 +434,21 @@ async function runWireLayoutGeometrySmoke(cdp) {
 }
 
 async function runWireClickSelectionSmoke(cdp) {
+  await hoverObject(cdp, "p1-hand-spell");
+  await delay(300);
+  const earlyPreviewResult = await readWireCardPreview(cdp);
+  await delay(450);
+  const standardPreviewResult = await readWireCardPreview(cdp);
+  await unhoverObject(cdp, "p1-hand-spell");
+  await delay(100);
+  const clearedPreviewResult = await readWireCardPreview(cdp);
+
+  await hoverObject(cdp, "fixture-left-battlefield");
+  await delay(720);
+  const battlefieldPreviewResult = await readWireCardPreview(cdp);
+  await unhoverObject(cdp, "fixture-left-battlefield");
+  await delay(100);
+
   await clickObject(cdp, "p1-hand-spell");
   await delay(150);
   const focusResult = await evaluateJson(cdp, `(() => {
@@ -721,6 +736,17 @@ async function runWireClickSelectionSmoke(cdp) {
   })()`);
 
   const failures = [];
+  if (earlyPreviewResult.exists) failures.push("card preview appeared before planned delay");
+  if (!standardPreviewResult.exists) failures.push("standard card preview did not appear after delay");
+  if (standardPreviewResult.kind !== "standard") failures.push(`standard card preview kind unexpected: ${standardPreviewResult.kind}`);
+  if (standardPreviewResult.orientation !== "portrait") failures.push(`standard card preview orientation unexpected: ${standardPreviewResult.orientation}`);
+  if (standardPreviewResult.objectId !== "p1-hand-spell") failures.push(`standard card preview object id unexpected: ${standardPreviewResult.objectId}`);
+  if (standardPreviewResult.delayMs !== 680) failures.push(`standard card preview delay unexpected: ${standardPreviewResult.delayMs}`);
+  if (clearedPreviewResult.exists) failures.push("card preview did not clear after hover ended");
+  if (!battlefieldPreviewResult.exists) failures.push("battlefield card preview did not appear after delay");
+  if (battlefieldPreviewResult.kind !== "battlefield") failures.push(`battlefield card preview kind unexpected: ${battlefieldPreviewResult.kind}`);
+  if (battlefieldPreviewResult.orientation !== "landscape-counterclockwise") failures.push(`battlefield card preview orientation unexpected: ${battlefieldPreviewResult.orientation}`);
+  if (battlefieldPreviewResult.objectId !== "fixture-left-battlefield") failures.push(`battlefield card preview object id unexpected: ${battlefieldPreviewResult.objectId}`);
   if (focusResult.state !== "server-candidate") failures.push("focused action summary did not use server candidate state");
   if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
   if (!focusResult.text.includes("可提交")) failures.push("focused action summary enabled count missing");
@@ -1229,6 +1255,52 @@ async function focusObject(cdp, objectId) {
   if (!result.result?.value) {
     throw new Error(`Object could not receive focus: ${objectId}`);
   }
+}
+
+async function hoverObject(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-object-id="${objectId}"]`)});
+      if (!element) return false;
+      element.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, relatedTarget: null }));
+      element.dispatchEvent(new MouseEvent("mouseenter", { bubbles: false, relatedTarget: null }));
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (result.result?.value !== true) {
+    throw new Error(`Missing hoverable object ${objectId}`);
+  }
+}
+
+async function unhoverObject(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-object-id="${objectId}"]`)});
+      if (!element) return false;
+      element.dispatchEvent(new MouseEvent("mouseout", { bubbles: true, relatedTarget: document.body }));
+      element.dispatchEvent(new MouseEvent("mouseleave", { bubbles: false, relatedTarget: document.body }));
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (result.result?.value !== true) {
+    throw new Error(`Missing unhoverable object ${objectId}`);
+  }
+}
+
+async function readWireCardPreview(cdp) {
+  return evaluateJson(cdp, `(() => {
+    const preview = document.querySelector(".wire-card-preview");
+    return {
+      delayMs: Number(preview?.getAttribute("data-wire-card-preview-delay-ms") ?? "0"),
+      exists: Boolean(preview),
+      kind: preview?.getAttribute("data-wire-card-preview-kind") ?? null,
+      objectId: preview?.getAttribute("data-wire-card-preview-object-id") ?? null,
+      orientation: preview?.getAttribute("data-wire-card-preview-orientation") ?? null,
+      state: preview?.getAttribute("data-wire-card-preview-state") ?? null
+    };
+  })()`);
 }
 
 async function clickRuleObjectRef(cdp, objectId) {

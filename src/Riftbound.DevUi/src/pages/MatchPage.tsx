@@ -5,6 +5,7 @@ import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
 import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
+import { useDelayedWireCardPreview, WireCardPreview } from "../components/match/WireCardPreview";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
@@ -69,11 +70,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const snapshot = controller.state.snapshot;
   const [inspectedCard, setInspectedCard] = useState<InspectedCard | undefined>();
   const [detailCard, setDetailCard] = useState<InspectedCard | undefined>();
-  const [previewCard, setPreviewCard] = useState<InspectedCard | undefined>();
   const [selectionDraft, setSelectionDraft] = useState<CandidateSelectionDraft | undefined>();
   const [timelineDetail, setTimelineDetail] = useState<WireTimelineDetail | undefined>();
   const timelineDetailTriggerIdRef = useRef<string | undefined>(undefined);
-  const previewDelayRef = useRef<number | undefined>(undefined);
+  const { previewCard, queuePreviewCard } = useDelayedWireCardPreview();
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
   const tableSnapshot = useMemo(
     () => layoutFixtureEnabled ? buildWireLayoutFixtureSnapshot(settings.playerId) : snapshot,
@@ -131,22 +131,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const roomStatus = asString(timing.roomStatus, "");
   const promptTitle = tablePrompt?.view?.title?.trim() || "无行动窗口";
   const canAct = Boolean(tablePrompt?.actionable && tablePrompt.playerId === settings.playerId);
-  const queuePreviewCard = useCallback((card?: InspectedCard) => {
-    if (previewDelayRef.current != null) {
-      window.clearTimeout(previewDelayRef.current);
-      previewDelayRef.current = undefined;
-    }
-
-    if (!card) {
-      setPreviewCard(undefined);
-      return;
-    }
-
-    previewDelayRef.current = window.setTimeout(() => {
-      setPreviewCard(card);
-      previewDelayRef.current = undefined;
-    }, 520);
-  }, []);
   const inspectCard = useCallback((card: InspectedCard) => {
     const clickedObjectId = card.objectId ?? card.object?.objectId;
     if (!clickedObjectId) {
@@ -242,14 +226,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       onNavigate({ name: "result", matchId });
     }
   }, [matchId, onNavigate, roomStatus]);
-
-  useEffect(() => {
-    return () => {
-      if (previewDelayRef.current != null) {
-        window.clearTimeout(previewDelayRef.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     setSelectionDraft(undefined);
@@ -722,21 +698,6 @@ function WireRuneTrack({
           </div>
         );
       })}
-    </div>
-  );
-}
-
-function WireCardPreview({ card }: { card?: InspectedCard }) {
-  const frontImage = card?.spec?.frontImage?.trim();
-  if (!card || !frontImage) {
-    return null;
-  }
-
-  const title = card.spec?.cardName ?? card.object?.cardNo ?? "卡牌";
-  const battlefield = card.spec?.cardCategoryName === "战场" || card.object?.tags?.includes("CARD_TYPE:BATTLEFIELD");
-  return (
-    <div className={`wire-card-preview ${battlefield ? "is-battlefield-preview" : ""}`} aria-label={`预览 ${title}`} role="presentation">
-      <img alt={title} src={frontImage} />
     </div>
   );
 }
