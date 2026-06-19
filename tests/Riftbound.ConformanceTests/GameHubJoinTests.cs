@@ -16,6 +16,72 @@ namespace Riftbound.ConformanceTests;
 public sealed class GameHubJoinTests
 {
     [Fact]
+    public void GameEventObjectRefProjectorRecursesAssignmentArraysAndObjectRecords()
+    {
+        var state = new MatchState(
+            "object-ref-projection-room",
+            7,
+            2,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("BF-1", cardNo: "BF-001", ownerId: "P1", controllerId: "P1"),
+                ["P1-ATTACKER"] = new("P1-ATTACKER", cardNo: "UNIT-001", ownerId: "P1", controllerId: "P1"),
+                ["P2-DEFENDER"] = new("P2-DEFENDER", cardNo: "UNIT-002", ownerId: "P2", controllerId: "P2"),
+                ["P2-HIDDEN"] = new("P2-HIDDEN", isFaceDown: true, cardNo: "SECRET-UNIT", ownerId: "P2", controllerId: "P2"),
+                ["P1-RUNE"] = new("P1-RUNE", cardNo: "RUNE-001", ownerId: "P1", controllerId: "P1")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P1", "BATTLEFIELD"),
+                ["P1-ATTACKER"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "BF-1"),
+                ["P2-HIDDEN"] = new("P2", "BATTLEFIELD", "BF-1"),
+                ["P1-RUNE"] = new("P1", "BASE")
+            });
+        var sourceEvent = new GameEvent(
+            "COMBAT_DAMAGE_ASSIGNED",
+            "P2 提交战斗伤害分配",
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["battlefieldId"] = "BF-1",
+                ["assignments"] = new[]
+                {
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-DEFENDER", 3),
+                    new CombatDamageAssignmentDto("P1-ATTACKER", "P2-HIDDEN", 1)
+                },
+                ["nestedPayment"] = new { paymentObjectIds = new[] { "P1-RUNE" } },
+                ["revealedObjectIds"] = new[] { "HIDDEN" }
+            });
+
+        var projected = Assert.Single(GameEventObjectRefProjector.ProjectEvents([sourceEvent], state));
+        Assert.NotNull(projected.ObjectRefs);
+        var refs = projected.ObjectRefs!;
+        Assert.Equal(["BF-1", "P1-ATTACKER", "P2-DEFENDER", "P2-HIDDEN", "P1-RUNE", "HIDDEN"], refs.Select(item => item.ObjectId));
+
+        var byObjectId = refs.ToDictionary(item => item.ObjectId, StringComparer.Ordinal);
+        Assert.Equal("战场", byObjectId["BF-1"].Role);
+        Assert.Equal("来源", byObjectId["P1-ATTACKER"].Role);
+        Assert.Equal("目标", byObjectId["P2-DEFENDER"].Role);
+        Assert.Equal("费用", byObjectId["P1-RUNE"].Role);
+        Assert.Equal("BF-1", byObjectId["P2-DEFENDER"].BattlefieldObjectId);
+        Assert.Equal("UNIT-002", byObjectId["P2-DEFENDER"].CardNo);
+        Assert.Null(byObjectId["P2-HIDDEN"].CardNo);
+        Assert.True(byObjectId["P2-HIDDEN"].IsFaceDown);
+        Assert.True(byObjectId["HIDDEN"].IsHidden);
+    }
+
+    [Fact]
     public async Task JoinRoomSendsSnapshotPromptAndAddsRoomGroups()
     {
         var clients = new RecordingHubClients();
