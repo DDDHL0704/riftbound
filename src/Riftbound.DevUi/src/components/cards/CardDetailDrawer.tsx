@@ -168,6 +168,7 @@ function DetailObjectContext({ context }: { context?: TableObjectContext }) {
   }
 
   const events = context.eventLinks.slice(-4).reverse();
+  const commandCandidates = context.candidateLinks.filter((candidate) => candidate.commandType);
   return (
     <section className="detail-section detail-context" aria-label="卡牌规则上下文">
       <strong>规则上下文</strong>
@@ -188,6 +189,19 @@ function DetailObjectContext({ context }: { context?: TableObjectContext }) {
       {context.stackRoles.length > 0 && <p>结算链：{context.stackRoles.join(" / ")}</p>}
       {context.candidateLinks.length > 0 && (
         <p>候选：{context.candidateLinks.slice(0, 3).map((candidate) => `${candidate.label}（${candidate.roles.join("/") || "关联"}）`).join("、")}</p>
+      )}
+      {commandCandidates.length > 0 && (
+        <div className="detail-context-command-block">
+          <p>服务端命令</p>
+          <ol className="detail-context-commands" aria-label="卡牌服务端命令字段">
+            {commandCandidates.slice(0, 4).map((candidate, index) => (
+              <li key={`${candidate.commandType}-${candidate.label}-${index}`}>
+                <span>{candidate.enabled ? "可提交" : "阻断"}</span>
+                <b>{candidate.commandType}{candidate.commandFields.length > 0 ? `：${candidate.commandFields.join(" / ")}` : ""}</b>
+              </li>
+            ))}
+          </ol>
+        </div>
       )}
       {events.length > 0 ? (
         <ol className="detail-context-events">

@@ -391,6 +391,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.open) failures.push("card detail did not open");
   if (!detailContextResult.text.includes("规则上下文")) failures.push("card detail context section missing");
   if (!detailContextResult.text.includes("我方手牌")) failures.push("card detail did not reuse object context location");
+  if (!detailContextResult.text.includes("服务端命令")) failures.push("card detail command context missing");
+  if (!detailContextResult.text.includes("PLAY_CARD")) failures.push("card detail command type missing");
+  if (!detailContextResult.text.includes("来源:sourceObjectId*")) failures.push("card detail command field missing");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
   if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
   if (focusResult.detailLayerOpen) failures.push("focused action summary opened detail");
