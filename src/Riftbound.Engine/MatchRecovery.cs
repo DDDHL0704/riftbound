@@ -18314,13 +18314,15 @@ public static class MatchRecoveryValidator
             if (sourceObjectId is not null
                 && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
             {
-                errors.Add($"{payloadLabel} hidden source object id must be redacted");
+                errors.Add(
+                    $"{payloadLabel} hidden source object id must be redacted; {FormatExpectedActualForRecovery("HIDDEN", sourceObjectId)}");
             }
 
             if (effectKind is not null
                 && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal))
             {
-                errors.Add($"{payloadLabel} hidden effect kind must be redacted");
+                errors.Add(
+                    $"{payloadLabel} hidden effect kind must be redacted; {FormatExpectedActualForRecovery("HIDDEN", effectKind)}");
             }
 
             return;
@@ -18330,12 +18332,14 @@ public static class MatchRecoveryValidator
         {
             if (string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal))
             {
-                errors.Add($"{payloadLabel} visible source object id must not be redacted");
+                errors.Add(
+                    $"{payloadLabel} visible source object id must not be redacted; {FormatExpectedActualForRecovery("<non-HIDDEN>", sourceObjectId)}");
             }
 
             if (string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal))
             {
-                errors.Add($"{payloadLabel} visible effect kind must not be redacted");
+                errors.Add(
+                    $"{payloadLabel} visible effect kind must not be redacted; {FormatExpectedActualForRecovery("<non-HIDDEN>", effectKind)}");
             }
         }
     }

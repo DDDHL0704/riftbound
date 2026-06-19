@@ -125748,22 +125748,22 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item hidden source object id must be redacted",
+                "spectator replay frame timing trigger queue item hidden source object id must be redacted; expected HIDDEN but got hidden-source-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item hidden effect kind must be redacted",
+                "spectator replay frame timing trigger queue item hidden effect kind must be redacted; expected HIDDEN but got AMBUSH_REVEALED",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item visible source object id must not be redacted",
+                "spectator replay frame timing trigger queue item visible source object id must not be redacted; expected <non-HIDDEN> but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item visible effect kind must not be redacted",
+                "spectator replay frame timing trigger queue item visible effect kind must not be redacted; expected <non-HIDDEN> but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
