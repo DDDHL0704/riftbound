@@ -148,7 +148,13 @@ function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
         <strong>{route.candidateLabel}</strong>
         <span>{route.stateLabel}</span>
       </div>
-      <small>{route.commandType ?? "未公开命令"} / 已选步骤 {route.selectedStepCount} / 缺少 {route.missingRequiredSelectionCount} / {route.nextStepLabel}</small>
+      <small>
+        {route.commandType ?? "未公开命令"} / 已选步骤 {route.selectedStepCount}
+        {" / 缺少选择 "}{route.missingRequiredSelectionCount}
+        {" / 缺少字段 "}{route.missingRequiredFieldCount}
+        {" / 服务端字段 "}{route.serverInjectedFieldCount}
+        {" / "}{route.nextStepLabel}
+      </small>
       <ol>
         {route.steps.map((step) => (
           <li data-route-step-role={step.role} data-route-step-state={step.state} key={step.key}>
@@ -158,6 +164,21 @@ function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
           </li>
         ))}
       </ol>
+      {route.fields.length > 0 && (
+        <div className="wire-action-route-fields" aria-label={`${route.candidateLabel} 命令字段覆盖`}>
+          {route.fields.map((field) => (
+            <span
+              data-route-field={field.field}
+              data-route-field-state={field.state}
+              data-route-field-role={field.role ?? "server"}
+              key={field.key}
+            >
+              <b>{field.label}</b>
+              <small>{field.required ? "必需" : "可选"} / {field.sourceLabel} / {field.stateLabel}</small>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

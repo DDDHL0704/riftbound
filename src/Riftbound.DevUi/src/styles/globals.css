@@ -11707,6 +11707,7 @@ button.card-face:hover {
 .wire-action-map-header,
 .wire-action-map-metrics,
 .wire-action-route-strip,
+.wire-action-route-fields span,
 .wire-action-route-strip li,
 .wire-action-entry-strip,
 .wire-action-object-chip,
@@ -12342,7 +12343,8 @@ button.card-face:hover {
 .wire-action-contract-strip strong,
 .wire-action-route-strip span,
 .wire-action-route-strip small,
-.wire-action-route-strip strong {
+.wire-action-route-strip strong,
+.wire-action-route-fields b {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -12386,6 +12388,29 @@ button.card-face:hover {
   display: grid;
   gap: 1px;
   padding: 3px;
+}
+
+.wire-action-route-fields {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 3px;
+}
+
+.wire-action-route-fields span {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 3px;
+}
+
+.wire-action-route-fields span[data-route-field-state="covered"],
+.wire-action-route-fields span[data-route-field-state="server"] {
+  border-width: 2px;
+}
+
+.wire-action-route-fields span[data-route-field-state="missing"] {
+  border-style: dashed;
 }
 
 .wire-action-map-metric strong,
@@ -13235,6 +13260,7 @@ button.wire-object-ref {
 .wire-match-page .wire-action-contract-strip > div,
 .wire-match-page .wire-action-contract-strip > span,
 .wire-match-page .wire-action-route-strip,
+.wire-match-page .wire-action-route-fields span,
 .wire-match-page .wire-action-route-strip li,
 .wire-match-page .wire-action-entry-strip,
 .wire-match-page .wire-action-object-chip,

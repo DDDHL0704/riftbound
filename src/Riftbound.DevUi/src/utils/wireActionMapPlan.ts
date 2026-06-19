@@ -62,12 +62,21 @@ export type WireActionCandidateStepPlan = CandidateInteractionStepPlan & {
 };
 
 export type WireActionCandidatePlan = Omit<CandidateInteractionPlan, "nextRequiredStep" | "stepRows"> & {
+  commandFields: WireActionRouteFieldPlan[];
   draftActive: boolean;
   nextRequiredStep?: WireActionCandidateStepPlan;
   stepRows: WireActionCandidateStepPlan[];
 };
 
 export type WireActionRouteState = "blocked" | "incomplete" | "ready";
+
+export type WireActionRouteFieldState = "covered" | "missing" | "optional" | "server";
+
+export type WireActionRouteFieldPlan = WireActionCommandFieldPlan & {
+  role?: PromptChoiceRole;
+  state: WireActionRouteFieldState;
+  stateLabel: string;
+};
 
 export type WireActionRouteStepPlan = {
   key: string;
@@ -84,10 +93,13 @@ export type WireActionRoutePlan = {
   candidateLabel: string;
   commandType?: string;
   enabled: boolean;
+  fields: WireActionRouteFieldPlan[];
   key: string;
+  missingRequiredFieldCount: number;
   missingRequiredSelectionCount: number;
   nextStepLabel: string;
   selectedStepCount: number;
+  serverInjectedFieldCount: number;
   state: WireActionRouteState;
   stateLabel: string;
   steps: WireActionRouteStepPlan[];
@@ -300,6 +312,8 @@ function wireActionCandidatePlan(
 
   return {
     ...candidatePlan,
+    commandFields: candidate?.command?.bindings.map((binding, index) =>
+      routeFieldPlan(candidate, binding, index, stepRows)) ?? [],
     draftActive,
     nextRequiredStep: candidatePlan.nextRequiredStep
       ? stepRows.find((step) => step.key === candidatePlan.nextRequiredStep?.key)
@@ -385,25 +399,35 @@ function wireActionRoutePlan(candidatePlans: WireActionCandidatePlan[]): WireAct
   }
 
   const missingRequiredSelectionCount = candidatePlan.stepRows.filter((step) => step.required && step.selectedCount <= 0).length;
+  const missingRequiredFieldCount = candidatePlan.commandFields.filter((field) => field.state === "missing").length;
+  const serverInjectedFieldCount = candidatePlan.commandFields.filter((field) => field.state === "server").length;
   const selectedStepCount = candidatePlan.stepRows.filter((step) => step.selectedCount > 0).length;
   const nextStep = candidatePlan.stepRows.find((step) => step.required && step.selectedCount <= 0)
     ?? candidatePlan.stepRows.find((step) => !step.required && step.count > 0 && step.selectedCount <= 0);
   const state: WireActionRouteState = !candidatePlan.enabled
     ? "blocked"
-    : missingRequiredSelectionCount > 0
+    : missingRequiredSelectionCount > 0 || missingRequiredFieldCount > 0
       ? "incomplete"
       : "ready";
   const stateLabel = routeStateLabel(state);
-  const nextStepLabel = nextStep ? `继续选择${nextStep.label}` : "可送服务端校验";
+  const nextMissingField = candidatePlan.commandFields.find((field) => field.state === "missing");
+  const nextStepLabel = nextStep
+    ? `继续选择${nextStep.label}`
+    : nextMissingField
+      ? `补齐字段${nextMissingField.label}`
+      : "可送服务端校验";
 
   return {
     candidateLabel: candidatePlan.candidateLabel,
     commandType: candidatePlan.commandType,
     enabled: candidatePlan.enabled,
+    fields: candidatePlan.commandFields,
     key: candidatePlan.key,
+    missingRequiredFieldCount,
     missingRequiredSelectionCount,
     nextStepLabel,
     selectedStepCount,
+    serverInjectedFieldCount,
     state,
     stateLabel,
     steps: candidatePlan.stepRows.map((step) => ({
@@ -418,6 +442,54 @@ function wireActionRoutePlan(candidatePlans: WireActionCandidatePlan[]): WireAct
     })),
     summary: `${candidatePlan.candidateLabel} / ${stateLabel} / ${nextStepLabel}`
   };
+}
+
+function routeFieldPlan(
+  candidate: PromptCandidateSummary,
+  binding: PromptCommandBindingSummary,
+  index: number,
+  stepRows: WireActionCandidateStepPlan[]
+): WireActionRouteFieldPlan {
+  const base = commandFieldPlan(candidate, binding, index);
+  const state = routeFieldState(binding, stepRows);
+
+  return {
+    ...base,
+    role: binding.role,
+    state,
+    stateLabel: routeFieldStateLabel(state)
+  };
+}
+
+function routeFieldState(
+  binding: PromptCommandBindingSummary,
+  stepRows: WireActionCandidateStepPlan[]
+): WireActionRouteFieldState {
+  if (binding.source === "requirementMetadata") {
+    return "server";
+  }
+
+  const selectedCount = binding.role
+    ? stepRows.find((step) => step.role === binding.role)?.selectedCount ?? 0
+    : 0;
+  if (selectedCount > 0) {
+    return "covered";
+  }
+
+  return binding.required ? "missing" : "optional";
+}
+
+function routeFieldStateLabel(state: WireActionRouteFieldState): string {
+  switch (state) {
+    case "covered":
+      return "已覆盖";
+    case "missing":
+      return "缺少选择";
+    case "optional":
+      return "可选";
+    case "server":
+      return "服务端注入";
+  }
 }
 
 function routeStateLabel(state: WireActionRouteState): string {

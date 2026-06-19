@@ -598,6 +598,8 @@ async function runWireClickSelectionSmoke(cdp) {
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
+      routeFieldStates: Array.from(route?.querySelectorAll("[data-route-field-state]") ?? [])
+        .map((node) => node.getAttribute("data-route-field-state")),
       sourceSelected: sourceObject?.getAttribute("data-selected") ?? null,
       sourceStepProgress: sourceStep?.getAttribute("data-step-progress") ?? null,
       sourceStepProgressText: sourceStep?.querySelector("[data-step-progress-label]")?.textContent ?? "",
@@ -783,6 +785,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionFocusChoiceResult.candidateDraftActive !== "true") failures.push("action focus choice did not activate candidate plan draft");
   if (actionFocusChoiceResult.routeState !== "ready") failures.push(`action focus choice route state unexpected: ${actionFocusChoiceResult.routeState}`);
   if (!actionFocusChoiceResult.routeText.includes("可送服务端校验")) failures.push("action focus choice route ready copy missing");
+  if (!actionFocusChoiceResult.routeText.includes("服务端字段")) failures.push("action focus choice route server field safe label missing");
+  if (!actionFocusChoiceResult.routeFieldStates.includes("covered")) failures.push("action focus choice route covered field missing");
+  if (!actionFocusChoiceResult.routeFieldStates.includes("server")) failures.push("action focus choice route server field missing");
   if (actionFocusChoiceResult.targetRouteStepState !== "selected") failures.push("action focus choice route target step missing selected state");
   if (actionFocusChoiceResult.sourceStepProgress !== "selected") failures.push("action focus choice did not mark source step selected");
   if (actionFocusChoiceResult.targetStepProgress !== "selected") failures.push("action focus choice did not mark target step selected");

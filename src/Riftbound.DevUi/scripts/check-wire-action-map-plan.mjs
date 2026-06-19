@@ -190,9 +190,14 @@ assert.deepEqual(draftTargetStep.selectedLabels, ["敌方单位"]);
 assert.equal(draftPlan.route.candidateLabel, "打出手牌");
 assert.equal(draftPlan.route.state, "ready");
 assert.equal(draftPlan.route.selectedStepCount, 2);
+assert.equal(draftPlan.route.missingRequiredFieldCount, 0);
 assert.equal(draftPlan.route.missingRequiredSelectionCount, 0);
+assert.equal(draftPlan.route.serverInjectedFieldCount, 1);
 assert.equal(draftPlan.route.steps.find((step) => step.role === "source").state, "selected");
 assert.equal(draftPlan.route.steps.find((step) => step.role === "target").state, "selected");
+assert.deepEqual(draftPlan.route.fields.map((field) => field.state), ["covered", "covered", "server"]);
+assert.equal(draftPlan.route.fields[2].field, "server-metadata-2");
+assert.equal(draftPlan.route.fields[2].label, "服务端字段");
 assert.equal(draftPlan.candidatePlans.find((candidate) => candidate.action === "ACTIVATE_ABILITY").draftActive, false);
 
 const readOnlyPlan = buildWireActionMapPlan({
