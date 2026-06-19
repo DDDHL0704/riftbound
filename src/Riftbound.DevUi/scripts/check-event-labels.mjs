@@ -5,14 +5,14 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const devUiRoot = path.resolve(scriptDir, "..");
 const repoRoot = path.resolve(devUiRoot, "../..");
-const eventLogPath = path.join(devUiRoot, "src/components/match/EventLog.tsx");
+const eventLogPath = path.join(devUiRoot, "src/utils/eventLogPlan.ts");
 
 const labels = extractEventLabels(fs.readFileSync(eventLogPath, "utf8"));
 const eventKinds = extractBackendEventKinds(repoRoot);
 const missing = [...eventKinds].filter((kind) => !labels.has(kind)).sort();
 
 if (missing.length > 0) {
-  console.error("EventLog is missing Chinese labels for backend event kinds:");
+  console.error("Event log plan is missing Chinese labels for backend event kinds:");
   for (const kind of missing) {
     console.error(`- ${kind}`);
   }

@@ -1060,6 +1060,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const eventDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
     const trigger = document.querySelector('[data-wire-detail-id="event:STACK_ITEM_ADDED:0"]');
+    const log = document.querySelector(".event-log");
     const selectedRow = document.querySelector(".log-row.is-detail-selected");
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
@@ -1071,6 +1072,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
       triggerLabel: trigger?.getAttribute("aria-label") ?? "",
       triggerSelected: trigger?.getAttribute("data-detail-selected") ?? null,
       triggerSource: trigger?.getAttribute("data-wire-detail-source") ?? null,
+      logErrorCount: Number(log?.getAttribute("data-event-log-error-count") ?? "-1"),
+      logHiddenCount: Number(log?.getAttribute("data-event-log-hidden-count") ?? "-1"),
+      logState: log?.getAttribute("data-event-log-state") ?? null,
+      logVisibleCount: Number(log?.getAttribute("data-event-log-visible-count") ?? "0"),
+      selectedRowKind: selectedRow?.getAttribute("data-event-log-row-kind") ?? null,
+      selectedRowRefCount: Number(selectedRow?.getAttribute("data-event-log-row-ref-count") ?? "0"),
       selectedRow: Boolean(selectedRow),
       hasSourceRef: Boolean(panel?.querySelector('[data-event-object-ref="p1-hand-spell"]')),
       hasTargetRef: Boolean(panel?.querySelector('[data-event-object-ref="p2-right-1"]')),
@@ -1162,6 +1169,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.triggerLabel.includes("加入结算链")) failures.push("event detail trigger accessible label missing");
   if (eventDetailResult.triggerSelected !== "true") failures.push("event detail trigger selected state missing");
   if (eventDetailResult.triggerSource !== "event") failures.push("event detail trigger source missing");
+  if (eventDetailResult.logState !== "events") failures.push(`event log plan state unexpected: ${eventDetailResult.logState}`);
+  if (eventDetailResult.logVisibleCount < 1) failures.push("event log plan visible count missing");
+  if (eventDetailResult.logHiddenCount !== 0) failures.push(`event log hidden count unexpected: ${eventDetailResult.logHiddenCount}`);
+  if (eventDetailResult.logErrorCount !== 0) failures.push(`event log error count unexpected: ${eventDetailResult.logErrorCount}`);
+  if (eventDetailResult.selectedRowKind !== "STACK_ITEM_ADDED") failures.push(`event log selected row kind unexpected: ${eventDetailResult.selectedRowKind}`);
+  if (eventDetailResult.selectedRowRefCount < 1) failures.push("event log selected row ref count missing");
   if (!eventDetailResult.text.includes("服务端摘要")) failures.push("event detail did not use server object refs");
   if (!eventDetailResult.hasSourceRef) failures.push("event detail source ref missing");
   if (!eventDetailResult.hasTargetRef) failures.push("event detail target ref missing");
