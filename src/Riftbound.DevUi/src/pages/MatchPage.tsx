@@ -64,6 +64,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const [previewCard, setPreviewCard] = useState<InspectedCard | undefined>();
   const [selectionDraft, setSelectionDraft] = useState<CandidateSelectionDraft | undefined>();
   const [timelineDetail, setTimelineDetail] = useState<WireTimelineDetail | undefined>();
+  const timelineDetailTriggerIdRef = useRef<string | undefined>(undefined);
   const previewDelayRef = useRef<number | undefined>(undefined);
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
   const tableSnapshot = useMemo(
@@ -232,7 +233,27 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
   useEffect(() => {
     setTimelineDetail(undefined);
+    timelineDetailTriggerIdRef.current = undefined;
   }, [tableSnapshot?.tick]);
+
+  const selectTimelineDetail = useCallback((detail: WireTimelineDetail) => {
+    timelineDetailTriggerIdRef.current = detail.id;
+    setTimelineDetail(detail);
+  }, []);
+
+  const clearTimelineDetail = useCallback(() => {
+    const triggerId = timelineDetailTriggerIdRef.current ?? timelineDetail?.id;
+    setTimelineDetail(undefined);
+    if (!triggerId) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      const trigger = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-wire-detail-id]"))
+        .find((button) => button.getAttribute("data-wire-detail-id") === triggerId);
+      trigger?.focus();
+    }, 0);
+  }, [timelineDetail?.id]);
 
   return (
     <div className="wire-match-page" style={wireMatchPageStyle()}>
@@ -306,7 +327,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" tabIndex={0}>
             <WireRuleQueuePanel
               onInspectObject={inspectObjectFromTable}
-              onSelectDetail={setTimelineDetail}
+              onSelectDetail={selectTimelineDetail}
               playerId={settings.playerId}
               prompt={tablePrompt}
               selectedDetailId={timelineDetail?.id}
@@ -319,7 +340,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               detail={timelineDetail}
               objectContextById={tableObjectContextModel.byId}
               objectIndex={tableObjectIndex}
-              onClear={() => setTimelineDetail(undefined)}
+              onClear={clearTimelineDetail}
               onInspectObject={inspectObjectFromTable}
               selectedObjectContext={selectedObjectContext}
               selectedObjectId={selectedObjectId}
@@ -345,7 +366,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 events={tableEvents}
                 objectIndex={tableObjectIndex}
                 onInspectObject={inspectObjectFromTable}
-                onSelectDetail={setTimelineDetail}
+                onSelectDetail={selectTimelineDetail}
                 selectedDetailId={timelineDetail?.id}
                 selectedObjectId={selectedObjectId}
               />
