@@ -4092,14 +4092,10 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 "source object id",
                 errors);
-            var sourceVisibility = ValidateSnapshotPayloadRequiredStringValue(
+            var sourceVisibility = ValidateTriggerQueueSourceVisibilityValue(
                 triggerPayload,
-                "sourceVisibility",
                 triggerLabel,
-                "source visibility",
-                errors,
-                IsKnownTriggerSourceVisibility,
-                KnownTriggerSourceVisibilities);
+                errors);
             var effectKind = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "effectKind",
@@ -6742,6 +6738,21 @@ public static class MatchRecoveryValidator
     private static bool IsKnownTriggerSourceVisibility(string value)
     {
         return KnownTriggerSourceVisibilities.Contains(value, StringComparer.Ordinal);
+    }
+
+    private static string? ValidateTriggerQueueSourceVisibilityValue(
+        object? payload,
+        string payloadLabel,
+        List<string> errors)
+    {
+        return ValidateSnapshotPayloadRequiredStringValue(
+            payload,
+            "sourceVisibility",
+            payloadLabel,
+            "source visibility",
+            errors,
+            IsKnownTriggerSourceVisibility,
+            KnownTriggerSourceVisibilities);
     }
 
     private static bool IsKnownTriggerQueueTriggeredEventKind(string value)
@@ -17910,14 +17921,10 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "source object id",
             errors);
-        var sourceVisibility = ValidateSnapshotPayloadRequiredStringValue(
+        var sourceVisibility = ValidateTriggerQueueSourceVisibilityValue(
             triggerPayload,
-            "sourceVisibility",
             payloadLabel,
-            "source visibility",
-            errors,
-            IsKnownTriggerSourceVisibility,
-            KnownTriggerSourceVisibilities);
+            errors);
         var effectKind = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "effectKind",

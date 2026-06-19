@@ -131666,7 +131666,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -131802,7 +131802,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -138933,7 +138933,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -139115,7 +139115,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
