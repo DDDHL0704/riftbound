@@ -81,6 +81,38 @@ public sealed class LocalPlayabilityRuleRegressionTests
     }
 
     [Fact]
+    public void ActionPromptChoicesProjectExplicitObjectIdsForFrontendInteraction()
+    {
+        var state = PlayUnitToContestedBattlefieldState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+
+        var sourceChoice = Assert.Single(
+            playCandidate.Sources ?? [],
+            choice => string.Equals(choice.Id, "P1-HAND-UNIT", StringComparison.Ordinal));
+        Assert.Equal(["P1-HAND-UNIT"], sourceChoice.ObjectIds);
+
+        var destinationChoice = Assert.Single(
+            playCandidate.Destinations ?? [],
+            choice => string.Equals(choice.Id, "BATTLEFIELD:BF-1", StringComparison.Ordinal));
+        Assert.Equal(["BATTLEFIELD:BF-1", "BF-1"], destinationChoice.ObjectIds);
+
+        var sourceStep = Assert.Single(
+            playCandidate.SelectionSteps ?? [],
+            step => string.Equals(step.Role, "source", StringComparison.Ordinal));
+        var sourceStepChoice = Assert.Single(
+            sourceStep.Choices,
+            choice => string.Equals(choice.Id, "P1-HAND-UNIT", StringComparison.Ordinal));
+        Assert.Equal(sourceChoice.ObjectIds, sourceStepChoice.ObjectIds);
+    }
+
+    [Fact]
     public async Task DeclareBattleConquestScoresAndTriggersConquestForNonHuntUnit()
     {
         var result = await new CoreRuleEngine().ResolveAsync(
