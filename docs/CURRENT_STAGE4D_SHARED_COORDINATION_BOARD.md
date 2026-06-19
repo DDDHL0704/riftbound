@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted state: Stage 4D-223CS snapshot missing-player detail validation accepted on local `main` as code commit `c94b9933`. Runtime changed: yes, narrow recovery validation diagnostic detail only. Frontend changed: no. Validation passed: focused recovered/spectator missing-player detail tests `2/2`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Player/Seat/AuthoritativeState/Timing/TriggerQueue/Stack/Battle filter `3722/3722`; backend full via `Riftbound.slnx` `8309/8309`; `git diff --check`; anchored conflict-marker scan; selected residual check. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` is clean at `01364ee2`, 164 commits behind current local `main` and `0` commits ahead at the post-code divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` has no commits ahead of `main` at the current check (`237 0` divergence from local `main`); root PDF text remained available. Project remains **NOT READY**.
+Current A_MAIN latest accepted state: Stage 4D-223CS post-merge main sync accepted on local `main` as merge commit `cc34e29b`; contains 223CS code commit `c94b9933`, docs checkpoint `6664b55c`, and remote `main` commit `0094d9aa` (`投影服务端事件对象摘要`). Runtime changed in this post-merge sync: yes, accepted incoming server/protocol event object-summary projection in `src/Riftbound.Api/Hubs/GameHub.cs` and `src/Riftbound.Contracts/Protocol.cs`; no additional `MatchRecovery` runtime change beyond `c94b9933`. Frontend changed: yes, accepted incoming DevUi event object-summary display work. Validation added after the merge: `npm --prefix src/Riftbound.DevUi run build` passed; backend full via `Riftbound.slnx` passed `8309/8309` after the DevUi build completed. The prior 223CS server validation remains: focused recovered/spectator missing-player detail tests `2/2`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Player/Seat/AuthoritativeState/Timing/TriggerQueue/Stack/Battle filter `3722/3722`; backend full via `Riftbound.slnx` `8309/8309`; `git diff --check`; anchored conflict-marker scan; selected residual check. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` is clean at `01364ee2`, 167 commits behind current local `main` and `0` commits ahead at the post-merge divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` has no commits ahead of `main` at the current check (`240 0` divergence from local `main`); root PDF text remained available. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,11 +65,27 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223CS code commit is `c94b9933`. A_MAIN will continue directly on this `main` worktree per user request.
-- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 09:42 CST at `01364ee2`, 164 commits behind current local `main` and `0` commits ahead at the post-code divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223CS post-merge sync is merge commit `cc34e29b`, containing code commit `c94b9933`, docs checkpoint `6664b55c`, and remote server/protocol/UI commit `0094d9aa`. A_MAIN will continue directly on this `main` worktree per user request.
+- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 09:47 CST at `01364ee2`, 167 commits behind current local `main` and `0` commits ahead at the post-merge divergence check; exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
 - Historical DOC_MATRIX handoff `17bde0c3` and source `7cb78f27` have already been integrated into `main`; no current DOC_MATRIX worktree is active unless the user opens one explicitly.
 
 ## Current Entries
+
+### 2026-06-19 09:47 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at merge commit `cc34e29b`; contains 223CS code commit `c94b9933`, docs checkpoint `6664b55c`, and remote `main` commit `0094d9aa`.
+
+Write locks: A_MAIN touched current completion/P0-P1/dispatch docs and this board for the post-merge sync. Runtime/test files remain as committed in `c94b9933`; incoming server/protocol/DevUi files were accepted from `0094d9aa`.
+
+Status: Post-223CS remote `main` import merged cleanly. Runtime changed in this sync: yes, accepted incoming server/protocol event object-summary projection; no additional `MatchRecovery` runtime change beyond `c94b9933`. Frontend changed: yes, accepted incoming DevUi event object-summary display work. External UI followup worktree remained clean at `01364ee2`, `167 0`; `codex/rule-audit-remaining-20260615` remained `240 0`.
+
+Validation: prior 223CS server validation remains: focused recovered/spectator missing-player detail tests `2/2`; `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Player/Seat/AuthoritativeState/Timing/TriggerQueue/Stack/Battle filter `3722/3722`; backend full `8309/8309`; `git diff --check`; anchored conflict-marker scan; selected residual check. Added post-merge validation: `npm --prefix src/Riftbound.DevUi run build` passed; backend full via `Riftbound.slnx` passed `8309/8309` after DevUi build completed.
+
+Requested action: none. Next A_MAIN slice should continue directly on `/Users/dinghaolin/IdeaProjects/riftbound` `main`, rechecking this board, `AGENTS.md`, PDF gate, UI followup, and `codex/rule-audit-remaining-20260615` first.
 
 ### 2026-06-19 09:42 A_MAIN
 

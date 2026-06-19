@@ -6,7 +6,7 @@ Owner: A_MAIN
 
 Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
 
-Branch / commit: `main` at code commit `c94b9933`
+Branch / commit: `main` at code commit `c94b9933`; post-merge current head `cc34e29b`
 
 Project status: **NOT READY**
 
@@ -20,6 +20,8 @@ A_MAIN continued directly on local `main` and accepted a narrow recovery validat
 - spectator replay snapshot player maps missing an expected authoritative seat player
 
 The validator still performs the same player-map and authoritative-seat coverage checks. This checkpoint only improves rejected recovery/spectator payload diagnostics by reporting the sorted expected player set and the actual snapshot player set.
+
+After the code/docs commits, A_MAIN merged remote `main` commit `0094d9aa` (`投影服务端事件对象摘要`) into local `main`, yielding merge commit `cc34e29b`. That merge accepted server/protocol event object-summary projection plus matching DevUi display work.
 
 ## Files Touched
 
@@ -42,6 +44,10 @@ Passed:
 - `git diff --check`
 - Code/test/docs anchored conflict-marker scan had no findings
 - Residual check found no selected recovered/spectator missing-player diagnostics without expected/actual details
+- Post-merge `npm --prefix src/Riftbound.DevUi run build`
+- Post-merge backend full via `Riftbound.slnx`: `8309/8309`
+
+Note: the first post-merge backend full was started in parallel with the DevUi build and failed while the API project referenced the previous Vite bundle filename. After the DevUi build completed and generated the current bundle, backend full was rerun and passed.
 
 ## Rule Source
 
@@ -51,9 +57,9 @@ Rule source checked through `docs/CURRENT_CORE_RULE_PDF_READING_NOTES.md` and `/
 
 No subagent was created. A_MAIN continued in `/Users/dinghaolin/IdeaProjects/riftbound` on local `main` per user request.
 
-External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2`, `164` commits behind current local `main` and `0` commits ahead at the post-code divergence check. A_MAIN did not develop there.
+External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` was clean at `01364ee2`, `167` commits behind current local `main` and `0` commits ahead at the post-merge divergence check. A_MAIN did not develop there.
 
-`codex/rule-audit-remaining-20260615` had no commits ahead of `main`; divergence was `237 0` from `main...codex/rule-audit-remaining-20260615`.
+`codex/rule-audit-remaining-20260615` had no commits ahead of `main`; divergence was `240 0` from `main...codex/rule-audit-remaining-20260615`.
 
 ## Non-Goals
 
