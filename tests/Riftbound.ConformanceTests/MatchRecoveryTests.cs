@@ -6781,7 +6781,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -7430,7 +7430,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -8023,7 +8023,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 location player id bob must match trigger controller id alice in object locations",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 location player id bob must match trigger controller id alice in object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -8083,7 +8083,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -8536,7 +8536,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -8694,7 +8694,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 location player id bob must match trigger controller id alice in object locations",
+                "snapshot for alice timing trigger queue item teemo on-play self-power source object id source-1 location player id bob must match trigger controller id alice in object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -9675,7 +9675,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -9915,7 +9915,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 location player id bob must match trigger controller id alice in object locations",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 location player id bob must match trigger controller id alice in object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -11272,7 +11272,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in object locations",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -11554,7 +11554,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -11677,7 +11677,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -11891,7 +11891,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in object locations",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -12417,7 +12417,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item jhin movement resource source object id source-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item jhin movement resource source object id source-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -13746,7 +13746,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 controller id bob must match trigger controller id alice in objects",
+                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -29933,7 +29933,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -30361,7 +30361,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource battlefield object id battlefield-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource battlefield object id battlefield-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -30839,7 +30839,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -30893,7 +30893,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -31223,7 +31223,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -31347,7 +31347,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3 teemo on-play self-power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -31989,7 +31989,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -32163,7 +32163,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -33216,7 +33216,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -33432,7 +33432,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -33544,7 +33544,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -33671,7 +33671,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -34076,7 +34076,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -35063,7 +35063,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
     }
 
@@ -139973,7 +139973,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -140103,7 +140103,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -141658,7 +141658,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -141781,7 +141781,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource battlefield object id battlefield-2 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -143425,7 +143425,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -143537,7 +143537,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -143645,7 +143645,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -143757,7 +143757,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -145173,7 +145173,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -145285,7 +145285,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -145613,7 +145613,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -145725,7 +145725,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item teemo on-play self-power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -148286,7 +148286,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -148391,7 +148391,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -148856,7 +148856,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -148961,7 +148961,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -152183,7 +152183,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -152289,7 +152289,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -152851,7 +152851,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -152967,7 +152967,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -154300,7 +154300,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -154417,7 +154417,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -154938,7 +154938,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -155053,7 +155053,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -156347,7 +156347,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -156471,7 +156471,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -160277,7 +160277,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -160405,7 +160405,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

@@ -18479,6 +18479,19 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id {expectedSourceObjectId}; {FormatExpectedActualForRecovery(expectedSourceObjectId, sourceObjectId)}");
     }
 
+    private static void AddTriggerQueueTriggerControllerMismatch(
+        string payloadLabel,
+        string diagnosticName,
+        string subjectLabel,
+        string actualControllerId,
+        string expectedControllerId,
+        string contextLabel,
+        List<string> errors)
+    {
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} {subjectLabel} {actualControllerId} must match trigger controller id {expectedControllerId} in {contextLabel}; {FormatExpectedActualForRecovery(expectedControllerId, actualControllerId)}");
+    }
+
     private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
         string payloadLabel,
         string? triggerId,
@@ -18540,8 +18553,14 @@ public static class MatchRecoveryValidator
             && objectControllers.TryGetValue(expectedSourceObjectId, out var sourceControllerId)
             && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+            AddTriggerQueueTriggerControllerMismatch(
+                payloadLabel,
+                "blue sentinel delayed resource",
+                $"source object id {expectedSourceObjectId} controller id",
+                sourceControllerId,
+                controllerId,
+                objectControllerLabel,
+                errors);
         }
 
         if (objectCardNos is not null
@@ -18591,8 +18610,14 @@ public static class MatchRecoveryValidator
             && objectControllers.TryGetValue(battlefieldObjectId, out var battlefieldControllerId)
             && !string.Equals(battlefieldControllerId, controllerId, StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource battlefield object id {battlefieldObjectId} controller id {battlefieldControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+            AddTriggerQueueTriggerControllerMismatch(
+                payloadLabel,
+                "blue sentinel delayed resource",
+                $"battlefield object id {battlefieldObjectId} controller id",
+                battlefieldControllerId,
+                controllerId,
+                objectControllerLabel,
+                errors);
         }
 
         ValidateBlueSentinelDelayedResourceSourceLocationForRecovery(
@@ -18831,8 +18856,14 @@ public static class MatchRecoveryValidator
             && objectControllers.TryGetValue(expectedSourceObjectId, out var sourceControllerId)
             && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+            AddTriggerQueueTriggerControllerMismatch(
+                payloadLabel,
+                "jhin movement resource",
+                $"source object id {expectedSourceObjectId} controller id",
+                sourceControllerId,
+                controllerId,
+                objectControllerLabel,
+                errors);
         }
 
         if (objectCardNos is not null
@@ -19159,8 +19190,14 @@ public static class MatchRecoveryValidator
             && objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
             && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+            AddTriggerQueueTriggerControllerMismatch(
+                payloadLabel,
+                "kogmaw last breath",
+                $"source object id {sourceObjectId} controller id",
+                sourceControllerId,
+                controllerId,
+                objectControllerLabel,
+                errors);
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -19341,8 +19378,14 @@ public static class MatchRecoveryValidator
                 && objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
                 && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
             {
-                errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+                AddTriggerQueueTriggerControllerMismatch(
+                    payloadLabel,
+                    "ogs lux high cost spell",
+                    $"source object id {sourceObjectId} controller id",
+                    sourceControllerId,
+                    controllerId,
+                    objectControllerLabel,
+                    errors);
             }
 
             if (controllerId is not null
@@ -19418,8 +19461,14 @@ public static class MatchRecoveryValidator
                     var sourcePlayerId = sourceLocation.PlayerId.Trim();
                     if (!string.Equals(sourcePlayerId, controllerId, StringComparison.Ordinal))
                     {
-                        errors.Add(
-                            $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} location player id {sourcePlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
+                        AddTriggerQueueTriggerControllerMismatch(
+                            payloadLabel,
+                            "ogs lux high cost spell",
+                            $"source object id {sourceObjectId} location player id",
+                            sourcePlayerId,
+                            controllerId,
+                            objectLocationLabel,
+                            errors);
                     }
                 }
             }
@@ -19509,8 +19558,14 @@ public static class MatchRecoveryValidator
             && objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
             && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+            AddTriggerQueueTriggerControllerMismatch(
+                payloadLabel,
+                "teemo on-play self-power",
+                $"source object id {sourceObjectId} controller id",
+                sourceControllerId,
+                controllerId,
+                objectControllerLabel,
+                errors);
         }
 
         if (controllerId is not null
@@ -19582,8 +19637,14 @@ public static class MatchRecoveryValidator
                 var sourcePlayerId = sourceLocation.PlayerId.Trim();
                 if (!string.Equals(sourcePlayerId, controllerId, StringComparison.Ordinal))
                 {
-                    errors.Add(
-                        $"{payloadLabel} teemo on-play self-power source object id {sourceObjectId} location player id {sourcePlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
+                    AddTriggerQueueTriggerControllerMismatch(
+                        payloadLabel,
+                        "teemo on-play self-power",
+                        $"source object id {sourceObjectId} location player id",
+                        sourcePlayerId,
+                        controllerId,
+                        objectLocationLabel,
+                        errors);
                 }
             }
         }
@@ -20491,8 +20552,14 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        errors.Add(
-            $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} location player id {destroyedLocationPlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
+        AddTriggerQueueTriggerControllerMismatch(
+            payloadLabel,
+            diagnosticName,
+            $"destroyed object id {destroyedObjectId} location player id",
+            destroyedLocationPlayerId,
+            controllerId,
+            objectLocationLabel,
+            errors);
     }
 
     private static void ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContext(
@@ -20698,8 +20765,14 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        errors.Add(
-            $"{payloadLabel} viktor destroyed non-minion create minion destroyed object id {destroyedObjectId} controller id {destroyedControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+        AddTriggerQueueTriggerControllerMismatch(
+            payloadLabel,
+            "viktor destroyed non-minion create minion",
+            $"destroyed object id {destroyedObjectId} controller id",
+            destroyedControllerId,
+            controllerId,
+            objectControllerLabel,
+            errors);
     }
 
     private static void ValidateTriggerQueueFriendlyDestroyedSourceCardContext(
@@ -20892,8 +20965,14 @@ public static class MatchRecoveryValidator
             && objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
             && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+            AddTriggerQueueTriggerControllerMismatch(
+                payloadLabel,
+                diagnosticName,
+                $"source object id {sourceObjectId} controller id",
+                sourceControllerId,
+                controllerId,
+                objectControllerLabel,
+                errors);
         }
     }
 
@@ -21092,8 +21171,14 @@ public static class MatchRecoveryValidator
             var sourcePlayerId = sourceLocation.PlayerId.Trim();
             if (!string.Equals(sourcePlayerId, controllerId, StringComparison.Ordinal))
             {
-                errors.Add(
-                    $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location player id {sourcePlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
+                AddTriggerQueueTriggerControllerMismatch(
+                    payloadLabel,
+                    diagnosticName,
+                    $"source object id {sourceObjectId} location player id",
+                    sourcePlayerId,
+                    controllerId,
+                    objectLocationLabel,
+                    errors);
             }
         }
     }
@@ -21597,8 +21682,14 @@ public static class MatchRecoveryValidator
             && !string.Equals(sourceGraveyardLocation.PlayerId.Trim(), controllerId, StringComparison.Ordinal))
         {
             var sourceLocationPlayerId = sourceGraveyardLocation.PlayerId.Trim();
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location player id {sourceLocationPlayerId} must match trigger controller id {controllerId} in {objectLocationLabel}");
+            AddTriggerQueueTriggerControllerMismatch(
+                payloadLabel,
+                diagnosticName,
+                $"source object id {sourceObjectId} location player id",
+                sourceLocationPlayerId,
+                controllerId,
+                objectLocationLabel,
+                errors);
         }
 
         if (objectLocations is not null
@@ -21623,8 +21714,14 @@ public static class MatchRecoveryValidator
             && objectControllers.TryGetValue(sourceObjectId, out var sourceControllerId)
             && !string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} controller id {sourceControllerId} must match trigger controller id {controllerId} in {objectControllerLabel}");
+            AddTriggerQueueTriggerControllerMismatch(
+                payloadLabel,
+                diagnosticName,
+                $"source object id {sourceObjectId} controller id",
+                sourceControllerId,
+                controllerId,
+                objectControllerLabel,
+                errors);
         }
 
         if (objectCardNos is not null
