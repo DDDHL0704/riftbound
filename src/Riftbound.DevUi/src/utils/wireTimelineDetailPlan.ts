@@ -124,6 +124,16 @@ export type WireTimelineCommandBridgeGrammarStep = {
   stateLabel: string;
 };
 
+export type WireTimelineCommandBridgeGateState = "blocked" | "ready" | "waiting";
+
+export type WireTimelineCommandBridgeGateRow = {
+  key: string;
+  label: string;
+  reason: string;
+  state: WireTimelineCommandBridgeGateState;
+  stateLabel: string;
+};
+
 export type WireTimelineCommandBridgeRow = {
   commandFieldSummary: string;
   commandFields: WireTimelineCommandBridgeFieldRow[];
@@ -135,6 +145,8 @@ export type WireTimelineCommandBridgeRow = {
   grammarStateLabel: string;
   grammarSteps: WireTimelineCommandBridgeGrammarStep[];
   grammarSummary: string;
+  gateRows: WireTimelineCommandBridgeGateRow[];
+  gateSummary: string;
   key: string;
   label: string;
   missingRequiredCount: number;
@@ -286,6 +298,13 @@ function commandBridgeRowsForDetail(
         selectionDraft,
         sourceObjectId: draftState.draftActive ? selectionDraft?.sourceObjectId : undefined
       });
+      const gateRows = commandBridgeGateRows({
+        candidate,
+        commandFields,
+        draftState,
+        grammarState: grammar.state,
+        grammarSteps: grammar.steps
+      });
       rows.push({
         commandFieldSummary: commandFieldSummary(commandFields),
         commandFields,
@@ -306,6 +325,8 @@ function commandBridgeRowsForDetail(
           stateLabel: step.stateLabel
         })),
         grammarSummary: grammar.summary,
+        gateRows,
+        gateSummary: commandBridgeGateSummary(gateRows),
         key,
         label: candidate.label,
         missingRequiredCount: draftState.missingRequiredCount,
@@ -330,6 +351,60 @@ function commandBridgeRowsForDetail(
     || right.nextObjectRefs.length - left.nextObjectRefs.length
     || left.label.localeCompare(right.label, "zh-Hans-CN")
   ).slice(0, 6);
+}
+
+function commandBridgeGateRows({
+  candidate,
+  commandFields,
+  draftState,
+  grammarState,
+  grammarSteps
+}: {
+  candidate: PromptCandidateSummary;
+  commandFields: WireTimelineCommandBridgeFieldRow[];
+  draftState: CommandBridgeDraftState;
+  grammarState: FocusedInteractionGrammarState;
+  grammarSteps: Array<{ role: string; state: FocusedInteractionGrammarStepState; stateLabel: string }>;
+}): WireTimelineCommandBridgeGateRow[] {
+  const missingRequiredFields = commandFields.filter((field) => field.state === "missing").length;
+  const submitStep = grammarSteps.find((step) => step.role === "submit");
+  return [
+    {
+      key: "server-candidate",
+      label: "服务端候选",
+      reason: candidate.reason,
+      state: candidate.enabled ? "ready" : "blocked",
+      stateLabel: candidate.enabled ? "开放" : "阻断"
+    },
+    {
+      key: "player-draft",
+      label: "玩家草稿",
+      reason: draftState.draftActive ? selectionLabel(true, draftState.selectedRoleLabels) : "从候选对象开始选择",
+      state: draftState.draftActive ? "ready" : "waiting",
+      stateLabel: draftState.draftActive ? "已进入" : "等待"
+    },
+    {
+      key: "required-fields",
+      label: "必需字段",
+      reason: commandFieldSummary(commandFields),
+      state: missingRequiredFields > 0 ? "blocked" : "ready",
+      stateLabel: missingRequiredFields > 0 ? `缺少 ${missingRequiredFields}` : "齐备"
+    },
+    {
+      key: "submit-step",
+      label: "提交步骤",
+      reason: submitStep?.stateLabel ?? grammarStateLabel(grammarState),
+      state: submitStep?.state === "ready" ? "ready" : "blocked",
+      stateLabel: submitStep?.state === "ready" ? "可提交" : "未就绪"
+    }
+  ];
+}
+
+function commandBridgeGateSummary(rows: WireTimelineCommandBridgeGateRow[]): string {
+  const readyCount = rows.filter((row) => row.state === "ready").length;
+  const blockedCount = rows.filter((row) => row.state === "blocked").length;
+  const waitingCount = rows.filter((row) => row.state === "waiting").length;
+  return `${readyCount} 通过 / ${blockedCount} 阻断 / ${waitingCount} 等待`;
 }
 
 function commandBridgeFieldRows(
@@ -393,6 +468,19 @@ function commandFieldSummary(fields: WireTimelineCommandBridgeFieldRow[]): strin
 function commandBridgeStatusLabel(rows: WireTimelineCommandBridgeRow[]): string {
   const draftCount = rows.filter((row) => row.draftActive).length;
   return draftCount > 0 ? `${rows.length} 条 / ${draftCount} 草稿` : `${rows.length} 条`;
+}
+
+function grammarStateLabel(state: FocusedInteractionGrammarState): string {
+  switch (state) {
+    case "blocked":
+      return "阻断";
+    case "empty":
+      return "无候选";
+    case "incomplete":
+      return "待选择";
+    case "ready":
+      return "可提交";
+  }
 }
 
 type CommandBridgeDraftState = {

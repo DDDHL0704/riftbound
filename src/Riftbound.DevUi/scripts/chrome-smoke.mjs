@@ -1176,6 +1176,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
+      commandBridgeGateStates: Array.from(panel?.querySelectorAll("[data-timeline-command-gate-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-gate-state")),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
@@ -1237,6 +1239,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
+      commandBridgeGateStates: Array.from(panel?.querySelectorAll("[data-timeline-command-gate-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-gate-state")),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
@@ -1321,6 +1325,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
+      commandBridgeGateStates: Array.from(panel?.querySelectorAll("[data-timeline-command-gate-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-gate-state")),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
@@ -1413,6 +1419,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.commandBridgeGrammarStates.includes("ready")) failures.push("rule detail command bridge grammar ready state missing");
   if (!ruleDetailResult.commandBridgeGrammarStepStates.includes("locked")) failures.push("rule detail command bridge grammar source lock missing");
   if (!ruleDetailResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("rule detail command bridge grammar submit ready missing");
+  if (!ruleDetailResult.commandBridgeGateStates.includes("ready")) failures.push("rule detail command bridge gate ready state missing");
+  if (!ruleDetailResult.commandBridgeText.includes("提交门禁")) failures.push("rule detail command bridge gate label missing");
   if (ruleDetailResult.actionHintCount < 1) failures.push("rule detail candidate hint rows missing");
   if (ruleDetailResult.actionHintButtonCount < 1) failures.push("rule detail candidate hint buttons missing");
   if (!ruleDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("rule detail candidate hint command type missing");
@@ -1450,6 +1458,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeFocusResult.commandBridgeGrammarStates.includes("ready")) failures.push("command bridge detail grammar ready state missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeGrammarStepStates.includes("selected")) failures.push("command bridge detail grammar selected target missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("command bridge detail grammar submit ready missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeGateStates.includes("ready")) failures.push("command bridge detail gate ready state missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeText.includes("提交门禁")) failures.push("command bridge detail gate label missing after target selection");
   if (commandBridgeFocusResult.detailLayerOpen) failures.push("command bridge button opened card detail layer");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
@@ -1505,6 +1515,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.commandBridgeGrammarStates.includes("ready")) failures.push("event detail command bridge grammar ready state missing");
   if (!eventDetailResult.commandBridgeGrammarStepStates.includes("locked")) failures.push("event detail command bridge grammar source lock missing");
   if (!eventDetailResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("event detail command bridge grammar submit ready missing");
+  if (!eventDetailResult.commandBridgeGateStates.includes("ready")) failures.push("event detail command bridge gate ready state missing");
+  if (!eventDetailResult.commandBridgeText.includes("提交门禁")) failures.push("event detail command bridge gate label missing");
   if (eventDetailResult.actionHintCount < 1) failures.push("event detail candidate hint rows missing");
   if (!eventDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("event detail candidate hint command type missing");
   if (!eventDetailResult.actionHintText.includes("必填")) failures.push("event detail candidate hint required fields missing");

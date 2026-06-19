@@ -207,8 +207,24 @@ function TimelineCommandBridge({
               <small>{row.selectionLabel} / {row.routeStateLabel} / {row.selectedStepCount}/{row.totalStepCount}</small>
               <small>{row.commandFieldSummary}</small>
               <small>{row.grammarSummary}</small>
+              <small>提交门禁 / {row.gateSummary}</small>
               {!row.enabled && <small>{row.reasonLabel}</small>}
             </div>
+            {row.gateRows.length > 0 && (
+              <ol className="wire-timeline-command-bridge-gates" aria-label={`${row.label} 提交门禁`}>
+                {row.gateRows.map((gate) => (
+                  <li
+                    data-timeline-command-gate={gate.key}
+                    data-timeline-command-gate-state={gate.state}
+                    key={gate.key}
+                  >
+                    <span>{gate.label}</span>
+                    <strong>{gate.stateLabel}</strong>
+                    <small>{gate.reason}</small>
+                  </li>
+                ))}
+              </ol>
+            )}
             {row.grammarSteps.length > 0 && (
               <ol
                 className="wire-timeline-command-bridge-grammar"
