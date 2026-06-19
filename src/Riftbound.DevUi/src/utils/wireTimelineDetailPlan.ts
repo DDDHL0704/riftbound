@@ -55,10 +55,39 @@ export type WireTimelineActionHintRow = {
   zoneLabel: string;
 };
 
+export type WireTimelineInspectorProjection = {
+  count: number;
+  key: WireTimelineProjectionState;
+  label: string;
+};
+
+export type WireTimelineInspectorCandidate = {
+  disabledCount: number;
+  enabledCount: number;
+  key: string;
+  label: string;
+  role: string;
+  stateLabel: string;
+  zoneLabel: string;
+};
+
+export type WireTimelineDetailInspectorPlan = {
+  actionCandidateCount: number;
+  hiddenRefCount: number;
+  missingRefCount: number;
+  projectionRows: WireTimelineInspectorProjection[];
+  candidateRows: WireTimelineInspectorCandidate[];
+  selectedProjectionCount: number;
+  sourceLabel: string;
+  summary: string;
+  visibleRefCount: number;
+};
+
 export type WireTimelineDetailPlan = {
   actionHintRows: WireTimelineActionHintRow[];
   headerSubtitle: string;
   headerTitle: string;
+  inspector: WireTimelineDetailInspectorPlan;
   projectionRows: WireTimelineProjectionRow[];
   statusCards: WireTimelineStatusCard[];
 };
@@ -95,6 +124,12 @@ export function buildWireTimelineDetailPlan({
         ? "来自服务端快照、行动窗口、结算链和事件索引。"
         : "从结算链、规则任务、触发队列或日志中选择一项。"),
     headerTitle: detail ? detail.title : selectedObjectContext ? "焦点对象规则上下文" : "未选择规则事件",
+    inspector: inspectorPlan({
+      actionHintRows,
+      detail,
+      projectionRows,
+      visibleProjectionCount
+    }),
     projectionRows,
     statusCards: [
       { label: "详情来源", value: detail ? detailSourceLabel(detail.source) : "无" },
@@ -104,6 +139,55 @@ export function buildWireTimelineDetailPlan({
       { label: "关联候选", value: actionHintRows.length > 0 ? `${enabledActionHintCount} 可用 / ${disabledActionHintCount} 阻断` : "无候选" }
     ]
   };
+}
+
+function inspectorPlan({
+  actionHintRows,
+  detail,
+  projectionRows,
+  visibleProjectionCount
+}: {
+  actionHintRows: WireTimelineActionHintRow[];
+  detail?: WireTimelineDetailLike;
+  projectionRows: WireTimelineProjectionRow[];
+  visibleProjectionCount: number;
+}): WireTimelineDetailInspectorPlan {
+  const hiddenRefCount = projectionRows.filter((row) => row.state === "hidden").length;
+  const missingRefCount = projectionRows.filter((row) => row.state === "missing").length;
+  const selectedProjectionCount = projectionRows.filter((row) => row.state === "selected").length;
+  const actionCandidateCount = actionHintRows.reduce((sum, row) => sum + row.enabledCount + row.disabledCount, 0);
+  const sourceLabel = detail ? detailSourceLabel(detail.source) : "无";
+
+  return {
+    actionCandidateCount,
+    hiddenRefCount,
+    missingRefCount,
+    projectionRows: projectionStateRows(projectionRows),
+    candidateRows: actionHintRows.map((row) => ({
+      disabledCount: row.disabledCount,
+      enabledCount: row.enabledCount,
+      key: row.key,
+      label: row.label,
+      role: row.role,
+      stateLabel: row.stateLabel,
+      zoneLabel: row.zoneLabel
+    })),
+    selectedProjectionCount,
+    sourceLabel,
+    summary: detail
+      ? `${sourceLabel} / 可定位 ${visibleProjectionCount} / 隐藏 ${hiddenRefCount} / 未公开 ${missingRefCount} / 候选 ${actionCandidateCount}`
+      : "未选择详情",
+    visibleRefCount: visibleProjectionCount
+  };
+}
+
+function projectionStateRows(projectionRows: WireTimelineProjectionRow[]): WireTimelineInspectorProjection[] {
+  return (["selected", "visible", "hidden", "missing"] satisfies WireTimelineProjectionState[])
+    .map((state) => ({
+      count: projectionRows.filter((row) => row.state === state).length,
+      key: state,
+      label: projectionStateLabel(state)
+    }));
 }
 
 function actionHintRowsForDetail(

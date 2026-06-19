@@ -12907,6 +12907,12 @@ button.card-face:hover {
 .wire-timeline-detail-header,
 .wire-timeline-detail-status-grid,
 .wire-timeline-detail-status-grid span,
+.wire-timeline-inspector,
+.wire-timeline-inspector header,
+.wire-timeline-inspector section,
+.wire-timeline-inspector footer,
+.wire-timeline-inspector li,
+.wire-timeline-inspector-toggle,
 .wire-timeline-detail-lines,
 .wire-timeline-detail-line,
 .wire-timeline-projection-list,
@@ -13210,6 +13216,86 @@ button.card-face:hover {
   gap: 5px;
 }
 
+.wire-timeline-inspector-toggle {
+  width: 100%;
+  border-radius: 0;
+  padding: 4px 6px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-timeline-inspector {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-timeline-inspector[hidden] {
+  display: none;
+}
+
+.wire-timeline-inspector header,
+.wire-timeline-inspector section,
+.wire-timeline-inspector footer {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 4px;
+}
+
+.wire-timeline-inspector-projections,
+.wire-timeline-inspector-candidates {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-timeline-inspector-projections {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wire-timeline-inspector-candidates {
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+}
+
+.wire-timeline-inspector li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 3px;
+}
+
+.wire-timeline-inspector li[data-timeline-inspector-projection="selected"],
+.wire-timeline-inspector li[data-timeline-inspector-projection="visible"] {
+  border-width: 2px;
+}
+
+.wire-timeline-inspector li[data-timeline-inspector-projection="hidden"],
+.wire-timeline-inspector li[data-timeline-inspector-projection="missing"] {
+  border-style: dashed;
+}
+
+.wire-timeline-inspector footer {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.wire-timeline-inspector span,
+.wire-timeline-inspector small,
+.wire-timeline-inspector strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-timeline-detail-lines {
   display: grid;
   gap: 3px;
@@ -13444,6 +13530,12 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-line,
 .wire-match-page .wire-timeline-detail,
 .wire-match-page .wire-timeline-detail-header,
+.wire-match-page .wire-timeline-inspector,
+.wire-match-page .wire-timeline-inspector header,
+.wire-match-page .wire-timeline-inspector section,
+.wire-match-page .wire-timeline-inspector footer,
+.wire-match-page .wire-timeline-inspector li,
+.wire-match-page .wire-timeline-inspector-toggle,
 .wire-match-page .wire-timeline-detail-lines,
 .wire-match-page .wire-timeline-detail-line,
 .wire-match-page .wire-timeline-action-hint-list,

@@ -952,6 +952,19 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
+  await clickButtonByText(cdp, "展开事件检查");
+  await delay(150);
+  const timelineInspectorResult = await evaluateJson(cdp, `(() => {
+    const inspector = document.querySelector(".wire-timeline-inspector");
+    return {
+      candidateCount: inspector?.querySelectorAll("[data-timeline-inspector-candidate]").length ?? 0,
+      hidden: inspector?.hasAttribute("hidden") ?? true,
+      projectionCount: inspector?.querySelectorAll("[data-timeline-inspector-projection]").length ?? 0,
+      text: inspector?.textContent ?? "",
+      toggleExpanded: document.querySelector("[data-timeline-inspector-toggle]")?.getAttribute("aria-expanded") ?? null
+    };
+  })()`);
+
   const actionHintObjectId = await clickTimelineActionHint(cdp);
   await delay(150);
   const actionHintFocusResult = await evaluateJson(cdp, `(() => {
@@ -1052,6 +1065,14 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.actionHintText.includes("可用")) failures.push("rule detail candidate hint state missing");
   if (!ruleDetailResult.actionHintText.includes("角色")) failures.push("rule detail candidate hint role labels missing");
   if (!ruleDetailResult.actionHintText.includes("必填")) failures.push("rule detail candidate hint required fields missing");
+  if (timelineInspectorResult.hidden) failures.push("timeline inspector did not open");
+  if (timelineInspectorResult.toggleExpanded !== "true") failures.push("timeline inspector toggle aria state missing");
+  if (!timelineInspectorResult.text.includes("事件检查")) failures.push("timeline inspector header missing");
+  if (!timelineInspectorResult.text.includes("对象投影")) failures.push("timeline inspector projection section missing");
+  if (!timelineInspectorResult.text.includes("关联候选")) failures.push("timeline inspector candidate section missing");
+  if (!timelineInspectorResult.text.includes("隐藏")) failures.push("timeline inspector hidden boundary missing");
+  if (timelineInspectorResult.projectionCount < 4) failures.push("timeline inspector projection states missing");
+  if (timelineInspectorResult.candidateCount < 1) failures.push("timeline inspector candidate rows missing");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
   if (!ruleDetailResult.selectedRow) failures.push("rule detail selected row missing");

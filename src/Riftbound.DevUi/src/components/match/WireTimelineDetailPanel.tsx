@@ -1,5 +1,6 @@
 import type { TableObjectContext } from "../../utils/tableObjectContext";
-import { buildWireTimelineDetailPlan } from "../../utils/wireTimelineDetailPlan";
+import { useState } from "react";
+import { buildWireTimelineDetailPlan, type WireTimelineDetailInspectorPlan } from "../../utils/wireTimelineDetailPlan";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
 
@@ -35,6 +36,7 @@ export function WireTimelineDetailPanel({
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
 }) {
+  const [inspectorOpen, setInspectorOpen] = useState(false);
   const plan = buildWireTimelineDetailPlan({
     detail,
     objectContextById,
@@ -69,6 +71,16 @@ export function WireTimelineDetailPanel({
       <div className="wire-timeline-detail-body" id="wire-timeline-detail-body">
         {detail ? (
           <>
+            <button
+              aria-expanded={inspectorOpen}
+              className="wire-timeline-inspector-toggle"
+              data-timeline-inspector-toggle="true"
+              onClick={() => setInspectorOpen((open) => !open)}
+              type="button"
+            >
+              {inspectorOpen ? "收起事件检查" : "展开事件检查"}
+            </button>
+            <TimelineInspector open={inspectorOpen} plan={plan.inspector} />
             <div className="wire-timeline-detail-lines">
               {detail.lines.map((line) => (
                 <span className={line.mine ? "wire-timeline-detail-line is-mine" : "wire-timeline-detail-line"} key={`${line.label}-${line.value}`}>
@@ -125,6 +137,57 @@ export function WireTimelineDetailPanel({
         )}
       </div>
     </section>
+  );
+}
+
+function TimelineInspector({ open, plan }: { open: boolean; plan: WireTimelineDetailInspectorPlan }) {
+  return (
+    <aside
+      aria-label="规则事件检查器"
+      className="wire-timeline-inspector"
+      data-timeline-inspector-state={open ? "open" : "closed"}
+      hidden={!open}
+    >
+      <header>
+        <strong>事件检查</strong>
+        <span>{plan.summary}</span>
+      </header>
+      <section>
+        <strong>对象投影</strong>
+        <ol className="wire-timeline-inspector-projections">
+          {plan.projectionRows.map((row) => (
+            <li data-timeline-inspector-projection={row.key} key={row.key}>
+              <span>{row.label}</span>
+              <strong>{row.count}</strong>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section>
+        <strong>关联候选</strong>
+        {plan.candidateRows.length > 0 ? (
+          <ol className="wire-timeline-inspector-candidates">
+            {plan.candidateRows.map((row) => (
+              <li data-timeline-inspector-candidate={row.key} key={row.key}>
+                <span>{row.role}</span>
+                <strong>{row.label}</strong>
+                <small>{row.zoneLabel}</small>
+                <small>{row.stateLabel}</small>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <span className="empty-hint">当前详情对象没有服务端候选关联。</span>
+        )}
+      </section>
+      <footer>
+        <span>来源 {plan.sourceLabel}</span>
+        <span>可定位 {plan.visibleRefCount}</span>
+        <span>隐藏 {plan.hiddenRefCount}</span>
+        <span>未公开 {plan.missingRefCount}</span>
+        <span>候选 {plan.actionCandidateCount}</span>
+      </footer>
+    </aside>
   );
 }
 
