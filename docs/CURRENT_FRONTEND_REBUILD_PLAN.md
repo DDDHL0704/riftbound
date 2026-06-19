@@ -1738,6 +1738,8 @@
 
 线框对战桌面右侧合法操作地图继续工程化：新增 `candidateInteractionPlan`，把服务端 `selectionSteps` / `commandTemplate` 组织为候选步骤计划，右侧面板显示可提交状态、缺口数量、下一步、步骤样本和命令字段数；新增 `check:candidate-interaction-plan` 构建门禁并扩展 Chrome smoke 覆盖“候选步骤 / 下一步 / 命令字段 / PLAY_CARD”。前端仍只消费服务端候选和公开命令模板，不根据牌文或隐藏状态自行裁决规则；项目仍 **NOT READY**。
 
+线框对战桌面右侧窗口总览继续工程化：新增 `wireTurnWindowPlan` 与 `WireTurnWindowPanel`，从服务端 `snapshot.timing`、`pendingTaskQueue`、`stack`、`triggerQueue` 与 `ActionPrompt` 生成当前窗口/优先权/下一步投影；右侧首屏显示当前玩家、提示归属、可提交候选、结算链、任务和触发数量。layout fixture 仅在本地样例中把有效连接态视为 connected，真实对局仍使用 SignalR 连接状态。新增 `check:wire-turn-window-plan`、Chrome smoke 与 appshot 基线覆盖；前端仍不根据牌文或隐藏状态裁决规则，项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：

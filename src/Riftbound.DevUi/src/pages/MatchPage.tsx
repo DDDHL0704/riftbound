@@ -9,6 +9,7 @@ import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
+import { WireTurnWindowPanel } from "../components/match/WireTurnWindowPanel";
 import {
   buildWireCardFlowPlan,
   WireCardFlow,
@@ -82,6 +83,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     [layoutFixtureEnabled, specByNo]
   );
   const tableObjectIndex = useMemo(() => buildCardObjectIndex(tableSnapshot), [tableSnapshot]);
+  const tableConnectionStatus = layoutFixtureEnabled ? "connected" : controller.state.status;
   const tableObjectContextModel = useMemo(() => buildTableObjectContextModel({
     events: tableEvents,
     perspectivePlayerId: settings.playerId,
@@ -240,7 +242,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <span>房间 {matchId}</span>
         </div>
         <div className="wire-status-line" role="group" aria-label="服务端状态">
-          <span>连接 {connectionStatusLabel(controller.state.status)}</span>
+          <span>连接 {connectionStatusLabel(tableConnectionStatus)}</span>
           <span>回合 {tableSnapshot?.turnNumber ?? 0}</span>
           <span>阶段 {matchPhaseLabel(phase)}</span>
           <span>窗口 {timingStateLabel(windowState)}</span>
@@ -266,6 +268,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
+          <section aria-label="服务端窗口总览区" className="wire-panel wire-window-plan-panel" tabIndex={0}>
+            <WireTurnWindowPanel
+              connectionStatus={tableConnectionStatus}
+              playerId={settings.playerId}
+              prompt={tablePrompt}
+              snapshot={tableSnapshot}
+            />
+          </section>
           <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" tabIndex={0}>
             <WireActionMapPanel
               onInspectObject={inspectObjectFromTable}
@@ -277,7 +287,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </section>
           <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>
             <WireInteractionPanel
-              disabledByConnection={controller.state.status !== "connected"}
+              disabledByConnection={tableConnectionStatus !== "connected"}
               inspectedCard={inspectedCard}
               onCommand={(command) => void controller.submitCommand(command)}
               onClearInspectedCard={() => {
@@ -317,7 +327,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </section>
           <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" tabIndex={0}>
             <ActionPanel
-              connectionStatus={controller.state.status}
+              connectionStatus={tableConnectionStatus}
               onCommand={(command) => void controller.submitCommand(command)}
               onReady={() => void controller.ready()}
               onSubmitStarterDeck={() => void controller.submitStarterDeck()}
