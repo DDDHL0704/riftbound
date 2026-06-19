@@ -2,6 +2,7 @@ import { Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
+import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
@@ -20,15 +21,6 @@ type CandidateComposerState = {
   optionalCostIds: string[];
   sourceId?: string;
   targetIdsByGroup: Record<string, string>;
-};
-
-export type CandidateSelectionDraft = {
-  candidateKey: string;
-  destinationId?: string;
-  mode?: string;
-  optionalCostIds: string[];
-  sourceObjectId: string;
-  targetChoiceIds: string[];
 };
 
 type CandidateComposerModel = {

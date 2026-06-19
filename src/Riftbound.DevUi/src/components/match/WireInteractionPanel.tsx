@@ -9,9 +9,11 @@ import {
   type PromptCandidateSummary,
   type PromptInteractionModel
 } from "../../utils/promptInteraction";
+import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
 import { promptActionLabel, promptReasonTitle } from "../../utils/formatters";
+import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import { CardFace } from "../cards/CardFace";
-import { CandidateComposer, candidateComposerKey, canComposeCandidate, type CandidateSelectionDraft } from "./CandidateComposer";
+import { CandidateComposer, candidateComposerKey, canComposeCandidate } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { WireEmpty } from "./wireCardFlow";
@@ -117,6 +119,12 @@ function FocusedActionList({
 }) {
   const sourceObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
   const candidates = sourceCandidatesForPrompt(prompt, sourceObjectId);
+  const focusModel = buildFocusedActionModel({
+    interactionModel: model,
+    prompt,
+    selectionDraft,
+    sourceObjectId
+  });
   const candidateSummaries = sourceObjectId
     ? model.candidates.filter((candidate) =>
       candidate.enabled
@@ -136,6 +144,7 @@ function FocusedActionList({
         <StatusPill tone={candidates.length > 0 ? "good" : "neutral"}>{candidates.length > 0 ? `${candidates.length} 项` : "无可提交"}</StatusPill>
       </div>
       <p>只使用服务端当前候选；连接恢复前不会提交命令。</p>
+      <FocusedActionSummary focusModel={focusModel} />
       {candidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
       {selectionDraft && selectionDraft.sourceObjectId === sourceObjectId && (
         <div className="wire-selection-draft" aria-label="已点选候选草稿">
@@ -200,6 +209,51 @@ function FocusedActionList({
           </Button>
         );
       })}
+    </div>
+  );
+}
+
+function FocusedActionSummary({ focusModel }: { focusModel: FocusedActionModel }) {
+  return (
+    <div
+      aria-label="焦点行动摘要"
+      className="wire-focused-action-summary"
+      data-wire-focused-action-state={focusModel.submittedByServer ? "server-candidate" : "no-candidate"}
+    >
+      <div className="wire-focused-action-metrics">
+        <span>
+          <small>服务端状态</small>
+          <strong>{focusModel.stateLabel}</strong>
+        </span>
+        <span>
+          <small>可提交</small>
+          <strong>{focusModel.enabledCount}</strong>
+        </span>
+        <span>
+          <small>阻断</small>
+          <strong>{focusModel.blockedCount}</strong>
+        </span>
+      </div>
+      <span className="wire-focused-next-step" data-wire-focused-next-step>
+        {focusModel.nextStepLabel}
+      </span>
+      {focusModel.blockingReasons.length > 0 && (
+        <div className="wire-focused-blockers">
+          {focusModel.blockingReasons.map((reason) => (
+            <small key={reason}>阻断：{reason}</small>
+          ))}
+        </div>
+      )}
+      {focusModel.candidates.length > 0 && (
+        <ol className="wire-focused-candidate-plan">
+          {focusModel.candidates.slice(0, 4).map(({ candidate, key, nextStep, stateLabel }) => (
+            <li className={candidate.enabled ? "is-enabled" : "is-disabled"} key={key}>
+              <span>{candidate.label}</span>
+              <small>{stateLabel}{nextStep ? `；下一步 ${nextStep.label}` : ""}</small>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
