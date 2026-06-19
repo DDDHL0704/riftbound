@@ -21969,7 +21969,7 @@ public static class MatchRecoveryValidator
             && hasOtherFriendlyFaceUpBaseUnit)
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be isolated from other friendly face-up units in {playerBaseObjectIdsLabel} base for controller id {controllerId}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must be isolated from other friendly face-up units in {playerBaseObjectIdsLabel} base for controller id {controllerId}; {FormatExpectedActualForRecovery(false, hasOtherFriendlyFaceUpBaseUnit)}");
         }
 
         if (string.Equals(expectedEffectKind, LoyalPoroLastBreathDrawEffectKindForRecovery, StringComparison.Ordinal)
@@ -21977,7 +21977,7 @@ public static class MatchRecoveryValidator
             && !hasOtherFriendlyFaceUpBaseUnit)
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} requires another friendly face-up unit in {playerBaseObjectIdsLabel} base for controller id {controllerId}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} requires another friendly face-up unit in {playerBaseObjectIdsLabel} base for controller id {controllerId}; {FormatExpectedActualForRecovery(true, hasOtherFriendlyFaceUpBaseUnit)}");
         }
 
         if (objectTags is not null

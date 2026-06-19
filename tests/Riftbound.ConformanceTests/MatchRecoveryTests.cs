@@ -9528,7 +9528,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in player zones base for controller id alice",
+                "snapshot for alice timing trigger queue item loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in player zones base for controller id alice; expected true but got false",
                 StringComparison.Ordinal));
     }
 
@@ -9622,7 +9622,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in player zones base for controller id alice",
+                "snapshot for alice timing trigger queue item sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in player zones base for controller id alice; expected false but got true",
                 StringComparison.Ordinal));
     }
 
@@ -31961,7 +31961,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-LOYAL_PORO_LAST_BREATH_DRAW_1 loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in authoritative state player zones base for controller id alice",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-LOYAL_PORO_LAST_BREATH_DRAW_1 loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in authoritative state player zones base for controller id alice; expected true but got false",
                 StringComparison.Ordinal));
     }
 
@@ -32031,7 +32031,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1 sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in authoritative state player zones base for controller id alice",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SAD_PORO_LAST_BREATH_DRAW_1 sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in authoritative state player zones base for controller id alice; expected false but got true",
                 StringComparison.Ordinal));
     }
 
@@ -147927,7 +147927,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in authoritative state player zones base for controller id alice",
+                "spectator replay frame timing trigger queue item loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in authoritative state player zones base for controller id alice; expected true but got false",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -148033,7 +148033,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in authoritative state player zones base for controller id alice",
+                "spectator replay frame timing trigger queue item loyal poro last-breath draw source object id source-1 requires another friendly face-up unit in authoritative state player zones base for controller id alice; expected true but got false",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -148129,7 +148129,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in authoritative state player zones base for controller id alice",
+                "spectator replay frame timing trigger queue item sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in authoritative state player zones base for controller id alice; expected false but got true",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -148243,7 +148243,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in authoritative state player zones base for controller id alice",
+                "spectator replay frame timing trigger queue item sad poro last-breath draw source object id source-1 must be isolated from other friendly face-up units in authoritative state player zones base for controller id alice; expected false but got true",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
