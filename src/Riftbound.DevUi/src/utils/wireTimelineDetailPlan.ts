@@ -1,6 +1,11 @@
 import type { ActionPromptDto, CardObjectView } from "../types/protocol";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import { candidateComposerKey } from "./candidateComposerModel";
+import {
+  buildFocusedInteractionGrammarPlan,
+  type FocusedInteractionGrammarState,
+  type FocusedInteractionGrammarStepState
+} from "./focusedInteractionGrammarPlan";
 import { summarizePromptCandidateSemantics } from "./promptCandidateSemantics";
 import {
   buildPromptInteractionModel,
@@ -108,6 +113,17 @@ export type WireTimelineCommandBridgeFieldRow = {
   stateLabel: string;
 };
 
+export type WireTimelineCommandBridgeGrammarStep = {
+  availableCount: number;
+  key: string;
+  label: string;
+  required: boolean;
+  role: string;
+  selectedCount: number;
+  state: FocusedInteractionGrammarStepState;
+  stateLabel: string;
+};
+
 export type WireTimelineCommandBridgeRow = {
   commandFieldSummary: string;
   commandFields: WireTimelineCommandBridgeFieldRow[];
@@ -115,6 +131,10 @@ export type WireTimelineCommandBridgeRow = {
   detailObjectId: string;
   draftActive: boolean;
   enabled: boolean;
+  grammarState: FocusedInteractionGrammarState;
+  grammarStateLabel: string;
+  grammarSteps: WireTimelineCommandBridgeGrammarStep[];
+  grammarSummary: string;
   key: string;
   label: string;
   missingRequiredCount: number;
@@ -260,6 +280,12 @@ function commandBridgeRowsForDetail(
       const progressRoleLabels = draftState.draftActive ? draftState.selectedRoleLabels : roleLabels;
       const nextStep = nextStepForCommandBridge(candidate, progressRoleLabels);
       const commandFields = commandBridgeFieldRows(candidate, draftState);
+      const grammar = buildFocusedInteractionGrammarPlan({
+        candidates: [candidate],
+        disabledByConnection: false,
+        selectionDraft,
+        sourceObjectId: draftState.draftActive ? selectionDraft?.sourceObjectId : undefined
+      });
       rows.push({
         commandFieldSummary: commandFieldSummary(commandFields),
         commandFields,
@@ -267,6 +293,19 @@ function commandBridgeRowsForDetail(
         detailObjectId: objectId,
         draftActive: draftState.draftActive,
         enabled: candidate.enabled,
+        grammarState: grammar.state,
+        grammarStateLabel: grammar.stateLabel,
+        grammarSteps: grammar.steps.map((step) => ({
+          availableCount: step.availableCount,
+          key: `${key}:${step.key}`,
+          label: step.label,
+          required: step.required,
+          role: step.role,
+          selectedCount: step.selectedCount,
+          state: step.state,
+          stateLabel: step.stateLabel
+        })),
+        grammarSummary: grammar.summary,
         key,
         label: candidate.label,
         missingRequiredCount: draftState.missingRequiredCount,

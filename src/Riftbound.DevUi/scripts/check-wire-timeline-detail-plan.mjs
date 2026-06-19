@@ -32,6 +32,22 @@ new Function(
   commandFieldModuleShim.exports.commandFieldDisplayLabel
 );
 
+const focusedGrammarPath = resolve(scriptDir, "../src/utils/focusedInteractionGrammarPlan.ts");
+const focusedGrammarOutput = transpile(readFileSync(focusedGrammarPath, "utf8"));
+const focusedGrammarModuleShim = { exports: {} };
+new Function(
+  "exports",
+  "module",
+  "promptChoiceRoleLabel",
+  "promptChoiceRoleOrder",
+  focusedGrammarOutput
+)(
+  focusedGrammarModuleShim.exports,
+  focusedGrammarModuleShim,
+  promptChoiceRoleLabel,
+  ["source", "mode", "destination", "target", "optionalCost"]
+);
+
 const sourcePath = resolve(scriptDir, "../src/utils/wireTimelineDetailPlan.ts");
 const source = readFileSync(sourcePath, "utf8");
 const output = transpile(source);
@@ -40,6 +56,7 @@ const moduleShim = { exports: {} };
 new Function(
   "exports",
   "module",
+  "buildFocusedInteractionGrammarPlan",
   "buildPromptInteractionModel",
   "candidateComposerKey",
   "promptCommandBindingLabel",
@@ -51,6 +68,7 @@ new Function(
 )(
   moduleShim.exports,
   moduleShim,
+  focusedGrammarModuleShim.exports.buildFocusedInteractionGrammarPlan,
   buildPromptInteractionModel,
   candidateComposerKey,
   promptCommandBindingLabel,
@@ -188,6 +206,11 @@ assert.equal(plan.commandBridgeRows[0].routeState, "inactive");
 assert.equal(plan.commandBridgeRows[0].routeStateLabel, "未进入草稿");
 assert.equal(plan.commandBridgeRows[0].commandFieldSummary, "0 覆盖 / 1 缺少 / 1 服务端");
 assert.deepEqual(plan.commandBridgeRows[0].commandFields.map((field) => field.state), ["missing", "optional", "server"]);
+assert.equal(plan.commandBridgeRows[0].grammarState, "incomplete");
+assert.equal(plan.commandBridgeRows[0].grammarStateLabel, "待选择");
+assert.equal(plan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 待选择 / 选择来源");
+assert.deepEqual(plan.commandBridgeRows[0].grammarSteps.map((step) => step.role), ["source", "target", "submit"]);
+assert.deepEqual(plan.commandBridgeRows[0].grammarSteps.map((step) => step.state), ["available", "optional", "blocked"]);
 assert.deepEqual(plan.commandBridgeRows[0].roleLabels, ["来源"]);
 assert.deepEqual(plan.commandBridgeRows[0].selectedRoleLabels, []);
 assert.equal(plan.commandBridgeRows[0].selectionLabel, "未进入草稿");
@@ -260,6 +283,11 @@ assert.equal(draftPlan.commandBridgeRows[0].routeState, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].routeStateLabel, "可送服务端校验");
 assert.equal(draftPlan.commandBridgeRows[0].commandFieldSummary, "2 覆盖 / 0 缺少 / 1 服务端");
 assert.deepEqual(draftPlan.commandBridgeRows[0].commandFields.map((field) => field.state), ["covered", "covered", "server"]);
+assert.equal(draftPlan.commandBridgeRows[0].grammarState, "ready");
+assert.equal(draftPlan.commandBridgeRows[0].grammarStateLabel, "可提交");
+assert.equal(draftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 可提交 / 提交服务端候选");
+assert.deepEqual(draftPlan.commandBridgeRows[0].grammarSteps.map((step) => step.role), ["source", "target", "submit"]);
+assert.deepEqual(draftPlan.commandBridgeRows[0].grammarSteps.map((step) => step.state), ["locked", "selected", "ready"]);
 assert.deepEqual(draftPlan.commandBridgeRows[0].selectedRoleLabels, ["来源", "目标"]);
 assert.equal(draftPlan.commandBridgeRows[0].selectionLabel, "已选 来源 / 目标");
 assert.equal(draftPlan.commandBridgeRows[0].selectedStepCount, 2);

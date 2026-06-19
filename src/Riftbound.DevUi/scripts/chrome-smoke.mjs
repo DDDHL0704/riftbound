@@ -1172,6 +1172,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
       commandBridgeFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-state")),
+      commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
+      commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
@@ -1229,6 +1233,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
       commandBridgeFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-state")),
+      commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
+      commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
@@ -1309,6 +1317,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
       commandBridgeFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-state")),
+      commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
+      commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
@@ -1398,6 +1410,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.commandBridgeFieldStates.includes("covered")) failures.push("rule detail command bridge covered field state missing");
   if (!ruleDetailResult.commandBridgeFieldStates.includes("server")) failures.push("rule detail command bridge server field state missing");
   if (!ruleDetailResult.commandBridgeText.includes("服务端注入")) failures.push("rule detail command bridge server field label missing");
+  if (!ruleDetailResult.commandBridgeGrammarStates.includes("ready")) failures.push("rule detail command bridge grammar ready state missing");
+  if (!ruleDetailResult.commandBridgeGrammarStepStates.includes("locked")) failures.push("rule detail command bridge grammar source lock missing");
+  if (!ruleDetailResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("rule detail command bridge grammar submit ready missing");
   if (ruleDetailResult.actionHintCount < 1) failures.push("rule detail candidate hint rows missing");
   if (ruleDetailResult.actionHintButtonCount < 1) failures.push("rule detail candidate hint buttons missing");
   if (!ruleDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("rule detail candidate hint command type missing");
@@ -1432,6 +1447,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeFocusResult.commandBridgeFieldStates.includes("covered")) failures.push("command bridge detail covered field state missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeFieldStates.includes("server")) failures.push("command bridge detail server field state missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("2 覆盖 / 0 缺少")) failures.push("command bridge detail coverage summary missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeGrammarStates.includes("ready")) failures.push("command bridge detail grammar ready state missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeGrammarStepStates.includes("selected")) failures.push("command bridge detail grammar selected target missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("command bridge detail grammar submit ready missing after target selection");
   if (commandBridgeFocusResult.detailLayerOpen) failures.push("command bridge button opened card detail layer");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
@@ -1484,6 +1502,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.commandBridgeFieldStates.includes("covered")) failures.push("event detail command bridge covered field state missing");
   if (!eventDetailResult.commandBridgeFieldStates.includes("server")) failures.push("event detail command bridge server field state missing");
   if (!eventDetailResult.commandBridgeText.includes("服务端注入")) failures.push("event detail command bridge server field label missing");
+  if (!eventDetailResult.commandBridgeGrammarStates.includes("ready")) failures.push("event detail command bridge grammar ready state missing");
+  if (!eventDetailResult.commandBridgeGrammarStepStates.includes("locked")) failures.push("event detail command bridge grammar source lock missing");
+  if (!eventDetailResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("event detail command bridge grammar submit ready missing");
   if (eventDetailResult.actionHintCount < 1) failures.push("event detail candidate hint rows missing");
   if (!eventDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("event detail candidate hint command type missing");
   if (!eventDetailResult.actionHintText.includes("必填")) failures.push("event detail candidate hint required fields missing");

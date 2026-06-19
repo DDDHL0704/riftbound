@@ -13671,6 +13671,29 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-timeline-command-bridge-grammar {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-timeline-command-bridge-grammar li {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 2px 4px;
+}
+
+.wire-timeline-command-bridge-grammar li[data-timeline-command-grammar-step-state="ready"],
+.wire-timeline-command-bridge-grammar li[data-timeline-command-grammar-step-state="selected"],
+.wire-timeline-command-bridge-grammar li[data-timeline-command-grammar-step-state="locked"] {
+  border-width: 2px;
+}
+
 .wire-timeline-command-bridge-refs button {
   min-width: 0;
   display: grid;

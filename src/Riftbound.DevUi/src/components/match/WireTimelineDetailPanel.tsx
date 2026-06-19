@@ -206,8 +206,27 @@ function TimelineCommandBridge({
               <small>{row.roleLabels.join(" / ")} / {row.commandType ?? "未公开命令"} / {row.stateLabel}</small>
               <small>{row.selectionLabel} / {row.routeStateLabel} / {row.selectedStepCount}/{row.totalStepCount}</small>
               <small>{row.commandFieldSummary}</small>
+              <small>{row.grammarSummary}</small>
               {!row.enabled && <small>{row.reasonLabel}</small>}
             </div>
+            {row.grammarSteps.length > 0 && (
+              <ol
+                className="wire-timeline-command-bridge-grammar"
+                aria-label={`${row.label} 提交语法`}
+                data-timeline-command-grammar-state={row.grammarState}
+              >
+                {row.grammarSteps.map((step) => (
+                  <li
+                    data-timeline-command-grammar-role={step.role}
+                    data-timeline-command-grammar-step-state={step.state}
+                    key={step.key}
+                  >
+                    <span>{step.label}</span>
+                    <small>{step.required ? "必需" : "可选"} / {step.selectedCount}/{step.availableCount} / {step.stateLabel}</small>
+                  </li>
+                ))}
+              </ol>
+            )}
             {row.commandFields.length > 0 && (
               <ol className="wire-timeline-command-bridge-fields" aria-label={`${row.label} 命令字段覆盖`}>
                 {row.commandFields.map((field) => (
