@@ -10692,7 +10692,8 @@ public static class MatchRecoveryValidator
         {
             if (!string.IsNullOrEmpty(expectedText))
             {
-                errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+                errors.Add(
+                    $"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}; {FormatExpectedActualForRecovery(expectedText, FormatReadableStringValue(hasScalar, value, objectPayload, key))}");
             }
 
             return;
@@ -10700,7 +10701,8 @@ public static class MatchRecoveryValidator
 
         if (!string.Equals(value, expectedText, StringComparison.Ordinal))
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}; {FormatExpectedActualForRecovery(expectedText, FormatReadableStringValue(hasScalar, value, objectPayload, key))}");
         }
     }
 
@@ -10733,13 +10735,15 @@ public static class MatchRecoveryValidator
         if (!hasScalar)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} is required");
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}; {FormatExpectedActualForRecovery(expected, FormatReadableIntValue(value, objectPayload, key))}");
             return;
         }
 
         if (value is null || value != expected)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}; {FormatExpectedActualForRecovery(expected, FormatReadableIntValue(value, objectPayload, key))}");
         }
     }
 
@@ -10761,16 +10765,19 @@ public static class MatchRecoveryValidator
             payloadLabel,
             description,
             errors);
+        var hasReadableBool = TryReadObjectBool(objectPayload, key, out var value);
         if (!hasScalar)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} is required");
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}; {FormatExpectedActualForRecovery(expected, FormatReadableBoolValue(hasReadableBool, value, objectPayload, key))}");
             return;
         }
 
-        if (!TryReadObjectBool(objectPayload, key, out var value) || value != expected)
+        if (!hasReadableBool || value != expected)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} {description} does not match authoritative object {description}; {FormatExpectedActualForRecovery(expected, FormatReadableBoolValue(hasReadableBool, value, objectPayload, key))}");
         }
     }
 
@@ -10802,14 +10809,16 @@ public static class MatchRecoveryValidator
         if (!hasScalar)
         {
             errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} are required");
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} do not match authoritative object {description}");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} {description} do not match authoritative object {description}; {FormatExpectedActualForRecovery(expected, FormatReadableStringListValue(false, [], objectPayload, key))}");
             return;
         }
 
-        if (!TryReadObjectStringList(objectPayload, key, out var value)
-            || !StringListsEqual(value, expected))
+        var hasReadableList = TryReadObjectStringList(objectPayload, key, out var value);
+        if (!hasReadableList || !StringListsEqual(value, expected))
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} object {objectId} {description} do not match authoritative object {description}");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} object {objectId} {description} do not match authoritative object {description}; {FormatExpectedActualForRecovery(expected, FormatReadableStringListValue(hasReadableList, value, objectPayload, key))}");
         }
     }
 
@@ -14281,6 +14290,11 @@ public static class MatchRecoveryValidator
     private static object FormatReadableBoolValue(bool hasValue, bool value, object? payload, string key)
     {
         return hasValue ? value : FormatUnreadableObjectValue(payload, key);
+    }
+
+    private static object FormatReadableStringValue(bool hasValue, string? value, object? payload, string key)
+    {
+        return hasValue && value is not null ? value : FormatUnreadableObjectValue(payload, key);
     }
 
     private static object FormatReadableIntValue(int? value, object? payload, string key)

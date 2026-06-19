@@ -49272,49 +49272,49 @@ public sealed class MatchRecoveryTests
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 card number does not match authoritative object card number", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 card number does not match authoritative object card number; expected SFD-BOB but got SFD-DRIFT", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 owner id does not match authoritative object owner id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 owner id does not match authoritative object owner id; expected bob but got alice", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 controller id does not match authoritative object controller id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 controller id does not match authoritative object controller id; expected bob but got alice", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 attached object id does not match authoritative object attached object id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 attached object id does not match authoritative object attached object id; expected bob-parent-1 but got bob-parent-drift", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 damage does not match authoritative object damage", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 damage does not match authoritative object damage; expected 1 but got 2", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 power does not match authoritative object power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 power does not match authoritative object power; expected 6 but got 7", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 base power does not match authoritative object base power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 base power does not match authoritative object base power; expected 4 but got 8", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 effective power does not match authoritative object effective power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 effective power does not match authoritative object effective power; expected 6 but got 9", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 until-end-of-turn power modifier does not match authoritative object until-end-of-turn power modifier", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 until-end-of-turn power modifier does not match authoritative object until-end-of-turn power modifier; expected 2 but got 3", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 mana cost does not match authoritative object mana cost", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 mana cost does not match authoritative object mana cost; expected 3 but got 4", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 exhausted state does not match authoritative object exhausted state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 exhausted state does not match authoritative object exhausted state; expected true but got false", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 attacking state does not match authoritative object attacking state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 attacking state does not match authoritative object attacking state; expected true but got false", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 defending state does not match authoritative object defending state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 defending state does not match authoritative object defending state; expected false but got true", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 tags do not match authoritative object tags", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 tags do not match authoritative object tags; expected [CARD_TYPE:UNIT] but got [CARD_TYPE:UNIT, 法盾]", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 until-end-of-turn effects do not match authoritative object until-end-of-turn effects", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object bob-visible-battlefield-1 until-end-of-turn effects do not match authoritative object until-end-of-turn effects; expected [EOT_POWER, EOT_STUN] but got [EOT_STUN, EOT_DRIFT]", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -51322,49 +51322,49 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 card number does not match authoritative object card number", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 card number does not match authoritative object card number; expected SFD-VISIBLE but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 owner id does not match authoritative object owner id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 owner id does not match authoritative object owner id; expected alice but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 controller id does not match authoritative object controller id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 controller id does not match authoritative object controller id; expected alice but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attached object id does not match authoritative object attached object id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attached object id does not match authoritative object attached object id; expected alice-parent-1 but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 damage does not match authoritative object damage", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 damage does not match authoritative object damage; expected 1 but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 power does not match authoritative object power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 power does not match authoritative object power; expected 6 but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 base power does not match authoritative object base power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 base power does not match authoritative object base power; expected 4 but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 effective power does not match authoritative object effective power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 effective power does not match authoritative object effective power; expected 6 but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn power modifier does not match authoritative object until-end-of-turn power modifier", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn power modifier does not match authoritative object until-end-of-turn power modifier; expected 2 but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 mana cost does not match authoritative object mana cost", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 mana cost does not match authoritative object mana cost; expected 3 but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 exhausted state does not match authoritative object exhausted state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 exhausted state does not match authoritative object exhausted state; expected true but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attacking state does not match authoritative object attacking state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attacking state does not match authoritative object attacking state; expected true but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 defending state does not match authoritative object defending state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 defending state does not match authoritative object defending state; expected false but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 tags do not match authoritative object tags", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 tags do not match authoritative object tags; expected [CARD_TYPE:UNIT, 待命] but got <unreadable>", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn effects do not match authoritative object until-end-of-turn effects", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn effects do not match authoritative object until-end-of-turn effects; expected [EOT_POWER, EOT_STUN] but got <unreadable>", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -51466,43 +51466,43 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 card number does not match authoritative object card number", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 card number does not match authoritative object card number; expected SFD-VISIBLE but got SFD-DRIFT", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 owner id does not match authoritative object owner id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 owner id does not match authoritative object owner id; expected alice but got bob", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 controller id does not match authoritative object controller id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 controller id does not match authoritative object controller id; expected alice but got bob", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attached object id does not match authoritative object attached object id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attached object id does not match authoritative object attached object id; expected alice-parent-1 but got alice-parent-drift", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 damage does not match authoritative object damage", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 damage does not match authoritative object damage; expected 1 but got 2", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 power does not match authoritative object power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 power does not match authoritative object power; expected 6 but got 7", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 base power does not match authoritative object base power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 base power does not match authoritative object base power; expected 4 but got 8", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 effective power does not match authoritative object effective power", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 effective power does not match authoritative object effective power; expected 6 but got 9", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn power modifier does not match authoritative object until-end-of-turn power modifier", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn power modifier does not match authoritative object until-end-of-turn power modifier; expected 2 but got 3", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 mana cost does not match authoritative object mana cost", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 mana cost does not match authoritative object mana cost; expected 3 but got 4", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 exhausted state does not match authoritative object exhausted state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 exhausted state does not match authoritative object exhausted state; expected true but got false", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attacking state does not match authoritative object attacking state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 attacking state does not match authoritative object attacking state; expected true but got false", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 defending state does not match authoritative object defending state", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 defending state does not match authoritative object defending state; expected false but got true", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -51588,10 +51588,10 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 tags do not match authoritative object tags", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 tags do not match authoritative object tags; expected [CARD_TYPE:UNIT, 待命] but got [CARD_TYPE:UNIT, 法盾]", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn effects do not match authoritative object until-end-of-turn effects", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot player alice object alice-visible-battlefield-1 until-end-of-turn effects do not match authoritative object until-end-of-turn effects; expected [EOT_POWER, EOT_STUN] but got [EOT_STUN, EOT_DRIFT]", StringComparison.Ordinal));
     }
 
     [Fact]
