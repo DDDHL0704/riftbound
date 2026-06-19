@@ -3,6 +3,7 @@ import { asArray, asRecord } from "../../utils/collections";
 import { errorCodeLabel, errorMessageLabel } from "../../utils/errors";
 import { redactInternalText } from "../../utils/redaction";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef, wireObjectRef, wireObjectRefs } from "./WireObjectRefChips";
+import type { WireTimelineDetail, WireTimelineDetailLine } from "./WireTimelineDetailPanel";
 
 export type LogDensity = "compact" | "standard" | "detailed";
 
@@ -164,6 +165,8 @@ export function EventLog({
   events,
   objectIndex = {},
   onInspectObject,
+  onSelectDetail,
+  selectedDetailId,
   selectedObjectId
 }: {
   density?: LogDensity;
@@ -171,6 +174,8 @@ export function EventLog({
   events: GameEvent[];
   objectIndex?: WireObjectIndex;
   onInspectObject?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
   selectedObjectId?: string;
 }) {
   const visibleEvents = density === "compact" ? events.slice(-12) : events;
@@ -190,20 +195,31 @@ export function EventLog({
         </article>
       ))}
       {events.length === 0 && errors.length === 0 && <span className="empty-hint">暂无服务端事件。</span>}
-      {visibleEvents.map((event, index) => (
-        <article className="log-row" key={`${event.kind}-${index}`}>
-          <strong>{eventKindLabel(event.kind)}</strong>
-          <span>{eventDescriptionLabel(event)}</span>
-          <WireObjectRefChips
-            className="log-object-refs"
-            objects={objectIndex}
-            onInspectObject={onInspectObject}
-            refs={eventObjectRefs(event, objectIndex)}
-            selectedObjectId={selectedObjectId}
-            source="event"
-          />
-        </article>
-      ))}
+      {visibleEvents.map((event, index) => {
+        const detail = eventDetail(event, index, objectIndex);
+        const refs = eventObjectRefs(event, objectIndex);
+        return (
+          <article className={selectedDetailId === detail.id ? "log-row is-detail-selected" : "log-row"} key={`${event.kind}-${index}`}>
+            <div className="log-row-heading">
+              <strong>{eventKindLabel(event.kind)}</strong>
+              {onSelectDetail && (
+                <button className="wire-detail-trigger" data-wire-detail-id={detail.id} onClick={() => onSelectDetail(detail)} type="button">
+                  详情
+                </button>
+              )}
+            </div>
+            <span>{eventDescriptionLabel(event)}</span>
+            <WireObjectRefChips
+              className="log-object-refs"
+              objects={objectIndex}
+              onInspectObject={onInspectObject}
+              refs={refs}
+              selectedObjectId={selectedObjectId}
+              source="event"
+            />
+          </article>
+        );
+      })}
     </section>
   );
 }
@@ -250,6 +266,31 @@ function eventObjectRefs(event: GameEvent, objects: WireObjectIndex): WireObject
     ?.map(serverObjectRef)
     .filter((ref): ref is WireObjectRef => Boolean(ref));
   return serverRefs?.length ? serverRefs : collectEventObjectRefs(event.payload, objects, 0);
+}
+
+function eventDetail(event: GameEvent, index: number, objects: WireObjectIndex): WireTimelineDetail {
+  const refs = eventObjectRefs(event, objects);
+  return {
+    id: `event:${event.kind}:${index}`,
+    lines: compactDetailLines([
+      line("类型", eventKindLabel(event.kind)),
+      line("描述", eventDescriptionLabel(event)),
+      line("对象", refs.length > 0 ? `${refs.length} 项` : "无"),
+      event.objectRefs?.length ? line("对象来源", "服务端摘要") : line("对象来源", "事件字段")
+    ]),
+    refs,
+    source: "event",
+    subtitle: eventDescriptionLabel(event),
+    title: eventKindLabel(event.kind)
+  };
+}
+
+function line(label: string, value: string): WireTimelineDetailLine {
+  return { label, value };
+}
+
+function compactDetailLines(lines: Array<WireTimelineDetailLine | undefined>): WireTimelineDetailLine[] {
+  return lines.filter((item): item is WireTimelineDetailLine => Boolean(item));
 }
 
 function serverObjectRef(ref: GameEventObjectRef): WireObjectRef | undefined {

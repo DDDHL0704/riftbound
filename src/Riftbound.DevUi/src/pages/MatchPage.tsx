@@ -8,6 +8,7 @@ import { EventLog } from "../components/match/EventLog";
 import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
+import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
 import {
   buildWireCardFlowPlan,
   WireCardFlow,
@@ -57,6 +58,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const [detailCard, setDetailCard] = useState<InspectedCard | undefined>();
   const [previewCard, setPreviewCard] = useState<InspectedCard | undefined>();
   const [selectionDraft, setSelectionDraft] = useState<CandidateSelectionDraft | undefined>();
+  const [timelineDetail, setTimelineDetail] = useState<WireTimelineDetail | undefined>();
   const previewDelayRef = useRef<number | undefined>(undefined);
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
   const tableSnapshot = useMemo(
@@ -211,6 +213,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     setSelectionDraft(undefined);
   }, [tablePrompt?.promptId, tablePrompt?.snapshotTick]);
 
+  useEffect(() => {
+    setTimelineDetail(undefined);
+  }, [tableSnapshot?.tick]);
+
   return (
     <div className="wire-match-page" style={wireMatchPageStyle()}>
       <header className="wire-topbar" aria-label="对战基础状态">
@@ -267,10 +273,21 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" tabIndex={0}>
             <WireRuleQueuePanel
               onInspectObject={inspectObjectFromTable}
+              onSelectDetail={setTimelineDetail}
               playerId={settings.playerId}
               prompt={tablePrompt}
+              selectedDetailId={timelineDetail?.id}
               selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
               snapshot={tableSnapshot}
+            />
+          </section>
+          <section aria-label="规则与事件详情区" className="wire-panel wire-timeline-detail-panel" tabIndex={0}>
+            <WireTimelineDetailPanel
+              detail={timelineDetail}
+              objectIndex={tableObjectIndex}
+              onClear={() => setTimelineDetail(undefined)}
+              onInspectObject={inspectObjectFromTable}
+              selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
             />
           </section>
           <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" tabIndex={0}>
@@ -293,6 +310,8 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 events={tableEvents}
                 objectIndex={tableObjectIndex}
                 onInspectObject={inspectObjectFromTable}
+                onSelectDetail={setTimelineDetail}
+                selectedDetailId={timelineDetail?.id}
                 selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
               />
             </ScrollArea>
