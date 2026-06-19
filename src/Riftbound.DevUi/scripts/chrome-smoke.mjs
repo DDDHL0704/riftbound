@@ -258,6 +258,16 @@ async function readBodyText(cdp) {
 async function runWireClickSelectionSmoke(cdp) {
   await clickObject(cdp, "p1-hand-spell");
   await delay(150);
+  const focusResult = await evaluateJson(cdp, `(() => {
+    const summary = document.querySelector(".wire-focused-action-summary");
+    return {
+      state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
+      text: summary?.textContent ?? "",
+      nextStep: document.querySelector("[data-wire-focused-next-step]")?.textContent ?? "",
+      candidatePlanCount: document.querySelectorAll(".wire-focused-candidate-plan li").length,
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
+    };
+  })()`);
   await clickObject(cdp, "p2-left-1");
   await delay(150);
   const targetResult = await evaluateJson(cdp, `(() => {
@@ -310,6 +320,12 @@ async function runWireClickSelectionSmoke(cdp) {
   })()`);
 
   const failures = [];
+  if (focusResult.state !== "server-candidate") failures.push("focused action summary did not use server candidate state");
+  if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
+  if (!focusResult.text.includes("可提交")) failures.push("focused action summary enabled count missing");
+  if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
+  if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
+  if (focusResult.detailLayerOpen) failures.push("focused action summary opened detail");
   if (targetResult.sourceSelected !== "true") failures.push("source focus was not preserved after target click");
   if (targetResult.sourceState !== "source") failures.push("source state missing after target click");
   if (targetResult.chosenTargetState !== "chosen") failures.push("clicked target not chosen");

@@ -11618,6 +11618,9 @@ button.card-face:hover {
 .wire-selected-candidates,
 .wire-focused-actions,
 .wire-focused-actions-heading,
+.wire-focused-action-summary,
+.wire-focused-action-metrics span,
+.wire-focused-candidate-plan li,
 .wire-selection-draft,
 .wire-focused-path,
 .wire-focused-path article,
@@ -11685,6 +11688,62 @@ button.card-face:hover {
   justify-content: space-between;
   gap: 6px;
   padding: 4px;
+}
+
+.wire-focused-action-summary {
+  display: grid;
+  gap: 5px;
+  padding: 5px;
+  font-size: 12px;
+}
+
+.wire-focused-action-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-focused-action-metrics span {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  min-width: 0;
+}
+
+.wire-focused-action-metrics small,
+.wire-focused-next-step,
+.wire-focused-blockers small,
+.wire-focused-candidate-plan small {
+  color: #000;
+}
+
+.wire-focused-next-step {
+  border: 1px solid #000;
+  padding: 4px;
+  font-weight: 700;
+}
+
+.wire-focused-blockers {
+  display: grid;
+  gap: 3px;
+}
+
+.wire-focused-candidate-plan {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-focused-candidate-plan li {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-focused-candidate-plan li.is-disabled {
+  border-style: dashed;
 }
 
 .wire-focused-actions .candidate-composer,
@@ -12171,6 +12230,10 @@ button.wire-object-ref {
 .wire-match-page .composer-choice,
 .wire-match-page .wire-interaction-panel,
 .wire-match-page .wire-selected-candidates,
+.wire-match-page .wire-focused-action-summary,
+.wire-match-page .wire-focused-action-metrics span,
+.wire-match-page .wire-focused-next-step,
+.wire-match-page .wire-focused-candidate-plan li,
 .wire-match-page .wire-prompt-candidates,
 .wire-match-page .wire-prompt-contract,
 .wire-match-page .wire-candidate-row,
