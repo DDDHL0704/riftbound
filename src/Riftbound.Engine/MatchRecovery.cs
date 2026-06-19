@@ -5122,7 +5122,7 @@ public static class MatchRecoveryValidator
                 && !string.Equals(status, "ACTIVE", StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"{taskLabel} status {status} does not match active spell duel status ACTIVE for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} status {status} does not match active spell duel status ACTIVE for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery("ACTIVE", status)}");
             }
 
             if (hasFocusPlayerId
@@ -5130,7 +5130,7 @@ public static class MatchRecoveryValidator
                 && !string.Equals(actingPlayerId, focusPlayerId, StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"{taskLabel} acting player id {actingPlayerId} does not match active spell duel focus player id {focusPlayerId} for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} acting player id {actingPlayerId} does not match active spell duel focus player id {focusPlayerId} for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery(focusPlayerId, actingPlayerId)}");
             }
 
             if (hasStackItemIds
@@ -5138,7 +5138,7 @@ public static class MatchRecoveryValidator
                 && !StringListsEqual(stackItemIds, spellDuelStackItemIds))
             {
                 errors.Add(
-                    $"{taskLabel} stack item ids disagree with active spell duel stack item ids for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} stack item ids disagree with active spell duel stack item ids for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery(spellDuelStackItemIds, stackItemIds)}");
             }
         }
     }
@@ -5188,7 +5188,7 @@ public static class MatchRecoveryValidator
                 && !string.Equals(status, "ACTIVE", StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"{taskLabel} status {status} does not match active battle status ACTIVE for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} status {status} does not match active battle status ACTIVE for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery("ACTIVE", status)}");
             }
 
             if (activePlayerId is not null
@@ -5196,14 +5196,14 @@ public static class MatchRecoveryValidator
                 && !string.Equals(actingPlayerId, activePlayerId, StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"{taskLabel} acting player id {actingPlayerId} does not match active battle active player id {activePlayerId} for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} acting player id {actingPlayerId} does not match active battle active player id {activePlayerId} for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery(activePlayerId, actingPlayerId)}");
             }
 
             if (TryReadObjectStringList(taskPayload, "stackItemIds", out var stackItemIds)
                 && stackItemIds.Count > 0)
             {
                 errors.Add(
-                    $"{taskLabel} stack item ids must be empty for active battle for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} stack item ids must be empty for active battle for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery(Array.Empty<string>(), stackItemIds)}");
             }
 
             if (hasBattleId
@@ -5211,7 +5211,7 @@ public static class MatchRecoveryValidator
                 && !string.Equals(taskBattleId, battleId, StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"{taskLabel} battle id {taskBattleId} does not match active battle id {battleId} for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} battle id {taskBattleId} does not match active battle id {battleId} for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery(battleId, taskBattleId)}");
             }
         }
     }
@@ -5259,21 +5259,21 @@ public static class MatchRecoveryValidator
                 && !string.Equals(status, "WAITING_FOR_SPELL_DUEL", StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"{taskLabel} status {status} does not match active spell duel waiting battle status WAITING_FOR_SPELL_DUEL for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} status {status} does not match active spell duel waiting battle status WAITING_FOR_SPELL_DUEL for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery("WAITING_FOR_SPELL_DUEL", status)}");
             }
 
             if (TryReadObjectOptionalString(taskPayload, "actingPlayerId", out var actingPlayerId)
                 && !string.IsNullOrEmpty(actingPlayerId))
             {
                 errors.Add(
-                    $"{taskLabel} acting player id {actingPlayerId} must be empty while waiting for active spell duel for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} acting player id {actingPlayerId} must be empty while waiting for active spell duel for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery(string.Empty, actingPlayerId)}");
             }
 
             if (TryReadObjectStringList(taskPayload, "stackItemIds", out var stackItemIds)
                 && stackItemIds.Count > 0)
             {
                 errors.Add(
-                    $"{taskLabel} stack item ids must be empty while waiting for active spell duel for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{taskLabel} stack item ids must be empty while waiting for active spell duel for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery(Array.Empty<string>(), stackItemIds)}");
             }
         }
     }

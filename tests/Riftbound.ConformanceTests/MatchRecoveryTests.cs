@@ -15480,17 +15480,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item status PENDING does not match active spell duel status ACTIVE for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item status PENDING does not match active spell duel status ACTIVE for battlefield object id battlefield-a; expected ACTIVE but got PENDING",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item acting player id bob does not match active spell duel focus player id alice for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item acting player id bob does not match active spell duel focus player id alice for battlefield object id battlefield-a; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item stack item ids disagree with active spell duel stack item ids for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item stack item ids disagree with active spell duel stack item ids for battlefield object id battlefield-a; expected [stack-spell-duel-a] but got []",
                 StringComparison.Ordinal));
 
         static Dictionary<string, object?> SnapshotObjectPayload(string objectId)
@@ -15647,17 +15647,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item status PENDING does not match active spell duel waiting battle status WAITING_FOR_SPELL_DUEL for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item status PENDING does not match active spell duel waiting battle status WAITING_FOR_SPELL_DUEL for battlefield object id battlefield-a; expected WAITING_FOR_SPELL_DUEL but got PENDING",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item acting player id bob must be empty while waiting for active spell duel for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item acting player id bob must be empty while waiting for active spell duel for battlefield object id battlefield-a; expected <empty> but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item stack item ids must be empty while waiting for active spell duel for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item stack item ids must be empty while waiting for active spell duel for battlefield object id battlefield-a; expected [] but got [stack-waiting-battle-a]",
                 StringComparison.Ordinal));
 
         static Dictionary<string, object?> SnapshotObjectPayload(string objectId)
@@ -15811,7 +15811,7 @@ public sealed class MatchRecoveryTests
                 ["participantObjectIds"] = new[] { "attacker-a", "defender-b" },
                 ["actingPlayerId"] = "bob",
                 ["stackItemIds"] = new[] { "stack-battle-a" },
-                ["battleId"] = "battle:battlefield-a"
+                ["battleId"] = "battle:wrong"
             }
         };
         var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
@@ -15833,17 +15833,22 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item status PENDING does not match active battle status ACTIVE for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item status PENDING does not match active battle status ACTIVE for battlefield object id battlefield-a; expected ACTIVE but got PENDING",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item acting player id bob does not match active battle active player id alice for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item acting player id bob does not match active battle active player id alice for battlefield object id battlefield-a; expected alice but got bob",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item stack item ids must be empty for active battle for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item stack item ids must be empty for active battle for battlefield object id battlefield-a; expected [] but got [stack-battle-a]",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "snapshot for alice timing battlefield task item battle id battle:wrong does not match active battle id battle:battlefield-a for battlefield object id battlefield-a; expected battle:battlefield-a but got battle:wrong",
                 StringComparison.Ordinal));
 
         static Dictionary<string, object?> SnapshotObjectPayload(
