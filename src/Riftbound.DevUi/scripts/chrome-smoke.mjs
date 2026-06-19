@@ -263,6 +263,7 @@ async function runWireClickSelectionSmoke(cdp) {
     return {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
       text: summary?.textContent ?? "",
+      contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
       nextStep: document.querySelector("[data-wire-focused-next-step]")?.textContent ?? "",
       candidatePlanCount: document.querySelectorAll(".wire-focused-candidate-plan li").length,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
@@ -340,6 +341,7 @@ async function runWireClickSelectionSmoke(cdp) {
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
+      contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       hasCandidateRefs: document.querySelectorAll("[data-candidate-object-ref]").length
     };
@@ -349,6 +351,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (focusResult.state !== "server-candidate") failures.push("focused action summary did not use server candidate state");
   if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
   if (!focusResult.text.includes("可提交")) failures.push("focused action summary enabled count missing");
+  if (!focusResult.contextText.includes("位置")) failures.push("object context position missing");
+  if (!focusResult.contextText.includes("我方手牌")) failures.push("object context did not locate hand source");
+  if (!focusResult.contextText.includes("近期事件")) failures.push("object context event section missing");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
   if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
   if (focusResult.detailLayerOpen) failures.push("focused action summary opened detail");
@@ -374,6 +379,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (candidateRefResult.hasCandidateRefs < 1) failures.push("candidate object refs missing");
   if (candidateRefResult.selected !== "true") failures.push("candidate object ref did not focus table object");
   if (!candidateRefResult.selectedRef) failures.push("candidate object ref did not show selected state");
+  if (!candidateRefResult.contextText.includes("右战场 / 对方单位")) failures.push("candidate object ref did not refresh object context");
   if (candidateRefResult.detailLayerOpen) failures.push("candidate object ref opened detail");
 
   if (failures.length > 0) {

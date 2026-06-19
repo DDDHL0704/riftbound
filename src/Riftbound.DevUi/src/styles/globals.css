@@ -11620,6 +11620,9 @@ button.card-face:hover {
 .wire-focused-actions-heading,
 .wire-focused-action-summary,
 .wire-focused-action-metrics span,
+.wire-object-context,
+.wire-object-context-grid span,
+.wire-object-event-list li,
 .wire-focused-candidate-plan li,
 .wire-selection-draft,
 .wire-focused-path,
@@ -11695,6 +11698,54 @@ button.card-face:hover {
   gap: 5px;
   padding: 5px;
   font-size: 12px;
+}
+
+.wire-object-context {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-object-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-object-context-grid span,
+.wire-object-event-list li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-object-context-grid small,
+.wire-object-context-line,
+.wire-object-event-list span {
+  color: #000;
+}
+
+.wire-object-context-grid strong,
+.wire-object-context-line,
+.wire-object-event-list strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-object-event-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-object-event-block {
+  display: grid;
+  gap: 3px;
 }
 
 .wire-focused-action-metrics {

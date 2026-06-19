@@ -37,6 +37,7 @@ import { connectionStatusLabel, matchPhaseLabel, timingStateLabel } from "../uti
 import type { CandidateSelectionDraft } from "../utils/candidateSelectionDraft";
 import { buildPromptInteractionModel, promptChoiceSummaryObjectIds, type PromptCandidateSummary, type PromptChoiceRole, type PromptChoiceSummary, type PromptObjectState } from "../utils/promptInteraction";
 import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
+import { buildTableObjectContextModel } from "../utils/tableObjectContext";
 
 type PlayerEntry = {
   id: string;
@@ -79,15 +80,23 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     [layoutFixtureEnabled, specByNo]
   );
   const tableObjectIndex = useMemo(() => buildCardObjectIndex(tableSnapshot), [tableSnapshot]);
+  const tableObjectContextModel = useMemo(() => buildTableObjectContextModel({
+    events: tableEvents,
+    perspectivePlayerId: settings.playerId,
+    prompt: tablePrompt,
+    snapshot: tableSnapshot
+  }), [settings.playerId, tableEvents, tablePrompt, tableSnapshot]);
   const promptInteraction = useMemo(() => buildPromptInteractionModel(tablePrompt), [tablePrompt]);
+  const selectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
+  const selectedObjectContext = selectedObjectId ? tableObjectContextModel.byId[selectedObjectId] : undefined;
   const focusedSourceCandidates = useMemo(
-    () => focusedCandidateSummaries(promptInteraction.candidates, inspectedCard?.objectId),
-    [inspectedCard?.objectId, promptInteraction.candidates]
+    () => focusedCandidateSummaries(promptInteraction.candidates, selectedObjectId),
+    [promptInteraction.candidates, selectedObjectId]
   );
   const tableInteraction = useMemo<WireTableInteraction>(() => ({
-    interactionByObjectId: buildWireInteractionMap(promptInteraction, focusedSourceCandidates, inspectedCard?.objectId, selectionDraft),
-    selectedObjectId: inspectedCard?.objectId
-  }), [focusedSourceCandidates, inspectedCard?.objectId, promptInteraction, selectionDraft]);
+    interactionByObjectId: buildWireInteractionMap(promptInteraction, focusedSourceCandidates, selectedObjectId, selectionDraft),
+    selectedObjectId
+  }), [focusedSourceCandidates, promptInteraction, selectedObjectId, selectionDraft]);
 
   const playerEntries = useMemo(() => buildPlayerEntries(tableSnapshot, settings.playerId), [tableSnapshot, settings.playerId]);
   const self = playerEntries.find((entry) => entry.side === "self");
@@ -257,7 +266,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               onInspectObject={inspectObjectFromTable}
               playerId={settings.playerId}
               prompt={tablePrompt}
-              selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
+              selectedObjectId={selectedObjectId}
               snapshot={tableSnapshot}
             />
           </section>
@@ -272,6 +281,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               }}
               onInspectObject={inspectObjectFromTable}
               onOpenDetail={setDetailCard}
+              objectContext={selectedObjectContext}
               playerId={settings.playerId}
               prompt={tablePrompt}
               selectionDraft={selectionDraft}
@@ -285,7 +295,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               playerId={settings.playerId}
               prompt={tablePrompt}
               selectedDetailId={timelineDetail?.id}
-              selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
+              selectedObjectId={selectedObjectId}
               snapshot={tableSnapshot}
             />
           </section>
@@ -295,7 +305,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               objectIndex={tableObjectIndex}
               onClear={() => setTimelineDetail(undefined)}
               onInspectObject={inspectObjectFromTable}
-              selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
+              selectedObjectId={selectedObjectId}
             />
           </section>
           <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" tabIndex={0}>
@@ -320,7 +330,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 onInspectObject={inspectObjectFromTable}
                 onSelectDetail={setTimelineDetail}
                 selectedDetailId={timelineDetail?.id}
-                selectedObjectId={inspectedCard?.objectId ?? inspectedCard?.object?.objectId}
+                selectedObjectId={selectedObjectId}
               />
             </ScrollArea>
           </section>
