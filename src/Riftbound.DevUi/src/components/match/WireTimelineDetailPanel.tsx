@@ -43,15 +43,17 @@ export function WireTimelineDetailPanel({
     selectedObjectId
   });
 
+  const detailState = detail?.source ?? (selectedObjectContext ? "object" : "empty");
+
   return (
-    <section className="wire-timeline-detail" aria-label="规则与事件详情">
+    <section className="wire-timeline-detail" aria-label="规则与事件详情" data-wire-timeline-detail-state={detailState}>
       <header className="wire-timeline-detail-header">
         <div>
           <strong>{plan.headerTitle}</strong>
           <span>{plan.headerSubtitle}</span>
         </div>
         {detail && (
-          <button className="wire-detail-clear" onClick={onClear} type="button">
+          <button aria-controls="wire-timeline-detail-body" className="wire-detail-clear" onClick={onClear} type="button">
             清除
           </button>
         )}
@@ -64,69 +66,71 @@ export function WireTimelineDetailPanel({
           </span>
         ))}
       </div>
-      {detail ? (
-        <>
-          <div className="wire-timeline-detail-lines">
-            {detail.lines.map((line) => (
-              <span className={line.mine ? "wire-timeline-detail-line is-mine" : "wire-timeline-detail-line"} key={`${line.label}-${line.value}`}>
-                <span>{line.label}</span>
-                <strong>{line.value || "无"}</strong>
-              </span>
-            ))}
-          </div>
-          {plan.projectionRows.length > 0 && (
-            <ol className="wire-timeline-projection-list" aria-label="详情对象桌面投影">
-              {plan.projectionRows.map((row) => (
-                <li data-projection-state={row.state} key={row.key}>
-                  <span>{row.role}</span>
-                  <strong>{row.label}</strong>
-                  <small>{row.stateLabel}</small>
-                </li>
+      <div className="wire-timeline-detail-body" id="wire-timeline-detail-body">
+        {detail ? (
+          <>
+            <div className="wire-timeline-detail-lines">
+              {detail.lines.map((line) => (
+                <span className={line.mine ? "wire-timeline-detail-line is-mine" : "wire-timeline-detail-line"} key={`${line.label}-${line.value}`}>
+                  <span>{line.label}</span>
+                  <strong>{line.value || "无"}</strong>
+                </span>
               ))}
-            </ol>
-          )}
-          {plan.actionHintRows.length > 0 && (
-            <ol className="wire-timeline-action-hint-list" aria-label="详情对象服务端候选">
-              {plan.actionHintRows.map((row) => (
-                <li data-action-object-id={row.objectId} key={row.key}>
-                  <span>{row.role}</span>
-                  <strong>{row.label}</strong>
-                  <small>{row.stateLabel}</small>
-                  <small>{row.zoneLabel}</small>
-                  <small>{row.commandTypes.length > 0 ? row.commandTypes.join(" / ") : "服务端候选"}</small>
-                  {row.reasonLabels.length > 0 && <small>{row.reasonLabels.slice(0, 2).join(" / ")}</small>}
-                </li>
-              ))}
-            </ol>
-          )}
-          <WireObjectRefChips
-            objects={objectIndex}
-            onInspectObject={onInspectObject}
-            refs={detail.refs}
-            selectedObjectId={selectedObjectId}
-            source={detail.source}
-          />
-          {selectedObjectContext && (
-            <ObjectContextDetail
-              context={selectedObjectContext}
-              objectIndex={objectIndex}
+            </div>
+            {plan.projectionRows.length > 0 && (
+              <ol className="wire-timeline-projection-list" aria-label="详情对象桌面投影">
+                {plan.projectionRows.map((row) => (
+                  <li data-projection-state={row.state} key={row.key}>
+                    <span>{row.role}</span>
+                    <strong>{row.label}</strong>
+                    <small>{row.stateLabel}</small>
+                  </li>
+                ))}
+              </ol>
+            )}
+            {plan.actionHintRows.length > 0 && (
+              <ol className="wire-timeline-action-hint-list" aria-label="详情对象服务端候选">
+                {plan.actionHintRows.map((row) => (
+                  <li data-action-object-id={row.objectId} key={row.key}>
+                    <span>{row.role}</span>
+                    <strong>{row.label}</strong>
+                    <small>{row.stateLabel}</small>
+                    <small>{row.zoneLabel}</small>
+                    <small>{row.commandTypes.length > 0 ? row.commandTypes.join(" / ") : "服务端候选"}</small>
+                    {row.reasonLabels.length > 0 && <small>{row.reasonLabels.slice(0, 2).join(" / ")}</small>}
+                  </li>
+                ))}
+              </ol>
+            )}
+            <WireObjectRefChips
+              objects={objectIndex}
               onInspectObject={onInspectObject}
+              refs={detail.refs}
               selectedObjectId={selectedObjectId}
-              title="当前桌面焦点"
+              source={detail.source}
             />
-          )}
-        </>
-      ) : selectedObjectContext ? (
-        <ObjectContextDetail
-          context={selectedObjectContext}
-          objectIndex={objectIndex}
-          onInspectObject={onInspectObject}
-          selectedObjectId={selectedObjectId}
-          title="焦点对象"
-        />
-      ) : (
-        <span className="empty-hint">暂无焦点事件。</span>
-      )}
+            {selectedObjectContext && (
+              <ObjectContextDetail
+                context={selectedObjectContext}
+                objectIndex={objectIndex}
+                onInspectObject={onInspectObject}
+                selectedObjectId={selectedObjectId}
+                title="当前桌面焦点"
+              />
+            )}
+          </>
+        ) : selectedObjectContext ? (
+          <ObjectContextDetail
+            context={selectedObjectContext}
+            objectIndex={objectIndex}
+            onInspectObject={onInspectObject}
+            selectedObjectId={selectedObjectId}
+            title="焦点对象"
+          />
+        ) : (
+          <span className="empty-hint">暂无焦点事件。</span>
+        )}
+      </div>
     </section>
   );
 }

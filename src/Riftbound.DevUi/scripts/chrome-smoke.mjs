@@ -581,11 +581,19 @@ async function runWireRuleObjectRefSmoke(cdp) {
   await delay(150);
   const ruleDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
+    const trigger = document.querySelector('[data-wire-detail-id="rule:stack:fixture-stack-1"]');
     const selectedRow = document.querySelector(".wire-rule-item.is-detail-selected");
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     return {
       text: panel?.textContent ?? "",
+      panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
+      bodyId: panel?.querySelector("#wire-timeline-detail-body")?.id ?? "",
+      triggerAriaPressed: trigger?.getAttribute("aria-pressed") ?? null,
+      triggerControls: trigger?.getAttribute("aria-controls") ?? "",
+      triggerLabel: trigger?.getAttribute("aria-label") ?? "",
+      triggerSelected: trigger?.getAttribute("data-detail-selected") ?? null,
+      triggerSource: trigger?.getAttribute("data-wire-detail-source") ?? null,
       selectedRow: Boolean(selectedRow),
       hasSourceRef: Boolean(panel?.querySelector('[data-rule-object-ref="p1-hand-spell"]')),
       hasTargetRef: Boolean(panel?.querySelector('[data-rule-object-ref="p2-right-1"]')),
@@ -607,11 +615,18 @@ async function runWireRuleObjectRefSmoke(cdp) {
   await delay(150);
   const eventDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
+    const trigger = document.querySelector('[data-wire-detail-id="event:STACK_ITEM_ADDED:0"]');
     const selectedRow = document.querySelector(".log-row.is-detail-selected");
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     return {
       text: panel?.textContent ?? "",
+      panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
+      triggerAriaPressed: trigger?.getAttribute("aria-pressed") ?? null,
+      triggerControls: trigger?.getAttribute("aria-controls") ?? "",
+      triggerLabel: trigger?.getAttribute("aria-label") ?? "",
+      triggerSelected: trigger?.getAttribute("data-detail-selected") ?? null,
+      triggerSource: trigger?.getAttribute("data-wire-detail-source") ?? null,
       selectedRow: Boolean(selectedRow),
       hasSourceRef: Boolean(panel?.querySelector('[data-event-object-ref="p1-hand-spell"]')),
       hasTargetRef: Boolean(panel?.querySelector('[data-event-object-ref="p2-right-1"]')),
@@ -626,6 +641,19 @@ async function runWireRuleObjectRefSmoke(cdp) {
       sourcePromptState: sourceObject?.getAttribute("data-prompt-state") ?? null,
       targetPromptState: targetObject?.getAttribute("data-prompt-state") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
+    };
+  })()`);
+
+  await clickDetailClear(cdp);
+  await delay(100);
+  const detailClearResult = await evaluateJson(cdp, `(() => {
+    const panel = document.querySelector(".wire-timeline-detail");
+    return {
+      clearButton: Boolean(document.querySelector(".wire-detail-clear")),
+      panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
+      selectedDetailCount: document.querySelectorAll('[data-detail-selected="true"]').length,
+      selectedRowCount: document.querySelectorAll(".is-detail-selected").length,
+      text: panel?.textContent ?? ""
     };
   })()`);
 
@@ -644,6 +672,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventResult.selectedRef) failures.push("event ref did not show selected state");
   if (eventResult.detailLayerOpen) failures.push("event ref opened detail layer");
   if (!ruleDetailResult.text.includes("结算链项目")) failures.push("rule detail title missing");
+  if (ruleDetailResult.panelState !== "rule") failures.push(`rule detail panel state unexpected: ${ruleDetailResult.panelState}`);
+  if (ruleDetailResult.bodyId !== "wire-timeline-detail-body") failures.push("rule detail body id missing");
+  if (ruleDetailResult.triggerAriaPressed !== "true") failures.push("rule detail trigger aria-pressed missing");
+  if (ruleDetailResult.triggerControls !== "wire-timeline-detail-body") failures.push("rule detail trigger aria-controls missing");
+  if (!ruleDetailResult.triggerLabel.includes("结算链项目")) failures.push("rule detail trigger accessible label missing");
+  if (ruleDetailResult.triggerSelected !== "true") failures.push("rule detail trigger selected state missing");
+  if (ruleDetailResult.triggerSource !== "rule") failures.push("rule detail trigger source missing");
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
   if (!ruleDetailResult.hasTargetRef) failures.push("rule detail target ref missing");
@@ -661,6 +696,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.selectedRow) failures.push("rule detail selected row missing");
   if (ruleDetailResult.detailLayerOpen) failures.push("rule detail opened card detail layer");
   if (!eventDetailResult.text.includes("加入结算链")) failures.push("event detail title missing");
+  if (eventDetailResult.panelState !== "event") failures.push(`event detail panel state unexpected: ${eventDetailResult.panelState}`);
+  if (eventDetailResult.triggerAriaPressed !== "true") failures.push("event detail trigger aria-pressed missing");
+  if (eventDetailResult.triggerControls !== "wire-timeline-detail-body") failures.push("event detail trigger aria-controls missing");
+  if (!eventDetailResult.triggerLabel.includes("加入结算链")) failures.push("event detail trigger accessible label missing");
+  if (eventDetailResult.triggerSelected !== "true") failures.push("event detail trigger selected state missing");
+  if (eventDetailResult.triggerSource !== "event") failures.push("event detail trigger source missing");
   if (!eventDetailResult.text.includes("服务端摘要")) failures.push("event detail did not use server object refs");
   if (!eventDetailResult.hasSourceRef) failures.push("event detail source ref missing");
   if (!eventDetailResult.hasTargetRef) failures.push("event detail target ref missing");
@@ -674,6 +715,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (eventDetailResult.targetState !== "event") failures.push("event detail did not project target to table");
   if (!eventDetailResult.selectedRow) failures.push("event detail selected row missing");
   if (eventDetailResult.detailLayerOpen) failures.push("event detail opened card detail layer");
+  if (detailClearResult.clearButton) failures.push("detail clear button remained after clearing");
+  if (detailClearResult.panelState !== "object") failures.push(`detail clear did not return to selected object context: ${detailClearResult.panelState}`);
+  if (detailClearResult.selectedDetailCount !== 0) failures.push("detail clear left selected detail trigger");
+  if (detailClearResult.selectedRowCount !== 0) failures.push("detail clear left selected detail row");
+  if (!detailClearResult.text.includes("焦点对象")) failures.push("detail clear did not keep selected object context");
 
   if (failures.length > 0) {
     throw new Error(`Wire rule object ref smoke failed:\n${failures.join("\n")}`);
@@ -814,6 +860,21 @@ async function clickWireDetail(cdp, detailId) {
   });
   if (!result.result?.value) {
     throw new Error(`Wire detail trigger not found: ${detailId}`);
+  }
+}
+
+async function clickDetailClear(cdp) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(".wire-detail-clear");
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error("Wire timeline detail clear button not found");
   }
 }
 

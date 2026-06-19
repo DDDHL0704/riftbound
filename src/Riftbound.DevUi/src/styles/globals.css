@@ -12797,6 +12797,11 @@ button.card-face:hover {
   gap: 2px;
 }
 
+.wire-timeline-detail-body {
+  display: grid;
+  gap: 5px;
+}
+
 .wire-timeline-detail-lines {
   display: grid;
   gap: 3px;
