@@ -8,7 +8,7 @@ Canonical board path: `/Users/dinghaolin/IdeaProjects/riftbound/docs/CURRENT_STA
 
 Project status remains **NOT READY**. Do not claim final readiness from this board.
 
-Current A_MAIN latest accepted state: Stage 4D-223DL trigger-queue source-card diagnostic detail accepted on local `main` as code commit `a9487928`; docs checkpoint follows in this commit. Runtime changed: yes, diagnostic detail only in `MatchRecoveryValidator`. Frontend changed: no. TriggerQueue source-card mismatch checks now route through a shared helper, preserving existing prefixes while appending stable expected/actual detail. Validation passed: `dotnet build src/Riftbound.Engine/Riftbound.Engine.csproj --no-restore`; focused `MatchRecoveryTests` triggerQueue filter `744/744`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`; `git diff --check`; anchored conflict-marker scan had no findings; residual source-card diagnostic search found no matching triggerQueue card-no test assertion without expected/actual detail. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` remained clean; after code commit `a9487928`, `main...codex/ui-followup-20260616` divergence was `269 0`; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` had no commits ahead of `main`; after code commit `a9487928`, divergence was `342 0`; root PDF text remained available. Project remains **NOT READY**.
+Current A_MAIN latest accepted state: Stage 4D-223DM trigger-queue source-object diagnostic detail accepted on local `main` as code commit `b1447fce`; docs checkpoint follows in this commit. Runtime changed: yes, diagnostic detail only in `MatchRecoveryValidator`. Frontend changed: no. TriggerQueue source-object mismatch checks for Kogmaw Last Breath, OGS Lux high-cost spell, standard Last Breath and friendly-destroyed triggers now preserve existing prefixes while appending stable expected/actual detail. Validation passed: `dotnet build src/Riftbound.Engine/Riftbound.Engine.csproj --no-restore`; focused `MatchRecoveryTests` triggerQueue filter `744/744`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`; `git diff --check`; anchored conflict-marker scan had no findings; residual source-object mismatch assertion search found no matching triggerQueue source-object-before diagnostic assertion without expected/actual detail. A_MAIN owns the main bundle at `/Users/dinghaolin/IdeaProjects/riftbound` and is continuing directly on local `main` per user request. External UI followup worktree `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616` on `codex/ui-followup-20260616` remained clean; after code commit `b1447fce`, `main...codex/ui-followup-20260616` divergence was `271 0`; exact divergence must be rechecked before integration. A_MAIN must inspect it before integrating UI followup changes and must not develop directly there. `codex/rule-audit-remaining-20260615` had no commits ahead of `main`; after code commit `b1447fce`, divergence was `344 0`; root PDF text remained available. Project remains **NOT READY**.
 
 Current rolling decision: `A_MAIN` integrated DOC_MATRIX_CURRENT source `7cb78f27` plus handoff `17bde0c3` into main after Stage 4D-17FU, preserving newer A_MAIN runtime/coordination entries. Validation passed on main: `jq empty docs/CURRENT_CARD_EFFECT_COVERAGE_MATRIX_SKELETON.json`, `git diff --check`, conflict-marker scan over `docs`/`tests`/`src`, `PaymentEngineCoverageAuditTests` `697/697`, `PaymentEngineCoverageAuditTests|ConformanceFixtureRunnerTests` `3735/3735`, backend full `6141/6141`. Project remains **NOT READY**.
 
@@ -65,11 +65,27 @@ Use this file as a lightweight message board:
 
 ## Current Worktrees
 
-- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223DL code commit is `a9487928`; docs checkpoint follows in this commit. A_MAIN will continue directly on this `main` worktree per user request.
-- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 15:08 CST; after code commit `a9487928`, `main...codex/ui-followup-20260616` divergence was `269 0`. Exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
+- `A_MAIN_ACTIVE_MAIN`: `/Users/dinghaolin/IdeaProjects/riftbound`, branch `main`; latest Stage 4D-223DM code commit is `b1447fce`; docs checkpoint follows in this commit. A_MAIN will continue directly on this `main` worktree per user request.
+- `UI_FOLLOWUP_EXTERNAL`: `/Users/dinghaolin/MyProjects/riftbound-codex-ui-followup-20260616`, branch `codex/ui-followup-20260616`, last observed clean on 2026-06-19 15:28 CST; after code commit `b1447fce`, `main...codex/ui-followup-20260616` divergence was `271 0`. Exact divergence must be rechecked before integration. A_MAIN must inspect this worktree before integrating UI followup changes and must not develop directly there.
 - Historical DOC_MATRIX handoff `17bde0c3` and source `7cb78f27` have already been integrated into `main`; no current DOC_MATRIX worktree is active unless the user opens one explicitly.
 
 ## Current Entries
+
+### 2026-06-19 15:28 A_MAIN
+
+Owner: `A_MAIN`
+
+Worktree: `/Users/dinghaolin/IdeaProjects/riftbound`
+
+Branch / commit: `main` at code commit `b1447fce`; docs checkpoint follows.
+
+Write locks: A_MAIN touched `src/Riftbound.Engine/MatchRecovery.cs`, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs`, current completion/P0-P1/dispatch docs, this board, and `docs/CURRENT_STAGE4D_223DM_TRIGGER_QUEUE_SOURCE_OBJECT_CONTEXT_DETAILS_AUDIT.md`.
+
+Status: 223DM triggerQueue source-object diagnostic detail shard accepted. Runtime changed: yes, diagnostic detail only. Frontend changed: no. External UI followup worktree remained clean; after code commit `b1447fce`, `main...codex/ui-followup-20260616` divergence was `271 0`; `codex/rule-audit-remaining-20260615` remained no-ahead with divergence `344 0`; exact divergence must be rechecked before integration.
+
+Validation: `dotnet build src/Riftbound.Engine/Riftbound.Engine.csproj --no-restore`; focused MatchRecoveryTests triggerQueue filter `744/744`; changed-class `MatchRecoveryTests` `1976/1976`; adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter `3569/3569`; backend full `8312/8312`; `git diff --check`; anchored conflict-marker scan; residual source-object mismatch assertion search.
+
+Requested action: none. Next A_MAIN slice should continue directly on `/Users/dinghaolin/IdeaProjects/riftbound` `main`, rechecking this board, `AGENTS.md`, PDF gate, UI followup, and `codex/rule-audit-remaining-20260615` first.
 
 ### 2026-06-19 15:08 A_MAIN
 
