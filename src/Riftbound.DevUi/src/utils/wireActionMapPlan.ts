@@ -67,6 +67,33 @@ export type WireActionCandidatePlan = Omit<CandidateInteractionPlan, "nextRequir
   stepRows: WireActionCandidateStepPlan[];
 };
 
+export type WireActionRouteState = "blocked" | "incomplete" | "ready";
+
+export type WireActionRouteStepPlan = {
+  key: string;
+  label: string;
+  required: boolean;
+  role: PromptChoiceRole;
+  selectedCount: number;
+  state: "open" | "selected";
+  stateLabel: string;
+  totalCount: number;
+};
+
+export type WireActionRoutePlan = {
+  candidateLabel: string;
+  commandType?: string;
+  enabled: boolean;
+  key: string;
+  missingRequiredSelectionCount: number;
+  nextStepLabel: string;
+  selectedStepCount: number;
+  state: WireActionRouteState;
+  stateLabel: string;
+  steps: WireActionRouteStepPlan[];
+  summary: string;
+};
+
 export type WireActionFocusPlan = {
   candidateCount: number;
   disabledCandidateCount: number;
@@ -147,6 +174,7 @@ export type WireActionMapPlan = {
   metrics: WireActionMapMetric[];
   objectEntries: WireActionObjectEntry[];
   objectEntryOverflowCount: number;
+  route?: WireActionRoutePlan;
 };
 
 type BuildWireActionMapPlanOptions = {
@@ -222,7 +250,8 @@ export function buildWireActionMapPlan({
     objectEntries: knownEnabledObjects
       .slice(0, objectLimit)
       .map((objectId) => objectEntryPlan(objectId, objects, model, selectedObjectId)),
-    objectEntryOverflowCount: Math.max(knownEnabledObjects.length - objectLimit, 0)
+    objectEntryOverflowCount: Math.max(knownEnabledObjects.length - objectLimit, 0),
+    route: wireActionRoutePlan(candidatePlans)
   };
 }
 
@@ -347,6 +376,59 @@ function choiceMatchesSelection(choice: PromptCandidateSummary["choices"][number
   }
 
   return choice.id === selectedId || promptChoiceSummaryObjectIds(choice).includes(selectedId);
+}
+
+function wireActionRoutePlan(candidatePlans: WireActionCandidatePlan[]): WireActionRoutePlan | undefined {
+  const candidatePlan = candidatePlans.find((candidate) => candidate.draftActive);
+  if (!candidatePlan) {
+    return undefined;
+  }
+
+  const missingRequiredSelectionCount = candidatePlan.stepRows.filter((step) => step.required && step.selectedCount <= 0).length;
+  const selectedStepCount = candidatePlan.stepRows.filter((step) => step.selectedCount > 0).length;
+  const nextStep = candidatePlan.stepRows.find((step) => step.required && step.selectedCount <= 0)
+    ?? candidatePlan.stepRows.find((step) => !step.required && step.count > 0 && step.selectedCount <= 0);
+  const state: WireActionRouteState = !candidatePlan.enabled
+    ? "blocked"
+    : missingRequiredSelectionCount > 0
+      ? "incomplete"
+      : "ready";
+  const stateLabel = routeStateLabel(state);
+  const nextStepLabel = nextStep ? `继续选择${nextStep.label}` : "可送服务端校验";
+
+  return {
+    candidateLabel: candidatePlan.candidateLabel,
+    commandType: candidatePlan.commandType,
+    enabled: candidatePlan.enabled,
+    key: candidatePlan.key,
+    missingRequiredSelectionCount,
+    nextStepLabel,
+    selectedStepCount,
+    state,
+    stateLabel,
+    steps: candidatePlan.stepRows.map((step) => ({
+      key: step.key,
+      label: step.label,
+      required: step.required,
+      role: step.role,
+      selectedCount: step.selectedCount,
+      state: step.selectedCount > 0 ? "selected" : "open",
+      stateLabel: step.selectedCount > 0 ? "已选" : step.required ? "待选" : "可选",
+      totalCount: step.count
+    })),
+    summary: `${candidatePlan.candidateLabel} / ${stateLabel} / ${nextStepLabel}`
+  };
+}
+
+function routeStateLabel(state: WireActionRouteState): string {
+  switch (state) {
+    case "blocked":
+      return "服务端阻断";
+    case "incomplete":
+      return "缺少必需选择";
+    case "ready":
+      return "可送服务端校验";
+  }
 }
 
 function focusCandidatePlan(

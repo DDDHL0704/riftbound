@@ -537,6 +537,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const ruleQueue = document.querySelector(".wire-rule-queue");
     const ruleFlow = document.querySelector(".wire-rule-flow");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
+    const route = document.querySelector(".wire-action-route-strip");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
@@ -562,6 +563,8 @@ async function runWireClickSelectionSmoke(cdp) {
       priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null,
       ruleFlowText: ruleFlow?.textContent ?? "",
       ruleLaneCount: document.querySelectorAll("[data-rule-lane]").length,
+      routeState: route?.getAttribute("data-action-route-state") ?? null,
+      routeText: route?.textContent ?? "",
       ruleQueueState: ruleQueue?.getAttribute("data-wire-rule-queue-state") ?? null,
       ruleSequenceCount: document.querySelectorAll("[data-rule-sequence-lane]").length
     };
@@ -584,16 +587,21 @@ async function runWireClickSelectionSmoke(cdp) {
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
+    const route = document.querySelector(".wire-action-route-strip");
     const sourceStep = candidatePlan?.querySelector('[data-step-role="source"]');
     const targetStep = candidatePlan?.querySelector('[data-step-role="target"]');
+    const targetRouteStep = route?.querySelector('[data-route-step-role="target"]');
     return {
       candidateDraftActive: candidatePlan?.getAttribute("data-candidate-plan-draft-active") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
+      routeState: route?.getAttribute("data-action-route-state") ?? null,
+      routeText: route?.textContent ?? "",
       sourceSelected: sourceObject?.getAttribute("data-selected") ?? null,
       sourceStepProgress: sourceStep?.getAttribute("data-step-progress") ?? null,
       sourceStepProgressText: sourceStep?.querySelector("[data-step-progress-label]")?.textContent ?? "",
+      targetRouteStepState: targetRouteStep?.getAttribute("data-route-step-state") ?? null,
       targetStepProgress: targetStep?.getAttribute("data-step-progress") ?? null,
       targetStepProgressText: targetStep?.querySelector("[data-step-progress-label]")?.textContent ?? "",
       targetState: targetObject?.getAttribute("data-prompt-state") ?? null
@@ -760,6 +768,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");
   if (!actionMapResult.candidatePlanText.includes("缺口 0")) failures.push("PLAY_CARD candidate plan gap summary missing");
   if (!actionMapResult.candidatePlanNext.includes("下一步")) failures.push("PLAY_CARD candidate plan next-step missing");
+  if (actionMapResult.routeState !== "ready") failures.push(`action route strip source-focus state unexpected: ${actionMapResult.routeState}`);
+  if (!actionMapResult.routeText.includes("打出手牌")) failures.push("action route strip source-focus candidate missing");
+  if (!actionMapResult.routeText.includes("可送服务端校验")) failures.push("action route strip source-focus ready copy missing");
   if (actionMapResult.candidateStepRefCount < 1) failures.push("action map candidate step object refs missing");
   if (!actionMapResult.candidateStepRefText.includes("手牌法术")) failures.push("action map candidate source object ref missing");
   if (actionCandidateStepResult.selected !== "true") failures.push("action candidate step ref did not focus source object");
@@ -770,6 +781,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionFocusChoiceResult.sourceSelected !== "true") failures.push("action focus choice did not preserve source focus");
   if (actionFocusChoiceResult.targetState !== "chosen") failures.push("action focus choice did not mark target chosen");
   if (actionFocusChoiceResult.candidateDraftActive !== "true") failures.push("action focus choice did not activate candidate plan draft");
+  if (actionFocusChoiceResult.routeState !== "ready") failures.push(`action focus choice route state unexpected: ${actionFocusChoiceResult.routeState}`);
+  if (!actionFocusChoiceResult.routeText.includes("可送服务端校验")) failures.push("action focus choice route ready copy missing");
+  if (actionFocusChoiceResult.targetRouteStepState !== "selected") failures.push("action focus choice route target step missing selected state");
   if (actionFocusChoiceResult.sourceStepProgress !== "selected") failures.push("action focus choice did not mark source step selected");
   if (actionFocusChoiceResult.targetStepProgress !== "selected") failures.push("action focus choice did not mark target step selected");
   if (!actionFocusChoiceResult.targetStepProgressText.includes("已选 1")) failures.push("action focus choice target step progress text missing");

@@ -142,6 +142,7 @@ assert.equal(plan.candidatePlans[0].action, "PLAY_CARD");
 assert.equal(plan.candidatePlans[0].draftActive, false);
 assert.equal(plan.candidatePlans[0].stepRows[0].selectionState, "inactive");
 assert.equal(plan.candidatePlans[0].stepRows[0].progressLabel, "未进入当前草稿");
+assert.equal(plan.route, undefined);
 assert.deepEqual(plan.candidatePlans[0].stepRows[0].objectRefs, [{
   key: "PLAY_CARD:source:p1-hand-1:p1-hand-1",
   label: "手牌法术",
@@ -186,6 +187,12 @@ assert.deepEqual(draftSourceStep.selectedLabels, ["手牌法术"]);
 assert.equal(draftTargetStep.selectionState, "selected");
 assert.equal(draftTargetStep.selectedCount, 1);
 assert.deepEqual(draftTargetStep.selectedLabels, ["敌方单位"]);
+assert.equal(draftPlan.route.candidateLabel, "打出手牌");
+assert.equal(draftPlan.route.state, "ready");
+assert.equal(draftPlan.route.selectedStepCount, 2);
+assert.equal(draftPlan.route.missingRequiredSelectionCount, 0);
+assert.equal(draftPlan.route.steps.find((step) => step.role === "source").state, "selected");
+assert.equal(draftPlan.route.steps.find((step) => step.role === "target").state, "selected");
 assert.equal(draftPlan.candidatePlans.find((candidate) => candidate.action === "ACTIVATE_ABILITY").draftActive, false);
 
 const readOnlyPlan = buildWireActionMapPlan({

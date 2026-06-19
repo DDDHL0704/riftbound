@@ -5,7 +5,8 @@ import {
   type WireActionContractPlan,
   type WireActionGrammarCandidatePlan,
   type WireActionMapMetric,
-  type WireActionMapPlan
+  type WireActionMapPlan,
+  type WireActionRoutePlan
 } from "../../utils/wireActionMapPlan";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -45,6 +46,7 @@ export function WireActionMapPanel({
       </div>
 
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
+      <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
         {plan.objectEntries.length === 0 && <span className="empty-hint">当前没有服务端标记为可操作的场上对象。</span>}
@@ -127,6 +129,36 @@ export function WireActionMapPanel({
         ))}
       </div>
     </section>
+  );
+}
+
+function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
+  if (!route) {
+    return (
+      <div className="wire-action-route-strip" data-action-route-state="empty" role="group" aria-label="当前候选路径">
+        <strong>当前路径</strong>
+        <span>点击服务端候选对象后显示选择路线。</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="wire-action-route-strip" data-action-route-state={route.state} role="group" aria-label="当前候选路径">
+      <div className="wire-action-route-heading">
+        <strong>{route.candidateLabel}</strong>
+        <span>{route.stateLabel}</span>
+      </div>
+      <small>{route.commandType ?? "未公开命令"} / 已选步骤 {route.selectedStepCount} / 缺少 {route.missingRequiredSelectionCount} / {route.nextStepLabel}</small>
+      <ol>
+        {route.steps.map((step) => (
+          <li data-route-step-role={step.role} data-route-step-state={step.state} key={step.key}>
+            <span>{step.label}</span>
+            <strong>{step.stateLabel}</strong>
+            <small>{step.required ? "必需" : "可选"} / 候选 {step.totalCount} / 已选 {step.selectedCount}</small>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 

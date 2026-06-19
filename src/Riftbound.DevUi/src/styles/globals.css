@@ -11706,6 +11706,8 @@ button.card-face:hover {
 .wire-action-map,
 .wire-action-map-header,
 .wire-action-map-metrics,
+.wire-action-route-strip,
+.wire-action-route-strip li,
 .wire-action-entry-strip,
 .wire-action-object-chip,
 .wire-action-group,
@@ -12337,11 +12339,53 @@ button.card-face:hover {
 .wire-action-contract-strip span,
 .wire-action-contract-strip small,
 .wire-action-contract-strip b,
-.wire-action-contract-strip strong {
+.wire-action-contract-strip strong,
+.wire-action-route-strip span,
+.wire-action-route-strip small,
+.wire-action-route-strip strong {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-action-route-strip {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-action-route-strip[data-action-route-state="ready"],
+.wire-action-route-strip li[data-route-step-state="selected"] {
+  border-width: 2px;
+}
+
+.wire-action-route-strip[data-action-route-state="blocked"] {
+  border-style: dashed;
+}
+
+.wire-action-route-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-action-route-strip ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-action-route-strip li {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 3px;
 }
 
 .wire-action-map-metric strong,
@@ -13190,6 +13234,8 @@ button.wire-object-ref {
 .wire-match-page .wire-action-contract-strip,
 .wire-match-page .wire-action-contract-strip > div,
 .wire-match-page .wire-action-contract-strip > span,
+.wire-match-page .wire-action-route-strip,
+.wire-match-page .wire-action-route-strip li,
 .wire-match-page .wire-action-entry-strip,
 .wire-match-page .wire-action-object-chip,
 .wire-match-page .wire-action-group,
