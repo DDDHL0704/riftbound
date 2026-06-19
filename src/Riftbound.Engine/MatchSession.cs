@@ -5820,7 +5820,23 @@ internal static class ActionPromptBuilder
             asArray,
             omitEmpty,
             metadataKey,
-            metadataKeys);
+            metadataKeys,
+            LabelForCommandBindingSource(source));
+    }
+
+    private static string? LabelForCommandBindingSource(string source)
+    {
+        return source switch
+        {
+            "selectedSource" => "来源",
+            "selectedTarget" => "目标",
+            "selectedTargets" => "目标",
+            "selectedDestination" => "位置",
+            "selectedMode" => "模式",
+            "selectedOptionalCosts" => "费用",
+            "requirementMetadata" => "服务端",
+            _ => null
+        };
     }
 
     private static void AddSelectionStep(

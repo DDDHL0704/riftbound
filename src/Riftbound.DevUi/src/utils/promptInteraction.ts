@@ -16,6 +16,7 @@ export type PromptChoiceSummary = {
 
 export type PromptCommandBindingSummary = {
   field: string;
+  label?: string;
   required: boolean;
   role?: PromptChoiceRole;
   roleLabel?: string;
@@ -183,6 +184,7 @@ function commandTemplateSummary(candidate: ActionPromptCandidateDto): PromptCand
       const role = bindingSourceRoles[binding.source];
       return {
         field: binding.field,
+        label: binding.label ?? undefined,
         required: Boolean(binding.required),
         role,
         roleLabel: role ? promptChoiceRoleLabel(role) : undefined,

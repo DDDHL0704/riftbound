@@ -55,11 +55,11 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         action: "PLAY_CARD",
         commandTemplate: {
           bindings: [
-            { field: "sourceObjectId", required: true, source: "selectedSource" },
-            { field: "cardNo", metadataKeys: ["cardNo", "equipmentCardNo"], required: true, source: "requirementMetadata" },
-            { field: "targetObjectIds", asArray: true, omitEmpty: false, source: "selectedTargets" },
-            { field: "destination", source: "selectedDestination" },
-            { field: "optionalCosts", asArray: true, source: "selectedOptionalCosts" }
+            { field: "sourceObjectId", label: "来源", required: true, source: "selectedSource" },
+            { field: "cardNo", label: "服务端", metadataKeys: ["cardNo", "equipmentCardNo"], required: true, source: "requirementMetadata" },
+            { field: "targetObjectIds", asArray: true, label: "目标", omitEmpty: false, source: "selectedTargets" },
+            { field: "destination", label: "位置", source: "selectedDestination" },
+            { field: "optionalCosts", asArray: true, label: "费用", source: "selectedOptionalCosts" }
           ],
           cmdType: "PLAY_CARD"
         },
@@ -122,10 +122,10 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         action: "MOVE_UNIT",
         commandTemplate: {
           bindings: [
-            { field: "sourceObjectId", required: true, source: "selectedSource" },
-            { field: "origin", metadataKey: "origin", required: true, source: "requirementMetadata" },
-            { field: "destination", source: "selectedDestination" },
-            { field: "optionalCosts", asArray: true, source: "selectedOptionalCosts" }
+            { field: "sourceObjectId", label: "来源", required: true, source: "selectedSource" },
+            { field: "origin", label: "服务端", metadataKey: "origin", required: true, source: "requirementMetadata" },
+            { field: "destination", label: "位置", source: "selectedDestination" },
+            { field: "optionalCosts", asArray: true, label: "费用", source: "selectedOptionalCosts" }
           ],
           cmdType: "MOVE_UNIT"
         },
@@ -178,7 +178,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       {
         action: "TAP_RUNE",
         commandTemplate: {
-          bindings: [{ field: "sourceObjectId", required: true, source: "selectedSource" }],
+          bindings: [{ field: "sourceObjectId", label: "来源", required: true, source: "selectedSource" }],
           cmdType: "TAP_RUNE"
         },
         enabled: true,

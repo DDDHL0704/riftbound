@@ -156,6 +156,7 @@ export type ActionPromptSelectionStepDto = {
 
 export type ActionPromptCommandTemplateBindingDto = {
   field: string;
+  label?: string | null;
   source:
     | "selectedSource"
     | "selectedTarget"
