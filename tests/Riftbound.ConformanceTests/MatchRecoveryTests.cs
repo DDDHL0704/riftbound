@@ -37049,7 +37049,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state card object target-1 power modifier effect-1 source object missing-source is missing from object registry",
+                "authoritative state card object target-1 power modifier effect-1 source object missing-source is missing from object registry; expected [target-1] but got missing-source",
                 StringComparison.Ordinal));
     }
 
@@ -37416,13 +37416,13 @@ public sealed class MatchRecoveryTests
             error => error.Contains("authoritative state card object known-1 object id known-mismatch does not match map key", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state card object known-1 attached object missing-attach is missing from object registry", StringComparison.Ordinal));
+            error => error.Contains("authoritative state card object known-1 attached object missing-attach is missing from object registry; expected [blank-battlefield, known-1, unit-1] but got missing-attach", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state object location unit-1 battlefield object missing-battlefield has surrounding whitespace", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state object location unit-1 battlefield object missing-battlefield is missing from object registry", StringComparison.Ordinal));
+            error => error.Contains("authoritative state object location unit-1 battlefield object missing-battlefield is missing from object registry; expected [blank-battlefield, known-1, unit-1] but got missing-battlefield", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains("authoritative state object location blank-battlefield battlefield object is blank", StringComparison.Ordinal));

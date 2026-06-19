@@ -25900,7 +25900,7 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateOptionalObjectReference(
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"card object {objectId} attached object",
                 cardObject.AttachedToObjectId,
                 knownObjectIds,
@@ -25920,7 +25920,7 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateOptionalObjectReference(
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"object location {objectId} battlefield object",
                 location.BattlefieldObjectId,
                 knownObjectIds,
@@ -26092,7 +26092,7 @@ public static class MatchRecoveryValidator
             var modifierLabel = string.IsNullOrWhiteSpace(modifier.EffectId)
                 ? "<unknown>"
                 : modifier.EffectId.Trim();
-            ValidateAuthoritativeStateOptionalObjectReference(
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"card object {objectId} power modifier {modifierLabel} source object",
                 modifier.SourceObjectId,
                 knownObjectIds,
