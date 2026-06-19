@@ -110,6 +110,53 @@ public sealed class LocalPlayabilityRuleRegressionTests
             sourceStep.Choices,
             choice => string.Equals(choice.Id, "P1-HAND-UNIT", StringComparison.Ordinal));
         Assert.Equal(sourceChoice.ObjectIds, sourceStepChoice.ObjectIds);
+
+        Assert.True(sourceStep.Required);
+        Assert.Equal("来源", sourceStep.Label);
+
+        var destinationStep = Assert.Single(
+            playCandidate.SelectionSteps ?? [],
+            step => string.Equals(step.Role, "destination", StringComparison.Ordinal));
+        Assert.False(destinationStep.Required);
+        Assert.Equal("位置", destinationStep.Label);
+        Assert.Contains(destinationStep.Choices, choice =>
+            string.Equals(choice.Id, "BASE", StringComparison.Ordinal)
+            && choice.ObjectIds.SequenceEqual(["BASE"]));
+        Assert.Contains(destinationStep.Choices, choice =>
+            string.Equals(choice.Id, "BATTLEFIELD:BF-1", StringComparison.Ordinal)
+            && choice.ObjectIds.SequenceEqual(["BATTLEFIELD:BF-1", "BF-1"]));
+    }
+
+    [Fact]
+    public void ActionPromptObjectContextsExposeSelectionRolesAndCommandFieldsForFrontend()
+    {
+        var state = PlayUnitToContestedBattlefieldState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        var objectContexts = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptObjectContextDto>>(prompt.ObjectContexts);
+
+        var sourceContext = Assert.Single(
+            objectContexts,
+            context => string.Equals(context.ObjectId, "P1-HAND-UNIT", StringComparison.Ordinal));
+        var sourceCandidate = Assert.Single(
+            sourceContext.Candidates,
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Equal(["来源"], sourceCandidate.Roles);
+        Assert.Equal(CommandTypes.PlayCard, sourceCandidate.CommandType);
+        Assert.Contains("来源:sourceObjectId*", sourceCandidate.RequiredCommandFields ?? []);
+        Assert.Contains("位置:destination", sourceCandidate.CommandFields ?? []);
+
+        var battlefieldContext = Assert.Single(
+            objectContexts,
+            context => string.Equals(context.ObjectId, "BF-1", StringComparison.Ordinal));
+        var battlefieldCandidate = Assert.Single(
+            battlefieldContext.Candidates,
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Equal(["位置"], battlefieldCandidate.Roles);
+        Assert.Equal(CommandTypes.PlayCard, battlefieldCandidate.CommandType);
     }
 
     [Fact]
