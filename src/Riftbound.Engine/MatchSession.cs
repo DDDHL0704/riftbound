@@ -5655,7 +5655,8 @@ internal static class ActionPromptBuilder
             modes,
             optionalCosts,
             MetadataFor(state, playerId, action),
-            selectionSteps);
+            selectionSteps,
+            CommandTemplateFor(action));
     }
 
     private static IReadOnlyList<ActionPromptSelectionStepDto>? SelectionStepsFor(
@@ -5674,6 +5675,146 @@ internal static class ActionPromptBuilder
         AddSelectionStep(steps, "mode", "模式", false, modes);
         AddSelectionStep(steps, "optionalCost", "费用", false, optionalCosts);
         return steps.Count == 0 ? null : steps;
+    }
+
+    private static ActionPromptCommandTemplateDto? CommandTemplateFor(string action)
+    {
+        return action switch
+        {
+            CommandTypes.PlayCard => CommandTemplate(
+                CommandTypes.PlayCard,
+                SourceBinding("sourceObjectId", required: true),
+                RequirementMetadataBinding("cardNo", required: true, "cardNo", "equipmentCardNo"),
+                SelectedTargetsBinding("targetObjectIds", required: false, omitEmpty: false),
+                SelectedModeBinding("mode"),
+                SelectedDestinationBinding("destination"),
+                SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.HideCard => CommandTemplate(
+                CommandTypes.HideCard,
+                SourceBinding("sourceObjectId", required: true),
+                RequirementMetadataBinding("cardNo", required: true, "cardNo", "equipmentCardNo"),
+                SelectedDestinationBinding("destination"),
+                SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.RevealCard => CommandTemplate(
+                CommandTypes.RevealCard,
+                SourceBinding("sourceObjectId", required: true),
+                RequirementMetadataBinding("cardNo", required: true, "cardNo", "equipmentCardNo"),
+                SelectedTargetsBinding("targetObjectIds", required: false, omitEmpty: false),
+                SelectedModeBinding("mode"),
+                SelectedDestinationBinding("destination"),
+                SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.MoveUnit => CommandTemplate(
+                CommandTypes.MoveUnit,
+                SourceBinding("sourceObjectId", required: true),
+                RequirementMetadataBinding("origin", required: true, "origin"),
+                SelectedDestinationBinding("destination"),
+                SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.AssembleEquipment => CommandTemplate(
+                CommandTypes.AssembleEquipment,
+                SourceBinding("sourceObjectId", required: true),
+                SelectedTargetBinding("targetObjectId", required: true),
+                SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.DeclareBattle => CommandTemplate(
+                CommandTypes.DeclareBattle,
+                SourceBinding("attackerObjectIds", required: true, asArray: true),
+                SelectedDestinationBinding("battlefieldId", required: true),
+                SelectedDestinationBinding("battlefieldTargetObjectIds", required: true, asArray: true),
+                SelectedTargetsBinding("defenderObjectIds", required: true),
+                SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.ActivateAbility => CommandTemplate(
+                CommandTypes.ActivateAbility,
+                SourceBinding("sourceObjectId", required: true),
+                RequirementMetadataBinding("abilityId", required: true, "abilityId"),
+                SelectedTargetsBinding("targetObjectIds", required: false, omitEmpty: false),
+                SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.LegendAct => CommandTemplate(
+                CommandTypes.LegendAct,
+                SourceBinding("sourceObjectId", required: true),
+                RequirementMetadataBinding("abilityId", required: true, "abilityId"),
+                SelectedTargetsBinding("targetObjectIds", required: false, omitEmpty: false),
+                SelectedOptionalCostsBinding("optionalCosts")),
+            _ => null
+        };
+    }
+
+    private static ActionPromptCommandTemplateDto CommandTemplate(
+        string cmdType,
+        params ActionPromptCommandBindingDto[] bindings)
+    {
+        return new ActionPromptCommandTemplateDto(cmdType, bindings);
+    }
+
+    private static ActionPromptCommandBindingDto SourceBinding(
+        string field,
+        bool required = false,
+        bool asArray = false)
+    {
+        return CommandBinding(field, "selectedSource", required, asArray);
+    }
+
+    private static ActionPromptCommandBindingDto SelectedTargetBinding(
+        string field,
+        bool required = false)
+    {
+        return CommandBinding(field, "selectedTarget", required);
+    }
+
+    private static ActionPromptCommandBindingDto SelectedTargetsBinding(
+        string field,
+        bool required = false,
+        bool omitEmpty = true)
+    {
+        return CommandBinding(field, "selectedTargets", required, asArray: true, omitEmpty);
+    }
+
+    private static ActionPromptCommandBindingDto SelectedDestinationBinding(
+        string field,
+        bool required = false,
+        bool asArray = false)
+    {
+        return CommandBinding(field, "selectedDestination", required, asArray);
+    }
+
+    private static ActionPromptCommandBindingDto SelectedModeBinding(string field)
+    {
+        return CommandBinding(field, "selectedMode");
+    }
+
+    private static ActionPromptCommandBindingDto SelectedOptionalCostsBinding(string field)
+    {
+        return CommandBinding(field, "selectedOptionalCosts", asArray: true);
+    }
+
+    private static ActionPromptCommandBindingDto RequirementMetadataBinding(
+        string field,
+        bool required,
+        params string[] metadataKeys)
+    {
+        return CommandBinding(
+            field,
+            "requirementMetadata",
+            required,
+            metadataKey: metadataKeys.Length == 1 ? metadataKeys[0] : null,
+            metadataKeys: metadataKeys.Length > 1 ? metadataKeys : null);
+    }
+
+    private static ActionPromptCommandBindingDto CommandBinding(
+        string field,
+        string source,
+        bool required = false,
+        bool asArray = false,
+        bool omitEmpty = true,
+        string? metadataKey = null,
+        IReadOnlyList<string>? metadataKeys = null)
+    {
+        return new ActionPromptCommandBindingDto(
+            field,
+            source,
+            required,
+            asArray,
+            omitEmpty,
+            metadataKey,
+            metadataKeys);
     }
 
     private static void AddSelectionStep(

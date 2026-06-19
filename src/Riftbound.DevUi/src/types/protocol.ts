@@ -154,6 +154,29 @@ export type ActionPromptSelectionStepDto = {
   choices: ActionPromptSelectionChoiceDto[];
 };
 
+export type ActionPromptCommandTemplateBindingDto = {
+  field: string;
+  source:
+    | "selectedSource"
+    | "selectedTarget"
+    | "selectedTargets"
+    | "selectedDestination"
+    | "selectedMode"
+    | "selectedOptionalCosts"
+    | "requirementMetadata"
+    | (string & {});
+  required?: boolean;
+  asArray?: boolean;
+  omitEmpty?: boolean;
+  metadataKey?: string | null;
+  metadataKeys?: string[] | null;
+};
+
+export type ActionPromptCommandTemplateDto = {
+  cmdType: string;
+  bindings: ActionPromptCommandTemplateBindingDto[];
+};
+
 export type ActionPromptCandidateDto = {
   action: string;
   label: string;
@@ -166,6 +189,7 @@ export type ActionPromptCandidateDto = {
   optionalCosts?: ActionPromptChoiceDto[] | null;
   metadata?: Record<string, unknown> | null;
   selectionSteps?: ActionPromptSelectionStepDto[] | null;
+  commandTemplate?: ActionPromptCommandTemplateDto | null;
 };
 
 export type KnownPromptType =
