@@ -7339,7 +7339,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 battlefield object id battlefield-2 must match trigger id battlefield object id battlefield-1 in object locations",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 battlefield object id battlefield-2 must match trigger id battlefield object id battlefield-1 in object locations; expected battlefield-1 but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -30293,7 +30293,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 battlefield object id battlefield-2 must match trigger id battlefield object id battlefield-1 in authoritative state object locations",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 battlefield object id battlefield-2 must match trigger id battlefield object id battlefield-1 in authoritative state object locations; expected battlefield-1 but got battlefield-2",
                 StringComparison.Ordinal));
     }
 
@@ -141416,7 +141416,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 battlefield object id battlefield-1 must match trigger id battlefield object id battlefield-2 in authoritative state object locations",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 battlefield object id battlefield-1 must match trigger id battlefield object id battlefield-2 in authoritative state object locations; expected battlefield-2 but got battlefield-1",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -141539,7 +141539,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 battlefield object id battlefield-1 must match trigger id battlefield object id battlefield-2 in authoritative state object locations",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id source-1 battlefield object id battlefield-1 must match trigger id battlefield object id battlefield-2 in authoritative state object locations; expected battlefield-2 but got battlefield-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

@@ -18786,7 +18786,7 @@ public static class MatchRecoveryValidator
                 ? "<null>"
                 : sourceLocation.BattlefieldObjectId;
             errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} battlefield object id {actualBattlefieldObjectId} must match trigger id battlefield object id {battlefieldObjectId} in {objectLocationLabel}");
+                $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} battlefield object id {actualBattlefieldObjectId} must match trigger id battlefield object id {battlefieldObjectId} in {objectLocationLabel}; {FormatExpectedActualForRecovery(battlefieldObjectId, actualBattlefieldObjectId)}");
         }
     }
 
