@@ -19,6 +19,8 @@ new Function(
   "exports",
   "module",
   "commandFromActionPromptTemplate",
+  "candidateRequiresFurtherChoice",
+  "singlePromptChoiceId",
   "sourceRequirementFor",
   "findCardNo",
   "canComposeActionCandidate",
@@ -27,6 +29,8 @@ new Function(
   moduleShim.exports,
   moduleShim,
   commandFromActionPromptTemplate,
+  candidateRequiresFurtherChoice,
+  singlePromptChoiceId,
   sourceRequirementFor,
   findCardNo,
   canComposeActionCandidate
@@ -221,6 +225,21 @@ function commandFromActionPromptTemplate(template, selection, requirement) {
     }
   }
   return command;
+}
+
+function candidateRequiresFurtherChoice(candidate) {
+  return Boolean(
+    (candidate.targets?.length ?? 0) > 0
+    || (candidate.destinations?.length ?? 0) > 0
+    || (candidate.modes?.length ?? 0) > 0
+    || (candidate.optionalCosts?.length ?? 0) > 0
+  );
+}
+
+function singlePromptChoiceId(choices) {
+  return Array.isArray(choices) && choices.length === 1 && choices[0]?.id
+    ? choices[0].id
+    : undefined;
 }
 
 function sourceRequirementFor(candidate, sourceObjectId) {

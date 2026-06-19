@@ -1,4 +1,5 @@
 import type { ActionPromptCandidateDto, GameCommand } from "../types/protocol";
+import { candidateRequiresFurtherChoice } from "./actionPromptCandidateShape";
 import { commandForSourceCandidate } from "./actionPromptCandidates";
 import { canComposeActionCandidate } from "./candidateComposerSupport";
 import { promptActionLabel, promptReasonTitle } from "./formatters";
@@ -28,7 +29,7 @@ export function buildSourceCandidateActionPlan({
   disabledByConnection,
   sourceObjectId
 }: BuildSourceCandidateActionPlanOptions): SourceCandidateActionPlan {
-  const command = requiresFurtherChoice(candidate)
+  const command = candidateRequiresFurtherChoice(candidate)
     ? undefined
     : commandForSourceCandidate(candidate, sourceObjectId);
   const needsComposer = !command && canComposeActionCandidate(candidate);
@@ -74,13 +75,4 @@ function sourceCandidateActionTitle({
   }
 
   return "该候选还需要服务端提供完整选择后才能提交";
-}
-
-function requiresFurtherChoice(candidate: ActionPromptCandidateDto): boolean {
-  return Boolean(
-    (candidate.targets?.length ?? 0) > 0
-    || (candidate.destinations?.length ?? 0) > 0
-    || (candidate.modes?.length ?? 0) > 0
-    || (candidate.optionalCosts?.length ?? 0) > 0
-  );
 }

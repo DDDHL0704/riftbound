@@ -1,5 +1,6 @@
 import type { ActionPromptCandidateDto, GameCommand, SnapshotDto } from "../types/protocol";
 import { commandFromActionPromptTemplate } from "./actionPromptCommandTemplate";
+import { candidateRequiresFurtherChoice, singlePromptChoiceId } from "./actionPromptCandidateShape";
 import { sourceRequirementFor } from "./actionPromptCandidates";
 import { findCardNo } from "./actionPanelChoiceModels";
 import { canComposeActionCandidate } from "./candidateComposerSupport";
@@ -91,8 +92,11 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
     case "WAIT":
       return undefined;
     default:
-      if (hasSingleChoice(candidate.sources) && candidate.commandTemplate && !requiresFurtherChoice(candidate)) {
-        const source = candidate.sources![0].id;
+      if (candidate.commandTemplate && !candidateRequiresFurtherChoice(candidate)) {
+        const source = singlePromptChoiceId(candidate.sources);
+        if (!source) {
+          return undefined;
+        }
         const templatedCommand = commandFromActionPromptTemplate(
           candidate.commandTemplate,
           { sourceId: source },
@@ -102,10 +106,13 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
           return templatedCommand;
         }
       }
-      if (hasSingleChoice(candidate.sources) && candidate.action === "PLAY_CARD" && !candidate.commandTemplate) {
-        const source = candidate.sources![0].id;
+      if (candidate.action === "PLAY_CARD" && !candidate.commandTemplate) {
+        const source = singlePromptChoiceId(candidate.sources);
+        if (!source) {
+          return undefined;
+        }
         const cardNo = findCardNo(snapshot, source);
-        return cardNo && !requiresFurtherChoice(candidate)
+        return cardNo && !candidateRequiresFurtherChoice(candidate)
           ? { cmdType: "PLAY_CARD", sourceObjectId: source, cardNo, targetObjectIds: [] }
           : undefined;
       }
@@ -123,19 +130,6 @@ function payCostCommand(candidate: ActionPromptCandidateDto): GameCommand | unde
   }
 
   return { cmdType: "PAY_COST", paymentId, paymentWindow, paymentChoiceIds };
-}
-
-function requiresFurtherChoice(candidate: ActionPromptCandidateDto): boolean {
-  return Boolean(
-    (candidate.targets?.length ?? 0) > 0
-    || (candidate.destinations?.length ?? 0) > 0
-    || (candidate.modes?.length ?? 0) > 0
-    || (candidate.optionalCosts?.length ?? 0) > 0
-  );
-}
-
-function hasSingleChoice(choices?: Array<{ id: string }> | null): boolean {
-  return Array.isArray(choices) && choices.length === 1;
 }
 
 function stringMetadata(metadata: Record<string, unknown>, key: string): string | undefined {

@@ -18,6 +18,7 @@ const moduleShim = { exports: {} };
 new Function(
   "exports",
   "module",
+  "candidateRequiresFurtherChoice",
   "commandForSourceCandidate",
   "canComposeActionCandidate",
   "promptActionLabel",
@@ -26,6 +27,7 @@ new Function(
 )(
   moduleShim.exports,
   moduleShim,
+  candidateRequiresFurtherChoice,
   commandForSourceCandidate,
   canComposeActionCandidate,
   promptActionLabel,
@@ -151,6 +153,15 @@ function commandForSourceCandidate(candidate, sourceObjectId) {
     return { cmdType: "ACTIVATE_ABILITY", sourceObjectId };
   }
   return undefined;
+}
+
+function candidateRequiresFurtherChoice(candidate) {
+  return Boolean(
+    (candidate.targets?.length ?? 0) > 0
+    || (candidate.destinations?.length ?? 0) > 0
+    || (candidate.modes?.length ?? 0) > 0
+    || (candidate.optionalCosts?.length ?? 0) > 0
+  );
 }
 
 function canComposeActionCandidate(candidate) {
