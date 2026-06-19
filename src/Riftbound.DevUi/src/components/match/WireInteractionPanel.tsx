@@ -52,6 +52,12 @@ export function WireInteractionPanel({
   const objectIndex = buildCardObjectIndex(snapshot);
   const selectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
   const objectSummary = inspectedObjectId ? model.objectById.get(inspectedObjectId) : undefined;
+  const focusModel = buildFocusedActionModel({
+    interactionModel: model,
+    prompt,
+    selectionDraft,
+    sourceObjectId: selectedObjectId
+  });
   const relatedCandidates = inspectedObjectId
     ? model.candidates.filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(inspectedObjectId)))
     : [];
@@ -74,7 +80,7 @@ export function WireInteractionPanel({
               <span>对象：{inspectedCard.objectId ?? "无对象 ID"}</span>
               <span>控制：{inspectedCard.object?.controllerId ?? "未知"}</span>
               <span>服务端关联：{objectSummary ? `${objectSummary.enabledCandidateCount} 可用 / ${objectSummary.disabledCandidateCount} 禁用` : "无候选"}</span>
-              <WireObjectContextSummary context={objectContext} />
+              <WireObjectContextSummary context={objectContext} contract={prompt?.contract} focusModel={focusModel} />
               <div className="wire-focus-actions">
                 <Button icon={<Maximize2 size={16} />} onClick={() => onOpenDetail(inspectedCard)} variant="secondary">查看详情</Button>
                 <Button onClick={onClearInspectedCard} variant="ghost">清除焦点</Button>
@@ -105,6 +111,7 @@ export function WireInteractionPanel({
       <FocusedActionList
         disabledByConnection={disabledByConnection}
         inspectedCard={inspectedCard}
+        focusModel={focusModel}
         model={model}
         onCommand={onCommand}
         prompt={prompt}
@@ -125,6 +132,7 @@ export function WireInteractionPanel({
 
 function FocusedActionList({
   disabledByConnection,
+  focusModel,
   inspectedCard,
   model,
   onCommand,
@@ -133,6 +141,7 @@ function FocusedActionList({
   snapshot
 }: {
   disabledByConnection: boolean;
+  focusModel: FocusedActionModel;
   inspectedCard?: InspectedCard;
   model: PromptInteractionModel;
   onCommand?: (command: GameCommand) => void;
@@ -142,12 +151,6 @@ function FocusedActionList({
 }) {
   const sourceObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
   const candidates = sourceCandidatesForPrompt(prompt, sourceObjectId);
-  const focusModel = buildFocusedActionModel({
-    interactionModel: model,
-    prompt,
-    selectionDraft,
-    sourceObjectId
-  });
   const candidateSummaries = sourceObjectId
     ? model.candidates.filter((candidate) =>
       candidate.enabled

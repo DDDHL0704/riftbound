@@ -11671,6 +11671,10 @@ button.card-face:hover {
 .wire-focused-action-metrics span,
 .wire-object-context,
 .wire-object-context-grid span,
+.wire-object-contract-block,
+.wire-object-contract-block small,
+.wire-object-next-step-list li,
+.wire-object-command-list small,
 .wire-object-event-list li,
 .wire-focused-candidate-plan li,
 .wire-selection-draft,
@@ -11762,6 +11766,8 @@ button.card-face:hover {
 }
 
 .wire-object-context-grid span,
+.wire-object-contract-block,
+.wire-object-next-step-list li,
 .wire-object-command-list li,
 .wire-object-event-list li {
   min-width: 0;
@@ -11772,14 +11778,19 @@ button.card-face:hover {
 
 .wire-object-context-grid small,
 .wire-object-context-line,
+.wire-object-contract-block small,
+.wire-object-next-step-list span,
 .wire-object-command-list span,
+.wire-object-command-list small,
 .wire-object-event-list span {
   color: #000;
 }
 
 .wire-object-context-grid strong,
 .wire-object-context-line,
+.wire-object-next-step-list strong,
 .wire-object-command-list strong,
+.wire-object-command-list small,
 .wire-object-event-list strong {
   min-width: 0;
   overflow: hidden;
@@ -11788,6 +11799,7 @@ button.card-face:hover {
 }
 
 .wire-object-command-list,
+.wire-object-next-step-list,
 .wire-object-event-list {
   display: grid;
   gap: 3px;
@@ -11797,9 +11809,30 @@ button.card-face:hover {
 }
 
 .wire-object-command-block,
+.wire-object-contract-block,
 .wire-object-event-block {
   display: grid;
   gap: 3px;
+}
+
+.wire-object-contract-block > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.wire-object-contract-block small {
+  display: block;
+  min-width: 0;
+  padding: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-object-next-step-list li.is-disabled,
+.wire-object-command-list li.is-disabled {
+  border-style: dashed;
 }
 
 .wire-match-page .detail-context-grid,
