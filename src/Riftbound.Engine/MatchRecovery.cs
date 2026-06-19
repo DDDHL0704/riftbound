@@ -18461,6 +18461,24 @@ public static class MatchRecoveryValidator
             $"{payloadLabel} {diagnosticName} effect kind {effectKind} must be {expectedEffectKind}; {FormatExpectedActualForRecovery(expectedEffectKind, effectKind)}");
     }
 
+    private static void ValidateTriggerQueueSourceObjectIdMustMatchTriggerIdSourceObjectId(
+        string payloadLabel,
+        string diagnosticName,
+        string? sourceObjectId,
+        string expectedSourceObjectId,
+        List<string> errors)
+    {
+        if (sourceObjectId is null
+            || string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
+            || string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id {expectedSourceObjectId}; {FormatExpectedActualForRecovery(expectedSourceObjectId, sourceObjectId)}");
+    }
+
     private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
         string payloadLabel,
         string? triggerId,
@@ -18606,13 +18624,12 @@ public static class MatchRecoveryValidator
             sourceVisibility,
             errors);
 
-        if (sourceObjectId is not null
-            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {sourceObjectId} must match trigger id source object id {expectedSourceObjectId}");
-        }
+        ValidateTriggerQueueSourceObjectIdMustMatchTriggerIdSourceObjectId(
+            payloadLabel,
+            "blue sentinel delayed resource",
+            sourceObjectId,
+            expectedSourceObjectId,
+            errors);
 
         ValidateTriggerQueueEffectKindMustBe(
             payloadLabel,
@@ -18801,13 +18818,12 @@ public static class MatchRecoveryValidator
             objectLocationLabel,
             errors);
 
-        if (sourceObjectId is not null
-            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
-            && !string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
-        {
-            errors.Add(
-                $"{payloadLabel} jhin movement resource source object id {sourceObjectId} must match trigger id source object id {expectedSourceObjectId}");
-        }
+        ValidateTriggerQueueSourceObjectIdMustMatchTriggerIdSourceObjectId(
+            payloadLabel,
+            "jhin movement resource",
+            sourceObjectId,
+            expectedSourceObjectId,
+            errors);
 
         if (controllerId is not null
             && !string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal)

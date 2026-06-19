@@ -6612,7 +6612,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1",
+                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1; expected source-1 but got wrong-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -12284,7 +12284,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item jhin movement resource source object id wrong-source must match trigger id source object id source-1",
+                "snapshot for alice timing trigger queue item jhin movement resource source object id wrong-source must match trigger id source object id source-1; expected source-1 but got wrong-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -29782,7 +29782,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1 blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1",
+                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::2::source-1::battlefield-1 blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1; expected source-1 but got wrong-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -33940,7 +33940,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id wrong-source must match trigger id source object id source-1",
+                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id wrong-source must match trigger id source object id source-1; expected source-1 but got wrong-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -139456,7 +139456,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1; expected source-1 but got wrong-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -139577,7 +139577,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1",
+                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must match trigger id source object id source-1; expected source-1 but got wrong-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155850,7 +155850,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source must match trigger id source object id source-1",
+                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source must match trigger id source object id source-1; expected source-1 but got wrong-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -155971,7 +155971,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source must match trigger id source object id source-1",
+                "spectator replay frame timing trigger queue item jhin movement resource source object id wrong-source must match trigger id source object id source-1; expected source-1 but got wrong-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
