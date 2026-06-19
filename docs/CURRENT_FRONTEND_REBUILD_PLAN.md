@@ -1752,6 +1752,8 @@
 
 线框对战桌面规则详情关联候选继续工程化：`WireTimelineDetailPanel` 的“详情对象服务端候选”行现在可作为线框按钮聚焦对应桌面对象，复用服务端 refs 与 `TableObjectContext`，只改变当前检查焦点，不提交命令、不修改规则状态、不打开卡牌详情弹窗。Chrome smoke 覆盖规则详情内候选行点击后桌面对象选中、对象上下文出现且详情面板仍保持规则来源；项目仍 **NOT READY**。
 
+线框前端浏览器门禁继续工程化：`smoke:chrome` 现在会在首页、大厅、构筑、图鉴、房间、对战、结果页和本地线框对战 fixture 上注入 `axe-core`，阻断 critical/serious 可访问性问题以及 `button-name`、`label`、`aria-hidden-focus`、`nested-interactive` 等基础交互缺陷；同一轮 smoke 仍覆盖隐藏信息不泄漏、规则队列/事件详情、卡牌详情弹窗、焦点回收和服务端候选点击。验证：前端 build 通过，Chrome smoke 通过；项目仍 **NOT READY**。
+
 预计剩余批次数：**1-2 批左右**
 
 原因：

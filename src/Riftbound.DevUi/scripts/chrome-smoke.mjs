@@ -4,6 +4,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import axe from "axe-core";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.resolve(scriptDir, "..");
@@ -91,11 +92,13 @@ try {
     await cdp.send("Page.navigate", { url: `${frontendUrl}${route.path}` });
     await waitForText(cdp, route.texts);
     await expectAbsentText(cdp, route.absentTexts ?? []);
+    await runAccessibilitySmoke(cdp, route.path);
     console.log(`Chrome smoke OK: ${route.path}`);
   }
 
   await cdp.send("Page.navigate", { url: `${frontendUrl}/matches/local?fixture=layout` });
   await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "焦点 / 候选 / 规则队列"]);
+  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
   await runWireClickSelectionSmoke(cdp);
   console.log("Chrome smoke OK: wire click selection");
   await runWireRuleObjectRefSmoke(cdp);
@@ -244,6 +247,43 @@ async function expectAbsentText(cdp, texts) {
   const leaked = texts.filter((text) => bodyText.includes(text));
   if (leaked.length > 0) {
     throw new Error(`Unexpected raw debug text on page: ${leaked.join(", ")}`);
+  }
+}
+
+async function runAccessibilitySmoke(cdp, label) {
+  await cdp.send("Runtime.evaluate", {
+    expression: axe.source,
+    awaitPromise: true
+  });
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `globalThis.axe.run(document, {
+      resultTypes: ["violations"],
+      rules: {
+        "color-contrast": { enabled: true },
+        "button-name": { enabled: true },
+        "label": { enabled: true }
+      }
+    })`,
+    awaitPromise: true,
+    returnByValue: true
+  });
+
+  const violations = result.result?.value?.violations ?? [];
+  const blocking = violations.filter((violation) =>
+    ["critical", "serious"].includes(String(violation.impact ?? ""))
+    || ["button-name", "label", "aria-hidden-focus", "nested-interactive"].includes(String(violation.id ?? ""))
+  );
+  if (blocking.length > 0) {
+    const summary = blocking
+      .map((violation) => {
+        const targets = (violation.nodes ?? [])
+          .map((node) => Array.isArray(node.target) ? node.target.join(" ") : String(node.target ?? "unknown"))
+          .slice(0, 3)
+          .join(", ");
+        return `${violation.id}: ${targets}`;
+      })
+      .join("\n");
+    throw new Error(`Accessibility smoke failed for ${label}:\n${summary}`);
   }
 }
 
