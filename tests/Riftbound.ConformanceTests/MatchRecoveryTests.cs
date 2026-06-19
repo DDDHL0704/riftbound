@@ -25440,7 +25440,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             missingErrors,
             error => error.Contains(
-                "snapshot for alice active player charlie is missing from players",
+                "snapshot for alice active player charlie is missing from players; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             blankErrors,
@@ -44810,6 +44810,66 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains("spectator replay frame snapshot seats disagree with authoritative state seats", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplaySnapshotPlayerOutsideSeatsWithExpectedDetail()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var players = spectatorReplayFrame.SpectatorSnapshot.Players.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var charliePayload = Assert.IsType<Dictionary<string, object?>>(players["bob"]).ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        charliePayload["id"] = "charlie";
+        charliePayload["name"] = "charlie";
+        players["charlie"] = charliePayload;
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Players = players
+            }
+        };
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame snapshot player charlie is not in authoritative seats; expected [alice, bob] but got charlie",
+                StringComparison.Ordinal));
     }
 
     [Fact]

@@ -9136,7 +9136,11 @@ public static class MatchRecoveryValidator
         {
             if (!authoritativeState.Seats.ContainsKey(playerId))
             {
-                errors.Add($"spectator replay frame snapshot player {playerId} is not in authoritative seats");
+                var expectedPlayerIds = authoritativeState.Seats.Keys
+                    .OrderBy(expectedPlayerId => expectedPlayerId, StringComparer.Ordinal)
+                    .ToArray();
+                errors.Add(
+                    $"spectator replay frame snapshot player {playerId} is not in authoritative seats; {FormatExpectedActualForRecovery(expectedPlayerIds, playerId)}");
             }
 
             if (!IsSnapshotPlayerPayloadObject(playerPayload))
@@ -22960,8 +22964,11 @@ public static class MatchRecoveryValidator
 
         if (!view.Snapshot.Players.ContainsKey(view.Snapshot.ActivePlayerId))
         {
+            var expectedPlayerIds = view.Snapshot.Players.Keys
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray();
             errors.Add(
-                $"snapshot for {view.PlayerId} active player {view.Snapshot.ActivePlayerId} is missing from players");
+                $"snapshot for {view.PlayerId} active player {view.Snapshot.ActivePlayerId} is missing from players; {FormatExpectedActualForRecovery(expectedPlayerIds, view.Snapshot.ActivePlayerId)}");
         }
     }
 
