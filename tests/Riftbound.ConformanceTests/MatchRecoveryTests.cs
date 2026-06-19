@@ -45025,31 +45025,49 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice payload id does not match player key", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice payload id does not match player key; expected alice but got other-alice",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice name does not match player id", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice name does not match player id; expected alice but got other-alice",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice ready does not match authoritative state ready", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice ready does not match authoritative state ready; expected true but got false",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice hand size does not match authoritative state hand size", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice hand size does not match authoritative state hand size; expected 2 but got 0",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice score does not match authoritative state score", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice score does not match authoritative state score; expected 2 but got 0",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice experience does not match authoritative state experience", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice experience does not match authoritative state experience; expected 3 but got 0",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice cards played this turn does not match authoritative state cards played this turn", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice cards played this turn does not match authoritative state cards played this turn; expected 1 but got 0",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice deck submitted does not match authoritative state deck submitted", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice deck submitted does not match authoritative state deck submitted; expected true but got false",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice mulligan completed does not match authoritative state mulligan completed", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice mulligan completed does not match authoritative state mulligan completed; expected true but got false",
+                StringComparison.Ordinal));
     }
 
     [Fact]
