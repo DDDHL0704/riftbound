@@ -1202,15 +1202,29 @@ async function runWireRuleObjectRefSmoke(cdp) {
   await delay(150);
   const commandBridgeFocusResult = await evaluateJson(cdp, `(() => {
     const objectId = ${JSON.stringify(commandBridgeObjectId)};
-    const tableObject = document.querySelector(\`[data-object-id="\${objectId}"]\`);
-    const selectedObjectContext = document.querySelector(\`[data-wire-selected-object-context="\${objectId}"]\`);
+    const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
+    const targetObject = document.querySelector(\`[data-object-id="\${objectId}"]\`);
+    const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const panel = document.querySelector(".wire-timeline-detail");
+    const route = document.querySelector(".wire-action-route-strip");
+    const sourceStep = candidatePlan?.querySelector('[data-step-role="source"]');
+    const targetStep = candidatePlan?.querySelector('[data-step-role="target"]');
+    const targetRouteStep = route?.querySelector('[data-route-step-role="target"]');
     return {
+      candidateDraftActive: candidatePlan?.getAttribute("data-candidate-plan-draft-active") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
       objectId,
       panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
-      selected: tableObject?.getAttribute("data-selected") ?? null,
-      selectedContext: Boolean(selectedObjectContext)
+      previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
+      routeState: route?.getAttribute("data-action-route-state") ?? null,
+      routeText: route?.textContent ?? "",
+      sourceSelected: sourceObject?.getAttribute("data-selected") ?? null,
+      sourceStepProgress: sourceStep?.getAttribute("data-step-progress") ?? null,
+      targetRouteStepState: targetRouteStep?.getAttribute("data-route-step-state") ?? null,
+      targetSelected: targetObject?.getAttribute("data-selected") ?? null,
+      targetState: targetObject?.getAttribute("data-prompt-state") ?? null,
+      targetStepProgress: targetStep?.getAttribute("data-step-progress") ?? null
     };
   })()`);
 
@@ -1374,8 +1388,16 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (timelineInspectorResult.candidateCount < 1) failures.push("timeline inspector candidate rows missing");
   if (commandBridgeFocusResult.panelState !== "rule") failures.push(`command bridge focus changed detail panel state: ${commandBridgeFocusResult.panelState}`);
   if (commandBridgeFocusResult.objectId !== "p2-right-1") failures.push(`command bridge focused unexpected object: ${commandBridgeFocusResult.objectId}`);
-  if (commandBridgeFocusResult.selected !== "true") failures.push("command bridge button did not focus table object");
-  if (!commandBridgeFocusResult.selectedContext) failures.push("command bridge button did not expose selected object context");
+  if (commandBridgeFocusResult.sourceSelected !== "true") failures.push("command bridge did not keep source object focused");
+  if (commandBridgeFocusResult.targetSelected === "true") failures.push("command bridge next object should update draft, not replace focus");
+  if (commandBridgeFocusResult.targetState !== "chosen") failures.push(`command bridge next object did not enter draft: ${commandBridgeFocusResult.targetState}`);
+  if (commandBridgeFocusResult.candidateDraftActive !== "true") failures.push("command bridge did not activate PLAY_CARD draft");
+  if (commandBridgeFocusResult.sourceStepProgress !== "selected") failures.push("command bridge source step not selected in candidate plan");
+  if (commandBridgeFocusResult.targetStepProgress !== "selected") failures.push("command bridge target step not selected in candidate plan");
+  if (commandBridgeFocusResult.targetRouteStepState !== "selected") failures.push("command bridge target route step not selected");
+  if (commandBridgeFocusResult.routeState !== "ready") failures.push(`command bridge route state unexpected: ${commandBridgeFocusResult.routeState}`);
+  if (!commandBridgeFocusResult.draftText.includes("目标 1")) failures.push("command bridge draft target count missing");
+  if (!commandBridgeFocusResult.routeText.includes("PLAY_CARD")) failures.push("command bridge route command type missing");
   if (commandBridgeFocusResult.detailLayerOpen) failures.push("command bridge button opened card detail layer");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");

@@ -29,6 +29,7 @@ export function WireTimelineDetailPanel({
   detail,
   objectContextById,
   objectIndex,
+  onChooseObject,
   onClear,
   onInspectObject,
   prompt,
@@ -38,6 +39,7 @@ export function WireTimelineDetailPanel({
   detail?: WireTimelineDetail;
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
+  onChooseObject?: (objectId: string) => void;
   onClear: () => void;
   onInspectObject?: (objectId: string) => void;
   prompt?: ActionPromptDto;
@@ -105,7 +107,7 @@ export function WireTimelineDetailPanel({
               rows={plan.navigationRows}
             />
             <TimelineCommandBridge
-              onInspectObject={onInspectObject}
+              onChooseObject={onChooseObject ?? onInspectObject}
               rows={plan.commandBridgeRows}
             />
             <TimelineInspector open={inspectorOpen} plan={plan.inspector} />
@@ -169,10 +171,10 @@ export function WireTimelineDetailPanel({
 }
 
 function TimelineCommandBridge({
-  onInspectObject,
+  onChooseObject,
   rows
 }: {
-  onInspectObject?: (objectId: string) => void;
+  onChooseObject?: (objectId: string) => void;
   rows: WireTimelineCommandBridgeRow[];
 }) {
   if (rows.length === 0) {
@@ -205,7 +207,7 @@ function TimelineCommandBridge({
                     data-timeline-command-bridge-next-object-id={ref.objectId}
                     data-timeline-command-bridge-next-role={ref.roleLabel}
                     key={ref.key}
-                    onClick={() => onInspectObject?.(ref.objectId)}
+                    onClick={() => onChooseObject?.(ref.objectId)}
                     type="button"
                   >
                     <span>{ref.roleLabel}</span>

@@ -342,6 +342,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               detail={timelineDetail}
               objectContextById={tableObjectContextModel.byId}
               objectIndex={tableObjectIndex}
+              onChooseObject={chooseObjectFromActionMap}
               onClear={clearTimelineDetail}
               onInspectObject={inspectObjectFromTable}
               prompt={tablePrompt}
