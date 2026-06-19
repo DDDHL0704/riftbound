@@ -2,7 +2,7 @@
 
 Date: 2026-06-19
 
-Status: accepted on local `main` as code commit `aa74ed46`; docs checkpoint follows. Project remains **NOT READY**.
+Status: accepted on local `main` as code commit `aa74ed46`; docs checkpoint `7f0d785f`; post-merge sync followed as merge commit `05dbb9e8`. Project remains **NOT READY**.
 
 ## Scope
 
