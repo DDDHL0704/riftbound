@@ -18353,17 +18353,20 @@ public static class MatchRecoveryValidator
     {
         if (string.Equals(triggerId, "HIDDEN", StringComparison.Ordinal))
         {
-            errors.Add($"{payloadLabel} trigger id must not be redacted");
+            errors.Add(
+                $"{payloadLabel} trigger id must not be redacted; {FormatExpectedActualForRecovery("<non-HIDDEN>", triggerId)}");
         }
 
         if (string.Equals(controllerId, "HIDDEN", StringComparison.Ordinal))
         {
-            errors.Add($"{payloadLabel} controller id must not be redacted");
+            errors.Add(
+                $"{payloadLabel} controller id must not be redacted; {FormatExpectedActualForRecovery("<non-HIDDEN>", controllerId)}");
         }
 
         if (string.Equals(triggeredEventKind, "HIDDEN", StringComparison.Ordinal))
         {
-            errors.Add($"{payloadLabel} triggered event kind must not be redacted");
+            errors.Add(
+                $"{payloadLabel} triggered event kind must not be redacted; {FormatExpectedActualForRecovery("<non-HIDDEN>", triggeredEventKind)}");
         }
     }
 

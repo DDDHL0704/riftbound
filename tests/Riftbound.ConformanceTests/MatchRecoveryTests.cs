@@ -126043,17 +126043,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item trigger id must not be redacted",
+                "spectator replay frame timing trigger queue item trigger id must not be redacted; expected <non-HIDDEN> but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id must not be redacted",
+                "spectator replay frame timing trigger queue item controller id must not be redacted; expected <non-HIDDEN> but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item triggered event kind must not be redacted",
+                "spectator replay frame timing trigger queue item triggered event kind must not be redacted; expected <non-HIDDEN> but got HIDDEN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
