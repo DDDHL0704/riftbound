@@ -2,6 +2,7 @@ import type {
   ActionPromptDto,
   ActionPromptObjectCandidateDto,
   ActionPromptObjectContextDto,
+  ActionPromptObjectInspectionDto,
   BattlefieldSnapshotView,
   CardObjectView,
   GameEvent,
@@ -71,6 +72,7 @@ export type TableObjectContext = {
   ownerId?: string | null;
   promptDisabledCount: number;
   promptEnabledCount: number;
+  serverInspection?: ActionPromptObjectInspectionDto | null;
   stackRoles: string[];
   stateLabels: string[];
   zone: TableObjectZoneContext;
@@ -177,6 +179,7 @@ export function buildTableObjectContextModel({
       ownerId: object?.ownerId,
       promptDisabledCount: serverContext?.disabledCandidateCount ?? promptSummary?.disabledCandidateCount ?? 0,
       promptEnabledCount: serverContext?.enabledCandidateCount ?? promptSummary?.enabledCandidateCount ?? 0,
+      serverInspection: serverContext?.inspection,
       stackRoles: stackRolesById[objectId] ?? [],
       stateLabels: objectStateLabels(object),
       zone: zoneById[objectId] ?? { kind: "unknown", label: "未定位区域" }

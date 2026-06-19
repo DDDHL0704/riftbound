@@ -204,11 +204,33 @@ export type ActionPromptObjectCandidateDto = {
   commandFields?: string[] | null;
 };
 
+export type ActionPromptObjectInspectionRowDto = {
+  key: string;
+  label: string;
+  value: string;
+  tone?: string | null;
+};
+
+export type ActionPromptObjectInspectionGroupDto = {
+  key: string;
+  title: string;
+  rows: ActionPromptObjectInspectionRowDto[];
+  emptyLabel?: string | null;
+};
+
+export type ActionPromptObjectInspectionDto = {
+  source: string;
+  boundary: string;
+  summaryRows: ActionPromptObjectInspectionRowDto[];
+  groups: ActionPromptObjectInspectionGroupDto[];
+};
+
 export type ActionPromptObjectContextDto = {
   objectId: string;
   enabledCandidateCount: number;
   disabledCandidateCount: number;
   candidates: ActionPromptObjectCandidateDto[];
+  inspection?: ActionPromptObjectInspectionDto | null;
 };
 
 export type KnownPromptType =

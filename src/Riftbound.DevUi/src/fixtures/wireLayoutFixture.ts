@@ -255,6 +255,41 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         ],
         disabledCandidateCount: 0,
         enabledCandidateCount: 1,
+        inspection: {
+          boundary: "服务端只公开当前行动提示中的对象候选、角色和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
+          groups: [
+            {
+              key: "candidate",
+              rows: [
+                {
+                  key: "candidate-0",
+                  label: "可提交",
+                  tone: "good",
+                  value: "PLAY_CARD / 来源 / 需 来源:sourceObjectId*/服务端字段*"
+                }
+              ],
+              title: "服务端候选"
+            },
+            {
+              key: "safe-boundary",
+              rows: [
+                {
+                  key: "rules",
+                  label: "规则判断",
+                  tone: "neutral",
+                  value: "由服务端候选与后续校验裁定，前端不重算"
+                }
+              ],
+              title: "信息边界"
+            }
+          ],
+          source: "server-action-prompt",
+          summaryRows: [
+            { key: "object", label: "对象", value: "p1-hand-spell" },
+            { key: "candidate", label: "候选", value: "1 可提交 / 0 阻断" },
+            { key: "source", label: "来源", value: "服务端检查摘要" }
+          ]
+        },
         objectId: "p1-hand-spell"
       },
       {

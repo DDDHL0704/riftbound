@@ -347,7 +347,26 @@ public sealed record ActionPromptObjectContextDto(
     string ObjectId,
     int EnabledCandidateCount,
     int DisabledCandidateCount,
-    IReadOnlyList<ActionPromptObjectCandidateDto> Candidates);
+    IReadOnlyList<ActionPromptObjectCandidateDto> Candidates,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptObjectInspectionDto? Inspection = null);
+
+public sealed record ActionPromptObjectInspectionDto(
+    string Source,
+    string Boundary,
+    IReadOnlyList<ActionPromptObjectInspectionRowDto> SummaryRows,
+    IReadOnlyList<ActionPromptObjectInspectionGroupDto> Groups);
+
+public sealed record ActionPromptObjectInspectionGroupDto(
+    string Key,
+    string Title,
+    IReadOnlyList<ActionPromptObjectInspectionRowDto> Rows,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? EmptyLabel = null);
+
+public sealed record ActionPromptObjectInspectionRowDto(
+    string Key,
+    string Label,
+    string Value,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Tone = null);
 
 public sealed record ActionPromptObjectCandidateDto(
     string Action,

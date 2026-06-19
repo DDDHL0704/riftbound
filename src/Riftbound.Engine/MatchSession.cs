@@ -5382,16 +5382,113 @@ internal static class ActionPromptBuilder
 
         return rowsByObjectId
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-            .Select(entry => new ActionPromptObjectContextDto(
-                entry.Key,
-                entry.Value.Count(candidate => candidate.Enabled),
-                entry.Value.Count(candidate => !candidate.Enabled),
-                entry.Value
+            .Select(entry =>
+            {
+                var rows = entry.Value
                     .OrderByDescending(candidate => candidate.Enabled)
                     .ThenBy(candidate => candidate.Action, StringComparer.Ordinal)
                     .ThenBy(candidate => candidate.Label, StringComparer.Ordinal)
-                    .ToArray()))
+                    .ToArray();
+                return new ActionPromptObjectContextDto(
+                    entry.Key,
+                    rows.Count(candidate => candidate.Enabled),
+                    rows.Count(candidate => !candidate.Enabled),
+                    rows,
+                    ObjectInspectionFor(entry.Key, rows));
+            })
             .ToArray();
+    }
+
+    private static ActionPromptObjectInspectionDto ObjectInspectionFor(
+        string objectId,
+        IReadOnlyList<ActionPromptObjectCandidateDto> candidates)
+    {
+        var enabledCount = candidates.Count(candidate => candidate.Enabled);
+        var disabledCount = candidates.Count(candidate => !candidate.Enabled);
+        var requiredFields = candidates
+            .SelectMany(candidate => candidate.RequiredCommandFields ?? [])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(field => field, StringComparer.Ordinal)
+            .ToArray();
+        var commandFields = candidates
+            .SelectMany(candidate => candidate.CommandFields ?? [])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(field => field, StringComparer.Ordinal)
+            .ToArray();
+        var commandTypes = candidates
+            .Select(candidate => string.IsNullOrWhiteSpace(candidate.CommandType) ? candidate.Action : candidate.CommandType)
+            .Where(commandType => !string.IsNullOrWhiteSpace(commandType))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(commandType => commandType, StringComparer.Ordinal)
+            .ToArray();
+
+        return new ActionPromptObjectInspectionDto(
+            "server-action-prompt",
+            "服务端只公开当前行动提示中的对象候选、角色和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
+            [
+                new("object", "对象", objectId),
+                new("candidate", "候选", $"{enabledCount} 可提交 / {disabledCount} 阻断"),
+                new("commands", "命令", commandTypes.Length == 0 ? "无命令" : string.Join(" / ", commandTypes)),
+                new("fields", "字段", $"{requiredFields.Length} 必填 / {commandFields.Length} 公开")
+            ],
+            [
+                new(
+                    "candidate",
+                    "服务端候选",
+                    candidates
+                        .Select((candidate, index) => new ActionPromptObjectInspectionRowDto(
+                            $"candidate-{index}",
+                            candidate.Enabled ? "可提交" : "阻断",
+                            ObjectCandidateInspectionValue(candidate),
+                            candidate.Enabled ? "good" : "warn"))
+                        .ToArray(),
+                    "当前行动提示没有公开候选。"),
+                new(
+                    "command-fields",
+                    "命令字段",
+                    ObjectCommandFieldInspectionRows(requiredFields, commandFields),
+                    "当前候选没有公开命令字段。"),
+                new(
+                    "safe-boundary",
+                    "信息边界",
+                    [
+                        new("source", "来源", "服务端行动提示", "info"),
+                        new("hidden-metadata", "隐藏字段", "不公开具体 metadata key/value", "neutral"),
+                        new("rules", "规则判断", "由服务端候选与后续校验裁定，前端不重算", "neutral")
+                    ])
+            ]);
+    }
+
+    private static string ObjectCandidateInspectionValue(ActionPromptObjectCandidateDto candidate)
+    {
+        var parts = new[]
+        {
+            string.IsNullOrWhiteSpace(candidate.CommandType) ? candidate.Action : candidate.CommandType,
+            candidate.Roles.Count > 0 ? string.Join("/", candidate.Roles) : string.Empty,
+            candidate.RequiredCommandFields?.Count > 0 ? $"需 {string.Join("/", candidate.RequiredCommandFields)}" : string.Empty,
+            candidate.Enabled ? string.Empty : candidate.Reason
+        };
+        return string.Join(" / ", parts.Where(part => !string.IsNullOrWhiteSpace(part)));
+    }
+
+    private static IReadOnlyList<ActionPromptObjectInspectionRowDto> ObjectCommandFieldInspectionRows(
+        IReadOnlyList<string> requiredFields,
+        IReadOnlyList<string> commandFields)
+    {
+        var rows = new List<ActionPromptObjectInspectionRowDto>();
+        rows.AddRange(requiredFields.Select((field, index) => new ActionPromptObjectInspectionRowDto(
+            $"required-{index}",
+            "必填",
+            field,
+            "warn")));
+        rows.AddRange(commandFields
+            .Where(field => !requiredFields.Contains(field, StringComparer.Ordinal))
+            .Select((field, index) => new ActionPromptObjectInspectionRowDto(
+                $"optional-{index}",
+                "公开",
+                field,
+                "neutral")));
+        return rows;
     }
 
     private static IEnumerable<(string ObjectId, IReadOnlyList<string> Roles)> CandidateObjectRoles(ActionPromptCandidateDto candidate)

@@ -1,5 +1,5 @@
 import type { BehaviorSpec } from "../types/catalog";
-import type { ActionPromptCandidateDto, ActionPromptDto, CardObjectView } from "../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptDto, ActionPromptObjectInspectionGroupDto, ActionPromptObjectInspectionRowDto, CardObjectView } from "../types/protocol";
 import { sourceCandidatesForPrompt } from "./actionPromptCandidates";
 import {
   conformanceLabel,
@@ -196,6 +196,10 @@ function buildVisibleInspectorPlan({
   prompt?: ActionPromptDto;
   sourceObjectId?: string;
 }): CardDetailInspectorPlan {
+  const serverInspection = objectContext?.serverInspection;
+  const serverGroups = serverInspection?.groups.map(cardDetailGroupFromServerInspection) ?? [];
+  const serverCandidateGroup = serverGroups.find((group) => group.key === "candidate");
+  const serverSupportGroups = serverGroups.filter((group) => group.key !== "candidate");
   const candidateRows = objectContext?.candidateLinks.map((candidate, index) => ({
     key: `candidate-${index}`,
     label: candidate.enabled ? "可提交" : "阻断",
@@ -225,13 +229,14 @@ function buildVisibleInspectorPlan({
   } satisfies CardDetailInspectorRow));
 
   return {
-    boundaryLabel: "公开对象：详情只汇总当前快照、行动提示、结算链和公开事件，不在前端重算规则。",
-    summaryRows: [
+    boundaryLabel: serverInspection?.boundary ?? "公开对象：详情只汇总当前快照、行动提示、结算链和公开事件，不在前端重算规则。",
+    summaryRows: uniqueRowsByKey([
+      ...(serverInspection?.summaryRows.map(cardDetailRowFromServerInspection) ?? []),
       { key: "object", label: "对象", value: sourceObjectId || card.object?.objectId || "服务端未公开" },
       { key: "zone", label: "区域", value: objectContext?.zone.label ?? detailRows.find((row) => row.key === "zone")?.value ?? "服务端未公开" },
       { key: "candidate", label: "候选", value: `${objectContext?.promptEnabledCount ?? actionCandidateCount} 可提交 / ${objectContext?.promptDisabledCount ?? 0} 阻断` },
-      { key: "source", label: "来源", value: candidateSourceLabel(objectContext?.candidateSource) }
-    ],
+      { key: "source", label: "来源", value: serverInspection ? serverInspectionSourceLabel(serverInspection.source) : candidateSourceLabel(objectContext?.candidateSource) }
+    ]),
     groups: [
       {
         key: "identity",
@@ -252,12 +257,13 @@ function buildVisibleInspectorPlan({
           ...stateRows
         ]
       },
-      {
-        emptyLabel: "当前 prompt 没有把这张牌关联到公开候选。",
-        key: "candidate",
-        title: "服务端候选",
-        rows: candidateRows
-      },
+      serverCandidateGroup ?? {
+          emptyLabel: "当前 prompt 没有把这张牌关联到公开候选。",
+          key: "candidate",
+          title: "服务端候选",
+          rows: candidateRows
+        },
+      ...serverSupportGroups,
       {
         emptyLabel: "当前结算链没有公开引用这张牌。",
         key: "stack",
@@ -272,6 +278,49 @@ function buildVisibleInspectorPlan({
       }
     ]
   };
+}
+
+function cardDetailGroupFromServerInspection(group: ActionPromptObjectInspectionGroupDto): CardDetailInspectorGroup {
+  return {
+    emptyLabel: group.emptyLabel ?? undefined,
+    key: group.key,
+    rows: group.rows.map(cardDetailRowFromServerInspection),
+    title: group.title
+  };
+}
+
+function cardDetailRowFromServerInspection(row: ActionPromptObjectInspectionRowDto): CardDetailInspectorRow {
+  return {
+    key: row.key,
+    label: row.label,
+    tone: cardDetailToneFromServer(row.tone),
+    value: row.value
+  };
+}
+
+function cardDetailToneFromServer(tone: string | null | undefined): CardDetailTone | undefined {
+  switch (tone) {
+    case "bad":
+    case "good":
+    case "info":
+    case "neutral":
+    case "warn":
+      return tone;
+    default:
+      return undefined;
+  }
+}
+
+function uniqueRowsByKey(rows: CardDetailInspectorRow[]): CardDetailInspectorRow[] {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    if (seen.has(row.key)) {
+      return false;
+    }
+
+    seen.add(row.key);
+    return true;
+  });
 }
 
 function objectStateLabels(object?: CardObjectView): string[] {
@@ -312,6 +361,15 @@ function candidateSourceLabel(source: TableObjectContext["candidateSource"] | un
       return "无候选关联";
     default:
       return "未建立上下文";
+  }
+}
+
+function serverInspectionSourceLabel(source: string | undefined): string {
+  switch (source) {
+    case "server-action-prompt":
+      return "服务端检查摘要";
+    default:
+      return source?.trim() || "服务端检查摘要";
   }
 }
 

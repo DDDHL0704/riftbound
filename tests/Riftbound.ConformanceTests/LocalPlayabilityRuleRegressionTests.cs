@@ -148,6 +148,21 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(CommandTypes.PlayCard, sourceCandidate.CommandType);
         Assert.Contains("来源:sourceObjectId*", sourceCandidate.RequiredCommandFields ?? []);
         Assert.Contains("位置:destination", sourceCandidate.CommandFields ?? []);
+        var sourceInspection = Assert.IsType<ActionPromptObjectInspectionDto>(sourceContext.Inspection);
+        Assert.Equal("server-action-prompt", sourceInspection.Source);
+        Assert.Contains("隐藏 metadata", sourceInspection.Boundary);
+        Assert.Contains(sourceInspection.SummaryRows, row =>
+            string.Equals(row.Key, "candidate", StringComparison.Ordinal)
+            && string.Equals(row.Value, "1 可提交 / 0 阻断", StringComparison.Ordinal));
+        Assert.Contains(sourceInspection.Groups, group =>
+            string.Equals(group.Key, "candidate", StringComparison.Ordinal)
+            && group.Rows.Any(row => row.Value.Contains(CommandTypes.PlayCard, StringComparison.Ordinal)));
+        Assert.Contains(sourceInspection.Groups, group =>
+            string.Equals(group.Key, "command-fields", StringComparison.Ordinal)
+            && group.Rows.Any(row => row.Value.Contains("sourceObjectId", StringComparison.Ordinal)));
+        Assert.Contains(sourceInspection.Groups, group =>
+            string.Equals(group.Key, "safe-boundary", StringComparison.Ordinal)
+            && group.Rows.Any(row => row.Value.Contains("前端不重算", StringComparison.Ordinal)));
 
         var battlefieldContext = Assert.Single(
             objectContexts,

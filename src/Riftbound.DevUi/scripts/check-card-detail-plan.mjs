@@ -125,6 +125,32 @@ const visiblePlan = buildCardDetailPlan({
     ownerId: "P1",
     promptDisabledCount: 1,
     promptEnabledCount: 1,
+    serverInspection: {
+      boundary: "服务端只公开当前行动提示中的对象候选、角色和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
+      groups: [
+        {
+          key: "candidate",
+          title: "服务端候选",
+          rows: [
+            { key: "candidate-0", label: "可提交", tone: "good", value: "PLAY_CARD / 来源 / 需 sourceObjectId" },
+            { key: "candidate-1", label: "阻断", tone: "warn", value: "ACTIVATE_ABILITY / 目标 / 缺少合法目标" }
+          ]
+        },
+        {
+          key: "safe-boundary",
+          title: "信息边界",
+          rows: [
+            { key: "rules", label: "规则判断", tone: "neutral", value: "由服务端候选与后续校验裁定，前端不重算" }
+          ]
+        }
+      ],
+      source: "server-action-prompt",
+      summaryRows: [
+        { key: "object", label: "对象", value: "p1-hand-spell" },
+        { key: "candidate", label: "候选", value: "1 可提交 / 1 阻断" },
+        { key: "source", label: "来源", value: "服务端检查摘要" }
+      ]
+    },
     stackRoles: ["结算链来源"],
     stateLabels: ["4 战力"],
     zone: { kind: "hand", label: "我方手牌", playerId: "P1" }
@@ -166,9 +192,10 @@ assert.equal(visiblePlan.actionCandidates.length, 1);
 assert.equal(visiblePlan.actionCandidates[0].action, "PLAY_CARD");
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "zone")?.value, "我方手牌");
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "candidate")?.value, "1 可提交 / 1 阻断");
-assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "source")?.value, "服务端对象上下文");
+assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "source")?.value, "服务端检查摘要");
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "identity")?.rows.some((row) => row.value.includes("prompt-1")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "candidate")?.rows.some((row) => row.value.includes("缺少合法目标")));
+assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "safe-boundary")?.rows.some((row) => row.value.includes("前端不重算")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "stack")?.rows.some((row) => row.value === "结算链来源"));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "events")?.rows.some((row) => row.value.includes("STACK_ITEM_ADDED")));
 

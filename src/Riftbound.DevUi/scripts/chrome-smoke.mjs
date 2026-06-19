@@ -719,13 +719,14 @@ async function runWireClickSelectionSmoke(cdp) {
   if (detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail leaked raw metadata command field");
   if (!detailContextResult.inspectorOpen) failures.push("card detail inspector missing");
   if (!detailContextResult.inspectorText.includes("卡牌检查")) failures.push("card detail inspector header missing");
-  if (!detailContextResult.inspectorText.includes("公开对象")) failures.push("card detail inspector boundary missing");
+  if (!detailContextResult.inspectorText.includes("服务端只公开")) failures.push("card detail inspector boundary missing");
   if (!detailContextResult.summaryKeys.includes("zone")) failures.push("card detail inspector zone summary missing");
   if (!detailContextResult.summaryKeys.includes("candidate")) failures.push("card detail inspector candidate summary missing");
   if (!detailContextResult.groups.includes("identity")) failures.push("card detail inspector identity group missing");
   if (!detailContextResult.groups.includes("candidate")) failures.push("card detail inspector candidate group missing");
   if (!detailContextResult.groups.includes("events")) failures.push("card detail inspector event group missing");
-  if (!detailContextResult.inspectorText.includes("服务端对象上下文")) failures.push("card detail inspector server context source missing");
+  if (!detailContextResult.inspectorText.includes("服务端检查摘要")) failures.push("card detail inspector server inspection source missing");
+  if (!detailContextResult.inspectorText.includes("前端不重算")) failures.push("card detail inspector safe boundary missing");
   if (!detailContextResult.inspectorText.includes("结算链")) failures.push("card detail inspector stack boundary missing");
   if (detailEscapeResult.open) failures.push("card detail did not close on Escape");
   if (detailEscapeResult.activeObjectId !== "p1-hand-spell") failures.push("card detail did not restore focus to source card");
