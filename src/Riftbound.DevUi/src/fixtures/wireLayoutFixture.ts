@@ -237,6 +237,10 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
     {
       description: "惩戒加入结算链，目标为右战场对方单位。",
       kind: "STACK_ITEM_ADDED",
+      objectRefs: [
+        { cardNo: "UNL-007/219", objectId: "p1-hand-spell", role: "来源" },
+        { cardNo: "UNL-008/219", objectId: "p2-right-1", role: "目标" }
+      ],
       payload: {
         controllerId: selfId,
         sourceObjectId: "p1-hand-spell",

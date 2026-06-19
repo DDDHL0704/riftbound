@@ -21,9 +21,22 @@ export type ErrorDto = {
   message: string;
 };
 
+export type GameEventObjectRef = {
+  objectId: string;
+  role: string;
+  cardNo?: string | null;
+  ownerId?: string | null;
+  controllerId?: string | null;
+  zone?: string | null;
+  battlefieldObjectId?: string | null;
+  isFaceDown?: boolean;
+  isHidden?: boolean;
+};
+
 export type GameEvent = {
   kind: string;
   description: string;
+  objectRefs?: GameEventObjectRef[] | null;
   payload: Record<string, unknown>;
 };
 
