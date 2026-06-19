@@ -1,4 +1,5 @@
 import { Play, X } from "lucide-react";
+import { useEffect, useRef } from "react";
 import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { commandForSourceCandidate, promptStampedCommand, sourceCandidatesForPrompt } from "../../utils/actionPromptCandidates";
 import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
@@ -32,6 +33,45 @@ type CardDetailDrawerProps = {
 };
 
 export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prompt, snapshot }: CardDetailDrawerProps) {
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const drawerRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    if (!card) {
+      return undefined;
+    }
+
+    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        trapDialogFocus(event, drawerRef.current);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousActiveElementRef.current?.focus();
+      previousActiveElementRef.current = null;
+    };
+  }, [card]);
+
   if (!card) {
     return null;
   }
@@ -51,15 +91,15 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
     : undefined;
 
   return (
-    <div className="detail-layer" role="dialog" aria-modal="true" aria-label="卡牌详情">
+    <div className="detail-layer" role="dialog" aria-modal="true" aria-labelledby="card-detail-title" data-detail-dialog-state="open">
       <button className="detail-scrim" onClick={onClose} type="button" aria-label="关闭卡牌详情" />
-      <aside className="detail-drawer">
+      <aside className="detail-drawer" ref={drawerRef} tabIndex={-1}>
         <header>
           <div>
             <span className="eyebrow">卡牌详情</span>
-            <h2>{title}</h2>
+            <h2 id="card-detail-title">{title}</h2>
           </div>
-          <Button icon={<X size={18} />} onClick={onClose} variant="ghost">关闭</Button>
+          <Button icon={<X size={18} />} onClick={onClose} ref={closeButtonRef} variant="ghost">关闭</Button>
         </header>
         <div className="detail-section">
           <StatusPill tone={hidden ? "warn" : "info"}>{hidden ? "隐藏信息" : objectTypeText(card.object, card.spec)}</StatusPill>
@@ -163,6 +203,42 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
       </aside>
     </div>
   );
+}
+
+function trapDialogFocus(event: KeyboardEvent, container: HTMLElement | null) {
+  if (!container) {
+    return;
+  }
+
+  const focusable = Array.from(container.querySelectorAll<HTMLElement>(
+    [
+      "a[href]",
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])"
+    ].join(",")
+  )).filter((element) => element.offsetParent !== null || element === document.activeElement);
+
+  if (focusable.length === 0) {
+    event.preventDefault();
+    container.focus();
+    return;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+    return;
+  }
+
+  if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function DetailObjectContext({
