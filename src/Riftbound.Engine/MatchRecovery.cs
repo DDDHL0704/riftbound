@@ -15210,7 +15210,7 @@ public static class MatchRecoveryValidator
             if (!expectedParticipantObjectIds.Contains(actualParticipantObjectId))
             {
                 errors.Add(
-                    $"{participantObjectLabel} {actualParticipantObjectId} is not in {occupantObjectLabel} for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{participantObjectLabel} {actualParticipantObjectId} is not in {occupantObjectLabel} for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery(FormatObjectIdsForRecovery(expectedParticipantObjectIds), actualParticipantObjectId)}");
             }
         }
 
@@ -15219,7 +15219,7 @@ public static class MatchRecoveryValidator
             if (!actualParticipantObjectIds.Contains(expectedParticipantObjectId))
             {
                 errors.Add(
-                    $"{participantObjectLabel} {expectedParticipantObjectId} is required by {occupantObjectLabel} for battlefield object id {normalizedBattlefieldObjectId}");
+                    $"{participantObjectLabel} {expectedParticipantObjectId} is required by {occupantObjectLabel} for battlefield object id {normalizedBattlefieldObjectId}; {FormatExpectedActualForRecovery($"contains {expectedParticipantObjectId}", FormatObjectIdsForRecovery(actualParticipantObjectIds))}");
             }
         }
     }

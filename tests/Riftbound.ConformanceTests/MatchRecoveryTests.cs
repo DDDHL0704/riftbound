@@ -16452,12 +16452,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item participant object id participant-standby is not in battlefield state occupants for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item participant object id participant-standby is not in battlefield state occupants for battlefield object id battlefield-a; expected [participant-a, participant-b] but got participant-standby",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing battlefield task item participant object id participant-b is required by battlefield state occupants for battlefield object id battlefield-a",
+                "snapshot for alice timing battlefield task item participant object id participant-b is required by battlefield state occupants for battlefield object id battlefield-a; expected contains participant-b but got [participant-a, participant-standby]",
                 StringComparison.Ordinal));
 
         static Dictionary<string, object?> SnapshotObjectPayload(
@@ -56603,12 +56603,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item participant object id participant-standby is not in authoritative state battlefield state occupants for battlefield object id battlefield-a",
+                "spectator replay frame timing battlefield task item participant object id participant-standby is not in authoritative state battlefield state occupants for battlefield object id battlefield-a; expected [participant-a, participant-b] but got participant-standby",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing battlefield task item participant object id participant-b is required by authoritative state battlefield state occupants for battlefield object id battlefield-a",
+                "spectator replay frame timing battlefield task item participant object id participant-b is required by authoritative state battlefield state occupants for battlefield object id battlefield-a; expected contains participant-b but got [participant-a, participant-standby]",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
