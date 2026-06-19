@@ -264,6 +264,9 @@ async function runWireClickSelectionSmoke(cdp) {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
       text: summary?.textContent ?? "",
       contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
+      grammarState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-state") ?? null,
+      grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
+      grammarRoles: Array.from(document.querySelectorAll("[data-wire-grammar-role]")).map((node) => node.getAttribute("data-wire-grammar-role")),
       nextStep: document.querySelector("[data-wire-focused-next-step]")?.textContent ?? "",
       candidatePlanCount: document.querySelectorAll(".wire-focused-candidate-plan li").length,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
@@ -294,6 +297,8 @@ async function runWireClickSelectionSmoke(cdp) {
       otherTargetState: attr("p2-right-1"),
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
+      grammarState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-state") ?? null,
+      grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
       targetSelectValue: targetSelect?.value ?? null
     };
@@ -310,6 +315,7 @@ async function runWireClickSelectionSmoke(cdp) {
       exhaustedRuneState: attr("p1-rune-2"),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
       checkedCost,
+      grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? ""
     };
   })()`);
@@ -421,6 +427,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail command metadata field missing");
   if (!focusResult.nextStep.includes("下一步")) failures.push("focused action next step missing");
   if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
+  if (focusResult.grammarState !== "ready") failures.push(`focused interaction grammar state unexpected: ${focusResult.grammarState}`);
+  if (!focusResult.grammarText.includes("交互语法")) failures.push("focused interaction grammar header missing");
+  if (!focusResult.grammarText.includes("来源")) failures.push("focused interaction grammar source step missing");
+  if (!focusResult.grammarText.includes("提交")) failures.push("focused interaction grammar submit step missing");
+  if (!focusResult.grammarText.includes("命令：PLAY_CARD")) failures.push("focused interaction grammar command type missing");
+  if (!focusResult.grammarRoles.includes("source")) failures.push("focused interaction grammar source role missing");
+  if (!focusResult.grammarRoles.includes("submit")) failures.push("focused interaction grammar submit role missing");
   if (focusResult.detailLayerOpen) failures.push("focused action summary opened detail");
   if (targetResult.sourceSelected !== "true") failures.push("source focus was not preserved after target click");
   if (targetResult.sourceState !== "source") failures.push("source state missing after target click");
@@ -428,6 +441,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (targetResult.otherTargetState !== "target") failures.push("other target no longer legal target");
   if (targetResult.detailLayerOpen) failures.push("target click opened detail");
   if (!targetResult.draftText.includes("目标 1")) failures.push("draft target count missing");
+  if (targetResult.grammarState !== "ready") failures.push(`target interaction grammar state unexpected: ${targetResult.grammarState}`);
+  if (!targetResult.grammarText.includes("目标")) failures.push("target interaction grammar target step missing");
+  if (!targetResult.grammarText.includes("已选择")) failures.push("target interaction grammar did not show selected target");
   if (!targetResult.previewText.includes("提交摘要")) failures.push("candidate command preview missing");
   if (targetResult.previewText.includes("目标：无")) failures.push("candidate command preview did not include chosen target");
   if (targetResult.targetSelectValue !== "p2-left-1") failures.push("composer target select did not follow target click");
@@ -435,6 +451,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!costResult.draftText.includes("费用 1")) failures.push("draft cost count missing");
   if (!costResult.checkedCost.some((text) => text.includes("回收已抽出符文"))) failures.push("composer optional cost not checked");
   if (!costResult.previewText.includes("回收已抽出符文")) failures.push("candidate command preview did not include chosen optional cost");
+  if (!costResult.grammarText.includes("费用")) failures.push("cost interaction grammar cost step missing");
+  if (!costResult.grammarText.includes("已选择")) failures.push("cost interaction grammar did not show selected cost");
   if (destinationResult.moveSourceSelected !== "true") failures.push("move source focus was not preserved");
   if (destinationResult.moveSourceState !== "source") failures.push("move source state missing");
   if (destinationResult.destinationState !== "chosen") failures.push("destination not chosen");

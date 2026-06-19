@@ -11681,6 +11681,10 @@ button.card-face:hover {
 .wire-focused-actions-heading,
 .wire-focused-action-summary,
 .wire-focused-action-metrics span,
+.wire-focused-grammar,
+.wire-focused-grammar-heading,
+.wire-focused-grammar-summary,
+.wire-focused-grammar-steps li,
 .wire-object-context,
 .wire-object-context-grid span,
 .wire-object-contract-block,
@@ -12074,6 +12078,70 @@ button.card-face:hover {
 
 .wire-focused-candidate-plan li.is-disabled {
   border-style: dashed;
+}
+
+.wire-focused-grammar {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+  font-size: 11px;
+}
+
+.wire-focused-grammar-heading,
+.wire-focused-grammar-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 4px;
+}
+
+.wire-focused-grammar-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.wire-focused-grammar-summary span,
+.wire-focused-grammar-summary small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-focused-grammar-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-focused-grammar-steps li {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-focused-grammar-steps li.is-available,
+.wire-focused-grammar-steps li.is-missing,
+.wire-focused-grammar-steps li.is-blocked {
+  border-width: 2px;
+}
+
+.wire-focused-grammar-steps li.is-optional,
+.wire-focused-grammar-steps li.is-skipped {
+  border-style: dashed;
+}
+
+.wire-focused-grammar-steps span,
+.wire-focused-grammar-steps strong,
+.wire-focused-grammar-steps small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-focused-actions .candidate-composer,

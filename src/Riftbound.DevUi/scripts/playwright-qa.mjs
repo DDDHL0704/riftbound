@@ -52,7 +52,7 @@ const scenarioShots = [
     name: "match-midgame-showcase",
     scenario: "midgame-showcase",
     playerId: "P1",
-    texts: ["符文战场对战线框", "窗口总览", "优先权轨道", "规则队列地图", "服务端行动提示", "焦点 / 候选 / 规则队列"]
+    texts: ["符文战场对战线框", "窗口总览", "优先权轨道", "规则队列地图", "交互语法", "服务端行动提示", "焦点 / 候选 / 规则队列"]
   },
   {
     name: "prompt-pay-cost",
