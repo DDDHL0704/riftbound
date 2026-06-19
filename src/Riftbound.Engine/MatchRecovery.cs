@@ -4365,6 +4365,7 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 effectKind,
+                knownObjectIds,
                 errors);
             ValidateTriggerQueueFriendlyDestroyedDestroyedObjectIdContext(
                 triggerLabel,
@@ -18210,6 +18211,7 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            knownObjectIds,
             errors);
         ValidateTriggerQueueFriendlyDestroyedDestroyedObjectIdContext(
             payloadLabel,
@@ -18503,6 +18505,64 @@ public static class MatchRecoveryValidator
     {
         errors.Add(
             $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} card no {actualCardNoLabel} must be {expectedCardNoLabel} in {contextLabel}; {FormatExpectedActualForRecovery(expectedCardNoLabel, actualCardNoLabel)}");
+    }
+
+    private static void AddTriggerQueueSourceObjectIdBeforeEffectKindMismatch(
+        string payloadLabel,
+        string diagnosticName,
+        string sourceObjectId,
+        string triggerId,
+        string expectedEffectKind,
+        IEnumerable<string>? knownObjectIds,
+        List<string> errors)
+    {
+        var expectedSourceObjectId = TryFindTriggerQueueSourceObjectIdBeforeEffectKindForRecovery(
+            triggerId,
+            expectedEffectKind,
+            knownObjectIds,
+            out var triggerSourceObjectId)
+            ? triggerSourceObjectId
+            : $"<trigger id source object before {expectedEffectKind}>";
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id before {expectedEffectKind}; {FormatExpectedActualForRecovery(expectedSourceObjectId, sourceObjectId)}");
+    }
+
+    private static bool TryFindTriggerQueueSourceObjectIdBeforeEffectKindForRecovery(
+        string triggerId,
+        string expectedEffectKind,
+        IEnumerable<string>? knownObjectIds,
+        out string sourceObjectId)
+    {
+        sourceObjectId = string.Empty;
+        var effectMarker = $"-{expectedEffectKind}";
+        var effectMarkerIndex = triggerId.LastIndexOf(effectMarker, StringComparison.Ordinal);
+        if (effectMarkerIndex <= StandardTriggerIdPrefixForRecovery.Length || knownObjectIds is null)
+        {
+            return false;
+        }
+
+        var triggerPrefix = triggerId[..effectMarkerIndex];
+        foreach (var knownObjectId in knownObjectIds
+                     .Where(candidate => !string.IsNullOrWhiteSpace(candidate))
+                     .OrderByDescending(candidate => candidate.Length)
+                     .ThenBy(candidate => candidate, StringComparer.Ordinal))
+        {
+            if (triggerPrefix.EndsWith($"-{knownObjectId}", StringComparison.Ordinal))
+            {
+                sourceObjectId = knownObjectId;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<string>? GetTriggerQueueKnownObjectIdsForSourceContext(
+        IReadOnlyDictionary<string, string>? objectControllers,
+        IReadOnlyDictionary<string, string?>? objectCardNos,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations)
+    {
+        return objectControllers?.Keys ?? objectCardNos?.Keys ?? objectLocations?.Keys;
     }
 
     private static void ValidateTriggerQueueBlueSentinelDelayedResourceContext(
@@ -19181,8 +19241,14 @@ public static class MatchRecoveryValidator
             && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
             && !DoesKogmawLastBreathTriggerIdMatchSourceObjectIdForRecovery(triggerId, sourceObjectId))
         {
-            errors.Add(
-                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must match trigger id source object id before {KogmawLastBreathAoeEffectKindForRecovery}");
+            AddTriggerQueueSourceObjectIdBeforeEffectKindMismatch(
+                payloadLabel,
+                "kogmaw last breath",
+                sourceObjectId,
+                triggerId,
+                KogmawLastBreathAoeEffectKindForRecovery,
+                knownObjectIds,
+                errors);
         }
 
         if (!string.IsNullOrWhiteSpace(sourceObjectId)
@@ -19394,8 +19460,14 @@ public static class MatchRecoveryValidator
             var sourceObjectSuffix = $"-{sourceObjectId}-{OgsLuxHighCostSpellPowerEffectKindForRecovery}";
             if (!triggerId.EndsWith(sourceObjectSuffix, StringComparison.Ordinal))
             {
-                errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must match trigger id source object id before {OgsLuxHighCostSpellPowerEffectKindForRecovery}");
+                AddTriggerQueueSourceObjectIdBeforeEffectKindMismatch(
+                    payloadLabel,
+                    "ogs lux high cost spell",
+                    sourceObjectId,
+                    triggerId,
+                    OgsLuxHighCostSpellPowerEffectKindForRecovery,
+                    GetTriggerQueueKnownObjectIdsForSourceContext(objectControllers, objectCardNos, objectLocations),
+                    errors);
             }
             else if (triggerId.Length - sourceObjectSuffix.Length <= StandardTriggerIdPrefixForRecovery.Length)
             {
@@ -20131,6 +20203,7 @@ public static class MatchRecoveryValidator
         string? triggerId,
         string? sourceObjectId,
         string? effectKind,
+        IReadOnlySet<string>? knownObjectIds,
         List<string> errors)
     {
         ValidateTriggerQueueFriendlyDestroyedSourceObjectIdContext(
@@ -20138,6 +20211,7 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            knownObjectIds,
             GhostlyCentaurFriendlyDestroyedPowerEffectKindForRecovery,
             "ghostly centaur friendly-destroyed power",
             errors);
@@ -20146,6 +20220,7 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            knownObjectIds,
             ResonantSoulFirstFriendlyDestroyedDrawEffectKindForRecovery,
             "resonant soul first friendly-destroyed draw",
             errors);
@@ -20154,6 +20229,7 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            knownObjectIds,
             SavageJawfishFriendlyDestroyedExperienceEffectKindForRecovery,
             "savage jawfish friendly-destroyed experience",
             errors);
@@ -20162,6 +20238,7 @@ public static class MatchRecoveryValidator
             triggerId,
             sourceObjectId,
             effectKind,
+            knownObjectIds,
             ViktorDestroyedNonMinionCreateMinionEffectKindForRecovery,
             "viktor destroyed non-minion create minion",
             errors);
@@ -20172,6 +20249,7 @@ public static class MatchRecoveryValidator
         string? triggerId,
         string? sourceObjectId,
         string? effectKind,
+        IReadOnlySet<string>? knownObjectIds,
         string expectedEffectKind,
         string diagnosticName,
         List<string> errors)
@@ -20194,8 +20272,14 @@ public static class MatchRecoveryValidator
             StringComparison.Ordinal);
         if (sourceObjectMarkerIndex < 0 || sourceObjectMarkerIndex >= effectSuffixIndex)
         {
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id before destroyed object id");
+            AddTriggerQueueFriendlyDestroyedSourceObjectIdMismatch(
+                payloadLabel,
+                diagnosticName,
+                sourceObjectId,
+                triggerId,
+                expectedEffectKind,
+                knownObjectIds,
+                errors);
             return;
         }
 
@@ -20329,6 +20413,57 @@ public static class MatchRecoveryValidator
             (sourceObjectMarkerIndex + sourceObjectMarker.Length)..effectSuffixIndex];
         return !string.IsNullOrWhiteSpace(destroyedObjectId)
             && !string.Equals(destroyedObjectId, sourceObjectId, StringComparison.Ordinal);
+    }
+
+    private static void AddTriggerQueueFriendlyDestroyedSourceObjectIdMismatch(
+        string payloadLabel,
+        string diagnosticName,
+        string sourceObjectId,
+        string triggerId,
+        string expectedEffectKind,
+        IReadOnlySet<string>? knownObjectIds,
+        List<string> errors)
+    {
+        var expectedSourceObjectId = TryFindFriendlyDestroyedTriggerSourceObjectIdForRecovery(
+            triggerId,
+            expectedEffectKind,
+            knownObjectIds,
+            out var triggerSourceObjectId)
+            ? triggerSourceObjectId
+            : "<trigger id source object before destroyed object id>";
+        errors.Add(
+            $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id before destroyed object id; {FormatExpectedActualForRecovery(expectedSourceObjectId, sourceObjectId)}");
+    }
+
+    private static bool TryFindFriendlyDestroyedTriggerSourceObjectIdForRecovery(
+        string triggerId,
+        string expectedEffectKind,
+        IReadOnlySet<string>? knownObjectIds,
+        out string sourceObjectId)
+    {
+        sourceObjectId = string.Empty;
+        if (knownObjectIds is null)
+        {
+            return false;
+        }
+
+        foreach (var knownObjectId in knownObjectIds
+                     .Where(candidate => !string.IsNullOrWhiteSpace(candidate))
+                     .OrderByDescending(candidate => candidate.Length)
+                     .ThenBy(candidate => candidate, StringComparer.Ordinal))
+        {
+            if (TryReadFriendlyDestroyedTriggerDestroyedObjectIdForRecovery(
+                    triggerId,
+                    knownObjectId,
+                    expectedEffectKind,
+                    out _))
+            {
+                sourceObjectId = knownObjectId;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void ValidateTriggerQueueFriendlyDestroyedDestroyedObjectCardContext(
@@ -21700,8 +21835,14 @@ public static class MatchRecoveryValidator
         var sourceObjectSuffix = $"-{sourceObjectId}-{expectedEffectKind}";
         if (!triggerId.EndsWith(sourceObjectSuffix, StringComparison.Ordinal))
         {
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must match trigger id source object id before {expectedEffectKind}");
+            AddTriggerQueueSourceObjectIdBeforeEffectKindMismatch(
+                payloadLabel,
+                diagnosticName,
+                sourceObjectId,
+                triggerId,
+                expectedEffectKind,
+                GetTriggerQueueKnownObjectIdsForSourceContext(objectControllers, objectCardNos, objectLocations),
+                errors);
             return;
         }
 
@@ -24885,6 +25026,7 @@ public static class MatchRecoveryValidator
                 triggerId,
                 sourceObjectId,
                 effectKind,
+                knownObjectIds,
                 errors);
             ValidateTriggerQueueFriendlyDestroyedDestroyedObjectIdContext(
                 $"authoritative state trigger queue item {triggerLabel}",

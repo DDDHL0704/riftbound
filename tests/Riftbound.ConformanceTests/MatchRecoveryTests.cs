@@ -7661,7 +7661,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-2 must match trigger id source object id before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3",
+                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-2 must match trigger id source object id before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3; expected <trigger id source object before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3> but got source-2",
                 StringComparison.Ordinal));
     }
 
@@ -9062,7 +9062,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-2 must match trigger id source object id before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-2 must match trigger id source object id before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1; expected <trigger id source object before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1> but got source-2",
                 StringComparison.Ordinal));
     }
 
@@ -10800,7 +10800,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id; expected <trigger id source object before destroyed object id> but got source-1",
                 StringComparison.Ordinal));
     }
 
@@ -13200,7 +13200,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-2 must match trigger id source object id before OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-2 must match trigger id source object id before OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT; expected source-1 but got source-2",
                 StringComparison.Ordinal));
     }
 
@@ -30534,7 +30534,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-2 must match trigger id source object id before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-2 must match trigger id source object id before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3; expected source-1 but got source-2",
                 StringComparison.Ordinal));
     }
 
@@ -31511,7 +31511,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-2 must match trigger id source object id before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-2 must match trigger id source object id before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1; expected source-1 but got source-2",
                 StringComparison.Ordinal));
     }
 
@@ -32864,7 +32864,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-2-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-2-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id; expected <trigger id source object before destroyed object id> but got source-1",
                 StringComparison.Ordinal));
     }
 
@@ -34660,7 +34660,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-2 must match trigger id source object id before OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-2 must match trigger id source object id before OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT; expected source-1 but got source-2",
                 StringComparison.Ordinal));
     }
 
@@ -142309,7 +142309,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-2 must match trigger id source object id before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-2 must match trigger id source object id before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3; expected source-1 but got source-2",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -142417,7 +142417,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-2 must match trigger id source object id before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3",
+                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-2 must match trigger id source object id before OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3; expected source-1 but got source-2",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -146705,7 +146705,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-2 must match trigger id source object id before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-2 must match trigger id source object id before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1; expected source-1 but got source-2",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -146813,7 +146813,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-2 must match trigger id source object id before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-2 must match trigger id source object id before WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1; expected source-1 but got source-2",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -153267,7 +153267,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id; expected <trigger id source object before destroyed object id> but got source-1",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -153373,7 +153373,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id; expected <trigger id source object before destroyed object id> but got source-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -158851,7 +158851,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id source-2 must match trigger id source object id before OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id source-2 must match trigger id source object id before OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT; expected source-1 but got source-2",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -158959,7 +158959,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id source-2 must match trigger id source object id before OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id source-2 must match trigger id source object id before OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT; expected source-1 but got source-2",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
