@@ -35352,7 +35352,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry",
+                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry; expected [] but got source-1",
                 StringComparison.Ordinal));
     }
 
@@ -35441,17 +35441,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state pending hand choice choice-1 source object missing-choice-source is missing from object registry",
+                "authoritative state pending hand choice choice-1 source object missing-choice-source is missing from object registry; expected [] but got missing-choice-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state pending hand choice choice-1 legal object missing-choice-legal is missing from object registry",
+                "authoritative state pending hand choice choice-1 legal object missing-choice-legal is missing from object registry; expected [] but got missing-choice-legal",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state temporary payment resource temp-1 source object missing-temp-source is missing from object registry",
+                "authoritative state temporary payment resource temp-1 source object missing-temp-source is missing from object registry; expected [] but got missing-temp-source",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -36976,16 +36976,16 @@ public sealed class MatchRecoveryTests
             error => error.Contains("authoritative state stack item stack-1 target object missing-stack-target is missing from object registry; expected [known-1] but got missing-stack-target", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state trigger queue item trigger-1 source object missing-trigger-source is missing from object registry", StringComparison.Ordinal));
+            error => error.Contains("authoritative state trigger queue item trigger-1 source object missing-trigger-source is missing from object registry; expected [known-1] but got missing-trigger-source", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state pending hand choice choice-1 source object missing-choice-source is missing from object registry", StringComparison.Ordinal));
+            error => error.Contains("authoritative state pending hand choice choice-1 source object missing-choice-source is missing from object registry; expected [known-1] but got missing-choice-source", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state pending hand choice choice-1 legal object missing-choice-legal is missing from object registry", StringComparison.Ordinal));
+            error => error.Contains("authoritative state pending hand choice choice-1 legal object missing-choice-legal is missing from object registry; expected [known-1] but got missing-choice-legal", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("authoritative state temporary payment resource temp-1 source object missing-temp-source is missing from object registry", StringComparison.Ordinal));
+            error => error.Contains("authoritative state temporary payment resource temp-1 source object missing-temp-source is missing from object registry; expected [known-1] but got missing-temp-source", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -136264,7 +136264,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry",
+                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry; expected [] but got source-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -136546,7 +136546,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry",
+                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry; expected [actual-source] but got source-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -136659,7 +136659,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry",
+                "authoritative state trigger queue item trigger-1 source object source-1 is missing from object registry; expected [actual-source] but got source-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

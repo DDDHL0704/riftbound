@@ -25939,12 +25939,12 @@ public static class MatchRecoveryValidator
 
         if (authoritativeState.PendingHandChoice is not null)
         {
-            ValidateAuthoritativeStateOptionalObjectReference(
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} source object",
                 authoritativeState.PendingHandChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceList(
+            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} legal object",
                 authoritativeState.PendingHandChoice.LegalObjectIds,
                 knownObjectIds,
@@ -25959,7 +25959,7 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateOptionalObjectReference(
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"temporary payment resource {resource.ResourceId} source object",
                 resource.SourceObjectId,
                 knownObjectIds,
@@ -26126,7 +26126,7 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateOptionalObjectReference(
+            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"trigger queue item {trigger.TriggerId} source object",
                 trigger.SourceObjectId,
                 knownObjectIds,
