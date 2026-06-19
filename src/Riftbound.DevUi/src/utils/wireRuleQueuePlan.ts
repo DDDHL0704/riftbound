@@ -40,8 +40,40 @@ export type WireRuleQueueSequenceItem = {
   tickLabel?: string;
 };
 
+export type WireRuleQueueInspectorLane = {
+  count: number;
+  headline: string;
+  hint: string;
+  key: WireRuleQueueLaneKey;
+  label: string;
+  state: WireRuleQueueLaneState;
+  stateLabel: string;
+};
+
+export type WireRuleQueueInspectorSequence = {
+  detailLabel: string;
+  key: string;
+  laneLabel: string;
+  label: string;
+  objectCount: number;
+  stateLabel: string;
+  tickLabel?: string;
+};
+
+export type WireRuleQueueInspectorPlan = {
+  activeLaneKey: WireRuleQueueLaneKey | "none";
+  activeLaneLabel: string;
+  lanes: WireRuleQueueInspectorLane[];
+  nextStepLabel: string;
+  sequence: WireRuleQueueInspectorSequence[];
+  state: WireRuleQueueState;
+  stateLabel: string;
+  summary: string;
+};
+
 export type WireRuleQueuePlan = {
   activeLaneKey: WireRuleQueueLaneKey | "none";
+  inspector: WireRuleQueueInspectorPlan;
   lanes: WireRuleQueueLane[];
   metrics: WireRuleQueueMetric[];
   nextStepLabel: string;
@@ -96,54 +128,60 @@ export function buildWireRuleQueuePlan({
   const actingPlayerId = asString(turnWindow.actingPlayerId, asString(timing.priorityPlayerId, ""));
   const promptOwner = prompt?.playerId ?? asString(timing.promptPlayerId, "");
 
+  const lanes = [
+    lane({
+      count: stack.length,
+      headline: stack.length > 0 ? topStackHeadline(stack[0], stack.length) : "空",
+      hint: stack.length > 0 ? "等待响应或继续按 LIFO 结算" : "当前无待响应结算项目",
+      key: "stack",
+      label: "结算链",
+      state: laneState(activeLaneKey, "stack", stack.length, false)
+    }),
+    lane({
+      count: tasks.length,
+      headline: tasks.length > 0 ? topTaskHeadline(tasks[0], isBlocking) : "空",
+      hint: tasks.length > 0 ? taskQueueHint(queue, isBlocking) : "当前无服务端规则任务",
+      key: "task",
+      label: "规则任务",
+      state: laneState(activeLaneKey, "task", tasks.length, isBlocking)
+    }),
+    lane({
+      count: triggers.length,
+      headline: triggers.length > 0 ? topTriggerHeadline(triggers[0]) : "空",
+      hint: triggers.length > 0 ? "等待触发排序或触发结算" : "当前无待排序触发",
+      key: "trigger",
+      label: "触发队列",
+      state: laneState(activeLaneKey, "trigger", triggers.length, false)
+    }),
+    lane({
+      count: battlefieldResolutions.length + battleResolutions.length,
+      headline: resolutionHeadline(battlefieldResolutions, battleResolutions),
+      hint: battlefieldResolutions.length + battleResolutions.length > 0 ? "可选择近期规则事件查看桌面投影" : "当前无近期战场或战斗结算",
+      key: "resolution",
+      label: "近期事件",
+      state: laneState(activeLaneKey, "resolution", battlefieldResolutions.length + battleResolutions.length, false)
+    })
+  ];
+  const metrics = [
+    { key: "phase", label: "阶段", value: matchPhaseLabel(phase) },
+    { key: "window", label: "窗口", value: timingStateLabel(windowState) },
+    { key: "acting-player", label: "行动权", mine: actingPlayerId === playerId, value: actingPlayerId || "无" },
+    { key: "prompt-owner", label: "提示归属", mine: promptOwner === playerId, value: promptOwner || "无" },
+    { key: "stack", label: "结算链", value: `${counts.stackCount} 项` },
+    { key: "task", label: "任务", value: `${counts.taskCount} 项` },
+    { key: "trigger", label: "触发", value: `${counts.triggerCount} 项` },
+    { key: "resolution", label: "近期事件", value: `${counts.battlefieldResolutionCount + counts.battleResolutionCount} 项` }
+  ];
+  const sequence = queueSequence({ battleResolutions, battlefieldResolutions, stack, tasks, triggers });
+  const nextStep = nextStepLabel(state);
+
   return {
     activeLaneKey,
-    lanes: [
-      lane({
-        count: stack.length,
-        headline: stack.length > 0 ? topStackHeadline(stack[0], stack.length) : "空",
-        hint: stack.length > 0 ? "等待响应或继续按 LIFO 结算" : "当前无待响应结算项目",
-        key: "stack",
-        label: "结算链",
-        state: laneState(activeLaneKey, "stack", stack.length, false)
-      }),
-      lane({
-        count: tasks.length,
-        headline: tasks.length > 0 ? topTaskHeadline(tasks[0], isBlocking) : "空",
-        hint: tasks.length > 0 ? taskQueueHint(queue, isBlocking) : "当前无服务端规则任务",
-        key: "task",
-        label: "规则任务",
-        state: laneState(activeLaneKey, "task", tasks.length, isBlocking)
-      }),
-      lane({
-        count: triggers.length,
-        headline: triggers.length > 0 ? topTriggerHeadline(triggers[0]) : "空",
-        hint: triggers.length > 0 ? "等待触发排序或触发结算" : "当前无待排序触发",
-        key: "trigger",
-        label: "触发队列",
-        state: laneState(activeLaneKey, "trigger", triggers.length, false)
-      }),
-      lane({
-        count: battlefieldResolutions.length + battleResolutions.length,
-        headline: resolutionHeadline(battlefieldResolutions, battleResolutions),
-        hint: battlefieldResolutions.length + battleResolutions.length > 0 ? "可选择近期规则事件查看桌面投影" : "当前无近期战场或战斗结算",
-        key: "resolution",
-        label: "近期事件",
-        state: laneState(activeLaneKey, "resolution", battlefieldResolutions.length + battleResolutions.length, false)
-      })
-    ],
-    metrics: [
-      { key: "phase", label: "阶段", value: matchPhaseLabel(phase) },
-      { key: "window", label: "窗口", value: timingStateLabel(windowState) },
-      { key: "acting-player", label: "行动权", mine: actingPlayerId === playerId, value: actingPlayerId || "无" },
-      { key: "prompt-owner", label: "提示归属", mine: promptOwner === playerId, value: promptOwner || "无" },
-      { key: "stack", label: "结算链", value: `${counts.stackCount} 项` },
-      { key: "task", label: "任务", value: `${counts.taskCount} 项` },
-      { key: "trigger", label: "触发", value: `${counts.triggerCount} 项` },
-      { key: "resolution", label: "近期事件", value: `${counts.battlefieldResolutionCount + counts.battleResolutionCount} 项` }
-    ],
-    nextStepLabel: nextStepLabel(state),
-    sequence: queueSequence({ battleResolutions, battlefieldResolutions, stack, tasks, triggers }),
+    inspector: inspectorPlan({ activeLaneKey, lanes, nextStepLabel: nextStep, sequence, state }),
+    lanes,
+    metrics,
+    nextStepLabel: nextStep,
+    sequence,
     state,
     stateLabel: queueStateLabel(state)
   };
@@ -245,6 +283,72 @@ function laneState(
   }
 
   return activeLaneKey === key ? "active" : "waiting";
+}
+
+function inspectorPlan({
+  activeLaneKey,
+  lanes,
+  nextStepLabel,
+  sequence,
+  state
+}: {
+  activeLaneKey: WireRuleQueueLaneKey | "none";
+  lanes: WireRuleQueueLane[];
+  nextStepLabel: string;
+  sequence: WireRuleQueueSequenceItem[];
+  state: WireRuleQueueState;
+}): WireRuleQueueInspectorPlan {
+  const activeLane = lanes.find((lane) => lane.key === activeLaneKey);
+  const stateLabel = queueStateLabel(state);
+  const activeLaneLabel = activeLane?.label ?? "无活动通道";
+
+  return {
+    activeLaneKey,
+    activeLaneLabel,
+    lanes: lanes.map((laneItem) => ({
+      ...laneItem,
+      stateLabel: laneStateLabel(laneItem.state)
+    })),
+    nextStepLabel,
+    sequence: sequence.map((item) => ({
+      detailLabel: item.detailLabel,
+      key: item.key,
+      label: item.label,
+      laneLabel: laneLabel(item.lane),
+      objectCount: item.objectCount,
+      stateLabel: item.stateLabel,
+      tickLabel: item.tickLabel
+    })),
+    state,
+    stateLabel,
+    summary: `${stateLabel} / ${activeLaneLabel} / ${nextStepLabel}`
+  };
+}
+
+function laneLabel(key: WireRuleQueueLaneKey): string {
+  switch (key) {
+    case "resolution":
+      return "近期事件";
+    case "stack":
+      return "结算链";
+    case "task":
+      return "规则任务";
+    case "trigger":
+      return "触发队列";
+  }
+}
+
+function laneStateLabel(state: WireRuleQueueLaneState): string {
+  switch (state) {
+    case "active":
+      return "活动";
+    case "blocked":
+      return "阻塞";
+    case "empty":
+      return "空";
+    case "waiting":
+      return "等待";
+  }
 }
 
 function queueSequence({

@@ -570,6 +570,19 @@ async function runWireClickSelectionSmoke(cdp) {
     };
   })()`);
 
+  await clickButtonByText(cdp, "展开规则检查");
+  await delay(150);
+  const ruleInspectorResult = await evaluateJson(cdp, `(() => {
+    const inspector = document.querySelector(".wire-rule-inspector");
+    return {
+      hidden: inspector?.hasAttribute("hidden") ?? true,
+      laneCount: inspector?.querySelectorAll("[data-rule-inspector-lane]").length ?? 0,
+      sequenceCount: inspector?.querySelectorAll("[data-rule-inspector-sequence-lane]").length ?? 0,
+      text: inspector?.textContent ?? "",
+      toggleExpanded: document.querySelector("[data-rule-inspector-toggle]")?.getAttribute("aria-expanded") ?? null
+    };
+  })()`);
+
   await clickActionCandidateStepObject(cdp, "p1-hand-spell");
   await delay(150);
   const actionCandidateStepResult = await evaluateJson(cdp, `(() => {
@@ -780,6 +793,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.ruleFlowText.includes("近期事件")) failures.push("wire rule queue resolution lane missing");
   if (!actionMapResult.ruleFlowText.includes("下一步")) failures.push("wire rule queue next step missing");
   if (actionMapResult.ruleSequenceCount < 1) failures.push("wire rule queue sequence items missing");
+  if (ruleInspectorResult.hidden) failures.push("wire rule inspector did not open");
+  if (ruleInspectorResult.toggleExpanded !== "true") failures.push("wire rule inspector toggle aria state missing");
+  if (!ruleInspectorResult.text.includes("规则检查")) failures.push("wire rule inspector header missing");
+  if (!ruleInspectorResult.text.includes("活动")) failures.push("wire rule inspector active lane summary missing");
+  if (!ruleInspectorResult.text.includes("下一步")) failures.push("wire rule inspector next step missing");
+  if (ruleInspectorResult.laneCount !== 4) failures.push(`wire rule inspector lane count mismatch: ${ruleInspectorResult.laneCount}`);
+  if (ruleInspectorResult.sequenceCount < 1) failures.push("wire rule inspector sequence items missing");
   if (actionMapResult.candidatePlanCount < 1) failures.push("action map candidate plan cards missing");
   if (actionMapResult.candidatePlanEnabled !== "true") failures.push("PLAY_CARD candidate plan did not preserve enabled state");
   if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");

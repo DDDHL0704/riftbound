@@ -106,6 +106,9 @@ const taskBlocked = buildWireRuleQueuePlan({
 
 assert.equal(taskBlocked.state, "task-blocked");
 assert.equal(taskBlocked.activeLaneKey, "task");
+assert.equal(taskBlocked.inspector.activeLaneLabel, "规则任务");
+assert.equal(taskBlocked.inspector.lanes.find((lane) => lane.key === "task")?.stateLabel, "阻塞");
+assert.ok(taskBlocked.inspector.summary.includes("规则阻塞"));
 assert.equal(taskBlocked.lanes.find((lane) => lane.key === "task")?.state, "blocked");
 assert.ok(taskBlocked.nextStepLabel.includes("阻塞规则任务"));
 assert.ok(taskBlocked.sequence[0].detailLabel.includes("战场控制检查"));
@@ -130,6 +133,9 @@ const stackResponse = buildWireRuleQueuePlan({
 
 assert.equal(stackResponse.state, "stack-response");
 assert.equal(stackResponse.activeLaneKey, "stack");
+assert.equal(stackResponse.inspector.activeLaneLabel, "结算链");
+assert.equal(stackResponse.inspector.sequence[0].laneLabel, "结算链");
+assert.equal(stackResponse.inspector.sequence[0].objectCount, 2);
 assert.equal(stackResponse.lanes.find((lane) => lane.key === "stack")?.state, "active");
 assert.equal(stackResponse.sequence[0].lane, "stack");
 assert.equal(stackResponse.sequence[0].objectCount, 2);
@@ -196,6 +202,7 @@ assert.equal(resolutionHistory.sequence[1].detailLabel, "战斗无结果");
 const idle = buildWireRuleQueuePlan({ playerId: "P1", snapshot: baseSnapshot });
 assert.equal(idle.state, "idle");
 assert.equal(idle.activeLaneKey, "none");
+assert.equal(idle.inspector.activeLaneLabel, "无活动通道");
 assert.equal(idle.sequence.length, 0);
 assert.ok(idle.lanes.every((lane) => lane.state === "empty"));
 

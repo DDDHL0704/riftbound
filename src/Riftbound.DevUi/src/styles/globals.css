@@ -12889,6 +12889,12 @@ button.card-face:hover {
 .wire-rule-flow,
 .wire-rule-flow-heading,
 .wire-rule-flow-next,
+.wire-rule-inspector,
+.wire-rule-inspector header,
+.wire-rule-inspector section,
+.wire-rule-inspector footer,
+.wire-rule-inspector li,
+.wire-rule-inspector-toggle,
 .wire-rule-lanes li,
 .wire-rule-sequence li,
 .wire-rule-state-grid,
@@ -12956,10 +12962,79 @@ button.card-face:hover {
 
 .wire-rule-flow-heading strong,
 .wire-rule-flow-heading span,
-.wire-rule-flow-next {
+.wire-rule-flow-next,
+.wire-rule-inspector span,
+.wire-rule-inspector small,
+.wire-rule-inspector strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-rule-inspector-toggle {
+  width: 100%;
+  border-radius: 0;
+  padding: 4px 6px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-rule-inspector {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-rule-inspector[hidden] {
+  display: none;
+}
+
+.wire-rule-inspector header,
+.wire-rule-inspector section,
+.wire-rule-inspector footer {
+  display: grid;
+  gap: 3px;
+  padding: 4px;
+}
+
+.wire-rule-inspector-lanes,
+.wire-rule-inspector-sequence {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-rule-inspector-lanes {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wire-rule-inspector-sequence {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wire-rule-inspector li {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-rule-inspector li[data-rule-inspector-lane-state="active"],
+.wire-rule-inspector li[data-rule-inspector-lane-state="blocked"] {
+  border-width: 2px;
+}
+
+.wire-rule-inspector li[data-rule-inspector-lane-state="empty"] {
+  border-style: dashed;
+}
+
+.wire-rule-inspector footer {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .wire-rule-lanes,
@@ -13353,6 +13428,12 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-flow,
 .wire-match-page .wire-rule-flow-heading,
 .wire-match-page .wire-rule-flow-next,
+.wire-match-page .wire-rule-inspector,
+.wire-match-page .wire-rule-inspector header,
+.wire-match-page .wire-rule-inspector section,
+.wire-match-page .wire-rule-inspector footer,
+.wire-match-page .wire-rule-inspector li,
+.wire-match-page .wire-rule-inspector-toggle,
 .wire-match-page .wire-rule-lanes li,
 .wire-match-page .wire-rule-sequence li,
 .wire-match-page .wire-rule-state-grid,

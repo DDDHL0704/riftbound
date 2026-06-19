@@ -7,10 +7,10 @@ import type {
   StackItemView,
   TriggerQueueItemView
 } from "../../types/protocol";
-import { Children, type ReactNode } from "react";
+import { Children, type ReactNode, useState } from "react";
 import { asArray, asNumber, asRecord, asString } from "../../utils/collections";
 import { redactInternalText } from "../../utils/redaction";
-import { buildWireRuleQueuePlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
+import { buildWireRuleQueuePlan, type WireRuleQueueInspectorPlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
 import { WireDetailTrigger } from "./WireDetailTrigger";
@@ -86,6 +86,7 @@ const battleResolutionLabels: Record<string, string> = {
 };
 
 export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
+  const [inspectorOpen, setInspectorOpen] = useState(false);
   const timing = asRecord(snapshot?.timing);
   const queue = asRecord(timing.pendingTaskQueue);
   const plan = buildWireRuleQueuePlan({ playerId, prompt, snapshot });
@@ -131,6 +132,16 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
             ))}
           </ol>
         )}
+        <button
+          aria-expanded={inspectorOpen}
+          className="wire-rule-inspector-toggle"
+          data-rule-inspector-toggle="true"
+          onClick={() => setInspectorOpen((open) => !open)}
+          type="button"
+        >
+          {inspectorOpen ? "收起规则检查" : "展开规则检查"}
+        </button>
+        <RuleQueueInspector open={inspectorOpen} plan={plan.inspector} />
       </section>
 
       <div className="wire-rule-state-grid">
@@ -231,6 +242,56 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
         ))}
       </RuleSection>
     </section>
+  );
+}
+
+function RuleQueueInspector({ open, plan }: { open: boolean; plan: WireRuleQueueInspectorPlan }) {
+  return (
+    <aside
+      aria-label="规则队列检查器"
+      className="wire-rule-inspector"
+      data-rule-inspector-state={open ? "open" : "closed"}
+      hidden={!open}
+    >
+      <header>
+        <strong>规则检查</strong>
+        <span>{plan.summary}</span>
+      </header>
+      <section>
+        <strong>通道</strong>
+        <ol className="wire-rule-inspector-lanes">
+          {plan.lanes.map((lane) => (
+            <li data-rule-inspector-lane={lane.key} data-rule-inspector-lane-state={lane.state} key={lane.key}>
+              <span>{lane.label}</span>
+              <strong>{lane.count} 项 / {lane.stateLabel}</strong>
+              <small>{lane.headline}</small>
+              <small>{lane.hint}</small>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section>
+        <strong>顺序</strong>
+        {plan.sequence.length > 0 ? (
+          <ol className="wire-rule-inspector-sequence">
+            {plan.sequence.map((item) => (
+              <li data-rule-inspector-sequence-lane={item.laneLabel} key={item.key}>
+                <span>{item.label}</span>
+                <strong>{item.laneLabel} / {item.detailLabel}</strong>
+                <small>{item.stateLabel} / {item.tickLabel ?? `${item.objectCount} 对象`}</small>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <span className="empty-hint">当前无服务端队列顺序。</span>
+        )}
+      </section>
+      <footer>
+        <span>状态 {plan.stateLabel}</span>
+        <span>活动 {plan.activeLaneLabel}</span>
+        <span>下一步 {plan.nextStepLabel}</span>
+      </footer>
+    </aside>
   );
 }
 
