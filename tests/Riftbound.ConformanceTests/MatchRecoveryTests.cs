@@ -9831,7 +9831,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 location zone BASE must be GRAVEYARD in object locations",
+                "snapshot for alice timing trigger queue item watchful sentinel last-breath draw source object id source-1 location zone BASE must be GRAVEYARD in object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
     }
 
@@ -11158,7 +11158,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in object locations",
+                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
     }
 
@@ -14123,7 +14123,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 location zone BASE must be GRAVEYARD in object locations",
+                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 location zone BASE must be GRAVEYARD in object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
     }
 
@@ -32207,7 +32207,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 watchful sentinel last-breath draw source object id source-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
     }
 
@@ -33231,7 +33231,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
     }
 
@@ -35371,7 +35371,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
     }
 
@@ -148728,7 +148728,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -148833,7 +148833,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item watchful sentinel last-breath draw source object id source-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -154126,7 +154126,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -154241,7 +154241,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -161288,7 +161288,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -161417,7 +161417,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source location zone BASE must be GRAVEYARD in authoritative state object locations",
+                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

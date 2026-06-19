@@ -19270,7 +19270,7 @@ public static class MatchRecoveryValidator
         {
             var sourceZone = sourceLocation.Zone.Trim();
             errors.Add(
-                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} location zone {sourceZone} must be GRAVEYARD in {objectLocationLabel}");
+                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} location zone {sourceZone} must be GRAVEYARD in {objectLocationLabel}; {FormatExpectedActualForRecovery("GRAVEYARD", sourceZone)}");
         }
 
         if (controllerId is not null
@@ -20632,7 +20632,7 @@ public static class MatchRecoveryValidator
 
         var destroyedZone = destroyedLocation.Zone.Trim();
         errors.Add(
-            $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} location zone {destroyedZone} must be GRAVEYARD in {objectLocationLabel}");
+            $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} location zone {destroyedZone} must be GRAVEYARD in {objectLocationLabel}; {FormatExpectedActualForRecovery("GRAVEYARD", destroyedZone)}");
     }
 
     private static void ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContext(
@@ -21859,7 +21859,7 @@ public static class MatchRecoveryValidator
         {
             var sourceZone = sourceLocation.Zone.Trim();
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location zone {sourceZone} must be GRAVEYARD in {objectLocationLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} location zone {sourceZone} must be GRAVEYARD in {objectLocationLabel}; {FormatExpectedActualForRecovery("GRAVEYARD", sourceZone)}");
         }
 
         if (objectLocations is not null
