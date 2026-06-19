@@ -11748,6 +11748,39 @@ button.card-face:hover {
   gap: 3px;
 }
 
+.wire-match-page .detail-context-grid,
+.wire-match-page .detail-context-events {
+  display: grid;
+  gap: 4px;
+}
+
+.wire-match-page .detail-context-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wire-match-page .detail-context-grid span,
+.wire-match-page .detail-context-events li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+.wire-match-page .detail-context-events {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-match-page .detail-context-grid b,
+.wire-match-page .detail-context-events b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-focused-action-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
