@@ -9,8 +9,8 @@ import type {
 } from "../../types/protocol";
 import { Children, type ReactNode } from "react";
 import { asArray, asNumber, asRecord, asString } from "../../utils/collections";
-import { matchPhaseLabel, timingStateLabel } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
+import { buildWireRuleQueuePlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
 import {
@@ -87,7 +87,7 @@ const battleResolutionLabels: Record<string, string> = {
 export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
   const timing = asRecord(snapshot?.timing);
   const queue = asRecord(timing.pendingTaskQueue);
-  const turnWindow = asRecord(timing.turnWindow);
+  const plan = buildWireRuleQueuePlan({ playerId, prompt, snapshot });
   const stack = asArray<Record<string, unknown>>(snapshot?.stack).map(stackItemFromRecord);
   const pendingTasks = asArray<Record<string, unknown>>(queue.tasks).map(taskFromRecord);
   const battlefieldTasks = asArray<Record<string, unknown>>(timing.battlefieldTasks).map(taskFromRecord);
@@ -95,15 +95,11 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
   const battlefieldResolutions = asArray<Record<string, unknown>>(timing.battlefieldResolutions).map(battlefieldResolutionFromRecord);
   const battleResolutions = asArray<Record<string, unknown>>(timing.battleResolutions).map(battleResolutionFromRecord);
   const objects = buildCardObjectIndex(snapshot);
-  const phase = asString(timing.phase, snapshot?.turnState ?? "");
-  const timingState = asString(timing.timingState, snapshot?.turnState ?? "");
-  const actingPlayerId = asString(turnWindow.actingPlayerId, asString(timing.priorityPlayerId, ""));
-  const promptOwner = prompt?.playerId ?? asString(timing.promptPlayerId, "");
   const activeTaskId = asString(queue.activeTaskId, "");
   const isBlocking = Boolean(queue.isBlocking);
 
   return (
-    <section className="wire-rule-queue" aria-label="服务端规则队列">
+    <section className="wire-rule-queue" aria-label="服务端规则队列" data-wire-rule-queue-state={plan.state}>
       <header className="wire-rule-queue-header">
         <div>
           <strong>结算链 / 规则事件</strong>
@@ -114,15 +110,32 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
         </StatusPill>
       </header>
 
+      <section className="wire-rule-flow" aria-label="服务端规则队列地图">
+        <div className="wire-rule-flow-heading">
+          <strong>规则队列地图</strong>
+          <span>{plan.stateLabel}</span>
+        </div>
+        <ol className="wire-rule-lanes">
+          {plan.lanes.map((lane) => (
+            <RuleLaneCard key={lane.key} lane={lane} />
+          ))}
+        </ol>
+        <div className="wire-rule-flow-next" data-wire-rule-next-lane={plan.activeLaneKey}>
+          下一步：{plan.nextStepLabel}
+        </div>
+        {plan.sequence.length > 0 && (
+          <ol className="wire-rule-sequence" aria-label="服务端规则队列顺序">
+            {plan.sequence.map((item) => (
+              <RuleSequenceItem item={item} key={item.key} />
+            ))}
+          </ol>
+        )}
+      </section>
+
       <div className="wire-rule-state-grid">
-        <RuleMetric label="阶段" value={matchPhaseLabel(phase)} />
-        <RuleMetric label="窗口" value={timingStateLabel(timingState)} />
-        <RuleMetric label="行动权" mine={actingPlayerId === playerId} value={actingPlayerId || "无"} />
-        <RuleMetric label="提示归属" mine={promptOwner === playerId} value={promptOwner || "无"} />
-        <RuleMetric label="结算链" value={`${stack.length} 项`} />
-        <RuleMetric label="任务" value={`${pendingTasks.length + battlefieldTasks.length} 项`} />
-        <RuleMetric label="触发" value={`${triggerQueue.length} 项`} />
-        <RuleMetric label="近期事件" value={`${battlefieldResolutions.length + battleResolutions.length} 项`} />
+        {plan.metrics.map((metric) => (
+          <RuleMetric key={metric.key} label={metric.label} mine={metric.mine} value={metric.value} />
+        ))}
       </div>
 
       <RuleSection title="结算链" emptyLabel="当前无结算链项目。">
@@ -217,6 +230,28 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
         ))}
       </RuleSection>
     </section>
+  );
+}
+
+function RuleLaneCard({ lane }: { lane: WireRuleQueueLane }) {
+  return (
+    <li data-rule-lane={lane.key} data-rule-lane-state={lane.state}>
+      <small>{lane.label}</small>
+      <strong>{lane.count} 项</strong>
+      <span>{lane.headline}</span>
+      <em>{lane.hint}</em>
+    </li>
+  );
+}
+
+function RuleSequenceItem({ item }: { item: WireRuleQueueSequenceItem }) {
+  return (
+    <li data-rule-sequence-lane={item.lane}>
+      <small>{item.label}</small>
+      <strong>{item.detailLabel}</strong>
+      <span>{item.stateLabel}</span>
+      <em>{item.tickLabel ?? `${item.objectCount} 对象`}</em>
+    </li>
   );
 }
 
