@@ -54,6 +54,41 @@ export function WireTurnWindowPanel({
         下一步：{plan.nextStepLabel}
       </div>
 
+      <div className="wire-prompt-inspection" aria-label="服务端提示检查" data-wire-prompt-inspection="true">
+        <div className="wire-prompt-inspection-heading">
+          <strong>提示检查</strong>
+          <span>{plan.inspection.sourceLabel}</span>
+        </div>
+        <p>{plan.inspection.boundaryLabel}</p>
+        <dl className="wire-prompt-inspection-summary">
+          {plan.inspection.summaryRows.map((row) => (
+            <div data-wire-prompt-inspection-summary={row.key} key={row.key}>
+              <dt>{row.label}</dt>
+              <dd>{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <div className="wire-prompt-inspection-groups">
+          {plan.inspection.groups.map((group) => (
+            <section data-wire-prompt-inspection-group={group.key} key={group.key}>
+              <strong>{group.title}</strong>
+              {group.rows.length === 0 ? (
+                <span>{group.emptyLabel ?? "当前没有公开记录。"}</span>
+              ) : (
+                <ol>
+                  {group.rows.slice(0, 5).map((row) => (
+                    <li data-wire-prompt-inspection-row={`${group.key}:${row.key}`} key={row.key}>
+                      <small>{row.label}</small>
+                      <strong>{row.value}</strong>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+          ))}
+        </div>
+      </div>
+
       <div className="wire-window-evidence" aria-label="服务端窗口证据" data-wire-window-evidence="true">
         <div className="wire-window-evidence-heading">
           <strong>证据摘要</strong>

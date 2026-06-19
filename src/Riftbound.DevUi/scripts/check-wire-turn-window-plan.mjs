@@ -29,6 +29,29 @@ const actionable = buildWireTurnWindowPlan({
       { action: "PLAY_CARD", enabled: true, label: "打出卡牌", reason: "可提交" },
       { action: "ACTIVATE_ABILITY", enabled: false, label: "激活技能", reason: "暂无窗口" }
     ],
+    inspection: {
+      boundary: "服务端只公开当前行动窗口的类型、候选、命令契约和对象索引摘要；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入提示检查。",
+      groups: [
+        {
+          key: "candidate",
+          title: "服务端候选",
+          rows: [
+            { key: "candidate-0", label: "可提交", tone: "good", value: "PLAY_CARD / 来源 1" },
+            { key: "candidate-1", label: "阻断", tone: "warn", value: "ACTIVATE_ABILITY / 暂无窗口" }
+          ]
+        },
+        {
+          key: "safe-boundary",
+          title: "信息边界",
+          rows: [{ key: "frontend", label: "前端职责", tone: "neutral", value: "展示与提交，不重算规则" }]
+        }
+      ],
+      source: "server-action-prompt",
+      summaryRows: [
+        { key: "kind", label: "提示类型", value: "MAIN_ACTION" },
+        { key: "candidate", label: "候选", value: "1 可提交 / 1 阻断" }
+      ]
+    },
     playerId: "P1",
     promptId: "prompt-1",
     reason: "可操作",
@@ -59,6 +82,11 @@ assert.equal(actionable.tone, "good");
 assert.equal(actionable.enabledCandidateCount, 1);
 assert.equal(actionable.metrics.find((metric) => metric.key === "prompt")?.mine, true);
 assert.ok(actionable.nextStepLabel.includes("服务端候选"));
+assert.equal(actionable.inspection.sourceLabel, "服务端提示检查");
+assert.ok(actionable.inspection.boundaryLabel.includes("服务端只公开"));
+assert.equal(actionable.inspection.summaryRows.find((row) => row.key === "candidate")?.value, "1 可提交 / 1 阻断");
+assert.ok(actionable.inspection.groups.find((group) => group.key === "candidate")?.rows.some((row) => row.value.includes("ACTIVATE_ABILITY")));
+assert.ok(actionable.inspection.groups.find((group) => group.key === "safe-boundary")?.rows.some((row) => row.label.includes("前端职责") && row.value.includes("不重算规则")));
 
 const actionableWithStack = buildWireTurnWindowPlan({
   connectionStatus: "connected",

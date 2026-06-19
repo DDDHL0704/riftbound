@@ -5336,6 +5336,8 @@ internal static class ActionPromptBuilder
             .Select(action => BuildCandidate(state, playerId, action, actionable, reason))
             .ToArray();
         var view = BuildView(state, playerId, actionable, reason, normalizedActions);
+        var contract = ContractForPromptView(view);
+        var objectContexts = ObjectContextsFor(candidates);
 
         return new ActionPromptDto(
             playerId,
@@ -5346,8 +5348,110 @@ internal static class ActionPromptBuilder
             state.Tick,
             candidates,
             view,
-            ContractForPromptView(view),
-            ObjectContextsFor(candidates));
+            contract,
+            objectContexts,
+            PromptInspectionFor(actionable, normalizedActions, candidates, view, contract, objectContexts));
+    }
+
+    private static ActionPromptInspectionDto PromptInspectionFor(
+        bool actionable,
+        IReadOnlyList<string> actions,
+        IReadOnlyList<ActionPromptCandidateDto> candidates,
+        PromptViewDto view,
+        ActionPromptContractDto? contract,
+        IReadOnlyList<ActionPromptObjectContextDto>? objectContexts)
+    {
+        var enabledCount = candidates.Count(candidate => candidate.Enabled);
+        var disabledCount = candidates.Count(candidate => !candidate.Enabled);
+        var objectContextCount = objectContexts?.Count ?? 0;
+        return new ActionPromptInspectionDto(
+            "server-action-prompt",
+            "服务端只公开当前行动窗口的类型、候选、命令契约和对象索引摘要；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入提示检查。",
+            [
+                new("kind", "提示类型", view.Type),
+                new("state", "窗口", actionable ? "可行动" : "等待", actionable ? "good" : "neutral"),
+                new("candidate", "候选", $"{enabledCount} 可提交 / {disabledCount} 阻断"),
+                new("objects", "对象索引", $"{objectContextCount} 个对象")
+            ],
+            [
+                new(
+                    "candidate",
+                    "服务端候选",
+                    candidates
+                        .Select((candidate, index) => new ActionPromptInspectionRowDto(
+                            $"candidate-{index}",
+                            candidate.Enabled ? "可提交" : "阻断",
+                            PromptCandidateInspectionValue(candidate),
+                            candidate.Enabled ? "good" : "warn"))
+                        .ToArray(),
+                    "当前窗口没有公开候选。"),
+                new(
+                    "contract",
+                    "提交契约",
+                    PromptContractInspectionRows(contract, actions),
+                    "当前窗口没有专用提交契约。"),
+                new(
+                    "object-index",
+                    "对象索引",
+                    [
+                        new("count", "索引", $"{objectContextCount} 个对象", objectContextCount > 0 ? "info" : "neutral"),
+                        new("source", "来源", "服务端选择步骤与命令模板", "info")
+                    ]),
+                new(
+                    "safe-boundary",
+                    "信息边界",
+                    [
+                        new("candidate-source", "合法性", "仅以服务端候选和提交校验为准", "neutral"),
+                        new("hidden-metadata", "隐藏字段", "只公开计数或安全标签，不展开隐藏 metadata", "neutral"),
+                        new("frontend", "前端职责", "展示与提交，不重算规则", "neutral")
+                    ])
+            ]);
+    }
+
+    private static string PromptCandidateInspectionValue(ActionPromptCandidateDto candidate)
+    {
+        var commandType = candidate.CommandTemplate?.CmdType;
+        var sourceCount = candidate.Sources?.Count ?? 0;
+        var targetCount = candidate.Targets?.Count ?? 0;
+        var destinationCount = candidate.Destinations?.Count ?? 0;
+        var modeCount = candidate.Modes?.Count ?? 0;
+        var costCount = candidate.OptionalCosts?.Count ?? 0;
+        var stepCount = candidate.SelectionSteps?.Count ?? 0;
+        var parts = new[]
+        {
+            string.IsNullOrWhiteSpace(commandType) ? candidate.Action : commandType,
+            $"来源 {sourceCount}",
+            targetCount > 0 ? $"目标 {targetCount}" : string.Empty,
+            destinationCount > 0 ? $"位置 {destinationCount}" : string.Empty,
+            modeCount > 0 ? $"模式 {modeCount}" : string.Empty,
+            costCount > 0 ? $"费用 {costCount}" : string.Empty,
+            stepCount > 0 ? $"步骤 {stepCount}" : string.Empty,
+            candidate.Enabled ? string.Empty : candidate.Reason
+        };
+        return string.Join(" / ", parts.Where(part => !string.IsNullOrWhiteSpace(part)));
+    }
+
+    private static IReadOnlyList<ActionPromptInspectionRowDto> PromptContractInspectionRows(
+        ActionPromptContractDto? contract,
+        IReadOnlyList<string> actions)
+    {
+        if (contract is null)
+        {
+            return
+            [
+                new("actions", "行动", actions.Count == 0 ? "无行动" : string.Join(" / ", actions), "neutral"),
+                new("contract", "契约", "无专用契约，仍由服务端命令校验裁定", "neutral")
+            ];
+        }
+
+        return
+        [
+            new("candidate-action", "命令", contract.CandidateAction, "info"),
+            new("required", "必填", $"{contract.RequiredPayload.Count} 项", contract.RequiredPayload.Count > 0 ? "warn" : "neutral"),
+            new("legal", "合法选择", $"{contract.LegalChoices.Count} 组", "info"),
+            new("visible", "公开 metadata", $"{contract.VisibleMetadata.Count} 项", "info"),
+            new("hidden", "隐藏 metadata", $"{contract.HiddenMetadata.Count} 项", contract.HiddenMetadata.Count > 0 ? "warn" : "neutral")
+        ];
     }
 
     private static IReadOnlyList<ActionPromptObjectContextDto>? ObjectContextsFor(IReadOnlyList<ActionPromptCandidateDto> candidates)

@@ -341,7 +341,26 @@ public sealed record ActionPromptDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptCandidateDto>? Candidates = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PromptViewDto? View = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptContractDto? Contract = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectContextDto>? ObjectContexts = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectContextDto>? ObjectContexts = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptInspectionDto? Inspection = null);
+
+public sealed record ActionPromptInspectionDto(
+    string Source,
+    string Boundary,
+    IReadOnlyList<ActionPromptInspectionRowDto> SummaryRows,
+    IReadOnlyList<ActionPromptInspectionGroupDto> Groups);
+
+public sealed record ActionPromptInspectionGroupDto(
+    string Key,
+    string Title,
+    IReadOnlyList<ActionPromptInspectionRowDto> Rows,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? EmptyLabel = null);
+
+public sealed record ActionPromptInspectionRowDto(
+    string Key,
+    string Label,
+    string Value,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Tone = null);
 
 public sealed record ActionPromptObjectContextDto(
     string ObjectId,

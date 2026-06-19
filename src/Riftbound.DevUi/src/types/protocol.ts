@@ -225,6 +225,27 @@ export type ActionPromptObjectInspectionDto = {
   groups: ActionPromptObjectInspectionGroupDto[];
 };
 
+export type ActionPromptInspectionRowDto = {
+  key: string;
+  label: string;
+  value: string;
+  tone?: string | null;
+};
+
+export type ActionPromptInspectionGroupDto = {
+  key: string;
+  title: string;
+  rows: ActionPromptInspectionRowDto[];
+  emptyLabel?: string | null;
+};
+
+export type ActionPromptInspectionDto = {
+  source: string;
+  boundary: string;
+  summaryRows: ActionPromptInspectionRowDto[];
+  groups: ActionPromptInspectionGroupDto[];
+};
+
 export type ActionPromptObjectContextDto = {
   objectId: string;
   enabledCandidateCount: number;
@@ -285,6 +306,7 @@ export type ActionPromptDto = {
   snapshotTick?: number | null;
   candidates?: ActionPromptCandidateDto[] | null;
   contract?: ActionPromptContractDto | null;
+  inspection?: ActionPromptInspectionDto | null;
   objectContexts?: ActionPromptObjectContextDto[] | null;
   view?: PromptViewDto | null;
 };

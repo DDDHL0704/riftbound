@@ -136,6 +136,19 @@ public sealed class LocalPlayabilityRuleRegressionTests
         session.EnsurePlayer("P2");
 
         var prompt = session.PromptFor("P1");
+        var promptInspection = Assert.IsType<ActionPromptInspectionDto>(prompt.Inspection);
+        Assert.Equal("server-action-prompt", promptInspection.Source);
+        Assert.Contains("隐藏 metadata", promptInspection.Boundary);
+        Assert.Contains(promptInspection.SummaryRows, row =>
+            string.Equals(row.Key, "candidate", StringComparison.Ordinal)
+            && row.Value.Contains("可提交", StringComparison.Ordinal)
+            && row.Value.Contains("阻断", StringComparison.Ordinal));
+        Assert.Contains(promptInspection.Groups, group =>
+            string.Equals(group.Key, "candidate", StringComparison.Ordinal)
+            && group.Rows.Any(row => row.Value.Contains(CommandTypes.PlayCard, StringComparison.Ordinal)));
+        Assert.Contains(promptInspection.Groups, group =>
+            string.Equals(group.Key, "safe-boundary", StringComparison.Ordinal)
+            && group.Rows.Any(row => row.Value.Contains("展示与提交", StringComparison.Ordinal)));
         var objectContexts = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptObjectContextDto>>(prompt.ObjectContexts);
 
         var sourceContext = Assert.Single(

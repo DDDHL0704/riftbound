@@ -354,6 +354,35 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         objectId: "p2-right-1"
       }
     ],
+    inspection: {
+      boundary: "服务端只公开当前行动窗口的类型、候选、命令契约和对象索引摘要；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入提示检查。",
+      groups: [
+        {
+          key: "candidate",
+          rows: [
+            { key: "candidate-0", label: "可提交", tone: "good", value: "PLAY_CARD / 来源 1 / 目标 1 / 位置 1 / 费用 1 / 步骤 4" },
+            { key: "candidate-1", label: "可提交", tone: "good", value: "MOVE_UNIT / 来源 1 / 位置 2 / 费用 1 / 步骤 3" },
+            { key: "candidate-2", label: "阻断", tone: "warn", value: "ACTIVATE_ABILITY / 来源 1 / 目标 1 / 真实不可提交原因由服务端规则窗口提供。" }
+          ],
+          title: "服务端候选"
+        },
+        {
+          key: "safe-boundary",
+          rows: [
+            { key: "candidate-source", label: "合法性", tone: "neutral", value: "仅以服务端候选和提交校验为准" },
+            { key: "frontend", label: "前端职责", tone: "neutral", value: "展示与提交，不重算规则" }
+          ],
+          title: "信息边界"
+        }
+      ],
+      source: "server-action-prompt",
+      summaryRows: [
+        { key: "kind", label: "提示类型", value: "MAIN_ACTION" },
+        { key: "state", label: "窗口", tone: "good", value: "可行动" },
+        { key: "candidate", label: "候选", value: "5 可提交 / 1 阻断" },
+        { key: "objects", label: "对象索引", value: "4 个对象" }
+      ]
+    },
     playerId: selfId,
     promptId: "wire-layout-fixture-prompt",
     reason: "前端线框样例 prompt，不参与规则判断。",

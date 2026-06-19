@@ -538,6 +538,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const windowPlan = document.querySelector(".wire-window-plan");
     const evidence = document.querySelector("[data-wire-window-evidence]");
+    const promptInspection = document.querySelector("[data-wire-prompt-inspection]");
     const priorityRail = document.querySelector(".wire-priority-rail");
     const ruleQueue = document.querySelector(".wire-rule-queue");
     const ruleFlow = document.querySelector(".wire-rule-flow");
@@ -559,6 +560,9 @@ async function runWireClickSelectionSmoke(cdp) {
       focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? "",
       windowState: windowPlan?.getAttribute("data-wire-window-state") ?? null,
       windowText: windowPlan?.textContent ?? "",
+      promptInspectionGroups: Array.from(document.querySelectorAll("[data-wire-prompt-inspection-group]")).map((node) => node.getAttribute("data-wire-prompt-inspection-group")),
+      promptInspectionSummaryKeys: Array.from(document.querySelectorAll("[data-wire-prompt-inspection-summary]")).map((node) => node.getAttribute("data-wire-prompt-inspection-summary")),
+      promptInspectionText: promptInspection?.textContent ?? "",
       evidenceKeys: Array.from(document.querySelectorAll("[data-window-evidence-key]")).map((node) => node.getAttribute("data-window-evidence-key")),
       evidenceStackState: document.querySelector('[data-window-evidence-key="stack"]')?.getAttribute("data-window-evidence-state") ?? null,
       evidenceTaskState: document.querySelector('[data-window-evidence-key="tasks"]')?.getAttribute("data-window-evidence-state") ?? null,
@@ -782,6 +786,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.windowText.includes("可提交")) failures.push("wire window plan candidate metric missing");
   if (!actionMapResult.windowText.includes("结算链")) failures.push("wire window plan stack metric missing");
   if (!actionMapResult.windowText.includes("任务")) failures.push("wire window plan task metric missing");
+  if (!actionMapResult.promptInspectionText.includes("提示检查")) failures.push("wire prompt inspection header missing");
+  if (!actionMapResult.promptInspectionText.includes("服务端提示检查")) failures.push("wire prompt inspection source missing");
+  if (!actionMapResult.promptInspectionText.includes("服务端只公开")) failures.push("wire prompt inspection boundary missing");
+  if (!actionMapResult.promptInspectionText.includes("前端职责")) failures.push("wire prompt inspection safe boundary missing");
+  if (!actionMapResult.promptInspectionSummaryKeys.includes("candidate")) failures.push("wire prompt inspection candidate summary missing");
+  if (!actionMapResult.promptInspectionGroups.includes("candidate")) failures.push("wire prompt inspection candidate group missing");
+  if (!actionMapResult.promptInspectionGroups.includes("safe-boundary")) failures.push("wire prompt inspection safe-boundary group missing");
   if (!actionMapResult.evidenceText.includes("证据摘要")) failures.push("wire window evidence header missing");
   if (!actionMapResult.evidenceText.includes("服务端结算链")) failures.push("wire window evidence stack source missing");
   if (!actionMapResult.evidenceText.includes("服务端规则任务")) failures.push("wire window evidence task source missing");
