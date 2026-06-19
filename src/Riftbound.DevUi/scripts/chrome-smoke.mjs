@@ -351,12 +351,15 @@ async function runWireClickSelectionSmoke(cdp) {
   const candidateRefResult = await evaluateJson(cdp, `(() => {
     const tableObject = document.querySelector('[data-object-id="p2-right-1"]');
     const selectedRef = document.querySelector('[data-candidate-object-ref="p2-right-1"][data-selected="true"]');
+    const selectedObjectContext = document.querySelector('[data-wire-selected-object-context="p2-right-1"]');
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
       contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
+      detailContextText: selectedObjectContext?.textContent ?? "",
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
-      hasCandidateRefs: document.querySelectorAll("[data-candidate-object-ref]").length
+      hasCandidateRefs: document.querySelectorAll("[data-candidate-object-ref]").length,
+      hasSelectedObjectContext: Boolean(selectedObjectContext)
     };
   })()`);
 
@@ -399,6 +402,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (candidateRefResult.selected !== "true") failures.push("candidate object ref did not focus table object");
   if (!candidateRefResult.selectedRef) failures.push("candidate object ref did not show selected state");
   if (!candidateRefResult.contextText.includes("右战场 / 对方单位")) failures.push("candidate object ref did not refresh object context");
+  if (!candidateRefResult.hasSelectedObjectContext) failures.push("timeline detail did not render selected object context");
+  if (!candidateRefResult.detailContextText.includes("右战场 / 对方单位")) failures.push("timeline selected object context did not use server zone");
+  if (!candidateRefResult.detailContextText.includes("近期事件")) failures.push("timeline selected object context event section missing");
   if (candidateRefResult.detailLayerOpen) failures.push("candidate object ref opened detail");
 
   if (failures.length > 0) {
