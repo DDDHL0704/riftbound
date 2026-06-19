@@ -9330,28 +9330,32 @@ public static class MatchRecoveryValidator
         var expectedRunePool = authoritativeState.RunePools.TryGetValue(playerId, out var runePool)
             ? runePool
             : RunePool.Empty;
-        if (!TryReadObjectInt(runePoolPayload, "mana", out var mana)
-            || mana != expectedRunePool.Mana)
+        var hasMana = TryReadObjectInt(runePoolPayload, "mana", out var mana);
+        if (!hasMana || mana != expectedRunePool.Mana)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} rune pool mana does not match authoritative rune pool mana");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} rune pool mana does not match authoritative rune pool mana; {FormatExpectedActualForRecovery(expectedRunePool.Mana, FormatReadableIntValue(hasMana ? mana : null, runePoolPayload, "mana"))}");
         }
 
-        if (!TryReadObjectInt(runePoolPayload, "power", out var power)
-            || power != expectedRunePool.TotalPower)
+        var hasPower = TryReadObjectInt(runePoolPayload, "power", out var power);
+        if (!hasPower || power != expectedRunePool.TotalPower)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} rune pool total power does not match authoritative rune pool total power");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} rune pool total power does not match authoritative rune pool total power; {FormatExpectedActualForRecovery(expectedRunePool.TotalPower, FormatReadableIntValue(hasPower ? power : null, runePoolPayload, "power"))}");
         }
 
-        if (!TryReadObjectInt(runePoolPayload, "untypedPower", out var untypedPower)
-            || untypedPower != expectedRunePool.Power)
+        var hasUntypedPower = TryReadObjectInt(runePoolPayload, "untypedPower", out var untypedPower);
+        if (!hasUntypedPower || untypedPower != expectedRunePool.Power)
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} rune pool untyped power does not match authoritative rune pool untyped power");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} rune pool untyped power does not match authoritative rune pool untyped power; {FormatExpectedActualForRecovery(expectedRunePool.Power, FormatReadableIntValue(hasUntypedPower ? untypedPower : null, runePoolPayload, "untypedPower"))}");
         }
 
-        if (!TryReadObjectIntDictionary(runePoolPayload, "powerByTrait", out var powerByTrait)
-            || !IntDictionariesEqual(powerByTrait, expectedRunePool.PowerByTrait))
+        var hasPowerByTrait = TryReadObjectIntDictionary(runePoolPayload, "powerByTrait", out var powerByTrait);
+        if (!hasPowerByTrait || !IntDictionariesEqual(powerByTrait, expectedRunePool.PowerByTrait))
         {
-            errors.Add($"spectator replay frame snapshot player {playerId} rune pool power by trait does not match authoritative rune pool power by trait");
+            errors.Add(
+                $"spectator replay frame snapshot player {playerId} rune pool power by trait does not match authoritative rune pool power by trait; {FormatExpectedActualForRecovery(expectedRunePool.PowerByTrait, FormatReadableIntDictionaryValue(hasPowerByTrait, powerByTrait, runePoolPayload, "powerByTrait"))}");
         }
     }
 
@@ -14274,6 +14278,15 @@ public static class MatchRecoveryValidator
     private static object FormatReadableIntValue(int? value, object? payload, string key)
     {
         return value is int actual ? actual : FormatUnreadableObjectValue(payload, key);
+    }
+
+    private static object FormatReadableIntDictionaryValue(
+        bool hasValue,
+        IReadOnlyDictionary<string, int> value,
+        object? payload,
+        string key)
+    {
+        return hasValue ? value : FormatUnreadableObjectValue(payload, key);
     }
 
     private static object FormatReadableIntValue(object? value)

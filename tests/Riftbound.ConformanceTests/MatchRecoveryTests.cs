@@ -45613,16 +45613,24 @@ public sealed class MatchRecoveryTests
 
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice rune pool mana does not match authoritative rune pool mana", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice rune pool mana does not match authoritative rune pool mana; expected 2 but got 9",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice rune pool total power does not match authoritative rune pool total power", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice rune pool total power does not match authoritative rune pool total power; expected 8 but got 10",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice rune pool untyped power does not match authoritative rune pool untyped power", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice rune pool untyped power does not match authoritative rune pool untyped power; expected 3 but got 11",
+                StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot player alice rune pool power by trait does not match authoritative rune pool power by trait", StringComparison.Ordinal));
+            error => error.Contains(
+                "spectator replay frame snapshot player alice rune pool power by trait does not match authoritative rune pool power by trait; expected {blue: 1, red: 4} but got {green: 1, red: 99}",
+                StringComparison.Ordinal));
     }
 
     [Fact]
