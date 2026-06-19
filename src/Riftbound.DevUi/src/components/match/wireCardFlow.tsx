@@ -5,6 +5,7 @@ import { CardObjectView } from "../../types/protocol";
 import type { PromptObjectState } from "../../utils/promptInteraction";
 
 export type WireCardFlowKind = "battlefield-unit" | "base" | "hand" | "signature";
+export type WireTimelineObjectState = "event" | "rule";
 
 export type WireCardFlowPlan = {
   cardHeight: number;
@@ -32,6 +33,7 @@ type WireCardFlowProps = {
   renderEmptySlots?: boolean;
   selectedObjectId?: string;
   specs: Record<string, BehaviorSpec>;
+  timelineByObjectId?: Record<string, WireTimelineObjectState | undefined>;
 };
 
 type WireCssProperties = CSSProperties & Record<`--${string}`, string | number>;
@@ -108,7 +110,8 @@ export function WireCardFlow({
   plan: providedPlan,
   renderEmptySlots = false,
   selectedObjectId,
-  specs
+  specs,
+  timelineByObjectId
 }: WireCardFlowProps) {
   const flowPlan = providedPlan ?? buildWireCardFlowPlan({ itemCount: ids.length, kind, minSlots });
   const slotCount = renderEmptySlots ? Math.max(flowPlan.slotCount, ids.length, minSlots) : ids.length;
@@ -140,6 +143,7 @@ export function WireCardFlow({
             onPreview={onPreviewCard}
             selected={selectedObjectId === id}
             spec={object.cardNo ? specs[object.cardNo] : undefined}
+            timelineState={timelineByObjectId?.[id]}
           />
         );
       })}
@@ -159,7 +163,8 @@ export function WirePublicPile({
   onInspectCard,
   onPreviewCard,
   selectedObjectId,
-  specs
+  specs,
+  timelineByObjectId
 }: {
   ids: string[];
   interactionByObjectId?: Record<string, PromptObjectState | undefined>;
@@ -169,6 +174,7 @@ export function WirePublicPile({
   onPreviewCard?: (card?: InspectedCard) => void;
   selectedObjectId?: string;
   specs: Record<string, BehaviorSpec>;
+  timelineByObjectId?: Record<string, WireTimelineObjectState | undefined>;
 }) {
   const topId = ids.at(-1);
   const topObject = topId ? objects[topId] : undefined;
@@ -185,6 +191,7 @@ export function WirePublicPile({
           onPreview={onPreviewCard}
           selected={selectedObjectId === topId}
           spec={topObject?.cardNo ? specs[topObject.cardNo] : undefined}
+          timelineState={topId ? timelineByObjectId?.[topId] : undefined}
         />
       ) : (
         <div className="wire-stack-box" aria-hidden="true" />

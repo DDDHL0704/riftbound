@@ -12516,6 +12516,22 @@ button.wire-object-ref {
   outline-offset: -5px !important;
 }
 
+.wire-table .card-face.is-timeline-rule,
+.wire-table .card-image-only.is-timeline-rule,
+.wire-table .card-back.is-timeline-rule {
+  outline: 3px dashed #000 !important;
+  outline-offset: -7px !important;
+  box-shadow: inset 0 0 0 1px #000 !important;
+}
+
+.wire-table .card-face.is-timeline-event,
+.wire-table .card-image-only.is-timeline-event,
+.wire-table .card-back.is-timeline-event {
+  outline: 3px double #000 !important;
+  outline-offset: -7px !important;
+  box-shadow: inset 0 0 0 1px #000 !important;
+}
+
 .wire-table .card-face.is-prompt-source,
 .wire-table .card-image-only.is-prompt-source,
 .wire-table .card-back.is-prompt-source {

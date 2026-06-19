@@ -11,6 +11,7 @@ type CardFaceProps = {
   spec?: BehaviorSpec;
   compact?: boolean;
   interactionState?: PromptObjectState;
+  timelineState?: "event" | "rule";
   selected?: boolean;
   onInspect?: (card: InspectedCard) => void;
   onPreview?: (card?: InspectedCard) => void;
@@ -22,13 +23,14 @@ export type InspectedCard = {
   spec?: BehaviorSpec;
 };
 
-export function CardFace({ objectId, object, spec, compact = false, interactionState, selected = false, onInspect, onPreview }: CardFaceProps) {
+export function CardFace({ objectId, object, spec, compact = false, interactionState, timelineState, selected = false, onInspect, onPreview }: CardFaceProps) {
   const hidden = isHiddenObject(object) && !spec;
   const Container = onInspect ? "button" : "article";
   const previewCard = { objectId, object, spec };
   const dataProps = {
     "data-object-id": objectId,
     "data-prompt-state": interactionState,
+    "data-timeline-state": timelineState,
     "data-selected": selected ? "true" : undefined
   };
   const previewProps = onPreview
@@ -49,7 +51,7 @@ export function CardFace({ objectId, object, spec, compact = false, interactionS
 
   if (hidden) {
     return (
-      <Container aria-label="未公开卡牌" className={`card-face card-back ${selected ? "is-selected" : ""} ${interactionClass(interactionState)}`} {...dataProps} {...containerProps}>
+      <Container aria-label="未公开卡牌" className={`card-face card-back ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} {...dataProps} {...containerProps}>
         <div className="card-frame-top">未公开</div>
         <strong>卡背</strong>
         <span>隐藏信息</span>
@@ -73,7 +75,7 @@ export function CardFace({ objectId, object, spec, compact = false, interactionS
     return (
       <Container
         aria-label={`${title} ${spec?.cardNo ?? object?.cardNo ?? ""}`.trim()}
-        className={`card-face card-image-only ${battlefield ? "card-battlefield-image" : ""} ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)}`}
+        className={`card-face card-image-only ${battlefield ? "card-battlefield-image" : ""} ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`}
         {...dataProps}
         {...containerProps}
       >
@@ -89,7 +91,7 @@ export function CardFace({ objectId, object, spec, compact = false, interactionS
   }
 
   return (
-    <Container className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)}`} {...dataProps} {...containerProps}>
+    <Container className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} {...dataProps} {...containerProps}>
       <div className="card-frame-top">
         <span>{category}</span>
         <span>{spec?.cardNo ?? object?.cardNo ?? "无编号"}</span>
@@ -136,6 +138,10 @@ export function CardFace({ objectId, object, spec, compact = false, interactionS
 
 function interactionClass(state: CardFaceProps["interactionState"]): string {
   return state ? `is-prompt-${state}` : "";
+}
+
+function timelineClass(state: CardFaceProps["timelineState"]): string {
+  return state ? `is-timeline-${state}` : "";
 }
 
 export function objectStateLabels(object?: CardObjectView): string[] {
