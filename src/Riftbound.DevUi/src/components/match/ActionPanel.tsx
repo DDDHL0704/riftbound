@@ -1,9 +1,10 @@
 import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptContractDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { commandFromActionPromptTemplate } from "../../utils/actionPromptCommandTemplate";
 import { promptStampedCommand as withPromptStamp, sourceRequirementFor } from "../../utils/actionPromptCandidates";
-import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
+import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
+import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import { redactInternalText } from "../../utils/redaction";
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
@@ -24,7 +25,8 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
   const allCandidates = prompt?.candidates ?? [];
   const candidates = allCandidates.filter((candidate) => candidate.enabled);
   const connected = connectionStatus === "connected";
-  const canAct = connected && prompt?.actionable && prompt.playerId === playerId;
+  const promptPlan = buildActionPanelPromptPlan({ connectionStatus, playerId, prompt });
+  const canAct = promptPlan.canAct;
   const promptView = prompt?.view;
   const orderTriggersCandidate = allCandidates.find((candidate) => candidate.action === "ORDER_TRIGGERS");
   const handChoiceCandidate = allCandidates.find((candidate) => candidate.action === "CHOOSE_HAND_CARDS");
@@ -32,9 +34,6 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
     && !candidates.some((candidate) => candidate.action === "ORDER_TRIGGERS");
   const showReadonlyHandChoice = promptView?.type === "HAND_CHOICE"
     && !candidates.some((candidate) => candidate.action === "CHOOSE_HAND_CARDS");
-  const promptTitle = promptView?.title?.trim() || "当前行动";
-  const promptMessage = promptView?.message?.trim()
-    || (prompt ? promptReasonLabel(prompt.reason, "服务端行动提示") : "尚未收到行动提示");
 
   return (
     <section className="side-panel action-panel">
@@ -42,20 +41,13 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
         <div className="action-panel-content">
           <header>
             <span className="eyebrow">服务端行动提示</span>
-            <h2>{promptTitle}</h2>
+            <h2>{promptPlan.promptTitle}</h2>
           </header>
           <div className="prompt-summary">
-            <StatusPill tone={canAct ? "good" : "neutral"}>{canAct ? "轮到你操作" : "等待服务端或对手"}</StatusPill>
-            <span>提示状态：{prompt ? "已收到" : "无"}</span>
-            {promptView?.type && <span>类型：{promptView.type}</span>}
-            <span>{promptView ? "说明" : "原因"}：{promptMessage}</span>
-            {promptView?.relatedBattlefieldId && <span>关联战场：{promptView.relatedBattlefieldId}</span>}
-            {promptView?.relatedBattleId && <span>关联战斗：{promptView.relatedBattleId}</span>}
-            {promptView?.relatedSpellDuelId && <span>关联法术对决：{promptView.relatedSpellDuelId}</span>}
-            {promptView?.relatedStackItemId && <span>关联结算链：{promptView.relatedStackItemId}</span>}
-            {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
+            <StatusPill tone={promptPlan.statusTone}>{promptPlan.statusLabel}</StatusPill>
+            {promptPlan.rows.map((row) => <span key={row.key}>{row.text}</span>)}
           </div>
-          {prompt && shouldShowGenericPromptDetails(prompt) && <GenericPromptDetails prompt={prompt} />}
+          {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
           <div className="action-buttons">
             {showReadonlyOrderTriggers && (
               <OrderTriggersCandidate
@@ -132,97 +124,49 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
   );
 }
 
-function GenericPromptDetails({ prompt }: { prompt: ActionPromptDto }) {
-  const metadataEntries = Object.entries(prompt.view?.metadata ?? {})
-    .filter(([, value]) => value != null)
-    .slice(0, 6);
-  const candidates = (prompt.candidates ?? []).slice(0, 6);
-  const type = prompt.view?.type?.trim() ?? "";
-  const fallbackLabel = knownPromptTypes.has(type) ? "复杂窗口" : "未知窗口";
-
+function GenericPromptDetails({ plan }: { plan: ActionPanelGenericPromptPlan }) {
   return (
     <div className="generic-prompt-details">
       <div className="generic-prompt-heading">
         <strong>服务端选项</strong>
-        <StatusPill tone="warn">{fallbackLabel}</StatusPill>
+        <StatusPill tone="warn">{plan.statusLabel}</StatusPill>
       </div>
-      <p className="generic-prompt-note">
-        该窗口需要服务端正式交互字段支持；当前只展示安全候选摘要，不在前端计算或模拟规则结果。
-      </p>
-      {candidates.length === 0 && <span className="empty-hint">当前窗口没有服务端可提交选项。</span>}
-      {candidates.map((candidate) => (
-        <div className="generic-prompt-option" key={`${candidate.action}-${candidate.label}`}>
-          <span>{promptActionLabel(candidate)}</span>
-          <small>{candidate.enabled ? promptReasonLabel(candidate.reason, "可提交") : promptReasonLabel(candidate.reason, "暂不可提交")}</small>
-          <ChoicePreview title="来源" choices={candidate.sources} />
-          <ChoicePreview title="目标" choices={candidate.targets} />
-          <ChoicePreview title="位置" choices={candidate.destinations} />
-          <ChoicePreview title="模式" choices={candidate.modes} />
-          <ChoicePreview title="费用" choices={candidate.optionalCosts} />
+      <p className="generic-prompt-note">{plan.note}</p>
+      {plan.emptyCandidateLabel && <span className="empty-hint">{plan.emptyCandidateLabel}</span>}
+      {plan.candidateRows.map((candidate) => (
+        <div className="generic-prompt-option" key={candidate.key}>
+          <span>{candidate.label}</span>
+          <small>{candidate.reason}</small>
+          {candidate.previews.map((preview) => <span key={preview.key}>{preview.text}</span>)}
         </div>
       ))}
-      {metadataEntries.length > 0 && (
+      {plan.metadataRows.length > 0 && (
         <div className="generic-prompt-metadata">
           <strong>窗口数据</strong>
-          {metadataEntries.map(([key, value]) => (
-            <span key={key}>{redactInternalText(key)}：{safePromptValue(key, value)}</span>
+          {plan.metadataRows.map((row) => (
+            <span key={row.key}>{row.label}：{row.value}</span>
           ))}
         </div>
       )}
-      {prompt.contract && <PromptContractSummary contract={prompt.contract} />}
+      {plan.contract && <PromptContractSummary contract={plan.contract} />}
     </div>
   );
 }
 
-function PromptContractSummary({ contract }: { contract: ActionPromptContractDto }) {
+function PromptContractSummary({ contract }: { contract: NonNullable<ActionPanelGenericPromptPlan["contract"]> }) {
   return (
     <div className="generic-prompt-contract" aria-label="服务端提示契约">
       <div className="generic-prompt-contract-heading">
         <strong>提示契约</strong>
-        <span>{contract.promptKind} / {contract.candidateAction}</span>
+        <span>{contract.heading}</span>
       </div>
-      <ContractLine label="提交字段" values={contract.requiredPayload} />
-      <ContractLine label="合法选项" values={contract.legalChoices} />
-      <ContractLine label="公开数据" values={contract.visibleMetadata} />
-      <HiddenContractLine values={contract.hiddenMetadata} />
-      <ContractLine label="服务端校验" values={contract.validationErrors} />
+      {contract.lines.map((line) => (
+        <span key={line.key}>
+          <b>{line.label}</b>
+          <small>{line.value}</small>
+        </span>
+      ))}
     </div>
-  );
-}
-
-function ContractLine({ label, values }: { label: string; values?: string[] | null }) {
-  if (!values?.length) {
-    return null;
-  }
-
-  return (
-    <span>
-      <b>{label}</b>
-      <small>{values.slice(0, 5).map(redactInternalText).join(" / ")}{values.length > 5 ? ` 等 ${values.length} 项` : ""}</small>
-    </span>
-  );
-}
-
-function HiddenContractLine({ values }: { values?: string[] | null }) {
-  if (!values?.length) {
-    return null;
-  }
-
-  return (
-    <span>
-      <b>隐藏数据</b>
-      <small>{values.length} 项由服务端保留，不向客户端展开。</small>
-    </span>
-  );
-}
-
-function ChoicePreview({ title, choices }: { title: string; choices?: ActionPromptChoiceDto[] | null }) {
-  if (!choices || choices.length === 0) {
-    return null;
-  }
-
-  return (
-    <span>{title}：{choices.slice(0, 4).map(choiceLabel).join("、")}{choices.length > 4 ? ` 等 ${choices.length} 项` : ""}</span>
   );
 }
 
@@ -1207,74 +1151,9 @@ function objectLabel(snapshot: SnapshotDto | undefined, objectId: string): strin
   return cardNo ? `${cardNo} · ${objectId}` : objectId;
 }
 
-function shouldShowGenericPromptDetails(prompt: ActionPromptDto): boolean {
-  const type = prompt.view?.type?.trim();
-  if (!type) {
-    return false;
-  }
-
-  return complexPromptTypes.has(type) || !knownPromptTypes.has(type);
-}
-
 function choiceLabel(choice: ActionPromptChoiceDto): string {
   return redactInternalText(choice.label || choice.id || "服务端选项");
 }
-
-function safePromptValue(key: string, value: unknown): string {
-  if (typeof value === "string") {
-    return safeStringMetadataKeys.has(key) ? redactInternalText(value) || "文本" : "文本";
-  }
-
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-
-  if (Array.isArray(value)) {
-    return `${value.length} 项`;
-  }
-
-  if (value && typeof value === "object") {
-    return `${Object.keys(value).length} 项`;
-  }
-
-  return "无";
-}
-
-const knownPromptTypes = new Set<string>([
-  "ROOM_SETUP",
-  "MULLIGAN",
-  "MAIN_ACTION",
-  "STACK_PRIORITY",
-  "SPELL_DUEL_FOCUS",
-  "SPELL_DUEL_ACTION",
-  "BATTLE_DECLARATION",
-  "HAND_CHOICE",
-  "ASSIGN_COMBAT_DAMAGE",
-  "PAY_COST",
-  "ORDER_TRIGGERS",
-  "TASK_QUEUE",
-  "WAIT",
-  "MATCH_RESULT"
-]);
-
-const complexPromptTypes = new Set<string>([
-  "PAY_COST",
-  "ORDER_TRIGGERS",
-  "HAND_CHOICE",
-  "ASSIGN_COMBAT_DAMAGE",
-  "SPELL_DUEL_ACTION"
-]);
-
-const safeStringMetadataKeys = new Set<string>([
-  "action",
-  "actionType",
-  "kind",
-  "phase",
-  "promptType",
-  "state",
-  "status",
-  "window"
-]);
 
 function numberMetadata(metadata: Record<string, unknown> | null | undefined, key: string): number | undefined {
   const value = metadata?.[key];

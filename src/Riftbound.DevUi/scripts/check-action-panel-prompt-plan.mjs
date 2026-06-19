@@ -1,0 +1,170 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import ts from "typescript";
+
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const sourcePath = resolve(scriptDir, "../src/utils/actionPanelPromptPlan.ts");
+const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
+const output = ts.transpileModule(source, {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022
+  }
+}).outputText;
+const moduleShim = { exports: {} };
+
+new Function(
+  "exports",
+  "module",
+  "connectionStatusLabel",
+  "promptActionLabel",
+  "promptReasonLabel",
+  "redactInternalText",
+  output
+)(
+  moduleShim.exports,
+  moduleShim,
+  connectionStatusLabel,
+  promptActionLabel,
+  promptReasonLabel,
+  redactInternalText
+);
+
+const { buildActionPanelPromptPlan } = moduleShim.exports;
+
+const disconnectedPlan = buildActionPanelPromptPlan({
+  connectionStatus: "disconnected",
+  playerId: "P1"
+});
+
+assert.equal(disconnectedPlan.canAct, false);
+assert.equal(disconnectedPlan.promptTitle, "当前行动");
+assert.equal(disconnectedPlan.statusLabel, "等待服务端或对手");
+assert.ok(disconnectedPlan.rows.some((row) => row.text.includes("连接状态：已断开")));
+assert.equal(disconnectedPlan.genericPrompt, undefined);
+
+const knownSimplePlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["END_TURN"],
+    candidates: [],
+    playerId: "P1",
+    reason: "MAIN_ACTION",
+    view: {
+      message: "选择一个主行动。",
+      title: "主行动",
+      type: "MAIN_ACTION"
+    }
+  }
+});
+
+assert.equal(knownSimplePlan.canAct, true);
+assert.equal(knownSimplePlan.statusTone, "good");
+assert.equal(knownSimplePlan.genericPrompt, undefined);
+
+const complexPrompt = {
+  actionable: true,
+  actions: ["PAY_COST"],
+  candidates: [
+    {
+      action: "PAY_COST",
+      destinations: [{ id: "paid", label: "费用池" }],
+      enabled: true,
+      label: "支付费用",
+      optionalCosts: [{ id: "boost", label: "额外费用" }],
+      reason: "可支付",
+      sources: [
+        { id: "rune-1", label: "火符文", objectIds: ["rune-1"] },
+        { id: "rune-2", label: "风符文", objectIds: ["rune-2"] },
+        { id: "rune-3", label: "土符文", objectIds: ["rune-3"] },
+        { id: "rune-4", label: "水符文", objectIds: ["rune-4"] },
+        { id: "rune-5", label: "光符文", objectIds: ["rune-5"] }
+      ]
+    }
+  ],
+  contract: {
+    candidateAction: "PAY_COST",
+    hiddenMetadata: ["serverPaymentState", "privateChoiceGraph"],
+    legalChoices: ["sources", "optionalCosts"],
+    promptKind: "PAY_COST",
+    requiredPayload: ["paymentId", "paymentChoiceIds"],
+    validationErrors: [],
+    visibleMetadata: ["phase", "window"]
+  },
+  playerId: "P1",
+  reason: "PAY_COST",
+  view: {
+    message: "",
+    metadata: {
+      phase: "MAIN",
+      privateNote: "never show this raw value",
+      requirementGraph: { a: 1, b: 2 },
+      selectableIds: ["a", "b", "c"],
+      status: "OPEN"
+    },
+    relatedStackItemId: "stack-1",
+    title: "支付费用",
+    type: "PAY_COST"
+  }
+};
+
+const complexPlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: complexPrompt
+});
+
+assert.equal(complexPlan.promptMessage, "PAY_COST");
+assert.ok(complexPlan.rows.some((row) => row.text === "关联结算链：stack-1"));
+assert.equal(complexPlan.genericPrompt?.statusLabel, "复杂窗口");
+assert.equal(complexPlan.genericPrompt?.candidateRows.length, 1);
+assert.equal(complexPlan.genericPrompt.candidateRows[0].previews[0].text, "来源：火符文、风符文、土符文、水符文 等 5 项");
+assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "phase")?.value, "MAIN");
+assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "privateNote")?.value, "文本");
+assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "selectableIds")?.value, "3 项");
+assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "requirementGraph")?.value, "2 项");
+assert.equal(complexPlan.genericPrompt.contract?.lines.find((line) => line.key === "hiddenMetadata")?.value, "2 项由服务端保留，不向客户端展开。");
+assert.equal(JSON.stringify(complexPlan).includes("serverPaymentState"), false);
+assert.equal(JSON.stringify(complexPlan).includes("never show this raw value"), false);
+
+const unknownPlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: false,
+    actions: [],
+    candidates: [],
+    playerId: "P2",
+    reason: "future window",
+    view: {
+      message: "等待后端正式支持。",
+      title: "新窗口",
+      type: "FUTURE_RULE_WINDOW"
+    }
+  }
+});
+
+assert.equal(unknownPlan.genericPrompt?.statusLabel, "未知窗口");
+assert.equal(unknownPlan.genericPrompt?.emptyCandidateLabel, "当前窗口没有服务端可提交选项。");
+
+console.log("Action panel prompt plan check passed.");
+
+function connectionStatusLabel(status) {
+  return status === "connected" ? "已连接" : status === "disconnected" ? "已断开" : status;
+}
+
+function promptActionLabel(candidate) {
+  return candidate.label || candidate.action;
+}
+
+function promptReasonLabel(reason, fallback = "服务端候选") {
+  return reason || fallback;
+}
+
+function redactInternalText(value) {
+  return String(value).replace(/serverPaymentState|privateChoiceGraph/g, "服务端字段");
+}
