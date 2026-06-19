@@ -469,6 +469,8 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
     obj("p1-right-3", "UNL-022/219", selfId)
   ], {
     base: ["p1-base-unit", "p1-base-equip", "p1-base-spell", "p1-rune-1", "p1-rune-2", "p1-rune-3", "p1-rune-4", "p1-rune-5", "p1-rune-6"],
+    baseCards: ["p1-base-unit", "p1-base-equip", "p1-base-spell"],
+    baseRunes: ["p1-rune-1", "p1-rune-2", "p1-rune-3", "p1-rune-4", "p1-rune-5", "p1-rune-6"],
     banished: ["p1-banished-spell"],
     championZone: ["p1-hero"],
     graveyard: ["p1-grave-spell", "p1-grave-equip"],
@@ -499,6 +501,8 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
     obj("p2-right-4", "UNL-019/219", opponentId)
   ], {
     base: ["p2-base-unit", "p2-base-equip", "p2-rune-1", "p2-rune-2", "p2-rune-3", "p2-rune-4", "p2-rune-5"],
+    baseCards: ["p2-base-unit", "p2-base-equip"],
+    baseRunes: ["p2-rune-1", "p2-rune-2", "p2-rune-3", "p2-rune-4", "p2-rune-5"],
     banished: ["p2-banished-equip"],
     championZone: ["p2-hero"],
     graveyard: ["p2-grave-spell"],
@@ -519,6 +523,10 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
           occupantObjectIds: ["p2-left-1", "p2-left-2", "p2-left-3", "p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"],
           scoredThisTurn: false,
           status: "CONTESTED",
+          unitsBySide: {
+            [opponentId]: ["p2-left-1", "p2-left-2", "p2-left-3"],
+            [selfId]: ["p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"]
+          },
           zonePlayerId: selfId
         },
         {
@@ -528,6 +536,10 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
           occupantObjectIds: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4", "p1-right-1", "p1-right-2", "p1-right-3"],
           scoredThisTurn: true,
           status: "CONTROLLED",
+          unitsBySide: {
+            [opponentId]: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4"],
+            [selfId]: ["p1-right-1", "p1-right-2", "p1-right-3"]
+          },
           zonePlayerId: opponentId
         }
       ]

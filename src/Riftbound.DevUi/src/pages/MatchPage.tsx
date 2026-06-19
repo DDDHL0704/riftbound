@@ -443,7 +443,7 @@ function WirePlayerHome({
   } satisfies Record<string, ReactNode>;
 
   return (
-    <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={`${ownerLabel} 基础区`}>
+    <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={`${ownerLabel} 基础区`} data-wire-base-partition-source={entry?.basePartitionSource ?? "missing"}>
       {layout.slots.map((slot) => homeSections[slot])}
     </section>
   );
@@ -556,6 +556,7 @@ function WireBattlefieldTable({
               onInspectCard={onInspectCard}
               onPreviewCard={onPreviewCard}
               plan={unitPlan}
+              splitSource={lane.occupantSplitSource}
               specs={specs}
               title={battlefieldUnitZoneLabel(zone.laneIndex, zone.side)}
             />
@@ -629,6 +630,7 @@ function WireBattlefieldUnitZone({
   onInspectCard,
   onPreviewCard,
   plan,
+  splitSource,
   specs,
   title
 }: {
@@ -638,11 +640,12 @@ function WireBattlefieldUnitZone({
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard: (card?: InspectedCard) => void;
   plan: WireCardFlowPlan;
+  splitSource: WireBattlefieldLane["occupantSplitSource"];
   specs: Record<string, BehaviorSpec>;
   title: string;
 }) {
   return (
-    <section className="wire-battlefield-unit-zone" aria-label={title}>
+    <section className="wire-battlefield-unit-zone" aria-label={title} data-wire-battlefield-split-source={splitSource}>
       <WireCardFlow ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="battlefield-unit" minSlots={3} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={plan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
     </section>
   );

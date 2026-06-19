@@ -458,6 +458,20 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    for (const home of Array.from(document.querySelectorAll(".wire-player-home"))) {
+      const source = home.getAttribute("data-wire-base-partition-source") ?? "";
+      if (source !== "server") {
+        failures.push(\`wire player home should use server base partition source, got \${source || "missing"}\`);
+      }
+    }
+
+    for (const unitZone of Array.from(document.querySelectorAll(".wire-battlefield-unit-zone"))) {
+      const source = unitZone.getAttribute("data-wire-battlefield-split-source") ?? "";
+      if (source !== "server-unitsBySide") {
+        failures.push(\`wire battlefield unit zone should use server unitsBySide source, got \${source || "missing"}\`);
+      }
+    }
+
     for (const pile of Array.from(document.querySelectorAll(".wire-fixed-pile"))) {
       const pileRect = rectOf(pile);
       const child = pile.querySelector(":scope > .card-face, :scope > .card-image-only, :scope > .card-back, :scope > .wire-stack-box");

@@ -115,15 +115,18 @@ assert.equal(table.self.id, "P1");
 assert.equal(table.opponent.id, "P2");
 
 assert.deepEqual(table.self.baseObjectIds, ["p1-base-1"]);
+assert.equal(table.self.basePartitionSource, "server");
 assert.deepEqual(table.self.runeIds, ["p1-rune-1", "p1-rune-tagged"]);
 assert.deepEqual(table.self.handIds, ["p1-hand-1"]);
 assert.deepEqual(table.self.hiddenHandIds, ["hidden-P1-0", "hidden-P1-1"]);
 assert.deepEqual(table.opponent.baseObjectIds, ["p2-base-1"]);
+assert.equal(table.opponent.basePartitionSource, "server");
 assert.deepEqual(table.opponent.runeIds, ["p2-rune-1"]);
 assert.deepEqual(table.opponent.hiddenHandIds, ["hidden-P2-0", "hidden-P2-1", "hidden-P2-2", "hidden-P2-3"]);
 
 const battlefield = buildWireBattlefieldModel(snapshot, "P1");
 assert.equal(battlefield.lanes.length, 2);
+assert.equal(battlefield.lanes[0].occupantSplitSource, "server-unitsBySide");
 assert.deepEqual(battlefield.lanes[0].ownOccupants, ["p1-left-1", "p1-left-2"]);
 assert.deepEqual(battlefield.lanes[0].opposingOccupants, ["p2-left-1"]);
 assert.equal(
@@ -131,6 +134,7 @@ assert.equal(
   "P1",
   "fixture must prove server unitsBySide wins over local controller fallback"
 );
+assert.equal(battlefield.lanes[1].occupantSplitSource, "server-unitsBySide");
 assert.deepEqual(battlefield.lanes[1].ownOccupants, ["p1-right-1"]);
 assert.deepEqual(battlefield.lanes[1].opposingOccupants, ["p2-right-1", "p2-right-2"]);
 assert.deepEqual(table.battlefield.unitPlan, battlefield.unitPlan, "table and battlefield builders must share one unit plan");
@@ -141,6 +145,37 @@ const p2Perspective = buildWireBattlefieldModel(snapshot, "P2");
 assert.deepEqual(p2Perspective.lanes[0].ownOccupants, ["p2-left-1"]);
 assert.deepEqual(p2Perspective.lanes[0].opposingOccupants, ["p1-left-1", "p1-left-2"]);
 assert.deepEqual(p2Perspective.unitPlan, battlefield.unitPlan, "perspective flips ownership but not card sizing");
+
+const legacySnapshot = {
+  ...snapshot,
+  lanes: {
+    battlefields: [
+      {
+        ...snapshot.lanes.battlefields[0],
+        unitsBySide: undefined
+      }
+    ]
+  },
+  players: {
+    P1: {
+      ...snapshot.players.P1,
+      zones: {
+        ...snapshot.players.P1.zones,
+        baseCards: undefined,
+        baseRunes: undefined
+      }
+    },
+    P2: snapshot.players.P2
+  }
+};
+const legacyEntries = buildWirePlayerEntries(legacySnapshot, "P1", specs);
+assert.equal(legacyEntries[1].basePartitionSource, "catalog-fallback");
+assert.deepEqual(legacyEntries[1].baseObjectIds, ["p1-base-1", "p1-rune-tagged"]);
+assert.deepEqual(legacyEntries[1].runeIds, ["p1-rune-1"]);
+const legacyBattlefield = buildWireBattlefieldModel(legacySnapshot, "P1");
+assert.equal(legacyBattlefield.lanes[0].occupantSplitSource, "controller-fallback");
+assert.deepEqual(legacyBattlefield.lanes[0].ownOccupants, ["p1-left-1", "p1-left-2", "p2-left-1"]);
+assert.deepEqual(legacyBattlefield.lanes[0].opposingOccupants, []);
 
 assert.equal(isRuneCard(snapshot.players.P1.objects["p1-rune-1"], specs["RUNE-001"]), true);
 assert.equal(isRuneCard(snapshot.players.P1.objects["p1-rune-tagged"], specs["RUNE-002"]), false);

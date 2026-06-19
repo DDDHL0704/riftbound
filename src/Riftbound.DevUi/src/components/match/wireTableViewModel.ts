@@ -4,8 +4,11 @@ import { buildWireCardFlowPlan, type WireCardFlowPlan } from "./wireCardFlowPlan
 
 export type WirePlayerSide = "self" | "opponent";
 export type WireZoneObjects = Record<string, CardObjectView | undefined>;
+export type WireBasePartitionSource = "catalog-fallback" | "mixed" | "server";
+export type WireBattlefieldOccupantSplitSource = "controller-fallback" | "server-unitsBySide";
 
 export type WirePlayerEntry = {
+  basePartitionSource: WireBasePartitionSource;
   baseObjectIds: string[];
   handIds: string[];
   hiddenHandIds: string[];
@@ -24,6 +27,7 @@ export type WireBattlefieldLane = {
   cardNo: string;
   controllerId: string;
   index: number;
+  occupantSplitSource: WireBattlefieldOccupantSplitSource;
   ownOccupants: string[];
   opposingOccupants: string[];
   zonePlayerId: string;
@@ -116,9 +120,11 @@ function buildWirePlayerEntry(
   const runeIds = serverRuneIds ?? baseIds.filter((objectId) => isRuneCard(objects[objectId], specs[objects[objectId]?.cardNo ?? ""]));
   const runeSet = new Set(runeIds);
   const serverBaseCardIds = zonePartitionIds(zones.baseCards, baseIds);
+  const baseObjectIds = serverBaseCardIds ?? baseIds.filter((objectId) => !runeSet.has(objectId));
 
   const entry: WirePlayerEntry = {
-    baseObjectIds: serverBaseCardIds ?? baseIds.filter((objectId) => !runeSet.has(objectId)),
+    baseObjectIds,
+    basePartitionSource: basePartitionSource(serverBaseCardIds, serverRuneIds),
     handIds: zones.hand ?? [],
     hiddenHandIds: hiddenCards(player.handSize ?? zones.handHidden ?? 0, id),
     id,
@@ -150,6 +156,7 @@ function buildWireBattlefieldLane(
     cardNo: asString(battlefield?.cardNo, ""),
     controllerId: asString(battlefield?.controllerId, ""),
     index,
+    occupantSplitSource: splitOccupants.source,
     ownOccupants: splitOccupants.own,
     opposingOccupants: splitOccupants.opposing,
     zonePlayerId: asString(battlefield?.zonePlayerId, "")
@@ -161,21 +168,35 @@ function splitBattlefieldOccupants(
   occupants: string[],
   objects: WireZoneObjects,
   perspectivePlayerId: string
-): { own: string[]; opposing: string[] } {
+): { own: string[]; opposing: string[]; source: WireBattlefieldOccupantSplitSource } {
   const sideMap = asStringArrayRecord(unitsBySide);
   if (sideMap) {
     const occupantSet = new Set(occupants);
     const ownSet = new Set((sideMap[perspectivePlayerId] ?? []).filter((id) => occupantSet.has(id)));
     return {
       own: occupants.filter((id) => ownSet.has(id)),
-      opposing: occupants.filter((id) => !ownSet.has(id))
+      opposing: occupants.filter((id) => !ownSet.has(id)),
+      source: "server-unitsBySide"
     };
   }
 
   return {
     own: occupants.filter((id) => ownerOrController(objects[id]) === perspectivePlayerId),
-    opposing: occupants.filter((id) => ownerOrController(objects[id]) !== perspectivePlayerId)
+    opposing: occupants.filter((id) => ownerOrController(objects[id]) !== perspectivePlayerId),
+    source: "controller-fallback"
   };
+}
+
+function basePartitionSource(baseCardIds: string[] | undefined, runeIds: string[] | undefined): WireBasePartitionSource {
+  if (baseCardIds && runeIds) {
+    return "server";
+  }
+
+  if (baseCardIds || runeIds) {
+    return "mixed";
+  }
+
+  return "catalog-fallback";
 }
 
 function buildWireObjectIndex(snapshot?: SnapshotDto): WireZoneObjects {
