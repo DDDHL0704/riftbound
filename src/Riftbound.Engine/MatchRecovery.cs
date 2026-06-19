@@ -982,6 +982,12 @@ public static class MatchRecoveryValidator
         "UNIT_READY"
     ];
 
+    private static readonly string[] KnownTriggerSourceVisibilities =
+    [
+        "VISIBLE",
+        "HIDDEN"
+    ];
+
     private sealed record BattleRequiredAssignmentView(
         string SourceObjectId,
         int Damage,
@@ -4092,7 +4098,8 @@ public static class MatchRecoveryValidator
                 triggerLabel,
                 "source visibility",
                 errors,
-                IsKnownTriggerSourceVisibility);
+                IsKnownTriggerSourceVisibility,
+                KnownTriggerSourceVisibilities);
             var effectKind = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "effectKind",
@@ -6734,8 +6741,7 @@ public static class MatchRecoveryValidator
 
     private static bool IsKnownTriggerSourceVisibility(string value)
     {
-        return string.Equals(value, "VISIBLE", StringComparison.Ordinal)
-            || string.Equals(value, "HIDDEN", StringComparison.Ordinal);
+        return KnownTriggerSourceVisibilities.Contains(value, StringComparer.Ordinal);
     }
 
     private static bool IsKnownTriggerQueueTriggeredEventKind(string value)
@@ -8623,7 +8629,8 @@ public static class MatchRecoveryValidator
         string payloadLabel,
         string itemLabel,
         List<string> errors,
-        Func<string, bool>? isKnownValue = null)
+        Func<string, bool>? isKnownValue = null,
+        IReadOnlyList<string>? knownValues = null)
     {
         if (!TryReadObjectString(payload, key, out var value)
             || string.IsNullOrWhiteSpace(value))
@@ -8640,7 +8647,10 @@ public static class MatchRecoveryValidator
 
         if (isKnownValue is not null && !isKnownValue(normalizedValue))
         {
-            errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is invalid");
+            var detail = knownValues is null
+                ? string.Empty
+                : $"; {FormatExpectedActualForRecovery(knownValues, normalizedValue)}";
+            errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is invalid{detail}");
         }
 
         return normalizedValue;
@@ -17906,7 +17916,8 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "source visibility",
             errors,
-            IsKnownTriggerSourceVisibility);
+            IsKnownTriggerSourceVisibility,
+            KnownTriggerSourceVisibilities);
         var effectKind = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "effectKind",

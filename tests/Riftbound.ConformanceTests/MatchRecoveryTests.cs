@@ -11,6 +11,7 @@ public sealed class MatchRecoveryTests
     private const string KnownTriggerQueueTriggeredEventKindsDiagnostic =
         "[UNIT_PLAYED_TO_BASE, UNIT_DESTROYED, BATTLEFIELD_HELD, UNIT_MOVED_TO_BATTLEFIELD, "
         + "UNIT_MOVED_TO_BASE, CARD_PLAYED, BATTLE_DECLARED, OBJECT_DESTROYED, UNIT_READY]";
+    private const string KnownTriggerSourceVisibilitiesDiagnostic = "[VISIBLE, HIDDEN]";
 
     [Fact]
     public void RecoveryValidatorAcceptsContiguousEventStreamAndCurrentPlayerViews()
@@ -6507,7 +6508,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item source visibility UNKNOWN is invalid",
+                $"snapshot for alice timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -99973,7 +99974,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -100585,7 +100586,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -101051,7 +101052,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -123893,7 +123894,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -124019,7 +124020,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid",
+                $"spectator replay frame timing trigger queue item source visibility UNKNOWN is invalid; expected {KnownTriggerSourceVisibilitiesDiagnostic} but got UNKNOWN",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
