@@ -14366,7 +14366,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item controller id charlie is missing from players",
+                "snapshot for alice timing trigger queue item controller id charlie is missing from players; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
     }
 
@@ -23653,7 +23653,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing turn player charlie is missing from players",
+                "snapshot for alice timing turn player charlie is missing from players; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
     }
 
@@ -23682,17 +23682,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing priority player charlie is missing from players",
+                "snapshot for alice timing priority player charlie is missing from players; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing focus player diana is missing from players",
+                "snapshot for alice timing focus player diana is missing from players; expected [alice, bob] but got diana",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing winner player eve is missing from players",
+                "snapshot for alice timing winner player eve is missing from players; expected [alice, bob] but got eve",
                 StringComparison.Ordinal));
     }
 
@@ -23806,22 +23806,22 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing ready player charlie is missing from players",
+                "snapshot for alice timing ready player charlie is missing from players; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing passed priority player diana is missing from players",
+                "snapshot for alice timing passed priority player diana is missing from players; expected [alice, bob] but got diana",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing passed focus player eve is missing from players",
+                "snapshot for alice timing passed focus player eve is missing from players; expected [alice, bob] but got eve",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing destroyed unit owner frank is missing from players",
+                "snapshot for alice timing destroyed unit owner frank is missing from players; expected [alice, bob] but got frank",
                 StringComparison.Ordinal));
     }
 
@@ -40277,7 +40277,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield object id item 2 player id charlie is missing from seats",
+                "spectator replay frame snapshot lane battlefield object id item 2 player id charlie is missing from seats; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -111524,7 +111524,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id charlie is missing from seats",
+                "spectator replay frame timing trigger queue item controller id charlie is missing from seats; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -111653,7 +111653,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id charlie is missing from seats",
+                "spectator replay frame timing trigger queue item controller id charlie is missing from seats; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -113128,7 +113128,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id charlie is missing from seats",
+                "spectator replay frame timing trigger queue item controller id charlie is missing from seats; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -113256,7 +113256,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id charlie is missing from seats",
+                "spectator replay frame timing trigger queue item controller id charlie is missing from seats; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -134481,7 +134481,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id charlie is missing from seats",
+                "spectator replay frame timing trigger queue item controller id charlie is missing from seats; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -134597,7 +134597,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id charlie is missing from seats",
+                "spectator replay frame timing trigger queue item controller id charlie is missing from seats; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -136096,7 +136096,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item controller id charlie is missing from seats",
+                "spectator replay frame timing trigger queue item controller id charlie is missing from seats; expected [alice, bob] but got charlie",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

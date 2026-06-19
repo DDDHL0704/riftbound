@@ -7360,8 +7360,11 @@ public static class MatchRecoveryValidator
 
         if (!view.Snapshot.Players.ContainsKey(normalizedPlayerId))
         {
+            var expectedPlayerIds = view.Snapshot.Players.Keys
+                .OrderBy(knownPlayerId => knownPlayerId, StringComparer.Ordinal)
+                .ToArray();
             errors.Add(
-                $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} is missing from players");
+                $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} is missing from players; {FormatExpectedActualForRecovery(expectedPlayerIds, normalizedPlayerId)}");
         }
     }
 
@@ -7410,8 +7413,11 @@ public static class MatchRecoveryValidator
 
             if (!view.Snapshot.Players.ContainsKey(normalizedPlayerId))
             {
+                var expectedPlayerIds = view.Snapshot.Players.Keys
+                    .OrderBy(knownPlayerId => knownPlayerId, StringComparer.Ordinal)
+                    .ToArray();
                 errors.Add(
-                    $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} is missing from players");
+                    $"snapshot for {view.PlayerId} timing {label} {normalizedPlayerId} is missing from players; {FormatExpectedActualForRecovery(expectedPlayerIds, normalizedPlayerId)}");
             }
         }
     }
@@ -14542,7 +14548,11 @@ public static class MatchRecoveryValidator
         var normalizedPlayerId = playerId.Trim();
         if (!knownPlayerIds.Contains(normalizedPlayerId))
         {
-            errors.Add($"{playerLabel} {normalizedPlayerId} is missing from {knownPlayerLabel}");
+            var expectedPlayerIds = knownPlayerIds
+                .OrderBy(knownPlayerId => knownPlayerId, StringComparer.Ordinal)
+                .ToArray();
+            errors.Add(
+                $"{playerLabel} {normalizedPlayerId} is missing from {knownPlayerLabel}; {FormatExpectedActualForRecovery(expectedPlayerIds, normalizedPlayerId)}");
         }
     }
 
@@ -21287,7 +21297,11 @@ public static class MatchRecoveryValidator
 
         if (!knownPlayerIds.Contains(controllerId))
         {
-            errors.Add($"{payloadLabel} controller id {controllerId} is missing from {knownPlayerLabel}");
+            var expectedPlayerIds = knownPlayerIds
+                .OrderBy(knownPlayerId => knownPlayerId, StringComparer.Ordinal)
+                .ToArray();
+            errors.Add(
+                $"{payloadLabel} controller id {controllerId} is missing from {knownPlayerLabel}; {FormatExpectedActualForRecovery(expectedPlayerIds, controllerId)}");
         }
     }
 
