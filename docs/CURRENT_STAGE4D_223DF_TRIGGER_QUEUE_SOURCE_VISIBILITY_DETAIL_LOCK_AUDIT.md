@@ -12,6 +12,8 @@ Runtime changed: yes, helper routing only in `src/Riftbound.Engine/MatchRecovery
 
 Test coverage changed: yes, `tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs` now asserts the detailed suffix for the remaining spectator replay timing source-visibility invalid-value surfaces and value-drift matrix rows.
 
+Post-code remote sync: after code commit `7e6bb5b5` and docs checkpoint `c4792b03`, A_MAIN inspected and merged remote `main` commit `1afae6db` (`联动线框对象规则上下文`), producing merge commit `e5a21e16`. Incoming work touched DevUi wire object-context panels, Chrome smoke, appshot / QA artifacts and global styling; it did not touch the 223DF `MatchRecovery` files.
+
 ## Rule Sources Checked
 
 Checked `docs/CURRENT_CORE_RULE_PDF_READING_NOTES.md` and `/tmp/riftbound_rules_pdf_text/core_rules_260330.txt` from the five root PDFs. Relevant anchors: latest core rules 128, 129.3, 157.3, 157.3.a, 303.2.a, 319-321, 323.4, 333-334, 382-383 and 808.1.d. This slice changes diagnostics only and does not change source visibility, hidden-information, trigger timing, stack, Last Breath, or replay behavior.
@@ -23,6 +25,8 @@ Checked `docs/CURRENT_CORE_RULE_PDF_READING_NOTES.md` and `/tmp/riftbound_rules_
 - Changed-class `MatchRecoveryTests`: `1976/1976` passed.
 - Adjacent Recovery/SpectatorReplay/Snapshot/Timing/ContinuousEffect/TriggerQueue/OrderTriggers/Trigger/Stack/Battle filter: `3569/3569` passed.
 - Backend full via `Riftbound.slnx`: `8312/8312` passed.
+- DevUi build after merging `1afae6db`: passed, including event-label, user-facing text, tabletop layout, wire-table layout, strict typecheck and Vite production build.
+- Backend full after merge commit `e5a21e16`: `8312/8312` passed.
 - `git diff --check` passed.
 - Anchored conflict-marker scan over `src`/`tests`/`docs` had no findings.
 
