@@ -19548,7 +19548,7 @@ public static class MatchRecoveryValidator
                 && equipmentSourceTags.Contains(CardObjectTags.EquipmentCard))
             {
                 errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be an equipment card in {objectTagLabel}");
+                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be an equipment card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-equipment card>", CardObjectTags.EquipmentCard)}");
             }
 
             if (objectLocations is not null
@@ -20547,7 +20547,7 @@ public static class MatchRecoveryValidator
         }
 
         errors.Add(
-            $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} must not be an equipment card in {objectTagLabel}");
+            $"{payloadLabel} {diagnosticName} destroyed object id {destroyedObjectId} must not be an equipment card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-equipment card>", CardObjectTags.EquipmentCard)}");
     }
 
     private static void ValidateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContext(
@@ -21981,7 +21981,7 @@ public static class MatchRecoveryValidator
             && !sourceTags.Contains(CardObjectTags.UnitCard))
         {
             errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be an equipment card in {objectTagLabel}");
+                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be an equipment card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-equipment card>", CardObjectTags.EquipmentCard)}");
         }
 
         if (!IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind)
