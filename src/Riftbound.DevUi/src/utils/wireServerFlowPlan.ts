@@ -1,4 +1,4 @@
-import type { ActionPromptDto, ConnectionStatus, GameEvent, SnapshotDto } from "../types/protocol";
+import type { ActionPromptDto, ActionPromptServerFlowDto, ConnectionStatus, GameEvent, SnapshotDto } from "../types/protocol";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import type { ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 import { buildWireResponseCoachPlan, type WireResponseCoachPlan } from "./wireResponseCoachPlan";
@@ -92,8 +92,12 @@ export function buildWireServerFlowPlan({
     snapshot,
     submissionGate
   });
-  const state = serverFlowState(rulePlan, responsePlan);
   const detail = rulePlan.focus.detail ? { ...rulePlan.focus.detail, source: "rule" as const } : undefined;
+  if (prompt?.serverFlow) {
+    return serverBackedFlowPlan(prompt.serverFlow, responsePlan, rulePlan, prompt, snapshot, detail);
+  }
+
+  const state = serverFlowState(rulePlan, responsePlan);
 
   return {
     detail,
@@ -114,6 +118,83 @@ export function buildWireServerFlowPlan({
     summary: `${rulePlan.stateLabel} / ${responsePlan.stateLabel} / ${flowNextStep(state, rulePlan, responsePlan)}`,
     tone: flowTone(state)
   };
+}
+
+function serverBackedFlowPlan(
+  serverFlow: ActionPromptServerFlowDto,
+  responsePlan: WireResponseCoachPlan,
+  rulePlan: WireRuleQueuePlan,
+  prompt: ActionPromptDto,
+  snapshot: SnapshotDto | undefined,
+  detail: WireServerFlowDetail | undefined
+): WireServerFlowPlan {
+  const state = responsePlan.state === "selecting" ? "selecting" : serverFlowStateFromDto(serverFlow);
+  return {
+    detail,
+    detailButtonLabel: detail ? "打开规则焦点" : "暂无焦点",
+    lanes: serverFlow.lanes.length > 0 ? serverFlow.lanes.map((lane) => ({
+      count: lane.count,
+      headline: lane.headline,
+      key: lane.key,
+      label: lane.label,
+      state: lane.state
+    })) : rulePlan.lanes.map(flowLane),
+    metrics: [
+      { key: "tick", label: "快照", value: snapshot?.tick == null ? "无" : String(snapshot.tick) },
+      { key: "source", label: "来源", value: "服务端" },
+      { key: "action", label: "行动", value: responsePlan.stateLabel },
+      { key: "prompt", label: "提示", value: prompt.view?.title ?? serverFlow.promptType ?? "无" }
+    ],
+    nextStepLabel: state === "selecting" ? responsePlan.nextStepLabel : serverFlow.nextStep,
+    primaryLabel: state === "selecting" ? responsePlan.primaryLabel : serverFlow.primaryLabel,
+    reason: state === "selecting" ? responsePlan.reason : serverFlow.reason,
+    state,
+    stateLabel: state === "selecting" ? "选择中" : serverFlow.stateLabel,
+    steps: serverFlow.steps.map((step) => ({
+      detail: step.detail,
+      key: `server:${step.key}`,
+      label: step.label,
+      state: step.state,
+      stateLabel: step.stateLabel,
+      value: step.value
+    })),
+    summary: state === "selecting" ? `${serverFlow.summary} / 本地选择中` : serverFlow.summary,
+    tone: state === "selecting" ? "info" : serverFlowToneFromDto(serverFlow)
+  };
+}
+
+function serverFlowStateFromDto(serverFlow: ActionPromptServerFlowDto): WireServerFlowState {
+  switch (serverFlow.state) {
+    case "blocked":
+      return "blocked";
+    case "history":
+      return "history";
+    case "ready":
+      return "ready";
+    case "respond":
+      return "respond";
+    case "waiting":
+      return "waiting";
+    default:
+      return "waiting";
+  }
+}
+
+function serverFlowToneFromDto(serverFlow: ActionPromptServerFlowDto): WireServerFlowTone {
+  switch (serverFlow.tone) {
+    case "bad":
+      return "bad";
+    case "good":
+      return "good";
+    case "info":
+      return "info";
+    case "neutral":
+      return "neutral";
+    case "warn":
+      return "warn";
+    default:
+      return flowTone(serverFlowStateFromDto(serverFlow));
+  }
 }
 
 function serverFlowState(rulePlan: WireRuleQueuePlan, responsePlan: WireResponseCoachPlan): WireServerFlowState {

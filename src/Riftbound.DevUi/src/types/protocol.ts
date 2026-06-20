@@ -346,6 +346,42 @@ export type ActionPromptContractDto = {
 
 export type ActionPromptContracts = Record<string, ActionPromptContractDto>;
 
+export type ActionPromptServerFlowLaneDto = {
+  key: string;
+  label: string;
+  count: number;
+  state: string;
+  headline: string;
+};
+
+export type ActionPromptServerFlowStepDto = {
+  key: string;
+  label: string;
+  state: string;
+  stateLabel: string;
+  value: string;
+  detail: string;
+};
+
+export type ActionPromptServerFlowDto = {
+  state: "blocked" | "history" | "ready" | "respond" | "waiting" | (string & {});
+  stateLabel: string;
+  tone: "bad" | "good" | "info" | "neutral" | "warn" | (string & {});
+  primaryLabel: string;
+  summary: string;
+  nextStep: string;
+  reason: string;
+  promptType: PromptType;
+  promptPlayerId: string;
+  responsiblePlayerId?: string | null;
+  isResponsiblePlayer: boolean;
+  actionableForPromptPlayer: boolean;
+  queueCounts: Record<string, number>;
+  lanes: ActionPromptServerFlowLaneDto[];
+  steps: ActionPromptServerFlowStepDto[];
+  relatedObjectIds: string[];
+};
+
 export type ActionPromptDto = {
   playerId: string;
   actionable: boolean;
@@ -357,6 +393,7 @@ export type ActionPromptDto = {
   contract?: ActionPromptContractDto | null;
   inspection?: ActionPromptInspectionDto | null;
   objectContexts?: ActionPromptObjectContextDto[] | null;
+  serverFlow?: ActionPromptServerFlowDto | null;
   view?: PromptViewDto | null;
 };
 

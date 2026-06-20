@@ -343,6 +343,39 @@ public sealed record PromptResponsibilityDto(
     IReadOnlyDictionary<string, int> QueueCounts,
     IReadOnlyList<string> RelatedObjectIds);
 
+public sealed record ActionPromptServerFlowLaneDto(
+    string Key,
+    string Label,
+    int Count,
+    string State,
+    string Headline);
+
+public sealed record ActionPromptServerFlowStepDto(
+    string Key,
+    string Label,
+    string State,
+    string StateLabel,
+    string Value,
+    string Detail);
+
+public sealed record ActionPromptServerFlowDto(
+    string State,
+    string StateLabel,
+    string Tone,
+    string PrimaryLabel,
+    string Summary,
+    string NextStep,
+    string Reason,
+    string PromptType,
+    string PromptPlayerId,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ResponsiblePlayerId,
+    bool IsResponsiblePlayer,
+    bool ActionableForPromptPlayer,
+    IReadOnlyDictionary<string, int> QueueCounts,
+    IReadOnlyList<ActionPromptServerFlowLaneDto> Lanes,
+    IReadOnlyList<ActionPromptServerFlowStepDto> Steps,
+    IReadOnlyList<string> RelatedObjectIds);
+
 public sealed record ActionPromptDto(
     string PlayerId,
     bool Actionable,
@@ -354,7 +387,8 @@ public sealed record ActionPromptDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PromptViewDto? View = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptContractDto? Contract = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectContextDto>? ObjectContexts = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptInspectionDto? Inspection = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptInspectionDto? Inspection = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptServerFlowDto? ServerFlow = null);
 
 public sealed record ActionPromptInspectionDto(
     string Source,

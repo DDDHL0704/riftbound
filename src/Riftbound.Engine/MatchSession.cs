@@ -5418,6 +5418,7 @@ internal static class ActionPromptBuilder
         var view = BuildView(state, playerId, actionable, reason, normalizedActions);
         var contract = ContractForPromptView(view);
         var objectContexts = ObjectContextsFor(candidates);
+        var serverFlow = ServerFlowFor(state, playerId, actionable, reason, normalizedActions, candidates, view);
 
         return new ActionPromptDto(
             playerId,
@@ -5430,7 +5431,271 @@ internal static class ActionPromptBuilder
             view,
             contract,
             objectContexts,
-            PromptInspectionFor(actionable, normalizedActions, candidates, view, contract, objectContexts));
+            PromptInspectionFor(actionable, normalizedActions, candidates, view, contract, objectContexts),
+            serverFlow);
+    }
+
+    private static ActionPromptServerFlowDto ServerFlowFor(
+        MatchState state,
+        string playerId,
+        bool actionable,
+        string reason,
+        IReadOnlyList<string> actions,
+        IReadOnlyList<ActionPromptCandidateDto> candidates,
+        PromptViewDto view)
+    {
+        var responsibility = view.Responsibility ?? PromptResponsibilityFor(state, playerId, view.Type, actionable, reason);
+        var flowState = ServerFlowStateFor(state, actionable, responsibility);
+        var nextStep = ServerFlowNextStepFor(flowState, responsibility);
+        var stateLabel = ServerFlowStateLabel(flowState);
+        return new ActionPromptServerFlowDto(
+            flowState,
+            stateLabel,
+            ServerFlowTone(flowState),
+            ServerFlowPrimaryLabel(flowState, view, responsibility),
+            $"{view.Title} / {stateLabel} / {nextStep}",
+            nextStep,
+            ServerFlowReason(flowState, state, responsibility, reason),
+            responsibility.PromptType,
+            playerId,
+            responsibility.ResponsiblePlayerId,
+            responsibility.IsResponsiblePlayer,
+            responsibility.ActionableForPromptPlayer,
+            responsibility.QueueCounts,
+            ServerFlowLanes(state),
+            ServerFlowSteps(state, actions, candidates, view, responsibility),
+            responsibility.RelatedObjectIds);
+    }
+
+    private static string ServerFlowStateFor(
+        MatchState state,
+        bool actionable,
+        PromptResponsibilityDto responsibility)
+    {
+        if (string.Equals(responsibility.State, "MATCH_COMPLETE", StringComparison.Ordinal)
+            || string.Equals(state.Status, MatchStatuses.Finished, StringComparison.Ordinal))
+        {
+            return "history";
+        }
+
+        if (ResolutionResult.HasBlockingPendingTaskQueue(state))
+        {
+            return "blocked";
+        }
+
+        if (state.StackItems.Count > 0 || HasOpenBattleResponsePriority(state))
+        {
+            return "respond";
+        }
+
+        if (actionable)
+        {
+            return "ready";
+        }
+
+        return "waiting";
+    }
+
+    private static string ServerFlowStateLabel(string flowState)
+    {
+        return flowState switch
+        {
+            "blocked" => "阻塞",
+            "history" => "回看",
+            "ready" => "可提交",
+            "respond" => "响应",
+            _ => "等待"
+        };
+    }
+
+    private static string ServerFlowTone(string flowState)
+    {
+        return flowState switch
+        {
+            "blocked" => "warn",
+            "history" => "info",
+            "ready" => "good",
+            "respond" => "info",
+            _ => "neutral"
+        };
+    }
+
+    private static string ServerFlowPrimaryLabel(
+        string flowState,
+        PromptViewDto view,
+        PromptResponsibilityDto responsibility)
+    {
+        return flowState switch
+        {
+            "blocked" => "规则任务阻塞",
+            "history" => "规则事件回看",
+            "ready" => "提交给服务端",
+            "respond" => "响应结算链",
+            _ when !string.IsNullOrWhiteSpace(responsibility.ResponsiblePlayerId) =>
+                $"等待 {responsibility.ResponsiblePlayerId}",
+            _ => view.Title
+        };
+    }
+
+    private static string ServerFlowNextStepFor(
+        string flowState,
+        PromptResponsibilityDto responsibility)
+    {
+        return flowState switch
+        {
+            "blocked" => "等待服务端推进规则队列。",
+            "history" => "选择近期规则事件查看详情。",
+            "ready" => responsibility.NextStep,
+            "respond" => "按服务端 prompt 选择响应或让过。",
+            _ => responsibility.NextStep
+        };
+    }
+
+    private static string ServerFlowReason(
+        string flowState,
+        MatchState state,
+        PromptResponsibilityDto responsibility,
+        string reason)
+    {
+        return flowState switch
+        {
+            "blocked" => ResolutionResult.BlockingPendingTaskQueueReason(state),
+            "history" => "近期战场、战斗或规则事件可用于核对桌面状态。",
+            "respond" => "结算链项目存在时，合法响应和提交字段由服务端候选决定。",
+            _ => string.IsNullOrWhiteSpace(responsibility.NextStep)
+                ? string.IsNullOrWhiteSpace(reason) ? "等待服务端确认下一步。" : reason
+                : responsibility.NextStep
+        };
+    }
+
+    private static IReadOnlyList<ActionPromptServerFlowLaneDto> ServerFlowLanes(MatchState state)
+    {
+        var taskCount = state.PendingTaskQueue.Tasks.Count + state.BattlefieldTasks.Count;
+        var resolutionCount = state.BattlefieldResolutions.Count + state.BattleResolutions.Count;
+        return
+        [
+            new("stack", "结算链", state.StackItems.Count, state.StackItems.Count > 0 ? "active" : "empty", ServerFlowStackHeadline(state)),
+            new("task", "任务", taskCount, taskCount > 0 ? ResolutionResult.HasBlockingPendingTaskQueue(state) ? "blocked" : "active" : "empty", ServerFlowTaskHeadline(state)),
+            new("trigger", "触发", state.TriggerQueue.Count, state.TriggerQueue.Count > 0 ? "active" : "empty", ServerFlowTriggerHeadline(state)),
+            new("resolution", "结算", resolutionCount, resolutionCount > 0 ? "history" : "empty", ServerFlowResolutionHeadline(state))
+        ];
+    }
+
+    private static string ServerFlowStackHeadline(MatchState state)
+    {
+        if (state.StackItems.Count == 0)
+        {
+            return "无项目";
+        }
+
+        var item = state.StackItems[^1];
+        var parts = new[]
+        {
+            item.EffectKind,
+            item.CardNo,
+            string.IsNullOrWhiteSpace(item.ControllerId) ? string.Empty : $"控制 {item.ControllerId}"
+        };
+        return string.Join(" / ", parts.Where(part => !string.IsNullOrWhiteSpace(part)));
+    }
+
+    private static string ServerFlowTaskHeadline(MatchState state)
+    {
+        var task = state.PendingTaskQueue.Tasks.FirstOrDefault(task =>
+                string.Equals(task.TaskId, state.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal))
+            ?? state.PendingTaskQueue.Tasks.FirstOrDefault();
+        if (task is not null)
+        {
+            return string.IsNullOrWhiteSpace(task.Kind) ? "服务端任务" : task.Kind;
+        }
+
+        var battlefieldTask = state.BattlefieldTasks.FirstOrDefault();
+        return battlefieldTask is null
+            ? "无任务"
+            : string.IsNullOrWhiteSpace(battlefieldTask.Kind) ? "战场任务" : battlefieldTask.Kind;
+    }
+
+    private static string ServerFlowTriggerHeadline(MatchState state)
+    {
+        return state.TriggerQueue.Count == 0 ? "无触发" : "触发等待结算";
+    }
+
+    private static string ServerFlowResolutionHeadline(MatchState state)
+    {
+        if (state.BattlefieldResolutions.Count > 0)
+        {
+            return "战场结算记录";
+        }
+
+        return state.BattleResolutions.Count > 0 ? "战斗结算记录" : "无结算记录";
+    }
+
+    private static IReadOnlyList<ActionPromptServerFlowStepDto> ServerFlowSteps(
+        MatchState state,
+        IReadOnlyList<string> actions,
+        IReadOnlyList<ActionPromptCandidateDto> candidates,
+        PromptViewDto view,
+        PromptResponsibilityDto responsibility)
+    {
+        var steps = new List<ActionPromptServerFlowStepDto>
+        {
+            new(
+                "prompt",
+                "行动窗口",
+                responsibility.ActionableForPromptPlayer ? "ready" : "waiting",
+                responsibility.ActionableForPromptPlayer ? "可行动" : "等待",
+                view.Title,
+                view.Message),
+            new(
+                "responsibility",
+                "责任方",
+                responsibility.IsResponsiblePlayer ? "ready" : "waiting",
+                responsibility.State,
+                string.IsNullOrWhiteSpace(responsibility.ResponsiblePlayerId) ? "服务端" : responsibility.ResponsiblePlayerId,
+                responsibility.NextStep)
+        };
+
+        if (state.StackItems.Count > 0)
+        {
+            steps.Add(new(
+                "stack",
+                "结算链",
+                "respond",
+                "响应",
+                $"{state.StackItems.Count} 项",
+                ServerFlowStackHeadline(state)));
+        }
+
+        if (state.PendingTaskQueue.Tasks.Count > 0 || state.BattlefieldTasks.Count > 0)
+        {
+            steps.Add(new(
+                "task",
+                "规则任务",
+                ResolutionResult.HasBlockingPendingTaskQueue(state) ? "blocked" : "server",
+                ResolutionResult.HasBlockingPendingTaskQueue(state) ? "阻塞" : "服务端",
+                $"{state.PendingTaskQueue.Tasks.Count + state.BattlefieldTasks.Count} 项",
+                ServerFlowTaskHeadline(state)));
+        }
+
+        if (state.TriggerQueue.Count > 0)
+        {
+            steps.Add(new(
+                "trigger",
+                "触发队列",
+                "server",
+                "服务端",
+                $"{state.TriggerQueue.Count} 项",
+                ServerFlowTriggerHeadline(state)));
+        }
+
+        steps.Add(new(
+            "candidate",
+            "候选",
+            candidates.Any(candidate => candidate.Enabled) ? "ready" : "waiting",
+            $"{candidates.Count(candidate => candidate.Enabled)} 可提交",
+            actions.Count == 0 ? "无行动" : string.Join(" / ", actions.Take(4)),
+            "前端只提交服务端候选，不重算合法性。"));
+
+        return steps.Take(4).ToArray();
     }
 
     private static ActionPromptInspectionDto PromptInspectionFor(

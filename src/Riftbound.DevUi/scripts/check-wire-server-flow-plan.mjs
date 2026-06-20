@@ -103,10 +103,60 @@ assert.equal(historyPlan.primaryLabel, "规则事件回看");
 assert.equal(historyPlan.detail?.id, "rule:event:BATTLEFIELD_CONTROL_RESOLVED:0");
 assert.equal(historyPlan.lanes.find((lane) => lane.key === "resolution").count, 1);
 
+const serverBackedPlan = buildWireServerFlowPlan({
+  connectionStatus: "connected",
+  events: [],
+  playerId: "P1",
+  prompt: prompt({
+    serverFlow: {
+      actionableForPromptPlayer: true,
+      isResponsiblePlayer: true,
+      lanes: [
+        { count: 1, headline: "DAMAGE / OGN-001", key: "stack", label: "结算链", state: "active" },
+        { count: 0, headline: "无任务", key: "task", label: "任务", state: "empty" },
+        { count: 0, headline: "无触发", key: "trigger", label: "触发", state: "empty" },
+        { count: 0, headline: "无结算记录", key: "resolution", label: "结算", state: "empty" }
+      ],
+      nextStep: "按服务端 prompt 选择响应或让过。",
+      primaryLabel: "响应结算链",
+      promptPlayerId: "P1",
+      promptType: "STACK_PRIORITY",
+      queueCounts: { stack: 1 },
+      reason: "服务端声明结算链存在。",
+      relatedObjectIds: ["unit-1"],
+      responsiblePlayerId: "P1",
+      state: "respond",
+      stateLabel: "响应",
+      steps: [
+        {
+          detail: "服务端候选裁定。",
+          key: "stack",
+          label: "结算链",
+          state: "respond",
+          stateLabel: "响应",
+          value: "1 项"
+        }
+      ],
+      summary: "优先行动 / 响应 / 按服务端 prompt 选择响应或让过。",
+      tone: "info"
+    },
+    title: "优先行动",
+    type: "STACK_PRIORITY"
+  }),
+  snapshot: snapshot(),
+  submissionGate: connectedGate
+});
+assert.equal(serverBackedPlan.state, "respond");
+assert.equal(serverBackedPlan.primaryLabel, "响应结算链");
+assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "source").value, "服务端");
+assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "prompt").value, "优先行动");
+assert.equal(serverBackedPlan.lanes.find((lane) => lane.key === "stack").headline, "DAMAGE / OGN-001");
+
 console.log("Wire server flow plan check passed.");
 
 function prompt({
   actionable = true,
+  serverFlow,
   title = "主行动",
   type = "MAIN_ACTION"
 } = {}) {
@@ -126,6 +176,7 @@ function prompt({
     playerId: "P1",
     promptId: "prompt-1",
     reason: actionable ? "可行动" : "等待服务端窗口",
+    serverFlow,
     snapshotTick: 7,
     view: {
       message: title,
