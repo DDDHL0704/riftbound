@@ -26,6 +26,19 @@ const helperModules = {
       return typeof value === "string" && value.trim().length > 0 ? value : fallback;
     }
   },
+  "./eventLogPlan": {
+    eventDescriptionLabel(event) {
+      return event.description || helperModules["./eventLogPlan"].eventKindLabel(event.kind);
+    },
+    eventKindLabel(kind) {
+      return {
+        BATTLEFIELD_CONQUERED: "征服战场",
+        CARD_DRAWN: "抽牌",
+        STACK_ITEM_RESOLVED: "结算链项目结算",
+        TRIGGER_QUEUED: "触发排队"
+      }[kind] ?? "服务端事件";
+    }
+  },
   "./formatters": {
     matchPhaseLabel(value) {
       return {
@@ -45,6 +58,31 @@ const helperModules = {
         SPELL_DUEL_CLOSED: "法术对决闭环",
         SPELL_DUEL_OPEN: "法术对决开环"
       }[value] ?? (value ? "服务端窗口" : "未知窗口");
+    }
+  },
+  "./gameEventObjectRefs": {
+    gameEventObjectRefPlan(event) {
+      const serverRefs = Array.isArray(event.objectRefs) ? event.objectRefs.filter((ref) => ref?.objectId) : [];
+      if (serverRefs.length > 0) {
+        return { refs: serverRefs, source: "server" };
+      }
+
+      const refs = [];
+      const payload = event.payload ?? {};
+      if (typeof payload.battlefieldObjectId === "string") {
+        refs.push({ objectId: payload.battlefieldObjectId, role: "战场" });
+      }
+      if (Array.isArray(payload.participantObjectIds)) {
+        refs.push(...payload.participantObjectIds.map((objectId) => ({ objectId, role: "参与" })));
+      }
+      return refs.length > 0 ? { refs, source: "payload" } : { refs: [], source: "none" };
+    },
+    gameEventObjectRefSourceLabel(source) {
+      return {
+        none: "无对象引用",
+        payload: "事件字段",
+        server: "服务端摘要"
+      }[source];
     }
   },
   "./redaction": {
@@ -326,6 +364,64 @@ assert.deepEqual(
 );
 assert.equal(resolutionHistory.sections.find((section) => section.key === "resolution")?.items.length, 2);
 assert.ok(resolutionHistory.sections.find((section) => section.key === "resolution")?.items.some((item) => item.key.startsWith("battle-resolution:")));
+
+const eventResolutionHistory = buildWireRuleQueuePlan({
+  events: [
+    {
+      description: "玩家抽一张牌",
+      kind: "CARD_DRAWN",
+      objectRefs: [{ cardNo: "OGN-001/298", objectId: "hand-card", role: "卡牌" }],
+      payload: {}
+    },
+    {
+      description: "P1 征服左战场",
+      kind: "BATTLEFIELD_CONQUERED",
+      objectRefs: [
+        { objectId: "battlefield-a", role: "战场" },
+        { objectId: "unit-a", role: "参与" }
+      ],
+      payload: {}
+    },
+    {
+      description: "隐藏来源触发排队",
+      kind: "TRIGGER_QUEUED",
+      objectRefs: [{ isHidden: true, objectId: "secret-trigger", role: "来源" }],
+      payload: {}
+    }
+  ],
+  playerId: "P1",
+  snapshot: {
+    ...baseSnapshot,
+    players: {
+      P1: {
+        objects: {
+          "battlefield-a": { cardNo: "BF-001", objectId: "battlefield-a" },
+          "unit-a": { cardNo: "UNL-001/219", objectId: "unit-a" }
+        }
+      }
+    }
+  }
+});
+
+assert.equal(eventResolutionHistory.state, "resolution-history");
+assert.equal(eventResolutionHistory.activeLaneKey, "resolution");
+assert.equal(eventResolutionHistory.lanes.find((lane) => lane.key === "resolution")?.count, 2);
+assert.equal(eventResolutionHistory.lanes.find((lane) => lane.key === "resolution")?.headline, "触发排队");
+assert.equal(eventResolutionHistory.metrics.find((metric) => metric.key === "resolution")?.value, "2 项");
+assert.equal(eventResolutionHistory.sequence.length, 2);
+assert.equal(eventResolutionHistory.sequence[0].detailLabel, "触发排队");
+assert.deepEqual(eventResolutionHistory.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}:${ref.visibility ?? "auto"}`), ["来源:HIDDEN:hidden"]);
+assert.equal(eventResolutionHistory.sequence[1].detailLabel, "征服战场");
+assert.deepEqual(
+  eventResolutionHistory.sequence[1].refs.map((ref) => `${ref.role}:${ref.id}`),
+  ["战场:battlefield-a", "参与:unit-a"]
+);
+const eventResolutionSection = eventResolutionHistory.sections.find((section) => section.key === "resolution");
+assert.equal(eventResolutionSection?.items.length, 2);
+assert.equal(eventResolutionSection?.items[0]?.title, "触发排队");
+assert.equal(eventResolutionSection?.items[0]?.detail.lines.find((line) => line.label === "引用")?.value, "服务端摘要");
+assert.equal(eventResolutionSection?.items[0]?.detail.lines.find((line) => line.label === "对象可见性")?.value, "可见 0 / 隐藏 1 / 缺失 0");
+assert.equal(eventResolutionSection?.items[1]?.detail.lines.find((line) => line.label === "对象可见性")?.value, "可见 2 / 隐藏 0 / 缺失 0");
 
 const idle = buildWireRuleQueuePlan({ playerId: "P1", snapshot: baseSnapshot });
 assert.equal(idle.state, "idle");

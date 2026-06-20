@@ -23,7 +23,7 @@ type ObjectIndex = WireObjectIndex;
 
 export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
   const [inspectorOpen, setInspectorOpen] = useState(false);
-  const plan = buildWireRuleQueuePlan({ playerId, prompt, snapshot });
+  const plan = buildWireRuleQueuePlan({ events, playerId, prompt, snapshot });
   const objects = buildCardObjectIndex(snapshot);
 
   return (

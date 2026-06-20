@@ -1,6 +1,8 @@
-import type { ActionPromptDto, SnapshotDto } from "../types/protocol";
+import type { ActionPromptDto, GameEvent, SnapshotDto } from "../types/protocol";
 import { asArray, asRecord, asString } from "./collections";
+import { eventDescriptionLabel, eventKindLabel } from "./eventLogPlan";
 import { matchPhaseLabel, timingStateLabel } from "./formatters";
+import { gameEventObjectRefPlan, gameEventObjectRefSourceLabel } from "./gameEventObjectRefs";
 import { redactInternalText } from "./redaction";
 import { buildCardObjectIndex, type SnapshotObjectIndex } from "./snapshotObjectIndex";
 
@@ -94,6 +96,7 @@ export type WireRuleQueueObjectRef = {
   id: string;
   label?: string;
   role: string;
+  visibility?: "hidden" | "missing" | "visible";
 };
 
 export type WireRuleQueueDetailPlan = {
@@ -145,6 +148,7 @@ export type WireRuleQueuePlan = {
 };
 
 type BuildWireRuleQueuePlanInput = {
+  events?: GameEvent[];
   playerId: string;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
@@ -154,12 +158,14 @@ type RuleQueueCounts = {
   battlefieldResolutionCount: number;
   battleResolutionCount: number;
   pendingTaskCount: number;
+  ruleEventCount: number;
   stackCount: number;
   taskCount: number;
   triggerCount: number;
 };
 
 export function buildWireRuleQueuePlan({
+  events = [],
   playerId,
   prompt,
   snapshot
@@ -174,10 +180,12 @@ export function buildWireRuleQueuePlan({
   const triggers = asArray<Record<string, unknown>>(timing.triggerQueue);
   const battlefieldResolutions = asArray<Record<string, unknown>>(timing.battlefieldResolutions);
   const battleResolutions = asArray<Record<string, unknown>>(timing.battleResolutions);
+  const ruleEvents = ruleQueueEvents(events);
   const counts: RuleQueueCounts = {
     battlefieldResolutionCount: battlefieldResolutions.length,
     battleResolutionCount: battleResolutions.length,
     pendingTaskCount: pendingTasks.length,
+    ruleEventCount: ruleEvents.length,
     stackCount: stack.length,
     taskCount: tasks.length,
     triggerCount: triggers.length
@@ -189,6 +197,7 @@ export function buildWireRuleQueuePlan({
   const windowState = asString(asRecord(timing.turnWindow).state, asString(timing.timingState, ""));
   const actingPlayerId = asString(turnWindow.actingPlayerId, asString(timing.priorityPlayerId, ""));
   const promptOwner = prompt?.playerId ?? asString(timing.promptPlayerId, "");
+  const resolutionCount = counts.battlefieldResolutionCount + counts.battleResolutionCount + counts.ruleEventCount;
 
   const lanes = [
     lane({
@@ -216,12 +225,12 @@ export function buildWireRuleQueuePlan({
       state: laneState(activeLaneKey, "trigger", triggers.length, false)
     }),
     lane({
-      count: battlefieldResolutions.length + battleResolutions.length,
-      headline: resolutionHeadline(battlefieldResolutions, battleResolutions),
-      hint: battlefieldResolutions.length + battleResolutions.length > 0 ? "可选择近期规则事件查看桌面投影" : "当前无近期战场或战斗结算",
+      count: resolutionCount,
+      headline: resolutionHeadline(battlefieldResolutions, battleResolutions, ruleEvents),
+      hint: resolutionCount > 0 ? "可选择近期规则事件查看桌面投影" : "当前无近期战场、战斗结算或服务端规则事件",
       key: "resolution",
       label: "近期事件",
-      state: laneState(activeLaneKey, "resolution", battlefieldResolutions.length + battleResolutions.length, false)
+      state: laneState(activeLaneKey, "resolution", resolutionCount, false)
     })
   ];
   const metrics = [
@@ -232,9 +241,9 @@ export function buildWireRuleQueuePlan({
     { key: "stack", label: "结算链", value: `${counts.stackCount} 项` },
     { key: "task", label: "任务", value: `${counts.taskCount} 项` },
     { key: "trigger", label: "触发", value: `${counts.triggerCount} 项` },
-    { key: "resolution", label: "近期事件", value: `${counts.battlefieldResolutionCount + counts.battleResolutionCount} 项` }
+    { key: "resolution", label: "近期事件", value: `${resolutionCount} 项` }
   ];
-  const sequence = queueSequence({ battleResolutions, battlefieldResolutions, stack, tasks, triggers });
+  const sequence = queueSequence({ battleResolutions, battlefieldResolutions, ruleEvents, stack, tasks, triggers });
   const nextStep = nextStepLabel(state);
   const objectIndex = buildCardObjectIndex(snapshot);
   const sections = ruleQueueSections({
@@ -243,6 +252,7 @@ export function buildWireRuleQueuePlan({
     objects: objectIndex,
     playerId,
     queue,
+    ruleEvents,
     stack,
     tasks,
     triggers
@@ -352,7 +362,7 @@ function queueState({ counts, isBlocking }: { counts: RuleQueueCounts; isBlockin
     return "trigger-pending";
   }
 
-  if (counts.battlefieldResolutionCount + counts.battleResolutionCount > 0) {
+  if (counts.battlefieldResolutionCount + counts.battleResolutionCount + counts.ruleEventCount > 0) {
     return "resolution-history";
   }
 
@@ -507,12 +517,14 @@ function laneStateLabel(state: WireRuleQueueLaneState): string {
 function queueSequence({
   battleResolutions,
   battlefieldResolutions,
+  ruleEvents,
   stack,
   tasks,
   triggers
 }: {
   battleResolutions: Array<Record<string, unknown>>;
   battlefieldResolutions: Array<Record<string, unknown>>;
+  ruleEvents: GameEvent[];
   stack: Array<Record<string, unknown>>;
   tasks: Array<Record<string, unknown>>;
   triggers: Array<Record<string, unknown>>;
@@ -586,7 +598,19 @@ function queueSequence({
       ]),
       stateLabel: asString(resolution.winnerPlayerId, "无胜者"),
       tickLabel: tickLabel(resolution.tick)
-    }))
+    })),
+    ...ruleEvents.map((event, index) => {
+      const refs = ruleEventObjectRefs(event);
+      return {
+        detailLabel: eventKindLabel(event.kind),
+        key: `rule-event:${event.kind}:${index}`,
+        label: `服务端事件 ${index + 1}`,
+        lane: "resolution" as const,
+        objectCount: refs.filter((ref) => ref.id !== "HIDDEN").length,
+        refs,
+        stateLabel: eventDescriptionLabel(event)
+      };
+    })
   ].slice(0, 8);
 }
 
@@ -596,6 +620,7 @@ function ruleQueueSections({
   objects,
   playerId,
   queue,
+  ruleEvents,
   stack,
   tasks,
   triggers
@@ -605,6 +630,7 @@ function ruleQueueSections({
   objects: SnapshotObjectIndex;
   playerId: string;
   queue: Record<string, unknown>;
+  ruleEvents: GameEvent[];
   stack: Array<Record<string, unknown>>;
   tasks: Array<Record<string, unknown>>;
   triggers: Array<Record<string, unknown>>;
@@ -632,10 +658,11 @@ function ruleQueueSections({
       title: "触发队列"
     },
     {
-      emptyLabel: "暂无近期战场或战斗结算。",
+      emptyLabel: "暂无近期战场、战斗结算或服务端规则事件。",
       items: [
         ...battlefieldResolutions.map((resolution, index) => battlefieldResolutionItemPlan(resolution, index, playerId, objects)),
-        ...battleResolutions.map((resolution, index) => battleResolutionItemPlan(resolution, index, playerId, objects))
+        ...battleResolutions.map((resolution, index) => battleResolutionItemPlan(resolution, index, playerId, objects)),
+        ...ruleEvents.map((event, index) => ruleEventItemPlan(event, index, objects))
       ],
       key: "resolution",
       notes: [],
@@ -868,6 +895,41 @@ function battleResolutionItemPlan(
   };
 }
 
+function ruleEventItemPlan(
+  event: GameEvent,
+  index: number,
+  objects: SnapshotObjectIndex
+): WireRuleQueueItemPlan {
+  const refs = ruleEventObjectRefs(event);
+  const refSource = gameEventObjectRefPlan(event).source;
+  const lines = compactLines([
+    detailLine("类型", eventKindLabel(event.kind)),
+    detailLine("描述", eventDescriptionLabel(event)),
+    detailLine("对象", refs.length > 0 ? `${refs.length} 项` : "无"),
+    detailLine("引用", gameEventObjectRefSourceLabel(refSource))
+  ]);
+  const detail = detailPlan({
+    id: ruleDetailId("event", `${event.kind}:${index}`),
+    lines: compactLines([
+      ...lines,
+      detailLine("边界", "服务端事件；前端只展示公开对象引用和描述"),
+      detailLine("对象可见性", ruleEventVisibilityLabel(refs, objects))
+    ]),
+    refs,
+    subtitle: eventDescriptionLabel(event),
+    title: eventKindLabel(event.kind)
+  });
+
+  return {
+    detail,
+    key: `event:${event.kind}:${index}`,
+    lines,
+    refs,
+    subtitle: eventDescriptionLabel(event),
+    title: eventKindLabel(event.kind)
+  };
+}
+
 function taskQueueNotes(queue: Record<string, unknown>): string[] {
   const phase = taskPhaseLabel(asString(queue.phase, ""));
   const active = asString(queue.activeTaskId, "");
@@ -1052,7 +1114,8 @@ function taskQueueHint(queue: Record<string, unknown>, isBlocking: boolean): str
 
 function resolutionHeadline(
   battlefieldResolutions: Array<Record<string, unknown>>,
-  battleResolutions: Array<Record<string, unknown>>
+  battleResolutions: Array<Record<string, unknown>>,
+  ruleEvents: GameEvent[]
 ): string {
   const firstBattlefield = battlefieldResolutions[0];
   if (firstBattlefield) {
@@ -1064,6 +1127,11 @@ function resolutionHeadline(
     return battleResolutionLabel(asString(firstBattle.kind, ""));
   }
 
+  const firstEvent = ruleEvents[0];
+  if (firstEvent) {
+    return eventKindLabel(firstEvent.kind);
+  }
+
   return "空";
 }
 
@@ -1073,6 +1141,48 @@ function objectCount(values: unknown[]): number {
 
 function tickLabel(value: unknown): string | undefined {
   return typeof value === "number" && Number.isFinite(value) ? `tick ${value}` : undefined;
+}
+
+function ruleQueueEvents(events: GameEvent[]): GameEvent[] {
+  return events
+    .filter((event) => isRuleQueueEventKind(event.kind))
+    .slice(-6)
+    .reverse();
+}
+
+function isRuleQueueEventKind(kind: string): boolean {
+  return kind.startsWith("BATTLE")
+    || kind.startsWith("STACK")
+    || kind.startsWith("TRIGGER")
+    || kind.startsWith("SPELL_DUEL")
+    || kind.startsWith("COMBAT")
+    || kind.startsWith("PAYMENT")
+    || kind === "COST_PAID"
+    || kind === "DAMAGE_APPLIED"
+    || kind === "PRIORITY_PASSED"
+    || kind === "FOCUS_PASSED"
+    || kind.endsWith("_TRIGGER_RESOLVED")
+    || kind.includes("CONQUEST");
+}
+
+function ruleEventObjectRefs(event: GameEvent): WireRuleQueueObjectRef[] {
+  return compactObjectRefs(gameEventObjectRefPlan(event).refs.map((ref) => ({
+    id: ref.isHidden ? "HIDDEN" : ref.objectId,
+    label: ref.isHidden ? "隐藏对象" : ref.cardNo ?? undefined,
+    role: ref.role || "对象",
+    visibility: ref.isHidden || ref.objectId === "HIDDEN" ? "hidden" : undefined
+  })));
+}
+
+function ruleEventVisibilityLabel(refs: WireRuleQueueObjectRef[], objects: SnapshotObjectIndex): string {
+  if (refs.length === 0) {
+    return "无引用";
+  }
+
+  const hidden = refs.filter((ref) => ref.visibility === "hidden" || ref.id === "HIDDEN").length;
+  const visible = refs.filter((ref) => ref.id !== "HIDDEN" && Boolean(objects[ref.id])).length;
+  const missing = refs.length - hidden - visible;
+  return `可见 ${visible} / 隐藏 ${hidden} / 缺失 ${missing}`;
 }
 
 function stackEffectLabel(value: string): string {
