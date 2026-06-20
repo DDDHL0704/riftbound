@@ -196,6 +196,26 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(["位置"], battlefieldCandidate.Roles);
         Assert.Equal(CommandTypes.PlayCard, battlefieldCandidate.CommandType);
         Assert.True(battlefieldCandidate.Composer?.Supported);
+
+        var serverFlow = Assert.IsType<ActionPromptServerFlowDto>(prompt.ServerFlow);
+        Assert.Contains(serverFlow.RelatedObjectIds, objectId => string.Equals(objectId, "P1-HAND-UNIT", StringComparison.Ordinal));
+        Assert.Contains(serverFlow.RelatedObjectIds, objectId => string.Equals(objectId, "BF-1", StringComparison.Ordinal));
+        var sourceFlowRef = Assert.Single(
+            serverFlow.RelatedObjects,
+            relatedObject => string.Equals(relatedObject.ObjectId, "P1-HAND-UNIT", StringComparison.Ordinal)
+                && string.Equals(relatedObject.Role, "候选来源", StringComparison.Ordinal));
+        Assert.Equal(["来源"], sourceFlowRef.CandidateRoles ?? []);
+        Assert.Equal(1, sourceFlowRef.EnabledCandidateCount);
+        Assert.Equal(0, sourceFlowRef.DisabledCandidateCount);
+        Assert.Equal(ActionPromptContextSources.ServerActionPrompt, sourceFlowRef.CandidateSource);
+        Assert.Contains("隐藏 metadata", sourceFlowRef.CandidateBoundary ?? string.Empty, StringComparison.Ordinal);
+
+        var battlefieldFlowRef = Assert.Single(
+            serverFlow.RelatedObjects,
+            relatedObject => string.Equals(relatedObject.ObjectId, "BF-1", StringComparison.Ordinal)
+                && string.Equals(relatedObject.Role, "候选位置", StringComparison.Ordinal));
+        Assert.Equal(["位置"], battlefieldFlowRef.CandidateRoles ?? []);
+        Assert.Equal(1, battlefieldFlowRef.EnabledCandidateCount);
     }
 
     [Fact]

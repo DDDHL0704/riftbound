@@ -205,6 +205,49 @@ assert.deepEqual(serverFlowActionBridgePlan.relatedActionRows.map((row) => ({
 }]);
 assert.equal(serverFlowActionBridgePlan.relatedActionRows[0].nextStepLabel, "可作为 来源 进入 1 个候选。");
 
+const serverFlowActionBridgeServerSummaryPlan = buildWireServerFlowPlan({
+  connectionStatus: "connected",
+  events: [],
+  playerId: "P1",
+  prompt: prompt({
+    serverFlow: {
+      ...serverFlowFixture,
+      relatedObjects: [{
+        candidateBoundary: "服务端对象上下文边界",
+        candidateRoles: ["目标"],
+        candidateSource: "server-action-prompt",
+        disabledCandidateCount: 1,
+        enabledCandidateCount: 2,
+        objectId: "unit-1",
+        role: "结算来源"
+      }]
+    },
+    title: "优先行动",
+    type: "STACK_PRIORITY"
+  }),
+  snapshot: snapshot(),
+  submissionGate: connectedGate
+});
+assert.deepEqual(serverFlowActionBridgeServerSummaryPlan.relatedActionRows.map((row) => ({
+  actionRoleLabels: row.actionRoleLabels,
+  disabledCandidateCount: row.disabledCandidateCount,
+  enabledCandidateCount: row.enabledCandidateCount,
+  objectId: row.objectId,
+  serverRoleLabel: row.serverRoleLabel,
+  state: row.state,
+  stateLabel: row.stateLabel
+})), [{
+  actionRoleLabels: ["目标"],
+  disabledCandidateCount: 1,
+  enabledCandidateCount: 2,
+  objectId: "unit-1",
+  serverRoleLabel: "结算来源",
+  state: "ready",
+  stateLabel: "可进入候选"
+}]);
+assert.equal(serverFlowActionBridgeServerSummaryPlan.relatedActionRows[0].nextStepLabel, "可作为 目标 进入 2 个候选。");
+assert.equal(serverFlowActionBridgeServerSummaryPlan.detail?.refs[0].candidateSource, "server-action-prompt");
+
 console.log("Wire server flow plan check passed.");
 
 function prompt({

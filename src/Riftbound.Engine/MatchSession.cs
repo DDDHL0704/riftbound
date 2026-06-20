@@ -5418,7 +5418,7 @@ internal static class ActionPromptBuilder
         var view = BuildView(state, playerId, actionable, reason, normalizedActions);
         var contract = ContractForPromptView(view);
         var objectContexts = ObjectContextsFor(candidates);
-        var serverFlow = ServerFlowFor(state, playerId, actionable, reason, normalizedActions, candidates, view);
+        var serverFlow = ServerFlowFor(state, playerId, actionable, reason, normalizedActions, candidates, view, objectContexts);
 
         return new ActionPromptDto(
             playerId,
@@ -5442,10 +5442,17 @@ internal static class ActionPromptBuilder
         string reason,
         IReadOnlyList<string> actions,
         IReadOnlyList<ActionPromptCandidateDto> candidates,
-        PromptViewDto view)
+        PromptViewDto view,
+        IReadOnlyList<ActionPromptObjectContextDto>? objectContexts)
     {
         var responsibility = view.Responsibility ?? PromptResponsibilityFor(state, playerId, view.Type, actionable, reason);
-        var relatedObjects = PromptResponsibilityRelatedObjects(state, playerId, responsibility.PromptType);
+        var relatedObjects = ServerFlowRelatedObjectsWithCandidateSummary(
+            PromptResponsibilityRelatedObjects(state, playerId, responsibility.PromptType),
+            objectContexts);
+        var relatedObjectIds = relatedObjects
+            .Select(item => item.ObjectId)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
         var flowState = ServerFlowStateFor(state, actionable, responsibility);
         var nextStep = ServerFlowNextStepFor(flowState, responsibility);
         var stateLabel = ServerFlowStateLabel(flowState);
@@ -5465,8 +5472,79 @@ internal static class ActionPromptBuilder
             responsibility.QueueCounts,
             ServerFlowLanes(state),
             ServerFlowSteps(state, actions, candidates, view, responsibility),
-            responsibility.RelatedObjectIds,
+            relatedObjectIds,
             relatedObjects);
+    }
+
+    private static IReadOnlyList<ActionPromptServerFlowObjectRefDto> ServerFlowRelatedObjectsWithCandidateSummary(
+        IReadOnlyList<ActionPromptServerFlowObjectRefDto> relatedObjects,
+        IReadOnlyList<ActionPromptObjectContextDto>? objectContexts)
+    {
+        if (objectContexts is null || objectContexts.Count == 0)
+        {
+            return relatedObjects;
+        }
+
+        var contextsByObjectId = objectContexts
+            .Where(context => !string.IsNullOrWhiteSpace(context.ObjectId))
+            .GroupBy(context => context.ObjectId.Trim(), StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+        return relatedObjects
+            .Select(relatedObject =>
+            {
+                if (!contextsByObjectId.TryGetValue(relatedObject.ObjectId, out var context))
+                {
+                    return relatedObject;
+                }
+
+                var candidateRoles = ActionPromptObjectContextCandidateRoles(context);
+
+                return relatedObject with
+                {
+                    CandidateRoles = candidateRoles.Length == 0 ? null : candidateRoles,
+                    EnabledCandidateCount = context.EnabledCandidateCount,
+                    DisabledCandidateCount = context.DisabledCandidateCount,
+                    CandidateSource = string.IsNullOrWhiteSpace(context.Source) ? null : context.Source,
+                    CandidateBoundary = string.IsNullOrWhiteSpace(context.Boundary) ? null : context.Boundary
+                };
+            })
+            .Concat(objectContexts
+                .Where(context => !string.IsNullOrWhiteSpace(context.ObjectId))
+                .Select(context =>
+                {
+                    var objectId = context.ObjectId.Trim();
+                    var candidateRoles = ActionPromptObjectContextCandidateRoles(context);
+                    return new ActionPromptServerFlowObjectRefDto(
+                        objectId,
+                        ServerFlowCandidateRelatedObjectRole(candidateRoles),
+                        candidateRoles.Length == 0 ? null : candidateRoles,
+                        context.EnabledCandidateCount,
+                        context.DisabledCandidateCount,
+                        string.IsNullOrWhiteSpace(context.Source) ? null : context.Source,
+                        string.IsNullOrWhiteSpace(context.Boundary) ? null : context.Boundary);
+                }))
+            .GroupBy(item => $"{item.Role}\u001f{item.ObjectId}", StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+    }
+
+    private static string[] ActionPromptObjectContextCandidateRoles(ActionPromptObjectContextDto context)
+    {
+        return context.Candidates
+            .SelectMany(candidate => candidate.Roles)
+            .Where(role => !string.IsNullOrWhiteSpace(role))
+            .Select(role => role.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(role => role, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string ServerFlowCandidateRelatedObjectRole(IReadOnlyList<string> candidateRoles)
+    {
+        return candidateRoles.Count == 0
+            ? "候选对象"
+            : $"候选{string.Join("/", candidateRoles)}";
     }
 
     private static string ServerFlowStateFor(

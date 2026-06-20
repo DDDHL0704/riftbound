@@ -366,6 +366,11 @@ export type ActionPromptServerFlowStepDto = {
 export type ActionPromptServerFlowObjectRefDto = {
   objectId: string;
   role: string;
+  candidateRoles?: string[] | null;
+  enabledCandidateCount?: number | null;
+  disabledCandidateCount?: number | null;
+  candidateSource?: string | null;
+  candidateBoundary?: string | null;
 };
 
 export type ActionPromptServerFlowDto = {

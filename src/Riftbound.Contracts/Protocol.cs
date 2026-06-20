@@ -360,7 +360,12 @@ public sealed record ActionPromptServerFlowStepDto(
 
 public sealed record ActionPromptServerFlowObjectRefDto(
     string ObjectId,
-    string Role);
+    string Role,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? CandidateRoles = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? EnabledCandidateCount = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? DisabledCandidateCount = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CandidateSource = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CandidateBoundary = null);
 
 public sealed record ActionPromptServerFlowDto(
     string State,

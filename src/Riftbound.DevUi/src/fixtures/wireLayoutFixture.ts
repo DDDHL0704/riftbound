@@ -483,8 +483,24 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       reason: "服务端提示流公开了当前可操作对象和规则关联对象。",
       relatedObjectIds: ["p1-hand-spell", "p2-right-1", "fixture-left-battlefield"],
       relatedObjects: [
-        { objectId: "p1-hand-spell", role: "候选来源" },
-        { objectId: "p2-right-1", role: "候选目标" },
+        {
+          candidateBoundary: "服务端只公开当前行动提示中的对象候选、角色和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
+          candidateRoles: ["来源"],
+          candidateSource: "server-action-prompt",
+          disabledCandidateCount: 0,
+          enabledCandidateCount: 1,
+          objectId: "p1-hand-spell",
+          role: "候选来源"
+        },
+        {
+          candidateBoundary: "服务端只公开当前行动提示中的对象候选、角色和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
+          candidateRoles: ["目标"],
+          candidateSource: "server-action-prompt",
+          disabledCandidateCount: 1,
+          enabledCandidateCount: 1,
+          objectId: "p2-right-1",
+          role: "候选目标"
+        },
         { objectId: "fixture-left-battlefield", role: "相关战场" }
       ],
       responsiblePlayerId: selfId,

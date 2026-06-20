@@ -3,7 +3,8 @@ import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import {
   buildPromptInteractionModel,
   promptChoiceRoleLabel,
-  type PromptInteractionModel
+  type PromptInteractionModel,
+  type PromptObjectSummary
 } from "./promptInteraction";
 import type { ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 import { buildWireResponseCoachPlan, type WireResponseCoachPlan } from "./wireResponseCoachPlan";
@@ -47,10 +48,22 @@ export type WireServerFlowStep = {
   value: string;
 };
 
+export type WireServerFlowObjectRef = {
+  candidateBoundary?: string;
+  candidateRoles?: string[];
+  candidateSource?: string;
+  disabledCandidateCount?: number;
+  enabledCandidateCount?: number;
+  id: string;
+  label?: string;
+  role: string;
+  visibility?: "hidden" | "missing" | "visible";
+};
+
 export type WireServerFlowDetail = {
   id: string;
   lines: Array<{ label: string; mine?: boolean; value: string }>;
-  refs: Array<{ id: string; label?: string; role: string; visibility?: "hidden" | "missing" | "visible" }>;
+  refs: WireServerFlowObjectRef[];
   source: "rule";
   subtitle?: string;
   title: string;
@@ -219,9 +232,13 @@ function serverFlowRelatedActionRows(
 
   return [...groupedRefs.entries()].map(([objectId, objectRefs]) => {
     const summary = interactionModel.objectById.get(objectId);
-    const actionRoleLabels = uniqueStrings(summary?.choices.map((choice) => promptChoiceRoleLabel(choice.role)) ?? []);
-    const enabledCandidateCount = summary?.enabledCandidateCount ?? 0;
-    const disabledCandidateCount = summary?.disabledCandidateCount ?? 0;
+    const actionRoleLabels = serverFlowRelatedActionRoleLabels(objectRefs, summary);
+    const enabledCandidateCount = firstFiniteNumber(objectRefs.map((ref) => ref.enabledCandidateCount))
+      ?? summary?.enabledCandidateCount
+      ?? 0;
+    const disabledCandidateCount = firstFiniteNumber(objectRefs.map((ref) => ref.disabledCandidateCount))
+      ?? summary?.disabledCandidateCount
+      ?? 0;
     const serverRoleLabel = uniqueStrings(objectRefs.map((ref) => ref.role)).join(" / ") || "服务端关联";
     const state: WireServerFlowRelatedActionRow["state"] = enabledCandidateCount > 0
       ? "ready"
@@ -241,6 +258,22 @@ function serverFlowRelatedActionRows(
       stateLabel: serverFlowRelatedActionStateLabel(state)
     };
   });
+}
+
+function serverFlowRelatedActionRoleLabels(
+  objectRefs: WireServerFlowDetail["refs"],
+  summary: PromptObjectSummary | undefined
+): string[] {
+  const serverRoles = uniqueStrings(objectRefs.flatMap((ref) => ref.candidateRoles ?? []));
+  if (serverRoles.length > 0) {
+    return serverRoles;
+  }
+
+  return uniqueStrings(summary?.choices.map((choice) => promptChoiceRoleLabel(choice.role)) ?? []);
+}
+
+function firstFiniteNumber(values: Array<number | undefined>): number | undefined {
+  return values.find((value) => Number.isFinite(value));
 }
 
 function serverFlowRelatedActionNextStep(
@@ -335,6 +368,11 @@ function detailRelatedObjectRefs(detail?: WireServerFlowDetail): WireServerFlowD
 function serverFlowRelatedObjectRefs(serverFlow: ActionPromptServerFlowDto): WireServerFlowDetail["refs"] {
   const semanticRefs = visibleServerFlowObjectRefs(
     (serverFlow.relatedObjects ?? []).map((ref) => ({
+      candidateBoundary: ref.candidateBoundary ?? undefined,
+      candidateRoles: ref.candidateRoles ?? undefined,
+      candidateSource: ref.candidateSource ?? undefined,
+      disabledCandidateCount: normalizedOptionalCount(ref.disabledCandidateCount),
+      enabledCandidateCount: normalizedOptionalCount(ref.enabledCandidateCount),
       id: ref.objectId,
       role: ref.role || "服务端关联"
     }))
@@ -359,10 +397,50 @@ function visibleServerFlowObjectRefs(refs: WireServerFlowDetail["refs"]): WireSe
     }
 
     seen.add(key);
-    objectRefs.push({ ...ref, id: objectId, role });
+    objectRefs.push(compactServerFlowObjectRef({ ...ref, id: objectId, role }));
   }
 
   return objectRefs;
+}
+
+function compactServerFlowObjectRef(ref: WireServerFlowObjectRef): WireServerFlowObjectRef {
+  const compactRef: WireServerFlowObjectRef = {
+    id: ref.id,
+    role: ref.role
+  };
+  if (ref.label) {
+    compactRef.label = ref.label;
+  }
+
+  if (ref.visibility) {
+    compactRef.visibility = ref.visibility;
+  }
+
+  if (ref.candidateRoles?.length) {
+    compactRef.candidateRoles = ref.candidateRoles;
+  }
+
+  if (ref.candidateSource) {
+    compactRef.candidateSource = ref.candidateSource;
+  }
+
+  if (ref.candidateBoundary) {
+    compactRef.candidateBoundary = ref.candidateBoundary;
+  }
+
+  if (Number.isFinite(ref.enabledCandidateCount)) {
+    compactRef.enabledCandidateCount = ref.enabledCandidateCount;
+  }
+
+  if (Number.isFinite(ref.disabledCandidateCount)) {
+    compactRef.disabledCandidateCount = ref.disabledCandidateCount;
+  }
+
+  return compactRef;
+}
+
+function normalizedOptionalCount(value: number | null | undefined): number | undefined {
+  return Number.isFinite(value) ? Number(value) : undefined;
 }
 
 function visibleServerFlowObjectIds(ids: readonly string[]): string[] {
