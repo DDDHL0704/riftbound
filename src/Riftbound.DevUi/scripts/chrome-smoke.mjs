@@ -23,7 +23,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选覆盖审计", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "响应责任时间线", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选覆盖审计", "提交审阅", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "响应责任时间线", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -100,7 +100,7 @@ try {
   }
 
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "响应责任时间线", "责任来源：服务端", "焦点 / 候选 / 规则队列"]);
+  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "提交审阅", "响应责任时间线", "责任来源：服务端", "焦点 / 候选 / 规则队列"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
   await runWireLayoutGeometrySmoke(cdp);
   console.log("Chrome smoke OK: wire layout geometry");
@@ -599,6 +599,19 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures.push(\`action map submission gate not connected: \${submissionGateState}\`);
     }
 
+    const commandReview = document.querySelector("[data-command-review-state]");
+    const commandReviewState = commandReview?.getAttribute("data-command-review-state") ?? "missing";
+    if (!["blocked", "drafting", "empty", "ready"].includes(commandReviewState)) {
+      failures.push(\`wire command review state is unsupported: \${commandReviewState}\`);
+    }
+    const commandReviewFieldStates = Array.from(commandReview?.querySelectorAll("[data-command-review-field-state]") ?? [])
+      .map((field) => field.getAttribute("data-command-review-field-state") ?? "missing");
+    for (const fieldState of commandReviewFieldStates) {
+      if (!["covered", "missing", "optional", "server"].includes(fieldState)) {
+        failures.push(\`wire command review field state is unsupported: \${fieldState}\`);
+      }
+    }
+
     const promptAuthority = document.querySelector("[data-wire-prompt-authority-state]");
     const promptAuthorityState = promptAuthority?.getAttribute("data-wire-prompt-authority-state") ?? "missing";
     if (promptAuthorityState !== "server") {
@@ -660,6 +673,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures,
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
       flowCount: document.querySelectorAll(".wire-card-flow").length,
+      commandReviewState,
       informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
@@ -696,6 +710,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (result.promptAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server prompt authority: ${result.promptAuthorityState}`);
+  }
+  if (!["blocked", "drafting", "empty", "ready"].includes(result.commandReviewState)) {
+    throw new Error(`Wire layout geometry smoke did not find command review: ${result.commandReviewState}`);
   }
   if (result.responsibilitySource !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server responsibility metadata: ${result.responsibilitySource}`);
@@ -864,6 +881,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const ruleFlow = document.querySelector(".wire-rule-flow");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector("[data-action-route-state]");
+    const commandReview = document.querySelector("[data-command-review-state]");
     const actionButtons = document.querySelector(".wire-action-panel .action-buttons");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
@@ -880,6 +898,10 @@ async function runWireClickSelectionSmoke(cdp) {
       candidateStepRefCount: document.querySelectorAll("[data-action-candidate-step-object-id]").length,
       candidateStepRefText: candidatePlan?.querySelector(".wire-action-candidate-step-ref-list")?.textContent ?? "",
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
+      commandReviewFieldStates: Array.from(commandReview?.querySelectorAll("[data-command-review-field-state]") ?? [])
+        .map((node) => node.getAttribute("data-command-review-field-state")),
+      commandReviewState: commandReview?.getAttribute("data-command-review-state") ?? null,
+      commandReviewText: commandReview?.textContent ?? "",
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       focusBridgeState: focusBridge?.getAttribute("data-action-focus-state") ?? null,
       focusBridgeText: focusBridge?.textContent ?? "",
@@ -950,6 +972,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const route = document.querySelector("[data-action-route-state]");
+    const commandReview = document.querySelector("[data-command-review-state]");
     const sourceStep = candidatePlan?.querySelector('[data-step-role="source"]');
     const targetStep = candidatePlan?.querySelector('[data-step-role="target"]');
     const targetRouteStep = route?.querySelector('[data-route-step-role="target"]');
@@ -958,6 +981,10 @@ async function runWireClickSelectionSmoke(cdp) {
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
+      commandReviewFieldStates: Array.from(commandReview?.querySelectorAll("[data-command-review-field-state]") ?? [])
+        .map((node) => node.getAttribute("data-command-review-field-state")),
+      commandReviewState: commandReview?.getAttribute("data-command-review-state") ?? null,
+      commandReviewText: commandReview?.textContent ?? "",
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
       routeFieldStates: Array.from(route?.querySelectorAll("[data-route-field-state]") ?? [])
@@ -1164,6 +1191,15 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.actionMapText.includes("PLAY_CARD")) failures.push("action map command type missing");
   if (!actionMapResult.actionMapText.includes("服务端字段")) failures.push("action map metadata command field summary missing");
   if (actionMapResult.actionMapText.includes("服务端:cardNo*")) failures.push("action map leaked raw metadata command field");
+  if (actionMapResult.commandReviewState !== "ready") failures.push(`action command review source-focus state unexpected: ${actionMapResult.commandReviewState}`);
+  if (!actionMapResult.commandReviewText.includes("提交审阅")) failures.push("action command review heading missing");
+  if (!actionMapResult.commandReviewText.includes("打出手牌")) failures.push("action command review candidate missing");
+  if (!actionMapResult.commandReviewText.includes("PLAY_CARD")) failures.push("action command review command type missing");
+  if (!actionMapResult.commandReviewText.includes("下一步")) failures.push("action command review next step missing");
+  if (!actionMapResult.commandReviewText.includes("服务端字段")) failures.push("action command review server field safe label missing");
+  if (!actionMapResult.commandReviewFieldStates.includes("covered")) failures.push("action command review covered field missing");
+  if (!actionMapResult.commandReviewFieldStates.includes("server")) failures.push("action command review server field missing");
+  if (actionMapResult.commandReviewText.includes("serverPaymentState")) failures.push("action command review leaked hidden server state");
   if (actionMapResult.focusBridgeState !== "enabled") failures.push(`action map focus bridge state unexpected: ${actionMapResult.focusBridgeState}`);
   if (!actionMapResult.focusBridgeText.includes("角色 来源")) failures.push("action map focus bridge role summary missing");
   if (!actionMapResult.focusBridgeText.includes("可选目标")) failures.push("action map focus bridge next step missing");
@@ -1266,6 +1302,11 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionFocusChoiceResult.routeFieldStates.includes("covered")) failures.push("action focus choice route covered field missing");
   if (!actionFocusChoiceResult.routeFieldStates.includes("server")) failures.push("action focus choice route server field missing");
   if (!actionFocusChoiceResult.routeCheckStates.includes("ready")) failures.push("action focus choice route audit ready state missing");
+  if (actionFocusChoiceResult.commandReviewState !== "ready") failures.push(`action focus choice command review state unexpected: ${actionFocusChoiceResult.commandReviewState}`);
+  if (!actionFocusChoiceResult.commandReviewText.includes("提交审阅")) failures.push("action focus choice command review heading missing");
+  if (!actionFocusChoiceResult.commandReviewText.includes("打出手牌")) failures.push("action focus choice command review candidate missing");
+  if (!actionFocusChoiceResult.commandReviewFieldStates.includes("covered")) failures.push("action focus choice command review covered field missing");
+  if (!actionFocusChoiceResult.commandReviewFieldStates.includes("server")) failures.push("action focus choice command review server field missing");
   if (actionFocusChoiceResult.targetRouteStepState !== "selected") failures.push("action focus choice route target step missing selected state");
   if (actionFocusChoiceResult.sourceStepProgress !== "selected") failures.push("action focus choice did not mark source step selected");
   if (actionFocusChoiceResult.targetStepProgress !== "selected") failures.push("action focus choice did not mark target step selected");

@@ -176,6 +176,13 @@ assert.equal(plan.candidatePlans[0].draftActive, false);
 assert.equal(plan.candidatePlans[0].stepRows[0].selectionState, "inactive");
 assert.equal(plan.candidatePlans[0].stepRows[0].progressLabel, "未进入当前草稿");
 assert.equal(plan.route, undefined);
+assert.equal(plan.commandReview.state, "empty");
+assert.equal(plan.commandReview.nextStepLabel, "先点击服务端候选对象，建立提交路线。");
+assert.deepEqual(plan.commandReview.metrics.map((metric) => `${metric.key}:${metric.value}`), [
+  "selection:0",
+  "missing:无路线",
+  "server:0"
+]);
 assert.deepEqual(plan.candidatePlans[0].stepRows[0].objectRefs, [{
   key: "PLAY_CARD:source:p1-hand-1:p1-hand-1",
   label: "手牌法术",
@@ -243,6 +250,16 @@ assert.equal(draftPlan.route.steps.find((step) => step.role === "target").state,
 assert.deepEqual(draftPlan.route.fields.map((field) => field.state), ["covered", "covered", "server"]);
 assert.equal(draftPlan.route.fields[2].field, "server-metadata-2");
 assert.equal(draftPlan.route.fields[2].label, "服务端字段");
+assert.equal(draftPlan.commandReview.state, "ready");
+assert.equal(draftPlan.commandReview.stateLabel, "可送服务端");
+assert.equal(draftPlan.commandReview.commandType, "PLAY_CARD");
+assert.equal(draftPlan.commandReview.metrics.find((metric) => metric.key === "selection")?.value, "2");
+assert.equal(draftPlan.commandReview.metrics.find((metric) => metric.key === "server")?.value, "1");
+assert.deepEqual(draftPlan.commandReview.commandPreview.map((field) => `${field.field}:${field.state}`), [
+  "sourceObjectId:covered",
+  "targetObjectIds:covered",
+  "server-metadata-2:server"
+]);
 assert.equal(draftPlan.candidatePlans.find((candidate) => candidate.action === "ACTIVATE_ABILITY").draftActive, false);
 
 const staleDraftPlan = buildWireActionMapPlan({
@@ -273,6 +290,8 @@ assert.equal(staleDraftPlan.route.nextStepLabel, "行动提示属于 tick 7，�
 assert.equal(staleDraftPlan.route.checkSummary, "5 通过 / 1 阻断 / 0 等待");
 assert.equal(staleDraftPlan.route.checkRows.find((check) => check.key === "submission-gate")?.state, "blocked");
 assert.equal(staleDraftPlan.route.checkRows.find((check) => check.key === "submission-gate")?.stateLabel, "等待同步");
+assert.equal(staleDraftPlan.commandReview.state, "blocked");
+assert.equal(staleDraftPlan.commandReview.nextStepLabel, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
 
 const readOnlyPlan = buildWireActionMapPlan({
   playerId: "P2",
@@ -302,6 +321,7 @@ assert.equal(wrongPlayerDraftPlan.route.state, "blocked");
 assert.equal(wrongPlayerDraftPlan.route.stateLabel, "行动窗口阻断");
 assert.equal(wrongPlayerDraftPlan.route.checkRows.find((check) => check.key === "action-window")?.state, "blocked");
 assert.equal(wrongPlayerDraftPlan.route.checkRows.find((check) => check.key === "action-window")?.stateLabel, "非当前玩家");
+assert.equal(wrongPlayerDraftPlan.commandReview.state, "blocked");
 
 const blockedFocusPlan = buildWireActionMapPlan({
   playerId: "P1",

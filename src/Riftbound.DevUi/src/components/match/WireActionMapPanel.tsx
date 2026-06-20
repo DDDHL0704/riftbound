@@ -5,6 +5,7 @@ import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGateP
 import {
   buildWireActionMapPlan,
   type WireActionBlockerPlan,
+  type WireActionCommandReviewPlan,
   type WireActionContractPlan,
   type WireActionCoverageMetricPlan,
   type WireActionCoveragePlan,
@@ -58,6 +59,7 @@ export function WireActionMapPanel({
       <WindowGateStrip gate={plan.windowGate} />
       <ActionCoveragePanel coverage={plan.coverage} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
+      <CommandReviewPanel review={plan.commandReview} />
       <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
@@ -140,6 +142,48 @@ export function WireActionMapPanel({
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+function CommandReviewPanel({ review }: { review: WireActionCommandReviewPlan }) {
+  return (
+    <section
+      aria-label="服务端候选提交审阅"
+      className="wire-command-review"
+      data-command-review-state={review.state}
+    >
+      <div className="wire-command-review-heading">
+        <strong>提交审阅</strong>
+        <span>{review.stateLabel}</span>
+      </div>
+      <small>{review.summary}</small>
+      <div className="wire-command-review-metrics">
+        {review.metrics.map((metric) => (
+          <span data-command-review-metric={metric.key} key={metric.key}>
+            <b>{metric.label}</b>
+            <strong>{metric.value}</strong>
+          </span>
+        ))}
+      </div>
+      <div className="wire-command-review-next">下一步：{review.nextStepLabel}</div>
+      {review.commandPreview.length === 0 ? (
+        <span className="empty-hint">当前没有提交草稿。</span>
+      ) : (
+        <ol className="wire-command-review-fields" aria-label={`${review.candidateLabel} 命令字段审阅`}>
+          {review.commandPreview.map((field) => (
+            <li
+              data-command-review-field={field.field}
+              data-command-review-field-state={field.state}
+              key={field.key}
+            >
+              <span>{field.label}</span>
+              <strong>{field.stateLabel}</strong>
+              <small>{field.required ? "必需" : "可选"} / {field.sourceLabel}</small>
+            </li>
+          ))}
+        </ol>
+      )}
     </section>
   );
 }

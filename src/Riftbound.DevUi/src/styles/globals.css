@@ -11920,6 +11920,11 @@ button.card-face:hover {
 .wire-action-map,
 .wire-action-map-header,
 .wire-action-map-metrics,
+.wire-command-review,
+.wire-command-review-heading,
+.wire-command-review-metrics span,
+.wire-command-review-fields li,
+.wire-command-review-next,
 .wire-action-route-strip,
 .wire-action-route-fields span,
 .wire-action-route-inspector,
@@ -13166,6 +13171,10 @@ button.card-face:hover {
 .wire-action-contract-strip small,
 .wire-action-contract-strip b,
 .wire-action-contract-strip strong,
+.wire-command-review span,
+.wire-command-review small,
+.wire-command-review strong,
+.wire-command-review b,
 .wire-action-route-strip span,
 .wire-action-route-strip small,
 .wire-action-route-strip strong,
@@ -13183,6 +13192,64 @@ button.card-face:hover {
   display: grid;
   gap: 4px;
   padding: 5px;
+}
+
+.wire-command-review {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-command-review[data-command-review-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-command-review[data-command-review-state="blocked"] {
+  border-style: dashed;
+}
+
+.wire-command-review-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border: 0;
+  border-bottom: 1px solid #000;
+  padding-bottom: 3px;
+}
+
+.wire-command-review-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.wire-command-review-metrics span,
+.wire-command-review-next,
+.wire-command-review-fields li {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 3px;
+}
+
+.wire-command-review-fields {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-command-review-fields li[data-command-review-field-state="covered"],
+.wire-command-review-fields li[data-command-review-field-state="server"] {
+  border-width: 2px;
+}
+
+.wire-command-review-fields li[data-command-review-field-state="missing"] {
+  border-style: dashed;
 }
 
 .wire-action-route-strip[data-action-route-state="ready"],
@@ -13315,6 +13382,10 @@ button.card-face:hover {
 .wire-action-map-metric strong,
 .wire-action-object-chip strong,
 .wire-action-group-heading strong,
+.wire-command-review span,
+.wire-command-review small,
+.wire-command-review strong,
+.wire-command-review b,
 .wire-action-coverage-heading strong,
 .wire-action-coverage-heading span,
 .wire-action-coverage-summary,
@@ -14799,6 +14870,11 @@ button.wire-object-ref {
 .wire-match-page .wire-action-map-header,
 .wire-match-page .wire-action-map-metrics,
 .wire-match-page .wire-action-map-metric,
+.wire-match-page .wire-command-review,
+.wire-match-page .wire-command-review-heading,
+.wire-match-page .wire-command-review-metrics span,
+.wire-match-page .wire-command-review-fields li,
+.wire-match-page .wire-command-review-next,
 .wire-match-page .wire-action-coverage,
 .wire-match-page .wire-action-coverage-heading,
 .wire-match-page .wire-action-coverage-metrics span,

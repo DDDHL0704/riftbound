@@ -110,6 +110,7 @@ export type WireActionRoutePlan = {
   candidateLabel: string;
   checkRows: WireActionRouteCheckPlan[];
   checkSummary: string;
+  commandPreview: WireActionCommandPreviewRow[];
   commandType?: string;
   enabled: boolean;
   fields: WireActionRouteFieldPlan[];
@@ -122,6 +123,36 @@ export type WireActionRoutePlan = {
   state: WireActionRouteState;
   stateLabel: string;
   steps: WireActionRouteStepPlan[];
+  summary: string;
+};
+
+export type WireActionCommandReviewState = "blocked" | "drafting" | "empty" | "ready";
+
+export type WireActionCommandPreviewRow = {
+  field: string;
+  key: string;
+  label: string;
+  required: boolean;
+  sourceLabel: string;
+  state: WireActionRouteFieldState;
+  stateLabel: string;
+};
+
+export type WireActionCommandReviewMetric = {
+  key: string;
+  label: string;
+  value: string;
+};
+
+export type WireActionCommandReviewPlan = {
+  candidateLabel: string;
+  checkRows: WireActionRouteCheckPlan[];
+  commandPreview: WireActionCommandPreviewRow[];
+  commandType: string;
+  metrics: WireActionCommandReviewMetric[];
+  nextStepLabel: string;
+  state: WireActionCommandReviewState;
+  stateLabel: string;
   summary: string;
 };
 
@@ -238,6 +269,7 @@ export type WireActionMapPlan = {
   blockedObjectEntryOverflowCount: number;
   candidatePlanTotalCount: number;
   candidatePlans: WireActionCandidatePlan[];
+  commandReview: WireActionCommandReviewPlan;
   contract?: WireActionContractPlan;
   coverage: WireActionCoveragePlan;
   disabledOnlyObjectCount: number;
@@ -301,6 +333,7 @@ export function buildWireActionMapPlan({
   const candidateByKey = new Map(model.candidates.map((candidate) => [candidateKey(candidate), candidate]));
   const candidatePlans = buildCandidateInteractionPlans(model.candidates)
     .map((candidatePlan) => wireActionCandidatePlan(candidatePlan, candidateByKey.get(candidatePlan.key), objects, selectionDraft));
+  const route = wireActionRoutePlan(candidatePlans, gate, windowGate);
   const grammarCandidates = model.candidates.filter((candidate) => candidate.enabled);
   const objectLimit = nonNegativeLimit(maxObjectEntries);
 
@@ -312,6 +345,7 @@ export function buildWireActionMapPlan({
     blockedObjectEntryOverflowCount: Math.max(knownDisabledOnlyObjects.length - objectLimit, 0),
     candidatePlanTotalCount: candidatePlans.length,
     candidatePlans: candidatePlans.slice(0, nonNegativeLimit(maxCandidatePlans)),
+    commandReview: commandReviewPlan(route),
     contract: contractPlan(prompt?.contract),
     coverage: coveragePlan(model, objects, gate, windowGate),
     disabledOnlyObjectCount: knownDisabledOnlyObjects.length,
@@ -336,7 +370,7 @@ export function buildWireActionMapPlan({
       .slice(0, objectLimit)
       .map((objectId) => objectEntryPlan(objectId, objects, model, selectedObjectId)),
     objectEntryOverflowCount: Math.max(knownEnabledObjects.length - objectLimit, 0),
-    route: wireActionRoutePlan(candidatePlans, gate, windowGate),
+    route,
     submissionGate: gate,
     windowGate
   };
@@ -516,6 +550,7 @@ function wireActionRoutePlan(
     candidateLabel: candidatePlan.candidateLabel,
     checkRows,
     checkSummary: routeCheckSummary(checkRows),
+    commandPreview: candidatePlan.commandFields.map(commandPreviewRow),
     commandType: candidatePlan.commandType,
     enabled: candidatePlan.enabled,
     fields: candidatePlan.commandFields,
@@ -539,6 +574,72 @@ function wireActionRoutePlan(
     })),
     summary: `${candidatePlan.candidateLabel} / ${stateLabel} / ${nextStepLabel}`
   };
+}
+
+function commandReviewPlan(route: WireActionRoutePlan | undefined): WireActionCommandReviewPlan {
+  if (!route) {
+    return {
+      candidateLabel: "未选择候选",
+      checkRows: [],
+      commandPreview: [],
+      commandType: "无",
+      metrics: [
+        { key: "selection", label: "选择", value: "0" },
+        { key: "missing", label: "缺少", value: "无路线" },
+        { key: "server", label: "服务端字段", value: "0" }
+      ],
+      nextStepLabel: "先点击服务端候选对象，建立提交路线。",
+      state: "empty",
+      stateLabel: "无提交草稿",
+      summary: "尚未选择服务端候选。"
+    };
+  }
+
+  const state: WireActionCommandReviewState = route.state === "ready"
+    ? "ready"
+    : route.state === "blocked"
+      ? "blocked"
+      : "drafting";
+  return {
+    candidateLabel: route.candidateLabel,
+    checkRows: route.checkRows,
+    commandPreview: route.commandPreview,
+    commandType: route.commandType ?? "未公开命令",
+    metrics: [
+      { key: "selection", label: "已选步骤", value: String(route.selectedStepCount) },
+      { key: "missing", label: "缺少", value: `${route.missingRequiredSelectionCount} 选择 / ${route.missingRequiredFieldCount} 字段` },
+      { key: "server", label: "服务端字段", value: String(route.serverInjectedFieldCount) }
+    ],
+    nextStepLabel: route.nextStepLabel,
+    state,
+    stateLabel: commandReviewStateLabel(state),
+    summary: `${route.candidateLabel} / ${route.commandType ?? "未公开命令"} / ${route.checkSummary}`
+  };
+}
+
+function commandPreviewRow(field: WireActionRouteFieldPlan): WireActionCommandPreviewRow {
+  return {
+    field: field.field,
+    key: `preview:${field.key}`,
+    label: field.label,
+    required: field.required,
+    sourceLabel: field.sourceLabel,
+    state: field.state,
+    stateLabel: field.stateLabel
+  };
+}
+
+function commandReviewStateLabel(state: WireActionCommandReviewState): string {
+  switch (state) {
+    case "blocked":
+      return "提交阻断";
+    case "drafting":
+      return "草稿未齐";
+    case "empty":
+      return "等待选择";
+    case "ready":
+      return "可送服务端";
+  }
 }
 
 function wireActionRouteCheckRows({
