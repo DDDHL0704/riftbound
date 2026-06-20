@@ -211,6 +211,21 @@ function TimelineNextStep({
       </header>
       <p>{plan.body}</p>
       <small>{plan.detail}</small>
+      {plan.steps.length > 0 && (
+        <ol className="wire-timeline-next-step-grammar" aria-label="下一步选择语法">
+          {plan.steps.map((step) => (
+            <li
+              data-timeline-next-step-grammar-role={step.role}
+              data-timeline-next-step-grammar-state={step.state}
+              key={step.key}
+            >
+              <span>{step.label}</span>
+              <strong>{step.stateLabel}</strong>
+              <small>{step.required ? "必需" : "可选"} / {step.selectedCount}/{step.availableCount}</small>
+            </li>
+          ))}
+        </ol>
+      )}
       {plan.checks.length > 0 && (
         <ol className="wire-timeline-next-step-checks" aria-label="下一步提交门禁">
           {plan.checks.map((check) => (

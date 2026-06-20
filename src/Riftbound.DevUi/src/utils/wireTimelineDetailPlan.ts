@@ -189,6 +189,17 @@ export type WireTimelineNextStepCheckRow = {
   stateLabel: string;
 };
 
+export type WireTimelineNextStepGrammarRow = {
+  availableCount: number;
+  key: string;
+  label: string;
+  required: boolean;
+  role: string;
+  selectedCount: number;
+  state: FocusedInteractionGrammarStepState;
+  stateLabel: string;
+};
+
 export type WireTimelineNextStepPlan = {
   body: string;
   checks: WireTimelineNextStepCheckRow[];
@@ -198,6 +209,7 @@ export type WireTimelineNextStepPlan = {
   key: string;
   refs: WireTimelineCommandBridgeObjectRef[];
   state: WireTimelineNextStepState;
+  steps: WireTimelineNextStepGrammarRow[];
 };
 
 export type WireTimelineInspectorProjection = {
@@ -340,7 +352,8 @@ function nextStepPlanForDetail({
       headline: "等待选择规则事件",
       key: "empty",
       refs: [],
-      state: "empty"
+      state: "empty",
+      steps: []
     };
   }
 
@@ -410,7 +423,8 @@ function nextStepPlanForDetail({
         objectId: enabledHint.objectId,
         roleLabel: enabledHint.role
       }],
-      state: "ready"
+      state: "ready",
+      steps: []
     };
   }
 
@@ -435,7 +449,8 @@ function nextStepPlanForDetail({
         objectId: blockedHint.objectId,
         roleLabel: blockedHint.role
       }],
-      state: "blocked"
+      state: "blocked",
+      steps: []
     };
   }
 
@@ -450,7 +465,8 @@ function nextStepPlanForDetail({
     headline: "仅查看公开证据",
     key: "observe",
     refs: [],
-    state: "observe"
+    state: "observe",
+    steps: []
   };
 }
 
@@ -474,7 +490,17 @@ function nextStepFromBridgeRow(
       stateLabel: gate.stateLabel
     })),
     commandType: row.commandType,
-    refs: row.nextObjectRefs
+    refs: row.nextObjectRefs,
+    steps: row.grammarSteps.map((step) => ({
+      availableCount: step.availableCount,
+      key: step.key,
+      label: step.label,
+      required: step.required,
+      role: step.role,
+      selectedCount: step.selectedCount,
+      state: step.state,
+      stateLabel: step.stateLabel
+    }))
   };
 }
 

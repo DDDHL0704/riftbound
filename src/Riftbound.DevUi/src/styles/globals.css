@@ -14318,6 +14318,7 @@ button.card-face:hover {
 .wire-timeline-next-step,
 .wire-timeline-next-step header,
 .wire-timeline-next-step-checks li,
+.wire-timeline-next-step-grammar li,
 .wire-timeline-next-step-refs button,
 .wire-timeline-inspector,
 .wire-timeline-inspector header,
@@ -15105,7 +15106,8 @@ button.card-face:hover {
 .wire-timeline-next-step small,
 .wire-timeline-next-step strong,
 .wire-timeline-next-step p,
-.wire-timeline-next-step-checks li > * {
+.wire-timeline-next-step-checks li > *,
+.wire-timeline-next-step-grammar li > * {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -15137,7 +15139,8 @@ button.card-face:hover {
   padding: 0 4px 2px;
 }
 
-.wire-timeline-next-step-checks {
+.wire-timeline-next-step-checks,
+.wire-timeline-next-step-grammar {
   min-width: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
@@ -15147,11 +15150,27 @@ button.card-face:hover {
   list-style: none;
 }
 
-.wire-timeline-next-step-checks li {
+.wire-timeline-next-step-checks li,
+.wire-timeline-next-step-grammar li {
   min-width: 0;
   display: grid;
   gap: 2px;
   padding: 2px 4px;
+}
+
+.wire-timeline-next-step-grammar li[data-timeline-next-step-grammar-state="locked"],
+.wire-timeline-next-step-grammar li[data-timeline-next-step-grammar-state="ready"],
+.wire-timeline-next-step-grammar li[data-timeline-next-step-grammar-state="selected"] {
+  border-width: 2px;
+}
+
+.wire-timeline-next-step-grammar li[data-timeline-next-step-grammar-state="blocked"] {
+  border-style: double;
+}
+
+.wire-timeline-next-step-grammar li[data-timeline-next-step-grammar-state="available"],
+.wire-timeline-next-step-grammar li[data-timeline-next-step-grammar-state="optional"] {
+  border-style: dashed;
 }
 
 .wire-timeline-next-step-checks li[data-timeline-next-step-check-state="ready"] {
@@ -15519,6 +15538,7 @@ button.wire-object-ref {
 .wire-match-page .wire-timeline-next-step,
 .wire-match-page .wire-timeline-next-step header,
 .wire-match-page .wire-timeline-next-step-checks li,
+.wire-match-page .wire-timeline-next-step-grammar li,
 .wire-match-page .wire-timeline-next-step-refs button,
 .wire-match-page .wire-timeline-inspector,
 .wire-match-page .wire-timeline-inspector header,
