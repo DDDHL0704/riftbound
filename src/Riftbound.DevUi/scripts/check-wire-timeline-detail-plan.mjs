@@ -203,6 +203,11 @@ assert.equal(plan.evidenceRows.find((row) => row.key === "path")?.value, "2 路�
 assert.equal(plan.evidenceRows.find((row) => row.key === "path")?.stateLabel, "未进入草稿");
 assert.equal(plan.evidenceRows.find((row) => row.key === "boundary")?.value, "1 隐藏 / 1 未公开");
 assert.equal(plan.evidenceRows.find((row) => row.key === "boundary")?.state, "warn");
+assert.equal(plan.nextStep.state, "selecting");
+assert.equal(plan.nextStep.headline, "从详情对象开始选择");
+assert.equal(plan.nextStep.body, "来源 -> 打出卡牌");
+assert.equal(plan.nextStep.commandType, "PLAY_CARD");
+assert.deepEqual(plan.nextStep.refs.map((ref) => ref.objectId), ["target-1"]);
 assert.equal(plan.inspector.sourceLabel, "规则队列");
 assert.equal(plan.inspector.visibleRefCount, 2);
 assert.equal(plan.inspector.selectedProjectionCount, 1);
@@ -240,6 +245,9 @@ assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "source")?.st
 assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "projection")?.value, "1/3 可定位");
 assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "projection")?.state, "warn");
 assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "boundary")?.value, "1 隐藏 / 1 未公开");
+assert.equal(visibilityPlan.nextStep.state, "observe");
+assert.equal(visibilityPlan.nextStep.headline, "仅查看公开证据");
+assert.equal(visibilityPlan.nextStep.detail, "1 隐藏 / 1 未公开，等待服务端公开后再操作。");
 assert.equal(visibilityPlan.inspector.hiddenRefCount, 1);
 assert.equal(visibilityPlan.inspector.missingRefCount, 1);
 assert.equal(visibilityPlan.inspector.visibleRefCount, 1);
@@ -336,6 +344,9 @@ const draftPlan = buildWireTimelineDetailPlan({
 assert.equal(draftPlan.statusCards.find((card) => card.label === "候选路径")?.value, "2 条 / 2 草稿");
 assert.equal(draftPlan.evidenceRows.find((row) => row.key === "path")?.value, "2 路径 / 2 可送 / 0 待选 / 0 阻断 / 0 未进");
 assert.equal(draftPlan.evidenceRows.find((row) => row.key === "path")?.state, "ready");
+assert.equal(draftPlan.nextStep.state, "ready");
+assert.equal(draftPlan.nextStep.headline, "可送服务端校验");
+assert.equal(draftPlan.nextStep.commandType, "PLAY_CARD");
 assert.equal(draftPlan.commandBridgeRows[0].draftActive, true);
 assert.equal(draftPlan.commandBridgeRows[0].routeState, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].routeStateLabel, "可送服务端校验");
@@ -412,6 +423,8 @@ const disconnectedDraftPlan = buildWireTimelineDetailPlan({
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].routeState, "blocked");
 assert.equal(disconnectedDraftPlan.evidenceRows.find((row) => row.key === "path")?.value, "2 路径 / 0 可送 / 0 待选 / 2 阻断 / 0 未进");
 assert.equal(disconnectedDraftPlan.evidenceRows.find((row) => row.key === "path")?.state, "blocked");
+assert.equal(disconnectedDraftPlan.nextStep.state, "blocked");
+assert.equal(disconnectedDraftPlan.nextStep.headline, "服务端暂不允许");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarState, "blocked");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 阻断 / 仅有模板 / 提交入口阻断");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].gateSummary, "3 通过 / 2 阻断 / 0 等待");

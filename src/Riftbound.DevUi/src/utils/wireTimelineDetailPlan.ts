@@ -179,6 +179,18 @@ export type WireTimelineCommandBridgeRow = {
   totalStepCount: number;
 };
 
+export type WireTimelineNextStepState = "blocked" | "empty" | "observe" | "ready" | "selecting";
+
+export type WireTimelineNextStepPlan = {
+  body: string;
+  commandType?: string;
+  detail: string;
+  headline: string;
+  key: string;
+  refs: WireTimelineCommandBridgeObjectRef[];
+  state: WireTimelineNextStepState;
+};
+
 export type WireTimelineInspectorProjection = {
   count: number;
   key: WireTimelineProjectionState;
@@ -216,6 +228,7 @@ export type WireTimelineDetailPlan = {
   headerTitle: string;
   inspector: WireTimelineDetailInspectorPlan;
   navigationRows: WireTimelineNavigationRow[];
+  nextStep: WireTimelineNextStepPlan;
   projectionRows: WireTimelineProjectionRow[];
   statusCards: WireTimelineStatusCard[];
 };
@@ -281,6 +294,12 @@ export function buildWireTimelineDetailPlan({
     }),
     navigationRows,
     commandBridgeRows,
+    nextStep: nextStepPlanForDetail({
+      actionHintRows,
+      commandBridgeRows,
+      detail,
+      projectionRows
+    }),
     projectionRows,
     statusCards: [
       { label: "详情来源", value: detail ? detailSourceLabel(detail.source) : "无" },
@@ -290,6 +309,140 @@ export function buildWireTimelineDetailPlan({
       { label: "关联候选", value: actionHintRows.length > 0 ? `${enabledActionHintCount} 可用 / ${disabledActionHintCount} 阻断` : "无候选" },
       { label: "候选路径", value: commandBridgeRows.length > 0 ? commandBridgeStatusLabel(commandBridgeRows) : "无路径" }
     ]
+  };
+}
+
+function nextStepPlanForDetail({
+  actionHintRows,
+  commandBridgeRows,
+  detail,
+  projectionRows
+}: {
+  actionHintRows: WireTimelineActionHintRow[];
+  commandBridgeRows: WireTimelineCommandBridgeRow[];
+  detail?: WireTimelineDetailLike;
+  projectionRows: WireTimelineProjectionRow[];
+}): WireTimelineNextStepPlan {
+  if (!detail) {
+    return {
+      body: "从结算链、规则任务或日志中选择一项。",
+      detail: "尚无服务端详情材料。",
+      headline: "等待选择规则事件",
+      key: "empty",
+      refs: [],
+      state: "empty"
+    };
+  }
+
+  const readyRoute = commandBridgeRows.find((row) => row.routeState === "ready");
+  if (readyRoute) {
+    return nextStepFromBridgeRow(readyRoute, {
+      body: `${readyRoute.label} / ${readyRoute.commandType ?? "服务端命令"}`,
+      detail: `${readyRoute.routeStateLabel} / ${readyRoute.nextStepLabel} / ${readyRoute.gateSummary}`,
+      headline: "可送服务端校验",
+      key: "ready",
+      state: "ready"
+    });
+  }
+
+  const selectingRoute = commandBridgeRows.find((row) => row.routeState === "selecting");
+  if (selectingRoute) {
+    return nextStepFromBridgeRow(selectingRoute, {
+      body: `${selectingRoute.label} / ${selectingRoute.commandType ?? "服务端命令"}`,
+      detail: `${selectingRoute.selectionLabel} / ${selectingRoute.nextStepLabel} / ${selectingRoute.gateSummary}`,
+      headline: "继续补齐选择",
+      key: "selecting",
+      state: "selecting"
+    });
+  }
+
+  const inactiveRoute = commandBridgeRows.find((row) => row.enabled && row.routeState === "inactive")
+    ?? commandBridgeRows.find((row) => row.routeState === "inactive");
+  if (inactiveRoute) {
+    return nextStepFromBridgeRow(inactiveRoute, {
+      body: `${inactiveRoute.detailRoleLabel} -> ${inactiveRoute.label}`,
+      detail: `${inactiveRoute.nextStepLabel} / ${inactiveRoute.commandFieldSummary}`,
+      headline: "从详情对象开始选择",
+      key: "inactive",
+      state: "selecting"
+    });
+  }
+
+  const blockedRoute = commandBridgeRows.find((row) => row.routeState === "blocked") ?? commandBridgeRows.find((row) => !row.enabled);
+  if (blockedRoute) {
+    return nextStepFromBridgeRow(blockedRoute, {
+      body: `${blockedRoute.label} / ${blockedRoute.commandType ?? "服务端命令"}`,
+      detail: `${blockedRoute.reasonLabel} / ${blockedRoute.gateSummary}`,
+      headline: "服务端暂不允许",
+      key: "blocked",
+      state: "blocked"
+    });
+  }
+
+  const enabledHint = actionHintRows.find((row) => row.enabledCount > 0);
+  if (enabledHint) {
+    return {
+      body: `${enabledHint.role} / ${enabledHint.label}`,
+      commandType: enabledHint.commandTypes[0],
+      detail: `${enabledHint.stateLabel} / ${enabledHint.zoneLabel}`,
+      headline: "关联对象有服务端候选",
+      key: "hint-ready",
+      refs: [{
+        key: `hint:${enabledHint.objectId}`,
+        label: enabledHint.label,
+        objectId: enabledHint.objectId,
+        roleLabel: enabledHint.role
+      }],
+      state: "ready"
+    };
+  }
+
+  const blockedHint = actionHintRows.find((row) => row.disabledCount > 0);
+  if (blockedHint) {
+    return {
+      body: `${blockedHint.role} / ${blockedHint.label}`,
+      commandType: blockedHint.commandTypes[0],
+      detail: blockedHint.reasonLabels[0] || blockedHint.stateLabel,
+      headline: "关联候选被服务端阻断",
+      key: "hint-blocked",
+      refs: [{
+        key: `hint:${blockedHint.objectId}`,
+        label: blockedHint.label,
+        objectId: blockedHint.objectId,
+        roleLabel: blockedHint.role
+      }],
+      state: "blocked"
+    };
+  }
+
+  const hiddenCount = projectionRows.filter((row) => row.state === "hidden").length;
+  const missingCount = projectionRows.filter((row) => row.state === "missing").length;
+  return {
+    body: projectionRows.length > 0 ? `${projectionRows.length} 个详情对象` : "当前详情没有对象引用",
+    detail: hiddenCount > 0 || missingCount > 0
+      ? `${hiddenCount} 隐藏 / ${missingCount} 未公开，等待服务端公开后再操作。`
+      : "当前服务端详情没有公开可提交候选。",
+    headline: "仅查看公开证据",
+    key: "observe",
+    refs: [],
+    state: "observe"
+  };
+}
+
+function nextStepFromBridgeRow(
+  row: WireTimelineCommandBridgeRow,
+  copy: {
+    body: string;
+    detail: string;
+    headline: string;
+    key: string;
+    state: WireTimelineNextStepState;
+  }
+): WireTimelineNextStepPlan {
+  return {
+    ...copy,
+    commandType: row.commandType,
+    refs: row.nextObjectRefs
   };
 }
 

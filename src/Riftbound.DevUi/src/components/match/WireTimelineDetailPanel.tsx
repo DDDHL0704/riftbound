@@ -7,7 +7,8 @@ import {
   type WireTimelineCommandBridgeRow,
   type WireTimelineDetailInspectorPlan,
   type WireTimelineEvidenceRow,
-  type WireTimelineNavigationRow
+  type WireTimelineNavigationRow,
+  type WireTimelineNextStepPlan
 } from "../../utils/wireTimelineDetailPlan";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
@@ -104,6 +105,10 @@ export function WireTimelineDetailPanel({
       <div className="wire-timeline-detail-body" id="wire-timeline-detail-body">
         {detail ? (
           <>
+            <TimelineNextStep
+              onChooseObject={onChooseObject ?? onInspectObject}
+              plan={plan.nextStep}
+            />
             <button
               aria-expanded={inspectorOpen}
               className="wire-timeline-inspector-toggle"
@@ -178,6 +183,51 @@ export function WireTimelineDetailPanel({
           <span className="empty-hint">暂无焦点事件。</span>
         )}
       </div>
+    </section>
+  );
+}
+
+function TimelineNextStep({
+  onChooseObject,
+  plan
+}: {
+  onChooseObject?: (objectId: string) => void;
+  plan: WireTimelineNextStepPlan;
+}) {
+  if (plan.state === "empty") {
+    return null;
+  }
+
+  return (
+    <section
+      aria-label="规则事件下一步"
+      className="wire-timeline-next-step"
+      data-timeline-next-step={plan.key}
+      data-timeline-next-step-state={plan.state}
+    >
+      <header>
+        <strong>{plan.headline}</strong>
+        <span>{plan.commandType ?? "服务端上下文"}</span>
+      </header>
+      <p>{plan.body}</p>
+      <small>{plan.detail}</small>
+      {plan.refs.length > 0 && (
+        <div className="wire-timeline-next-step-refs" role="group" aria-label="下一步对象">
+          {plan.refs.map((ref) => (
+            <button
+              data-timeline-next-step-object-id={ref.objectId}
+              data-timeline-next-step-role={ref.roleLabel}
+              disabled={!onChooseObject}
+              key={ref.key}
+              onClick={() => onChooseObject?.(ref.objectId)}
+              type="button"
+            >
+              <span>{ref.roleLabel}</span>
+              <strong>{ref.label}</strong>
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

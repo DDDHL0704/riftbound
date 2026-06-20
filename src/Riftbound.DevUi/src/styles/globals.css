@@ -14315,6 +14315,9 @@ button.card-face:hover {
 .wire-timeline-detail-status-grid span,
 .wire-timeline-evidence-list,
 .wire-timeline-evidence-list li,
+.wire-timeline-next-step,
+.wire-timeline-next-step header,
+.wire-timeline-next-step-refs button,
 .wire-timeline-inspector,
 .wire-timeline-inspector header,
 .wire-timeline-inspector section,
@@ -14690,6 +14693,7 @@ button.card-face:hover {
 .wire-rule-metric > strong,
 .wire-timeline-detail-status-grid strong,
 .wire-timeline-evidence-list strong,
+.wire-timeline-next-step strong,
 .wire-timeline-detail-line > strong,
 .wire-timeline-projection-list strong,
 .wire-timeline-action-hint-list strong,
@@ -15095,11 +15099,78 @@ button.card-face:hover {
 
 .wire-timeline-evidence-list span,
 .wire-timeline-evidence-list small,
-.wire-timeline-evidence-list strong {
+.wire-timeline-evidence-list strong,
+.wire-timeline-next-step span,
+.wire-timeline-next-step small,
+.wire-timeline-next-step strong,
+.wire-timeline-next-step p {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-timeline-next-step {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 3px;
+}
+
+.wire-timeline-next-step header {
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 2px 4px;
+}
+
+.wire-timeline-next-step p {
+  margin: 0;
+  padding: 0 4px;
+  font-weight: 700;
+}
+
+.wire-timeline-next-step > small {
+  padding: 0 4px 2px;
+}
+
+.wire-timeline-next-step[data-timeline-next-step-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-timeline-next-step[data-timeline-next-step-state="blocked"] {
+  border-style: double;
+}
+
+.wire-timeline-next-step[data-timeline-next-step-state="observe"] {
+  border-style: dashed;
+}
+
+.wire-timeline-next-step-refs {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 3px;
+}
+
+.wire-timeline-next-step-refs button {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 3px;
+  padding: 2px 4px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-timeline-next-step-refs button:disabled {
+  cursor: default;
+  opacity: 0.7;
 }
 
 .wire-timeline-detail-line {
@@ -15414,6 +15485,9 @@ button.wire-object-ref {
 .wire-match-page .wire-timeline-detail-status-grid span,
 .wire-match-page .wire-timeline-evidence-list,
 .wire-match-page .wire-timeline-evidence-list li,
+.wire-match-page .wire-timeline-next-step,
+.wire-match-page .wire-timeline-next-step header,
+.wire-match-page .wire-timeline-next-step-refs button,
 .wire-match-page .wire-timeline-inspector,
 .wire-match-page .wire-timeline-inspector header,
 .wire-match-page .wire-timeline-inspector section,
