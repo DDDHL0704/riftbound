@@ -138,12 +138,11 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
     }
   }, [playerId, roomId, socket]);
 
-  const ready = useCallback(async () => {
-    await socket.ready(roomId, playerId, intentId(playerId, "READY"));
-  }, [playerId, roomId, socket]);
-
-  const submitCommand = useCallback(
-    async (command: GameCommand) => {
+  const submitReceiptBackedCommand = useCallback(
+    async (
+      command: GameCommand,
+      submit: (clientIntentId: string, stampedCommand: GameCommand) => Promise<CommandReceiptDto>
+    ) => {
       const stampedCommand = withCurrentPromptStamp(command, state.prompt);
       const clientIntentId = intentId(playerId, command.cmdType);
       const pending = commandSubmissionFeedback({
@@ -160,7 +159,7 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
       }));
 
       try {
-        const receipt = await socket.submitIntent(roomId, playerId, clientIntentId, stampedCommand);
+        const receipt = await submit(clientIntentId, stampedCommand);
         const sent = receipt.accepted
           ? commandSubmissionFeedbackFromReceipt({
             command: stampedCommand,
@@ -196,7 +195,24 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
         throw error;
       }
     },
-    [playerId, roomId, socket, state.prompt]
+    [playerId, state.prompt]
+  );
+
+  const ready = useCallback(async () => {
+    await submitReceiptBackedCommand(
+      { cmdType: "READY" },
+      (clientIntentId) => socket.ready(roomId, playerId, clientIntentId)
+    );
+  }, [playerId, roomId, socket, submitReceiptBackedCommand]);
+
+  const submitCommand = useCallback(
+    async (command: GameCommand) => {
+      await submitReceiptBackedCommand(
+        command,
+        (clientIntentId, stampedCommand) => socket.submitIntent(roomId, playerId, clientIntentId, stampedCommand)
+      );
+    },
+    [playerId, roomId, socket, submitReceiptBackedCommand]
   );
 
   const submitStarterDeck = useCallback(async () => {

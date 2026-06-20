@@ -471,6 +471,7 @@ export type CombatDamageAssignmentDto = {
 
 export type GameCommand = PromptStampedCommand & (
   | SubmitDeckCommand
+  | { cmdType: "READY" }
   | { cmdType: "MULLIGAN"; handObjectIds: string[] }
   | { cmdType: "PASS_PRIORITY" }
   | { cmdType: "PASS_FOCUS" }

@@ -109,6 +109,7 @@ try {
   }
 
   await runCommandReceiptInteraction(report);
+  await runReadyReceiptInteraction(report);
 
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`Playwright QA passed. Report: ${reportPath}`);
@@ -321,20 +322,7 @@ async function runCommandReceiptInteraction(report) {
     }
 
     const route = await submitReceiptProbeCommand(page);
-    await page.waitForFunction(() => {
-      const feedback = document.querySelector("[data-command-submission-state]");
-      const text = feedback?.textContent ?? "";
-      return feedback?.getAttribute("data-command-submission-state") === "sent"
-        && text.includes("服务端已接受")
-        && text.includes("ACCEPTED");
-    }, null, { timeout: 10_000 });
-    const receipt = await page.locator("[data-command-submission-state]").first().evaluate((node) => ({
-      state: node.getAttribute("data-command-submission-state"),
-      text: node.textContent ?? ""
-    }));
-    if (hiddenDebugTexts.some((text) => receipt.text.includes(text))) {
-      throw new Error(`Command receipt feedback leaked hidden debug text: ${receipt.text}`);
-    }
+    const receipt = await waitForAcceptedSubmissionFeedback(page, "END_TURN");
 
     report.interactions.push({
       name: "command-receipt-feedback",
@@ -345,6 +333,31 @@ async function runCommandReceiptInteraction(report) {
     await page.close();
   } finally {
     await seeded.close();
+  }
+}
+
+async function runReadyReceiptInteraction(report) {
+  const joined = await createJoinedRoom();
+  try {
+    const page = await newPage();
+    await openSeededMatch(page, joined, "P1");
+    await assertTexts(page, ["提交反馈", "尚未提交"]);
+
+    await clickReadyQuickAction(page, "submitDeck", "SUBMIT_DECK");
+    await waitForAcceptedSubmissionFeedback(page, "SUBMIT_DECK");
+
+    const route = await clickReadyQuickAction(page, "ready", "READY");
+    const receipt = await waitForAcceptedSubmissionFeedback(page, "READY");
+
+    report.interactions.push({
+      name: "ready-receipt-feedback",
+      route,
+      state: receipt.state
+    });
+    console.log(`QA interaction OK: ready-receipt-feedback (${route})`);
+    await page.close();
+  } finally {
+    await joined.close();
   }
 }
 
@@ -384,6 +397,43 @@ async function submitReceiptProbeCommand(page) {
   return "action-map-route";
 }
 
+async function clickReadyQuickAction(page, actionId, expectedCandidate) {
+  const action = page.locator(`[data-topbar-quick-action="${actionId}"][data-topbar-quick-action-state="ready"]:not([disabled])`).first();
+  try {
+    await action.waitFor({ timeout: 10_000 });
+  } catch (error) {
+    throw new Error(`No ready ${actionId} quick action: ${JSON.stringify(await commandProbeDebug(page))}`, { cause: error });
+  }
+
+  const candidate = await action.getAttribute("data-topbar-quick-action-candidate") ?? "";
+  if (candidate !== expectedCandidate) {
+    throw new Error(`Expected ${actionId} quick action candidate ${expectedCandidate}, got ${candidate}`);
+  }
+
+  await action.click();
+  return `quick-action:${actionId}:${candidate}`;
+}
+
+async function waitForAcceptedSubmissionFeedback(page, cmdType) {
+  await page.waitForFunction((expectedCmdType) => {
+    const feedback = document.querySelector("[data-command-submission-state]");
+    const text = feedback?.textContent ?? "";
+    return feedback?.getAttribute("data-command-submission-state") === "sent"
+      && text.includes("服务端已接受")
+      && text.includes("ACCEPTED")
+      && text.includes(expectedCmdType);
+  }, cmdType, { timeout: 10_000 });
+  const receipt = await page.locator("[data-command-submission-state]").first().evaluate((node) => ({
+    state: node.getAttribute("data-command-submission-state"),
+    text: node.textContent ?? ""
+  }));
+  if (hiddenDebugTexts.some((text) => receipt.text.includes(text))) {
+    throw new Error(`Command receipt feedback leaked hidden debug text: ${receipt.text}`);
+  }
+
+  return receipt;
+}
+
 async function commandProbeDebug(page) {
   return await page.evaluate(() => ({
     actionObjects: Array.from(document.querySelectorAll("[data-action-object-id]")).map((node) => ({
@@ -402,6 +452,29 @@ async function commandProbeDebug(page) {
       text: node.textContent?.trim()
     }))
   }));
+}
+
+async function createJoinedRoom() {
+  const roomId = `qa-ready-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const clients = {
+    P1: createSignalRClient("P1", roomId),
+    P2: createSignalRClient("P2", roomId)
+  };
+  await Promise.all([clients.P1.connection.start(), clients.P2.connection.start()]);
+  await invokeHub(clients.P1, "JoinRoom", roomId, "P1", null);
+  await invokeHub(clients.P2, "JoinRoom", roomId, "P2", null);
+  await waitFor(() => Boolean(clients.P1.state.joined && clients.P2.state.joined && clients.P1.state.prompt), `joined room ${roomId}`);
+
+  return {
+    roomId,
+    sessions: {
+      P1: clients.P1.state.joined,
+      P2: clients.P2.state.joined
+    },
+    close: async () => {
+      await Promise.all([clients.P1.connection.stop(), clients.P2.connection.stop()]);
+    }
+  };
 }
 
 async function createSeededRoom(scenario) {

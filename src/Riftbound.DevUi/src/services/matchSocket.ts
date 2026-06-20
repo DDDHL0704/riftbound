@@ -82,8 +82,8 @@ export class MatchSocket {
     await this.invoke("RequestSnapshot", roomId, playerId);
   }
 
-  async ready(roomId: string, playerId: string, clientIntentId: string): Promise<void> {
-    await this.invoke("Ready", roomId, playerId, clientIntentId);
+  async ready(roomId: string, playerId: string, clientIntentId: string): Promise<CommandReceiptDto> {
+    return await this.invoke<CommandReceiptDto>("Ready", roomId, playerId, clientIntentId);
   }
 
   async submitIntent(roomId: string, playerId: string, clientIntentId: string, command: GameCommand): Promise<CommandReceiptDto> {
