@@ -500,6 +500,18 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    const tableAuthority = document.querySelector("[data-wire-table-authority-state]");
+    const tableAuthorityState = tableAuthority?.getAttribute("data-wire-table-authority-state") ?? "missing";
+    if (tableAuthorityState !== "server") {
+      failures.push(\`wire table authority should be server-authored, got \${tableAuthorityState}\`);
+    }
+    if (document.querySelectorAll("[data-wire-table-authority-player-source='server']").length < 2) {
+      failures.push("wire table authority did not expose two server-authored player base partitions");
+    }
+    if (document.querySelectorAll("[data-wire-table-authority-lane-source='server-unitsBySide']").length < 2) {
+      failures.push("wire table authority did not expose two server-authored battlefield lane splits");
+    }
+
     for (const pile of Array.from(document.querySelectorAll(".wire-fixed-pile"))) {
       const pileRect = rectOf(pile);
       const child = pile.querySelector(":scope > .card-face, :scope > .card-image-only, :scope > .card-back, :scope > .wire-stack-box");
@@ -562,7 +574,8 @@ async function runWireLayoutGeometrySmoke(cdp) {
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
       flowCount: document.querySelectorAll(".wire-card-flow").length,
       quickActionCount: quickActions.size,
-      siteCount: document.querySelectorAll(".wire-battlefield-site").length
+      siteCount: document.querySelectorAll(".wire-battlefield-site").length,
+      tableAuthorityState
     };
   })()`);
 
@@ -582,6 +595,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if ((result.quickActionCount ?? 0) < 5) {
     throw new Error("Wire layout geometry smoke did not find topbar quick actions");
+  }
+  if (result.tableAuthorityState !== "server") {
+    throw new Error(`Wire layout geometry smoke did not find server table authority: ${result.tableAuthorityState}`);
   }
 }
 

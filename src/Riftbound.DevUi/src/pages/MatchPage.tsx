@@ -8,6 +8,7 @@ import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { useDelayedWireCardPreview, WireCardPreview } from "../components/match/WireCardPreview";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
+import { WireTableAuthorityPanel } from "../components/match/WireTableAuthorityPanel";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
 import { WireTurnWindowPanel } from "../components/match/WireTurnWindowPanel";
 import {
@@ -351,6 +352,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               prompt={tablePrompt}
               snapshot={tableSnapshot}
             />
+          </section>
+          <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" tabIndex={0}>
+            <WireTableAuthorityPanel table={tableView} />
           </section>
           <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" tabIndex={0}>
             <WireActionMapPanel

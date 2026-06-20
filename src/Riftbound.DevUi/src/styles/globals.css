@@ -11748,6 +11748,11 @@ button.card-face:hover {
 .wire-priority-rail-blocker,
 .wire-window-plan-metrics span,
 .wire-window-plan-contract,
+.wire-table-authority,
+.wire-table-authority-header,
+.wire-table-authority-metrics span,
+.wire-table-authority-group,
+.wire-table-authority-group li,
 .wire-interaction-panel,
 .wire-selected-candidates,
 .wire-focused-actions,
@@ -12010,6 +12015,88 @@ button.card-face:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
+}
+
+.wire-table-authority {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-table-authority-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+}
+
+.wire-table-authority-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-table-authority-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-table-authority-metrics span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-table-authority-group {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-table-authority-group ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-table-authority-group li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-table-authority [data-wire-table-authority-row-state="server"],
+.wire-table-authority [data-wire-table-authority-metric-state="server"] {
+  border-width: 2px;
+}
+
+.wire-table-authority [data-wire-table-authority-row-state="fallback"],
+.wire-table-authority [data-wire-table-authority-row-state="missing"],
+.wire-table-authority [data-wire-table-authority-metric-state="fallback"],
+.wire-table-authority [data-wire-table-authority-metric-state="missing"] {
+  border-style: dashed;
+}
+
+.wire-table-authority-header strong,
+.wire-table-authority-header span,
+.wire-table-authority-metrics small,
+.wire-table-authority-metrics strong,
+.wire-table-authority-group > strong,
+.wire-table-authority-group li span,
+.wire-table-authority-group li strong,
+.wire-table-authority-group li small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-priority-rail {
@@ -13938,6 +14025,11 @@ button.wire-object-ref {
 .wire-match-page .wire-priority-rail-blocker,
 .wire-match-page .wire-window-plan-metrics span,
 .wire-match-page .wire-window-plan-contract,
+.wire-match-page .wire-table-authority,
+.wire-match-page .wire-table-authority-header,
+.wire-match-page .wire-table-authority-metrics span,
+.wire-match-page .wire-table-authority-group,
+.wire-match-page .wire-table-authority-group li,
 .wire-match-page .wire-interaction-panel,
 .wire-match-page .wire-selected-candidates,
 .wire-match-page .wire-focused-action-summary,
