@@ -2,6 +2,7 @@ import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import {
   promptChoiceRoleLabel,
   promptChoiceRoleOrder,
+  type PromptCandidateComposerState,
   type PromptCandidateSummary,
   type PromptChoiceRole
 } from "./promptInteraction";
@@ -35,6 +36,9 @@ export type FocusedInteractionGrammarPlan = {
   candidateLabel: string;
   commandFieldCount: number;
   commandType?: string;
+  composerReason: string;
+  composerState: PromptCandidateComposerState;
+  composerStateLabel: string;
   enabled: boolean;
   missingRequiredCount: number;
   nextStepLabel: string;
@@ -66,6 +70,9 @@ export function buildFocusedInteractionGrammarPlan({
     return {
       candidateLabel: "无焦点候选",
       commandFieldCount: 0,
+      composerReason: "当前焦点没有服务端候选。",
+      composerState: "missing",
+      composerStateLabel: "未公开",
       enabled: false,
       missingRequiredCount: 0,
       nextStepLabel: "点击含服务端候选的卡牌",
@@ -96,19 +103,23 @@ export function buildFocusedInteractionGrammarPlan({
     enabled: candidate.enabled,
     missingRequiredCount
   });
+  const composer = composerFor(candidate);
 
   return {
     candidateKey,
     candidateLabel: candidate.label,
     commandFieldCount: candidate.command?.bindings.length ?? 0,
     commandType: candidate.command?.cmdType,
+    composerReason: composer.reason,
+    composerState: composer.state,
+    composerStateLabel: composer.stateLabel,
     enabled: candidate.enabled,
     missingRequiredCount,
     nextStepLabel,
     state,
     stateLabel: grammarStateLabel(state),
     steps: allSteps,
-    summary: `${candidate.label} / ${grammarStateLabel(state)} / ${nextStepLabel}`
+    summary: `${candidate.label} / ${grammarStateLabel(state)} / ${composer.stateLabel} / ${nextStepLabel}`
   };
 }
 
@@ -128,6 +139,28 @@ function selectedCandidate(
   }
 
   return candidates.find((candidate) => candidate.enabled) ?? candidates[0];
+}
+
+function composerFor(candidate: PromptCandidateSummary): NonNullable<PromptCandidateSummary["composer"]> {
+  if (candidate.composer) {
+    return candidate.composer;
+  }
+
+  if (candidate.command) {
+    return {
+      reason: "候选只有命令模板，缺少服务端 composer 支持声明。",
+      state: "fallback",
+      stateLabel: "仅有模板",
+      supported: true
+    };
+  }
+
+  return {
+    reason: "候选未公开组合提交协议。",
+    state: "missing",
+    stateLabel: "未公开",
+    supported: false
+  };
 }
 
 function grammarSteps(

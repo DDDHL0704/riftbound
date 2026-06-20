@@ -28,9 +28,19 @@ export type PromptCandidateCommandSummary = {
   cmdType: string;
 };
 
+export type PromptCandidateComposerState = "blocked" | "fallback" | "missing" | "server";
+
+export type PromptCandidateComposerSummary = {
+  reason: string;
+  state: PromptCandidateComposerState;
+  stateLabel: string;
+  supported: boolean;
+};
+
 export type PromptCandidateSummary = {
   action: string;
   command?: PromptCandidateCommandSummary;
+  composer?: PromptCandidateComposerSummary;
   enabled: boolean;
   label: string;
   reason: string;
@@ -121,6 +131,7 @@ export function buildPromptInteractionModel(prompt?: ActionPromptDto): PromptInt
     return {
       action: candidate.action,
       command: commandTemplateSummary(candidate),
+      composer: composerSummary(candidate),
       enabled: candidate.enabled,
       label: promptActionLabel(candidate),
       reason: promptReasonLabel(candidate.reason, candidate.enabled ? "可提交" : "暂不可提交"),
@@ -218,6 +229,51 @@ function commandTemplateSummary(candidate: ActionPromptCandidateDto): PromptCand
       };
     }),
     cmdType: template.cmdType || candidate.action
+  };
+}
+
+function composerSummary(candidate: ActionPromptCandidateDto): PromptCandidateComposerSummary {
+  if (candidate.composer) {
+    if (!candidate.commandTemplate) {
+      return {
+        reason: "服务端声明了组合提交，但未公开命令模板。",
+        state: "missing",
+        stateLabel: "缺少模板",
+        supported: false
+      };
+    }
+
+    if (candidate.composer.supported) {
+      return {
+        reason: redactInternalText(candidate.composer.reason || "服务端已公开组合提交。"),
+        state: "server",
+        stateLabel: "服务端声明",
+        supported: true
+      };
+    }
+
+    return {
+      reason: redactInternalText(candidate.composer.reason || "服务端暂未开放组合提交。"),
+      state: "blocked",
+      stateLabel: "服务端阻断",
+      supported: false
+    };
+  }
+
+  if (candidate.commandTemplate) {
+    return {
+      reason: "候选只有命令模板，缺少服务端 composer 支持声明。",
+      state: "fallback",
+      stateLabel: "仅有模板",
+      supported: true
+    };
+  }
+
+  return {
+    reason: "候选未公开组合提交协议。",
+    state: "missing",
+    stateLabel: "未公开",
+    supported: false
   };
 }
 

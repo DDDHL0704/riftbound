@@ -264,6 +264,7 @@ function FocusedInteractionGrammar({ plan }: { plan: FocusedInteractionGrammarPl
     <div
       aria-label="焦点交互语法"
       className="wire-focused-grammar"
+      data-wire-focused-grammar-composer-state={plan.composerState}
       data-wire-focused-grammar-state={plan.state}
       role="group"
     >
@@ -275,6 +276,7 @@ function FocusedInteractionGrammar({ plan }: { plan: FocusedInteractionGrammarPl
         <span>{plan.candidateLabel}</span>
         <small>下一步：{plan.nextStepLabel}</small>
         <small>命令：{plan.commandType ?? "未公开"} / 字段 {plan.commandFieldCount}</small>
+        <small title={plan.composerReason}>组合：{plan.composerStateLabel}</small>
       </div>
       {plan.steps.length > 0 ? (
         <ol className="wire-focused-grammar-steps">

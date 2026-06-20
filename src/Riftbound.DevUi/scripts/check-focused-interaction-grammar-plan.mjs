@@ -34,6 +34,12 @@ const playCardCandidate = {
     ],
     cmdType: "PLAY_CARD"
   },
+  composer: {
+    reason: "服务端已公开 PLAY_CARD 组合提交。",
+    state: "server",
+    stateLabel: "服务端声明",
+    supported: true
+  },
   enabled: true,
   label: "打出手牌",
   reason: "可提交",
@@ -78,6 +84,8 @@ const readyPlan = buildFocusedInteractionGrammarPlan({
 assert.equal(readyPlan.state, "ready");
 assert.equal(readyPlan.commandType, "PLAY_CARD");
 assert.equal(readyPlan.commandFieldCount, 3);
+assert.equal(readyPlan.composerState, "server");
+assert.equal(readyPlan.composerStateLabel, "服务端声明");
 assert.equal(readyPlan.missingRequiredCount, 0);
 assert.equal(readyPlan.nextStepLabel, "提交服务端候选");
 assert.equal(readyPlan.steps.find((step) => step.role === "source")?.state, "locked");
@@ -121,6 +129,8 @@ const missingSourcePlan = buildFocusedInteractionGrammarPlan({
 });
 
 assert.equal(missingSourcePlan.state, "incomplete");
+assert.equal(missingSourcePlan.composerState, "missing");
+assert.equal(missingSourcePlan.composerStateLabel, "未公开");
 assert.equal(missingSourcePlan.missingRequiredCount, 1);
 assert.equal(missingSourcePlan.nextStepLabel, "等待服务端提供来源");
 assert.equal(missingSourcePlan.steps.find((step) => step.role === "source")?.state, "missing");
@@ -148,8 +158,20 @@ const emptyPlan = buildFocusedInteractionGrammarPlan({
 });
 
 assert.equal(emptyPlan.state, "empty");
+assert.equal(emptyPlan.composerState, "missing");
 assert.equal(emptyPlan.steps.length, 0);
 assert.equal(emptyPlan.nextStepLabel, "点击含服务端候选的卡牌");
+
+const fallbackComposerPlan = buildFocusedInteractionGrammarPlan({
+  candidates: [{
+    ...playCardCandidate,
+    composer: undefined
+  }],
+  disabledByConnection: false,
+  sourceObjectId: "P1-HAND-1"
+});
+assert.equal(fallbackComposerPlan.composerState, "fallback");
+assert.equal(fallbackComposerPlan.composerStateLabel, "仅有模板");
 
 console.log("Focused interaction grammar plan check passed.");
 

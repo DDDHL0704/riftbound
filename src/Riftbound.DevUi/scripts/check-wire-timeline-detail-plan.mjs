@@ -237,7 +237,7 @@ assert.equal(plan.commandBridgeRows[0].commandFieldSummary, "0 覆盖 / 1 缺少
 assert.deepEqual(plan.commandBridgeRows[0].commandFields.map((field) => field.state), ["missing", "optional", "server"]);
 assert.equal(plan.commandBridgeRows[0].grammarState, "incomplete");
 assert.equal(plan.commandBridgeRows[0].grammarStateLabel, "待选择");
-assert.equal(plan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 待选择 / 选择来源");
+assert.equal(plan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 待选择 / 仅有模板 / 选择来源");
 assert.deepEqual(plan.commandBridgeRows[0].grammarSteps.map((step) => step.role), ["source", "target", "submit"]);
 assert.deepEqual(plan.commandBridgeRows[0].grammarSteps.map((step) => step.state), ["available", "optional", "blocked"]);
 assert.equal(plan.commandBridgeRows[0].gateSummary, "2 通过 / 2 阻断 / 1 等待");
@@ -320,7 +320,7 @@ assert.equal(draftPlan.commandBridgeRows[0].commandFieldSummary, "2 覆盖 / 0 �
 assert.deepEqual(draftPlan.commandBridgeRows[0].commandFields.map((field) => field.state), ["covered", "covered", "server"]);
 assert.equal(draftPlan.commandBridgeRows[0].grammarState, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].grammarStateLabel, "可提交");
-assert.equal(draftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 可提交 / 提交服务端候选");
+assert.equal(draftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 可提交 / 仅有模板 / 提交服务端候选");
 assert.deepEqual(draftPlan.commandBridgeRows[0].grammarSteps.map((step) => step.role), ["source", "target", "submit"]);
 assert.deepEqual(draftPlan.commandBridgeRows[0].grammarSteps.map((step) => step.state), ["locked", "selected", "ready"]);
 assert.equal(draftPlan.commandBridgeRows[0].gateSummary, "5 通过 / 0 阻断 / 0 等待");
@@ -388,7 +388,7 @@ const disconnectedDraftPlan = buildWireTimelineDetailPlan({
 
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].routeState, "blocked");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarState, "blocked");
-assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 阻断 / 等待连接恢复");
+assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 阻断 / 仅有模板 / 等待连接恢复");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].gateSummary, "3 通过 / 2 阻断 / 0 等待");
 assert.deepEqual(disconnectedDraftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.key), ["server-candidate", "connection", "player-draft", "required-fields", "submit-step"]);
 assert.deepEqual(disconnectedDraftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.state), ["ready", "blocked", "ready", "ready", "blocked"]);

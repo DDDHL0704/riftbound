@@ -724,6 +724,7 @@ async function runWireClickSelectionSmoke(cdp) {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
       text: summary?.textContent ?? "",
       contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
+      grammarComposerState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-composer-state") ?? null,
       grammarState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-state") ?? null,
       grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
       grammarRoles: Array.from(document.querySelectorAll("[data-wire-grammar-role]")).map((node) => node.getAttribute("data-wire-grammar-role")),
@@ -792,6 +793,7 @@ async function runWireClickSelectionSmoke(cdp) {
       otherTargetState: attr("p2-right-1"),
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
+      grammarComposerState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-composer-state") ?? null,
       grammarState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-state") ?? null,
       grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
@@ -1091,8 +1093,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.composerGateText.includes("提交门禁")) failures.push("focused interaction composer gate text missing");
   if (!focusResult.composerGateText.includes("提交检查")) failures.push("focused interaction composer check text missing");
   if (focusResult.focusedActionButtonCount < 1) failures.push("focused interaction action controls missing");
+  if (focusResult.grammarComposerState !== "server") failures.push(`focused interaction grammar composer state unexpected: ${focusResult.grammarComposerState}`);
   if (focusResult.grammarState !== "ready") failures.push(`focused interaction grammar state unexpected: ${focusResult.grammarState}`);
   if (!focusResult.grammarText.includes("交互语法")) failures.push("focused interaction grammar header missing");
+  if (!focusResult.grammarText.includes("组合：服务端声明")) failures.push("focused interaction grammar composer label missing");
   if (!focusResult.grammarText.includes("来源")) failures.push("focused interaction grammar source step missing");
   if (!focusResult.grammarText.includes("提交")) failures.push("focused interaction grammar submit step missing");
   if (!focusResult.grammarText.includes("命令：PLAY_CARD")) failures.push("focused interaction grammar command type missing");
@@ -1105,6 +1109,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (targetResult.otherTargetState !== "target") failures.push("other target no longer legal target");
   if (targetResult.detailLayerOpen) failures.push("target click opened detail");
   if (!targetResult.draftText.includes("目标 1")) failures.push("draft target count missing");
+  if (targetResult.grammarComposerState !== "server") failures.push(`target interaction grammar composer state unexpected: ${targetResult.grammarComposerState}`);
   if (targetResult.grammarState !== "ready") failures.push(`target interaction grammar state unexpected: ${targetResult.grammarState}`);
   if (!targetResult.grammarText.includes("目标")) failures.push("target interaction grammar target step missing");
   if (!targetResult.grammarText.includes("已选择")) failures.push("target interaction grammar did not show selected target");
