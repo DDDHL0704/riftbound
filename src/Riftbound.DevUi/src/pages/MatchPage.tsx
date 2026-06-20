@@ -385,6 +385,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </section>
           <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" tabIndex={0}>
             <WireActionMapPanel
+              events={tableEvents}
               onChooseObject={chooseObjectFromActionMap}
               onCommand={(command) => void controller.submitCommand(command)}
               onInspectObject={inspectObjectFromTable}

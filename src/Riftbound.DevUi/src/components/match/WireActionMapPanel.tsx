@@ -1,7 +1,12 @@
-import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, GameCommand, GameEvent, SnapshotDto } from "../../types/protocol";
 import { useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { CommandSubmissionFeedback } from "../../stores/useMatchController";
+import {
+  buildCommandSubmissionFollowupPlan,
+  type CommandSubmissionFollowupMetric,
+  type CommandSubmissionFollowupPlan
+} from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildWireActionMapPlan,
@@ -20,6 +25,7 @@ import type { WireActionSubmissionGatePlan, WireActionWindowGatePlan } from "../
 import { StatusPill } from "../ui/StatusPill";
 
 type WireActionMapPanelProps = {
+  events?: GameEvent[];
   onChooseObject?: (objectId: string) => void;
   onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
@@ -33,6 +39,7 @@ type WireActionMapPanelProps = {
 };
 
 export function WireActionMapPanel({
+  events,
   onChooseObject,
   onCommand,
   onInspectObject,
@@ -65,7 +72,7 @@ export function WireActionMapPanel({
       <ActionCoveragePanel coverage={plan.coverage} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
-      <CommandSubmissionFeedbackPanel feedback={submissionFeedback} />
+      <CommandSubmissionFeedbackPanel events={events} feedback={submissionFeedback} snapshot={snapshot} />
       <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
@@ -152,7 +159,17 @@ export function WireActionMapPanel({
   );
 }
 
-function CommandSubmissionFeedbackPanel({ feedback }: { feedback?: CommandSubmissionFeedback }) {
+function CommandSubmissionFeedbackPanel({
+  events,
+  feedback,
+  snapshot
+}: {
+  events?: GameEvent[];
+  feedback?: CommandSubmissionFeedback;
+  snapshot?: SnapshotDto;
+}) {
+  const followup = buildCommandSubmissionFollowupPlan({ events, feedback, snapshot });
+
   if (!feedback) {
     return (
       <section
@@ -165,6 +182,7 @@ function CommandSubmissionFeedbackPanel({ feedback }: { feedback?: CommandSubmis
           <span>尚未提交</span>
         </div>
         <span>等待右侧路线或候选操作提交给服务端。</span>
+        <CommandSubmissionFollowupPanel plan={followup} />
       </section>
     );
   }
@@ -212,7 +230,54 @@ function CommandSubmissionFeedbackPanel({ feedback }: { feedback?: CommandSubmis
           <strong>{shortIntentId(feedback.clientIntentId)}</strong>
         </span>
       </div>
+      <CommandSubmissionFollowupPanel plan={followup} />
     </section>
+  );
+}
+
+function CommandSubmissionFollowupPanel({ plan }: { plan: CommandSubmissionFollowupPlan }) {
+  return (
+    <section
+      aria-label="服务端后续事件"
+      className="wire-command-followup"
+      data-command-followup-event-count={plan.events.length}
+      data-command-followup-hidden-count={plan.hiddenEventCount}
+      data-command-followup-state={plan.state}
+    >
+      <div className="wire-command-followup-heading">
+        <strong>后续事件</strong>
+        <span>{plan.summary}</span>
+      </div>
+      <div className="wire-command-followup-metrics">
+        {plan.metrics.map((metric) => <CommandSubmissionFollowupMetricCell key={metric.key} metric={metric} />)}
+      </div>
+      {plan.events.length === 0 ? (
+        <span className="empty-hint">当前没有同 tick 的公开事件。</span>
+      ) : (
+        <ol className="wire-command-followup-events" aria-label="同 tick 服务端事件">
+          {plan.events.map((event) => (
+            <li data-command-followup-event-kind={event.kind} key={event.key}>
+              <div>
+                <strong>{event.title}</strong>
+                <span>{event.messageType ?? "EVENTS"}</span>
+              </div>
+              <small>{event.description}</small>
+              <em>{event.refCount} 引用</em>
+            </li>
+          ))}
+        </ol>
+      )}
+      {plan.hiddenEventCount > 0 && <small>另有 {plan.hiddenEventCount} 条同 tick 事件。</small>}
+    </section>
+  );
+}
+
+function CommandSubmissionFollowupMetricCell({ metric }: { metric: CommandSubmissionFollowupMetric }) {
+  return (
+    <span data-command-followup-metric={metric.key} data-command-followup-metric-state={metric.state}>
+      <b>{metric.label}</b>
+      <strong>{metric.value}</strong>
+    </span>
   );
 }
 

@@ -13,13 +13,14 @@ import {
   WsServerMessage
 } from "../types/protocol";
 import { errorMessageLabel } from "../utils/errors";
+import type { ObservedGameEvent } from "../utils/commandSubmissionFollowupPlan";
 
 export type MatchControllerState = {
   status: ConnectionStatus;
   session?: PlayerSessionDto;
   snapshot?: SnapshotDto;
   prompt?: ActionPromptDto;
-  events: GameEvent[];
+  events: ObservedGameEvent[];
   errors: ErrorDto[];
   lastCommandSubmission?: CommandSubmissionFeedback;
   lastSystemMessage?: string;
@@ -74,9 +75,17 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
         setState((current) => ({ ...current, prompt: message.payload }));
       },
       onEvents: (message: WsServerMessage<GameEvent[]>) => {
+        const receivedAt = Date.now();
+        const observedEvents = message.payload.map((event, index) => ({
+          ...event,
+          receivedAt,
+          receivedBatchIndex: index,
+          receivedMessageType: message.type,
+          receivedServerTick: message.serverTick
+        }));
         setState((current) => ({
           ...current,
-          events: [...message.payload, ...current.events].slice(0, 160)
+          events: [...observedEvents, ...current.events].slice(0, 160)
         }));
       },
       onError: (message: WsServerMessage<ErrorDto>) => {

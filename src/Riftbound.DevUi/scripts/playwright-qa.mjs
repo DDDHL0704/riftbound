@@ -327,6 +327,7 @@ async function runCommandReceiptInteraction(report) {
     report.interactions.push({
       name: "command-receipt-feedback",
       route,
+      followupState: receipt.followupState,
       state: receipt.state
     });
     console.log(`QA interaction OK: command-receipt-feedback (${route})`);
@@ -352,6 +353,7 @@ async function runReadyReceiptInteraction(report) {
     report.interactions.push({
       name: "ready-receipt-feedback",
       route,
+      followupState: receipt.followupState,
       state: receipt.state
     });
     console.log(`QA interaction OK: ready-receipt-feedback (${route})`);
@@ -417,13 +419,16 @@ async function clickReadyQuickAction(page, actionId, expectedCandidate) {
 async function waitForAcceptedSubmissionFeedback(page, cmdType) {
   await page.waitForFunction((expectedCmdType) => {
     const feedback = document.querySelector("[data-command-submission-state]");
+    const followupState = document.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "";
     const text = feedback?.textContent ?? "";
     return feedback?.getAttribute("data-command-submission-state") === "sent"
       && text.includes("服务端已接受")
       && text.includes("ACCEPTED")
-      && text.includes(expectedCmdType);
+      && text.includes(expectedCmdType)
+      && (followupState === "accepted-events" || followupState === "accepted-snapshot");
   }, cmdType, { timeout: 10_000 });
   const receipt = await page.locator("[data-command-submission-state]").first().evaluate((node) => ({
+    followupState: document.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "",
     state: node.getAttribute("data-command-submission-state"),
     text: node.textContent ?? ""
   }));
