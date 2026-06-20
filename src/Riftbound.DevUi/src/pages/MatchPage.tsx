@@ -361,6 +361,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               selectedObjectId={selectedObjectId}
               selectionDraft={selectionDraft}
               snapshot={tableSnapshot}
+              submissionGate={tableSubmissionGate}
             />
           </section>
           <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>

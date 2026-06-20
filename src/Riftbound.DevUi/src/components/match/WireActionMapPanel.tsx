@@ -1,13 +1,15 @@
 import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
 import { useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildWireActionMapPlan,
   type WireActionContractPlan,
   type WireActionGrammarCandidatePlan,
   type WireActionMapMetric,
   type WireActionMapPlan,
-  type WireActionRoutePlan
+  type WireActionRoutePlan,
+  type WireActionSubmissionGatePlan
 } from "../../utils/wireActionMapPlan";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -19,6 +21,7 @@ type WireActionMapPanelProps = {
   selectedObjectId?: string;
   selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
 };
 
 export function WireActionMapPanel({
@@ -28,9 +31,10 @@ export function WireActionMapPanel({
   prompt,
   selectedObjectId,
   selectionDraft,
-  snapshot
+  snapshot,
+  submissionGate
 }: WireActionMapPanelProps) {
-  const plan = buildWireActionMapPlan({ playerId, prompt, selectedObjectId, selectionDraft, snapshot });
+  const plan = buildWireActionMapPlan({ playerId, prompt, selectedObjectId, selectionDraft, snapshot, submissionGate });
 
   return (
     <section className="wire-action-map" aria-label="服务端合法操作地图">
@@ -46,6 +50,7 @@ export function WireActionMapPanel({
         {plan.metrics.map((metric) => <Metric key={metric.key} metric={metric} />)}
       </div>
 
+      <SubmissionGateStrip gate={plan.submissionGate} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CurrentRouteStrip route={plan.route} />
 
@@ -130,6 +135,23 @@ export function WireActionMapPanel({
         ))}
       </div>
     </section>
+  );
+}
+
+function SubmissionGateStrip({ gate }: { gate: WireActionSubmissionGatePlan }) {
+  return (
+    <div
+      className="wire-action-route-strip"
+      data-action-submission-gate-state={gate.state}
+      role="group"
+      aria-label="提交门禁"
+    >
+      <div className="wire-action-route-heading">
+        <strong>提交门禁</strong>
+        <span>{gate.stateLabel}</span>
+      </div>
+      <small>{gate.reason}</small>
+    </div>
   );
 }
 

@@ -551,6 +551,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures.push(\`topbar end turn quick action should be missing without a server candidate: \${JSON.stringify(endTurnAction)}\`);
     }
 
+    const submissionGate = document.querySelector("[data-action-submission-gate-state]");
+    const submissionGateState = submissionGate?.getAttribute("data-action-submission-gate-state") ?? "missing";
+    if (submissionGateState !== "connected") {
+      failures.push(\`action map submission gate not connected: \${submissionGateState}\`);
+    }
+
     return {
       failures,
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
@@ -721,7 +727,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const ruleFocus = document.querySelector(".wire-rule-focus");
     const ruleFlow = document.querySelector(".wire-rule-flow");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
-    const route = document.querySelector(".wire-action-route-strip");
+    const route = document.querySelector("[data-action-route-state]");
     const actionButtons = document.querySelector(".wire-action-panel .action-buttons");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
@@ -799,7 +805,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     const targetObject = document.querySelector('[data-object-id="p2-right-1"]');
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
-    const route = document.querySelector(".wire-action-route-strip");
+    const route = document.querySelector("[data-action-route-state]");
     const sourceStep = candidatePlan?.querySelector('[data-step-role="source"]');
     const targetStep = candidatePlan?.querySelector('[data-step-role="target"]');
     const targetRouteStep = route?.querySelector('[data-route-step-role="target"]');
@@ -1290,7 +1296,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
     const targetObject = document.querySelector(\`[data-object-id="\${objectId}"]\`);
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const panel = document.querySelector(".wire-timeline-detail");
-    const route = document.querySelector(".wire-action-route-strip");
+    const route = document.querySelector("[data-action-route-state]");
     const sourceStep = candidatePlan?.querySelector('[data-step-role="source"]');
     const targetStep = candidatePlan?.querySelector('[data-step-role="target"]');
     const targetRouteStep = route?.querySelector('[data-route-step-role="target"]');

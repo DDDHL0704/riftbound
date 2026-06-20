@@ -104,7 +104,9 @@ const plan = buildWireActionMapPlan({
 });
 
 assert.equal(plan.canAct, true);
-assert.deepEqual(plan.metrics.map((metric) => metric.value), ["1", "3", "2", "1"]);
+assert.equal(plan.submissionGate.state, "connected");
+assert.equal(plan.submissionGate.stateLabel, "可提交");
+assert.deepEqual(plan.metrics.map((metric) => metric.value), ["可提交", "1", "3", "2", "1"]);
 assert.equal(plan.objectEntries.length, 2);
 assert.equal(plan.objectEntries[0].label, "OGN-001/298");
 assert.equal(plan.objectEntries[0].selected, true);
@@ -189,6 +191,7 @@ assert.equal(draftTargetStep.selectedCount, 1);
 assert.deepEqual(draftTargetStep.selectedLabels, ["敌方单位"]);
 assert.equal(draftPlan.route.candidateLabel, "打出手牌");
 assert.equal(draftPlan.route.state, "ready");
+assert.equal(draftPlan.route.stateLabel, "可送服务端校验");
 assert.equal(draftPlan.route.selectedStepCount, 2);
 assert.equal(draftPlan.route.missingRequiredFieldCount, 0);
 assert.equal(draftPlan.route.missingRequiredSelectionCount, 0);
@@ -199,6 +202,30 @@ assert.deepEqual(draftPlan.route.fields.map((field) => field.state), ["covered",
 assert.equal(draftPlan.route.fields[2].field, "server-metadata-2");
 assert.equal(draftPlan.route.fields[2].label, "服务端字段");
 assert.equal(draftPlan.candidatePlans.find((candidate) => candidate.action === "ACTIVATE_ABILITY").draftActive, false);
+
+const staleDraftPlan = buildWireActionMapPlan({
+  playerId: "P1",
+  prompt,
+  selectedObjectId: "p1-hand-1",
+  selectionDraft: {
+    candidateKey: "PLAY_CARD::打出手牌",
+    optionalCostIds: [],
+    sourceObjectId: "p1-hand-1",
+    targetChoiceIds: ["p2-unit-1"]
+  },
+  snapshot,
+  submissionGate: {
+    canSubmit: false,
+    reason: "行动提示属于 tick 7，当前桌面快照是 tick 8。",
+    state: "stale-snapshot",
+    stateLabel: "等待同步"
+  }
+});
+assert.equal(staleDraftPlan.canAct, false);
+assert.equal(staleDraftPlan.submissionGate.state, "stale-snapshot");
+assert.equal(staleDraftPlan.route.state, "blocked");
+assert.equal(staleDraftPlan.route.stateLabel, "提交门禁阻断");
+assert.equal(staleDraftPlan.route.nextStepLabel, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
 
 const readOnlyPlan = buildWireActionMapPlan({
   playerId: "P2",

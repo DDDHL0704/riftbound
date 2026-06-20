@@ -1,5 +1,6 @@
 import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto, CardObjectView, SnapshotDto } from "../types/protocol";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
+import type { ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 import {
   buildCandidateInteractionPlans,
   type CandidateInteractionPlan,
@@ -24,6 +25,13 @@ export type WireActionMapMetric = {
   key: string;
   label: string;
   value: string;
+};
+
+export type WireActionSubmissionGatePlan = {
+  canSubmit: boolean;
+  reason: string;
+  state: ServerSubmissionGatePlan["state"];
+  stateLabel: string;
 };
 
 export type WireActionObjectEntry = {
@@ -187,6 +195,7 @@ export type WireActionMapPlan = {
   objectEntries: WireActionObjectEntry[];
   objectEntryOverflowCount: number;
   route?: WireActionRoutePlan;
+  submissionGate: WireActionSubmissionGatePlan;
 };
 
 type BuildWireActionMapPlanOptions = {
@@ -199,6 +208,7 @@ type BuildWireActionMapPlanOptions = {
   selectedObjectId?: string;
   selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
 };
 
 type ObjectIndex = Record<string, CardObjectView>;
@@ -218,10 +228,12 @@ export function buildWireActionMapPlan({
   prompt,
   selectedObjectId,
   selectionDraft,
-  snapshot
+  snapshot,
+  submissionGate
 }: BuildWireActionMapPlanOptions): WireActionMapPlan {
   const model = buildPromptInteractionModel(prompt);
   const objects = objectIndex(snapshot);
+  const gate = wireActionSubmissionGatePlan(submissionGate);
   const enabledCandidates = model.candidates.filter((candidate) => candidate.enabled);
   const enabledObjects = [...model.enabledObjectIds];
   const disabledOnlyObjects = [...model.disabledObjectIds];
@@ -235,7 +247,7 @@ export function buildWireActionMapPlan({
   const objectLimit = nonNegativeLimit(maxObjectEntries);
 
   return {
-    canAct: Boolean(prompt?.actionable && prompt.playerId === playerId),
+    canAct: Boolean(gate.canSubmit && prompt?.actionable && prompt.playerId === playerId),
     blockedObjectEntries: knownDisabledOnlyObjects
       .slice(0, objectLimit)
       .map((objectId) => objectEntryPlan(objectId, objects, model, selectedObjectId)),
@@ -254,6 +266,7 @@ export function buildWireActionMapPlan({
       .map(actionGroupPlan),
     focus: focusPlan(selectedObjectId, objects, model),
     metrics: [
+      { key: "gate", label: "提交门禁", value: gate.stateLabel },
       { key: "enabled", label: "可提交", value: `${enabledCandidates.length}` },
       { key: "total", label: "全部候选", value: `${model.candidates.length}` },
       { key: "entry", label: "对象入口", value: `${knownEnabledObjects.length}` },
@@ -263,7 +276,26 @@ export function buildWireActionMapPlan({
       .slice(0, objectLimit)
       .map((objectId) => objectEntryPlan(objectId, objects, model, selectedObjectId)),
     objectEntryOverflowCount: Math.max(knownEnabledObjects.length - objectLimit, 0),
-    route: wireActionRoutePlan(candidatePlans)
+    route: wireActionRoutePlan(candidatePlans, gate),
+    submissionGate: gate
+  };
+}
+
+function wireActionSubmissionGatePlan(submissionGate?: ServerSubmissionGatePlan): WireActionSubmissionGatePlan {
+  if (!submissionGate) {
+    return {
+      canSubmit: true,
+      reason: "当前未提供额外提交门禁。",
+      state: "connected",
+      stateLabel: "可提交"
+    };
+  }
+
+  return {
+    canSubmit: submissionGate.canSubmit,
+    reason: submissionGate.reason,
+    state: submissionGate.state,
+    stateLabel: submissionGate.stateLabel
   };
 }
 
@@ -392,7 +424,10 @@ function choiceMatchesSelection(choice: PromptCandidateSummary["choices"][number
   return choice.id === selectedId || promptChoiceSummaryObjectIds(choice).includes(selectedId);
 }
 
-function wireActionRoutePlan(candidatePlans: WireActionCandidatePlan[]): WireActionRoutePlan | undefined {
+function wireActionRoutePlan(
+  candidatePlans: WireActionCandidatePlan[],
+  submissionGate: WireActionSubmissionGatePlan
+): WireActionRoutePlan | undefined {
   const candidatePlan = candidatePlans.find((candidate) => candidate.draftActive);
   if (!candidatePlan) {
     return undefined;
@@ -404,14 +439,16 @@ function wireActionRoutePlan(candidatePlans: WireActionCandidatePlan[]): WireAct
   const selectedStepCount = candidatePlan.stepRows.filter((step) => step.selectedCount > 0).length;
   const nextStep = candidatePlan.stepRows.find((step) => step.required && step.selectedCount <= 0)
     ?? candidatePlan.stepRows.find((step) => !step.required && step.count > 0 && step.selectedCount <= 0);
-  const state: WireActionRouteState = !candidatePlan.enabled
+  const state: WireActionRouteState = !candidatePlan.enabled || !submissionGate.canSubmit
     ? "blocked"
     : missingRequiredSelectionCount > 0 || missingRequiredFieldCount > 0
       ? "incomplete"
       : "ready";
-  const stateLabel = routeStateLabel(state);
+  const stateLabel = !submissionGate.canSubmit ? "提交门禁阻断" : routeStateLabel(state);
   const nextMissingField = candidatePlan.commandFields.find((field) => field.state === "missing");
-  const nextStepLabel = nextStep
+  const nextStepLabel = !submissionGate.canSubmit
+    ? submissionGate.reason
+    : nextStep
     ? `继续选择${nextStep.label}`
     : nextMissingField
       ? `补齐字段${nextMissingField.label}`
