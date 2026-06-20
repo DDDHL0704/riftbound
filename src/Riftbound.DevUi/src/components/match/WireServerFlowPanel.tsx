@@ -3,7 +3,7 @@ import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraf
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import { buildWireServerFlowPlan, type WireServerFlowDetail } from "../../utils/wireServerFlowPlan";
 import { StatusPill } from "../ui/StatusPill";
-import { WireObjectRefChips, type WireObjectIndex, wireObjectRefs } from "./WireObjectRefChips";
+import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
 import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 
 export function WireServerFlowPanel({
@@ -77,7 +77,7 @@ export function WireServerFlowPanel({
           className="wire-server-flow-related-refs"
           objects={objectIndex}
           onInspectObject={onInspectObject}
-          refs={wireObjectRefs("服务端关联", plan.relatedObjectIds)}
+          refs={plan.relatedObjectRefs}
           selectedObjectId={selectedObjectId}
           source="rule"
         />

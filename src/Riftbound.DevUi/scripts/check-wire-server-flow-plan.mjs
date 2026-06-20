@@ -124,6 +124,7 @@ const serverBackedPlan = buildWireServerFlowPlan({
       queueCounts: { stack: 1 },
       reason: "服务端声明结算链存在。",
       relatedObjectIds: ["unit-1"],
+      relatedObjects: [{ objectId: "unit-1", role: "结算来源" }],
       responsiblePlayerId: "P1",
       state: "respond",
       stateLabel: "响应",
@@ -155,7 +156,7 @@ assert.deepEqual(serverBackedPlan.relatedObjectIds, ["unit-1"]);
 assert.equal(serverBackedPlan.relatedObjectCount, 1);
 assert.equal(serverBackedPlan.detail?.id, "server-flow:STACK_PRIORITY:P1:related");
 assert.equal(serverBackedPlan.detail?.title, "服务端关联对象");
-assert.deepEqual(serverBackedPlan.detail?.refs, [{ id: "unit-1", role: "服务端关联" }]);
+assert.deepEqual(serverBackedPlan.detail?.refs, [{ id: "unit-1", role: "结算来源" }]);
 assert.equal(serverBackedPlan.detailButtonLabel, "打开关联对象");
 assert.equal(serverBackedPlan.lanes.find((lane) => lane.key === "stack").headline, "DAMAGE / OGN-001");
 

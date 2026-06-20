@@ -108,6 +108,7 @@ public sealed class PromptResponsibilityTests
         Assert.DoesNotContain("SECRET_HIDDEN_STANDBY_TRIGGER", triggerLane.Headline, StringComparison.Ordinal);
         Assert.DoesNotContain("P2-hidden-source", triggerLane.Headline, StringComparison.Ordinal);
         Assert.DoesNotContain("P2-hidden-source", flow.RelatedObjectIds);
+        Assert.DoesNotContain(flow.RelatedObjects, item => item.ObjectId == "P2-hidden-source");
     }
 
     [Fact]
@@ -190,7 +191,8 @@ public sealed class PromptResponsibilityTests
                 new TriggerQueueItemState("hidden-trigger", "P2", "hidden-trigger-source", "SECRET_HIDDEN_STANDBY_TRIGGER", "UNIT_DESTROYED")
             ]);
 
-        var related = ResolutionResult.BuildPrompts(state)["P1"].ServerFlow!.RelatedObjectIds;
+        var flow = ResolutionResult.BuildPrompts(state)["P1"].ServerFlow!;
+        var related = flow.RelatedObjectIds;
 
         Assert.Contains("stack-source", related);
         Assert.Contains("stack-target", related);
@@ -201,6 +203,15 @@ public sealed class PromptResponsibilityTests
         Assert.DoesNotContain("hidden-trigger-source", related);
         Assert.DoesNotContain("missing-object", related);
         Assert.DoesNotContain(tempResourceActionId, related);
+        Assert.Contains(flow.RelatedObjects, item => item.ObjectId == "stack-source" && item.Role == "结算来源");
+        Assert.Contains(flow.RelatedObjects, item => item.ObjectId == "stack-target" && item.Role == "结算目标");
+        Assert.Contains(flow.RelatedObjects, item => item.ObjectId == "stack-rune" && item.Role == "费用资源");
+        Assert.Contains(flow.RelatedObjects, item => item.ObjectId == "payment-rune" && item.Role == "费用资源");
+        Assert.Contains(flow.RelatedObjects, item => item.ObjectId == "temp-source" && item.Role == "费用资源");
+        Assert.Contains(flow.RelatedObjects, item => item.ObjectId == "trigger-source" && item.Role == "触发来源");
+        Assert.DoesNotContain(flow.RelatedObjects, item => item.ObjectId == "hidden-trigger-source");
+        Assert.DoesNotContain(flow.RelatedObjects, item => item.ObjectId == "missing-object");
+        Assert.DoesNotContain(flow.RelatedObjects, item => item.ObjectId == tempResourceActionId);
     }
 
     [Fact]
@@ -246,6 +257,10 @@ public sealed class PromptResponsibilityTests
         Assert.Contains("p1-hand-card", prompts["P1"].ServerFlow!.RelatedObjectIds);
         Assert.Contains("choice-source", prompts["P2"].ServerFlow!.RelatedObjectIds);
         Assert.DoesNotContain("p1-hand-card", prompts["P2"].ServerFlow!.RelatedObjectIds);
+        Assert.Contains(prompts["P1"].ServerFlow!.RelatedObjects, item => item.ObjectId == "choice-source" && item.Role == "选择来源");
+        Assert.Contains(prompts["P1"].ServerFlow!.RelatedObjects, item => item.ObjectId == "p1-hand-card" && item.Role == "可选手牌");
+        Assert.Contains(prompts["P2"].ServerFlow!.RelatedObjects, item => item.ObjectId == "choice-source" && item.Role == "选择来源");
+        Assert.DoesNotContain(prompts["P2"].ServerFlow!.RelatedObjects, item => item.ObjectId == "p1-hand-card");
     }
 
     private static CardObjectState PublicCard(

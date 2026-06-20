@@ -11,7 +11,9 @@ export type WireServerFlowProjectionPlan = {
 };
 
 export function buildWireServerFlowProjectionPlan(prompt?: ActionPromptDto): WireServerFlowProjectionPlan {
-  const objectIds = visibleRelatedObjectIds(prompt?.serverFlow?.relatedObjectIds ?? []);
+  const serverFlow = prompt?.serverFlow;
+  const semanticObjectIds = serverFlow?.relatedObjects?.map((ref) => ref.objectId) ?? [];
+  const objectIds = visibleRelatedObjectIds(semanticObjectIds.length > 0 ? semanticObjectIds : serverFlow?.relatedObjectIds ?? []);
   return {
     objectIds,
     relatedObjectCount: objectIds.length,

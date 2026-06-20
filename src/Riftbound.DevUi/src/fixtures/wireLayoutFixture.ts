@@ -482,6 +482,11 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       },
       reason: "服务端提示流公开了当前可操作对象和规则关联对象。",
       relatedObjectIds: ["p1-hand-spell", "p2-right-1", "fixture-left-battlefield"],
+      relatedObjects: [
+        { objectId: "p1-hand-spell", role: "候选来源" },
+        { objectId: "p2-right-1", role: "候选目标" },
+        { objectId: "fixture-left-battlefield", role: "相关战场" }
+      ],
       responsiblePlayerId: selfId,
       state: "ready",
       stateLabel: "可提交",

@@ -61,6 +61,7 @@ export type WireServerFlowPlan = {
   reason: string;
   relatedObjectCount: number;
   relatedObjectIds: string[];
+  relatedObjectRefs: WireServerFlowDetail["refs"];
   state: WireServerFlowState;
   stateLabel: string;
   steps: WireServerFlowStep[];
@@ -100,7 +101,8 @@ export function buildWireServerFlowPlan({
   }
 
   const state = serverFlowState(rulePlan, responsePlan);
-  const relatedObjectIds = detailRelatedObjectIds(detail);
+  const relatedObjectRefs = detailRelatedObjectRefs(detail);
+  const relatedObjectIds = visibleServerFlowObjectIds(relatedObjectRefs.map((ref) => ref.id));
 
   return {
     detail,
@@ -118,6 +120,7 @@ export function buildWireServerFlowPlan({
     reason: flowReason(state, rulePlan, responsePlan),
     relatedObjectCount: relatedObjectIds.length,
     relatedObjectIds,
+    relatedObjectRefs,
     state,
     stateLabel: flowStateLabel(state),
     steps: flowSteps(rulePlan, responsePlan),
@@ -135,8 +138,9 @@ function serverBackedFlowPlan(
   detail: WireServerFlowDetail | undefined
 ): WireServerFlowPlan {
   const state = responsePlan.state === "selecting" ? "selecting" : serverFlowStateFromDto(serverFlow);
-  const relatedObjectIds = visibleServerFlowObjectIds(serverFlow.relatedObjectIds);
-  const serverFlowDetail = detail ?? serverFlowRelatedObjectsDetail(serverFlow, relatedObjectIds);
+  const relatedObjectRefs = serverFlowRelatedObjectRefs(serverFlow);
+  const relatedObjectIds = visibleServerFlowObjectIds(relatedObjectRefs.map((ref) => ref.id));
+  const serverFlowDetail = detail ?? serverFlowRelatedObjectsDetail(serverFlow, relatedObjectRefs);
   return {
     detail: serverFlowDetail,
     detailButtonLabel: detail ? "打开规则焦点" : serverFlowDetail ? "打开关联对象" : "暂无焦点",
@@ -159,6 +163,7 @@ function serverBackedFlowPlan(
     reason: state === "selecting" ? responsePlan.reason : serverFlow.reason,
     relatedObjectCount: relatedObjectIds.length,
     relatedObjectIds,
+    relatedObjectRefs,
     state,
     stateLabel: state === "selecting" ? "选择中" : serverFlow.stateLabel,
     steps: serverFlow.steps.map((step) => ({
@@ -176,9 +181,9 @@ function serverBackedFlowPlan(
 
 function serverFlowRelatedObjectsDetail(
   serverFlow: ActionPromptServerFlowDto,
-  relatedObjectIds: string[]
+  relatedObjectRefs: WireServerFlowDetail["refs"]
 ): WireServerFlowDetail | undefined {
-  if (relatedObjectIds.length === 0) {
+  if (relatedObjectRefs.length === 0) {
     return undefined;
   }
 
@@ -191,7 +196,7 @@ function serverFlowRelatedObjectsDetail(
       { label: "原因", value: serverFlow.reason || "无" },
       { label: "责任玩家", mine: serverFlow.isResponsiblePlayer, value: serverFlow.responsiblePlayerId || "无" }
     ],
-    refs: relatedObjectIds.map((id) => ({ id, role: "服务端关联" })),
+    refs: relatedObjectRefs,
     source: "rule",
     subtitle: serverFlow.summary || serverFlow.primaryLabel,
     title: "服务端关联对象"
@@ -232,8 +237,41 @@ function serverFlowToneFromDto(serverFlow: ActionPromptServerFlowDto): WireServe
   }
 }
 
-function detailRelatedObjectIds(detail?: WireServerFlowDetail): string[] {
-  return visibleServerFlowObjectIds(detail?.refs.map((ref) => ref.id) ?? []);
+function detailRelatedObjectRefs(detail?: WireServerFlowDetail): WireServerFlowDetail["refs"] {
+  return visibleServerFlowObjectRefs(detail?.refs ?? []);
+}
+
+function serverFlowRelatedObjectRefs(serverFlow: ActionPromptServerFlowDto): WireServerFlowDetail["refs"] {
+  const semanticRefs = visibleServerFlowObjectRefs(
+    (serverFlow.relatedObjects ?? []).map((ref) => ({
+      id: ref.objectId,
+      role: ref.role || "服务端关联"
+    }))
+  );
+  if (semanticRefs.length > 0) {
+    return semanticRefs;
+  }
+
+  return visibleServerFlowObjectIds(serverFlow.relatedObjectIds)
+    .map((id) => ({ id, role: "服务端关联" }));
+}
+
+function visibleServerFlowObjectRefs(refs: WireServerFlowDetail["refs"]): WireServerFlowDetail["refs"] {
+  const objectRefs: WireServerFlowDetail["refs"] = [];
+  const seen = new Set<string>();
+  for (const ref of refs) {
+    const objectId = ref.id.trim();
+    const role = (ref.role || "服务端关联").trim();
+    const key = `${role}\u001f${objectId}`;
+    if (!objectId || objectId.toUpperCase() === "HIDDEN" || seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    objectRefs.push({ ...ref, id: objectId, role });
+  }
+
+  return objectRefs;
 }
 
 function visibleServerFlowObjectIds(ids: readonly string[]): string[] {

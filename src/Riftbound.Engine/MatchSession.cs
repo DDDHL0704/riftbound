@@ -5445,6 +5445,7 @@ internal static class ActionPromptBuilder
         PromptViewDto view)
     {
         var responsibility = view.Responsibility ?? PromptResponsibilityFor(state, playerId, view.Type, actionable, reason);
+        var relatedObjects = PromptResponsibilityRelatedObjects(state, playerId, responsibility.PromptType);
         var flowState = ServerFlowStateFor(state, actionable, responsibility);
         var nextStep = ServerFlowNextStepFor(flowState, responsibility);
         var stateLabel = ServerFlowStateLabel(flowState);
@@ -5464,7 +5465,8 @@ internal static class ActionPromptBuilder
             responsibility.QueueCounts,
             ServerFlowLanes(state),
             ServerFlowSteps(state, actions, candidates, view, responsibility),
-            responsibility.RelatedObjectIds);
+            responsibility.RelatedObjectIds,
+            relatedObjects);
     }
 
     private static string ServerFlowStateFor(
@@ -6390,55 +6392,67 @@ internal static class ActionPromptBuilder
         string playerId,
         string type)
     {
-        var relatedObjectIds = new List<string>();
-        AddRelatedObjectId(state, playerId, relatedObjectIds, RelatedBattlefieldIdFor(state, type));
-        AddStackRelatedObjectIds(state, playerId, relatedObjectIds);
-        AddTaskRelatedObjectIds(state, playerId, relatedObjectIds);
-        AddBattleRelatedObjectIds(state, playerId, relatedObjectIds);
-        AddPendingPaymentRelatedObjectIds(state, playerId, relatedObjectIds);
-        AddPendingHandChoiceRelatedObjectIds(state, playerId, relatedObjectIds);
-        AddTriggerRelatedObjectIds(state, playerId, relatedObjectIds);
-
-        return relatedObjectIds
+        return PromptResponsibilityRelatedObjects(state, playerId, type)
+            .Select(item => item.ObjectId)
             .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptServerFlowObjectRefDto> PromptResponsibilityRelatedObjects(
+        MatchState state,
+        string playerId,
+        string type)
+    {
+        var relatedObjects = new List<ActionPromptServerFlowObjectRefDto>();
+        AddRelatedObjectRef(state, playerId, relatedObjects, RelatedBattlefieldIdFor(state, type), "相关战场");
+        AddStackRelatedObjectIds(state, playerId, relatedObjects);
+        AddTaskRelatedObjectIds(state, playerId, relatedObjects);
+        AddBattleRelatedObjectIds(state, playerId, relatedObjects);
+        AddPendingPaymentRelatedObjectIds(state, playerId, relatedObjects);
+        AddPendingHandChoiceRelatedObjectIds(state, playerId, relatedObjects);
+        AddTriggerRelatedObjectIds(state, playerId, relatedObjects);
+
+        return relatedObjects
+            .GroupBy(item => $"{item.Role}\u001f{item.ObjectId}", StringComparer.Ordinal)
+            .Select(group => group.First())
             .ToArray();
     }
 
     private static void AddStackRelatedObjectIds(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds)
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects)
     {
         foreach (var stackItem in state.StackItems)
         {
-            AddRelatedObjectId(state, playerId, relatedObjectIds, stackItem.SourceObjectId);
-            AddRelatedObjectIds(state, playerId, relatedObjectIds, stackItem.TargetObjectIds);
-            AddPaymentResourceRelatedObjectIds(state, playerId, relatedObjectIds, stackItem.OptionalCosts);
+            AddRelatedObjectRef(state, playerId, relatedObjects, stackItem.SourceObjectId, "结算来源");
+            AddRelatedObjectRefs(state, playerId, relatedObjects, stackItem.TargetObjectIds, "结算目标");
+            AddPaymentResourceRelatedObjectIds(state, playerId, relatedObjects, stackItem.OptionalCosts);
         }
     }
 
     private static void AddTaskRelatedObjectIds(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds)
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects)
     {
         foreach (var task in state.PendingTaskQueue.Tasks)
         {
-            AddRelatedObjectId(state, playerId, relatedObjectIds, task.ObjectId);
-            AddRelatedObjectId(state, playerId, relatedObjectIds, task.BattlefieldObjectId);
+            AddRelatedObjectRef(state, playerId, relatedObjects, task.ObjectId, "规则任务");
+            AddRelatedObjectRef(state, playerId, relatedObjects, task.BattlefieldObjectId, "任务战场");
         }
 
         foreach (var task in state.BattlefieldTasks)
         {
-            AddRelatedObjectId(state, playerId, relatedObjectIds, task.BattlefieldObjectId);
-            AddRelatedObjectIds(state, playerId, relatedObjectIds, task.ParticipantObjectIds);
+            AddRelatedObjectRef(state, playerId, relatedObjects, task.BattlefieldObjectId, "战场任务");
+            AddRelatedObjectRefs(state, playerId, relatedObjects, task.ParticipantObjectIds, "任务单位");
         }
     }
 
     private static void AddBattleRelatedObjectIds(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds)
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects)
     {
         var battle = state.BattleState;
         if (!battle.IsActive)
@@ -6446,45 +6460,45 @@ internal static class ActionPromptBuilder
             return;
         }
 
-        AddRelatedObjectId(state, playerId, relatedObjectIds, battle.BattlefieldObjectId);
-        AddRelatedObjectIds(state, playerId, relatedObjectIds, battle.AttackerObjectIds);
-        AddRelatedObjectIds(state, playerId, relatedObjectIds, battle.DefenderObjectIds);
+        AddRelatedObjectRef(state, playerId, relatedObjects, battle.BattlefieldObjectId, "战斗战场");
+        AddRelatedObjectRefs(state, playerId, relatedObjects, battle.AttackerObjectIds, "攻击单位");
+        AddRelatedObjectRefs(state, playerId, relatedObjects, battle.DefenderObjectIds, "防守单位");
     }
 
     private static void AddPendingPaymentRelatedObjectIds(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds)
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects)
     {
         if (state.PendingPayment is not { } payment)
         {
             return;
         }
 
-        AddPaymentResourceRelatedObjectIds(state, playerId, relatedObjectIds, PendingPaymentResourceActionIds(state, payment));
+        AddPaymentResourceRelatedObjectIds(state, playerId, relatedObjects, PendingPaymentResourceActionIds(state, payment));
     }
 
     private static void AddPendingHandChoiceRelatedObjectIds(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds)
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects)
     {
         if (state.PendingHandChoice is not { } choice)
         {
             return;
         }
 
-        AddRelatedObjectId(state, playerId, relatedObjectIds, choice.SourceObjectId);
+        AddRelatedObjectRef(state, playerId, relatedObjects, choice.SourceObjectId, "选择来源");
         if (string.Equals(choice.PlayerId, playerId, StringComparison.Ordinal))
         {
-            AddRelatedObjectIds(state, playerId, relatedObjectIds, choice.LegalObjectIds);
+            AddRelatedObjectRefs(state, playerId, relatedObjects, choice.LegalObjectIds, "可选手牌");
         }
     }
 
     private static void AddTriggerRelatedObjectIds(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds)
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects)
     {
         foreach (var trigger in state.TriggerQueue)
         {
@@ -6493,31 +6507,31 @@ internal static class ActionPromptBuilder
                 continue;
             }
 
-            AddRelatedObjectId(state, playerId, relatedObjectIds, trigger.SourceObjectId);
+            AddRelatedObjectRef(state, playerId, relatedObjects, trigger.SourceObjectId, "触发来源");
         }
     }
 
     private static void AddPaymentResourceRelatedObjectIds(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds,
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects,
         IReadOnlyList<string> resourceActionIds)
     {
         foreach (var actionId in resourceActionIds)
         {
-            AddPaymentResourceRelatedObjectId(state, playerId, relatedObjectIds, actionId);
+            AddPaymentResourceRelatedObjectId(state, playerId, relatedObjects, actionId);
         }
     }
 
     private static void AddPaymentResourceRelatedObjectId(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds,
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects,
         string resourceActionId)
     {
         if (TryParseRecycleRunePaymentActionId(resourceActionId, out var runeObjectId))
         {
-            AddRelatedObjectId(state, playerId, relatedObjectIds, runeObjectId);
+            AddRelatedObjectRef(state, playerId, relatedObjects, runeObjectId, "费用资源");
             return;
         }
 
@@ -6525,7 +6539,7 @@ internal static class ActionPromptBuilder
         {
             var resource = state.TemporaryPaymentResources.FirstOrDefault(candidate =>
                 string.Equals(candidate.ResourceId, resourceId, StringComparison.Ordinal));
-            AddRelatedObjectId(state, playerId, relatedObjectIds, resource?.SourceObjectId);
+            AddRelatedObjectRef(state, playerId, relatedObjects, resource?.SourceObjectId, "费用资源");
             return;
         }
 
@@ -6535,37 +6549,39 @@ internal static class ActionPromptBuilder
                 string.Equals(candidate.TriggerId, triggerId, StringComparison.Ordinal));
             if (trigger is not null && !IsHiddenRelatedTriggerSourceForViewer(state, trigger, playerId))
             {
-                AddRelatedObjectId(state, playerId, relatedObjectIds, trigger.SourceObjectId);
+                AddRelatedObjectRef(state, playerId, relatedObjects, trigger.SourceObjectId, "费用触发");
             }
 
             if (TryReadBlueSentinelDelayedTriggerContext(triggerId, out _, out _, out var battlefieldObjectId))
             {
-                AddRelatedObjectId(state, playerId, relatedObjectIds, battlefieldObjectId);
+                AddRelatedObjectRef(state, playerId, relatedObjects, battlefieldObjectId, "费用战场");
             }
 
             return;
         }
 
-        AddRelatedObjectId(state, playerId, relatedObjectIds, resourceActionId);
+        AddRelatedObjectRef(state, playerId, relatedObjects, resourceActionId, "费用资源");
     }
 
-    private static void AddRelatedObjectIds(
+    private static void AddRelatedObjectRefs(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds,
-        IReadOnlyList<string> objectIds)
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects,
+        IReadOnlyList<string> objectIds,
+        string role)
     {
         foreach (var objectId in objectIds)
         {
-            AddRelatedObjectId(state, playerId, relatedObjectIds, objectId);
+            AddRelatedObjectRef(state, playerId, relatedObjects, objectId, role);
         }
     }
 
-    private static void AddRelatedObjectId(
+    private static void AddRelatedObjectRef(
         MatchState state,
         string playerId,
-        List<string> relatedObjectIds,
-        string? objectId)
+        List<ActionPromptServerFlowObjectRefDto> relatedObjects,
+        string? objectId,
+        string role)
     {
         if (string.IsNullOrWhiteSpace(objectId))
         {
@@ -6579,7 +6595,8 @@ internal static class ActionPromptBuilder
             return;
         }
 
-        relatedObjectIds.Add(normalizedObjectId);
+        var normalizedRole = string.IsNullOrWhiteSpace(role) ? "服务端关联" : role.Trim();
+        relatedObjects.Add(new ActionPromptServerFlowObjectRefDto(normalizedObjectId, normalizedRole));
     }
 
     private static bool CanExposeRelatedObjectIdForViewer(

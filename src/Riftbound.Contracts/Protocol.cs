@@ -358,6 +358,10 @@ public sealed record ActionPromptServerFlowStepDto(
     string Value,
     string Detail);
 
+public sealed record ActionPromptServerFlowObjectRefDto(
+    string ObjectId,
+    string Role);
+
 public sealed record ActionPromptServerFlowDto(
     string State,
     string StateLabel,
@@ -374,7 +378,8 @@ public sealed record ActionPromptServerFlowDto(
     IReadOnlyDictionary<string, int> QueueCounts,
     IReadOnlyList<ActionPromptServerFlowLaneDto> Lanes,
     IReadOnlyList<ActionPromptServerFlowStepDto> Steps,
-    IReadOnlyList<string> RelatedObjectIds);
+    IReadOnlyList<string> RelatedObjectIds,
+    IReadOnlyList<ActionPromptServerFlowObjectRefDto> RelatedObjects);
 
 public sealed record ActionPromptDto(
     string PlayerId,

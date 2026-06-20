@@ -367,6 +367,10 @@ async function runObjectCommandTrayInteraction(report) {
 
     const serverFlowTargetRef = page.locator('.wire-server-flow [data-rule-object-ref="p2-right-1"][data-object-ref-inspectable="true"]').first();
     await serverFlowTargetRef.waitFor({ timeout: 10_000 });
+    const serverFlowTargetText = await serverFlowTargetRef.textContent() ?? "";
+    if (!serverFlowTargetText.includes("候选目标")) {
+      throw new Error(`Server-flow object ref should preserve semantic role, got: ${serverFlowTargetText}`);
+    }
     await serverFlowTargetRef.click();
     await page.waitForFunction(
       (expectedObjectId) => document.querySelector("[data-wire-object-command-tray-state]")?.getAttribute("data-wire-object-command-tray-object") === expectedObjectId,

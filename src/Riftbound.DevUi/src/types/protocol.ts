@@ -363,6 +363,11 @@ export type ActionPromptServerFlowStepDto = {
   detail: string;
 };
 
+export type ActionPromptServerFlowObjectRefDto = {
+  objectId: string;
+  role: string;
+};
+
 export type ActionPromptServerFlowDto = {
   state: "blocked" | "history" | "ready" | "respond" | "waiting" | (string & {});
   stateLabel: string;
@@ -380,6 +385,7 @@ export type ActionPromptServerFlowDto = {
   lanes: ActionPromptServerFlowLaneDto[];
   steps: ActionPromptServerFlowStepDto[];
   relatedObjectIds: string[];
+  relatedObjects?: ActionPromptServerFlowObjectRefDto[] | null;
 };
 
 export type ActionPromptDto = {
