@@ -83,6 +83,42 @@ export function WireServerFlowPanel({
         />
       ) : null}
 
+      {plan.relatedActionRows.length > 0 ? (
+        <ol className="wire-server-flow-action-bridge" aria-label="服务端关联对象候选桥">
+          {plan.relatedActionRows.map((row) => {
+            const canInspect = Boolean(objectIndex?.[row.objectId] && onInspectObject);
+            const content = (
+              <>
+                <span>{row.serverRoleLabel}</span>
+                <strong>{row.actionRoleLabels.join(" / ") || "无候选角色"}</strong>
+                <small>{row.enabledCandidateCount} 可 / {row.disabledCandidateCount} 阻</small>
+                <em>{row.nextStepLabel}</em>
+              </>
+            );
+
+            return (
+              <li
+                data-server-flow-action-object-id={row.objectId}
+                data-server-flow-action-state={row.state}
+                key={row.key}
+              >
+                {canInspect ? (
+                  <button
+                    data-server-flow-action-inspectable="true"
+                    onClick={() => onInspectObject?.(row.objectId)}
+                    type="button"
+                  >
+                    {content}
+                  </button>
+                ) : (
+                  <span data-server-flow-action-inspectable="false">{content}</span>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
+
       <ol className="wire-server-flow-lanes" aria-label="规则通道总览">
         {plan.lanes.map((lane) => (
           <li data-wire-server-flow-lane={lane.key} data-wire-server-flow-lane-state={lane.state} key={lane.key}>

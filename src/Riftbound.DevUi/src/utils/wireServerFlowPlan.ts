@@ -1,5 +1,10 @@
 import type { ActionPromptDto, ActionPromptServerFlowDto, ConnectionStatus, GameEvent, SnapshotDto } from "../types/protocol";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
+import {
+  buildPromptInteractionModel,
+  promptChoiceRoleLabel,
+  type PromptInteractionModel
+} from "./promptInteraction";
 import type { ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 import { buildWireResponseCoachPlan, type WireResponseCoachPlan } from "./wireResponseCoachPlan";
 import {
@@ -51,6 +56,18 @@ export type WireServerFlowDetail = {
   title: string;
 };
 
+export type WireServerFlowRelatedActionRow = {
+  actionRoleLabels: string[];
+  disabledCandidateCount: number;
+  enabledCandidateCount: number;
+  key: string;
+  nextStepLabel: string;
+  objectId: string;
+  serverRoleLabel: string;
+  state: "blocked" | "ready" | "unknown";
+  stateLabel: string;
+};
+
 export type WireServerFlowPlan = {
   detail?: WireServerFlowDetail;
   detailButtonLabel: string;
@@ -62,6 +79,7 @@ export type WireServerFlowPlan = {
   relatedObjectCount: number;
   relatedObjectIds: string[];
   relatedObjectRefs: WireServerFlowDetail["refs"];
+  relatedActionRows: WireServerFlowRelatedActionRow[];
   state: WireServerFlowState;
   stateLabel: string;
   steps: WireServerFlowStep[];
@@ -96,13 +114,15 @@ export function buildWireServerFlowPlan({
     submissionGate
   });
   const detail = rulePlan.focus.detail ? { ...rulePlan.focus.detail, source: "rule" as const } : undefined;
+  const interactionModel = buildPromptInteractionModel(prompt);
   if (prompt?.serverFlow) {
-    return serverBackedFlowPlan(prompt.serverFlow, responsePlan, rulePlan, prompt, snapshot, detail);
+    return serverBackedFlowPlan(prompt.serverFlow, responsePlan, rulePlan, prompt, snapshot, detail, interactionModel);
   }
 
   const state = serverFlowState(rulePlan, responsePlan);
   const relatedObjectRefs = detailRelatedObjectRefs(detail);
   const relatedObjectIds = visibleServerFlowObjectIds(relatedObjectRefs.map((ref) => ref.id));
+  const relatedActionRows = serverFlowRelatedActionRows(relatedObjectRefs, interactionModel);
 
   return {
     detail,
@@ -121,6 +141,7 @@ export function buildWireServerFlowPlan({
     relatedObjectCount: relatedObjectIds.length,
     relatedObjectIds,
     relatedObjectRefs,
+    relatedActionRows,
     state,
     stateLabel: flowStateLabel(state),
     steps: flowSteps(rulePlan, responsePlan),
@@ -135,11 +156,13 @@ function serverBackedFlowPlan(
   rulePlan: WireRuleQueuePlan,
   prompt: ActionPromptDto,
   snapshot: SnapshotDto | undefined,
-  detail: WireServerFlowDetail | undefined
+  detail: WireServerFlowDetail | undefined,
+  interactionModel: PromptInteractionModel
 ): WireServerFlowPlan {
   const state = responsePlan.state === "selecting" ? "selecting" : serverFlowStateFromDto(serverFlow);
   const relatedObjectRefs = serverFlowRelatedObjectRefs(serverFlow);
   const relatedObjectIds = visibleServerFlowObjectIds(relatedObjectRefs.map((ref) => ref.id));
+  const relatedActionRows = serverFlowRelatedActionRows(relatedObjectRefs, interactionModel);
   const serverFlowDetail = detail ?? serverFlowRelatedObjectsDetail(serverFlow, relatedObjectRefs);
   return {
     detail: serverFlowDetail,
@@ -164,6 +187,7 @@ function serverBackedFlowPlan(
     relatedObjectCount: relatedObjectIds.length,
     relatedObjectIds,
     relatedObjectRefs,
+    relatedActionRows,
     state,
     stateLabel: state === "selecting" ? "选择中" : serverFlow.stateLabel,
     steps: serverFlow.steps.map((step) => ({
@@ -177,6 +201,73 @@ function serverBackedFlowPlan(
     summary: state === "selecting" ? `${serverFlow.summary} / 本地选择中` : serverFlow.summary,
     tone: state === "selecting" ? "info" : serverFlowToneFromDto(serverFlow)
   };
+}
+
+function serverFlowRelatedActionRows(
+  refs: WireServerFlowDetail["refs"],
+  interactionModel: PromptInteractionModel
+): WireServerFlowRelatedActionRow[] {
+  const groupedRefs = new Map<string, WireServerFlowDetail["refs"]>();
+  for (const ref of refs) {
+    const objectId = ref.id.trim();
+    if (!objectId || objectId.toUpperCase() === "HIDDEN") {
+      continue;
+    }
+
+    groupedRefs.set(objectId, [...(groupedRefs.get(objectId) ?? []), ref]);
+  }
+
+  return [...groupedRefs.entries()].map(([objectId, objectRefs]) => {
+    const summary = interactionModel.objectById.get(objectId);
+    const actionRoleLabels = uniqueStrings(summary?.choices.map((choice) => promptChoiceRoleLabel(choice.role)) ?? []);
+    const enabledCandidateCount = summary?.enabledCandidateCount ?? 0;
+    const disabledCandidateCount = summary?.disabledCandidateCount ?? 0;
+    const serverRoleLabel = uniqueStrings(objectRefs.map((ref) => ref.role)).join(" / ") || "服务端关联";
+    const state: WireServerFlowRelatedActionRow["state"] = enabledCandidateCount > 0
+      ? "ready"
+      : disabledCandidateCount > 0
+        ? "blocked"
+        : "unknown";
+
+    return {
+      actionRoleLabels,
+      disabledCandidateCount,
+      enabledCandidateCount,
+      key: `server-flow-action:${objectId}`,
+      nextStepLabel: serverFlowRelatedActionNextStep(state, actionRoleLabels, enabledCandidateCount, disabledCandidateCount),
+      objectId,
+      serverRoleLabel,
+      state,
+      stateLabel: serverFlowRelatedActionStateLabel(state)
+    };
+  });
+}
+
+function serverFlowRelatedActionNextStep(
+  state: WireServerFlowRelatedActionRow["state"],
+  actionRoleLabels: string[],
+  enabledCandidateCount: number,
+  disabledCandidateCount: number
+): string {
+  switch (state) {
+    case "ready":
+      return `可作为 ${actionRoleLabels.join(" / ") || "候选对象"} 进入 ${enabledCandidateCount} 个候选。`;
+    case "blocked":
+      return `当前只关联 ${disabledCandidateCount} 个阻断候选，等待服务端开放或换对象。`;
+    case "unknown":
+      return "服务端声明相关，但当前 prompt 未把它列为可选择对象。";
+  }
+}
+
+function serverFlowRelatedActionStateLabel(state: WireServerFlowRelatedActionRow["state"]): string {
+  switch (state) {
+    case "blocked":
+      return "仅阻断";
+    case "ready":
+      return "可进入候选";
+    case "unknown":
+      return "无候选";
+  }
 }
 
 function serverFlowRelatedObjectsDetail(
@@ -288,6 +379,10 @@ function visibleServerFlowObjectIds(ids: readonly string[]): string[] {
   }
 
   return objectIds;
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
 function serverFlowState(rulePlan: WireRuleQueuePlan, responsePlan: WireResponseCoachPlan): WireServerFlowState {

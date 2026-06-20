@@ -377,6 +377,18 @@ async function runObjectCommandTrayInteraction(report) {
       "p2-right-1",
       { timeout: 10_000 }
     );
+    const serverFlowActionBridge = page.locator('.wire-server-flow [data-server-flow-action-object-id="p2-right-1"][data-server-flow-action-state="ready"] [data-server-flow-action-inspectable="true"]').first();
+    await serverFlowActionBridge.waitFor({ timeout: 10_000 });
+    const bridgeText = await serverFlowActionBridge.textContent() ?? "";
+    if (!bridgeText.includes("候选目标") || !bridgeText.includes("目标") || !bridgeText.includes("可作为")) {
+      throw new Error(`Server-flow action bridge should expose semantic role and candidate role, got: ${bridgeText}`);
+    }
+    await serverFlowActionBridge.click();
+    await page.waitForFunction(
+      (expectedObjectId) => document.querySelector("[data-wire-object-command-tray-state]")?.getAttribute("data-wire-object-command-tray-object") === expectedObjectId,
+      "p2-right-1",
+      { timeout: 10_000 }
+    );
 
     const sourceCard = page.locator('button.card-face[data-object-id="p1-hand-spell"][data-timeline-state="rule"]').first();
     await sourceCard.waitFor({ timeout: 10_000 });

@@ -12539,6 +12539,7 @@ button.card-face:hover {
 }
 
 .wire-server-flow-metrics,
+.wire-server-flow-action-bridge,
 .wire-server-flow-lanes,
 .wire-server-flow-steps {
   display: grid;
@@ -12557,7 +12558,13 @@ button.card-face:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.wire-server-flow-action-bridge {
+  grid-template-columns: 1fr;
+}
+
 .wire-server-flow-metrics span,
+.wire-server-flow-action-bridge li > button,
+.wire-server-flow-action-bridge li > span,
 .wire-server-flow-lanes li,
 .wire-server-flow-steps li {
   min-width: 0;
@@ -12566,8 +12573,20 @@ button.card-face:hover {
   padding: 4px;
 }
 
+.wire-server-flow-action-bridge li > button {
+  width: 100%;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 .wire-server-flow-lanes li[data-wire-server-flow-lane-state="active"],
 .wire-server-flow-lanes li[data-wire-server-flow-lane-state="blocked"],
+.wire-server-flow-action-bridge li[data-server-flow-action-state="ready"] > button,
+.wire-server-flow-action-bridge li[data-server-flow-action-state="ready"] > span,
 .wire-server-flow-steps li[data-wire-server-flow-step-state="respond"],
 .wire-server-flow-steps li[data-wire-server-flow-step-state="ready"],
 .wire-server-flow-steps li[data-wire-server-flow-step-state="selecting"],
@@ -12577,6 +12596,8 @@ button.card-face:hover {
 }
 
 .wire-server-flow-lanes li[data-wire-server-flow-lane-state="empty"],
+.wire-server-flow-action-bridge li[data-server-flow-action-state="unknown"] > button,
+.wire-server-flow-action-bridge li[data-server-flow-action-state="unknown"] > span,
 .wire-server-flow-steps li[data-wire-server-flow-step-state="waiting"],
 .wire-server-flow-steps li[data-wire-server-flow-step-state="history"] {
   border-style: dashed;
@@ -12605,6 +12626,10 @@ button.card-face:hover {
 .wire-server-flow-next span,
 .wire-server-flow-metrics small,
 .wire-server-flow-metrics strong,
+.wire-server-flow-action-bridge span,
+.wire-server-flow-action-bridge strong,
+.wire-server-flow-action-bridge small,
+.wire-server-flow-action-bridge em,
 .wire-server-flow-lanes span,
 .wire-server-flow-lanes strong,
 .wire-server-flow-lanes small,
@@ -15211,6 +15236,8 @@ button.wire-object-ref {
 .wire-match-page .wire-server-flow-header,
 .wire-match-page .wire-server-flow-next,
 .wire-match-page .wire-server-flow-metrics span,
+.wire-match-page .wire-server-flow-action-bridge li > button,
+.wire-match-page .wire-server-flow-action-bridge li > span,
 .wire-match-page .wire-server-flow-lanes li,
 .wire-match-page .wire-server-flow-steps li,
 .wire-match-page .wire-server-flow-detail-button,
