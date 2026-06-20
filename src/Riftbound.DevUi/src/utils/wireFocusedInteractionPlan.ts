@@ -7,9 +7,11 @@ import { buildFocusedInteractionGrammarPlan, type FocusedInteractionGrammarPlan 
 import {
   buildPromptInteractionModel,
   promptChoiceSummaryObjectIds,
+  promptChoiceRoleLabel,
   type PromptCandidateSummary,
   type PromptInteractionModel,
-  type PromptObjectSummary
+  type PromptObjectSummary,
+  type PromptChoiceRole
 } from "./promptInteraction";
 import { buildCardObjectIndex, type SnapshotObjectIndex } from "./snapshotObjectIndex";
 import { buildSourceCandidateActionPlan, type SourceCandidateActionPlan } from "./sourceCandidateActionPlan";
@@ -71,11 +73,31 @@ export type WireFocusedReadinessPlan = {
   tone: WireFocusedReadinessTone;
 };
 
+export type WireFocusedLegalActionState =
+  | "blocked"
+  | "informational"
+  | "needs-selection"
+  | "ready";
+
+export type WireFocusedLegalActionRowPlan = {
+  action: string;
+  commandType?: string;
+  key: string;
+  label: string;
+  missingRequiredLabels: string[];
+  nextStepLabel: string;
+  reason: string;
+  roleLabels: string[];
+  state: WireFocusedLegalActionState;
+  stateLabel: string;
+};
+
 export type WireFocusedInteractionPlan = {
   actionEntries: WireFocusedActionEntryPlan[];
   draft?: WireFocusedSelectionDraftPlan;
   focusModel: FocusedActionModel;
   grammarPlan: FocusedInteractionGrammarPlan;
+  legalActionRows: WireFocusedLegalActionRowPlan[];
   model: PromptInteractionModel;
   objectIndex: SnapshotObjectIndex;
   promptCandidateList: WirePromptCandidateListPlan;
@@ -153,6 +175,12 @@ export function buildWireFocusedInteractionPlan({
     draft: draftPlanFor(selectionDraft, sourceObjectId),
     focusModel,
     grammarPlan,
+    legalActionRows: legalActionRowsFor({
+      candidates: relatedCandidates,
+      disabledByConnection,
+      selectionDraft,
+      sourceObjectId
+    }),
     model,
     objectIndex,
     promptCandidateList: buildWirePromptCandidateListPlan({
@@ -332,6 +360,217 @@ function actionEntryFor({
     key: `${candidate.action}-${candidate.label}`,
     mode: actionPlan.needsComposer && canSubmitCommands ? "composer" : "button"
   };
+}
+
+function legalActionRowsFor({
+  candidates,
+  disabledByConnection,
+  selectionDraft,
+  sourceObjectId
+}: {
+  candidates: PromptCandidateSummary[];
+  disabledByConnection: boolean;
+  selectionDraft?: CandidateSelectionDraft;
+  sourceObjectId?: string;
+}): WireFocusedLegalActionRowPlan[] {
+  if (!sourceObjectId) {
+    return [];
+  }
+
+  return candidates
+    .map((candidate) => legalActionRowFor({
+      candidate,
+      disabledByConnection,
+      selectionDraft,
+      sourceObjectId
+    }))
+    .sort((left, right) => legalActionStateOrder(left.state) - legalActionStateOrder(right.state));
+}
+
+function legalActionRowFor({
+  candidate,
+  disabledByConnection,
+  selectionDraft,
+  sourceObjectId
+}: {
+  candidate: PromptCandidateSummary;
+  disabledByConnection: boolean;
+  selectionDraft?: CandidateSelectionDraft;
+  sourceObjectId: string;
+}): WireFocusedLegalActionRowPlan {
+  const roleKeys = objectRolesForCandidate(candidate, sourceObjectId);
+  const roleLabels = roleKeys.map(promptChoiceRoleLabel);
+  const sourceRole = roleKeys.includes("source");
+  const missingRequiredSteps = sourceRole
+    ? candidate.steps.filter((step) => step.required && !isLegalActionStepSatisfied(step.role, sourceObjectId, selectionDraft))
+    : [];
+  const state = legalActionStateFor({
+    candidate,
+    disabledByConnection,
+    missingRequiredSteps,
+    sourceRole
+  });
+
+  return {
+    action: candidate.action,
+    commandType: candidate.command?.cmdType,
+    key: `${candidate.action}-${candidate.label}-${roleKeys.join(":")}`,
+    label: candidate.label,
+    missingRequiredLabels: missingRequiredSteps.map((step) => step.label),
+    nextStepLabel: legalActionNextStepLabel({
+      candidate,
+      disabledByConnection,
+      missingRequiredSteps,
+      roleLabels,
+      sourceRole,
+      state
+    }),
+    reason: candidate.reason,
+    roleLabels,
+    state,
+    stateLabel: legalActionStateLabel(state, sourceRole, roleLabels)
+  };
+}
+
+function objectRolesForCandidate(candidate: PromptCandidateSummary, sourceObjectId: string): PromptChoiceRole[] {
+  const roles = new Set<PromptChoiceRole>();
+  for (const choice of candidate.choices) {
+    if (promptChoiceSummaryObjectIds(choice).includes(sourceObjectId)) {
+      roles.add(choice.role);
+    }
+  }
+
+  return [...roles].sort((left, right) => roleSortIndex(left) - roleSortIndex(right));
+}
+
+function legalActionStateFor({
+  candidate,
+  disabledByConnection,
+  missingRequiredSteps,
+  sourceRole
+}: {
+  candidate: PromptCandidateSummary;
+  disabledByConnection: boolean;
+  missingRequiredSteps: PromptCandidateSummary["steps"];
+  sourceRole: boolean;
+}): WireFocusedLegalActionState {
+  if (disabledByConnection || !candidate.enabled) {
+    return "blocked";
+  }
+
+  if (!sourceRole) {
+    return "informational";
+  }
+
+  if (!candidate.command) {
+    return "blocked";
+  }
+
+  return missingRequiredSteps.length > 0 ? "needs-selection" : "ready";
+}
+
+function legalActionStateLabel(
+  state: WireFocusedLegalActionState,
+  sourceRole: boolean,
+  roleLabels: string[]
+): string {
+  switch (state) {
+    case "blocked":
+      return sourceRole ? "不可提交" : "关联阻断";
+    case "informational":
+      return roleLabels.length > 0 ? `可作为${roleLabels.join("/")}` : "关联候选";
+    case "needs-selection":
+      return "需选择";
+    case "ready":
+      return "可提交";
+  }
+}
+
+function legalActionNextStepLabel({
+  candidate,
+  disabledByConnection,
+  missingRequiredSteps,
+  roleLabels,
+  sourceRole,
+  state
+}: {
+  candidate: PromptCandidateSummary;
+  disabledByConnection: boolean;
+  missingRequiredSteps: PromptCandidateSummary["steps"];
+  roleLabels: string[];
+  sourceRole: boolean;
+  state: WireFocusedLegalActionState;
+}): string {
+  if (disabledByConnection) {
+    return "等待连接恢复后再提交。";
+  }
+
+  if (!candidate.enabled) {
+    return candidate.reason;
+  }
+
+  if (!sourceRole) {
+    return roleLabels.length > 0
+      ? `该对象当前作为${roleLabels.join("/")}出现在服务端候选中。`
+      : "该对象与服务端候选有关联。";
+  }
+
+  if (!candidate.command) {
+    return "候选未公开命令模板，前端不能组装提交。";
+  }
+
+  if (state === "needs-selection") {
+    return `选择${missingRequiredSteps[0]?.label ?? "缺失项"}`;
+  }
+
+  return "可以提交服务端候选。";
+}
+
+function isLegalActionStepSatisfied(
+  role: PromptChoiceRole,
+  sourceObjectId: string,
+  selectionDraft?: CandidateSelectionDraft
+): boolean {
+  switch (role) {
+    case "source":
+      return Boolean(sourceObjectId);
+    case "target":
+      return Boolean(selectionDraft?.targetChoiceIds.length);
+    case "destination":
+      return Boolean(selectionDraft?.destinationId);
+    case "mode":
+      return Boolean(selectionDraft?.mode);
+    case "optionalCost":
+      return Boolean(selectionDraft?.optionalCostIds.length);
+  }
+}
+
+function roleSortIndex(role: PromptChoiceRole): number {
+  switch (role) {
+    case "source":
+      return 0;
+    case "mode":
+      return 1;
+    case "destination":
+      return 2;
+    case "target":
+      return 3;
+    case "optionalCost":
+      return 4;
+  }
+}
+
+function legalActionStateOrder(state: WireFocusedLegalActionState): number {
+  switch (state) {
+    case "ready":
+      return 0;
+    case "needs-selection":
+      return 1;
+    case "informational":
+      return 2;
+    case "blocked":
+      return 3;
+  }
 }
 
 function candidateRowsFor(

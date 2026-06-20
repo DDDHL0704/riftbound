@@ -12615,6 +12615,7 @@ button.card-face:hover {
 
 .wire-focus-copy,
 .wire-selected-candidates,
+.wire-focused-legal-actions,
 .wire-focused-readiness,
 .wire-focused-actions,
 .wire-prompt-candidates,
@@ -12687,6 +12688,59 @@ button.card-face:hover {
   justify-content: space-between;
   gap: 6px;
   padding: 4px;
+}
+
+.wire-focused-legal-actions {
+  display: grid;
+  gap: 5px;
+  padding: 5px;
+  font-size: 12px;
+}
+
+.wire-focused-legal-actions-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-focused-legal-action-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-focused-legal-action-list li {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-focused-legal-action-list li.is-ready {
+  border-width: 2px;
+}
+
+.wire-focused-legal-action-list li.is-informational,
+.wire-focused-legal-action-list li.is-blocked {
+  border-style: dashed;
+}
+
+.wire-focused-legal-action-list li > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-focused-legal-action-list span,
+.wire-focused-legal-action-list small,
+.wire-focused-legal-action-list strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-focused-action-summary {

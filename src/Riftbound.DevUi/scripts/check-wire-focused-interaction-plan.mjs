@@ -130,6 +130,13 @@ assert.equal(plan.readiness.canSubmit, true);
 assert.equal(plan.readiness.commandType, "PLAY_CARD");
 assert.equal(plan.readiness.enabledCount, 2);
 assert.equal(plan.readiness.missingRequiredCount, 0);
+assert.deepEqual(plan.legalActionRows.map((row) => `${row.label}:${row.state}:${row.stateLabel}`), [
+  "打出手牌:ready:可提交",
+  "横置符文:ready:可提交"
+]);
+assert.equal(plan.legalActionRows[0].commandType, "PLAY_CARD");
+assert.deepEqual(plan.legalActionRows[0].roleLabels, ["来源"]);
+assert.deepEqual(plan.legalActionRows[0].missingRequiredLabels, []);
 
 const noFocusPlan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,
@@ -170,6 +177,8 @@ const blockedPlan = buildWireFocusedInteractionPlan({
 assert.equal(blockedPlan.readiness.state, "server-blocked");
 assert.equal(blockedPlan.readiness.canSubmit, false);
 assert.equal(blockedPlan.readiness.nextStepLabel, "法力不足");
+assert.equal(blockedPlan.legalActionRows[0].state, "blocked");
+assert.equal(blockedPlan.legalActionRows[0].nextStepLabel, "法力不足");
 
 const requiredTargetCandidate = {
   ...playCandidate,
@@ -187,6 +196,22 @@ assert.equal(needsSelectionPlan.readiness.state, "needs-selection");
 assert.equal(needsSelectionPlan.readiness.canSubmit, false);
 assert.equal(needsSelectionPlan.readiness.missingRequiredCount, 1);
 assert.ok(needsSelectionPlan.readiness.nextStepLabel.includes("目标"));
+assert.equal(needsSelectionPlan.legalActionRows[0].state, "needs-selection");
+assert.deepEqual(needsSelectionPlan.legalActionRows[0].missingRequiredLabels, ["目标"]);
+assert.equal(needsSelectionPlan.legalActionRows[0].nextStepLabel, "选择目标");
+
+const targetOnlyPlan = buildWireFocusedInteractionPlan({
+  canSubmitCommands: true,
+  disabledByConnection: false,
+  prompt: promptFor([requiredTargetCandidate]),
+  snapshot: emptySnapshot(),
+  sourceObjectId: "p2-unit-1"
+});
+assert.equal(targetOnlyPlan.readiness.state, "not-candidate");
+assert.equal(targetOnlyPlan.legalActionRows.length, 1);
+assert.equal(targetOnlyPlan.legalActionRows[0].state, "informational");
+assert.deepEqual(targetOnlyPlan.legalActionRows[0].roleLabels, ["目标"]);
+assert.ok(targetOnlyPlan.legalActionRows[0].nextStepLabel.includes("作为目标"));
 
 console.log("Wire focused interaction plan check passed.");
 
