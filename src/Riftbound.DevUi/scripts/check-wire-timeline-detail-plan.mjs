@@ -197,6 +197,32 @@ assert.equal(plan.inspector.commandBridgeCount, 2);
 assert.equal(plan.inspector.projectionRows.find((row) => row.key === "selected")?.count, 1);
 assert.equal(plan.inspector.projectionRows.find((row) => row.key === "visible")?.count, 1);
 assert.equal(plan.inspector.candidateRows[0].label, "OGN-001/298");
+
+const visibilityPlan = buildWireTimelineDetailPlan({
+  detail: {
+    id: "event:face-down:1",
+    lines: [],
+    refs: [
+      { id: "face-down-1", label: "隐藏对象", role: "来源", visibility: "hidden" },
+      { id: "known-but-redacted", role: "目标", visibility: "missing" },
+      { id: "public-1", role: "参与", visibility: "visible" }
+    ],
+    source: "event",
+    title: "隐藏事件"
+  },
+  objectIndex: {
+    "face-down-1": { objectId: "face-down-1", isFaceDown: true },
+    "known-but-redacted": { objectId: "known-but-redacted", cardNo: "SHOULD-NOT-WIN" },
+    "public-1": { objectId: "public-1", cardNo: "PUB-001" }
+  },
+  selectedObjectId: "face-down-1"
+});
+
+assert.deepEqual(visibilityPlan.projectionRows.map((row) => row.state), ["hidden", "missing", "visible"]);
+assert.equal(visibilityPlan.inspector.hiddenRefCount, 1);
+assert.equal(visibilityPlan.inspector.missingRefCount, 1);
+assert.equal(visibilityPlan.inspector.visibleRefCount, 1);
+
 assert.equal(plan.commandBridgeRows.length, 2);
 assert.equal(plan.commandBridgeRows[0].detailObjectId, "source-1");
 assert.equal(plan.commandBridgeRows[0].commandType, "PLAY_CARD");

@@ -29,7 +29,10 @@ export type WireTimelineDetailRefLike = {
   id: string;
   label?: string;
   role: string;
+  visibility?: WireTimelineDetailRefVisibility;
 };
+
+export type WireTimelineDetailRefVisibility = "hidden" | "missing" | "visible";
 
 export type WireTimelineDetailLike = {
   id: string;
@@ -741,7 +744,7 @@ function projectionRowsForDetail(
     }
     seen.add(key);
 
-    const state = projectionState(id, objectIndex, selectedObjectId);
+    const state = projectionState(ref, objectIndex, selectedObjectId);
     rows.push({
       id,
       key,
@@ -756,10 +759,19 @@ function projectionRowsForDetail(
 }
 
 function projectionState(
-  id: string,
+  ref: WireTimelineDetailRefLike,
   objectIndex: Record<string, CardObjectView>,
   selectedObjectId?: string
 ): WireTimelineProjectionState {
+  const id = ref.id.trim();
+  if (ref.visibility === "hidden") {
+    return "hidden";
+  }
+
+  if (ref.visibility === "missing") {
+    return "missing";
+  }
+
   if (id === "HIDDEN") {
     return "hidden";
   }
