@@ -41,9 +41,21 @@ export type CandidateComposerControls = {
   targetGroups: ChoiceGroup[];
 };
 
+export type CandidateComposerCheckState = "blocked" | "ready" | "waiting";
+
+export type CandidateComposerCheckPlan = {
+  key: string;
+  label: string;
+  reason: string;
+  state: CandidateComposerCheckState;
+  stateLabel: string;
+};
+
 export type CandidateComposerSubmissionPlan = {
   blockReason?: string;
   canSubmit: boolean;
+  checkRows: CandidateComposerCheckPlan[];
+  checkSummary: string;
   command?: GameCommand;
   gateCanSubmit: boolean;
   gateReason: string;
@@ -344,10 +356,23 @@ export function buildCandidateComposerSubmissionPlan({
     missingRequiredTarget,
     unsupportedReason
   });
+  const checkRows = composerCheckRows({
+    candidateEnabled: candidate.enabled,
+    gateCanSubmit,
+    gateReason,
+    gateStateLabel,
+    missingCommand,
+    missingRequiredDestination,
+    missingRequiredSource,
+    missingRequiredTarget,
+    unsupportedReason
+  });
 
   return {
     blockReason,
     canSubmit,
+    checkRows,
+    checkSummary: composerCheckSummary(checkRows),
     command,
     gateCanSubmit,
     gateReason,
@@ -358,6 +383,87 @@ export function buildCandidateComposerSubmissionPlan({
     stateLabel: canSubmit ? "待服务端校验" : blockReason ? gateStateLabelForBlock(blockReason, gateStateLabel) : "需要选择",
     unsupportedReason
   };
+}
+
+function composerCheckRows({
+  candidateEnabled,
+  gateCanSubmit,
+  gateReason,
+  gateStateLabel,
+  missingCommand,
+  missingRequiredDestination,
+  missingRequiredSource,
+  missingRequiredTarget,
+  unsupportedReason
+}: {
+  candidateEnabled: boolean;
+  gateCanSubmit: boolean;
+  gateReason: string;
+  gateStateLabel: string;
+  missingCommand: boolean;
+  missingRequiredDestination: boolean;
+  missingRequiredSource: boolean;
+  missingRequiredTarget: boolean;
+  unsupportedReason?: string;
+}): CandidateComposerCheckPlan[] {
+  return [
+    {
+      key: "server-candidate",
+      label: "服务端候选",
+      reason: candidateEnabled ? "候选仍由服务端标记为开放。" : "服务端当前阻断该候选。",
+      state: candidateEnabled ? "ready" : "blocked",
+      stateLabel: candidateEnabled ? "开放" : "阻断"
+    },
+    {
+      key: "submission-gate",
+      label: "提交门禁",
+      reason: gateReason,
+      state: gateCanSubmit ? "ready" : "blocked",
+      stateLabel: gateStateLabel
+    },
+    {
+      key: "source",
+      label: "来源",
+      reason: missingRequiredSource ? "缺少服务端候选要求的来源。" : "来源已由服务端候选或桌面点选确定。",
+      state: missingRequiredSource ? "waiting" : "ready",
+      stateLabel: missingRequiredSource ? "待选" : "已选"
+    },
+    {
+      key: "destination",
+      label: "位置",
+      reason: missingRequiredDestination ? "缺少服务端候选要求的位置。" : "位置要求已满足，或该候选不需要位置。",
+      state: missingRequiredDestination ? "waiting" : "ready",
+      stateLabel: missingRequiredDestination ? "待选" : "齐备"
+    },
+    {
+      key: "target",
+      label: "目标",
+      reason: missingRequiredTarget ? "缺少服务端候选要求的目标。" : "目标要求已满足，或该候选不需要目标。",
+      state: missingRequiredTarget ? "waiting" : "ready",
+      stateLabel: missingRequiredTarget ? "待选" : "齐备"
+    },
+    {
+      key: "command",
+      label: "命令模板",
+      reason: missingCommand ? "命令模板尚未齐备，不能提交。" : "命令已由服务端候选和当前选择组装完成。",
+      state: missingCommand ? "blocked" : "ready",
+      stateLabel: missingCommand ? "缺失" : "齐备"
+    },
+    {
+      key: "backend-support",
+      label: "后端支持",
+      reason: unsupportedReason ?? "候选声明为可由当前前端组合，最终仍交给服务端校验。",
+      state: unsupportedReason ? "blocked" : "ready",
+      stateLabel: unsupportedReason ? "未开放" : "已开放"
+    }
+  ];
+}
+
+function composerCheckSummary(rows: CandidateComposerCheckPlan[]): string {
+  const readyCount = rows.filter((row) => row.state === "ready").length;
+  const blockedCount = rows.filter((row) => row.state === "blocked").length;
+  const waitingCount = rows.filter((row) => row.state === "waiting").length;
+  return `${readyCount} 通过 / ${blockedCount} 阻断 / ${waitingCount} 等待`;
 }
 
 function composerBlockReason({

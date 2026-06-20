@@ -132,6 +132,17 @@ assert.equal(submission.gateCanSubmit, true);
 assert.equal(submission.gateStateLabel, "可提交");
 assert.equal(submission.stateLabel, "待服务端校验");
 assert.equal(submission.blockReason, undefined);
+assert.equal(submission.checkSummary, "7 通过 / 0 阻断 / 0 等待");
+assert.deepEqual(submission.checkRows.map((check) => check.key), [
+  "server-candidate",
+  "submission-gate",
+  "source",
+  "destination",
+  "target",
+  "command",
+  "backend-support"
+]);
+assert.deepEqual(submission.checkRows.map((check) => check.state), ["ready", "ready", "ready", "ready", "ready", "ready", "ready"]);
 assert.deepEqual(submission.selectedTargetIds, ["target-a", "target-b"]);
 assert.deepEqual(submission.optionalCostIds, ["rune-main", "rune-extra"]);
 assert.equal(submission.unsupportedReason, undefined);
@@ -172,6 +183,8 @@ const blockedSubmission = buildCandidateComposerSubmissionPlan({
 assert.equal(blockedSubmission.canSubmit, false);
 assert.equal(blockedSubmission.unsupportedReason, "需要后端补齐窗口");
 assert.equal(blockedSubmission.blockReason, "需要后端补齐窗口");
+assert.equal(blockedSubmission.checkSummary, "6 通过 / 1 阻断 / 0 等待");
+assert.equal(blockedSubmission.checkRows.find((check) => check.key === "backend-support")?.state, "blocked");
 
 const disconnectedSubmission = buildCandidateComposerSubmissionPlan({
   candidate: playCandidate,
@@ -185,6 +198,8 @@ assert.equal(disconnectedSubmission.canSubmit, false);
 assert.equal(disconnectedSubmission.gateCanSubmit, false);
 assert.equal(disconnectedSubmission.stateLabel, "连接未就绪");
 assert.equal(disconnectedSubmission.blockReason, "当前入口不可提交，等待服务端窗口或连接恢复。");
+assert.equal(disconnectedSubmission.checkSummary, "6 通过 / 1 阻断 / 0 等待");
+assert.equal(disconnectedSubmission.checkRows.find((check) => check.key === "submission-gate")?.state, "blocked");
 
 const staleGateSubmission = buildCandidateComposerSubmissionPlan({
   candidate: playCandidate,
@@ -205,6 +220,8 @@ assert.equal(staleGateSubmission.gateCanSubmit, false);
 assert.equal(staleGateSubmission.gateStateLabel, "等待同步");
 assert.equal(staleGateSubmission.stateLabel, "等待同步");
 assert.equal(staleGateSubmission.blockReason, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
+assert.equal(staleGateSubmission.checkSummary, "6 通过 / 1 阻断 / 0 等待");
+assert.equal(staleGateSubmission.checkRows.find((check) => check.key === "submission-gate")?.stateLabel, "等待同步");
 
 const battleCandidate = {
   action: "DECLARE_BATTLE",

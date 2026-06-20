@@ -89,6 +89,25 @@ export function CandidateComposer({
       <span className="candidate-composer-gate" data-candidate-composer-gate-reason>
         提交门禁：{submission.gateStateLabel} / {submission.gateReason}
       </span>
+      <div className="candidate-composer-checks" role="group" aria-label="候选提交检查">
+        <div className="candidate-composer-checks-heading">
+          <strong>提交检查</strong>
+          <span>{submission.checkSummary}</span>
+        </div>
+        <ol>
+          {submission.checkRows.map((check) => (
+            <li
+              data-candidate-composer-check={check.key}
+              data-candidate-composer-check-state={check.state}
+              key={check.key}
+            >
+              <span>{check.label}</span>
+              <strong>{check.stateLabel}</strong>
+              <small>{check.reason}</small>
+            </li>
+          ))}
+        </ol>
+      </div>
       {submission.blockReason && <span className="candidate-composer-warning" data-candidate-composer-block-reason>{submission.blockReason}</span>}
       {controls.sources.length > 0 && (
         <label className="candidate-composer-field">

@@ -741,6 +741,8 @@ async function runWireClickSelectionSmoke(cdp) {
         .map((node) => node.getAttribute("data-candidate-composer-can-submit")),
       composerGateStates: Array.from(document.querySelectorAll(".wire-focused-actions .candidate-composer"))
         .map((node) => node.getAttribute("data-candidate-composer-gate-state")),
+      composerCheckStates: Array.from(document.querySelectorAll(".wire-focused-actions [data-candidate-composer-check-state]"))
+        .map((node) => node.getAttribute("data-candidate-composer-check-state")),
       composerGateText: document.querySelector(".wire-focused-actions .candidate-composer")?.textContent ?? "",
       focusedActionButtonCount: document.querySelectorAll(".wire-focused-actions button").length,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
@@ -1085,7 +1087,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (focusResult.composerCount < 1) failures.push("focused interaction composer entry missing");
   if (!focusResult.composerCanSubmitStates.includes("true")) failures.push("focused interaction composer submit state missing");
   if (!focusResult.composerGateStates.includes("可提交")) failures.push("focused interaction composer gate state missing");
+  if (!focusResult.composerCheckStates.includes("ready")) failures.push("focused interaction composer check ready state missing");
   if (!focusResult.composerGateText.includes("提交门禁")) failures.push("focused interaction composer gate text missing");
+  if (!focusResult.composerGateText.includes("提交检查")) failures.push("focused interaction composer check text missing");
   if (focusResult.focusedActionButtonCount < 1) failures.push("focused interaction action controls missing");
   if (focusResult.grammarState !== "ready") failures.push(`focused interaction grammar state unexpected: ${focusResult.grammarState}`);
   if (!focusResult.grammarText.includes("交互语法")) failures.push("focused interaction grammar header missing");

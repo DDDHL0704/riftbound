@@ -2012,10 +2012,52 @@ button.card-face:hover {
 
 .candidate-composer-field span,
 .candidate-composer-costs > strong,
+.candidate-composer-checks span,
+.candidate-composer-checks small,
+.candidate-composer-checks strong,
 .candidate-command-preview span,
 .generic-prompt-option span {
   color: var(--text-primary);
   font-size: 0.84rem;
+}
+
+.candidate-composer-checks {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+
+.candidate-composer-checks-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.candidate-composer-checks ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.candidate-composer-checks li {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  padding: 3px;
+}
+
+.candidate-composer-checks li[data-candidate-composer-check-state="ready"] {
+  border-width: 2px;
+}
+
+.candidate-composer-checks li[data-candidate-composer-check-state="blocked"],
+.candidate-composer-checks li[data-candidate-composer-check-state="waiting"] {
+  border-style: dashed;
 }
 
 .candidate-composer-check {
@@ -14346,6 +14388,8 @@ button.wire-object-ref {
 .wire-match-page .candidate-composer-field,
 .wire-match-page .candidate-composer-costs,
 .wire-match-page .candidate-command-preview,
+.wire-match-page .candidate-composer-checks,
+.wire-match-page .candidate-composer-checks li,
 .wire-match-page .candidate-composer-warning,
 .wire-match-page .detail-drawer,
 .wire-match-page .detail-section,
@@ -14499,6 +14543,7 @@ button.wire-object-ref {
 .wire-match-page .generic-prompt-contract *,
 .wire-match-page .candidate-composer-field span,
 .wire-match-page .candidate-composer-costs > strong,
+.wire-match-page .candidate-composer-checks *,
 .wire-match-page .candidate-composer-note,
 .wire-match-page .candidate-composer-check,
 .wire-match-page .detail-drawer,
