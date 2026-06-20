@@ -166,6 +166,18 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     });
     setSelectionDraft(sourceCandidate ? emptySelectionDraft(objectId, sourceCandidate) : undefined);
   }, [promptInteraction.candidates, tableObjectIndex, tableSpecByNo]);
+  const openObjectDetail = useCallback((objectId: string) => {
+    const object = tableObjectIndex[objectId];
+    if (!object) {
+      return;
+    }
+
+    setDetailCard({
+      object,
+      objectId,
+      spec: object.cardNo ? tableSpecByNo[object.cardNo] : undefined
+    });
+  }, [tableObjectIndex, tableSpecByNo]);
   const chooseObjectFromActionMap = useCallback((objectId: string) => {
     const object = tableObjectIndex[objectId];
     if (!object) {
@@ -345,6 +357,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               onChooseObject={chooseObjectFromActionMap}
               onClear={clearTimelineDetail}
               onInspectObject={inspectObjectFromTable}
+              onOpenObjectDetail={openObjectDetail}
               prompt={tablePrompt}
               selectionDraft={selectionDraft}
               selectedObjectContext={selectedObjectContext}

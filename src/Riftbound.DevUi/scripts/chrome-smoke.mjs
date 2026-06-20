@@ -1178,6 +1178,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
       commandBridgeGateStates: Array.from(panel?.querySelectorAll("[data-timeline-command-gate-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-gate-state")),
+      commandBridgeOpenDetailButtonCount: panel?.querySelectorAll("[data-timeline-command-open-detail-object-id]").length ?? 0,
+      commandBridgeOpenDetailObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-open-detail-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-open-detail-object-id") ?? ""),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
@@ -1196,6 +1199,25 @@ async function runWireRuleObjectRefSmoke(cdp) {
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
+
+  const commandBridgeDetailObjectId = await clickTimelineCommandBridgeDetail(cdp, "p1-hand-spell");
+  await delay(150);
+  const commandBridgeDetailResult = await evaluateJson(cdp, `(() => {
+    const detail = document.querySelector(".detail-layer");
+    const actions = detail?.querySelector("[data-card-detail-actions-state]");
+    return {
+      actionCount: Number(actions?.querySelector("[data-card-detail-action-count]")?.getAttribute("data-card-detail-action-count") ?? "0"),
+      actionText: actions?.textContent ?? "",
+      activeText: document.activeElement?.textContent ?? "",
+      composerCount: detail?.querySelectorAll(".candidate-composer").length ?? 0,
+      detailTitle: detail?.querySelector("#card-detail-title")?.textContent ?? "",
+      objectId: ${JSON.stringify(commandBridgeDetailObjectId)},
+      open: Boolean(detail)
+    };
+  })()`);
+  await pressEscape(cdp);
+  await delay(120);
+  const commandBridgeDetailClosed = await evaluateJson(cdp, `(() => !document.querySelector(".detail-layer"))()`);
 
   await clickButtonByText(cdp, "展开事件检查");
   await delay(150);
@@ -1421,6 +1443,15 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("rule detail command bridge grammar submit ready missing");
   if (!ruleDetailResult.commandBridgeGateStates.includes("ready")) failures.push("rule detail command bridge gate ready state missing");
   if (!ruleDetailResult.commandBridgeText.includes("提交门禁")) failures.push("rule detail command bridge gate label missing");
+  if (ruleDetailResult.commandBridgeOpenDetailButtonCount < 1) failures.push("rule detail command bridge detail buttons missing");
+  if (!ruleDetailResult.commandBridgeOpenDetailObjectIds.includes("p1-hand-spell")) failures.push("rule detail command bridge source detail button missing");
+  if (commandBridgeDetailResult.objectId !== "p1-hand-spell") failures.push(`command bridge detail opened unexpected object: ${commandBridgeDetailResult.objectId}`);
+  if (!commandBridgeDetailResult.open) failures.push("command bridge detail button did not open card detail layer");
+  if (!commandBridgeDetailResult.activeText.includes("关闭")) failures.push("command bridge detail drawer did not focus close button");
+  if (!commandBridgeDetailResult.actionText.includes("服务端可提交操作")) failures.push("command bridge detail drawer action section missing");
+  if (commandBridgeDetailResult.actionCount < 1) failures.push("command bridge detail drawer action entries missing");
+  if (commandBridgeDetailResult.composerCount < 1) failures.push("command bridge detail drawer composer missing");
+  if (!commandBridgeDetailClosed) failures.push("command bridge detail drawer did not close before continuing");
   if (ruleDetailResult.actionHintCount < 1) failures.push("rule detail candidate hint rows missing");
   if (ruleDetailResult.actionHintButtonCount < 1) failures.push("rule detail candidate hint buttons missing");
   if (!ruleDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("rule detail candidate hint command type missing");
@@ -1782,6 +1813,23 @@ async function clickTimelineCommandBridgeNext(cdp) {
     throw new Error("Wire timeline command bridge next object button not found");
   }
   return objectId;
+}
+
+async function clickTimelineCommandBridgeDetail(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-timeline-command-open-detail-object-id="${objectId}"]`)});
+      if (!element) return "";
+      element.click();
+      return element.getAttribute("data-timeline-command-open-detail-object-id") ?? "";
+    })()`,
+    returnByValue: true
+  });
+  const clickedObjectId = String(result.result?.value ?? "");
+  if (!clickedObjectId) {
+    throw new Error(`Wire timeline command bridge detail button not found: ${objectId}`);
+  }
+  return clickedObjectId;
 }
 
 async function clickDetailClear(cdp) {

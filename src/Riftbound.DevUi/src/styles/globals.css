@@ -13642,6 +13642,21 @@ button.card-face:hover {
   grid-column: 1 / -1;
 }
 
+.wire-timeline-command-bridge-actions {
+  min-width: 0;
+  display: grid;
+}
+
+.wire-timeline-command-bridge-actions button {
+  min-width: 0;
+  padding: 2px 4px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
 .wire-timeline-command-bridge-refs {
   min-width: 0;
   display: grid;

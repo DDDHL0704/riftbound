@@ -33,6 +33,7 @@ export function WireTimelineDetailPanel({
   onChooseObject,
   onClear,
   onInspectObject,
+  onOpenObjectDetail,
   prompt,
   selectionDraft,
   selectedObjectContext,
@@ -44,6 +45,7 @@ export function WireTimelineDetailPanel({
   onChooseObject?: (objectId: string) => void;
   onClear: () => void;
   onInspectObject?: (objectId: string) => void;
+  onOpenObjectDetail?: (objectId: string) => void;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
   selectedObjectContext?: TableObjectContext;
@@ -112,6 +114,7 @@ export function WireTimelineDetailPanel({
             />
             <TimelineCommandBridge
               onChooseObject={onChooseObject ?? onInspectObject}
+              onOpenObjectDetail={onOpenObjectDetail}
               rows={plan.commandBridgeRows}
             />
             <TimelineInspector open={inspectorOpen} plan={plan.inspector} />
@@ -176,9 +179,11 @@ export function WireTimelineDetailPanel({
 
 function TimelineCommandBridge({
   onChooseObject,
+  onOpenObjectDetail,
   rows
 }: {
   onChooseObject?: (objectId: string) => void;
+  onOpenObjectDetail?: (objectId: string) => void;
   rows: WireTimelineCommandBridgeRow[];
 }) {
   if (rows.length === 0) {
@@ -210,6 +215,17 @@ function TimelineCommandBridge({
               <small>提交门禁 / {row.gateSummary}</small>
               {!row.enabled && <small>{row.reasonLabel}</small>}
             </div>
+            {onOpenObjectDetail && (
+              <div className="wire-timeline-command-bridge-actions" role="group" aria-label={`${row.label} 检查入口`}>
+                <button
+                  data-timeline-command-open-detail-object-id={row.detailObjectId}
+                  onClick={() => onOpenObjectDetail(row.detailObjectId)}
+                  type="button"
+                >
+                  检查 / 组合
+                </button>
+              </div>
+            )}
             {row.gateRows.length > 0 && (
               <ol className="wire-timeline-command-bridge-gates" aria-label={`${row.label} 提交门禁`}>
                 {row.gateRows.map((gate) => (
