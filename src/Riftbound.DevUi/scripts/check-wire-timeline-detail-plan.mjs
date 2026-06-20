@@ -429,6 +429,92 @@ assert.equal(plan.actionHintRows[1].reasonLabels[0], "等待来源");
 assert.deepEqual(plan.actionHintRows[1].selectionRoleLabels, ["目标"]);
 assert.deepEqual(plan.actionHintRows[1].requiredCommandFieldLabels, ["目标:targetObjectIds*"]);
 
+const sameObjectRolePlan = buildWireTimelineDetailPlan({
+  detail: {
+    id: "rule:stack:shared",
+    lines: [],
+    refs: [
+      { id: "shared-object", role: "来源" },
+      { id: "shared-object", role: "目标" },
+      { id: "shared-object", role: "目标" }
+    ],
+    source: "rule",
+    title: "同对象多角色"
+  },
+  objectIndex: {
+    "shared-object": { objectId: "shared-object", cardNo: "SHARED-001" }
+  },
+  objectContextById: {
+    "shared-object": {
+      candidateLinks: [
+        {
+          commandFields: ["来源:sourceObjectId*", "目标:targetObjectIds*"],
+          commandType: "PLAY_CARD",
+          composerReason: "服务端已公开组合提交。",
+          composerState: "server",
+          composerStateLabel: "服务端声明",
+          enabled: true,
+          label: "同对象候选",
+          reason: "",
+          requiredCommandFields: ["来源:sourceObjectId*"],
+          roles: ["来源", "目标"]
+        }
+      ],
+      eventLinks: [],
+      objectId: "shared-object",
+      promptDisabledCount: 0,
+      promptEnabledCount: 1,
+      stackRoles: [],
+      stateLabels: [],
+      zone: { kind: "battlefield", label: "共享对象区域" }
+    }
+  },
+  prompt: {
+    __model: {
+      candidates: [
+        {
+          action: "PLAY_CARD",
+          choices: [
+            { id: "shared-source", label: "共享来源", objectIds: ["shared-object"], role: "source" },
+            { id: "shared-target", label: "共享目标", objectIds: ["shared-object"], role: "target" }
+          ],
+          command: {
+            bindings: [
+              { field: "sourceObjectId", required: true, role: "source", roleLabel: "来源", source: "selectedSource" },
+              { field: "targetObjectIds", required: true, role: "target", roleLabel: "目标", source: "selectedTargets" }
+            ],
+            cmdType: "PLAY_CARD"
+          },
+          enabled: true,
+          label: "同对象候选",
+          reason: "可提交",
+          steps: [
+            { count: 1, label: "来源", required: true, role: "source", sampleLabels: ["共享来源"] },
+            { count: 1, label: "目标", required: true, role: "target", sampleLabels: ["共享目标"] }
+          ]
+        }
+      ]
+    }
+  }
+});
+
+assert.deepEqual(
+  sameObjectRolePlan.projectionRows.map((row) => `${row.role}:${row.id}`),
+  ["来源:shared-object", "目标:shared-object"]
+);
+assert.deepEqual(
+  sameObjectRolePlan.navigationRows.map((row) => `${row.role}:${row.objectId}`),
+  ["来源:shared-object", "目标:shared-object"]
+);
+assert.deepEqual(
+  sameObjectRolePlan.actionHintRows.map((row) => `${row.role}:${row.objectId}`),
+  ["来源:shared-object", "目标:shared-object"]
+);
+assert.deepEqual(
+  sameObjectRolePlan.commandBridgeRows.map((row) => `${row.detailRoleLabel}:${row.detailObjectId}`),
+  ["来源:shared-object", "目标:shared-object"]
+);
+
 console.log("Wire timeline detail plan check passed.");
 
 function buildPromptInteractionModel(prompt) {

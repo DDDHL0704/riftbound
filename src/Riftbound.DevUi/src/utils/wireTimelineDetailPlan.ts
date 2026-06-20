@@ -291,7 +291,8 @@ function commandBridgeRowsForDetail(
         continue;
       }
 
-      const key = `${candidate.action}:${candidate.label}:${objectId}`;
+      const detailRoleLabel = ref.role?.trim() || "详情对象";
+      const key = `${candidate.action}:${candidate.label}:${detailRoleLabel}:${objectId}`;
       if (seen.has(key)) {
         continue;
       }
@@ -318,7 +319,6 @@ function commandBridgeRowsForDetail(
       const routeState: WireTimelineCommandBridgeRouteState = disabledByConnection && draftState.draftActive
         ? "blocked"
         : draftState.routeState;
-      const detailRoleLabel = ref.role?.trim() || "详情对象";
       const serverRoleSummary = roleLabels.join(" / ");
       rows.push({
         commandFieldSummary: commandFieldSummary(commandFields),
@@ -698,10 +698,11 @@ function actionHintRowsForDetail(
   const rows: WireTimelineActionHintRow[] = [];
   for (const ref of detail.refs) {
     const id = ref.id.trim();
-    if (!id || id === "HIDDEN" || seen.has(id)) {
+    const key = `${ref.role || "对象"}:${id}`;
+    if (!id || id === "HIDDEN" || seen.has(key)) {
       continue;
     }
-    seen.add(id);
+    seen.add(key);
 
     const context = objectContextById[id];
     if (!context?.candidateLinks.length) {
@@ -714,7 +715,7 @@ function actionHintRowsForDetail(
       commandTypes: candidateSummary.commandTypes,
       disabledCount: context.promptDisabledCount,
       enabledCount: context.promptEnabledCount,
-      key: `${ref.role || "对象"}:${id}`,
+      key,
       label: projectionLabel(ref, objectIndex),
       objectId: id,
       reasonLabels: candidateSummary.reasonLabels,
