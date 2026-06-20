@@ -675,6 +675,26 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    const expectedSidePanelSlots = [
+      "turnWindow",
+      "serverFlow",
+      "responseCoach",
+      "tableAuthority",
+      "informationBoundary",
+      "promptAuthority",
+      "actionMap",
+      "interaction",
+      "ruleQueue",
+      "timelineDetail",
+      "actionPrompt",
+      "log"
+    ];
+    const sidePanelSlots = Array.from(document.querySelectorAll("[data-wire-side-panel-slot]"))
+      .map((slot) => slot.getAttribute("data-wire-side-panel-slot") ?? "");
+    if (sidePanelSlots.join("|") !== expectedSidePanelSlots.join("|")) {
+      failures.push(\`wire side panel slot order drifted: \${sidePanelSlots.join(" -> ")}\`);
+    }
+
     return {
       failures,
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,

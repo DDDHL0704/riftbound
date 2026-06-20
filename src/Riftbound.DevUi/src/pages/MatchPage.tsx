@@ -352,7 +352,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   }, [controller]);
   const sidePanelSections = {
     turnWindow: (
-      <section aria-label="服务端窗口总览区" className="wire-panel wire-window-plan-panel" key="turnWindow" tabIndex={0}>
+      <section aria-label="服务端窗口总览区" className="wire-panel wire-window-plan-panel" data-wire-side-panel-slot="turnWindow" key="turnWindow" tabIndex={0}>
         <WireTurnWindowPanel
           connectionStatus={tableConnectionStatus}
           playerId={settings.playerId}
@@ -362,7 +362,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     serverFlow: (
-      <section aria-label="服务端结算与行动总览区" className="wire-panel wire-server-flow-panel" key="serverFlow" tabIndex={0}>
+      <section aria-label="服务端结算与行动总览区" className="wire-panel wire-server-flow-panel" data-wire-side-panel-slot="serverFlow" key="serverFlow" tabIndex={0}>
         <WireServerFlowPanel
           connectionStatus={tableConnectionStatus}
           events={tableEvents}
@@ -379,7 +379,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     responseCoach: (
-      <section aria-label="当前响应导航区" className="wire-panel wire-response-coach-panel" key="responseCoach" tabIndex={0}>
+      <section aria-label="当前响应导航区" className="wire-panel wire-response-coach-panel" data-wire-side-panel-slot="responseCoach" key="responseCoach" tabIndex={0}>
         <WireResponseCoachPanel
           connectionStatus={tableConnectionStatus}
           playerId={settings.playerId}
@@ -391,17 +391,17 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     tableAuthority: (
-      <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" key="tableAuthority" tabIndex={0}>
+      <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" data-wire-side-panel-slot="tableAuthority" key="tableAuthority" tabIndex={0}>
         <WireTableAuthorityPanel table={tableView} />
       </section>
     ),
     informationBoundary: (
-      <section aria-label="隐藏信息边界契约区" className="wire-panel wire-information-boundary-panel" key="informationBoundary" tabIndex={0}>
+      <section aria-label="隐藏信息边界契约区" className="wire-panel wire-information-boundary-panel" data-wire-side-panel-slot="informationBoundary" key="informationBoundary" tabIndex={0}>
         <WireInformationBoundaryPanel events={tableEvents} table={tableView} />
       </section>
     ),
     promptAuthority: (
-      <section aria-label="服务端行动窗口契约区" className="wire-panel wire-prompt-authority-panel" key="promptAuthority" tabIndex={0}>
+      <section aria-label="服务端行动窗口契约区" className="wire-panel wire-prompt-authority-panel" data-wire-side-panel-slot="promptAuthority" key="promptAuthority" tabIndex={0}>
         <WirePromptAuthorityPanel
           playerId={settings.playerId}
           prompt={tablePrompt}
@@ -410,7 +410,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     actionMap: (
-      <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" key="actionMap" tabIndex={0}>
+      <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" data-wire-side-panel-slot="actionMap" key="actionMap" tabIndex={0}>
         <WireActionMapPanel
           events={tableEvents}
           onChooseObject={chooseObjectFromActionMap}
@@ -427,7 +427,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     interaction: (
-      <section aria-label="焦点卡牌和候选行动" className="wire-panel" key="interaction" tabIndex={0}>
+      <section aria-label="焦点卡牌和候选行动" className="wire-panel" data-wire-side-panel-slot="interaction" key="interaction" tabIndex={0}>
         <WireInteractionPanel
           disabledByConnection={!tableSubmissionGate.canSubmit}
           focusedPlan={selectedFocusPlan}
@@ -446,7 +446,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     ruleQueue: (
-      <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" key="ruleQueue" tabIndex={0}>
+      <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" data-wire-side-panel-slot="ruleQueue" key="ruleQueue" tabIndex={0}>
         <WireRuleQueuePanel
           events={tableEvents}
           onInspectObject={inspectObjectFromTable}
@@ -460,7 +460,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     timelineDetail: (
-      <section aria-label="规则与事件详情区" className="wire-panel wire-timeline-detail-panel" key="timelineDetail" tabIndex={0}>
+      <section aria-label="规则与事件详情区" className="wire-panel wire-timeline-detail-panel" data-wire-side-panel-slot="timelineDetail" key="timelineDetail" tabIndex={0}>
         <WireTimelineDetailPanel
           detail={timelineDetail}
           disabledByConnection={!tableSubmissionGate.canSubmit}
@@ -478,7 +478,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     actionPrompt: (
-      <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" key="actionPrompt" tabIndex={0}>
+      <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" data-wire-side-panel-slot="actionPrompt" key="actionPrompt" tabIndex={0}>
         <ActionPanel
           connectionStatus={tableConnectionStatus}
           onCommand={(command) => void controller.submitCommand(command)}
@@ -491,7 +491,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </section>
     ),
     log: (
-      <section aria-label="事件日志" className="wire-panel wire-log-panel" key="log" tabIndex={0}>
+      <section aria-label="事件日志" className="wire-panel wire-log-panel" data-wire-side-panel-slot="log" key="log" tabIndex={0}>
         <h2>日志</h2>
         <ScrollArea className="wire-log-scroll">
           <EventLog
