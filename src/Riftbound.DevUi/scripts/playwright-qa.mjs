@@ -82,6 +82,7 @@ try {
     generatedAt: new Date().toISOString(),
     frontendUrl,
     serverUrl,
+    interactions: [],
     updateBaseline,
     shots: []
   };
@@ -106,6 +107,8 @@ try {
       await seeded.close();
     }
   }
+
+  await runCommandReceiptInteraction(report);
 
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`Playwright QA passed. Report: ${reportPath}`);
@@ -304,6 +307,101 @@ async function openSeededMatch(page, seeded, playerId) {
   await page.goto(`${frontendUrl}/matches/${seeded.roomId}`, { waitUntil: "networkidle" });
   await page.getByRole("button", { name: /^(连接|连接\/重连)$/ }).click();
   await page.waitForFunction((expectedPlayerId) => document.body.textContent?.includes(expectedPlayerId), playerId, { timeout: 15_000 });
+}
+
+async function runCommandReceiptInteraction(report) {
+  const seeded = await createSeededRoom("basic-play");
+  try {
+    const page = await newPage();
+    await openSeededMatch(page, seeded, "P1");
+    await assertTexts(page, ["提交反馈", "尚未提交"]);
+    const initialState = await page.locator("[data-command-submission-state]").first().getAttribute("data-command-submission-state");
+    if (initialState !== "empty") {
+      throw new Error(`Command submission feedback should start empty, got ${initialState}`);
+    }
+
+    const route = await submitReceiptProbeCommand(page);
+    await page.waitForFunction(() => {
+      const feedback = document.querySelector("[data-command-submission-state]");
+      const text = feedback?.textContent ?? "";
+      return feedback?.getAttribute("data-command-submission-state") === "sent"
+        && text.includes("服务端已接受")
+        && text.includes("ACCEPTED");
+    }, null, { timeout: 10_000 });
+    const receipt = await page.locator("[data-command-submission-state]").first().evaluate((node) => ({
+      state: node.getAttribute("data-command-submission-state"),
+      text: node.textContent ?? ""
+    }));
+    if (hiddenDebugTexts.some((text) => receipt.text.includes(text))) {
+      throw new Error(`Command receipt feedback leaked hidden debug text: ${receipt.text}`);
+    }
+
+    report.interactions.push({
+      name: "command-receipt-feedback",
+      route,
+      state: receipt.state
+    });
+    console.log(`QA interaction OK: command-receipt-feedback (${route})`);
+    await page.close();
+  } finally {
+    await seeded.close();
+  }
+}
+
+async function submitReceiptProbeCommand(page) {
+  await page.waitForFunction(() => {
+    const directSubmitAction = Array.from(document.querySelectorAll("[data-topbar-quick-action-state='ready']:not([disabled])"))
+      .some((button) => {
+        const candidate = button.getAttribute("data-topbar-quick-action-candidate") ?? "";
+        return candidate !== "READY" && candidate !== "SUBMIT_DECK";
+      });
+    return directSubmitAction || Boolean(document.querySelector("[data-action-object-state='enabled']"));
+  }, null, { timeout: 10_000 });
+
+  const readyQuickActions = page.locator('[data-topbar-quick-action-state="ready"]:not([disabled])');
+  for (let index = 0; index < await readyQuickActions.count(); index += 1) {
+    const quickAction = readyQuickActions.nth(index);
+    const candidate = await quickAction.getAttribute("data-topbar-quick-action-candidate") ?? "";
+    if (candidate === "READY" || candidate === "SUBMIT_DECK") {
+      continue;
+    }
+
+    const route = await quickAction.getAttribute("data-topbar-quick-action") ?? "quick-action";
+    await quickAction.click();
+    return `quick-action:${route}:${candidate}`;
+  }
+
+  const actionObject = page.locator('[data-action-object-state="enabled"]').first();
+  await actionObject.waitFor({ timeout: 10_000 });
+  await actionObject.click();
+  const submit = page.locator('.wire-command-review-submit[data-command-review-submit-state="ready"]:not([disabled])').first();
+  try {
+    await submit.waitFor({ timeout: 10_000 });
+  } catch (error) {
+    throw new Error(`No ready command review submit after selecting enabled action object: ${JSON.stringify(await commandProbeDebug(page))}`, { cause: error });
+  }
+  await submit.click();
+  return "action-map-route";
+}
+
+async function commandProbeDebug(page) {
+  return await page.evaluate(() => ({
+    actionObjects: Array.from(document.querySelectorAll("[data-action-object-id]")).map((node) => ({
+      id: node.getAttribute("data-action-object-id"),
+      selected: node.getAttribute("data-selected"),
+      state: node.getAttribute("data-action-object-state"),
+      text: node.textContent?.trim()
+    })),
+    commandReview: document.querySelector("[data-command-review-state]")?.textContent?.trim() ?? "",
+    commandReviewState: document.querySelector("[data-command-review-state]")?.getAttribute("data-command-review-state") ?? null,
+    quickActions: Array.from(document.querySelectorAll("[data-topbar-quick-action]")).map((node) => ({
+      candidate: node.getAttribute("data-topbar-quick-action-candidate"),
+      disabled: node.hasAttribute("disabled"),
+      id: node.getAttribute("data-topbar-quick-action"),
+      state: node.getAttribute("data-topbar-quick-action-state"),
+      text: node.textContent?.trim()
+    }))
+  }));
 }
 
 async function createSeededRoom(scenario) {
