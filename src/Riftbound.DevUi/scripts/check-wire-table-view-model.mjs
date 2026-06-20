@@ -177,6 +177,42 @@ assert.equal(legacyBattlefield.lanes[0].occupantSplitSource, "controller-fallbac
 assert.deepEqual(legacyBattlefield.lanes[0].ownOccupants, ["p1-left-1", "p1-left-2", "p2-left-1"]);
 assert.deepEqual(legacyBattlefield.lanes[0].opposingOccupants, []);
 
+const locationPartitionSnapshot = {
+  ...legacySnapshot,
+  players: {
+    ...legacySnapshot.players,
+    P1: {
+      ...legacySnapshot.players.P1,
+      objects: {
+        ...legacySnapshot.players.P1.objects,
+        "p1-base-1": {
+          ...legacySnapshot.players.P1.objects["p1-base-1"],
+          location: { playerId: "P1", zone: "BASE" },
+          tags: ["CARD_TYPE:UNIT"]
+        },
+        "p1-rune-1": {
+          ...legacySnapshot.players.P1.objects["p1-rune-1"],
+          location: { playerId: "P1", zone: "BASE" },
+          tags: ["CARD_TYPE:RUNE"]
+        },
+        "p1-rune-tagged": {
+          ...legacySnapshot.players.P1.objects["p1-rune-tagged"],
+          location: { playerId: "P1", zone: "BASE" },
+          tags: ["CARD_TYPE:RUNE"]
+        }
+      }
+    }
+  }
+};
+const locationEntries = buildWirePlayerEntries(locationPartitionSnapshot, "P1", specs);
+assert.equal(locationEntries[1].basePartitionSource, "server-location");
+assert.deepEqual(locationEntries[1].baseObjectIds, ["p1-base-1"]);
+assert.deepEqual(
+  locationEntries[1].runeIds,
+  ["p1-rune-1", "p1-rune-tagged"],
+  "server object location and tags must beat catalog category fallback"
+);
+
 assert.equal(isRuneCard(snapshot.players.P1.objects["p1-rune-1"], specs["RUNE-001"]), true);
 assert.equal(isRuneCard(snapshot.players.P1.objects["p1-rune-tagged"], specs["RUNE-002"]), false);
 assert.equal(isRuneCard(snapshot.players.P1.objects["p1-base-1"], specs["BASE-001"]), false);

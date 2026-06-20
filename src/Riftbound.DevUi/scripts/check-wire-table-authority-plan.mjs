@@ -16,6 +16,14 @@ assert.equal(serverPlan.state, "server");
 assert.equal(serverPlan.issueCount, 0);
 assert.deepEqual(serverPlan.metrics.map((metric) => metric.value), ["2/2", "2/2", "0"]);
 
+const serverLocationPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  playerSources: ["server-location", "server-location"]
+}));
+assert.equal(serverLocationPlan.state, "server");
+assert.equal(serverLocationPlan.issueCount, 0);
+assert.equal(serverLocationPlan.players[0].sourceLabel, "服务端 location/tags");
+
 const mixedPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "controller-fallback"],
   playerSources: ["server", "catalog-fallback"]

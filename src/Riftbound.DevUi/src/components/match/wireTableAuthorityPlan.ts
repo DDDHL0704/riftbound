@@ -129,7 +129,7 @@ function aggregateRows(states: WireTableAuthorityState[]): WireTableAuthoritySta
 }
 
 function basePartitionState(source: WireBasePartitionSource): WireTableAuthorityState {
-  if (source === "server") {
+  if (source === "server" || source === "server-location") {
     return "server";
   }
 
@@ -148,6 +148,8 @@ function basePartitionSourceLabel(source: WireBasePartitionSource | "missing"): 
   switch (source) {
     case "server":
       return "服务端 baseCards/baseRunes";
+    case "server-location":
+      return "服务端 location/tags";
     case "mixed":
       return "部分服务端分区";
     case "catalog-fallback":

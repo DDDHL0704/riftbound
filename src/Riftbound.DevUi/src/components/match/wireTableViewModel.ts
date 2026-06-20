@@ -4,7 +4,7 @@ import { buildWireCardFlowPlan, type WireCardFlowPlan } from "./wireCardFlowPlan
 
 export type WirePlayerSide = "self" | "opponent";
 export type WireZoneObjects = Record<string, CardObjectView | undefined>;
-export type WireBasePartitionSource = "catalog-fallback" | "mixed" | "server";
+export type WireBasePartitionSource = "catalog-fallback" | "mixed" | "server" | "server-location";
 export type WireBattlefieldOccupantSplitSource = "controller-fallback" | "server-unitsBySide";
 
 export type WirePlayerEntry = {
@@ -117,14 +117,19 @@ function buildWirePlayerEntry(
   const objects = player.objects ?? {};
   const baseIds = zones.base ?? [];
   const serverRuneIds = zonePartitionIds(zones.baseRunes, baseIds);
-  const runeIds = serverRuneIds ?? baseIds.filter((objectId) => isRuneCard(objects[objectId], specs[objects[objectId]?.cardNo ?? ""]));
-  const runeSet = new Set(runeIds);
   const serverBaseCardIds = zonePartitionIds(zones.baseCards, baseIds);
-  const baseObjectIds = serverBaseCardIds ?? baseIds.filter((objectId) => !runeSet.has(objectId));
+  const locationPartition = basePartitionFromObjectLocations(baseIds, objects);
+  const runeIds = serverRuneIds
+    ?? locationPartition?.runeIds
+    ?? baseIds.filter((objectId) => isRuneCard(objects[objectId], specs[objects[objectId]?.cardNo ?? ""]));
+  const runeSet = new Set(runeIds);
+  const baseObjectIds = serverBaseCardIds
+    ?? locationPartition?.baseObjectIds
+    ?? baseIds.filter((objectId) => !runeSet.has(objectId));
 
   const entry: WirePlayerEntry = {
     baseObjectIds,
-    basePartitionSource: basePartitionSource(serverBaseCardIds, serverRuneIds),
+    basePartitionSource: basePartitionSource(serverBaseCardIds, serverRuneIds, locationPartition),
     handIds: zones.hand ?? [],
     hiddenHandIds: hiddenCards(player.handSize ?? zones.handHidden ?? 0, id),
     id,
@@ -187,16 +192,55 @@ function splitBattlefieldOccupants(
   };
 }
 
-function basePartitionSource(baseCardIds: string[] | undefined, runeIds: string[] | undefined): WireBasePartitionSource {
+function basePartitionFromObjectLocations(
+  baseIds: string[],
+  objects: WireZoneObjects
+): { baseObjectIds: string[]; runeIds: string[] } | undefined {
+  if (baseIds.length === 0) {
+    return { baseObjectIds: [], runeIds: [] };
+  }
+
+  const baseObjectIds: string[] = [];
+  const runeIds: string[] = [];
+  for (const objectId of baseIds) {
+    const object = objects[objectId];
+    if (!objectLocationZoneIs(object, "BASE") || !Array.isArray(object?.tags)) {
+      return undefined;
+    }
+
+    if (object.tags.includes("CARD_TYPE:RUNE")) {
+      runeIds.push(objectId);
+    } else {
+      baseObjectIds.push(objectId);
+    }
+  }
+
+  return { baseObjectIds, runeIds };
+}
+
+function basePartitionSource(
+  baseCardIds: string[] | undefined,
+  runeIds: string[] | undefined,
+  locationPartition: { baseObjectIds: string[]; runeIds: string[] } | undefined
+): WireBasePartitionSource {
   if (baseCardIds && runeIds) {
     return "server";
   }
 
-  if (baseCardIds || runeIds) {
+  if (!baseCardIds && !runeIds && locationPartition) {
+    return "server-location";
+  }
+
+  if (baseCardIds || runeIds || locationPartition) {
     return "mixed";
   }
 
   return "catalog-fallback";
+}
+
+function objectLocationZoneIs(object: CardObjectView | undefined, zone: string): boolean {
+  const location = asRecord(object?.location);
+  return asString(location.zone, "").toUpperCase() === zone;
 }
 
 function buildWireObjectIndex(snapshot?: SnapshotDto): WireZoneObjects {
