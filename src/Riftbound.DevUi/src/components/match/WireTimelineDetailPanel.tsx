@@ -28,6 +28,7 @@ export type WireTimelineDetail = {
 
 export function WireTimelineDetailPanel({
   detail,
+  disabledByConnection = false,
   objectContextById,
   objectIndex,
   onChooseObject,
@@ -40,6 +41,7 @@ export function WireTimelineDetailPanel({
   selectedObjectId
 }: {
   detail?: WireTimelineDetail;
+  disabledByConnection?: boolean;
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
   onChooseObject?: (objectId: string) => void;
@@ -54,6 +56,7 @@ export function WireTimelineDetailPanel({
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const plan = buildWireTimelineDetailPlan({
     detail,
+    disabledByConnection,
     objectContextById,
     objectIndex,
     prompt,

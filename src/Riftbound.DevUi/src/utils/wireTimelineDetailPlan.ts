@@ -205,6 +205,7 @@ export type WireTimelineDetailPlan = {
 
 export function buildWireTimelineDetailPlan({
   detail,
+  disabledByConnection = false,
   objectContextById = {},
   objectIndex,
   prompt,
@@ -213,6 +214,7 @@ export function buildWireTimelineDetailPlan({
   selectedObjectId
 }: {
   detail?: WireTimelineDetailLike;
+  disabledByConnection?: boolean;
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: Record<string, CardObjectView>;
   prompt?: ActionPromptDto;
@@ -222,7 +224,7 @@ export function buildWireTimelineDetailPlan({
 }): WireTimelineDetailPlan {
   const projectionRows = detail ? projectionRowsForDetail(detail, objectIndex, selectedObjectId) : [];
   const actionHintRows = detail ? actionHintRowsForDetail(detail, objectIndex, objectContextById) : [];
-  const commandBridgeRows = detail ? commandBridgeRowsForDetail(detail, objectIndex, prompt, selectionDraft) : [];
+  const commandBridgeRows = detail ? commandBridgeRowsForDetail(detail, objectIndex, prompt, selectionDraft, disabledByConnection) : [];
   const navigationRows = navigationRowsForDetail(projectionRows, objectContextById);
   const selectedProjection = projectionRows.some((row) => row.state === "selected");
   const visibleProjectionCount = projectionRows.filter((row) => row.state === "selected" || row.state === "visible").length;
@@ -266,7 +268,8 @@ function commandBridgeRowsForDetail(
   detail: WireTimelineDetailLike,
   objectIndex: Record<string, CardObjectView>,
   prompt?: ActionPromptDto,
-  selectionDraft?: CandidateSelectionDraft
+  selectionDraft?: CandidateSelectionDraft,
+  disabledByConnection = false
 ): WireTimelineCommandBridgeRow[] {
   const promptModel = buildPromptInteractionModel(prompt);
   const rows: WireTimelineCommandBridgeRow[] = [];
@@ -294,17 +297,21 @@ function commandBridgeRowsForDetail(
       const commandFields = commandBridgeFieldRows(candidate, draftState);
       const grammar = buildFocusedInteractionGrammarPlan({
         candidates: [candidate],
-        disabledByConnection: false,
+        disabledByConnection,
         selectionDraft,
         sourceObjectId: draftState.draftActive ? selectionDraft?.sourceObjectId : undefined
       });
       const gateRows = commandBridgeGateRows({
         candidate,
         commandFields,
+        disabledByConnection,
         draftState,
         grammarState: grammar.state,
         grammarSteps: grammar.steps
       });
+      const routeState: WireTimelineCommandBridgeRouteState = disabledByConnection && draftState.draftActive
+        ? "blocked"
+        : draftState.routeState;
       rows.push({
         commandFieldSummary: commandFieldSummary(commandFields),
         commandFields,
@@ -334,8 +341,8 @@ function commandBridgeRowsForDetail(
         nextStepLabel: nextStepLabelForCommandBridge(candidate, nextStep, draftState.draftActive),
         reasonLabel: candidate.reason,
         roleLabels,
-        routeState: draftState.routeState,
-        routeStateLabel: routeStateLabel(draftState.routeState),
+        routeState,
+        routeStateLabel: routeStateLabel(routeState),
         selectedRoleLabels: draftState.selectedRoleLabels,
         selectedStepCount: draftState.selectedStepCount,
         selectionLabel: selectionLabel(draftState.draftActive, draftState.selectedRoleLabels),
@@ -356,12 +363,14 @@ function commandBridgeRowsForDetail(
 function commandBridgeGateRows({
   candidate,
   commandFields,
+  disabledByConnection,
   draftState,
   grammarState,
   grammarSteps
 }: {
   candidate: PromptCandidateSummary;
   commandFields: WireTimelineCommandBridgeFieldRow[];
+  disabledByConnection: boolean;
   draftState: CommandBridgeDraftState;
   grammarState: FocusedInteractionGrammarState;
   grammarSteps: Array<{ role: string; state: FocusedInteractionGrammarStepState; stateLabel: string }>;
@@ -375,6 +384,13 @@ function commandBridgeGateRows({
       reason: candidate.reason,
       state: candidate.enabled ? "ready" : "blocked",
       stateLabel: candidate.enabled ? "开放" : "阻断"
+    },
+    {
+      key: "connection",
+      label: "连接状态",
+      reason: disabledByConnection ? "连接恢复前不能提交命令" : "提交通道可用",
+      state: disabledByConnection ? "blocked" : "ready",
+      stateLabel: disabledByConnection ? "断开" : "可用"
     },
     {
       key: "player-draft",

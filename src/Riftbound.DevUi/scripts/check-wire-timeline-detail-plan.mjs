@@ -211,9 +211,9 @@ assert.equal(plan.commandBridgeRows[0].grammarStateLabel, "待选择");
 assert.equal(plan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 待选择 / 选择来源");
 assert.deepEqual(plan.commandBridgeRows[0].grammarSteps.map((step) => step.role), ["source", "target", "submit"]);
 assert.deepEqual(plan.commandBridgeRows[0].grammarSteps.map((step) => step.state), ["available", "optional", "blocked"]);
-assert.equal(plan.commandBridgeRows[0].gateSummary, "1 通过 / 2 阻断 / 1 等待");
-assert.deepEqual(plan.commandBridgeRows[0].gateRows.map((gate) => gate.key), ["server-candidate", "player-draft", "required-fields", "submit-step"]);
-assert.deepEqual(plan.commandBridgeRows[0].gateRows.map((gate) => gate.state), ["ready", "waiting", "blocked", "blocked"]);
+assert.equal(plan.commandBridgeRows[0].gateSummary, "2 通过 / 2 阻断 / 1 等待");
+assert.deepEqual(plan.commandBridgeRows[0].gateRows.map((gate) => gate.key), ["server-candidate", "connection", "player-draft", "required-fields", "submit-step"]);
+assert.deepEqual(plan.commandBridgeRows[0].gateRows.map((gate) => gate.state), ["ready", "ready", "waiting", "blocked", "blocked"]);
 assert.deepEqual(plan.commandBridgeRows[0].roleLabels, ["来源"]);
 assert.deepEqual(plan.commandBridgeRows[0].selectedRoleLabels, []);
 assert.equal(plan.commandBridgeRows[0].selectionLabel, "未进入草稿");
@@ -291,8 +291,8 @@ assert.equal(draftPlan.commandBridgeRows[0].grammarStateLabel, "可提交");
 assert.equal(draftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 可提交 / 提交服务端候选");
 assert.deepEqual(draftPlan.commandBridgeRows[0].grammarSteps.map((step) => step.role), ["source", "target", "submit"]);
 assert.deepEqual(draftPlan.commandBridgeRows[0].grammarSteps.map((step) => step.state), ["locked", "selected", "ready"]);
-assert.equal(draftPlan.commandBridgeRows[0].gateSummary, "4 通过 / 0 阻断 / 0 等待");
-assert.deepEqual(draftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.state), ["ready", "ready", "ready", "ready"]);
+assert.equal(draftPlan.commandBridgeRows[0].gateSummary, "5 通过 / 0 阻断 / 0 等待");
+assert.deepEqual(draftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.state), ["ready", "ready", "ready", "ready", "ready"]);
 assert.deepEqual(draftPlan.commandBridgeRows[0].selectedRoleLabels, ["来源", "目标"]);
 assert.equal(draftPlan.commandBridgeRows[0].selectionLabel, "已选 来源 / 目标");
 assert.equal(draftPlan.commandBridgeRows[0].selectedStepCount, 2);
@@ -300,6 +300,67 @@ assert.equal(draftPlan.commandBridgeRows[0].totalStepCount, 2);
 assert.equal(draftPlan.commandBridgeRows[0].missingRequiredCount, 0);
 assert.equal(draftPlan.commandBridgeRows[0].nextStepLabel, "草稿可送服务端校验");
 assert.deepEqual(draftPlan.commandBridgeRows[0].nextObjectRefs, []);
+
+const disconnectedDraftPlan = buildWireTimelineDetailPlan({
+  detail: {
+    id: "rule:stack:fixture-stack-1",
+    lines: [{ label: "来源", value: "闪电" }],
+    refs: [
+      { id: "source-1", role: "来源" },
+      { id: "target-1", label: "目标牌", role: "目标" }
+    ],
+    source: "rule",
+    subtitle: "法术",
+    title: "结算链项目"
+  },
+  disabledByConnection: true,
+  objectIndex: {
+    "source-1": { objectId: "source-1", cardNo: "OGN-001/298" },
+    "target-1": { objectId: "target-1", cardNo: "SFD-001/221" }
+  },
+  prompt: {
+    __model: {
+      candidates: [
+        {
+          action: "PLAY_CARD",
+          choices: [
+            { id: "source-1", label: "手牌闪电", objectIds: ["source-1"], role: "source" },
+            { id: "target-1", label: "目标牌", objectIds: ["target-1"], role: "target" }
+          ],
+          command: {
+            bindings: [
+              { field: "sourceObjectId", required: true, role: "source", roleLabel: "来源", source: "selectedSource" },
+              { field: "targetObjectIds", required: false, role: "target", roleLabel: "目标", source: "selectedTargets" },
+              { field: "cardNo", required: true, source: "requirementMetadata" }
+            ],
+            cmdType: "PLAY_CARD"
+          },
+          enabled: true,
+          label: "打出卡牌",
+          reason: "可提交",
+          steps: [
+            { count: 1, label: "来源", required: true, role: "source", sampleLabels: ["手牌闪电"] },
+            { count: 1, label: "目标", required: false, role: "target", sampleLabels: ["目标牌"] }
+          ]
+        }
+      ]
+    }
+  },
+  selectionDraft: {
+    candidateKey: "PLAY_CARD::打出卡牌",
+    optionalCostIds: [],
+    sourceObjectId: "source-1",
+    targetChoiceIds: ["target-1"]
+  }
+});
+
+assert.equal(disconnectedDraftPlan.commandBridgeRows[0].routeState, "blocked");
+assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarState, "blocked");
+assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 阻断 / 等待连接恢复");
+assert.equal(disconnectedDraftPlan.commandBridgeRows[0].gateSummary, "3 通过 / 2 阻断 / 0 等待");
+assert.deepEqual(disconnectedDraftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.key), ["server-candidate", "connection", "player-draft", "required-fields", "submit-step"]);
+assert.deepEqual(disconnectedDraftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.state), ["ready", "blocked", "ready", "ready", "blocked"]);
+assert.deepEqual(disconnectedDraftPlan.commandBridgeRows[0].grammarSteps.map((step) => step.state), ["locked", "selected", "blocked"]);
 assert.equal(plan.navigationRows.length, 4);
 assert.deepEqual(plan.navigationRows.map((row) => row.focusState), ["selected", "focusable", "missing", "hidden"]);
 assert.deepEqual(plan.navigationRows.map((row) => row.projectionState), ["selected", "visible", "missing", "hidden"]);
