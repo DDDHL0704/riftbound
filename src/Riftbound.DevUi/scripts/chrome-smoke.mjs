@@ -882,6 +882,7 @@ async function runWireClickSelectionSmoke(cdp) {
       ruleLaneCount: document.querySelectorAll("[data-rule-lane]").length,
       ruleSectionKeys: Array.from(document.querySelectorAll("[data-rule-section-key]")).map((node) => node.getAttribute("data-rule-section-key")),
       ruleItemKeys: Array.from(document.querySelectorAll("[data-rule-item-key]")).map((node) => node.getAttribute("data-rule-item-key")),
+      ruleStackItemText: document.querySelector('[data-rule-item-key^="stack:"]')?.textContent ?? "",
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
       ruleQueueState: ruleQueue?.getAttribute("data-wire-rule-queue-state") ?? null,
@@ -1169,6 +1170,9 @@ async function runWireClickSelectionSmoke(cdp) {
     if (!actionMapResult.ruleSectionKeys.includes(sectionKey)) failures.push(`wire rule queue section missing: ${sectionKey}`);
   }
   if (!actionMapResult.ruleItemKeys.some((key) => key?.startsWith("stack:"))) failures.push("wire rule queue stack items missing");
+  if (!actionMapResult.ruleStackItemText.includes("顺序")) failures.push("wire rule queue stack order line missing");
+  if (!actionMapResult.ruleStackItemText.includes("响应")) failures.push("wire rule queue stack response line missing");
+  if (!actionMapResult.ruleStackItemText.includes("响应窗口由服务端 prompt 裁定")) failures.push("wire rule queue stack response authority copy missing");
   if (!actionMapResult.ruleItemKeys.some((key) => key?.startsWith("task:"))) failures.push("wire rule queue task items missing");
   if (!actionMapResult.ruleItemKeys.some((key) => key?.startsWith("trigger:"))) failures.push("wire rule queue trigger items missing");
   if (!actionMapResult.ruleItemKeys.some((key) => key?.startsWith("battlefield-resolution:"))) failures.push("wire rule queue battlefield resolution items missing");

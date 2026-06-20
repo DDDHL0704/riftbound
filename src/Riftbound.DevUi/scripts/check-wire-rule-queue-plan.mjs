@@ -174,6 +174,50 @@ assert.equal(stackResponse.sequence[0].lane, "stack");
 assert.equal(stackResponse.sequence[0].objectCount, 2);
 assert.equal(stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.title, "项目 1");
 assert.ok(stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.refs.some((ref) => ref.role === "目标" && ref.id === "unit-1"));
+assert.equal(
+  stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.lines.find((line) => line.label === "顺序")?.value,
+  "顶部；下一个结算"
+);
+assert.equal(
+  stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.lines.find((line) => line.label === "响应")?.value,
+  "响应窗口由服务端 prompt 裁定"
+);
+assert.ok(
+  stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.detail.lines.some((line) =>
+    line.label === "权威" && line.value.includes("前端不重算优先权"))
+);
+assert.ok(
+  stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.detail.lines.some((line) =>
+    line.label === "边界" && line.value.includes("公开结算链项"))
+);
+
+const multiStackResponse = buildWireRuleQueuePlan({
+  playerId: "P1",
+  snapshot: {
+    ...baseSnapshot,
+    stack: [
+      {
+        controllerId: "P2",
+        effectKind: "SPELL",
+        sourceObjectId: "spell-top",
+        stackItemId: "stack-top",
+        targetObjectIds: []
+      },
+      {
+        controllerId: "P1",
+        effectKind: "ABILITY",
+        sourceObjectId: "ability-bottom",
+        stackItemId: "stack-bottom",
+        targetObjectIds: ["unit-2"]
+      }
+    ]
+  }
+});
+
+const bottomStackItem = multiStackResponse.sections.find((section) => section.key === "stack")?.items[1];
+assert.equal(bottomStackItem?.title, "项目 1");
+assert.equal(bottomStackItem?.lines.find((line) => line.label === "顺序")?.value, "等待上方 1 项");
+assert.equal(bottomStackItem?.lines.find((line) => line.label === "响应")?.value, "先等待上方结算链项目");
 
 const triggerPending = buildWireRuleQueuePlan({
   playerId: "P1",

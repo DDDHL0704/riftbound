@@ -634,12 +634,16 @@ function stackItemPlan(
   const effectKind = asString(item.effectKind, "");
   const damageAmount = numberValue(item.damageAmount);
   const destination = optionalString(item.destination);
+  const orderLine = detailLine("顺序", stackOrderLabel(index));
+  const responseLine = detailLine("响应", stackResponseLabel(index));
   const lines = compactLines([
     detailLine("控制者", controllerId ?? "未知", controllerId === playerId),
     detailLine("来源", sourceLabel(sourceObjectId, cardNo, objects)),
     detailLine("目标", objectListLabel(targetObjectIds, objects)),
     damageAmount != null && damageAmount > 0 ? detailLine("伤害", String(damageAmount)) : undefined,
-    destination ? detailLine("去向", zoneLabel(destination)) : undefined
+    destination ? detailLine("去向", zoneLabel(destination)) : undefined,
+    orderLine,
+    responseLine
   ]);
   const refs = [
     objectRef("来源", sourceObjectId),
@@ -647,7 +651,12 @@ function stackItemPlan(
   ];
   const detail = detailPlan({
     id: ruleDetailId("stack", stackItemId),
-    lines: compactLines([...lines, detailLine("服务端编号", idLabel(stackItemId))]),
+    lines: compactLines([
+      ...lines,
+      detailLine("权威", "服务端结算链快照；前端不重算优先权"),
+      detailLine("边界", "公开结算链项；对象身份以服务端快照和公开引用为准"),
+      detailLine("服务端编号", idLabel(stackItemId))
+    ]),
     refs,
     subtitle: `${stackEffectLabel(effectKind)} / 项目 ${stackLength - index}`,
     title: "结算链项目"
@@ -980,6 +989,22 @@ function numberValue(value: unknown): number | null {
 
 function topStackHeadline(item: Record<string, unknown>, stackLength: number): string {
   return `${stackEffectLabel(asString(item.effectKind, ""))} / 顶部 ${stackLength}`;
+}
+
+function stackOrderLabel(index: number): string {
+  if (index === 0) {
+    return "顶部；下一个结算";
+  }
+
+  return `等待上方 ${index} 项`;
+}
+
+function stackResponseLabel(index: number): string {
+  if (index === 0) {
+    return "响应窗口由服务端 prompt 裁定";
+  }
+
+  return "先等待上方结算链项目";
 }
 
 function topTaskHeadline(task: Record<string, unknown>, isBlocking: boolean): string {
