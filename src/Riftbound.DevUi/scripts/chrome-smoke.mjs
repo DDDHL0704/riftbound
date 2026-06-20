@@ -1210,6 +1210,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
       actionText: actions?.textContent ?? "",
       activeText: document.activeElement?.textContent ?? "",
       composerCount: detail?.querySelectorAll(".candidate-composer").length ?? 0,
+      connectionState: detail?.getAttribute("data-card-detail-connection-state") ?? null,
       detailTitle: detail?.querySelector("#card-detail-title")?.textContent ?? "",
       objectId: ${JSON.stringify(commandBridgeDetailObjectId)},
       open: Boolean(detail)
@@ -1465,6 +1466,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeDetailResult.open) failures.push("command bridge detail button did not open card detail layer");
   if (!commandBridgeDetailResult.activeText.includes("关闭")) failures.push("command bridge detail drawer did not focus close button");
   if (!commandBridgeDetailResult.actionText.includes("服务端可提交操作")) failures.push("command bridge detail drawer action section missing");
+  if (commandBridgeDetailResult.connectionState !== "ready") failures.push(`command bridge detail drawer unexpected connection state: ${commandBridgeDetailResult.connectionState}`);
   if (commandBridgeDetailResult.actionCount < 1) failures.push("command bridge detail drawer action entries missing");
   if (commandBridgeDetailResult.composerCount < 1) failures.push("command bridge detail drawer composer missing");
   if (!commandBridgeDetailClosed) failures.push("command bridge detail drawer did not close before continuing");

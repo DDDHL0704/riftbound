@@ -16,6 +16,7 @@ import { InspectedCard } from "./CardFace";
 
 type CardDetailDrawerProps = {
   card?: InspectedCard;
+  disabledByConnection?: boolean;
   onClose: () => void;
   onCommand?: (command: GameCommand) => void;
   objectContext?: TableObjectContext;
@@ -24,7 +25,16 @@ type CardDetailDrawerProps = {
   snapshot?: SnapshotDto;
 };
 
-export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prompt, selectionDraft, snapshot }: CardDetailDrawerProps) {
+export function CardDetailDrawer({
+  card,
+  disabledByConnection = false,
+  onClose,
+  onCommand,
+  objectContext,
+  prompt,
+  selectionDraft,
+  snapshot
+}: CardDetailDrawerProps) {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
@@ -85,11 +95,18 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
   const detailActionPlan = buildWireCardDetailActionPlan({
     canSubmitCommands: Boolean(stampedOnCommand),
     detailPlan,
-    disabledByConnection: false
+    disabledByConnection
   });
 
   return (
-    <div className="detail-layer" role="dialog" aria-modal="true" aria-labelledby="card-detail-title" data-detail-dialog-state="open">
+    <div
+      className="detail-layer"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="card-detail-title"
+      data-card-detail-connection-state={disabledByConnection ? "blocked" : "ready"}
+      data-detail-dialog-state="open"
+    >
       <button className="detail-scrim" onClick={onClose} type="button" aria-label="关闭卡牌详情" />
       <aside className="detail-drawer" ref={drawerRef} tabIndex={-1}>
         <header>
@@ -133,6 +150,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
               data-card-detail-actions-source={detailActionPlan.sourceObjectId ?? ""}
             >
               <strong>服务端可提交操作</strong>
+              <span className="detail-muted" data-card-detail-actions-label>{detailActionPlan.stateLabel}</span>
               {detailActionPlan.entries.length === 0 ? (
                 <p className="detail-muted">{detailActionPlan.emptyLabel}</p>
               ) : (
@@ -148,7 +166,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
                         >
                           <CandidateComposer
                             candidate={entry.candidate}
-                            disabledByConnection={false}
+                            disabledByConnection={disabledByConnection}
                             forcedSourceObjectId={sourceObjectId}
                             onCommand={stampedOnCommand}
                             onSubmitted={onClose}

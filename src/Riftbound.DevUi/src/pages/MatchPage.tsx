@@ -394,6 +394,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </div>
       <CardDetailDrawer
         card={detailCard}
+        disabledByConnection={tableConnectionStatus !== "connected"}
         objectContext={detailObjectContext}
         onClose={() => setDetailCard(undefined)}
         onCommand={(command) => void controller.submitCommand(command)}
