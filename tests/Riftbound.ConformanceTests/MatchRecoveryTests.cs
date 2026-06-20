@@ -59819,6 +59819,59 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorAcceptsSpectatorReplayTimingRuleQueueCoveragePayload()
+    {
+        var errors = ValidateSpectatorReplayTimingRuleQueueCoveragePayload(EmptyPendingPaymentState());
+
+        Assert.DoesNotContain(
+            errors,
+            error => error.Contains("rule queue coverage", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingRuleQueueCoverageMissingPayload()
+    {
+        var errors = ValidateSpectatorReplayTimingRuleQueueCoveragePayload(
+            EmptyPendingPaymentState(),
+            removePayload: true);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("spectator replay frame timing rule queue coverage is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsSpectatorReplayTimingRuleQueueCoverageValueDrift()
+    {
+        var errors = ValidateSpectatorReplayTimingRuleQueueCoveragePayload(
+            EmptyPendingPaymentState(),
+            transformPayload: payload =>
+            {
+                var rows = Assert.IsAssignableFrom<IReadOnlyList<object?>>(payload)
+                    .Select(item => Assert.IsType<Dictionary<string, object?>>(item).ToDictionary(
+                        entry => entry.Key,
+                        entry => entry.Value,
+                        StringComparer.Ordinal))
+                    .ToArray();
+                var stackRow = Assert.Single(rows, row => string.Equals(row["key"] as string, "stack", StringComparison.Ordinal));
+                stackRow["liveCount"] = 1;
+                stackRow["evidenceKeys"] = new[] { "stack" };
+                return rows;
+            });
+
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing rule queue coverage live counts disagree with authoritative state rule queue coverage live counts",
+                StringComparison.Ordinal));
+        Assert.Contains(
+            errors,
+            error => error.Contains(
+                "spectator replay frame timing rule queue coverage evidence keys disagree with authoritative state rule queue coverage evidence keys",
+                StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RecoveryValidatorRejectsSpectatorReplayTimingPendingPaymentMissingPayloadWithoutCountMismatch()
     {
         var errors = ValidateSpectatorReplayTimingPendingPaymentPayload(
@@ -199541,6 +199594,54 @@ public sealed class MatchRecoveryTests
                 legalPaymentChoiceIds: ["SPEND_MANA:2", "SPEND_POWER:1"],
                 reason: "test-payment",
                 paymentResourceActionIds: ["MANUAL_RESOURCE_ACTION"]));
+    }
+
+    private static IReadOnlyList<string> ValidateSpectatorReplayTimingRuleQueueCoveragePayload(
+        MatchState authoritativeState,
+        bool removePayload = false,
+        Func<object?, object?>? transformPayload = null)
+    {
+        var events = new[]
+        {
+            RecoveredEvent(1, "TURN_ENDED"),
+            RecoveredEvent(2, "TURN_BEGAN")
+        };
+        var spectatorReplayFrame = MatchReplayRedactor.BuildSpectatorFrame(
+            "room-a",
+            3,
+            2,
+            events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+            authoritativeState);
+        var timing = spectatorReplayFrame.SpectatorSnapshot.Timing.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        if (removePayload)
+        {
+            Assert.True(timing.Remove("ruleQueueCoverage"));
+        }
+        else if (transformPayload is not null)
+        {
+            timing["ruleQueueCoverage"] = transformPayload(timing["ruleQueueCoverage"]);
+        }
+
+        spectatorReplayFrame = spectatorReplayFrame with
+        {
+            SpectatorSnapshot = spectatorReplayFrame.SpectatorSnapshot with
+            {
+                Timing = timing
+            }
+        };
+
+        return MatchRecoveryValidator.Validate(
+            "room-a",
+            2,
+            [],
+            events,
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 3,
+            spectatorReplayFrame: spectatorReplayFrame);
     }
 
     private static IReadOnlyList<string> ValidateSpectatorReplayTimingPendingPaymentPayload(

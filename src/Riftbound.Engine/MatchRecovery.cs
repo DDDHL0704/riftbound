@@ -32,6 +32,11 @@ public sealed record RecoveredPlayerView(
     long? PromptEventSequence,
     ActionPromptDto? Prompt);
 
+internal sealed record RuleQueueCoverageRecoveryRow(
+    string Key,
+    int LiveCount,
+    IReadOnlyList<string> EvidenceKeys);
+
 public sealed record MatchRecoveryFrame(
     string RoomId,
     long CurrentTick,
@@ -986,6 +991,15 @@ public static class MatchRecoveryValidator
     [
         "VISIBLE",
         "HIDDEN"
+    ];
+
+    private static readonly string[] KnownRuleQueueCoverageKeys =
+    [
+        "stack",
+        "trigger",
+        "battle",
+        "window",
+        "payment"
     ];
 
     private sealed record BattleRequiredAssignmentView(
@@ -2264,6 +2278,17 @@ public static class MatchRecoveryValidator
             ValidateSnapshotTimingTopLevelObjectListPayloadShapes(view, errors);
             ValidateSnapshotTimingListItemPayloadShapes(
                 view,
+                "ruleQueueCoverage",
+                "rule queue coverage",
+                errors);
+            ValidateSnapshotTimingListItemPayloadPropertyNames(
+                view,
+                "ruleQueueCoverage",
+                "rule queue coverage",
+                errors);
+            ValidateSnapshotTimingRuleQueueCoveragePayloadValues(view, errors);
+            ValidateSnapshotTimingListItemPayloadShapes(
+                view,
                 "temporaryPaymentResources",
                 "temporary payment resource",
                 errors);
@@ -2406,6 +2431,82 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "battle resolution",
             errors);
+        ValidateSnapshotPayloadRequiredObjectListPayloadShape(
+            view.Snapshot.Timing,
+            "ruleQueueCoverage",
+            payloadLabel,
+            "rule queue coverage",
+            errors);
+    }
+
+    private static void ValidateSnapshotTimingRuleQueueCoveragePayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "ruleQueueCoverage", out var coveragePayloads))
+        {
+            return;
+        }
+
+        var seenKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var coveragePayload in coveragePayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(coveragePayload))
+            {
+                continue;
+            }
+
+            var payloadLabel = $"snapshot for {view.PlayerId} timing rule queue coverage item";
+            var key = ValidateSnapshotPayloadRequiredStringValue(
+                coveragePayload,
+                "key",
+                payloadLabel,
+                "key",
+                errors,
+                IsKnownRuleQueueCoverageKey,
+                KnownRuleQueueCoverageKeys);
+            if (key is not null && !seenKeys.Add(key))
+            {
+                errors.Add($"{payloadLabel} key {key} is duplicated");
+            }
+
+            var liveCount = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+                coveragePayload,
+                "liveCount",
+                payloadLabel,
+                "live count",
+                errors);
+            var evidenceKeys = ValidateSnapshotPayloadRequiredStringListValues(
+                coveragePayload,
+                "evidenceKeys",
+                payloadLabel,
+                "evidence key",
+                errors,
+                IsKnownRuleQueueCoverageEvidenceKey);
+            if (evidenceKeys is not null)
+            {
+                var duplicateEvidenceKeys = evidenceKeys
+                    .GroupBy(value => value, StringComparer.Ordinal)
+                    .Where(group => group.Count() > 1)
+                    .Select(group => group.Key)
+                    .ToArray();
+                foreach (var duplicate in duplicateEvidenceKeys)
+                {
+                    errors.Add($"{payloadLabel} evidence key {duplicate} is duplicated");
+                }
+            }
+
+            if (liveCount is > 0 && evidenceKeys is { Count: 0 })
+            {
+                errors.Add($"{payloadLabel} evidence key list must not be empty when live count is positive");
+            }
+
+            if (liveCount == 0 && evidenceKeys is { Count: > 0 })
+            {
+                errors.Add($"{payloadLabel} evidence key list must be empty when live count is zero");
+            }
+        }
     }
 
     private static void ValidateSnapshotLaneListPayloadShapes(
@@ -6785,6 +6886,24 @@ public static class MatchRecoveryValidator
     private static bool IsKnownTriggerQueueTriggeredEventKind(string value)
     {
         return KnownTriggerQueueTriggeredEventKinds.Contains(value, StringComparer.Ordinal);
+    }
+
+    private static bool IsKnownRuleQueueCoverageKey(string value)
+    {
+        return KnownRuleQueueCoverageKeys.Contains(value, StringComparer.Ordinal);
+    }
+
+    private static bool IsKnownRuleQueueCoverageEvidenceKey(string value)
+    {
+        return string.Equals(value, "stack", StringComparison.Ordinal)
+            || string.Equals(value, "triggerQueue", StringComparison.Ordinal)
+            || string.Equals(value, "battle", StringComparison.Ordinal)
+            || string.Equals(value, "battlefieldTasks", StringComparison.Ordinal)
+            || string.Equals(value, "pendingTaskQueue", StringComparison.Ordinal)
+            || string.Equals(value, "battlefieldResolutions", StringComparison.Ordinal)
+            || string.Equals(value, "battleResolutions", StringComparison.Ordinal)
+            || string.Equals(value, "turnWindow", StringComparison.Ordinal)
+            || string.Equals(value, "pendingPayment", StringComparison.Ordinal);
     }
 
     private static bool IsKnownContinuousEffectScope(string value)
@@ -23582,6 +23701,183 @@ public static class MatchRecoveryValidator
             isKnownChoiceState);
     }
 
+    private static void ValidateSpectatorRuleQueueCoveragePayloads(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        var authoritativeCoverage = BuildRuleQueueCoverageRecoveryRows(authoritativeState);
+        if (!timing.TryGetValue("ruleQueueCoverage", out var coveragePayload)
+            || IsNullSnapshotPayloadValue(coveragePayload))
+        {
+            errors.Add("spectator replay frame timing rule queue coverage is required");
+            return;
+        }
+
+        if (!TryReadObjectListValue(coveragePayload, out var spectatorCoverage))
+        {
+            errors.Add("spectator replay frame timing rule queue coverage payload is required");
+            return;
+        }
+
+        if (spectatorCoverage.Count != authoritativeCoverage.Count)
+        {
+            errors.Add(
+                $"spectator replay frame timing rule queue coverage count {spectatorCoverage.Count} does not match authoritative state rule queue coverage count {authoritativeCoverage.Count}");
+        }
+
+        var seenKeys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var spectatorCoverageItem in spectatorCoverage)
+        {
+            if (!IsSnapshotPlayerPayloadObject(spectatorCoverageItem))
+            {
+                errors.Add("spectator replay frame timing rule queue coverage payload is required");
+                continue;
+            }
+
+            const string payloadLabel = "spectator replay frame timing rule queue coverage item";
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorCoverageItem,
+                payloadLabel,
+                errors);
+            var key = ValidateSnapshotPayloadRequiredStringValue(
+                spectatorCoverageItem,
+                "key",
+                payloadLabel,
+                "key",
+                errors,
+                IsKnownRuleQueueCoverageKey,
+                KnownRuleQueueCoverageKeys);
+            if (key is not null && !seenKeys.Add(key))
+            {
+                errors.Add($"{payloadLabel} key {key} is duplicated");
+            }
+
+            var liveCount = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+                spectatorCoverageItem,
+                "liveCount",
+                payloadLabel,
+                "live count",
+                errors);
+            var evidenceKeys = ValidateSnapshotPayloadRequiredStringListValues(
+                spectatorCoverageItem,
+                "evidenceKeys",
+                payloadLabel,
+                "evidence key",
+                errors,
+                IsKnownRuleQueueCoverageEvidenceKey);
+            if (evidenceKeys is not null)
+            {
+                var duplicateEvidenceKeys = evidenceKeys
+                    .GroupBy(value => value, StringComparer.Ordinal)
+                    .Where(group => group.Count() > 1)
+                    .Select(group => group.Key)
+                    .ToArray();
+                foreach (var duplicate in duplicateEvidenceKeys)
+                {
+                    errors.Add($"{payloadLabel} evidence key {duplicate} is duplicated");
+                }
+            }
+
+            if (liveCount is > 0 && evidenceKeys is { Count: 0 })
+            {
+                errors.Add($"{payloadLabel} evidence key list must not be empty when live count is positive");
+            }
+
+            if (liveCount == 0 && evidenceKeys is { Count: > 0 })
+            {
+                errors.Add($"{payloadLabel} evidence key list must be empty when live count is zero");
+            }
+        }
+
+        if (!StringListsEqual(
+                ExtractObjectStringValues(spectatorCoverage, "key"),
+                authoritativeCoverage.Select(item => item.Key).ToArray()))
+        {
+            errors.Add("spectator replay frame timing rule queue coverage keys disagree with authoritative state rule queue coverage keys");
+        }
+
+        if (!IntListsEqual(
+                ExtractObjectIntValues(spectatorCoverage, "liveCount"),
+                authoritativeCoverage.Select(item => item.LiveCount).ToArray()))
+        {
+            errors.Add("spectator replay frame timing rule queue coverage live counts disagree with authoritative state rule queue coverage live counts");
+        }
+
+        if (!StringListCollectionsEqual(
+                ExtractObjectStringListValues(spectatorCoverage, "evidenceKeys"),
+                authoritativeCoverage.Select(item => item.EvidenceKeys).ToArray()))
+        {
+            errors.Add("spectator replay frame timing rule queue coverage evidence keys disagree with authoritative state rule queue coverage evidence keys");
+        }
+    }
+
+    private static IReadOnlyList<RuleQueueCoverageRecoveryRow> BuildRuleQueueCoverageRecoveryRows(MatchState state)
+    {
+        var pendingBattleTaskCount = state.PendingTaskQueue.Tasks.Count(task => IsRuleQueueCoverageBattleTaskKind(task.Kind));
+        var pendingPaymentTaskCount = state.PendingTaskQueue.Tasks.Count(task => IsRuleQueueCoveragePaymentTaskKind(task.Kind));
+        var liveBattleCount =
+            (state.BattleState.IsActive ? 1 : 0)
+            + state.BattlefieldTasks.Count
+            + pendingBattleTaskCount
+            + state.BattlefieldResolutions.Count
+            + state.BattleResolutions.Count;
+        var livePaymentCount = (state.PendingPayment is null ? 0 : 1) + pendingPaymentTaskCount;
+        var liveWindowCount = string.IsNullOrWhiteSpace(state.TurnWindow.State) ? 0 : 1;
+
+        return
+        [
+            new RuleQueueCoverageRecoveryRow(
+                "stack",
+                state.StackItems.Count,
+                RuleQueueCoverageEvidenceKeys(("stack", state.StackItems.Count))),
+            new RuleQueueCoverageRecoveryRow(
+                "trigger",
+                state.TriggerQueue.Count,
+                RuleQueueCoverageEvidenceKeys(("triggerQueue", state.TriggerQueue.Count))),
+            new RuleQueueCoverageRecoveryRow(
+                "battle",
+                liveBattleCount,
+                RuleQueueCoverageEvidenceKeys(
+                    ("battle", state.BattleState.IsActive ? 1 : 0),
+                    ("battlefieldTasks", state.BattlefieldTasks.Count),
+                    ("pendingTaskQueue", pendingBattleTaskCount),
+                    ("battlefieldResolutions", state.BattlefieldResolutions.Count),
+                    ("battleResolutions", state.BattleResolutions.Count))),
+            new RuleQueueCoverageRecoveryRow(
+                "window",
+                liveWindowCount,
+                RuleQueueCoverageEvidenceKeys(("turnWindow", liveWindowCount))),
+            new RuleQueueCoverageRecoveryRow(
+                "payment",
+                livePaymentCount,
+                RuleQueueCoverageEvidenceKeys(
+                    ("pendingPayment", state.PendingPayment is null ? 0 : 1),
+                    ("pendingTaskQueue", pendingPaymentTaskCount)))
+        ];
+    }
+
+    private static IReadOnlyList<string> RuleQueueCoverageEvidenceKeys(params (string Key, int Count)[] evidence)
+    {
+        return evidence
+            .Where(item => item.Count > 0)
+            .Select(item => item.Key)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsRuleQueueCoverageBattleTaskKind(string kind)
+    {
+        return kind.StartsWith("BATTLE", StringComparison.Ordinal)
+            || string.Equals(kind, "START_BATTLE", StringComparison.Ordinal);
+    }
+
+    private static bool IsRuleQueueCoveragePaymentTaskKind(string kind)
+    {
+        return kind.StartsWith("PAYMENT", StringComparison.Ordinal)
+            || string.Equals(kind, "COST_PAID", StringComparison.Ordinal);
+    }
+
     private static void ValidateSpectatorBattlefieldTaskPayloads(
         IReadOnlyDictionary<string, object?> timing,
         MatchState authoritativeState,
@@ -28318,6 +28614,7 @@ public static class MatchRecoveryValidator
             authoritativeState,
             errors);
         ValidateSpectatorBattlefieldTaskPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+        ValidateSpectatorRuleQueueCoveragePayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
 
         if (!spectatorReplayFrame.SpectatorSnapshot.Timing.TryGetValue("turnWindow", out var spectatorTurnWindow)
             || IsNullSnapshotPayloadValue(spectatorTurnWindow))
@@ -32425,6 +32722,22 @@ public static class MatchRecoveryValidator
         foreach (var item in items)
         {
             if (TryReadObjectLong(item, key, out var value))
+            {
+                values.Add(value);
+            }
+        }
+
+        return values;
+    }
+
+    private static IReadOnlyList<int> ExtractObjectIntValues(
+        IReadOnlyList<object?> items,
+        string key)
+    {
+        var values = new List<int>();
+        foreach (var item in items)
+        {
+            if (TryReadObjectInt(item, key, out var value))
             {
                 values.Add(value);
             }
