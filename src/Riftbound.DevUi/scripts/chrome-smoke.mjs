@@ -506,10 +506,28 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    const quickActions = new Map(Array.from(document.querySelectorAll("[data-topbar-quick-action]")).map((button) => [
+      button.getAttribute("data-topbar-quick-action"),
+      {
+        candidate: button.getAttribute("data-topbar-quick-action-candidate") ?? "",
+        disabled: button.hasAttribute("disabled"),
+        state: button.getAttribute("data-topbar-quick-action-state") ?? ""
+      }
+    ]));
+    const passAction = quickActions.get("pass");
+    const endTurnAction = quickActions.get("endTurn");
+    if (!passAction || passAction.state !== "ready" || passAction.disabled || passAction.candidate !== "PASS") {
+      failures.push(\`topbar pass quick action did not bind to server PASS candidate: \${JSON.stringify(passAction)}\`);
+    }
+    if (!endTurnAction || endTurnAction.state !== "missing" || !endTurnAction.disabled) {
+      failures.push(\`topbar end turn quick action should be missing without a server candidate: \${JSON.stringify(endTurnAction)}\`);
+    }
+
     return {
       failures,
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
       flowCount: document.querySelectorAll(".wire-card-flow").length,
+      quickActionCount: quickActions.size,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length
     };
   })()`);
@@ -527,6 +545,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if ((result.siteCount ?? 0) < 2) {
     throw new Error("Wire layout geometry smoke did not find battlefield sites");
+  }
+  if ((result.quickActionCount ?? 0) < 5) {
+    throw new Error("Wire layout geometry smoke did not find topbar quick actions");
   }
 }
 

@@ -56,6 +56,7 @@ import type { CandidateSelectionDraft } from "../utils/candidateSelectionDraft";
 import { buildPromptInteractionModel, type PromptObjectState } from "../utils/promptInteraction";
 import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
+import { buildTopbarQuickActionPlan, type TopbarQuickActionEntry } from "../utils/topbarQuickActionPlan";
 
 type WireTableInteraction = {
   interactionByObjectId: Record<string, PromptObjectState | undefined>;
@@ -131,6 +132,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const roomStatus = asString(timing.roomStatus, "");
   const promptTitle = tablePrompt?.view?.title?.trim() || "无行动窗口";
   const canAct = Boolean(tablePrompt?.actionable && tablePrompt.playerId === settings.playerId);
+  const topbarQuickActionPlan = useMemo(() => buildTopbarQuickActionPlan({
+    canAct,
+    connected: tableConnectionStatus === "connected",
+    prompt: tablePrompt,
+    snapshot: tableSnapshot
+  }), [canAct, tableConnectionStatus, tablePrompt, tableSnapshot]);
   const inspectCard = useCallback((card: InspectedCard) => {
     const clickedObjectId = card.objectId ?? card.object?.objectId;
     if (!clickedObjectId) {
@@ -266,6 +273,25 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       trigger?.focus();
     }, 0);
   }, [timelineDetail?.id]);
+  const runTopbarQuickAction = useCallback((entry: TopbarQuickActionEntry) => {
+    if (entry.disabled) {
+      return;
+    }
+
+    if (entry.command) {
+      void controller.submitCommand(entry.command);
+      return;
+    }
+
+    if (entry.directAction === "ready") {
+      void controller.ready();
+      return;
+    }
+
+    if (entry.directAction === "submitDeck") {
+      void controller.submitStarterDeck();
+    }
+  }, [controller]);
 
   return (
     <div className="wire-match-page" style={wireMatchPageStyle()}>
@@ -287,11 +313,20 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <Button onClick={() => onNavigate({ name: "lobby" })} variant="ghost">大厅</Button>
           <Button onClick={() => void controller.join()} variant="secondary">连接</Button>
           <Button onClick={() => void controller.requestSnapshot()} variant="secondary">同步</Button>
-          <Button onClick={() => void controller.ready()} variant="secondary">准备</Button>
-          <Button onClick={() => void controller.submitStarterDeck()} variant="secondary">导入构筑</Button>
-          <Button onClick={() => void controller.submitCommand({ cmdType: "PASS" })} variant="secondary">跳过</Button>
-          <Button onClick={() => void controller.submitCommand({ cmdType: "END_TURN" })} variant="secondary">结束回合</Button>
-          <Button onClick={() => void controller.submitCommand({ cmdType: "SURRENDER" })} variant="danger">投降</Button>
+          {topbarQuickActionPlan.entries.map((entry) => (
+            <Button
+              data-topbar-quick-action={entry.id}
+              data-topbar-quick-action-candidate={entry.candidateAction ?? ""}
+              data-topbar-quick-action-state={entry.state}
+              disabled={entry.disabled}
+              key={entry.id}
+              onClick={() => runTopbarQuickAction(entry)}
+              title={entry.title}
+              variant={entry.variant}
+            >
+              {entry.label}
+            </Button>
+          ))}
         </div>
       </header>
 
