@@ -39,6 +39,7 @@ export function WireServerFlowPanel({
       aria-label="服务端结算与行动总览"
       className="wire-server-flow"
       data-wire-server-flow-detail-id={plan.detail?.id ?? ""}
+      data-wire-server-flow-related-count={plan.relatedObjectCount}
       data-wire-server-flow-state={plan.state}
     >
       <header className="wire-server-flow-header">

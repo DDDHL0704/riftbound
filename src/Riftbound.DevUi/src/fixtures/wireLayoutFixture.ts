@@ -461,6 +461,51 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
     playerId: selfId,
     promptId: "wire-layout-fixture-prompt",
     reason: "前端线框样例 prompt，不参与规则判断。",
+    serverFlow: {
+      actionableForPromptPlayer: true,
+      isResponsiblePlayer: true,
+      lanes: [
+        { count: 1, headline: "前端样例结算链", key: "stack", label: "结算链", state: "active" },
+        { count: 1, headline: "前端样例规则任务", key: "task", label: "任务", state: "active" },
+        { count: 0, headline: "无触发", key: "trigger", label: "触发", state: "empty" },
+        { count: 1, headline: "最近一次战场结算", key: "resolution", label: "结算", state: "history" }
+      ],
+      nextStep: "根据服务端公开的关联对象选择来源、目标或费用。",
+      primaryLabel: "服务端关联对象",
+      promptPlayerId: selfId,
+      promptType: "MAIN_ACTION",
+      queueCounts: {
+        resolution: 1,
+        stack: 1,
+        task: 1,
+        trigger: 0
+      },
+      reason: "服务端提示流公开了当前可操作对象和规则关联对象。",
+      relatedObjectIds: ["p1-hand-spell", "p2-right-1", "fixture-left-battlefield"],
+      responsiblePlayerId: selfId,
+      state: "ready",
+      stateLabel: "可提交",
+      steps: [
+        {
+          detail: "候选命令仍以服务端返回的 action candidates 为准。",
+          key: "candidate",
+          label: "候选",
+          state: "ready",
+          stateLabel: "可提交",
+          value: "5 项"
+        },
+        {
+          detail: "桌面对象只展示服务端已经公开的关联关系。",
+          key: "related",
+          label: "关联对象",
+          state: "ready",
+          stateLabel: "已公开",
+          value: "3 个"
+        }
+      ],
+      summary: "主行动 / 服务端关联对象 / 可提交",
+      tone: "good"
+    },
     snapshotTick: 9001,
     view: {
       message: "展示点击卡牌、候选行动、目标/费用和规则队列的线框占位。",

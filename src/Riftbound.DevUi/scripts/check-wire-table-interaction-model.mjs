@@ -19,6 +19,7 @@ const {
   candidateChoiceForObject,
   emptySelectionDraft,
   focusedCandidateSummaries,
+  mergeWireTimelineMaps,
   sourceCandidateForObject,
   updateSelectionDraft
 } = interactionExports;
@@ -106,6 +107,11 @@ const timelineMap = buildWireTimelineMap({
   title: "规则详情"
 });
 assert.deepEqual(timelineMap, { "target-1": "rule" }, "timeline map must dedupe visible refs and ignore hidden placeholders");
+assert.deepEqual(
+  mergeWireTimelineMaps({ "target-1": "rule", "event-1": "event" }, { "event-1": "rule" }, { "ignored-1": undefined }),
+  { "target-1": "rule", "event-1": "rule" },
+  "timeline maps should merge in order while ignoring empty states"
+);
 
 console.log("Wire table interaction model check passed.");
 

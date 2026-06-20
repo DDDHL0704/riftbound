@@ -150,6 +150,9 @@ assert.equal(serverBackedPlan.state, "respond");
 assert.equal(serverBackedPlan.primaryLabel, "响应结算链");
 assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "source").value, "服务端");
 assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "prompt").value, "优先行动");
+assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "related").value, "1");
+assert.deepEqual(serverBackedPlan.relatedObjectIds, ["unit-1"]);
+assert.equal(serverBackedPlan.relatedObjectCount, 1);
 assert.equal(serverBackedPlan.lanes.find((lane) => lane.key === "stack").headline, "DAMAGE / OGN-001");
 
 console.log("Wire server flow plan check passed.");

@@ -358,8 +358,16 @@ async function runObjectCommandTrayInteraction(report) {
   try {
     await page.goto(`${frontendUrl}/matches/qa-layout?fixture=layout`, { waitUntil: "networkidle" });
     await assertTexts(page, ["符文战场对战线框", "焦点 / 候选 / 规则队列"]);
-    const sourceCard = page.locator('button.card-face[data-object-id="p1-hand-spell"]').first();
+    const serverFlow = page.locator("[data-wire-server-flow-related-count]").first();
+    await serverFlow.waitFor({ timeout: 10_000 });
+    const relatedCount = await serverFlow.getAttribute("data-wire-server-flow-related-count");
+    if (relatedCount !== "3") {
+      throw new Error(`Expected 3 server-flow related objects in layout fixture, got ${relatedCount}`);
+    }
+
+    const sourceCard = page.locator('button.card-face[data-object-id="p1-hand-spell"][data-timeline-state="rule"]').first();
     await sourceCard.waitFor({ timeout: 10_000 });
+    await page.locator('button.card-face[data-object-id="p2-right-1"][data-timeline-state="rule"]').first().waitFor({ timeout: 10_000 });
     await sourceCard.click();
 
     const tray = page.locator("[data-wire-object-command-tray-state]").first();
@@ -387,6 +395,7 @@ async function runObjectCommandTrayInteraction(report) {
     report.interactions.push({
       name: "object-command-tray",
       objectId,
+      relatedCount,
       state
     });
     console.log(`QA interaction OK: object-command-tray (${objectId}:${state})`);

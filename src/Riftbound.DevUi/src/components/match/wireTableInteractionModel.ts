@@ -158,6 +158,21 @@ export function buildWireTimelineMap(detail?: WireTimelineDetail): Record<string
   return Object.fromEntries(timelineDetailObjectIds(detail).map((objectId) => [objectId, detail.source]));
 }
 
+export function mergeWireTimelineMaps(
+  ...maps: Array<Record<string, WireTimelineObjectState | undefined>>
+): Record<string, WireTimelineObjectState | undefined> {
+  const merged: Record<string, WireTimelineObjectState | undefined> = {};
+  for (const map of maps) {
+    for (const [objectId, state] of Object.entries(map)) {
+      if (state) {
+        merged[objectId] = state;
+      }
+    }
+  }
+
+  return merged;
+}
+
 function uniqueSelectionIds(ids: string[]): string[] {
   return Array.from(new Set(ids.filter((id) => id.trim().length > 0)));
 }

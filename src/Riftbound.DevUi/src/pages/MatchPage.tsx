@@ -45,6 +45,7 @@ import {
   candidateChoiceForObject,
   emptySelectionDraft,
   focusedCandidateSummaries,
+  mergeWireTimelineMaps,
   sourceCandidateForObject,
   updateSelectionDraft
 } from "../components/match/wireTableInteractionModel";
@@ -65,6 +66,7 @@ import { buildTableObjectContextModel } from "../utils/tableObjectContext";
 import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
+import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
 
 type WireTableInteraction = {
   interactionByObjectId: Record<string, PromptObjectState | undefined>;
@@ -149,11 +151,18 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     tableSnapshot,
     tableSubmissionGate
   ]);
+  const serverFlowProjection = useMemo(
+    () => buildWireServerFlowProjectionPlan(tablePrompt),
+    [tablePrompt]
+  );
   const tableInteraction = useMemo<WireTableInteraction>(() => ({
     interactionByObjectId: buildWireInteractionMap(promptInteraction, focusedSourceCandidates, selectedObjectId, selectionDraft),
     selectedObjectId,
-    timelineByObjectId: buildWireTimelineMap(timelineDetail)
-  }), [focusedSourceCandidates, promptInteraction, selectedObjectId, selectionDraft, timelineDetail]);
+    timelineByObjectId: mergeWireTimelineMaps(
+      serverFlowProjection.timelineByObjectId,
+      buildWireTimelineMap(timelineDetail)
+    )
+  }), [focusedSourceCandidates, promptInteraction, selectedObjectId, selectionDraft, serverFlowProjection.timelineByObjectId, timelineDetail]);
 
   const self = tableView.self;
   const opponent = tableView.opponent;

@@ -59,6 +59,8 @@ export type WireServerFlowPlan = {
   nextStepLabel: string;
   primaryLabel: string;
   reason: string;
+  relatedObjectCount: number;
+  relatedObjectIds: string[];
   state: WireServerFlowState;
   stateLabel: string;
   steps: WireServerFlowStep[];
@@ -98,6 +100,7 @@ export function buildWireServerFlowPlan({
   }
 
   const state = serverFlowState(rulePlan, responsePlan);
+  const relatedObjectIds = detailRelatedObjectIds(detail);
 
   return {
     detail,
@@ -107,11 +110,14 @@ export function buildWireServerFlowPlan({
       { key: "tick", label: "快照", value: snapshot?.tick == null ? "无" : String(snapshot.tick) },
       { key: "rule", label: "规则", value: rulePlan.stateLabel },
       { key: "action", label: "行动", value: responsePlan.stateLabel },
-      { key: "prompt", label: "提示", value: prompt?.view?.title ?? prompt?.view?.type ?? "无" }
+      { key: "prompt", label: "提示", value: prompt?.view?.title ?? prompt?.view?.type ?? "无" },
+      { key: "related", label: "关联", value: String(relatedObjectIds.length) }
     ],
     nextStepLabel: flowNextStep(state, rulePlan, responsePlan),
     primaryLabel: flowPrimaryLabel(state, rulePlan, responsePlan),
     reason: flowReason(state, rulePlan, responsePlan),
+    relatedObjectCount: relatedObjectIds.length,
+    relatedObjectIds,
     state,
     stateLabel: flowStateLabel(state),
     steps: flowSteps(rulePlan, responsePlan),
@@ -129,6 +135,7 @@ function serverBackedFlowPlan(
   detail: WireServerFlowDetail | undefined
 ): WireServerFlowPlan {
   const state = responsePlan.state === "selecting" ? "selecting" : serverFlowStateFromDto(serverFlow);
+  const relatedObjectIds = visibleServerFlowObjectIds(serverFlow.relatedObjectIds);
   return {
     detail,
     detailButtonLabel: detail ? "打开规则焦点" : "暂无焦点",
@@ -143,11 +150,14 @@ function serverBackedFlowPlan(
       { key: "tick", label: "快照", value: snapshot?.tick == null ? "无" : String(snapshot.tick) },
       { key: "source", label: "来源", value: "服务端" },
       { key: "action", label: "行动", value: responsePlan.stateLabel },
-      { key: "prompt", label: "提示", value: prompt.view?.title ?? serverFlow.promptType ?? "无" }
+      { key: "prompt", label: "提示", value: prompt.view?.title ?? serverFlow.promptType ?? "无" },
+      { key: "related", label: "关联", value: String(relatedObjectIds.length) }
     ],
     nextStepLabel: state === "selecting" ? responsePlan.nextStepLabel : serverFlow.nextStep,
     primaryLabel: state === "selecting" ? responsePlan.primaryLabel : serverFlow.primaryLabel,
     reason: state === "selecting" ? responsePlan.reason : serverFlow.reason,
+    relatedObjectCount: relatedObjectIds.length,
+    relatedObjectIds,
     state,
     stateLabel: state === "selecting" ? "选择中" : serverFlow.stateLabel,
     steps: serverFlow.steps.map((step) => ({
@@ -195,6 +205,26 @@ function serverFlowToneFromDto(serverFlow: ActionPromptServerFlowDto): WireServe
     default:
       return flowTone(serverFlowStateFromDto(serverFlow));
   }
+}
+
+function detailRelatedObjectIds(detail?: WireServerFlowDetail): string[] {
+  return visibleServerFlowObjectIds(detail?.refs.map((ref) => ref.id) ?? []);
+}
+
+function visibleServerFlowObjectIds(ids: readonly string[]): string[] {
+  const objectIds: string[] = [];
+  const seen = new Set<string>();
+  for (const rawId of ids) {
+    const objectId = rawId.trim();
+    if (!objectId || objectId.toUpperCase() === "HIDDEN" || seen.has(objectId)) {
+      continue;
+    }
+
+    seen.add(objectId);
+    objectIds.push(objectId);
+  }
+
+  return objectIds;
 }
 
 function serverFlowState(rulePlan: WireRuleQueuePlan, responsePlan: WireResponseCoachPlan): WireServerFlowState {
