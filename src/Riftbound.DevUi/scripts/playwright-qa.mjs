@@ -380,8 +380,12 @@ async function runObjectCommandTrayInteraction(report) {
     const serverFlowActionBridge = page.locator('.wire-server-flow [data-server-flow-action-object-id="p2-right-1"][data-server-flow-action-state="ready"] [data-server-flow-action-inspectable="true"]').first();
     await serverFlowActionBridge.waitFor({ timeout: 10_000 });
     const bridgeText = await serverFlowActionBridge.textContent() ?? "";
-    if (!bridgeText.includes("候选目标") || !bridgeText.includes("目标") || !bridgeText.includes("可作为")) {
+    if (!bridgeText.includes("候选目标") || !bridgeText.includes("目标") || !bridgeText.includes("可作为") || !bridgeText.includes("目标 1/1")) {
       throw new Error(`Server-flow action bridge should expose semantic role and candidate role, got: ${bridgeText}`);
+    }
+    const bridgeStepSummary = await serverFlowActionBridge.locator("[data-server-flow-action-step-summary]").first().textContent() ?? "";
+    if (!bridgeStepSummary.includes("来源* 0/1") || !bridgeStepSummary.includes("目标 1/1")) {
+      throw new Error(`Server-flow action bridge should expose server candidate steps, got: ${bridgeStepSummary}`);
     }
     await serverFlowActionBridge.click();
     await page.waitForFunction(

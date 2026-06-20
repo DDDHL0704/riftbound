@@ -1,4 +1,11 @@
-import type { ActionPromptDto, ActionPromptServerFlowDto, ConnectionStatus, GameEvent, SnapshotDto } from "../types/protocol";
+import type {
+  ActionPromptDto,
+  ActionPromptObjectCandidateStepDto,
+  ActionPromptServerFlowDto,
+  ConnectionStatus,
+  GameEvent,
+  SnapshotDto
+} from "../types/protocol";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import {
   buildPromptInteractionModel,
@@ -52,12 +59,23 @@ export type WireServerFlowObjectRef = {
   candidateBoundary?: string;
   candidateRoles?: string[];
   candidateSource?: string;
+  candidateStepSummary?: string;
+  candidateSteps?: WireServerFlowObjectCandidateStep[];
   disabledCandidateCount?: number;
   enabledCandidateCount?: number;
   id: string;
   label?: string;
   role: string;
   visibility?: "hidden" | "missing" | "visible";
+};
+
+export type WireServerFlowObjectCandidateStep = {
+  choiceCount: number;
+  index: number;
+  label: string;
+  objectChoiceCount: number;
+  required: boolean;
+  role: string;
 };
 
 export type WireServerFlowDetail = {
@@ -79,6 +97,7 @@ export type WireServerFlowRelatedActionRow = {
   serverRoleLabel: string;
   state: "blocked" | "ready" | "unknown";
   stateLabel: string;
+  stepSummary: string;
 };
 
 export type WireServerFlowPlan = {
@@ -240,6 +259,7 @@ function serverFlowRelatedActionRows(
       ?? summary?.disabledCandidateCount
       ?? 0;
     const serverRoleLabel = uniqueStrings(objectRefs.map((ref) => ref.role)).join(" / ") || "服务端关联";
+    const stepSummary = serverFlowCandidateStepSummary(objectRefs);
     const state: WireServerFlowRelatedActionRow["state"] = enabledCandidateCount > 0
       ? "ready"
       : disabledCandidateCount > 0
@@ -255,9 +275,34 @@ function serverFlowRelatedActionRows(
       objectId,
       serverRoleLabel,
       state,
-      stateLabel: serverFlowRelatedActionStateLabel(state)
+      stateLabel: serverFlowRelatedActionStateLabel(state),
+      stepSummary
     };
   });
+}
+
+function serverFlowCandidateStepSummary(objectRefs: WireServerFlowDetail["refs"]): string {
+  const stepsByRole = new Map<string, WireServerFlowObjectCandidateStep>();
+  for (const step of objectRefs.flatMap((ref) => ref.candidateSteps ?? [])) {
+    const roleKey = step.role.trim() || step.label.trim();
+    if (!roleKey) {
+      continue;
+    }
+
+    const existing = stepsByRole.get(roleKey);
+    if (!existing
+      || step.required && !existing.required
+      || step.objectChoiceCount > existing.objectChoiceCount
+      || step.choiceCount > existing.choiceCount) {
+      stepsByRole.set(roleKey, step);
+    }
+  }
+
+  return [...stepsByRole.values()]
+    .sort((left, right) => left.index - right.index || left.role.localeCompare(right.role))
+    .slice(0, 4)
+    .map((step) => `${step.label}${step.required ? "*" : ""} ${step.objectChoiceCount}/${step.choiceCount}`)
+    .join(" / ");
 }
 
 function serverFlowRelatedActionRoleLabels(
@@ -370,6 +415,7 @@ function serverFlowRelatedObjectRefs(serverFlow: ActionPromptServerFlowDto): Wir
     (serverFlow.relatedObjects ?? []).map((ref) => ({
       candidateBoundary: ref.candidateBoundary ?? undefined,
       candidateRoles: ref.candidateRoles ?? undefined,
+      candidateSteps: normalizedServerFlowCandidateSteps(ref.candidateSteps),
       candidateSource: ref.candidateSource ?? undefined,
       disabledCandidateCount: normalizedOptionalCount(ref.disabledCandidateCount),
       enabledCandidateCount: normalizedOptionalCount(ref.enabledCandidateCount),
@@ -428,6 +474,11 @@ function compactServerFlowObjectRef(ref: WireServerFlowObjectRef): WireServerFlo
     compactRef.candidateBoundary = ref.candidateBoundary;
   }
 
+  if (ref.candidateSteps?.length) {
+    compactRef.candidateSteps = ref.candidateSteps;
+    compactRef.candidateStepSummary = serverFlowCandidateStepSummary([ref]);
+  }
+
   if (Number.isFinite(ref.enabledCandidateCount)) {
     compactRef.enabledCandidateCount = ref.enabledCandidateCount;
   }
@@ -441,6 +492,24 @@ function compactServerFlowObjectRef(ref: WireServerFlowObjectRef): WireServerFlo
 
 function normalizedOptionalCount(value: number | null | undefined): number | undefined {
   return Number.isFinite(value) ? Number(value) : undefined;
+}
+
+function normalizedServerFlowCandidateSteps(
+  steps: ActionPromptObjectCandidateStepDto[] | null | undefined
+): WireServerFlowObjectCandidateStep[] | undefined {
+  const normalized = (steps ?? [])
+    .map((step) => ({
+      choiceCount: Number.isFinite(step.choiceCount) ? Number(step.choiceCount) : 0,
+      index: Number.isFinite(step.index) ? Number(step.index) : 0,
+      label: step.label?.trim() || step.role?.trim() || "步骤",
+      objectChoiceCount: Number.isFinite(step.objectChoiceCount) ? Number(step.objectChoiceCount) : 0,
+      required: Boolean(step.required),
+      role: step.role?.trim() || step.label?.trim() || "step"
+    }))
+    .filter((step) => step.required || step.choiceCount > 0 || step.objectChoiceCount > 0)
+    .sort((left, right) => left.index - right.index || left.role.localeCompare(right.role));
+
+  return normalized.length > 0 ? normalized : undefined;
 }
 
 function visibleServerFlowObjectIds(ids: readonly string[]): string[] {

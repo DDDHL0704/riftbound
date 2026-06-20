@@ -484,8 +484,14 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       relatedObjectIds: ["p1-hand-spell", "p2-right-1", "fixture-left-battlefield"],
       relatedObjects: [
         {
-          candidateBoundary: "服务端只公开当前行动提示中的对象候选、角色和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
+          candidateBoundary: "服务端只公开当前行动提示中的对象候选、选择步骤和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
           candidateRoles: ["来源"],
+          candidateSteps: [
+            { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" },
+            { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 0, required: false, role: "target" },
+            { choiceCount: 1, index: 2, label: "位置", objectChoiceCount: 0, required: false, role: "destination" },
+            { choiceCount: 1, index: 3, label: "费用", objectChoiceCount: 0, required: false, role: "optionalCost" }
+          ],
           candidateSource: "server-action-prompt",
           disabledCandidateCount: 0,
           enabledCandidateCount: 1,
@@ -493,8 +499,14 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           role: "候选来源"
         },
         {
-          candidateBoundary: "服务端只公开当前行动提示中的对象候选、角色和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
+          candidateBoundary: "服务端只公开当前行动提示中的对象候选、选择步骤和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
           candidateRoles: ["目标"],
+          candidateSteps: [
+            { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 0, required: true, role: "source" },
+            { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 1, required: false, role: "target" },
+            { choiceCount: 1, index: 2, label: "位置", objectChoiceCount: 0, required: false, role: "destination" },
+            { choiceCount: 1, index: 3, label: "费用", objectChoiceCount: 0, required: false, role: "optionalCost" }
+          ],
           candidateSource: "server-action-prompt",
           disabledCandidateCount: 1,
           enabledCandidateCount: 1,

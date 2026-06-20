@@ -92,6 +92,7 @@ export function WireServerFlowPanel({
                 <span>{row.serverRoleLabel}</span>
                 <strong>{row.actionRoleLabels.join(" / ") || "无候选角色"}</strong>
                 <small>{row.enabledCandidateCount} 可 / {row.disabledCandidateCount} 阻</small>
+                {row.stepSummary && <small data-server-flow-action-step-summary>{row.stepSummary}</small>}
                 <em>{row.nextStepLabel}</em>
               </>
             );
@@ -100,6 +101,7 @@ export function WireServerFlowPanel({
               <li
                 data-server-flow-action-object-id={row.objectId}
                 data-server-flow-action-state={row.state}
+                data-server-flow-action-step-summary={row.stepSummary ? "present" : "empty"}
                 key={row.key}
               >
                 {canInspect ? (

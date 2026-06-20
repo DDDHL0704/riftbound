@@ -215,6 +215,10 @@ const serverFlowActionBridgeServerSummaryPlan = buildWireServerFlowPlan({
       relatedObjects: [{
         candidateBoundary: "服务端对象上下文边界",
         candidateRoles: ["目标"],
+        candidateSteps: [
+          { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 0, required: true, role: "source" },
+          { choiceCount: 2, index: 1, label: "目标", objectChoiceCount: 1, required: false, role: "target" }
+        ],
         candidateSource: "server-action-prompt",
         disabledCandidateCount: 1,
         enabledCandidateCount: 2,
@@ -235,7 +239,8 @@ assert.deepEqual(serverFlowActionBridgeServerSummaryPlan.relatedActionRows.map((
   objectId: row.objectId,
   serverRoleLabel: row.serverRoleLabel,
   state: row.state,
-  stateLabel: row.stateLabel
+  stateLabel: row.stateLabel,
+  stepSummary: row.stepSummary
 })), [{
   actionRoleLabels: ["目标"],
   disabledCandidateCount: 1,
@@ -243,10 +248,12 @@ assert.deepEqual(serverFlowActionBridgeServerSummaryPlan.relatedActionRows.map((
   objectId: "unit-1",
   serverRoleLabel: "结算来源",
   state: "ready",
-  stateLabel: "可进入候选"
+  stateLabel: "可进入候选",
+  stepSummary: "来源* 0/1 / 目标 1/2"
 }]);
 assert.equal(serverFlowActionBridgeServerSummaryPlan.relatedActionRows[0].nextStepLabel, "可作为 目标 进入 2 个候选。");
 assert.equal(serverFlowActionBridgeServerSummaryPlan.detail?.refs[0].candidateSource, "server-action-prompt");
+assert.equal(serverFlowActionBridgeServerSummaryPlan.detail?.refs[0].candidateStepSummary, "来源* 0/1 / 目标 1/2");
 
 console.log("Wire server flow plan check passed.");
 
