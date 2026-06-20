@@ -10,6 +10,20 @@ const errors = [];
 const handSlots = ["hand", "runeDeck", "runeTrack"];
 const homeSlots = ["base", "hero", "legend"];
 const battlefieldSlots = ["center", "leftSite", "rightSite"];
+const sidePanelSlots = [
+  "turnWindow",
+  "serverFlow",
+  "responseCoach",
+  "tableAuthority",
+  "informationBoundary",
+  "promptAuthority",
+  "actionMap",
+  "interaction",
+  "ruleQueue",
+  "timelineDetail",
+  "actionPrompt",
+  "log"
+];
 
 validateRoot();
 validateTokens();
@@ -17,6 +31,7 @@ validateTableRows();
 validateHandRails();
 validateHomes();
 validateBattlefield();
+validateSidePanel();
 
 if (errors.length > 0) {
   console.error("Wire table layout contract failed:");
@@ -137,6 +152,17 @@ function validateBattlefield() {
 
   expectStandbyZone(0, 0);
   expectStandbyZone(1, 1);
+}
+
+function validateSidePanel() {
+  const panel = layout.sidePanel;
+  if (!panel || typeof panel !== "object") {
+    errors.push("sidePanel object is required");
+    return;
+  }
+
+  expectArray("sidePanel.slots", panel.slots, sidePanelSlots);
+  expectAllowedSet("sidePanel.slots", panel.slots, sidePanelSlots);
 }
 
 function validateHandRail(side, expectedSlots, expectedBodySlots, expectedPileSlots, expectedRuneReverse) {

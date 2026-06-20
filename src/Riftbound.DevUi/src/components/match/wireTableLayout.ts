@@ -9,6 +9,19 @@ export type WireHomeSlot = "base" | "hero" | "legend";
 export type WireBaseSlot = "banish" | "base";
 export type WireBattlefieldSlot = "center" | "leftSite" | "rightSite";
 export type WireBattlefieldUnitSide = "opponent" | "self";
+export type WireSidePanelSlot =
+  | "actionMap"
+  | "actionPrompt"
+  | "informationBoundary"
+  | "interaction"
+  | "log"
+  | "promptAuthority"
+  | "responseCoach"
+  | "ruleQueue"
+  | "serverFlow"
+  | "tableAuthority"
+  | "timelineDetail"
+  | "turnWindow";
 
 export type WireTableRow =
   | { id: string; kind: "battlefield" }
@@ -79,6 +92,9 @@ export type WireTableLayout = {
   handRails: Record<WirePlayerSide, WireHandRailLayout>;
   playerHomes: Record<WirePlayerSide, WirePlayerHomeLayout>;
   runeDeckSize: number;
+  sidePanel: {
+    slots: WireSidePanelSlot[];
+  };
   table: {
     rows: WireTableRow[];
     rowTemplates: string[];

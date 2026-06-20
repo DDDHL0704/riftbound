@@ -35,6 +35,7 @@ import {
 } from "../components/match/wireTableViewModel";
 import {
   WIRE_TABLE_LAYOUT,
+  type WireSidePanelSlot,
   wireGridColumnsStyle,
   wireGridTemplateStyle,
   wireMatchPageStyle,
@@ -347,6 +348,164 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       void controller.submitStarterDeck();
     }
   }, [controller]);
+  const sidePanelSections = {
+    turnWindow: (
+      <section aria-label="服务端窗口总览区" className="wire-panel wire-window-plan-panel" key="turnWindow" tabIndex={0}>
+        <WireTurnWindowPanel
+          connectionStatus={tableConnectionStatus}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          snapshot={tableSnapshot}
+        />
+      </section>
+    ),
+    serverFlow: (
+      <section aria-label="服务端结算与行动总览区" className="wire-panel wire-server-flow-panel" key="serverFlow" tabIndex={0}>
+        <WireServerFlowPanel
+          connectionStatus={tableConnectionStatus}
+          events={tableEvents}
+          objectIndex={tableObjectIndex}
+          onInspectObject={inspectObjectFromTable}
+          onSelectDetail={selectTimelineDetail}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          selectionDraft={selectionDraft}
+          selectedObjectId={selectedObjectId}
+          snapshot={tableSnapshot}
+          submissionGate={tableSubmissionGate}
+        />
+      </section>
+    ),
+    responseCoach: (
+      <section aria-label="当前响应导航区" className="wire-panel wire-response-coach-panel" key="responseCoach" tabIndex={0}>
+        <WireResponseCoachPanel
+          connectionStatus={tableConnectionStatus}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          selectionDraft={selectionDraft}
+          snapshot={tableSnapshot}
+          submissionGate={tableSubmissionGate}
+        />
+      </section>
+    ),
+    tableAuthority: (
+      <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" key="tableAuthority" tabIndex={0}>
+        <WireTableAuthorityPanel table={tableView} />
+      </section>
+    ),
+    informationBoundary: (
+      <section aria-label="隐藏信息边界契约区" className="wire-panel wire-information-boundary-panel" key="informationBoundary" tabIndex={0}>
+        <WireInformationBoundaryPanel events={tableEvents} table={tableView} />
+      </section>
+    ),
+    promptAuthority: (
+      <section aria-label="服务端行动窗口契约区" className="wire-panel wire-prompt-authority-panel" key="promptAuthority" tabIndex={0}>
+        <WirePromptAuthorityPanel
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          submissionGate={tableSubmissionGate}
+        />
+      </section>
+    ),
+    actionMap: (
+      <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" key="actionMap" tabIndex={0}>
+        <WireActionMapPanel
+          events={tableEvents}
+          onChooseObject={chooseObjectFromActionMap}
+          onCommand={(command) => void controller.submitCommand(command)}
+          onInspectObject={inspectObjectFromTable}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          selectedObjectId={selectedObjectId}
+          selectionDraft={selectionDraft}
+          snapshot={tableSnapshot}
+          submissionFeedback={controller.state.lastCommandSubmission}
+          submissionGate={tableSubmissionGate}
+        />
+      </section>
+    ),
+    interaction: (
+      <section aria-label="焦点卡牌和候选行动" className="wire-panel" key="interaction" tabIndex={0}>
+        <WireInteractionPanel
+          disabledByConnection={!tableSubmissionGate.canSubmit}
+          focusedPlan={selectedFocusPlan}
+          inspectedCard={inspectedCard}
+          onCommand={(command) => void controller.submitCommand(command)}
+          onClearInspectedCard={clearInspectedCard}
+          onInspectObject={inspectObjectFromTable}
+          onOpenDetail={openDetailCard}
+          objectContext={selectedObjectContext}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          selectionDraft={selectionDraft}
+          snapshot={tableSnapshot}
+          submissionGate={tableSubmissionGate}
+        />
+      </section>
+    ),
+    ruleQueue: (
+      <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" key="ruleQueue" tabIndex={0}>
+        <WireRuleQueuePanel
+          events={tableEvents}
+          onInspectObject={inspectObjectFromTable}
+          onSelectDetail={selectTimelineDetail}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          selectedDetailId={timelineDetail?.id}
+          selectedObjectId={selectedObjectId}
+          snapshot={tableSnapshot}
+        />
+      </section>
+    ),
+    timelineDetail: (
+      <section aria-label="规则与事件详情区" className="wire-panel wire-timeline-detail-panel" key="timelineDetail" tabIndex={0}>
+        <WireTimelineDetailPanel
+          detail={timelineDetail}
+          disabledByConnection={!tableSubmissionGate.canSubmit}
+          objectContextById={tableObjectContextModel.byId}
+          objectIndex={tableObjectIndex}
+          onChooseObject={chooseObjectFromActionMap}
+          onClear={clearTimelineDetail}
+          onInspectObject={inspectObjectFromTable}
+          onOpenObjectDetail={openObjectDetail}
+          prompt={tablePrompt}
+          selectionDraft={selectionDraft}
+          selectedObjectContext={selectedObjectContext}
+          selectedObjectId={selectedObjectId}
+        />
+      </section>
+    ),
+    actionPrompt: (
+      <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" key="actionPrompt" tabIndex={0}>
+        <ActionPanel
+          connectionStatus={tableConnectionStatus}
+          onCommand={(command) => void controller.submitCommand(command)}
+          onReady={() => void controller.ready()}
+          onSubmitStarterDeck={() => void controller.submitStarterDeck()}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          snapshot={tableSnapshot}
+        />
+      </section>
+    ),
+    log: (
+      <section aria-label="事件日志" className="wire-panel wire-log-panel" key="log" tabIndex={0}>
+        <h2>日志</h2>
+        <ScrollArea className="wire-log-scroll">
+          <EventLog
+            density={settings.logDensity}
+            errors={controller.state.errors}
+            events={tableEvents}
+            objectIndex={tableObjectIndex}
+            onInspectObject={inspectObjectFromTable}
+            onSelectDetail={selectTimelineDetail}
+            selectedDetailId={timelineDetail?.id}
+            selectedObjectId={selectedObjectId}
+          />
+        </ScrollArea>
+      </section>
+    )
+  } satisfies Record<WireSidePanelSlot, ReactNode>;
 
   return (
     <div className="wire-match-page" style={wireMatchPageStyle()}>
@@ -403,138 +562,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
-          <section aria-label="服务端窗口总览区" className="wire-panel wire-window-plan-panel" tabIndex={0}>
-            <WireTurnWindowPanel
-              connectionStatus={tableConnectionStatus}
-              playerId={settings.playerId}
-              prompt={tablePrompt}
-              snapshot={tableSnapshot}
-            />
-          </section>
-          <section aria-label="服务端结算与行动总览区" className="wire-panel wire-server-flow-panel" tabIndex={0}>
-            <WireServerFlowPanel
-              connectionStatus={tableConnectionStatus}
-              events={tableEvents}
-              objectIndex={tableObjectIndex}
-              onInspectObject={inspectObjectFromTable}
-              onSelectDetail={selectTimelineDetail}
-              playerId={settings.playerId}
-              prompt={tablePrompt}
-              selectionDraft={selectionDraft}
-              selectedObjectId={selectedObjectId}
-              snapshot={tableSnapshot}
-              submissionGate={tableSubmissionGate}
-            />
-          </section>
-          <section aria-label="当前响应导航区" className="wire-panel wire-response-coach-panel" tabIndex={0}>
-            <WireResponseCoachPanel
-              connectionStatus={tableConnectionStatus}
-              playerId={settings.playerId}
-              prompt={tablePrompt}
-              selectionDraft={selectionDraft}
-              snapshot={tableSnapshot}
-              submissionGate={tableSubmissionGate}
-            />
-          </section>
-          <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" tabIndex={0}>
-            <WireTableAuthorityPanel table={tableView} />
-          </section>
-          <section aria-label="隐藏信息边界契约区" className="wire-panel wire-information-boundary-panel" tabIndex={0}>
-            <WireInformationBoundaryPanel events={tableEvents} table={tableView} />
-          </section>
-          <section aria-label="服务端行动窗口契约区" className="wire-panel wire-prompt-authority-panel" tabIndex={0}>
-            <WirePromptAuthorityPanel
-              playerId={settings.playerId}
-              prompt={tablePrompt}
-              submissionGate={tableSubmissionGate}
-            />
-          </section>
-          <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" tabIndex={0}>
-            <WireActionMapPanel
-              events={tableEvents}
-              onChooseObject={chooseObjectFromActionMap}
-              onCommand={(command) => void controller.submitCommand(command)}
-              onInspectObject={inspectObjectFromTable}
-              playerId={settings.playerId}
-              prompt={tablePrompt}
-              selectedObjectId={selectedObjectId}
-              selectionDraft={selectionDraft}
-              snapshot={tableSnapshot}
-              submissionFeedback={controller.state.lastCommandSubmission}
-              submissionGate={tableSubmissionGate}
-            />
-          </section>
-          <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>
-            <WireInteractionPanel
-              disabledByConnection={!tableSubmissionGate.canSubmit}
-              focusedPlan={selectedFocusPlan}
-              inspectedCard={inspectedCard}
-              onCommand={(command) => void controller.submitCommand(command)}
-              onClearInspectedCard={clearInspectedCard}
-              onInspectObject={inspectObjectFromTable}
-              onOpenDetail={openDetailCard}
-              objectContext={selectedObjectContext}
-              playerId={settings.playerId}
-              prompt={tablePrompt}
-              selectionDraft={selectionDraft}
-              snapshot={tableSnapshot}
-              submissionGate={tableSubmissionGate}
-            />
-          </section>
-          <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" tabIndex={0}>
-            <WireRuleQueuePanel
-              events={tableEvents}
-              onInspectObject={inspectObjectFromTable}
-              onSelectDetail={selectTimelineDetail}
-              playerId={settings.playerId}
-              prompt={tablePrompt}
-              selectedDetailId={timelineDetail?.id}
-              selectedObjectId={selectedObjectId}
-              snapshot={tableSnapshot}
-            />
-          </section>
-          <section aria-label="规则与事件详情区" className="wire-panel wire-timeline-detail-panel" tabIndex={0}>
-            <WireTimelineDetailPanel
-              detail={timelineDetail}
-              disabledByConnection={!tableSubmissionGate.canSubmit}
-              objectContextById={tableObjectContextModel.byId}
-              objectIndex={tableObjectIndex}
-              onChooseObject={chooseObjectFromActionMap}
-              onClear={clearTimelineDetail}
-              onInspectObject={inspectObjectFromTable}
-              onOpenObjectDetail={openObjectDetail}
-              prompt={tablePrompt}
-              selectionDraft={selectionDraft}
-              selectedObjectContext={selectedObjectContext}
-              selectedObjectId={selectedObjectId}
-            />
-          </section>
-          <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" tabIndex={0}>
-            <ActionPanel
-              connectionStatus={tableConnectionStatus}
-              onCommand={(command) => void controller.submitCommand(command)}
-              onReady={() => void controller.ready()}
-              onSubmitStarterDeck={() => void controller.submitStarterDeck()}
-              playerId={settings.playerId}
-              prompt={tablePrompt}
-              snapshot={tableSnapshot}
-            />
-          </section>
-          <section aria-label="事件日志" className="wire-panel wire-log-panel" tabIndex={0}>
-            <h2>日志</h2>
-            <ScrollArea className="wire-log-scroll">
-              <EventLog
-                density={settings.logDensity}
-                errors={controller.state.errors}
-                events={tableEvents}
-                objectIndex={tableObjectIndex}
-                onInspectObject={inspectObjectFromTable}
-                onSelectDetail={selectTimelineDetail}
-                selectedDetailId={timelineDetail?.id}
-                selectedObjectId={selectedObjectId}
-              />
-            </ScrollArea>
-          </section>
+          {WIRE_TABLE_LAYOUT.sidePanel.slots.map((slot) => sidePanelSections[slot])}
         </aside>
       </div>
       <CardDetailDrawer

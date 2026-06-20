@@ -79,5 +79,21 @@
       { "id": "left-standby", "laneIndex": 0 },
       { "id": "right-standby", "laneIndex": 1 }
     ]
+  },
+  "sidePanel": {
+    "slots": [
+      "turnWindow",
+      "serverFlow",
+      "responseCoach",
+      "tableAuthority",
+      "informationBoundary",
+      "promptAuthority",
+      "actionMap",
+      "interaction",
+      "ruleQueue",
+      "timelineDetail",
+      "actionPrompt",
+      "log"
+    ]
   }
 }
