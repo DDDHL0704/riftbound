@@ -1256,6 +1256,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const initial = await evaluateJson(cdp, `(() => ({
     battlefieldRefs: document.querySelectorAll('[data-rule-object-ref="fixture-left-battlefield"]').length,
     eventRefs: document.querySelectorAll('[data-event-object-ref="p1-hand-spell"]').length,
+    eventRefInspectableStates: Array.from(document.querySelectorAll('[data-event-object-ref="p1-hand-spell"]'))
+      .map((item) => item.getAttribute("data-object-ref-inspectable")),
+    eventRefVisibilityStates: Array.from(document.querySelectorAll('[data-event-object-ref="p1-hand-spell"]'))
+      .map((item) => item.getAttribute("data-object-ref-visibility")),
     unitRefs: document.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length,
     hiddenRefs: document.querySelectorAll('[data-rule-object-ref="HIDDEN"]').length
   }))()`);
@@ -1292,6 +1296,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
+      selectedRefInspectable: selectedRef?.getAttribute("data-object-ref-inspectable") ?? null,
+      selectedRefVisibility: selectedRef?.getAttribute("data-object-ref-visibility") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
@@ -1570,6 +1576,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const failures = [];
   if (initial.battlefieldRefs < 1) failures.push("battlefield rule object ref missing");
   if (initial.eventRefs < 1) failures.push("event object ref missing");
+  if (!initial.eventRefVisibilityStates.includes("visible")) failures.push("event object ref visible state missing");
+  if (!initial.eventRefInspectableStates.includes("true")) failures.push("event object ref inspectable state missing");
   if (initial.unitRefs < 1) failures.push("unit rule object ref missing");
   if (initial.hiddenRefs < 1) failures.push("hidden rule object ref missing");
   if (battlefieldResult.selected !== "true") failures.push("battlefield ref did not focus battlefield card");
@@ -1580,6 +1588,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (unitResult.detailLayerOpen) failures.push("unit ref opened detail layer");
   if (eventResult.selected !== "true") failures.push("event ref did not focus source card");
   if (!eventResult.selectedRef) failures.push("event ref did not show selected state");
+  if (eventResult.selectedRefVisibility !== "visible") failures.push(`event ref visibility unexpected: ${eventResult.selectedRefVisibility}`);
+  if (eventResult.selectedRefInspectable !== "true") failures.push(`event ref inspectable state unexpected: ${eventResult.selectedRefInspectable}`);
   if (eventResult.detailLayerOpen) failures.push("event ref opened detail layer");
   if (!ruleDetailResult.text.includes("结算链项目")) failures.push("rule detail title missing");
   if (ruleDetailResult.panelState !== "rule") failures.push(`rule detail panel state unexpected: ${ruleDetailResult.panelState}`);

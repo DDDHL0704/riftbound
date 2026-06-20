@@ -14306,6 +14306,14 @@ button.wire-object-ref {
   border-width: 2px;
 }
 
+.wire-object-ref.is-hidden {
+  border-style: dashed;
+}
+
+.wire-object-ref.is-missing {
+  border-style: double;
+}
+
 .wire-object-ref.is-disabled {
   opacity: 0.72;
 }

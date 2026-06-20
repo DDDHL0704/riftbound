@@ -79,8 +79,43 @@ const serverRefPlan = buildEventLogPlan({
 
 assert.equal(serverRefPlan.events[0].refs.length, 1);
 assert.equal(serverRefPlan.events[0].refs[0].label, "CH-001");
+assert.equal(serverRefPlan.events[0].refs[0].visibility, "visible");
 assert.equal(serverRefPlan.events[0].detail.lines.find((line) => line.label === "对象来源").value, "服务端摘要");
+assert.equal(serverRefPlan.events[0].detail.lines.find((line) => line.label === "引用边界").value, "可见 1");
 assert.equal(serverRefPlan.events[0].description.includes("serverPaymentState"), false);
+
+const hiddenRefPlan = buildEventLogPlan({
+  errors: [],
+  events: [
+    {
+      description: "face-down source resolves without revealing card identity",
+      kind: "TRIGGER_RESOLVED",
+      objectRefs: [{ isFaceDown: true, isHidden: true, objectId: "hidden-standby", role: "来源" }],
+      payload: {}
+    }
+  ],
+  objectIndex: { "hidden-standby": { isFaceDown: true } }
+});
+
+assert.equal(hiddenRefPlan.events[0].refs[0].label, "隐藏对象");
+assert.equal(hiddenRefPlan.events[0].refs[0].visibility, "hidden");
+assert.equal(hiddenRefPlan.events[0].detail.lines.find((line) => line.label === "引用边界").value, "可见 0 / 隐藏 1");
+
+const missingRefPlan = buildEventLogPlan({
+  errors: [],
+  events: [
+    {
+      description: "server referenced an object outside current snapshot",
+      kind: "UNIT_DESTROYED",
+      objectRefs: [{ objectId: "missing-object", role: "被摧毁" }],
+      payload: {}
+    }
+  ],
+  objectIndex: {}
+});
+
+assert.equal(missingRefPlan.events[0].refs[0].visibility, "missing");
+assert.equal(missingRefPlan.events[0].detail.lines.find((line) => line.label === "引用边界").value, "可见 0 / 隐藏 0 / 缺失 1");
 
 const fallbackRefPlan = buildEventLogPlan({
   errors: [],
@@ -96,6 +131,7 @@ const fallbackRefPlan = buildEventLogPlan({
 
 assert.equal(fallbackRefPlan.events[0].refs.length, 1);
 assert.equal(fallbackRefPlan.events[0].refs[0].id, "unit-2");
+assert.equal(fallbackRefPlan.events[0].refs[0].visibility, "visible");
 assert.equal(fallbackRefPlan.events[0].detail.lines.find((line) => line.label === "对象来源").value, "事件字段");
 assert.equal(fallbackRefPlan.events[0].description, "造成伤害");
 

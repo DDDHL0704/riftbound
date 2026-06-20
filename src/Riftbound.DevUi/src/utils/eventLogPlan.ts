@@ -10,6 +10,7 @@ export type EventLogObjectRef = {
   id: string;
   label?: string;
   role: string;
+  visibility: "hidden" | "missing" | "visible";
 };
 
 export type EventLogErrorRowPlan = {
@@ -292,7 +293,7 @@ function eventRowPlan(event: GameEvent, index: number, objects: Record<string, C
 
 function eventObjectRefs(event: GameEvent, objects: Record<string, CardObjectView>): EventLogObjectRef[] {
   const serverRefs = event.objectRefs
-    ?.map(serverObjectRef)
+    ?.map((ref) => serverObjectRef(ref, objects))
     .filter((ref): ref is EventLogObjectRef => Boolean(ref));
   return serverRefs?.length ? serverRefs : collectEventObjectRefs(event.payload, objects, 0);
 }
@@ -304,7 +305,8 @@ function eventDetail(event: GameEvent, index: number, refs: EventLogObjectRef[])
       { label: "类型", value: eventKindLabel(event.kind) },
       { label: "描述", value: eventDescriptionLabel(event) },
       { label: "对象", value: refs.length > 0 ? `${refs.length} 项` : "无" },
-      { label: "对象来源", value: event.objectRefs?.length ? "服务端摘要" : "事件字段" }
+      { label: "对象来源", value: event.objectRefs?.length ? "服务端摘要" : "事件字段" },
+      { label: "引用边界", value: objectRefBoundaryLabel(refs) }
     ],
     refs,
     source: "event",
@@ -313,16 +315,18 @@ function eventDetail(event: GameEvent, index: number, refs: EventLogObjectRef[])
   };
 }
 
-function serverObjectRef(ref: GameEventObjectRef): EventLogObjectRef | undefined {
+function serverObjectRef(ref: GameEventObjectRef, objects: Record<string, CardObjectView>): EventLogObjectRef | undefined {
   const objectId = ref.objectId?.trim();
   if (!objectId) {
     return undefined;
   }
+  const visibility = eventRefVisibility(ref, objects);
 
   return {
     id: objectId,
-    label: ref.isHidden ? "隐藏对象" : ref.cardNo?.trim() || undefined,
-    role: ref.role?.trim() || "对象"
+    label: visibility === "hidden" ? "隐藏对象" : ref.cardNo?.trim() || undefined,
+    role: ref.role?.trim() || "对象",
+    visibility
   };
 }
 
@@ -335,7 +339,7 @@ function collectEventObjectRefs(record: Record<string, unknown>, objects: Record
   for (const [key, value] of Object.entries(record)) {
     const singularRole = singularObjectKeyRoles[key];
     if (singularRole && typeof value === "string" && isVisibleObjectRef(value, objects)) {
-      refs.push({ id: value, role: singularRole });
+      refs.push({ id: value, role: singularRole, visibility: collectedRefVisibility(value) });
       continue;
     }
 
@@ -343,7 +347,7 @@ function collectEventObjectRefs(record: Record<string, unknown>, objects: Record
     if (arrayRole) {
       refs.push(...asArray<unknown>(value)
         .filter((item): item is string => typeof item === "string" && isVisibleObjectRef(item, objects))
-        .map((objectId) => ({ id: objectId, role: arrayRole })));
+        .map((objectId) => ({ id: objectId, role: arrayRole, visibility: collectedRefVisibility(objectId) })));
       continue;
     }
 
@@ -366,4 +370,35 @@ function collectEventObjectRefs(record: Record<string, unknown>, objects: Record
 
 function isVisibleObjectRef(objectId: string, objects: Record<string, CardObjectView>): boolean {
   return objectId === "HIDDEN" || Boolean(objects[objectId]);
+}
+
+function collectedRefVisibility(objectId: string): EventLogObjectRef["visibility"] {
+  return objectId === "HIDDEN" ? "hidden" : "visible";
+}
+
+function eventRefVisibility(ref: GameEventObjectRef, objects: Record<string, CardObjectView>): EventLogObjectRef["visibility"] {
+  if (ref.isHidden || ref.objectId === "HIDDEN") {
+    return "hidden";
+  }
+
+  return ref.objectId && objects[ref.objectId] ? "visible" : "missing";
+}
+
+function objectRefBoundaryLabel(refs: EventLogObjectRef[]): string {
+  if (refs.length === 0) {
+    return "无引用";
+  }
+
+  const hidden = refs.filter((ref) => ref.visibility === "hidden").length;
+  const missing = refs.filter((ref) => ref.visibility === "missing").length;
+  const visible = refs.length - hidden - missing;
+  if (missing > 0) {
+    return `可见 ${visible} / 隐藏 ${hidden} / 缺失 ${missing}`;
+  }
+
+  if (hidden > 0) {
+    return `可见 ${visible} / 隐藏 ${hidden}`;
+  }
+
+  return `可见 ${visible}`;
 }

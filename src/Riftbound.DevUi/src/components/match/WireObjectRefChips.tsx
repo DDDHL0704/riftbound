@@ -5,7 +5,10 @@ export type WireObjectRef = {
   id: string;
   label?: string;
   role: string;
+  visibility?: WireObjectRefVisibility;
 };
+
+export type WireObjectRefVisibility = "hidden" | "missing" | "visible";
 
 export type WireObjectIndex = Record<string, CardObjectView>;
 
@@ -34,21 +37,31 @@ export function WireObjectRefChips({
       {visibleRefs.map((ref) => {
         const object = objects[ref.id];
         const hidden = ref.id === "HIDDEN";
+        const visibility = ref.visibility ?? objectRefVisibility(ref.id, object);
         const canInspect = Boolean(object && onInspectObject && !hidden);
         const selected = selectedObjectId === ref.id;
         const label = `${ref.role} ${ref.label ?? wireObjectLabel(ref.id, objects)}`;
         const dataProps = {
           "data-object-ref": ref.id,
+          "data-object-ref-inspectable": canInspect ? "true" : "false",
           "data-object-ref-role": ref.role,
+          "data-object-ref-visibility": visibility,
           "data-event-object-ref": source === "event" ? ref.id : undefined,
           "data-rule-object-ref": source === "rule" ? ref.id : undefined,
           "data-candidate-object-ref": source === "candidate" ? ref.id : undefined,
           "data-selected": selected ? "true" : undefined
         };
+        const classNameParts = [
+          "wire-object-ref",
+          `wire-${source}-object-ref`,
+          `is-${visibility}`,
+          selected ? "is-selected" : "",
+          canInspect ? "" : "is-disabled"
+        ].filter(Boolean).join(" ");
 
         if (!canInspect) {
           return (
-            <span className={`wire-object-ref wire-${source}-object-ref is-disabled`} key={`${ref.role}-${ref.id}`} {...dataProps}>
+            <span className={classNameParts} key={`${ref.role}-${ref.id}`} {...dataProps}>
               {label}
             </span>
           );
@@ -56,7 +69,7 @@ export function WireObjectRefChips({
 
         return (
           <button
-            className={selected ? `wire-object-ref wire-${source}-object-ref is-selected` : `wire-object-ref wire-${source}-object-ref`}
+            className={classNameParts}
             key={`${ref.role}-${ref.id}`}
             onClick={() => onInspectObject?.(ref.id)}
             type="button"
@@ -89,6 +102,14 @@ export function wireObjectRef(role: string, id: string | null | undefined): Wire
 
 export function wireObjectRefs(role: string, ids: string[] | undefined): WireObjectRef[] {
   return (ids ?? []).map((id) => wireObjectRef(role, id));
+}
+
+function objectRefVisibility(objectId: string, object: CardObjectView | undefined): WireObjectRefVisibility {
+  if (objectId === "HIDDEN") {
+    return "hidden";
+  }
+
+  return object ? "visible" : "missing";
 }
 
 function uniqueWireObjectRefs(refs: WireObjectRef[]): WireObjectRef[] {
