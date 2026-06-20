@@ -10,6 +10,8 @@ import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { buildWireCardDetailActionPlan } from "../../utils/wireCardDetailActionPlan";
 import { buildWireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
 import { CandidateComposer } from "../match/CandidateComposer";
+import { WireFocusedActionSummary } from "../match/WireFocusedActionSummary";
+import { WireFocusedInteractionGrammar } from "../match/WireFocusedInteractionGrammar";
 import { WireFocusedLegalActionMatrix } from "../match/WireFocusedLegalActionMatrix";
 import { WireFocusedReadinessStrip } from "../match/WireFocusedReadinessStrip";
 import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
@@ -147,6 +149,8 @@ export function CardDetailDrawer({
             </dl>
             <DetailObjectContext context={objectContext} contract={prompt?.contract} focusModel={detailInteractionPlan.focusModel} />
             <WireFocusedReadinessStrip plan={detailInteractionPlan} />
+            <WireFocusedActionSummary focusModel={detailInteractionPlan.focusModel} />
+            <WireFocusedInteractionGrammar plan={detailInteractionPlan.grammarPlan} />
             <WireFocusedLegalActionMatrix plan={detailInteractionPlan} />
             <DetailInspector inspector={detailPlan.inspector} />
             {detailPlan.sections.map((section) => (

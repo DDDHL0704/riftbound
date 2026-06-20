@@ -5,8 +5,6 @@ import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
-import type { FocusedActionModel } from "../../utils/focusedActionModel";
-import type { FocusedInteractionGrammarPlan } from "../../utils/focusedInteractionGrammarPlan";
 import {
   buildWireFocusedInteractionPlan,
   type WireFocusedInteractionPlan
@@ -19,6 +17,8 @@ import { StatusPill } from "../ui/StatusPill";
 import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireEmpty } from "./wireCardFlow";
+import { WireFocusedActionSummary } from "./WireFocusedActionSummary";
+import { WireFocusedInteractionGrammar } from "./WireFocusedInteractionGrammar";
 import { WireFocusedLegalActionMatrix } from "./WireFocusedLegalActionMatrix";
 import { WireFocusedReadinessStrip } from "./WireFocusedReadinessStrip";
 
@@ -157,8 +157,8 @@ function FocusedActionList({
         <StatusPill tone={plan.sourceCandidates.length > 0 ? "good" : "neutral"}>{plan.sourceCandidates.length > 0 ? `${plan.sourceCandidates.length} 项` : "无可提交"}</StatusPill>
       </div>
       <p>只使用服务端当前候选；连接恢复前不会提交命令。</p>
-      <FocusedActionSummary focusModel={plan.focusModel} />
-      <FocusedInteractionGrammar plan={plan.grammarPlan} />
+      <WireFocusedActionSummary focusModel={plan.focusModel} />
+      <WireFocusedInteractionGrammar plan={plan.grammarPlan} />
       {plan.sourceCandidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
       {plan.draft && (
         <div className="wire-selection-draft" role="group" aria-label="已点选候选草稿">
@@ -220,93 +220,6 @@ function FocusedActionList({
           </Button>
         );
       })}
-    </div>
-  );
-}
-
-function FocusedInteractionGrammar({ plan }: { plan: FocusedInteractionGrammarPlan }) {
-  return (
-    <div
-      aria-label="焦点交互语法"
-      className="wire-focused-grammar"
-      data-wire-focused-grammar-composer-state={plan.composerState}
-      data-wire-focused-grammar-state={plan.state}
-      role="group"
-    >
-      <div className="wire-focused-grammar-heading">
-        <strong>交互语法</strong>
-        <StatusPill tone={plan.state === "ready" ? "good" : "neutral"}>{plan.stateLabel}</StatusPill>
-      </div>
-      <div className="wire-focused-grammar-summary">
-        <span>{plan.candidateLabel}</span>
-        <small>下一步：{plan.nextStepLabel}</small>
-        <small>命令：{plan.commandType ?? "未公开"} / 字段 {plan.commandFieldCount}</small>
-        <small title={plan.composerReason}>组合：{plan.composerStateLabel}</small>
-      </div>
-      {plan.steps.length > 0 ? (
-        <ol className="wire-focused-grammar-steps">
-          {plan.steps.map((step) => (
-            <li className={`is-${step.state}`} data-wire-grammar-role={step.role} key={step.key}>
-              <span>{step.label}</span>
-              <strong>{step.stateLabel}</strong>
-              <small>
-                {step.required ? "必需" : "可选"}
-                {"；候选 "}{step.availableCount}
-                {"；已选 "}{step.selectedCount}
-              </small>
-              {step.sampleLabels.length > 0 && <small>{step.sampleLabels.slice(0, 3).join(" / ")}</small>}
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <span className="empty-hint">点击服务端候选对象后显示命令语法。</span>
-      )}
-    </div>
-  );
-}
-
-function FocusedActionSummary({ focusModel }: { focusModel: FocusedActionModel }) {
-  return (
-    <div
-      aria-label="焦点行动摘要"
-      className="wire-focused-action-summary"
-      data-wire-focused-action-state={focusModel.submittedByServer ? "server-candidate" : "no-candidate"}
-      role="group"
-    >
-      <div className="wire-focused-action-metrics">
-        <span>
-          <small>服务端状态</small>
-          <strong>{focusModel.stateLabel}</strong>
-        </span>
-        <span>
-          <small>可提交</small>
-          <strong>{focusModel.enabledCount}</strong>
-        </span>
-        <span>
-          <small>阻断</small>
-          <strong>{focusModel.blockedCount}</strong>
-        </span>
-      </div>
-      <span className="wire-focused-next-step" data-wire-focused-next-step>
-        {focusModel.nextStepLabel}
-      </span>
-      {focusModel.blockingReasons.length > 0 && (
-        <div className="wire-focused-blockers">
-          {focusModel.blockingReasons.map((reason) => (
-            <small key={reason}>阻断：{reason}</small>
-          ))}
-        </div>
-      )}
-      {focusModel.candidates.length > 0 && (
-        <ol className="wire-focused-candidate-plan">
-          {focusModel.candidates.slice(0, 4).map(({ candidate, key, nextStep, stateLabel }) => (
-            <li className={candidate.enabled ? "is-enabled" : "is-disabled"} key={key}>
-              <span>{candidate.label}</span>
-              <small>{stateLabel}{nextStep ? `；下一步 ${nextStep.label}` : ""}</small>
-            </li>
-          ))}
-        </ol>
-      )}
     </div>
   );
 }
