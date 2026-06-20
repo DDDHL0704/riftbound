@@ -38,6 +38,7 @@ export type WireRuleQueueSequenceItem = {
   lane: WireRuleQueueLaneKey;
   label: string;
   objectCount: number;
+  refs: WireRuleQueueObjectRef[];
   stateLabel: string;
   tickLabel?: string;
 };
@@ -58,6 +59,7 @@ export type WireRuleQueueInspectorSequence = {
   laneLabel: string;
   label: string;
   objectCount: number;
+  refs: WireRuleQueueObjectRef[];
   stateLabel: string;
   tickLabel?: string;
 };
@@ -466,6 +468,7 @@ function inspectorPlan({
       label: item.label,
       laneLabel: laneLabel(item.lane),
       objectCount: item.objectCount,
+      refs: item.refs,
       stateLabel: item.stateLabel,
       tickLabel: item.tickLabel
     })),
@@ -521,6 +524,10 @@ function queueSequence({
       label: `结算链 ${stack.length - index}`,
       lane: "stack" as const,
       objectCount: objectCount([item.sourceObjectId, ...asArray(item.targetObjectIds)]),
+      refs: compactObjectRefs([
+        objectRef("来源", optionalString(item.sourceObjectId)),
+        ...objectRefs("目标", stringArray(item.targetObjectIds))
+      ]),
       stateLabel: asString(item.controllerId, "未知控制者")
     })),
     ...tasks.map((task, index) => ({
@@ -529,6 +536,10 @@ function queueSequence({
       label: `任务 ${index + 1}`,
       lane: "task" as const,
       objectCount: objectCount([task.battlefieldObjectId, ...asArray(task.participantObjectIds)]),
+      refs: compactObjectRefs([
+        objectRef("战场", optionalString(task.battlefieldObjectId)),
+        ...objectRefs("参与", stringArray(task.participantObjectIds))
+      ]),
       stateLabel: asString(task.status, "状态未提供")
     })),
     ...triggers.map((trigger, index) => ({
@@ -537,6 +548,9 @@ function queueSequence({
       label: `触发 ${index + 1}`,
       lane: "trigger" as const,
       objectCount: objectCount([trigger.sourceObjectId]),
+      refs: compactObjectRefs([
+        objectRef("来源", optionalString(trigger.sourceVisibility) === "HIDDEN" ? "HIDDEN" : optionalString(trigger.sourceObjectId))
+      ]),
       stateLabel: asString(trigger.controllerId, "无控制者")
     })),
     ...battlefieldResolutions.map((resolution, index) => ({
@@ -545,6 +559,11 @@ function queueSequence({
       label: `战场事件 ${index + 1}`,
       lane: "resolution" as const,
       objectCount: objectCount([resolution.battlefieldObjectId, resolution.sourceObjectId, ...asArray(resolution.participantObjectIds)]),
+      refs: compactObjectRefs([
+        objectRef("战场", optionalString(resolution.battlefieldObjectId)),
+        objectRef("来源", nullableString(resolution.sourceObjectId)),
+        ...objectRefs("参与", stringArray(resolution.participantObjectIds))
+      ]),
       stateLabel: asString(resolution.playerId, asString(resolution.controllerId, "无控制者")),
       tickLabel: tickLabel(resolution.tick)
     })),
@@ -558,6 +577,12 @@ function queueSequence({
         ...asArray(resolution.attackerObjectIds),
         ...asArray(resolution.defenderObjectIds),
         ...asArray(resolution.destroyedObjectIds)
+      ]),
+      refs: compactObjectRefs([
+        objectRef("战场", optionalString(resolution.battlefieldId)),
+        ...objectRefs("攻击", stringArray(resolution.attackerObjectIds)),
+        ...objectRefs("防守", stringArray(resolution.defenderObjectIds)),
+        ...objectRefs("被摧毁", stringArray(resolution.destroyedObjectIds))
       ]),
       stateLabel: asString(resolution.winnerPlayerId, "无胜者"),
       tickLabel: tickLabel(resolution.tick)
@@ -645,10 +670,10 @@ function stackItemPlan(
     orderLine,
     responseLine
   ]);
-  const refs = [
+  const refs = compactObjectRefs([
     objectRef("来源", sourceObjectId),
     ...objectRefs("目标", targetObjectIds)
-  ];
+  ]);
   const detail = detailPlan({
     id: ruleDetailId("stack", stackItemId),
     lines: compactLines([
@@ -695,10 +720,10 @@ function taskItemPlan(
     spellDuelId ? detailLine("法术对决", "服务端已创建") : undefined,
     battleId ? detailLine("战斗", "服务端已创建") : undefined
   ]);
-  const refs = [
+  const refs = compactObjectRefs([
     objectRef("战场", battlefieldObjectId),
     ...objectRefs("参与", participantObjectIds)
-  ];
+  ]);
   const detail = detailPlan({
     id: ruleDetailId("task", taskId),
     lines: compactLines([detailLine("状态", status ? protocolValue(status, "服务端状态") : "状态未提供"), ...lines]),
@@ -727,7 +752,7 @@ function triggerItemPlan(
   const controllerId = optionalString(trigger.controllerId);
   const sourceObjectId = optionalString(trigger.sourceObjectId);
   const sourceVisibility = optionalString(trigger.sourceVisibility);
-  const refs = sourceVisibility === "HIDDEN" ? [objectRef("来源", "HIDDEN")] : [objectRef("来源", sourceObjectId)];
+  const refs = compactObjectRefs(sourceVisibility === "HIDDEN" ? [objectRef("来源", "HIDDEN")] : [objectRef("来源", sourceObjectId)]);
   const lines = compactLines([
     detailLine("控制者", controllerId ?? "无", controllerId === playerId),
     detailLine("来源", sourceVisibility === "HIDDEN" ? "隐藏来源" : objectLabel(sourceObjectId, objects)),
@@ -769,11 +794,11 @@ function battlefieldResolutionItemPlan(
     detailLine("参与对象", objectListLabel(participantObjectIds, objects)),
     detailLine("事件", eventListLabel(relatedEventKinds))
   ]);
-  const refs = [
+  const refs = compactObjectRefs([
     objectRef("战场", battlefieldObjectId),
     objectRef("来源", nullableString(resolution.sourceObjectId)),
     ...objectRefs("参与", participantObjectIds)
-  ];
+  ]);
   const detail = detailPlan({
     id: ruleDetailId("battlefield-resolution", resolutionId),
     lines: compactLines([
@@ -814,12 +839,12 @@ function battleResolutionItemPlan(
     detailLine("被摧毁", objectListLabel(destroyedObjectIds, objects)),
     detailLine("事件", eventListLabel(relatedEventKinds))
   ]);
-  const refs = [
+  const refs = compactObjectRefs([
     objectRef("战场", battlefieldId),
     ...objectRefs("攻击", stringArray(resolution.attackerObjectIds)),
     ...objectRefs("防守", stringArray(resolution.defenderObjectIds)),
     ...objectRefs("被摧毁", destroyedObjectIds)
-  ];
+  ]);
   const detail = detailPlan({
     id: ruleDetailId("battle-resolution", resolutionId),
     lines: compactLines([
@@ -891,6 +916,10 @@ function objectRef(role: string, id: string | null | undefined): WireRuleQueueOb
 
 function objectRefs(role: string, ids: string[] | undefined): WireRuleQueueObjectRef[] {
   return (ids ?? []).map((id) => objectRef(role, id));
+}
+
+function compactObjectRefs(refs: WireRuleQueueObjectRef[]): WireRuleQueueObjectRef[] {
+  return refs.filter((ref) => ref.id.trim().length > 0);
 }
 
 function ruleDetailId(kind: string, id: string): string {

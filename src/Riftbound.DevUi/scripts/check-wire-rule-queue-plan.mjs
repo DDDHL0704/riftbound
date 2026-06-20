@@ -169,6 +169,14 @@ assert.equal(stackResponse.focus.detail?.title, "结算链项目");
 assert.equal(stackResponse.inspector.activeLaneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].laneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].objectCount, 2);
+assert.deepEqual(
+  stackResponse.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`),
+  ["来源:spell-1", "目标:unit-1"]
+);
+assert.deepEqual(
+  stackResponse.inspector.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`),
+  ["来源:spell-1", "目标:unit-1"]
+);
 assert.equal(stackResponse.lanes.find((lane) => lane.key === "stack")?.state, "active");
 assert.equal(stackResponse.sequence[0].lane, "stack");
 assert.equal(stackResponse.sequence[0].objectCount, 2);
@@ -219,6 +227,28 @@ assert.equal(bottomStackItem?.title, "项目 1");
 assert.equal(bottomStackItem?.lines.find((line) => line.label === "顺序")?.value, "等待上方 1 项");
 assert.equal(bottomStackItem?.lines.find((line) => line.label === "响应")?.value, "先等待上方结算链项目");
 
+const sameObjectMultiRole = buildWireRuleQueuePlan({
+  playerId: "P1",
+  snapshot: {
+    ...baseSnapshot,
+    stack: [
+      {
+        controllerId: "P1",
+        effectKind: "ABILITY",
+        sourceObjectId: "shared-object",
+        stackItemId: "stack-shared",
+        targetObjectIds: ["shared-object"]
+      }
+    ]
+  }
+});
+
+assert.deepEqual(
+  sameObjectMultiRole.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`),
+  ["来源:shared-object", "目标:shared-object"],
+  "sequence refs must preserve distinct roles for the same object"
+);
+
 const triggerPending = buildWireRuleQueuePlan({
   playerId: "P1",
   snapshot: {
@@ -246,6 +276,7 @@ assert.equal(triggerPending.focus.laneKey, "trigger");
 assert.equal(triggerPending.focus.detail?.title, "触发 1");
 assert.ok(triggerPending.lanes.find((lane) => lane.key === "trigger")?.headline.includes("触发"));
 assert.equal(triggerPending.sequence[0].stateLabel, "P1");
+assert.deepEqual(triggerPending.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`), ["来源:jinx-1"]);
 assert.ok(triggerPending.sections.find((section) => section.key === "trigger")?.items[0]?.detail.lines.some((line) => line.label === "来源事件"));
 
 const resolutionHistory = buildWireRuleQueuePlan({
@@ -284,7 +315,15 @@ assert.equal(resolutionHistory.focus.laneKey, "resolution");
 assert.equal(resolutionHistory.focus.detail?.title, "据守");
 assert.equal(resolutionHistory.sequence.length, 2);
 assert.equal(resolutionHistory.sequence[0].tickLabel, "tick 8");
+assert.deepEqual(
+  resolutionHistory.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`),
+  ["战场:battlefield-a", "参与:unit-b"]
+);
 assert.equal(resolutionHistory.sequence[1].detailLabel, "战斗无结果");
+assert.deepEqual(
+  resolutionHistory.sequence[1].refs.map((ref) => `${ref.role}:${ref.id}`),
+  ["战场:battlefield-b", "被摧毁:unit-a"]
+);
 assert.equal(resolutionHistory.sections.find((section) => section.key === "resolution")?.items.length, 2);
 assert.ok(resolutionHistory.sections.find((section) => section.key === "resolution")?.items.some((item) => item.key.startsWith("battle-resolution:")));
 

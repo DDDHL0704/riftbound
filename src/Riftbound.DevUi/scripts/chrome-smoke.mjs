@@ -899,7 +899,8 @@ async function runWireClickSelectionSmoke(cdp) {
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
       ruleQueueState: ruleQueue?.getAttribute("data-wire-rule-queue-state") ?? null,
-      ruleSequenceCount: document.querySelectorAll("[data-rule-sequence-lane]").length
+      ruleSequenceCount: document.querySelectorAll("[data-rule-sequence-lane]").length,
+      ruleSequenceRefCount: document.querySelectorAll(".wire-rule-sequence [data-rule-object-ref]").length
     };
   })()`);
 
@@ -910,6 +911,7 @@ async function runWireClickSelectionSmoke(cdp) {
     return {
       hidden: inspector?.hasAttribute("hidden") ?? true,
       laneCount: inspector?.querySelectorAll("[data-rule-inspector-lane]").length ?? 0,
+      sequenceRefCount: inspector?.querySelectorAll(".wire-rule-inspector-sequence [data-rule-object-ref]").length ?? 0,
       sequenceCount: inspector?.querySelectorAll("[data-rule-inspector-sequence-lane]").length ?? 0,
       text: inspector?.textContent ?? "",
       toggleExpanded: document.querySelector("[data-rule-inspector-toggle]")?.getAttribute("aria-expanded") ?? null
@@ -1193,6 +1195,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.ruleFlowText.includes("近期事件")) failures.push("wire rule queue resolution lane missing");
   if (!actionMapResult.ruleFlowText.includes("下一步")) failures.push("wire rule queue next step missing");
   if (actionMapResult.ruleSequenceCount < 1) failures.push("wire rule queue sequence items missing");
+  if (actionMapResult.ruleSequenceRefCount < 1) failures.push("wire rule queue sequence object refs missing");
   for (const sectionKey of ["stack", "task", "trigger", "resolution"]) {
     if (!actionMapResult.ruleSectionKeys.includes(sectionKey)) failures.push(`wire rule queue section missing: ${sectionKey}`);
   }
@@ -1210,6 +1213,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!ruleInspectorResult.text.includes("下一步")) failures.push("wire rule inspector next step missing");
   if (ruleInspectorResult.laneCount !== 4) failures.push(`wire rule inspector lane count mismatch: ${ruleInspectorResult.laneCount}`);
   if (ruleInspectorResult.sequenceCount < 1) failures.push("wire rule inspector sequence items missing");
+  if (ruleInspectorResult.sequenceRefCount < 1) failures.push("wire rule inspector sequence object refs missing");
   if (actionMapResult.candidatePlanCount < 1) failures.push("action map candidate plan cards missing");
   if (actionMapResult.candidatePlanEnabled !== "true") failures.push("PLAY_CARD candidate plan did not preserve enabled state");
   if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");

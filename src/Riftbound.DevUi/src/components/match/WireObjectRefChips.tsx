@@ -112,15 +112,16 @@ function objectRefVisibility(objectId: string, object: CardObjectView | undefine
   return object ? "visible" : "missing";
 }
 
-function uniqueWireObjectRefs(refs: WireObjectRef[]): WireObjectRef[] {
+export function uniqueWireObjectRefs(refs: WireObjectRef[]): WireObjectRef[] {
   const seen = new Set<string>();
   const unique: WireObjectRef[] = [];
   for (const item of refs) {
-    if (!item.id || seen.has(item.id)) {
+    const key = `${item.role}:${item.id}`;
+    if (!item.id || seen.has(key)) {
       continue;
     }
 
-    seen.add(item.id);
+    seen.add(key);
     unique.push(item);
   }
 

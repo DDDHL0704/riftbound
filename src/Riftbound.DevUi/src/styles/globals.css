@@ -13765,6 +13765,11 @@ button.card-face:hover {
   padding: 4px;
 }
 
+.wire-rule-sequence .wire-object-refs,
+.wire-rule-inspector-sequence .wire-object-refs {
+  padding: 0;
+}
+
 .wire-rule-lanes li[data-rule-lane-state="active"],
 .wire-rule-lanes li[data-rule-lane-state="blocked"] {
   border-width: 2px;

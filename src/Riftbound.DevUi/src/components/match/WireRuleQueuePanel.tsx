@@ -54,7 +54,13 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
         {plan.sequence.length > 0 && (
           <ol className="wire-rule-sequence" aria-label="服务端规则队列顺序">
             {plan.sequence.map((item) => (
-              <RuleSequenceItem item={item} key={item.key} />
+              <RuleSequenceItem
+                item={item}
+                key={item.key}
+                objects={objects}
+                onInspectObject={onInspectObject}
+                selectedObjectId={selectedObjectId}
+              />
             ))}
           </ol>
         )}
@@ -67,7 +73,13 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
         >
           {inspectorOpen ? "收起规则检查" : "展开规则检查"}
         </button>
-        <RuleQueueInspector open={inspectorOpen} plan={plan.inspector} />
+        <RuleQueueInspector
+          objects={objects}
+          onInspectObject={onInspectObject}
+          open={inspectorOpen}
+          plan={plan.inspector}
+          selectedObjectId={selectedObjectId}
+        />
       </section>
 
       <RuleFocus
@@ -157,7 +169,19 @@ function RuleFocus({
   );
 }
 
-function RuleQueueInspector({ open, plan }: { open: boolean; plan: WireRuleQueueInspectorPlan }) {
+function RuleQueueInspector({
+  objects,
+  onInspectObject,
+  open,
+  plan,
+  selectedObjectId
+}: {
+  objects: ObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  open: boolean;
+  plan: WireRuleQueueInspectorPlan;
+  selectedObjectId?: string;
+}) {
   return (
     <aside
       aria-label="规则队列检查器"
@@ -191,6 +215,14 @@ function RuleQueueInspector({ open, plan }: { open: boolean; plan: WireRuleQueue
                 <span>{item.label}</span>
                 <strong>{item.laneLabel} / {item.detailLabel}</strong>
                 <small>{item.stateLabel} / {item.tickLabel ?? `${item.objectCount} 对象`}</small>
+                <WireObjectRefChips
+                  className="wire-rule-inspector-object-refs"
+                  objects={objects}
+                  onInspectObject={onInspectObject}
+                  refs={item.refs}
+                  selectedObjectId={selectedObjectId}
+                  source="rule"
+                />
               </li>
             ))}
           </ol>
@@ -218,13 +250,31 @@ function RuleLaneCard({ lane }: { lane: WireRuleQueueLane }) {
   );
 }
 
-function RuleSequenceItem({ item }: { item: WireRuleQueueSequenceItem }) {
+function RuleSequenceItem({
+  item,
+  objects,
+  onInspectObject,
+  selectedObjectId
+}: {
+  item: WireRuleQueueSequenceItem;
+  objects: ObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  selectedObjectId?: string;
+}) {
   return (
     <li data-rule-sequence-lane={item.lane}>
       <small>{item.label}</small>
       <strong>{item.detailLabel}</strong>
       <span>{item.stateLabel}</span>
       <em>{item.tickLabel ?? `${item.objectCount} 对象`}</em>
+      <WireObjectRefChips
+        className="wire-rule-sequence-object-refs"
+        objects={objects}
+        onInspectObject={onInspectObject}
+        refs={item.refs}
+        selectedObjectId={selectedObjectId}
+        source="rule"
+      />
     </li>
   );
 }
