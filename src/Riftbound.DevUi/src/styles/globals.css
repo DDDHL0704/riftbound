@@ -11757,6 +11757,11 @@ button.card-face:hover {
 .wire-prompt-authority-header,
 .wire-prompt-authority-metrics span,
 .wire-prompt-authority-rows li,
+.wire-response-coach,
+.wire-response-coach-header,
+.wire-response-coach-next,
+.wire-response-coach-metrics span,
+.wire-response-coach-rows li,
 .wire-rule-authority,
 .wire-rule-authority-header,
 .wire-rule-authority-metrics span,
@@ -12178,6 +12183,91 @@ button.card-face:hover {
 .wire-prompt-authority-rows li span,
 .wire-prompt-authority-rows li strong,
 .wire-prompt-authority-rows li small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-response-coach {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-response-coach-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+}
+
+.wire-response-coach-header > div,
+.wire-response-coach-next {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-response-coach-next {
+  padding: 5px;
+}
+
+.wire-response-coach-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-response-coach-metrics span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-response-coach-rows {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-response-coach-rows li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(54px, 0.6fr) minmax(72px, 0.8fr) minmax(72px, 0.8fr) minmax(0, 1.6fr);
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+}
+
+.wire-response-coach [data-wire-response-coach-row-state="ready"],
+.wire-response-coach [data-wire-response-coach-row-state="server"],
+.wire-response-coach [data-wire-response-coach-row-state="done"] {
+  border-width: 2px;
+}
+
+.wire-response-coach [data-wire-response-coach-row-state="blocked"],
+.wire-response-coach [data-wire-response-coach-row-state="waiting"] {
+  border-style: dashed;
+}
+
+.wire-response-coach-header strong,
+.wire-response-coach-header span,
+.wire-response-coach-next small,
+.wire-response-coach-next strong,
+.wire-response-coach-next span,
+.wire-response-coach-metrics small,
+.wire-response-coach-metrics strong,
+.wire-response-coach-rows li span,
+.wire-response-coach-rows li strong,
+.wire-response-coach-rows li small,
+.wire-response-coach-rows li em {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -14196,6 +14286,11 @@ button.wire-object-ref {
 .wire-match-page .wire-prompt-authority-header,
 .wire-match-page .wire-prompt-authority-metrics span,
 .wire-match-page .wire-prompt-authority-rows li,
+.wire-match-page .wire-response-coach,
+.wire-match-page .wire-response-coach-header,
+.wire-match-page .wire-response-coach-next,
+.wire-match-page .wire-response-coach-metrics span,
+.wire-match-page .wire-response-coach-rows li,
 .wire-match-page .wire-rule-authority,
 .wire-match-page .wire-rule-authority-header,
 .wire-match-page .wire-rule-authority-metrics span,

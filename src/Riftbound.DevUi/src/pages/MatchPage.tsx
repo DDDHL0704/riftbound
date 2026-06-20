@@ -8,6 +8,7 @@ import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { useDelayedWireCardPreview, WireCardPreview } from "../components/match/WireCardPreview";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WirePromptAuthorityPanel } from "../components/match/WirePromptAuthorityPanel";
+import { WireResponseCoachPanel } from "../components/match/WireResponseCoachPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
 import { WireTableAuthorityPanel } from "../components/match/WireTableAuthorityPanel";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
@@ -361,6 +362,16 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             <WirePromptAuthorityPanel
               playerId={settings.playerId}
               prompt={tablePrompt}
+              submissionGate={tableSubmissionGate}
+            />
+          </section>
+          <section aria-label="当前响应导航区" className="wire-panel wire-response-coach-panel" tabIndex={0}>
+            <WireResponseCoachPanel
+              connectionStatus={tableConnectionStatus}
+              playerId={settings.playerId}
+              prompt={tablePrompt}
+              selectionDraft={selectionDraft}
+              snapshot={tableSnapshot}
               submissionGate={tableSubmissionGate}
             />
           </section>

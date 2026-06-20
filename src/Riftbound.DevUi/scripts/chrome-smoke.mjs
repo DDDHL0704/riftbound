@@ -584,6 +584,28 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    const responseCoach = document.querySelector("[data-wire-response-coach-state]");
+    const responseCoachState = responseCoach?.getAttribute("data-wire-response-coach-state") ?? "missing";
+    const responseCoachStepRole = responseCoach?.getAttribute("data-wire-response-coach-step-role") ?? "missing";
+    if (!["blocked", "opponent", "ready", "resolving", "selecting", "waiting"].includes(responseCoachState)) {
+      failures.push(\`wire response coach state is unsupported: \${responseCoachState}\`);
+    }
+    if (!["destination", "mode", "optionalCost", "source", "submit", "sync", "target", "wait", "window"].includes(responseCoachStepRole)) {
+      failures.push(\`wire response coach step role is unsupported: \${responseCoachStepRole}\`);
+    }
+    const responseCoachRows = new Map(Array.from(document.querySelectorAll("[data-wire-response-coach-row]")).map((row) => [
+      row.getAttribute("data-wire-response-coach-row") ?? "",
+      row.getAttribute("data-wire-response-coach-row-state") ?? ""
+    ]));
+    for (const rowKey of ["gate", "window", "prompt", "draft", "route", "submit"]) {
+      if (!responseCoachRows.get(rowKey)) {
+        failures.push(\`wire response coach row \${rowKey} is missing\`);
+      }
+    }
+    if (document.querySelectorAll("[data-wire-response-coach-metric]").length < 4) {
+      failures.push("wire response coach did not expose the expected metric strip");
+    }
+
     const ruleAuthority = document.querySelector("[data-wire-rule-authority-state]");
     const ruleAuthorityState = ruleAuthority?.getAttribute("data-wire-rule-authority-state") ?? "missing";
     if (ruleAuthorityState !== "server") {
@@ -605,6 +627,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       flowCount: document.querySelectorAll(".wire-card-flow").length,
       promptAuthorityState,
       quickActionCount: quickActions.size,
+      responseCoachState,
       ruleAuthorityState,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length,
       tableAuthorityState
@@ -633,6 +656,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (result.promptAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server prompt authority: ${result.promptAuthorityState}`);
+  }
+  if (!["blocked", "opponent", "ready", "resolving", "selecting", "waiting"].includes(result.responseCoachState)) {
+    throw new Error(`Wire layout geometry smoke did not find response coach: ${result.responseCoachState}`);
   }
   if (result.ruleAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server rule authority: ${result.ruleAuthorityState}`);
