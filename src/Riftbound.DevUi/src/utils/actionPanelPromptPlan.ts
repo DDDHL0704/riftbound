@@ -1,6 +1,7 @@
-import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptContractDto, ActionPromptDto, ConnectionStatus } from "../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptContractDto, ActionPromptDto, ConnectionStatus, SnapshotDto } from "../types/protocol";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel } from "./formatters";
 import { redactInternalText } from "./redaction";
+import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 
 export type ActionPanelPromptSummaryRow = {
   key: string;
@@ -59,15 +60,19 @@ type BuildActionPanelPromptPlanOptions = {
   connectionStatus: ConnectionStatus;
   playerId: string;
   prompt?: ActionPromptDto;
+  snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
 };
 
 export function buildActionPanelPromptPlan({
   connectionStatus,
   playerId,
-  prompt
+  prompt,
+  snapshot,
+  submissionGate
 }: BuildActionPanelPromptPlanOptions): ActionPanelPromptPlan {
-  const connected = connectionStatus === "connected";
-  const canAct = Boolean(connected && prompt?.actionable && prompt.playerId === playerId);
+  const gate = submissionGate ?? buildServerSubmissionGatePlan({ connectionStatus, prompt, snapshot });
+  const canAct = Boolean(gate.canSubmit && prompt?.actionable && prompt.playerId === playerId);
   const promptView = prompt?.view;
   const promptTitle = promptView?.title?.trim() || "当前行动";
   const promptMessage = promptView?.message?.trim()
@@ -78,8 +83,8 @@ export function buildActionPanelPromptPlan({
     genericPrompt: prompt && shouldShowGenericPromptDetails(prompt) ? buildGenericPromptPlan(prompt) : undefined,
     promptMessage,
     promptTitle,
-    rows: promptSummaryRows(prompt, promptMessage, connectionStatus),
-    statusLabel: canAct ? "轮到你操作" : "等待服务端或对手",
+    rows: promptSummaryRows(prompt, promptMessage, connectionStatus, gate),
+    statusLabel: canAct ? "轮到你操作" : gate.canSubmit ? "等待服务端或对手" : gate.stateLabel,
     statusTone: canAct ? "good" : "neutral"
   };
 }
@@ -87,7 +92,8 @@ export function buildActionPanelPromptPlan({
 function promptSummaryRows(
   prompt: ActionPromptDto | undefined,
   promptMessage: string,
-  connectionStatus: ConnectionStatus
+  connectionStatus: ConnectionStatus,
+  submissionGate: ServerSubmissionGatePlan
 ): ActionPanelPromptSummaryRow[] {
   const rows: ActionPanelPromptSummaryRow[] = [
     { key: "prompt-status", text: `提示状态：${prompt ? "已收到" : "无"}` }
@@ -116,6 +122,12 @@ function promptSummaryRows(
     rows.push({
       key: "connection",
       text: `连接状态：${connectionStatusLabel(connectionStatus)}，行动入口已暂停。`
+    });
+  }
+  if (connectionStatus === "connected" && !submissionGate.canSubmit) {
+    rows.push({
+      key: "submission-gate",
+      text: `提交门禁：${submissionGate.reason}`
     });
   }
 

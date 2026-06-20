@@ -13,6 +13,7 @@ import { buildActionPanelCandidateCommandPlan, type ActionPanelCandidateButtonIc
 import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
+import { buildServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
 import { StatusPill } from "../ui/StatusPill";
@@ -29,11 +30,11 @@ type ActionPanelProps = {
 };
 
 export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
-  const connected = connectionStatus === "connected";
-  const promptPlan = buildActionPanelPromptPlan({ connectionStatus, playerId, prompt });
+  const submissionGate = buildServerSubmissionGatePlan({ connectionStatus, prompt, snapshot });
+  const promptPlan = buildActionPanelPromptPlan({ connectionStatus, playerId, prompt, snapshot, submissionGate });
   const renderPlan = buildActionPanelRenderPlan({
     canAct: promptPlan.canAct,
-    connected,
+    connected: submissionGate.canSubmit,
     prompt
   });
 
@@ -59,7 +60,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             {renderPlan.entries.length === 0 && <span className="empty-hint">{renderPlan.emptyLabel}</span>}
             {renderPlan.entries.map((entry) => (
               <ActionPanelRenderEntryView
-                disabledByConnection={!connected}
+                disabledByConnection={!submissionGate.canSubmit}
                 entry={entry}
                 key={entry.key}
                 onCommand={onCommand}

@@ -22,6 +22,7 @@ new Function(
   "promptActionLabel",
   "promptReasonLabel",
   "redactInternalText",
+  "buildServerSubmissionGatePlan",
   output
 )(
   moduleShim.exports,
@@ -29,7 +30,8 @@ new Function(
   connectionStatusLabel,
   promptActionLabel,
   promptReasonLabel,
-  redactInternalText
+  redactInternalText,
+  buildServerSubmissionGatePlan
 );
 
 const { buildActionPanelPromptPlan } = moduleShim.exports;
@@ -41,7 +43,7 @@ const disconnectedPlan = buildActionPanelPromptPlan({
 
 assert.equal(disconnectedPlan.canAct, false);
 assert.equal(disconnectedPlan.promptTitle, "当前行动");
-assert.equal(disconnectedPlan.statusLabel, "等待服务端或对手");
+assert.equal(disconnectedPlan.statusLabel, "连接未就绪");
 assert.ok(disconnectedPlan.rows.some((row) => row.text.includes("连接状态：已断开")));
 assert.equal(disconnectedPlan.genericPrompt, undefined);
 
@@ -65,6 +67,29 @@ const knownSimplePlan = buildActionPanelPromptPlan({
 assert.equal(knownSimplePlan.canAct, true);
 assert.equal(knownSimplePlan.statusTone, "good");
 assert.equal(knownSimplePlan.genericPrompt, undefined);
+
+const stalePromptPlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["END_TURN"],
+    candidates: [{ action: "END_TURN", enabled: true, label: "结束回合", reason: "可结束" }],
+    playerId: "P1",
+    reason: "MAIN_ACTION",
+    snapshotTick: 7,
+    view: {
+      message: "选择一个主行动。",
+      title: "主行动",
+      type: "MAIN_ACTION"
+    }
+  },
+  snapshot: { tick: 8 }
+});
+
+assert.equal(stalePromptPlan.canAct, false);
+assert.equal(stalePromptPlan.statusLabel, "等待同步");
+assert.ok(stalePromptPlan.rows.some((row) => row.key === "submission-gate" && row.text.includes("tick 7") && row.text.includes("tick 8")));
 
 const complexPrompt = {
   actionable: true,
@@ -167,4 +192,20 @@ function promptReasonLabel(reason, fallback = "服务端候选") {
 
 function redactInternalText(value) {
   return String(value).replace(/serverPaymentState|privateChoiceGraph/g, "服务端字段");
+}
+
+function buildServerSubmissionGatePlan({ connectionStatus, prompt, snapshot }) {
+  if (connectionStatus !== "connected") {
+    return { canSubmit: false, reason: `连接状态：${connectionStatusLabel(connectionStatus)}，暂不提交行动。`, state: "disconnected", stateLabel: "连接未就绪" };
+  }
+  if (prompt?.snapshotTick == null) {
+    return { canSubmit: true, reason: "服务端未要求特定快照 tick。", state: "connected", stateLabel: "可提交" };
+  }
+  if (!snapshot) {
+    return { canSubmit: false, reason: `行动提示属于 tick ${prompt.snapshotTick}，但本地尚未收到服务端快照。`, state: "missing-snapshot", stateLabel: "等待快照" };
+  }
+  if (snapshot.tick !== prompt.snapshotTick) {
+    return { canSubmit: false, reason: `行动提示属于 tick ${prompt.snapshotTick}，当前桌面快照是 tick ${snapshot.tick}。`, state: "stale-snapshot", stateLabel: "等待同步" };
+  }
+  return { canSubmit: true, reason: `行动提示和桌面快照同属 tick ${snapshot.tick}。`, state: "connected", stateLabel: "可提交" };
 }

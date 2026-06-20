@@ -10,6 +10,7 @@ import { eventDescriptionLabel, eventKindLabel } from "../components/match/Event
 import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
 import { connectionStatusLabel, connectionStatusTone } from "../utils/formatters";
 import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
+import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 
 export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
@@ -18,13 +19,19 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
   const prompt = controller.state.prompt;
   const connected = controller.state.status === "connected";
   const canAct = Boolean(prompt?.actionable && prompt.playerId === settings.playerId);
+  const submissionGate = useMemo(() => buildServerSubmissionGatePlan({
+    connectionStatus: controller.state.status,
+    prompt,
+    snapshot
+  }), [controller.state.status, prompt, snapshot]);
   const roomQuickActionPlan = useMemo(() => buildServerQuickActionPlan({
     canAct,
     connected,
     ids: ["submitDeck", "ready"],
     prompt,
+    submissionGate,
     snapshot
-  }), [canAct, connected, prompt, snapshot]);
+  }), [canAct, connected, prompt, snapshot, submissionGate]);
   const runRoomQuickAction = useCallback((entry: ServerQuickActionEntry) => {
     if (entry.disabled) {
       return;

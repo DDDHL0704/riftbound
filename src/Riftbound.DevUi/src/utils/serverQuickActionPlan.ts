@@ -1,6 +1,7 @@
 import type { ActionPromptCandidateDto, ActionPromptDto, GameCommand, SnapshotDto } from "../types/protocol";
 import { promptStampedCommand } from "./actionPromptCandidates";
 import { buildActionPanelCandidateCommandPlan, type ActionPanelDirectActionKind } from "./actionPanelCommandPlan";
+import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 
 export type ServerQuickActionId = "endTurn" | "pass" | "ready" | "submitDeck" | "surrender";
 
@@ -73,15 +74,22 @@ export function buildServerQuickActionPlan({
   connected,
   ids,
   prompt,
+  submissionGate,
   snapshot
 }: {
   canAct: boolean;
   connected: boolean;
   ids?: readonly ServerQuickActionId[];
   prompt?: ActionPromptDto;
+  submissionGate?: ServerSubmissionGatePlan;
   snapshot?: SnapshotDto;
 }): ServerQuickActionPlan {
   const includedIds = ids ? new Set(ids) : undefined;
+  const gate = submissionGate ?? buildServerSubmissionGatePlan({
+    connectionStatus: connected ? "connected" : "disconnected",
+    prompt,
+    snapshot
+  });
   return {
     entries: quickActionDefinitions
       .filter((definition) => !includedIds || includedIds.has(definition.id))
@@ -91,6 +99,7 @@ export function buildServerQuickActionPlan({
         connected,
         definition,
         prompt,
+        submissionGate: gate,
         snapshot
       }))
   };
@@ -102,6 +111,7 @@ function quickActionEntryForDefinition({
   connected,
   definition,
   prompt,
+  submissionGate,
   snapshot
 }: {
   canAct: boolean;
@@ -109,6 +119,7 @@ function quickActionEntryForDefinition({
   connected: boolean;
   definition: ServerQuickActionDefinition;
   prompt?: ActionPromptDto;
+  submissionGate: ServerSubmissionGatePlan;
   snapshot?: SnapshotDto;
 }): ServerQuickActionEntry {
   if (!candidate) {
@@ -124,7 +135,7 @@ function quickActionEntryForDefinition({
 
   const commandPlan = buildActionPanelCandidateCommandPlan({
     candidate,
-    disabledByConnection: !connected || !canAct,
+    disabledByConnection: !submissionGate.canSubmit || !canAct,
     snapshot
   });
   const command = commandPlan.command ? promptStampedCommand(commandPlan.command, prompt) : undefined;
@@ -138,8 +149,8 @@ function quickActionEntryForDefinition({
     disabled,
     id: definition.id,
     label: definition.label,
-    state: quickActionState({ canAct, candidate, connected, disabled, executable }),
-    title: quickActionTitle({ canAct, candidate, connected, executable }),
+    state: quickActionState({ canAct, candidate, connected, disabled, executable, submissionGate }),
+    title: quickActionTitle({ canAct, candidate, connected, executable, submissionGate }),
     variant: definition.variant
   };
 }
@@ -163,15 +174,17 @@ function quickActionState({
   candidate,
   connected,
   disabled,
-  executable
+  executable,
+  submissionGate
 }: {
   canAct: boolean;
   candidate: ActionPromptCandidateDto;
   connected: boolean;
   disabled: boolean;
   executable: boolean;
+  submissionGate: ServerSubmissionGatePlan;
 }): ServerQuickActionState {
-  if (!connected) {
+  if (!connected || submissionGate.state === "disconnected" || submissionGate.state === "resyncing") {
     return "disconnected";
   }
 
@@ -179,7 +192,7 @@ function quickActionState({
     return "readonly";
   }
 
-  if (disabled || !candidate.enabled || !executable) {
+  if (!submissionGate.canSubmit || disabled || !candidate.enabled || !executable) {
     return "blocked";
   }
 
@@ -190,15 +203,17 @@ function quickActionTitle({
   canAct,
   candidate,
   connected,
-  executable
+  executable,
+  submissionGate
 }: {
   canAct: boolean;
   candidate: ActionPromptCandidateDto;
   connected: boolean;
   executable: boolean;
+  submissionGate: ServerSubmissionGatePlan;
 }): string {
-  if (!connected) {
-    return "连接恢复前不能提交快捷操作。";
+  if (!connected || !submissionGate.canSubmit) {
+    return submissionGate.reason;
   }
 
   if (!canAct) {

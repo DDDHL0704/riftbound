@@ -28,7 +28,7 @@ const readyPlan = buildServerQuickActionPlan({
   canAct: true,
   connected: true,
   prompt,
-  snapshot: {}
+  snapshot: { tick: 7 }
 });
 
 const readyById = entriesById(readyPlan.entries);
@@ -61,13 +61,13 @@ const disconnectedPlan = buildServerQuickActionPlan({
 const disconnectedById = entriesById(disconnectedPlan.entries);
 assert.equal(disconnectedById.pass.state, "disconnected");
 assert.equal(disconnectedById.pass.disabled, true);
-assert.equal(disconnectedById.pass.title, "连接恢复前不能提交快捷操作。");
+assert.equal(disconnectedById.pass.title, "连接状态：已断开，暂不提交行动。");
 
 const readonlyPlan = buildServerQuickActionPlan({
   canAct: false,
   connected: true,
   prompt,
-  snapshot: {}
+  snapshot: { tick: 7 }
 });
 const readonlyById = entriesById(readonlyPlan.entries);
 assert.equal(readonlyById.endTurn.state, "readonly");
@@ -91,10 +91,22 @@ const roomPlan = buildServerQuickActionPlan({
   connected: true,
   ids: ["submitDeck", "ready"],
   prompt,
-  snapshot: {}
+  snapshot: { tick: 7 }
 });
 assert.deepEqual(roomPlan.entries.map((entry) => entry.id), ["ready", "submitDeck"]);
 assert.equal(roomPlan.entries.some((entry) => entry.id === "pass"), false);
+
+const stalePlan = buildServerQuickActionPlan({
+  canAct: true,
+  connected: true,
+  prompt,
+  snapshot: { tick: 8 }
+});
+const staleById = entriesById(stalePlan.entries);
+assert.equal(staleById.pass.state, "blocked");
+assert.equal(staleById.pass.disabled, true);
+assert.ok(staleById.pass.title.includes("tick 7"));
+assert.ok(staleById.pass.title.includes("tick 8"));
 
 console.log("Server quick action plan check passed.");
 

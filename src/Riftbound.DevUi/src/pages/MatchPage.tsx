@@ -57,6 +57,7 @@ import { buildPromptInteractionModel, type PromptObjectState } from "../utils/pr
 import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
 import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
+import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 
 type WireTableInteraction = {
   interactionByObjectId: Record<string, PromptObjectState | undefined>;
@@ -94,6 +95,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   );
   const tableObjectIndex = useMemo(() => buildCardObjectIndex(tableSnapshot), [tableSnapshot]);
   const tableConnectionStatus = layoutFixtureEnabled ? "connected" : controller.state.status;
+  const tableSubmissionGate = useMemo(() => buildServerSubmissionGatePlan({
+    connectionStatus: tableConnectionStatus,
+    prompt: tablePrompt,
+    snapshot: tableSnapshot
+  }), [tableConnectionStatus, tablePrompt, tableSnapshot]);
   const tableView = useMemo(
     () => buildWireTableViewModel({
       perspectivePlayerId: settings.playerId,
@@ -131,13 +137,15 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const windowState = asString(turnWindow.state, asString(timing.timingState, ""));
   const roomStatus = asString(timing.roomStatus, "");
   const promptTitle = tablePrompt?.view?.title?.trim() || "无行动窗口";
-  const canAct = Boolean(tablePrompt?.actionable && tablePrompt.playerId === settings.playerId);
+  const promptCanAct = Boolean(tablePrompt?.actionable && tablePrompt.playerId === settings.playerId);
+  const canAct = promptCanAct && tableSubmissionGate.canSubmit;
   const topbarQuickActionPlan = useMemo(() => buildServerQuickActionPlan({
-    canAct,
+    canAct: promptCanAct,
     connected: tableConnectionStatus === "connected",
     prompt: tablePrompt,
+    submissionGate: tableSubmissionGate,
     snapshot: tableSnapshot
-  }), [canAct, tableConnectionStatus, tablePrompt, tableSnapshot]);
+  }), [promptCanAct, tableConnectionStatus, tablePrompt, tableSubmissionGate, tableSnapshot]);
   const inspectCard = useCallback((card: InspectedCard) => {
     const clickedObjectId = card.objectId ?? card.object?.objectId;
     if (!clickedObjectId) {
@@ -357,7 +365,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </section>
           <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>
             <WireInteractionPanel
-              disabledByConnection={tableConnectionStatus !== "connected"}
+              disabledByConnection={!tableSubmissionGate.canSubmit}
               inspectedCard={inspectedCard}
               onCommand={(command) => void controller.submitCommand(command)}
               onClearInspectedCard={() => {
@@ -387,7 +395,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <section aria-label="规则与事件详情区" className="wire-panel wire-timeline-detail-panel" tabIndex={0}>
             <WireTimelineDetailPanel
               detail={timelineDetail}
-              disabledByConnection={tableConnectionStatus !== "connected"}
+              disabledByConnection={!tableSubmissionGate.canSubmit}
               objectContextById={tableObjectContextModel.byId}
               objectIndex={tableObjectIndex}
               onChooseObject={chooseObjectFromActionMap}
@@ -430,7 +438,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </div>
       <CardDetailDrawer
         card={detailCard}
-        disabledByConnection={tableConnectionStatus !== "connected"}
+        disabledByConnection={!tableSubmissionGate.canSubmit}
         objectContext={detailObjectContext}
         onClose={() => setDetailCard(undefined)}
         onCommand={(command) => void controller.submitCommand(command)}
