@@ -178,6 +178,7 @@ function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
         {" / 缺少选择 "}{route.missingRequiredSelectionCount}
         {" / 缺少字段 "}{route.missingRequiredFieldCount}
         {" / 服务端字段 "}{route.serverInjectedFieldCount}
+        {" / 审计 "}{route.checkSummary}
         {" / "}{route.nextStepLabel}
       </small>
       <ol>
@@ -204,6 +205,19 @@ function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
           ))}
         </div>
       )}
+      <ol className="wire-action-route-checks" aria-label={`${route.candidateLabel} 提交审计`}>
+        {route.checkRows.map((check) => (
+          <li
+            data-route-check={check.key}
+            data-route-check-state={check.state}
+            key={check.key}
+          >
+            <span>{check.label}</span>
+            <strong>{check.stateLabel}</strong>
+            <small>{check.reason}</small>
+          </li>
+        ))}
+      </ol>
       <button
         aria-expanded={inspectorOpen}
         className="wire-action-route-inspector-toggle"
@@ -224,6 +238,17 @@ function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
           <strong>路线检查</strong>
           <span>{route.summary}</span>
         </header>
+        <section>
+          <strong>提交审计</strong>
+          <ol>
+            {route.checkRows.map((check) => (
+              <li data-route-inspector-check={check.key} data-route-inspector-check-state={check.state} key={check.key}>
+                <span>{check.label}</span>
+                <small>{check.stateLabel} / {check.reason}</small>
+              </li>
+            ))}
+          </ol>
+        </section>
         <section>
           <strong>步骤覆盖</strong>
           <ol>
@@ -248,6 +273,7 @@ function CurrentRouteStrip({ route }: { route?: WireActionRoutePlan }) {
         </section>
         <footer>
           <span>服务端候选 {route.enabled ? "开放" : "阻断"}</span>
+          <span>提交审计 {route.checkSummary}</span>
           <span>缺少选择 {route.missingRequiredSelectionCount}</span>
           <span>缺少字段 {route.missingRequiredFieldCount}</span>
           <span>服务端字段 {route.serverInjectedFieldCount}</span>

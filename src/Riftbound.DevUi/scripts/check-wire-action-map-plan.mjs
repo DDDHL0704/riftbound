@@ -196,6 +196,16 @@ assert.equal(draftPlan.route.selectedStepCount, 2);
 assert.equal(draftPlan.route.missingRequiredFieldCount, 0);
 assert.equal(draftPlan.route.missingRequiredSelectionCount, 0);
 assert.equal(draftPlan.route.serverInjectedFieldCount, 1);
+assert.equal(draftPlan.route.checkSummary, "5 通过 / 0 阻断 / 0 等待");
+assert.deepEqual(draftPlan.route.checkRows.map((check) => check.key), [
+  "server-candidate",
+  "submission-gate",
+  "required-selections",
+  "command-fields",
+  "server-injected"
+]);
+assert.deepEqual(draftPlan.route.checkRows.map((check) => check.state), ["ready", "ready", "ready", "ready", "ready"]);
+assert.equal(draftPlan.route.checkRows.find((check) => check.key === "server-injected")?.stateLabel, "1 项");
 assert.equal(draftPlan.route.steps.find((step) => step.role === "source").state, "selected");
 assert.equal(draftPlan.route.steps.find((step) => step.role === "target").state, "selected");
 assert.deepEqual(draftPlan.route.fields.map((field) => field.state), ["covered", "covered", "server"]);
@@ -226,6 +236,9 @@ assert.equal(staleDraftPlan.submissionGate.state, "stale-snapshot");
 assert.equal(staleDraftPlan.route.state, "blocked");
 assert.equal(staleDraftPlan.route.stateLabel, "提交门禁阻断");
 assert.equal(staleDraftPlan.route.nextStepLabel, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
+assert.equal(staleDraftPlan.route.checkSummary, "4 通过 / 1 阻断 / 0 等待");
+assert.equal(staleDraftPlan.route.checkRows.find((check) => check.key === "submission-gate")?.state, "blocked");
+assert.equal(staleDraftPlan.route.checkRows.find((check) => check.key === "submission-gate")?.stateLabel, "等待同步");
 
 const readOnlyPlan = buildWireActionMapPlan({
   playerId: "P2",

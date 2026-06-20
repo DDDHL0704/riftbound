@@ -80,6 +80,16 @@ export type WireActionRouteState = "blocked" | "incomplete" | "ready";
 
 export type WireActionRouteFieldState = "covered" | "missing" | "optional" | "server";
 
+export type WireActionRouteCheckState = "blocked" | "ready" | "waiting";
+
+export type WireActionRouteCheckPlan = {
+  key: string;
+  label: string;
+  reason: string;
+  state: WireActionRouteCheckState;
+  stateLabel: string;
+};
+
 export type WireActionRouteFieldPlan = WireActionCommandFieldPlan & {
   role?: PromptChoiceRole;
   state: WireActionRouteFieldState;
@@ -99,6 +109,8 @@ export type WireActionRouteStepPlan = {
 
 export type WireActionRoutePlan = {
   candidateLabel: string;
+  checkRows: WireActionRouteCheckPlan[];
+  checkSummary: string;
   commandType?: string;
   enabled: boolean;
   fields: WireActionRouteFieldPlan[];
@@ -453,9 +465,18 @@ function wireActionRoutePlan(
     : nextMissingField
       ? `补齐字段${nextMissingField.label}`
       : "可送服务端校验";
+  const checkRows = wireActionRouteCheckRows({
+    candidateEnabled: candidatePlan.enabled,
+    missingRequiredFieldCount,
+    missingRequiredSelectionCount,
+    serverInjectedFieldCount,
+    submissionGate
+  });
 
   return {
     candidateLabel: candidatePlan.candidateLabel,
+    checkRows,
+    checkSummary: routeCheckSummary(checkRows),
     commandType: candidatePlan.commandType,
     enabled: candidatePlan.enabled,
     fields: candidatePlan.commandFields,
@@ -479,6 +500,71 @@ function wireActionRoutePlan(
     })),
     summary: `${candidatePlan.candidateLabel} / ${stateLabel} / ${nextStepLabel}`
   };
+}
+
+function wireActionRouteCheckRows({
+  candidateEnabled,
+  missingRequiredFieldCount,
+  missingRequiredSelectionCount,
+  serverInjectedFieldCount,
+  submissionGate
+}: {
+  candidateEnabled: boolean;
+  missingRequiredFieldCount: number;
+  missingRequiredSelectionCount: number;
+  serverInjectedFieldCount: number;
+  submissionGate: WireActionSubmissionGatePlan;
+}): WireActionRouteCheckPlan[] {
+  return [
+    {
+      key: "server-candidate",
+      label: "服务端候选",
+      reason: candidateEnabled ? "候选仍由服务端标记为可提交。" : "服务端当前阻断该候选。",
+      state: candidateEnabled ? "ready" : "blocked",
+      stateLabel: candidateEnabled ? "开放" : "阻断"
+    },
+    {
+      key: "submission-gate",
+      label: "快照门禁",
+      reason: submissionGate.reason,
+      state: submissionGate.canSubmit ? "ready" : "blocked",
+      stateLabel: submissionGate.stateLabel
+    },
+    {
+      key: "required-selections",
+      label: "必选步骤",
+      reason: missingRequiredSelectionCount > 0
+        ? `仍缺少 ${missingRequiredSelectionCount} 个必选步骤。`
+        : "来源、目标、位置等必选步骤已覆盖。",
+      state: missingRequiredSelectionCount > 0 ? "waiting" : "ready",
+      stateLabel: missingRequiredSelectionCount > 0 ? `缺少 ${missingRequiredSelectionCount}` : "齐备"
+    },
+    {
+      key: "command-fields",
+      label: "命令字段",
+      reason: missingRequiredFieldCount > 0
+        ? `仍缺少 ${missingRequiredFieldCount} 个服务端命令字段。`
+        : "前端草稿已覆盖所有可选择命令字段。",
+      state: missingRequiredFieldCount > 0 ? "blocked" : "ready",
+      stateLabel: missingRequiredFieldCount > 0 ? `缺少 ${missingRequiredFieldCount}` : "齐备"
+    },
+    {
+      key: "server-injected",
+      label: "服务端注入",
+      reason: serverInjectedFieldCount > 0
+        ? `${serverInjectedFieldCount} 个字段由服务端注入，前端只显示不伪造。`
+        : "当前候选没有额外服务端注入字段。",
+      state: "ready",
+      stateLabel: serverInjectedFieldCount > 0 ? `${serverInjectedFieldCount} 项` : "无"
+    }
+  ];
+}
+
+function routeCheckSummary(rows: WireActionRouteCheckPlan[]): string {
+  const readyCount = rows.filter((row) => row.state === "ready").length;
+  const blockedCount = rows.filter((row) => row.state === "blocked").length;
+  const waitingCount = rows.filter((row) => row.state === "waiting").length;
+  return `${readyCount} 通过 / ${blockedCount} 阻断 / ${waitingCount} 等待`;
 }
 
 function routeFieldPlan(

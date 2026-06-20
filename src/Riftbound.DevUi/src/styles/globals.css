@@ -12984,11 +12984,14 @@ button.card-face:hover {
 }
 
 .wire-action-route-strip[data-action-route-state="ready"],
-.wire-action-route-strip li[data-route-step-state="selected"] {
+.wire-action-route-strip li[data-route-step-state="selected"],
+.wire-action-route-checks li[data-route-check-state="ready"] {
   border-width: 2px;
 }
 
-.wire-action-route-strip[data-action-route-state="blocked"] {
+.wire-action-route-strip[data-action-route-state="blocked"],
+.wire-action-route-checks li[data-route-check-state="blocked"],
+.wire-action-route-checks li[data-route-check-state="waiting"] {
   border-style: dashed;
 }
 
@@ -13092,16 +13095,19 @@ button.card-face:hover {
 
 .wire-action-route-inspector li[data-route-inspector-step-state="selected"],
 .wire-action-route-inspector li[data-route-inspector-field-state="covered"],
-.wire-action-route-inspector li[data-route-inspector-field-state="server"] {
+.wire-action-route-inspector li[data-route-inspector-field-state="server"],
+.wire-action-route-inspector li[data-route-inspector-check-state="ready"] {
   border-width: 2px;
 }
 
-.wire-action-route-inspector li[data-route-inspector-field-state="missing"] {
+.wire-action-route-inspector li[data-route-inspector-field-state="missing"],
+.wire-action-route-inspector li[data-route-inspector-check-state="blocked"],
+.wire-action-route-inspector li[data-route-inspector-check-state="waiting"] {
   border-style: dashed;
 }
 
 .wire-action-route-inspector footer {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .wire-action-map-metric strong,

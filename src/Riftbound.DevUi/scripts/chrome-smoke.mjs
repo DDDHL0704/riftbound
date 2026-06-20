@@ -883,6 +883,8 @@ async function runWireClickSelectionSmoke(cdp) {
       ruleSectionKeys: Array.from(document.querySelectorAll("[data-rule-section-key]")).map((node) => node.getAttribute("data-rule-section-key")),
       ruleItemKeys: Array.from(document.querySelectorAll("[data-rule-item-key]")).map((node) => node.getAttribute("data-rule-item-key")),
       ruleStackItemText: document.querySelector('[data-rule-item-key^="stack:"]')?.textContent ?? "",
+      routeCheckStates: Array.from(route?.querySelectorAll("[data-route-check-state]") ?? [])
+        .map((node) => node.getAttribute("data-route-check-state")),
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
       ruleQueueState: ruleQueue?.getAttribute("data-wire-rule-queue-state") ?? null,
@@ -933,6 +935,8 @@ async function runWireClickSelectionSmoke(cdp) {
       routeText: route?.textContent ?? "",
       routeFieldStates: Array.from(route?.querySelectorAll("[data-route-field-state]") ?? [])
         .map((node) => node.getAttribute("data-route-field-state")),
+      routeCheckStates: Array.from(route?.querySelectorAll("[data-route-check-state]") ?? [])
+        .map((node) => node.getAttribute("data-route-check-state")),
       sourceSelected: sourceObject?.getAttribute("data-selected") ?? null,
       sourceStepProgress: sourceStep?.getAttribute("data-step-progress") ?? null,
       sourceStepProgressText: sourceStep?.querySelector("[data-step-progress-label]")?.textContent ?? "",
@@ -950,6 +954,8 @@ async function runWireClickSelectionSmoke(cdp) {
     return {
       fieldStates: Array.from(inspector?.querySelectorAll("[data-route-inspector-field-state]") ?? [])
         .map((node) => node.getAttribute("data-route-inspector-field-state")),
+      checkStates: Array.from(inspector?.querySelectorAll("[data-route-inspector-check-state]") ?? [])
+        .map((node) => node.getAttribute("data-route-inspector-check-state")),
       hidden: inspector?.hasAttribute("hidden") ?? true,
       stepStates: Array.from(inspector?.querySelectorAll("[data-route-inspector-step-state]") ?? [])
         .map((node) => node.getAttribute("data-route-inspector-step-state")),
@@ -1191,6 +1197,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.routeState !== "ready") failures.push(`action route strip source-focus state unexpected: ${actionMapResult.routeState}`);
   if (!actionMapResult.routeText.includes("打出手牌")) failures.push("action route strip source-focus candidate missing");
   if (!actionMapResult.routeText.includes("可送服务端校验")) failures.push("action route strip source-focus ready copy missing");
+  if (!actionMapResult.routeText.includes("提交审计")) failures.push("action route submit audit summary missing");
+  if (!actionMapResult.routeText.includes("服务端注入")) failures.push("action route submit audit server injected row missing");
+  if (!actionMapResult.routeCheckStates.includes("ready")) failures.push("action route submit audit ready state missing");
   if (actionMapResult.candidateStepRefCount < 1) failures.push("action map candidate step object refs missing");
   if (!actionMapResult.candidateStepRefText.includes("手牌法术")) failures.push("action map candidate source object ref missing");
   if (actionCandidateStepResult.selected !== "true") failures.push("action candidate step ref did not focus source object");
@@ -1204,8 +1213,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionFocusChoiceResult.routeState !== "ready") failures.push(`action focus choice route state unexpected: ${actionFocusChoiceResult.routeState}`);
   if (!actionFocusChoiceResult.routeText.includes("可送服务端校验")) failures.push("action focus choice route ready copy missing");
   if (!actionFocusChoiceResult.routeText.includes("服务端字段")) failures.push("action focus choice route server field safe label missing");
+  if (!actionFocusChoiceResult.routeText.includes("提交审计")) failures.push("action focus choice submit audit summary missing");
   if (!actionFocusChoiceResult.routeFieldStates.includes("covered")) failures.push("action focus choice route covered field missing");
   if (!actionFocusChoiceResult.routeFieldStates.includes("server")) failures.push("action focus choice route server field missing");
+  if (!actionFocusChoiceResult.routeCheckStates.includes("ready")) failures.push("action focus choice route audit ready state missing");
   if (actionFocusChoiceResult.targetRouteStepState !== "selected") failures.push("action focus choice route target step missing selected state");
   if (actionFocusChoiceResult.sourceStepProgress !== "selected") failures.push("action focus choice did not mark source step selected");
   if (actionFocusChoiceResult.targetStepProgress !== "selected") failures.push("action focus choice did not mark target step selected");
@@ -1216,8 +1227,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (routeInspectorResult.hidden) failures.push("route inspector did not open");
   if (routeInspectorResult.toggleExpanded !== "true") failures.push("route inspector toggle aria state missing");
   if (!routeInspectorResult.text.includes("路线检查")) failures.push("route inspector header missing");
+  if (!routeInspectorResult.text.includes("提交审计")) failures.push("route inspector audit section missing");
   if (!routeInspectorResult.text.includes("字段覆盖")) failures.push("route inspector field section missing");
   if (!routeInspectorResult.text.includes("服务端字段")) failures.push("route inspector server field safe label missing");
+  if (!routeInspectorResult.checkStates.includes("ready")) failures.push("route inspector audit ready check missing");
   if (!routeInspectorResult.stepStates.includes("selected")) failures.push("route inspector selected step missing");
   if (!routeInspectorResult.fieldStates.includes("covered")) failures.push("route inspector covered field missing");
   if (!routeInspectorResult.fieldStates.includes("server")) failures.push("route inspector server field missing");
