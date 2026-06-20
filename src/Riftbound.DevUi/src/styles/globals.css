@@ -14317,6 +14317,7 @@ button.card-face:hover {
 .wire-timeline-evidence-list li,
 .wire-timeline-next-step,
 .wire-timeline-next-step header,
+.wire-timeline-next-step-checks li,
 .wire-timeline-next-step-refs button,
 .wire-timeline-inspector,
 .wire-timeline-inspector header,
@@ -15103,7 +15104,8 @@ button.card-face:hover {
 .wire-timeline-next-step span,
 .wire-timeline-next-step small,
 .wire-timeline-next-step strong,
-.wire-timeline-next-step p {
+.wire-timeline-next-step p,
+.wire-timeline-next-step-checks li > * {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -15133,6 +15135,35 @@ button.card-face:hover {
 
 .wire-timeline-next-step > small {
   padding: 0 4px 2px;
+}
+
+.wire-timeline-next-step-checks {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-timeline-next-step-checks li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 2px 4px;
+}
+
+.wire-timeline-next-step-checks li[data-timeline-next-step-check-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-timeline-next-step-checks li[data-timeline-next-step-check-state="blocked"] {
+  border-style: double;
+}
+
+.wire-timeline-next-step-checks li[data-timeline-next-step-check-state="waiting"] {
+  border-style: dashed;
 }
 
 .wire-timeline-next-step[data-timeline-next-step-state="ready"] {
@@ -15487,6 +15518,7 @@ button.wire-object-ref {
 .wire-match-page .wire-timeline-evidence-list li,
 .wire-match-page .wire-timeline-next-step,
 .wire-match-page .wire-timeline-next-step header,
+.wire-match-page .wire-timeline-next-step-checks li,
 .wire-match-page .wire-timeline-next-step-refs button,
 .wire-match-page .wire-timeline-inspector,
 .wire-match-page .wire-timeline-inspector header,

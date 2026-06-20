@@ -211,6 +211,21 @@ function TimelineNextStep({
       </header>
       <p>{plan.body}</p>
       <small>{plan.detail}</small>
+      {plan.checks.length > 0 && (
+        <ol className="wire-timeline-next-step-checks" aria-label="下一步提交门禁">
+          {plan.checks.map((check) => (
+            <li
+              data-timeline-next-step-check={check.key}
+              data-timeline-next-step-check-state={check.state}
+              key={check.key}
+            >
+              <span>{check.label}</span>
+              <strong>{check.stateLabel}</strong>
+              <small>{check.detail}</small>
+            </li>
+          ))}
+        </ol>
+      )}
       {plan.refs.length > 0 && (
         <div className="wire-timeline-next-step-refs" role="group" aria-label="下一步对象">
           {plan.refs.map((ref) => (

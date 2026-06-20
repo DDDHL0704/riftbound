@@ -1506,6 +1506,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-evidence-state") ?? ""),
       evidenceText: panel?.querySelector(".wire-timeline-evidence-list")?.textContent ?? "",
       nextStepButtonCount: panel?.querySelectorAll("[data-timeline-next-step-object-id]").length ?? 0,
+      nextStepCheckKeys: Array.from(panel?.querySelectorAll("[data-timeline-next-step-check]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-next-step-check") ?? ""),
+      nextStepCheckStates: Array.from(panel?.querySelectorAll("[data-timeline-next-step-check-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-next-step-check-state") ?? ""),
       nextStepObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-next-step-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-next-step-object-id") ?? ""),
       nextStepState: panel?.querySelector("[data-timeline-next-step-state]")?.getAttribute("data-timeline-next-step-state") ?? null,
@@ -1598,6 +1602,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-evidence-state") ?? ""),
       evidenceText: panel?.querySelector(".wire-timeline-evidence-list")?.textContent ?? "",
       nextStepButtonCount: panel?.querySelectorAll("[data-timeline-next-step-object-id]").length ?? 0,
+      nextStepCheckKeys: Array.from(panel?.querySelectorAll("[data-timeline-next-step-check]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-next-step-check") ?? ""),
+      nextStepCheckStates: Array.from(panel?.querySelectorAll("[data-timeline-next-step-check-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-next-step-check-state") ?? ""),
       nextStepObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-next-step-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-next-step-object-id") ?? ""),
       nextStepState: panel?.querySelector("[data-timeline-next-step-state]")?.getAttribute("data-timeline-next-step-state") ?? null,
@@ -1717,6 +1725,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-evidence-state") ?? ""),
       evidenceText: panel?.querySelector(".wire-timeline-evidence-list")?.textContent ?? "",
       nextStepButtonCount: panel?.querySelectorAll("[data-timeline-next-step-object-id]").length ?? 0,
+      nextStepCheckKeys: Array.from(panel?.querySelectorAll("[data-timeline-next-step-check]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-next-step-check") ?? ""),
+      nextStepCheckStates: Array.from(panel?.querySelectorAll("[data-timeline-next-step-check-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-next-step-check-state") ?? ""),
       nextStepObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-next-step-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-next-step-object-id") ?? ""),
       nextStepState: panel?.querySelector("[data-timeline-next-step-state]")?.getAttribute("data-timeline-next-step-state") ?? null,
@@ -1796,6 +1808,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.nextStepText.includes("PLAY_CARD")) failures.push("rule detail next step command type missing");
   if (ruleDetailResult.nextStepButtonCount < 1) failures.push("rule detail next step object buttons missing");
   if (!ruleDetailResult.nextStepObjectIds.includes("p2-right-1")) failures.push("rule detail next step target object missing");
+  if (!ruleDetailResult.nextStepCheckKeys.includes("server-candidate")) failures.push("rule detail next step server candidate check missing");
+  if (!ruleDetailResult.nextStepCheckKeys.includes("connection")) failures.push("rule detail next step connection check missing");
+  if (!ruleDetailResult.nextStepCheckKeys.includes("required-fields")) failures.push("rule detail next step required fields check missing");
+  if (!ruleDetailResult.nextStepCheckKeys.includes("submit-step")) failures.push("rule detail next step submit check missing");
+  if (!ruleDetailResult.nextStepCheckStates.includes("ready")) failures.push("rule detail next step ready check state missing");
   if (!ruleDetailResult.projectionStates.includes("visible")) failures.push("rule detail did not expose visible projection rows");
   if (!ruleDetailResult.projectionText.includes("来源")) failures.push("rule detail projection source role missing");
   if (!ruleDetailResult.projectionText.includes("目标")) failures.push("rule detail projection target role missing");
@@ -1882,6 +1899,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeFocusResult.evidenceText.includes("可送")) failures.push("command bridge detail evidence route summary missing after target selection");
   if (commandBridgeFocusResult.nextStepState !== "ready") failures.push(`command bridge detail next step state unexpected after target selection: ${commandBridgeFocusResult.nextStepState}`);
   if (!commandBridgeFocusResult.nextStepText.includes("可送服务端校验")) failures.push("command bridge detail next step headline missing after target selection");
+  if (!commandBridgeFocusResult.nextStepCheckKeys.includes("submit-step")) failures.push("command bridge detail next step submit check missing after target selection");
+  if (!commandBridgeFocusResult.nextStepCheckStates.includes("ready")) failures.push("command bridge detail next step ready checks missing after target selection");
   if (commandBridgeFocusResult.detailLayerOpen) failures.push("command bridge button opened card detail layer");
   if (commandBridgeDraftDetailResult.objectId !== "p1-hand-spell") failures.push(`command bridge draft detail opened unexpected object: ${commandBridgeDraftDetailResult.objectId}`);
   if (!commandBridgeDraftDetailResult.open) failures.push("command bridge draft detail did not open card detail layer");
@@ -1914,6 +1933,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.evidenceText.includes("服务端日志")) failures.push("event detail evidence source authority missing");
   if (eventDetailResult.nextStepState !== "ready") failures.push(`event detail next step state unexpected: ${eventDetailResult.nextStepState}`);
   if (!eventDetailResult.nextStepText.includes("可送服务端校验")) failures.push("event detail next step ready headline missing");
+  if (!eventDetailResult.nextStepCheckKeys.includes("server-candidate")) failures.push("event detail next step server candidate check missing");
+  if (!eventDetailResult.nextStepCheckKeys.includes("submit-step")) failures.push("event detail next step submit check missing");
   if (eventDetailResult.logState !== "events") failures.push(`event log plan state unexpected: ${eventDetailResult.logState}`);
   if (eventDetailResult.logVisibleCount < 1) failures.push("event log plan visible count missing");
   if (eventDetailResult.logHiddenCount !== 0) failures.push(`event log hidden count unexpected: ${eventDetailResult.logHiddenCount}`);

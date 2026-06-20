@@ -181,8 +181,17 @@ export type WireTimelineCommandBridgeRow = {
 
 export type WireTimelineNextStepState = "blocked" | "empty" | "observe" | "ready" | "selecting";
 
+export type WireTimelineNextStepCheckRow = {
+  detail: string;
+  key: string;
+  label: string;
+  state: WireTimelineCommandBridgeGateState;
+  stateLabel: string;
+};
+
 export type WireTimelineNextStepPlan = {
   body: string;
+  checks: WireTimelineNextStepCheckRow[];
   commandType?: string;
   detail: string;
   headline: string;
@@ -326,6 +335,7 @@ function nextStepPlanForDetail({
   if (!detail) {
     return {
       body: "从结算链、规则任务或日志中选择一项。",
+      checks: [],
       detail: "尚无服务端详情材料。",
       headline: "等待选择规则事件",
       key: "empty",
@@ -383,6 +393,13 @@ function nextStepPlanForDetail({
   if (enabledHint) {
     return {
       body: `${enabledHint.role} / ${enabledHint.label}`,
+      checks: [{
+        detail: enabledHint.zoneLabel,
+        key: "server-candidate",
+        label: "服务端候选",
+        state: "ready",
+        stateLabel: enabledHint.stateLabel
+      }],
       commandType: enabledHint.commandTypes[0],
       detail: `${enabledHint.stateLabel} / ${enabledHint.zoneLabel}`,
       headline: "关联对象有服务端候选",
@@ -401,6 +418,13 @@ function nextStepPlanForDetail({
   if (blockedHint) {
     return {
       body: `${blockedHint.role} / ${blockedHint.label}`,
+      checks: [{
+        detail: blockedHint.reasonLabels[0] || blockedHint.zoneLabel,
+        key: "server-candidate",
+        label: "服务端候选",
+        state: "blocked",
+        stateLabel: blockedHint.stateLabel
+      }],
       commandType: blockedHint.commandTypes[0],
       detail: blockedHint.reasonLabels[0] || blockedHint.stateLabel,
       headline: "关联候选被服务端阻断",
@@ -419,6 +443,7 @@ function nextStepPlanForDetail({
   const missingCount = projectionRows.filter((row) => row.state === "missing").length;
   return {
     body: projectionRows.length > 0 ? `${projectionRows.length} 个详情对象` : "当前详情没有对象引用",
+    checks: [],
     detail: hiddenCount > 0 || missingCount > 0
       ? `${hiddenCount} 隐藏 / ${missingCount} 未公开，等待服务端公开后再操作。`
       : "当前服务端详情没有公开可提交候选。",
@@ -441,6 +466,13 @@ function nextStepFromBridgeRow(
 ): WireTimelineNextStepPlan {
   return {
     ...copy,
+    checks: row.gateRows.map((gate) => ({
+      detail: gate.reason,
+      key: gate.key,
+      label: gate.label,
+      state: gate.state,
+      stateLabel: gate.stateLabel
+    })),
     commandType: row.commandType,
     refs: row.nextObjectRefs
   };
