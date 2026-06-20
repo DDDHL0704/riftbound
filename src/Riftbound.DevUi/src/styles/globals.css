@@ -2678,6 +2678,29 @@ button.card-face:hover {
   min-width: 0;
 }
 
+.detail-action-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.detail-action-summary div {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.detail-action-summary dt {
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.detail-action-summary dd {
+  margin: 3px 0 0;
+}
+
 .play-card-composer {
   display: grid;
   gap: 10px;
@@ -14591,6 +14614,15 @@ button.wire-object-ref {
 .wire-match-page .detail-action-list {
   display: grid;
   gap: 8px;
+}
+
+.wire-match-page .detail-action-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wire-match-page .detail-action-summary div {
+  border: 1px solid #000 !important;
+  border-radius: 0 !important;
 }
 
 .wire-match-page .detail-inspector,

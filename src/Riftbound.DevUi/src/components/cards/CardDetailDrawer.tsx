@@ -154,6 +154,14 @@ export function CardDetailDrawer({
             >
               <strong>服务端可提交操作</strong>
               <span className="detail-muted" data-card-detail-actions-label>{detailActionPlan.stateLabel}</span>
+              <dl className="detail-action-summary" aria-label="卡牌详情操作摘要">
+                {detailActionPlan.summaryRows.map((row) => (
+                  <div data-card-detail-action-summary={row.key} key={row.key}>
+                    <dt>{row.label}</dt>
+                    <dd>{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
               {detailActionPlan.entries.length === 0 ? (
                 <p className="detail-muted">{detailActionPlan.emptyLabel}</p>
               ) : (
