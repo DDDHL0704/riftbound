@@ -59,6 +59,9 @@ const plan = buildFocusedObjectCommandPlan({
       {
         commandFields: ["来源:sourceObjectId*", "服务端:cardNo*", "目标:targetObjectId"],
         commandType: "PLAY_CARD",
+        composerReason: "服务端已公开组合提交。",
+        composerState: "server",
+        composerStateLabel: "服务端声明",
         enabled: true,
         label: "打出卡牌",
         reason: "可提交",
@@ -68,6 +71,9 @@ const plan = buildFocusedObjectCommandPlan({
       {
         commandFields: ["来源:sourceObjectId*"],
         commandType: "ACTIVATE_ABILITY",
+        composerReason: "服务端暂未开放组合提交。",
+        composerState: "blocked",
+        composerStateLabel: "服务端阻断",
         enabled: false,
         label: "启动能力",
         reason: "窗口不允许",
@@ -144,6 +150,8 @@ assert.equal(plan.statusCards[3].value, "服务端对象上下文");
 assert.ok(plan.boundaryLabel.includes("服务端对象上下文"));
 assert.equal(plan.commandRows.length, 2);
 assert.equal(plan.commandRows[0].commandType, "PLAY_CARD");
+assert.equal(plan.commandRows[0].composerState, "server");
+assert.equal(plan.commandRows[0].composerStateLabel, "服务端声明");
 assert.deepEqual(plan.commandRows[0].requiredFields, ["来源:sourceObjectId*", "服务端字段*"]);
 assert.deepEqual(plan.commandRows[0].secondaryFields, ["目标:targetObjectId"]);
 assert.equal(plan.commandRows[1].enabled, false);

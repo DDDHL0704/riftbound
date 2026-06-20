@@ -15,6 +15,9 @@ export type FocusedObjectStatusCard = {
 
 export type FocusedObjectCommandRow = {
   commandType?: string;
+  composerReason: string;
+  composerState: TableObjectCandidateContext["composerState"];
+  composerStateLabel: string;
   enabled: boolean;
   fields: string[];
   key: string;
@@ -108,6 +111,9 @@ function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: 
 
   return {
     commandType: candidate.commandType,
+    composerReason: candidate.composerReason,
+    composerState: candidate.composerState,
+    composerStateLabel: candidate.composerStateLabel,
     enabled: candidate.enabled,
     fields,
     key: `${candidate.commandType ?? "NO_COMMAND"}:${candidate.label}:${index}`,

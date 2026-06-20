@@ -403,7 +403,8 @@ public sealed record ActionPromptObjectCandidateDto(
     IReadOnlyList<string> Roles,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CommandType = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? RequiredCommandFields = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? CommandFields = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? CommandFields = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptComposerDto? Composer = null);
 
 public sealed record ActionPromptSelectionChoiceDto(
     string Id,

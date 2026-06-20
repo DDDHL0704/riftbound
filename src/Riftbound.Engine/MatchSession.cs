@@ -5426,6 +5426,7 @@ internal static class ActionPromptBuilder
             modeCount > 0 ? $"模式 {modeCount}" : string.Empty,
             costCount > 0 ? $"费用 {costCount}" : string.Empty,
             stepCount > 0 ? $"步骤 {stepCount}" : string.Empty,
+            ComposerInspectionLabel(candidate.Composer),
             candidate.Enabled ? string.Empty : candidate.Reason
         };
         return string.Join(" / ", parts.Where(part => !string.IsNullOrWhiteSpace(part)));
@@ -5475,7 +5476,8 @@ internal static class ActionPromptBuilder
                     roles,
                     candidate.CommandTemplate?.CmdType ?? candidate.Action,
                     CommandFieldLabels(candidate.CommandTemplate, requiredOnly: true),
-                    CommandFieldLabels(candidate.CommandTemplate, requiredOnly: false)));
+                    CommandFieldLabels(candidate.CommandTemplate, requiredOnly: false),
+                    candidate.Composer));
             }
         }
 
@@ -5570,9 +5572,20 @@ internal static class ActionPromptBuilder
             string.IsNullOrWhiteSpace(candidate.CommandType) ? candidate.Action : candidate.CommandType,
             candidate.Roles.Count > 0 ? string.Join("/", candidate.Roles) : string.Empty,
             candidate.RequiredCommandFields?.Count > 0 ? $"需 {string.Join("/", candidate.RequiredCommandFields)}" : string.Empty,
+            ComposerInspectionLabel(candidate.Composer),
             candidate.Enabled ? string.Empty : candidate.Reason
         };
         return string.Join(" / ", parts.Where(part => !string.IsNullOrWhiteSpace(part)));
+    }
+
+    private static string ComposerInspectionLabel(ActionPromptComposerDto? composer)
+    {
+        if (composer is null)
+        {
+            return "组合 未公开";
+        }
+
+        return composer.Supported ? "组合 服务端声明" : "组合 服务端阻断";
     }
 
     private static IReadOnlyList<ActionPromptObjectInspectionRowDto> ObjectCommandFieldInspectionRows(

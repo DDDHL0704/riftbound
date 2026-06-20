@@ -724,6 +724,8 @@ async function runWireClickSelectionSmoke(cdp) {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
       text: summary?.textContent ?? "",
       contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
+      objectCommandComposerStates: Array.from(document.querySelectorAll(".wire-object-context [data-wire-object-command-composer-state]"))
+        .map((node) => node.getAttribute("data-wire-object-command-composer-state")),
       grammarComposerState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-composer-state") ?? null,
       grammarState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-state") ?? null,
       grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
@@ -1049,7 +1051,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.contextText.includes("我方手牌")) failures.push("object context did not locate hand source");
   if (!focusResult.contextText.includes("下一步")) failures.push("object context next-step plan missing");
   if (!focusResult.contextText.includes("服务端命令")) failures.push("object context command plan missing");
+  if (!focusResult.contextText.includes("组合：服务端声明")) failures.push("object context composer authority missing");
   if (!focusResult.contextText.includes("服务端对象上下文")) failures.push("object context did not use server object candidate index");
+  if (!focusResult.objectCommandComposerStates.includes("server")) failures.push("object context composer state missing");
   if (!focusResult.contextText.includes("近期事件")) failures.push("object context event section missing");
   if (focusResult.contextText.includes("serverPaymentState")) failures.push("object context leaked hidden server state");
   if (!detailContextResult.open) failures.push("card detail did not open");

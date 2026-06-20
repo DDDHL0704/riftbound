@@ -1,5 +1,12 @@
 import { BehaviorSpec } from "../types/catalog";
-import { ActionPromptDto, CardObjectView, GameEvent, PlayerSnapshotView, SnapshotDto } from "../types/protocol";
+import {
+  ActionPromptDto,
+  CardObjectView,
+  GameEvent,
+  PlayerSnapshotView,
+  SnapshotDto,
+  type ActionPromptComposerDto
+} from "../types/protocol";
 
 type FixtureCard = {
   cardNo: string;
@@ -39,6 +46,46 @@ export const wireLayoutFixtureSpecByNo: Record<string, BehaviorSpec> = Object.fr
   fixtureCards.map((fixture) => [fixture.cardNo, toBehaviorSpec(fixture)])
 );
 
+const fixturePlayCardComposer = {
+  commandFields: ["sourceObjectId", "cardNo", "targetObjectIds", "destination", "optionalCosts"],
+  reason: "服务端 fixture 已公开 PLAY_CARD 命令模板；前端只组装选择并提交校验。",
+  requiredSelectionRoles: ["source"],
+  selectionRoles: ["destination", "optionalCost", "source", "target"],
+  supported: true
+} satisfies ActionPromptComposerDto;
+
+const fixtureMoveUnitComposer = {
+  commandFields: ["sourceObjectId", "origin", "destination", "optionalCosts"],
+  reason: "服务端 fixture 已公开 MOVE_UNIT 命令模板；移动合法性由服务端最终裁定。",
+  requiredSelectionRoles: ["source"],
+  selectionRoles: ["destination", "optionalCost", "source"],
+  supported: true
+} satisfies ActionPromptComposerDto;
+
+const fixtureTapRuneComposer = {
+  commandFields: ["sourceObjectId"],
+  reason: "服务端 fixture 已公开 TAP_RUNE 命令模板；资源状态由服务端快照决定。",
+  requiredSelectionRoles: ["source"],
+  selectionRoles: ["source"],
+  supported: true
+} satisfies ActionPromptComposerDto;
+
+const fixtureDeclareBattleComposer = {
+  commandFields: ["attackerObjectIds", "battlefieldId", "battlefieldTargetObjectIds", "defenderObjectIds", "optionalCosts"],
+  reason: "服务端 fixture 已公开 DECLARE_BATTLE 命令模板；战场、攻击方、防守方仍由服务端规则校验。",
+  requiredSelectionRoles: ["destination", "source", "target"],
+  selectionRoles: ["destination", "optionalCost", "source", "target"],
+  supported: true
+} satisfies ActionPromptComposerDto;
+
+const fixtureBlockedAbilityComposer = {
+  commandFields: [],
+  reason: "服务端 fixture 暂未开放该技能的组合提交入口。",
+  requiredSelectionRoles: [],
+  selectionRoles: [],
+  supported: false
+} satisfies ActionPromptComposerDto;
+
 export function isWireLayoutFixtureEnabled(search = window.location.search): boolean {
   const params = new URLSearchParams(search);
   return params.get("fixture") === "layout" || params.get("layoutFixture") === "cards";
@@ -63,13 +110,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           ],
           cmdType: "PLAY_CARD"
         },
-        composer: {
-          commandFields: ["sourceObjectId", "cardNo", "targetObjectIds", "destination", "optionalCosts"],
-          reason: "服务端 fixture 已公开 PLAY_CARD 命令模板；前端只组装选择并提交校验。",
-          requiredSelectionRoles: ["source"],
-          selectionRoles: ["destination", "optionalCost", "source", "target"],
-          supported: true
-        },
+        composer: fixturePlayCardComposer,
         destinations: [{ id: "STACK", label: "结算链" }],
         enabled: true,
         label: "打出手牌样例",
@@ -136,13 +177,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           ],
           cmdType: "MOVE_UNIT"
         },
-        composer: {
-          commandFields: ["sourceObjectId", "origin", "destination", "optionalCosts"],
-          reason: "服务端 fixture 已公开 MOVE_UNIT 命令模板；移动合法性由服务端最终裁定。",
-          requiredSelectionRoles: ["source"],
-          selectionRoles: ["destination", "optionalCost", "source"],
-          supported: true
-        },
+        composer: fixtureMoveUnitComposer,
         destinations: [{ id: "BATTLEFIELD:fixture-right-battlefield", label: "右战场" }],
         enabled: true,
         label: "移动单位样例",
@@ -195,6 +230,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           bindings: [{ field: "sourceObjectId", label: "来源", required: true, source: "selectedSource" }],
           cmdType: "TAP_RUNE"
         },
+        composer: fixtureTapRuneComposer,
         enabled: true,
         label: "横置符文样例",
         reason: "前端线框样例；真实资源池由服务端快照决定。",
@@ -212,13 +248,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           ],
           cmdType: "DECLARE_BATTLE"
         },
-        composer: {
-          commandFields: ["attackerObjectIds", "battlefieldId", "battlefieldTargetObjectIds", "defenderObjectIds", "optionalCosts"],
-          reason: "服务端 fixture 已公开 DECLARE_BATTLE 命令模板；战场、攻击方、防守方仍由服务端规则校验。",
-          requiredSelectionRoles: ["destination", "source", "target"],
-          selectionRoles: ["destination", "optionalCost", "source", "target"],
-          supported: true
-        },
+        composer: fixtureDeclareBattleComposer,
         destinations: [{ id: "fixture-right-battlefield", label: "右战场牌" }],
         enabled: true,
         label: "声明战斗样例",
@@ -286,6 +316,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             action: "PLAY_CARD",
             commandFields: ["来源:sourceObjectId*", "服务端字段*", "目标:targetObjectIds", "位置:destination", "费用:optionalCosts"],
             commandType: "PLAY_CARD",
+            composer: fixturePlayCardComposer,
             enabled: true,
             label: "打出手牌样例",
             reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
@@ -305,7 +336,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
                   key: "candidate-0",
                   label: "可提交",
                   tone: "good",
-                  value: "PLAY_CARD / 来源 / 需 来源:sourceObjectId*/服务端字段*"
+                  value: "PLAY_CARD / 来源 / 需 来源:sourceObjectId*/服务端字段* / 组合 服务端声明"
                 }
               ],
               title: "服务端候选"
@@ -338,6 +369,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             action: "TAP_RUNE",
             commandFields: ["来源:sourceObjectId*"],
             commandType: "TAP_RUNE",
+            composer: fixtureTapRuneComposer,
             enabled: true,
             label: "横置符文样例",
             reason: "前端线框样例；真实资源池由服务端快照决定。",
@@ -355,6 +387,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             action: "MOVE_UNIT",
             commandFields: ["来源:sourceObjectId*", "服务端字段*", "位置:destination", "费用:optionalCosts"],
             commandType: "MOVE_UNIT",
+            composer: fixtureMoveUnitComposer,
             enabled: true,
             label: "移动单位样例",
             reason: "前端线框样例；移动窗口、费用和目标由服务端决定。",
@@ -372,6 +405,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             action: "PLAY_CARD",
             commandFields: ["来源:sourceObjectId*", "服务端字段*", "目标:targetObjectIds", "位置:destination", "费用:optionalCosts"],
             commandType: "PLAY_CARD",
+            composer: fixturePlayCardComposer,
             enabled: true,
             label: "打出手牌样例",
             reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
@@ -382,6 +416,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             action: "ACTIVATE_ABILITY",
             commandFields: ["来源:sourceObjectId*", "服务端字段*", "目标:targetObjectIds", "费用:optionalCosts"],
             commandType: "ACTIVATE_ABILITY",
+            composer: fixtureBlockedAbilityComposer,
             enabled: false,
             label: "激活技能禁用样例",
             reason: "前端线框样例；真实不可提交原因由服务端规则窗口提供。",

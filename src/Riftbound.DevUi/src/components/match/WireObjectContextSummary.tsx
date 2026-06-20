@@ -57,9 +57,14 @@ export function WireObjectContextSummary({
           <span className="wire-object-context-line">服务端命令</span>
           <ol className="wire-object-command-list" aria-label="焦点对象服务端命令字段">
             {plan.commandRows.slice(0, 4).map((row) => (
-              <li className={row.enabled ? "is-enabled" : "is-disabled"} key={row.key}>
+              <li
+                className={row.enabled ? "is-enabled" : "is-disabled"}
+                data-wire-object-command-composer-state={row.composerState}
+                key={row.key}
+              >
                 <span>{row.enabled ? "可提交" : "阻断"}{row.roles.length > 0 ? ` / ${row.roles.join("/")}` : ""}</span>
                 <strong>{row.commandType ?? row.label}{row.requiredFields.length > 0 ? `：${row.requiredFields.join(" / ")}` : ""}</strong>
+                <small title={row.composerReason}>组合：{row.composerStateLabel}</small>
                 {row.secondaryFields.length > 0 && <small>{row.secondaryFields.join(" / ")}</small>}
                 {!row.enabled && <small>{row.reason}</small>}
               </li>

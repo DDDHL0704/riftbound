@@ -105,6 +105,9 @@ const visiblePlan = buildCardDetailPlan({
       {
         commandFields: ["来源"],
         commandType: "PLAY_CARD",
+        composerReason: "服务端已公开组合提交。",
+        composerState: "server",
+        composerStateLabel: "服务端声明",
         enabled: true,
         label: "打出手牌",
         reason: "可提交",
@@ -114,6 +117,9 @@ const visiblePlan = buildCardDetailPlan({
       {
         commandFields: ["目标"],
         commandType: "ACTIVATE_ABILITY",
+        composerReason: "服务端暂未开放组合提交。",
+        composerState: "blocked",
+        composerStateLabel: "服务端阻断",
         enabled: false,
         label: "激活能力",
         reason: "缺少合法目标",

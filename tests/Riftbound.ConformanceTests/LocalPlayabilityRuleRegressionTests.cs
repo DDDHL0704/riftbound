@@ -161,6 +161,10 @@ public sealed class LocalPlayabilityRuleRegressionTests
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Equal(["来源"], sourceCandidate.Roles);
         Assert.Equal(CommandTypes.PlayCard, sourceCandidate.CommandType);
+        Assert.True(sourceCandidate.Composer?.Supported);
+        Assert.Contains("服务端", sourceCandidate.Composer?.Reason ?? string.Empty, StringComparison.Ordinal);
+        Assert.Contains("source", sourceCandidate.Composer?.SelectionRoles ?? []);
+        Assert.Contains("sourceObjectId", sourceCandidate.Composer?.CommandFields ?? []);
         Assert.Contains("来源:sourceObjectId*", sourceCandidate.RequiredCommandFields ?? []);
         Assert.Contains("位置:destination", sourceCandidate.CommandFields ?? []);
         var sourceInspection = Assert.IsType<ActionPromptObjectInspectionDto>(sourceContext.Inspection);
@@ -171,7 +175,9 @@ public sealed class LocalPlayabilityRuleRegressionTests
             && string.Equals(row.Value, "1 可提交 / 0 阻断", StringComparison.Ordinal));
         Assert.Contains(sourceInspection.Groups, group =>
             string.Equals(group.Key, "candidate", StringComparison.Ordinal)
-            && group.Rows.Any(row => row.Value.Contains(CommandTypes.PlayCard, StringComparison.Ordinal)));
+            && group.Rows.Any(row =>
+                row.Value.Contains(CommandTypes.PlayCard, StringComparison.Ordinal)
+                && row.Value.Contains("组合 服务端声明", StringComparison.Ordinal)));
         Assert.Contains(sourceInspection.Groups, group =>
             string.Equals(group.Key, "command-fields", StringComparison.Ordinal)
             && group.Rows.Any(row => row.Value.Contains("sourceObjectId", StringComparison.Ordinal)));
@@ -189,6 +195,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Equal(["位置"], battlefieldCandidate.Roles);
         Assert.Equal(CommandTypes.PlayCard, battlefieldCandidate.CommandType);
+        Assert.True(battlefieldCandidate.Composer?.Supported);
     }
 
     [Fact]

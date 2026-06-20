@@ -211,6 +211,7 @@ export type ActionPromptObjectCandidateDto = {
   commandType?: string | null;
   requiredCommandFields?: string[] | null;
   commandFields?: string[] | null;
+  composer?: ActionPromptComposerDto | null;
 };
 
 export type ActionPromptObjectInspectionRowDto = {

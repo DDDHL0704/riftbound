@@ -131,6 +131,9 @@ const plan = buildWireTimelineDetailPlan({
         {
           commandFields: ["来源:sourceObjectId*"],
           commandType: "PLAY_CARD",
+          composerReason: "服务端已公开组合提交。",
+          composerState: "server",
+          composerStateLabel: "服务端声明",
           enabled: true,
           label: "打出卡牌",
           reason: "",
@@ -151,6 +154,9 @@ const plan = buildWireTimelineDetailPlan({
         {
           commandFields: ["目标:targetObjectIds*"],
           commandType: "CHOOSE_TARGET",
+          composerReason: "候选未公开组合提交协议。",
+          composerState: "missing",
+          composerStateLabel: "未公开",
           enabled: false,
           label: "选择目标",
           reason: "等待来源",

@@ -17,10 +17,12 @@ import {
   promptCommandBindingLabel,
   promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
+  type PromptCandidateComposerSummary,
   type PromptCandidateSummary,
   type PromptChoiceRole,
   type PromptCommandBindingSummary
 } from "./promptInteraction";
+import { redactInternalText } from "./redaction";
 import { buildCardObjectIndex } from "./snapshotObjectIndex";
 
 export type TableObjectZoneKind =
@@ -52,6 +54,9 @@ export type TableObjectEventContext = {
 export type TableObjectCandidateContext = {
   commandFields: string[];
   commandType?: string;
+  composerReason: string;
+  composerState: PromptCandidateComposerSummary["state"];
+  composerStateLabel: string;
   enabled: boolean;
   label: string;
   reason: string;
@@ -279,9 +284,14 @@ function objectContextBoundary(
 }
 
 function candidateContextFromServerObjectCandidate(candidate: ActionPromptObjectCandidateDto): TableObjectCandidateContext {
+  const composer = composerContextFromServerObjectCandidate(candidate);
+
   return {
     commandFields: candidate.commandFields ?? [],
     commandType: candidate.commandType ?? candidate.action,
+    composerReason: composer.reason,
+    composerState: composer.state,
+    composerStateLabel: composer.stateLabel,
     enabled: candidate.enabled,
     label: candidate.label || candidate.action,
     reason: promptReasonLabel(candidate.reason, candidate.enabled ? "可提交" : "暂不可提交"),
@@ -294,15 +304,59 @@ function candidateContextForObject(candidate: PromptCandidateSummary, objectId: 
   const linkedChoices = candidate.choices.filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId));
   const roleKeys = uniquePromptRoles(linkedChoices.map((choice) => choice.role));
   const commandBindings = commandBindingsForRoles(candidate.command?.bindings, roleKeys);
+  const composer = candidate.composer ?? composerContextFromCommand(Boolean(candidate.command));
 
   return {
     commandFields: commandBindings.map(promptCommandBindingLabel),
     commandType: candidate.command?.cmdType,
+    composerReason: composer.reason,
+    composerState: composer.state,
+    composerStateLabel: composer.stateLabel,
     enabled: candidate.enabled,
     label: candidate.label,
     reason: candidate.reason,
     requiredCommandFields: commandBindings.filter((binding) => binding.required).map(promptCommandBindingLabel),
     roles: uniqueStrings(linkedChoices.map((choice) => promptChoiceRoleLabel(choice.role)))
+  };
+}
+
+function composerContextFromServerObjectCandidate(candidate: ActionPromptObjectCandidateDto): PromptCandidateComposerSummary {
+  if (candidate.composer) {
+    if (candidate.composer.supported) {
+      return {
+        reason: redactInternalText(candidate.composer.reason || "服务端已公开组合提交。"),
+        state: "server",
+        stateLabel: "服务端声明",
+        supported: true
+      };
+    }
+
+    return {
+      reason: redactInternalText(candidate.composer.reason || "服务端暂未开放组合提交。"),
+      state: "blocked",
+      stateLabel: "服务端阻断",
+      supported: false
+    };
+  }
+
+  return composerContextFromCommand(Boolean(candidate.commandType));
+}
+
+function composerContextFromCommand(hasCommand: boolean): PromptCandidateComposerSummary {
+  if (hasCommand) {
+    return {
+      reason: "候选只有命令模板，缺少服务端 composer 支持声明。",
+      state: "fallback",
+      stateLabel: "仅有模板",
+      supported: true
+    };
+  }
+
+  return {
+    reason: "候选未公开组合提交协议。",
+    state: "missing",
+    stateLabel: "未公开",
+    supported: false
   };
 }
 
