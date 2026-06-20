@@ -110,23 +110,19 @@ assert.equal(missingPayCost.command, undefined);
 assert.equal(missingPayCost.disabled, true);
 assert.equal(missingPayCost.labelSuffix, "（需选择）");
 
-const snapshot = {
-  players: {
-    P1: {
-      objects: {
-        "hand-1": { cardNo: "OGN-001/298", objectId: "hand-1" }
-      }
-    }
-  }
-};
-
 const singleSourcePlay = plan({
   action: "PLAY_CARD",
+  commandTemplate: playCardTemplate(),
   enabled: true,
   label: "打出卡牌",
+  metadata: {
+    sourceRequirements: [
+      { cardNo: "OGN-001/298", sourceObjectId: "hand-1" }
+    ]
+  },
   reason: "可打出",
   sources: [{ id: "hand-1", label: "测试卡", objectIds: ["hand-1"] }]
-}, { snapshot });
+});
 assert.deepEqual(singleSourcePlay.command, {
   cardNo: "OGN-001/298",
   cmdType: "PLAY_CARD",
@@ -137,16 +133,34 @@ assert.equal(singleSourcePlay.needsComposer, false);
 
 const targetRequiredPlay = plan({
   action: "PLAY_CARD",
+  commandTemplate: playCardTemplate(),
   enabled: true,
   label: "打出卡牌",
+  metadata: {
+    sourceRequirements: [
+      { cardNo: "OGN-001/298", sourceObjectId: "hand-1" }
+    ]
+  },
   reason: "需要目标",
   sources: [{ id: "hand-1", label: "测试卡", objectIds: ["hand-1"] }],
   targets: [{ id: "target-1", label: "目标", objectIds: ["target-1"] }]
-}, { snapshot });
+});
 assert.equal(targetRequiredPlay.command, undefined);
 assert.equal(targetRequiredPlay.needsComposer, true);
 assert.equal(targetRequiredPlay.disabled, false);
 assert.equal(targetRequiredPlay.labelSuffix, "");
+
+const legacyPlayWithoutTemplate = plan({
+  action: "PLAY_CARD",
+  enabled: true,
+  label: "旧式打出卡牌",
+  reason: "服务端未提供命令模板",
+  sources: [{ id: "hand-1", label: "测试卡", objectIds: ["hand-1"] }]
+});
+assert.equal(legacyPlayWithoutTemplate.command, undefined);
+assert.equal(legacyPlayWithoutTemplate.needsComposer, false);
+assert.equal(legacyPlayWithoutTemplate.disabled, true);
+assert.equal(legacyPlayWithoutTemplate.labelSuffix, "（需选择）");
 
 const templated = plan({
   action: "ACTIVATE_ABILITY",
@@ -199,9 +213,19 @@ console.log("Action panel command plan check passed.");
 function plan(candidate, options = {}) {
   return buildActionPanelCandidateCommandPlan({
     candidate,
-    disabledByConnection: options.disabledByConnection ?? false,
-    snapshot: options.snapshot
+    disabledByConnection: options.disabledByConnection ?? false
   });
+}
+
+function playCardTemplate() {
+  return {
+    bindings: [
+      { field: "sourceObjectId", required: true, source: "selectedSource" },
+      { field: "cardNo", metadataKey: "cardNo", required: true, source: "requirementMetadata" },
+      { asArray: true, field: "targetObjectIds", omitEmpty: false, source: "selectedTargets" }
+    ],
+    cmdType: "PLAY_CARD"
+  };
 }
 
 function commandFromActionPromptTemplate(template, selection, requirement) {
@@ -214,13 +238,15 @@ function commandFromActionPromptTemplate(template, selection, requirement) {
     let value;
     if (binding.source === "selectedSource") {
       value = selection.sourceId;
+    } else if (binding.source === "selectedTargets") {
+      value = selection.targetIds ?? [];
     } else if (binding.source === "requirementMetadata") {
       value = requirement?.[binding.metadataKey];
     }
-    if (binding.required && !value) {
+    if (binding.required && (!value || (Array.isArray(value) && value.length === 0))) {
       return undefined;
     }
-    if (value) {
+    if (value || (Array.isArray(value) && binding.omitEmpty === false)) {
       command[binding.field] = value;
     }
   }
@@ -260,7 +286,9 @@ function findCardNo(snapshot, objectId) {
 }
 
 function canComposeActionCandidate(candidate) {
-  return Boolean(candidate.commandTemplate)
-    || ["PLAY_CARD", "HIDE_CARD", "REVEAL_CARD", "MOVE_UNIT", "ASSEMBLE_EQUIPMENT", "DECLARE_BATTLE", "ACTIVATE_ABILITY", "LEGEND_ACT"]
-      .includes(candidate.action);
+  if (candidate.composer) {
+    return candidate.composer.supported && Boolean(candidate.commandTemplate);
+  }
+
+  return Boolean(candidate.commandTemplate);
 }

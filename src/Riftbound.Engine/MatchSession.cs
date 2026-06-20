@@ -5968,6 +5968,7 @@ internal static class ActionPromptBuilder
             destinations,
             modes,
             optionalCosts);
+        var commandTemplate = CommandTemplateFor(action);
         return new ActionPromptCandidateDto(
             action,
             LabelFor(action),
@@ -5980,7 +5981,26 @@ internal static class ActionPromptBuilder
             optionalCosts,
             MetadataFor(state, playerId, action),
             selectionSteps,
-            CommandTemplateFor(action));
+            commandTemplate,
+            ComposerFor(selectionSteps, commandTemplate));
+    }
+
+    private static ActionPromptComposerDto? ComposerFor(
+        IReadOnlyList<ActionPromptSelectionStepDto>? selectionSteps,
+        ActionPromptCommandTemplateDto? commandTemplate)
+    {
+        if (commandTemplate is null)
+        {
+            return null;
+        }
+
+        var steps = selectionSteps ?? Array.Empty<ActionPromptSelectionStepDto>();
+        return new ActionPromptComposerDto(
+            true,
+            "服务端已公开命令模板；前端只负责组装候选选择并提交给服务端规则校验。",
+            steps.Select(step => step.Role).Distinct(StringComparer.Ordinal).OrderBy(role => role, StringComparer.Ordinal).ToArray(),
+            steps.Where(step => step.Required).Select(step => step.Role).Distinct(StringComparer.Ordinal).OrderBy(role => role, StringComparer.Ordinal).ToArray(),
+            commandTemplate.Bindings.Select(binding => binding.Field).Distinct(StringComparer.Ordinal).OrderBy(field => field, StringComparer.Ordinal).ToArray());
     }
 
     private static IReadOnlyList<ActionPromptSelectionStepDto>? SelectionStepsFor(

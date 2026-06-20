@@ -667,7 +667,7 @@ function CandidateButton({
   submissionGate: ServerSubmissionGatePlan;
 }) {
   const [confirmingSurrender, setConfirmingSurrender] = useState(false);
-  const plan = buildActionPanelCandidateCommandPlan({ candidate, disabledByConnection, snapshot });
+  const plan = buildActionPanelCandidateCommandPlan({ candidate, disabledByConnection });
 
   useEffect(() => {
     setConfirmingSurrender(false);

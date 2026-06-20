@@ -46,6 +46,17 @@ const {
 
 const playCandidate = {
   action: "PLAY_CARD",
+  commandTemplate: {
+    bindings: [
+      { field: "sourceObjectId", required: true, source: "selectedSource" },
+      { field: "cardNo", metadataKey: "cardNo", required: true, source: "requirementMetadata" },
+      { asArray: true, field: "targetObjectIds", omitEmpty: false, source: "selectedTargets" },
+      { field: "mode", source: "selectedMode" },
+      { field: "destination", source: "selectedDestination" },
+      { asArray: true, field: "optionalCosts", source: "selectedOptionalCosts" }
+    ],
+    cmdType: "PLAY_CARD"
+  },
   enabled: true,
   label: "打出法术",
   metadata: {
@@ -154,7 +165,7 @@ assert.deepEqual(buildCandidateCommandPreviewPlan(controls, state), {
   targetLabels: ["目标 A", "目标 B"]
 });
 assert.deepEqual(optionalCostIds, ["rune-main", "rune-extra"]);
-assert.deepEqual(composerCommand(playCandidate, undefined, state, requirement, selectedTargetIds, optionalCostIds), {
+assert.deepEqual(composerCommand(playCandidate, state, requirement, selectedTargetIds, optionalCostIds), {
   cardNo: "OGN-001/298",
   cmdType: "PLAY_CARD",
   destination: "bf-b",
@@ -225,6 +236,16 @@ assert.equal(staleGateSubmission.checkRows.find((check) => check.key === "submis
 
 const battleCandidate = {
   action: "DECLARE_BATTLE",
+  commandTemplate: {
+    bindings: [
+      { asArray: true, field: "attackerObjectIds", required: true, source: "selectedSource" },
+      { field: "battlefieldId", required: true, source: "selectedDestination" },
+      { asArray: true, field: "battlefieldTargetObjectIds", required: true, source: "selectedDestination" },
+      { asArray: true, field: "defenderObjectIds", required: true, source: "selectedTargets" },
+      { asArray: true, field: "optionalCosts", source: "selectedOptionalCosts" }
+    ],
+    cmdType: "DECLARE_BATTLE"
+  },
   enabled: true,
   label: "声明战斗",
   metadata: {
@@ -247,7 +268,6 @@ assert.equal(battleControls.targetGroups[0].label, "防守方 1");
 assert.equal(battleControls.targetGroups[0].required, true);
 assert.deepEqual(composerCommand(
   battleCandidate,
-  undefined,
   battleState,
   battleRequirement,
   [battleControls.targetGroups[0].choices[0].id],
@@ -257,8 +277,7 @@ assert.deepEqual(composerCommand(
   battlefieldId: "bf-a",
   battlefieldTargetObjectIds: ["bf-a"],
   cmdType: "DECLARE_BATTLE",
-  defenderObjectIds: ["defender-1"],
-  optionalCosts: undefined
+  defenderObjectIds: ["defender-1"]
 });
 
 const templatedCandidate = {
@@ -283,7 +302,6 @@ const templatedModel = buildCandidateComposerModel(templatedCandidate);
 const templatedState = initialComposerState(templatedCandidate, templatedModel);
 assert.deepEqual(composerCommand(
   templatedCandidate,
-  undefined,
   templatedState,
   selectedRequirement(templatedModel, "unit-1"),
   [],
@@ -324,10 +342,13 @@ function commandFromActionPromptTemplate(template, selection, requirement) {
     } else if (binding.source === "requirementMetadata") {
       value = requirement?.[binding.metadataKey];
     }
+    if (binding.asArray && !Array.isArray(value)) {
+      value = value ? [value] : [];
+    }
     if (binding.required && (value == null || value === "" || (Array.isArray(value) && value.length === 0))) {
       return undefined;
     }
-    if (value != null && value !== "") {
+    if (value != null && value !== "" && (!Array.isArray(value) || value.length > 0 || binding.omitEmpty === false)) {
       command[binding.field] = value;
     }
   }

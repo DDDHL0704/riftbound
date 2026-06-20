@@ -1,8 +1,7 @@
-import type { ActionPromptCandidateDto, GameCommand, SnapshotDto } from "../types/protocol";
+import type { ActionPromptCandidateDto, GameCommand } from "../types/protocol";
 import { commandFromActionPromptTemplate } from "./actionPromptCommandTemplate";
 import { candidateRequiresFurtherChoice, singlePromptChoiceId } from "./actionPromptCandidateShape";
 import { sourceRequirementFor } from "./actionPromptCandidates";
-import { findCardNo } from "./actionPanelChoiceModels";
 import { canComposeActionCandidate } from "./candidateComposerSupport";
 
 export type ActionPanelDirectActionKind = "ready" | "submitDeck";
@@ -24,15 +23,13 @@ export type ActionPanelCandidateCommandPlan = {
 type BuildActionPanelCandidateCommandPlanOptions = {
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
-  snapshot?: SnapshotDto;
 };
 
 export function buildActionPanelCandidateCommandPlan({
   candidate,
-  disabledByConnection,
-  snapshot
+  disabledByConnection
 }: BuildActionPanelCandidateCommandPlanOptions): ActionPanelCandidateCommandPlan {
-  const command = simpleCommand(candidate, snapshot);
+  const command = simpleCommand(candidate);
   const directAction = directCandidateAction(candidate);
   const needsComposer = !command && !directAction && canComposeActionCandidate(candidate);
   const executable = command || directAction;
@@ -75,7 +72,7 @@ function candidateIcon(
   return executable ? "play" : "hourglass";
 }
 
-function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotDto): GameCommand | undefined {
+function simpleCommand(candidate: ActionPromptCandidateDto): GameCommand | undefined {
   switch (candidate.action) {
     case "PASS_PRIORITY":
       return { cmdType: "PASS_PRIORITY" };
@@ -105,16 +102,6 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
         if (templatedCommand) {
           return templatedCommand;
         }
-      }
-      if (candidate.action === "PLAY_CARD" && !candidate.commandTemplate) {
-        const source = singlePromptChoiceId(candidate.sources);
-        if (!source) {
-          return undefined;
-        }
-        const cardNo = findCardNo(snapshot, source);
-        return cardNo && !candidateRequiresFurtherChoice(candidate)
-          ? { cmdType: "PLAY_CARD", sourceObjectId: source, cardNo, targetObjectIds: [] }
-          : undefined;
       }
       return undefined;
   }

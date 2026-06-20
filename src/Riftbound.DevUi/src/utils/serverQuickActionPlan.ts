@@ -135,8 +135,7 @@ function quickActionEntryForDefinition({
 
   const commandPlan = buildActionPanelCandidateCommandPlan({
     candidate,
-    disabledByConnection: !submissionGate.canSubmit || !canAct,
-    snapshot
+    disabledByConnection: !submissionGate.canSubmit || !canAct
   });
   const command = commandPlan.command ? promptStampedCommand(commandPlan.command, prompt) : undefined;
   const executable = Boolean(command || commandPlan.directAction);

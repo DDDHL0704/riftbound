@@ -219,18 +219,12 @@ export function composerControls(
 
 export function composerCommand(
   candidate: ActionPromptCandidateDto,
-  snapshot: SnapshotDto | undefined,
   state: CandidateComposerState,
   requirement: Record<string, unknown> | undefined,
   targetObjectIds: string[],
   optionalCostIds: string[]
 ): GameCommand | undefined {
-  const sourceObjectId = state.sourceId;
-  const cardNo = cardNoForRequirement(requirement, snapshot, sourceObjectId);
-  const optionalCosts = optionalCostIds.length > 0 ? optionalCostIds : undefined;
-  const destination = state.destinationId || undefined;
-  const mode = state.mode || undefined;
-  const templatedCommand = commandFromActionPromptTemplate(
+  return commandFromActionPromptTemplate(
     candidate.commandTemplate,
     {
       destinationId: state.destinationId,
@@ -241,65 +235,6 @@ export function composerCommand(
     },
     requirement
   );
-  if (templatedCommand) {
-    return templatedCommand;
-  }
-
-  switch (candidate.action) {
-    case "PLAY_CARD":
-      return sourceObjectId && cardNo
-        ? { cmdType: "PLAY_CARD", sourceObjectId, cardNo, targetObjectIds, mode, destination, optionalCosts }
-        : undefined;
-    case "HIDE_CARD":
-      return sourceObjectId && cardNo
-        ? { cmdType: "HIDE_CARD", sourceObjectId, cardNo, destination, optionalCosts }
-        : undefined;
-    case "REVEAL_CARD":
-      return sourceObjectId && cardNo
-        ? { cmdType: "REVEAL_CARD", sourceObjectId, cardNo, mode, destination, targetObjectIds, optionalCosts }
-        : undefined;
-    case "MOVE_UNIT":
-      return sourceObjectId
-        ? { cmdType: "MOVE_UNIT", sourceObjectId, origin: stringMetadata(requirement ?? {}, "origin"), destination, optionalCosts }
-        : undefined;
-    case "ASSEMBLE_EQUIPMENT":
-      return sourceObjectId
-        ? { cmdType: "ASSEMBLE_EQUIPMENT", sourceObjectId, targetObjectId: targetObjectIds[0], optionalCosts }
-        : undefined;
-    case "DECLARE_BATTLE":
-      return sourceObjectId
-        ? {
-            cmdType: "DECLARE_BATTLE",
-            attackerObjectIds: [sourceObjectId],
-            battlefieldId: destination,
-            battlefieldTargetObjectIds: destination ? [destination] : undefined,
-            defenderObjectIds: targetObjectIds,
-            optionalCosts
-          }
-        : undefined;
-    case "ACTIVATE_ABILITY":
-      return sourceObjectId && stringMetadata(requirement ?? {}, "abilityId")
-        ? {
-            cmdType: "ACTIVATE_ABILITY",
-            sourceObjectId,
-            abilityId: stringMetadata(requirement ?? {}, "abilityId")!,
-            targetObjectIds,
-            optionalCosts
-          }
-        : undefined;
-    case "LEGEND_ACT":
-      return sourceObjectId && stringMetadata(requirement ?? {}, "abilityId")
-        ? {
-            cmdType: "LEGEND_ACT",
-            sourceObjectId,
-            abilityId: stringMetadata(requirement ?? {}, "abilityId")!,
-            targetObjectIds,
-            optionalCosts
-          }
-        : undefined;
-    default:
-      return undefined;
-  }
 }
 
 export function buildCandidateComposerSubmissionPlan({
@@ -307,7 +242,6 @@ export function buildCandidateComposerSubmissionPlan({
   controls,
   disabledByConnection,
   requirement,
-  snapshot,
   submissionGate,
   state
 }: {
@@ -323,10 +257,14 @@ export function buildCandidateComposerSubmissionPlan({
     .map((group) => state.targetIdsByGroup[group.key])
     .filter((id): id is string => Boolean(id));
   const optionalCostIds = uniqueStrings([...controls.requiredOptionalCostIds, ...state.optionalCostIds]);
-  const command = composerCommand(candidate, snapshot, state, requirement, selectedTargetIds, optionalCostIds);
-  const unsupportedReason = requirement && !booleanFromRecord(requirement, "composable", true)
+  const command = composerCommand(candidate, state, requirement, selectedTargetIds, optionalCostIds);
+  const requirementUnsupportedReason = requirement && !booleanFromRecord(requirement, "composable", true)
     ? safePromptSummary(requirement.unsupportedReason) ?? "服务端暂未开放该候选的组合提交。"
     : undefined;
+  const composerUnsupportedReason = candidate.composer && !candidate.composer.supported
+    ? candidate.composer.reason
+    : undefined;
+  const unsupportedReason = requirementUnsupportedReason ?? composerUnsupportedReason;
   const missingRequiredTarget = controls.targetGroups
     .some((group) => group.required && !state.targetIdsByGroup[group.key]);
   const gateCanSubmit = submissionGate?.canSubmit ?? !disabledByConnection;
@@ -365,7 +303,8 @@ export function buildCandidateComposerSubmissionPlan({
     missingRequiredDestination,
     missingRequiredSource,
     missingRequiredTarget,
-    unsupportedReason
+    unsupportedReason,
+    supportReason: candidate.composer?.reason
   });
 
   return {
@@ -394,6 +333,7 @@ function composerCheckRows({
   missingRequiredDestination,
   missingRequiredSource,
   missingRequiredTarget,
+  supportReason,
   unsupportedReason
 }: {
   candidateEnabled: boolean;
@@ -404,6 +344,7 @@ function composerCheckRows({
   missingRequiredDestination: boolean;
   missingRequiredSource: boolean;
   missingRequiredTarget: boolean;
+  supportReason?: string;
   unsupportedReason?: string;
 }): CandidateComposerCheckPlan[] {
   return [
@@ -452,7 +393,7 @@ function composerCheckRows({
     {
       key: "backend-support",
       label: "后端支持",
-      reason: unsupportedReason ?? "候选声明为可由当前前端组合，最终仍交给服务端校验。",
+      reason: unsupportedReason ?? supportReason ?? "候选声明为可由当前前端组合，最终仍交给服务端校验。",
       state: unsupportedReason ? "blocked" : "ready",
       stateLabel: unsupportedReason ? "未开放" : "已开放"
     }
@@ -685,34 +626,6 @@ function choiceGroupsByIndex(value: unknown, requiredCount: number, labelPrefix:
       label: `${labelPrefix} ${index + 1}`,
       required: index < requiredCount
     }));
-}
-
-function cardNoForRequirement(
-  requirement: Record<string, unknown> | undefined,
-  snapshot: SnapshotDto | undefined,
-  sourceObjectId: string | undefined
-): string | undefined {
-  return (requirement && (stringMetadata(requirement, "cardNo") ?? stringMetadata(requirement, "equipmentCardNo")))
-    ?? (sourceObjectId ? findCardNo(snapshot, sourceObjectId) : undefined);
-}
-
-function findCardNo(snapshot: SnapshotDto | undefined, objectId: string): string | undefined {
-  return findObject(snapshot, objectId)?.cardNo ?? undefined;
-}
-
-function findObject(snapshot: SnapshotDto | undefined, objectId: string) {
-  if (!snapshot) {
-    return undefined;
-  }
-
-  for (const player of Object.values(snapshot.players)) {
-    const cardObject = player.objects?.[objectId];
-    if (cardObject) {
-      return cardObject;
-    }
-  }
-
-  return undefined;
 }
 
 function targetChoiceGroupCount(value: unknown): number {

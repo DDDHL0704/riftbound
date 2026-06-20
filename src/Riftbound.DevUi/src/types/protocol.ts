@@ -178,6 +178,14 @@ export type ActionPromptCommandTemplateDto = {
   bindings: ActionPromptCommandTemplateBindingDto[];
 };
 
+export type ActionPromptComposerDto = {
+  supported: boolean;
+  reason: string;
+  selectionRoles: string[];
+  requiredSelectionRoles: string[];
+  commandFields: string[];
+};
+
 export type ActionPromptCandidateDto = {
   action: string;
   label: string;
@@ -191,6 +199,7 @@ export type ActionPromptCandidateDto = {
   metadata?: Record<string, unknown> | null;
   selectionSteps?: ActionPromptSelectionStepDto[] | null;
   commandTemplate?: ActionPromptCommandTemplateDto | null;
+  composer?: ActionPromptComposerDto | null;
 };
 
 export type ActionPromptObjectCandidateDto = {

@@ -52,6 +52,7 @@ assert.equal(tapRune.variant, "primary");
 
 const sourcePlay = plan({
   action: "PLAY_CARD",
+  commandTemplate: { cmdType: "PLAY_CARD" },
   enabled: true,
   label: "打出卡牌",
   reason: "需要选择费用或目标",
@@ -100,6 +101,7 @@ assert.equal(readOnly.title, "当前视图只能查看，不能提交行动");
 
 const disconnected = plan({
   action: "PLAY_CARD",
+  commandTemplate: { cmdType: "PLAY_CARD" },
   enabled: true,
   label: "打出卡牌",
   reason: "连接断开时不能提交",
@@ -165,9 +167,11 @@ function candidateRequiresFurtherChoice(candidate) {
 }
 
 function canComposeActionCandidate(candidate) {
-  return Boolean(candidate.commandTemplate)
-    || ["PLAY_CARD", "HIDE_CARD", "REVEAL_CARD", "MOVE_UNIT", "ASSEMBLE_EQUIPMENT", "DECLARE_BATTLE", "ACTIVATE_ABILITY", "LEGEND_ACT"]
-      .includes(candidate.action);
+  if (candidate.composer) {
+    return candidate.composer.supported && Boolean(candidate.commandTemplate);
+  }
+
+  return Boolean(candidate.commandTemplate);
 }
 
 function promptActionLabel(candidate) {
