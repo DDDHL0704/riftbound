@@ -13,6 +13,7 @@ import { buildActionPanelCandidateCommandPlan, type ActionPanelCandidateButtonIc
 import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
+import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
 import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
@@ -51,6 +52,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             {promptPlan.rows.map((row) => <span key={row.key}>{row.text}</span>)}
           </div>
           {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
+          {promptPlan.inspection && <ActionPromptInspection plan={promptPlan.inspection} />}
           <div
             className="action-buttons"
             data-action-render-count={renderPlan.entries.length}
@@ -174,6 +176,45 @@ function ActionPanelRenderEntryView({
       data-action-render-readonly={entry.readOnly ? "true" : "false"}
     >
       {content}
+    </div>
+  );
+}
+
+function ActionPromptInspection({ plan }: { plan: PromptInspectionPlan }) {
+  return (
+    <div className="action-prompt-inspection" aria-label="服务端行动提示检查" data-action-prompt-inspection="true">
+      <div className="action-prompt-inspection-heading">
+        <strong>提示检查</strong>
+        <span>{plan.sourceLabel}</span>
+      </div>
+      <p>{plan.boundaryLabel}</p>
+      <dl className="action-prompt-inspection-summary">
+        {plan.summaryRows.map((row) => (
+          <div data-action-prompt-inspection-summary={row.key} key={row.key}>
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="action-prompt-inspection-groups">
+        {plan.groups.map((group) => (
+          <section data-action-prompt-inspection-group={group.key} key={group.key}>
+            <strong>{group.title}</strong>
+            {group.rows.length === 0 ? (
+              <span>{group.emptyLabel ?? "当前没有公开记录。"}</span>
+            ) : (
+              <ol>
+                {group.rows.slice(0, 4).map((row) => (
+                  <li data-action-prompt-inspection-row={`${group.key}:${row.key}`} key={row.key}>
+                    <small>{row.label}</small>
+                    <strong>{row.value}</strong>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

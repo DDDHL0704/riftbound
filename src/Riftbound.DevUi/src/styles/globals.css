@@ -1943,6 +1943,7 @@ button.card-face:hover {
 .damage-assignment-panel,
 .trigger-order-panel,
 .generic-prompt-details,
+.action-prompt-inspection,
 .candidate-composer,
 .log-row {
   display: grid;
@@ -1959,11 +1960,13 @@ button.card-face:hover {
   background: rgba(215, 173, 85, 0.08);
 }
 
-.generic-prompt-details {
+.generic-prompt-details,
+.action-prompt-inspection {
   margin-top: 8px;
 }
 
 .generic-prompt-heading,
+.action-prompt-inspection-heading,
 .candidate-composer-heading,
 .hand-choice-heading,
 .damage-assignment-heading,
@@ -1979,12 +1982,14 @@ button.card-face:hover {
 
 .generic-prompt-details > strong,
 .generic-prompt-heading > strong,
+.action-prompt-inspection-heading > strong,
 .generic-prompt-metadata > strong {
   color: var(--text-primary);
   font-size: 0.86rem;
 }
 
 .generic-prompt-note,
+.action-prompt-inspection p,
 .candidate-composer-note,
 .hand-choice-note,
 .damage-assignment-note,
@@ -1999,6 +2004,7 @@ button.card-face:hover {
 .generic-prompt-option,
 .generic-prompt-metadata,
 .generic-prompt-contract,
+.action-prompt-inspection-groups section,
 .candidate-composer-field,
 .candidate-composer-costs,
 .candidate-command-preview,
@@ -2016,9 +2022,48 @@ button.card-face:hover {
 .candidate-composer-checks small,
 .candidate-composer-checks strong,
 .candidate-command-preview span,
+.action-prompt-inspection-summary dt,
+.action-prompt-inspection-summary dd,
+.action-prompt-inspection-groups span,
+.action-prompt-inspection-groups li small,
+.action-prompt-inspection-groups li strong,
 .generic-prompt-option span {
   color: var(--text-primary);
   font-size: 0.84rem;
+}
+
+.action-prompt-inspection-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+}
+
+.action-prompt-inspection-summary div,
+.action-prompt-inspection-groups li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.action-prompt-inspection-summary dt,
+.action-prompt-inspection-summary dd {
+  min-width: 0;
+  margin: 0;
+}
+
+.action-prompt-inspection-groups {
+  display: grid;
+  gap: 4px;
+}
+
+.action-prompt-inspection-groups ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .candidate-composer-checks {
@@ -14412,6 +14457,11 @@ button.wire-object-ref {
 .wire-match-page .trigger-order-panel,
 .wire-match-page .generic-prompt-details,
 .wire-match-page .generic-prompt-contract,
+.wire-match-page .action-prompt-inspection,
+.wire-match-page .action-prompt-inspection-heading,
+.wire-match-page .action-prompt-inspection-summary div,
+.wire-match-page .action-prompt-inspection-groups section,
+.wire-match-page .action-prompt-inspection-groups li,
 .wire-match-page .candidate-composer,
 .wire-match-page .candidate-composer-field,
 .wire-match-page .candidate-composer-costs,

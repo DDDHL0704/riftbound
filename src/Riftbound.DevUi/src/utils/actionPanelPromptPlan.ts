@@ -1,5 +1,6 @@
 import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptContractDto, ActionPromptDto, ConnectionStatus, SnapshotDto } from "../types/protocol";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel } from "./formatters";
+import { buildPromptInspectionPlan, type PromptInspectionPlan } from "./promptInspectionPlan";
 import { redactInternalText } from "./redaction";
 import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 
@@ -49,6 +50,7 @@ export type ActionPanelGenericPromptPlan = {
 export type ActionPanelPromptPlan = {
   canAct: boolean;
   genericPrompt?: ActionPanelGenericPromptPlan;
+  inspection?: PromptInspectionPlan;
   promptMessage: string;
   promptTitle: string;
   rows: ActionPanelPromptSummaryRow[];
@@ -81,6 +83,7 @@ export function buildActionPanelPromptPlan({
   return {
     canAct,
     genericPrompt: prompt && shouldShowGenericPromptDetails(prompt) ? buildGenericPromptPlan(prompt) : undefined,
+    inspection: prompt ? buildPromptInspectionPlan({ prompt }) : undefined,
     promptMessage,
     promptTitle,
     rows: promptSummaryRows(prompt, promptMessage, connectionStatus, gate),

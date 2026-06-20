@@ -5,6 +5,16 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
+const promptInspectionSourcePath = resolve(scriptDir, "../src/utils/promptInspectionPlan.ts");
+const promptInspectionOutput = ts.transpileModule(readFileSync(promptInspectionSourcePath, "utf8"), {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022
+  }
+}).outputText;
+const promptInspectionModuleShim = { exports: {} };
+new Function("exports", "module", promptInspectionOutput)(promptInspectionModuleShim.exports, promptInspectionModuleShim);
+
 const sourcePath = resolve(scriptDir, "../src/utils/wireTurnWindowPlan.ts");
 const source = readFileSync(sourcePath, "utf8");
 const output = ts.transpileModule(source, {
@@ -15,7 +25,17 @@ const output = ts.transpileModule(source, {
 }).outputText;
 const moduleShim = { exports: {} };
 
-new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+new Function("exports", "module", "require", output)(
+  moduleShim.exports,
+  moduleShim,
+  (id) => {
+    if (id === "./promptInspectionPlan") {
+      return promptInspectionModuleShim.exports;
+    }
+
+    throw new Error(`Unexpected module import: ${id}`);
+  }
+);
 
 const { buildWireTurnWindowPlan } = moduleShim.exports;
 

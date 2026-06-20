@@ -5,6 +5,16 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
+const promptInspectionSourcePath = resolve(scriptDir, "../src/utils/promptInspectionPlan.ts");
+const promptInspectionOutput = ts.transpileModule(readFileSync(promptInspectionSourcePath, "utf8"), {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022
+  }
+}).outputText;
+const promptInspectionModuleShim = { exports: {} };
+new Function("exports", "module", promptInspectionOutput)(promptInspectionModuleShim.exports, promptInspectionModuleShim);
+
 const sourcePath = resolve(scriptDir, "../src/utils/actionPanelPromptPlan.ts");
 const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
 const output = ts.transpileModule(source, {
@@ -21,6 +31,7 @@ new Function(
   "connectionStatusLabel",
   "promptActionLabel",
   "promptReasonLabel",
+  "buildPromptInspectionPlan",
   "redactInternalText",
   "buildServerSubmissionGatePlan",
   output
@@ -30,6 +41,7 @@ new Function(
   connectionStatusLabel,
   promptActionLabel,
   promptReasonLabel,
+  promptInspectionModuleShim.exports.buildPromptInspectionPlan,
   redactInternalText,
   buildServerSubmissionGatePlan
 );
@@ -46,6 +58,7 @@ assert.equal(disconnectedPlan.promptTitle, "当前行动");
 assert.equal(disconnectedPlan.statusLabel, "连接未就绪");
 assert.ok(disconnectedPlan.rows.some((row) => row.text.includes("连接状态：已断开")));
 assert.equal(disconnectedPlan.genericPrompt, undefined);
+assert.equal(disconnectedPlan.inspection, undefined);
 
 const knownSimplePlan = buildActionPanelPromptPlan({
   connectionStatus: "connected",
@@ -67,6 +80,8 @@ const knownSimplePlan = buildActionPanelPromptPlan({
 assert.equal(knownSimplePlan.canAct, true);
 assert.equal(knownSimplePlan.statusTone, "good");
 assert.equal(knownSimplePlan.genericPrompt, undefined);
+assert.equal(knownSimplePlan.inspection?.sourceLabel, "前端公开 prompt 汇总");
+assert.equal(knownSimplePlan.inspection?.summaryRows.find((row) => row.key === "candidate")?.value, "0 可提交 / 0 阻断");
 
 const stalePromptPlan = buildActionPanelPromptPlan({
   connectionStatus: "connected",
@@ -121,6 +136,26 @@ const complexPrompt = {
     visibleMetadata: ["phase", "window"]
   },
   playerId: "P1",
+  inspection: {
+    boundary: "服务端只公开当前行动窗口的类型、候选、命令契约和对象索引摘要；隐藏 metadata 不进入提示检查。",
+    groups: [
+      {
+        key: "candidate",
+        rows: [{ key: "candidate-0", label: "可提交", tone: "good", value: "PAY_COST / 来源 5 / 费用 1" }],
+        title: "服务端候选"
+      },
+      {
+        key: "safe-boundary",
+        rows: [{ key: "frontend", label: "前端职责", tone: "neutral", value: "展示与提交，不重算规则" }],
+        title: "信息边界"
+      }
+    ],
+    source: "server-action-prompt",
+    summaryRows: [
+      { key: "kind", label: "提示类型", value: "PAY_COST" },
+      { key: "candidate", label: "候选", value: "1 可提交 / 0 阻断" }
+    ]
+  },
   reason: "PAY_COST",
   view: {
     message: "",
@@ -153,6 +188,9 @@ assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "p
 assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "selectableIds")?.value, "3 项");
 assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "requirementGraph")?.value, "2 项");
 assert.equal(complexPlan.genericPrompt.contract?.lines.find((line) => line.key === "hiddenMetadata")?.value, "2 项由服务端保留，不向客户端展开。");
+assert.equal(complexPlan.inspection?.sourceLabel, "服务端提示检查");
+assert.equal(complexPlan.inspection?.summaryRows.find((row) => row.key === "candidate")?.value, "1 可提交 / 0 阻断");
+assert.equal(complexPlan.inspection?.groups.find((group) => group.key === "safe-boundary")?.rows[0]?.value, "展示与提交，不重算规则");
 assert.equal(JSON.stringify(complexPlan).includes("serverPaymentState"), false);
 assert.equal(JSON.stringify(complexPlan).includes("never show this raw value"), false);
 

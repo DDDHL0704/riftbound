@@ -1,6 +1,13 @@
-import type { ActionPromptDto, ActionPromptInspectionGroupDto, ActionPromptInspectionRowDto, ConnectionStatus, SnapshotDto } from "../types/protocol";
+import type { ActionPromptDto, ConnectionStatus, SnapshotDto } from "../types/protocol";
+import {
+  buildPromptInspectionPlan,
+  type PromptInspectionGroupPlan,
+  type PromptInspectionPlan,
+  type PromptInspectionRowPlan,
+  type PromptInspectionTone
+} from "./promptInspectionPlan";
 
-export type WireWindowPlanTone = "bad" | "good" | "info" | "neutral" | "warn";
+export type WireWindowPlanTone = PromptInspectionTone;
 
 export type WireWindowPlanMetric = {
   key: string;
@@ -9,26 +16,9 @@ export type WireWindowPlanMetric = {
   value: string;
 };
 
-export type WireTurnWindowInspectionRow = {
-  key: string;
-  label: string;
-  value: string;
-  tone?: WireWindowPlanTone;
-};
-
-export type WireTurnWindowInspectionGroup = {
-  emptyLabel?: string;
-  key: string;
-  rows: WireTurnWindowInspectionRow[];
-  title: string;
-};
-
-export type WireTurnWindowInspectionPlan = {
-  boundaryLabel: string;
-  groups: WireTurnWindowInspectionGroup[];
-  sourceLabel: string;
-  summaryRows: WireTurnWindowInspectionRow[];
-};
+export type WireTurnWindowInspectionRow = PromptInspectionRowPlan;
+export type WireTurnWindowInspectionGroup = PromptInspectionGroupPlan;
+export type WireTurnWindowInspectionPlan = PromptInspectionPlan;
 
 export type WireTurnWindowPlan = {
   activePlayerId?: string;
@@ -90,7 +80,11 @@ export function buildWireTurnWindowPlan({
     activePlayerId,
     blockingTaskCount: taskCount,
     enabledCandidateCount,
-    inspection: buildPromptInspectionPlan(prompt, enabledCandidateCount, prompt?.candidates?.length ?? 0),
+    inspection: buildPromptInspectionPlan({
+      candidateCount: prompt?.candidates?.length ?? 0,
+      enabledCandidateCount,
+      prompt
+    }),
     nextStepLabel: nextStepLabel({
       activePlayerId,
       isBlocking,
@@ -123,93 +117,6 @@ export function buildWireTurnWindowPlan({
       { key: "triggers", label: "触发", value: `${triggerCount} 项` }
     ]
   };
-}
-
-function buildPromptInspectionPlan(
-  prompt: ActionPromptDto | undefined,
-  enabledCandidateCount: number,
-  candidateCount: number
-): WireTurnWindowInspectionPlan {
-  const inspection = prompt?.inspection;
-  if (inspection) {
-    return {
-      boundaryLabel: inspection.boundary,
-      groups: inspection.groups.map(wireTurnWindowInspectionGroupFromServer),
-      sourceLabel: promptInspectionSourceLabel(inspection.source),
-      summaryRows: inspection.summaryRows.map(wireTurnWindowInspectionRowFromServer)
-    };
-  }
-
-  const disabledCount = Math.max(0, candidateCount - enabledCandidateCount);
-  return {
-    boundaryLabel: "前端仅汇总当前 prompt 的公开字段；合法性仍以后端候选和提交校验为准。",
-    groups: [
-      {
-        emptyLabel: "当前窗口没有公开候选。",
-        key: "candidate",
-        rows: (prompt?.candidates ?? []).slice(0, 6).map((candidate, index) => ({
-          key: `candidate-${index}`,
-          label: candidate.enabled ? "可提交" : "阻断",
-          tone: candidate.enabled ? "good" : "warn",
-          value: [candidate.action, candidate.enabled ? "" : candidate.reason].filter(Boolean).join(" / ")
-        })),
-        title: "服务端候选"
-      },
-      {
-        key: "safe-boundary",
-        rows: [
-          { key: "candidate-source", label: "合法性", value: "以服务端候选和提交校验为准" },
-          { key: "frontend", label: "前端职责", value: "展示与提交，不重算规则" }
-        ],
-        title: "信息边界"
-      }
-    ],
-    sourceLabel: "前端公开 prompt 汇总",
-    summaryRows: [
-      { key: "kind", label: "提示类型", value: prompt?.view?.type ?? "WAIT" },
-      { key: "candidate", label: "候选", value: `${enabledCandidateCount} 可提交 / ${disabledCount} 阻断` }
-    ]
-  };
-}
-
-function wireTurnWindowInspectionGroupFromServer(group: ActionPromptInspectionGroupDto): WireTurnWindowInspectionGroup {
-  return {
-    emptyLabel: group.emptyLabel ?? undefined,
-    key: group.key,
-    rows: group.rows.map(wireTurnWindowInspectionRowFromServer),
-    title: group.title
-  };
-}
-
-function wireTurnWindowInspectionRowFromServer(row: ActionPromptInspectionRowDto): WireTurnWindowInspectionRow {
-  return {
-    key: row.key,
-    label: row.label,
-    tone: toneFromServer(row.tone),
-    value: row.value
-  };
-}
-
-function toneFromServer(tone: string | null | undefined): WireWindowPlanTone | undefined {
-  switch (tone) {
-    case "bad":
-    case "good":
-    case "info":
-    case "neutral":
-    case "warn":
-      return tone;
-    default:
-      return undefined;
-  }
-}
-
-function promptInspectionSourceLabel(source: string | undefined): string {
-  switch (source) {
-    case "server-action-prompt":
-      return "服务端提示检查";
-    default:
-      return source?.trim() || "服务端提示检查";
-  }
 }
 
 function windowState({
