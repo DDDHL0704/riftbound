@@ -365,6 +365,15 @@ async function runObjectCommandTrayInteraction(report) {
       throw new Error(`Expected 3 server-flow related objects in layout fixture, got ${relatedCount}`);
     }
 
+    const serverFlowTargetRef = page.locator('.wire-server-flow [data-rule-object-ref="p2-right-1"][data-object-ref-inspectable="true"]').first();
+    await serverFlowTargetRef.waitFor({ timeout: 10_000 });
+    await serverFlowTargetRef.click();
+    await page.waitForFunction(
+      (expectedObjectId) => document.querySelector("[data-wire-object-command-tray-state]")?.getAttribute("data-wire-object-command-tray-object") === expectedObjectId,
+      "p2-right-1",
+      { timeout: 10_000 }
+    );
+
     const sourceCard = page.locator('button.card-face[data-object-id="p1-hand-spell"][data-timeline-state="rule"]').first();
     await sourceCard.waitFor({ timeout: 10_000 });
     await page.locator('button.card-face[data-object-id="p2-right-1"][data-timeline-state="rule"]').first().waitFor({ timeout: 10_000 });
@@ -396,6 +405,7 @@ async function runObjectCommandTrayInteraction(report) {
       name: "object-command-tray",
       objectId,
       relatedCount,
+      serverFlowRefObjectId: "p2-right-1",
       state
     });
     console.log(`QA interaction OK: object-command-tray (${objectId}:${state})`);

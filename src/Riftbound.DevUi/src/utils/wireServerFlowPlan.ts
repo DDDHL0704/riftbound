@@ -136,9 +136,10 @@ function serverBackedFlowPlan(
 ): WireServerFlowPlan {
   const state = responsePlan.state === "selecting" ? "selecting" : serverFlowStateFromDto(serverFlow);
   const relatedObjectIds = visibleServerFlowObjectIds(serverFlow.relatedObjectIds);
+  const serverFlowDetail = detail ?? serverFlowRelatedObjectsDetail(serverFlow, relatedObjectIds);
   return {
-    detail,
-    detailButtonLabel: detail ? "打开规则焦点" : "暂无焦点",
+    detail: serverFlowDetail,
+    detailButtonLabel: detail ? "打开规则焦点" : serverFlowDetail ? "打开关联对象" : "暂无焦点",
     lanes: serverFlow.lanes.length > 0 ? serverFlow.lanes.map((lane) => ({
       count: lane.count,
       headline: lane.headline,
@@ -170,6 +171,30 @@ function serverBackedFlowPlan(
     })),
     summary: state === "selecting" ? `${serverFlow.summary} / 本地选择中` : serverFlow.summary,
     tone: state === "selecting" ? "info" : serverFlowToneFromDto(serverFlow)
+  };
+}
+
+function serverFlowRelatedObjectsDetail(
+  serverFlow: ActionPromptServerFlowDto,
+  relatedObjectIds: string[]
+): WireServerFlowDetail | undefined {
+  if (relatedObjectIds.length === 0) {
+    return undefined;
+  }
+
+  return {
+    id: `server-flow:${serverFlow.promptType || "UNKNOWN"}:${serverFlow.promptPlayerId || "UNKNOWN"}:related`,
+    lines: [
+      { label: "提示类型", value: serverFlow.promptType || "无" },
+      { label: "窗口状态", value: serverFlow.stateLabel || serverFlow.state || "无" },
+      { label: "下一步", value: serverFlow.nextStep || "无" },
+      { label: "原因", value: serverFlow.reason || "无" },
+      { label: "责任玩家", mine: serverFlow.isResponsiblePlayer, value: serverFlow.responsiblePlayerId || "无" }
+    ],
+    refs: relatedObjectIds.map((id) => ({ id, role: "服务端关联" })),
+    source: "rule",
+    subtitle: serverFlow.summary || serverFlow.primaryLabel,
+    title: "服务端关联对象"
   };
 }
 

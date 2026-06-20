@@ -3,24 +3,31 @@ import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraf
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import { buildWireServerFlowPlan, type WireServerFlowDetail } from "../../utils/wireServerFlowPlan";
 import { StatusPill } from "../ui/StatusPill";
+import { WireObjectRefChips, type WireObjectIndex, wireObjectRefs } from "./WireObjectRefChips";
 import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 
 export function WireServerFlowPanel({
   connectionStatus,
   events,
+  objectIndex,
+  onInspectObject,
   onSelectDetail,
   playerId,
   prompt,
   selectionDraft,
+  selectedObjectId,
   snapshot,
   submissionGate
 }: {
   connectionStatus: ConnectionStatus;
   events?: GameEvent[];
+  objectIndex?: WireObjectIndex;
+  onInspectObject?: (objectId: string) => void;
   onSelectDetail?: (detail: WireTimelineDetail) => void;
   playerId: string;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
+  selectedObjectId?: string;
   snapshot?: SnapshotDto;
   submissionGate?: ServerSubmissionGatePlan;
 }) {
@@ -64,6 +71,17 @@ export function WireServerFlowPanel({
           </span>
         ))}
       </div>
+
+      {objectIndex && plan.relatedObjectIds.length > 0 ? (
+        <WireObjectRefChips
+          className="wire-server-flow-related-refs"
+          objects={objectIndex}
+          onInspectObject={onInspectObject}
+          refs={wireObjectRefs("服务端关联", plan.relatedObjectIds)}
+          selectedObjectId={selectedObjectId}
+          source="rule"
+        />
+      ) : null}
 
       <ol className="wire-server-flow-lanes" aria-label="规则通道总览">
         {plan.lanes.map((lane) => (

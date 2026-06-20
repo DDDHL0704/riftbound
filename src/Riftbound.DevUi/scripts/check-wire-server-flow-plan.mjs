@@ -153,6 +153,10 @@ assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "prompt").
 assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "related").value, "1");
 assert.deepEqual(serverBackedPlan.relatedObjectIds, ["unit-1"]);
 assert.equal(serverBackedPlan.relatedObjectCount, 1);
+assert.equal(serverBackedPlan.detail?.id, "server-flow:STACK_PRIORITY:P1:related");
+assert.equal(serverBackedPlan.detail?.title, "服务端关联对象");
+assert.deepEqual(serverBackedPlan.detail?.refs, [{ id: "unit-1", role: "服务端关联" }]);
+assert.equal(serverBackedPlan.detailButtonLabel, "打开关联对象");
 assert.equal(serverBackedPlan.lanes.find((lane) => lane.key === "stack").headline, "DAMAGE / OGN-001");
 
 console.log("Wire server flow plan check passed.");

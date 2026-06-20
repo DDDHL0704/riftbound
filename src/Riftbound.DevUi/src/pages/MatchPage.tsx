@@ -414,10 +414,13 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             <WireServerFlowPanel
               connectionStatus={tableConnectionStatus}
               events={tableEvents}
+              objectIndex={tableObjectIndex}
+              onInspectObject={inspectObjectFromTable}
               onSelectDetail={selectTimelineDetail}
               playerId={settings.playerId}
               prompt={tablePrompt}
               selectionDraft={selectionDraft}
+              selectedObjectId={selectedObjectId}
               snapshot={tableSnapshot}
               submissionGate={tableSubmissionGate}
             />
