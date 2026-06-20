@@ -25,6 +25,7 @@ import { WirePromptCandidateRow } from "./WirePromptCandidateRow";
 
 export function WireInteractionPanel({
   disabledByConnection,
+  focusedPlan,
   inspectedCard,
   onCommand,
   onClearInspectedCard,
@@ -38,6 +39,7 @@ export function WireInteractionPanel({
   submissionGate
 }: {
   disabledByConnection: boolean;
+  focusedPlan?: WireFocusedInteractionPlan;
   inspectedCard?: InspectedCard;
   onCommand?: (command: GameCommand) => void;
   onClearInspectedCard: () => void;
@@ -51,7 +53,7 @@ export function WireInteractionPanel({
   submissionGate?: ServerSubmissionGatePlan;
 }) {
   const selectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
-  const plan = buildWireFocusedInteractionPlan({
+  const plan = focusedPlan ?? buildWireFocusedInteractionPlan({
     canSubmitCommands: Boolean(onCommand),
     disabledByConnection,
     playerId,

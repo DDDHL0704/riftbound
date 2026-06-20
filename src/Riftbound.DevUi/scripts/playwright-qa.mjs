@@ -109,6 +109,7 @@ try {
     }
   }
 
+  await runObjectCommandTrayInteraction(report);
   await runCommandReceiptInteraction(report);
   await runReadyReceiptInteraction(report);
 
@@ -349,6 +350,48 @@ async function runCommandReceiptInteraction(report) {
     await page.close();
   } finally {
     await seeded.close();
+  }
+}
+
+async function runObjectCommandTrayInteraction(report) {
+  const page = await newPage();
+  try {
+    await page.goto(`${frontendUrl}/matches/qa-layout?fixture=layout`, { waitUntil: "networkidle" });
+    await assertTexts(page, ["符文战场对战线框", "焦点 / 候选 / 规则队列"]);
+    const sourceCard = page.locator('button.card-face[data-object-id="p1-hand-spell"]').first();
+    await sourceCard.waitFor({ timeout: 10_000 });
+    await sourceCard.click();
+
+    const tray = page.locator("[data-wire-object-command-tray-state]").first();
+    await tray.waitFor({ timeout: 10_000 });
+    const state = await tray.getAttribute("data-wire-object-command-tray-state");
+    const objectId = await tray.getAttribute("data-wire-object-command-tray-object");
+    const text = await tray.textContent() ?? "";
+    if (objectId !== "p1-hand-spell") {
+      throw new Error(`Object command tray focused wrong object: ${objectId}`);
+    }
+
+    if (!["ready", "selecting"].includes(state ?? "")) {
+      throw new Error(`Object command tray should be ready or selecting, got ${state}: ${text}`);
+    }
+
+    if (!text.includes("服务端对象上下文") || !text.includes("PLAY_CARD")) {
+      throw new Error(`Object command tray is missing server context or command: ${text}`);
+    }
+
+    const leaked = hiddenDebugTexts.filter((hiddenText) => text.includes(hiddenText));
+    if (leaked.length > 0) {
+      throw new Error(`Object command tray leaked hidden debug text: ${leaked.join(", ")}`);
+    }
+
+    report.interactions.push({
+      name: "object-command-tray",
+      objectId,
+      state
+    });
+    console.log(`QA interaction OK: object-command-tray (${objectId}:${state})`);
+  } finally {
+    await page.close();
   }
 }
 

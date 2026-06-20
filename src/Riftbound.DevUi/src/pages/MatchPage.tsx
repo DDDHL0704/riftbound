@@ -8,6 +8,7 @@ import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { useDelayedWireCardPreview, WireCardPreview } from "../components/match/WireCardPreview";
 import { WireInformationBoundaryPanel } from "../components/match/WireInformationBoundaryPanel";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
+import { WireObjectCommandTray } from "../components/match/WireObjectCommandTray";
 import { WirePromptAuthorityPanel } from "../components/match/WirePromptAuthorityPanel";
 import { WireResponseCoachPanel } from "../components/match/WireResponseCoachPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
@@ -63,6 +64,7 @@ import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
 import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
+import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
 
 type WireTableInteraction = {
   interactionByObjectId: Record<string, PromptObjectState | undefined>;
@@ -128,6 +130,25 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     () => focusedCandidateSummaries(promptInteraction.candidates, selectedObjectId),
     [promptInteraction.candidates, selectedObjectId]
   );
+  const selectedFocusPlan = useMemo(() => buildWireFocusedInteractionPlan({
+    canSubmitCommands: true,
+    disabledByConnection: !tableSubmissionGate.canSubmit,
+    playerId: settings.playerId,
+    prompt: tablePrompt,
+    selectionDraft,
+    snapshot: tableSnapshot,
+    sourceControllerId: inspectedCard?.object?.controllerId,
+    sourceObjectId: selectedObjectId,
+    submissionGate: tableSubmissionGate
+  }), [
+    inspectedCard?.object?.controllerId,
+    selectedObjectId,
+    selectionDraft,
+    settings.playerId,
+    tablePrompt,
+    tableSnapshot,
+    tableSubmissionGate
+  ]);
   const tableInteraction = useMemo<WireTableInteraction>(() => ({
     interactionByObjectId: buildWireInteractionMap(promptInteraction, focusedSourceCandidates, selectedObjectId, selectionDraft),
     selectedObjectId,
@@ -172,6 +193,13 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     const sourceCandidate = sourceCandidateForObject(promptInteraction.candidates, clickedObjectId);
     setSelectionDraft(sourceCandidate ? emptySelectionDraft(clickedObjectId, sourceCandidate) : undefined);
   }, [focusedSourceCandidates, inspectedCard?.object?.objectId, inspectedCard?.objectId, promptInteraction.candidates]);
+  const clearInspectedCard = useCallback(() => {
+    setInspectedCard(undefined);
+    setSelectionDraft(undefined);
+  }, []);
+  const openDetailCard = useCallback((card: InspectedCard) => {
+    setDetailCard(card);
+  }, []);
   const inspectObjectFromTable = useCallback((objectId: string) => {
     const object = tableObjectIndex[objectId];
     if (!object) {
@@ -350,6 +378,18 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <div className="wire-match-body">
         <section className="wire-table-shell" aria-label="黑白线框对战桌面">
           <div className="wire-table" style={wireTableStyle()}>{tableRows}</div>
+          <WireObjectCommandTray
+            disabledByConnection={!tableSubmissionGate.canSubmit}
+            focusedPlan={selectedFocusPlan}
+            inspectedCard={inspectedCard}
+            objectContext={selectedObjectContext}
+            onClear={clearInspectedCard}
+            onCommand={(command) => void controller.submitCommand(command)}
+            onOpenDetail={openDetailCard}
+            prompt={tablePrompt}
+            snapshot={tableSnapshot}
+            submissionGate={tableSubmissionGate}
+          />
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
@@ -414,14 +454,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <section aria-label="焦点卡牌和候选行动" className="wire-panel" tabIndex={0}>
             <WireInteractionPanel
               disabledByConnection={!tableSubmissionGate.canSubmit}
+              focusedPlan={selectedFocusPlan}
               inspectedCard={inspectedCard}
               onCommand={(command) => void controller.submitCommand(command)}
-              onClearInspectedCard={() => {
-                setInspectedCard(undefined);
-                setSelectionDraft(undefined);
-              }}
+              onClearInspectedCard={clearInspectedCard}
               onInspectObject={inspectObjectFromTable}
-              onOpenDetail={setDetailCard}
+              onOpenDetail={openDetailCard}
               objectContext={selectedObjectContext}
               playerId={settings.playerId}
               prompt={tablePrompt}

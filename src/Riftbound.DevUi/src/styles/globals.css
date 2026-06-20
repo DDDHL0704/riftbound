@@ -11139,6 +11139,7 @@ button.card-face:hover {
 }
 
 .wire-table-shell {
+  position: relative;
   overflow: auto;
   padding: 4px;
 }
@@ -11909,6 +11910,11 @@ button.card-face:hover {
 .wire-focused-grammar-summary,
 .wire-focused-grammar-steps li,
 .wire-focused-selection-guide,
+.wire-object-command-tray,
+.wire-object-command-tray-heading,
+.wire-object-command-tray-metrics span,
+.wire-object-command-tray-next,
+.wire-object-command-tray-empty,
 .wire-object-context,
 .wire-object-context-grid span,
 .wire-object-contract-block,
@@ -12773,6 +12779,95 @@ button.card-face:hover {
   padding: 5px;
   font-size: 12px;
   line-height: 1.25;
+}
+
+.wire-object-command-tray {
+  position: sticky;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  z-index: 12;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(220px, 0.85fr) auto;
+  gap: 5px;
+  align-items: stretch;
+  margin-top: 4px;
+  padding: 5px;
+  font-size: 12px;
+  line-height: 1.25;
+  box-shadow: none;
+}
+
+.wire-object-command-tray-main {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.wire-object-command-tray-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px;
+}
+
+.wire-object-command-tray-heading > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-object-command-tray-heading strong,
+.wire-object-command-tray-heading span,
+.wire-object-command-tray-metrics strong,
+.wire-object-command-tray-next,
+.wire-object-command-tray-empty {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-object-command-tray-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-object-command-tray-metrics span {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-object-command-tray-metrics small {
+  color: #000;
+}
+
+.wire-object-command-tray-next,
+.wire-object-command-tray-empty {
+  display: block;
+  padding: 4px;
+}
+
+.wire-object-command-tray-actions {
+  align-content: center;
+}
+
+.wire-object-command-tray-action {
+  min-width: 0;
+}
+
+.wire-object-command-tray-action .candidate-composer {
+  max-height: 190px;
+  overflow: auto;
+}
+
+.wire-object-command-tray-buttons {
+  display: grid;
+  align-content: center;
+  gap: 4px;
 }
 
 .wire-focus-copy button {
@@ -15144,6 +15239,11 @@ button.wire-object-ref {
 .wire-match-page .wire-focused-path,
 .wire-match-page .wire-focused-path article,
 .wire-match-page .wire-focused-path li,
+.wire-match-page .wire-object-command-tray,
+.wire-match-page .wire-object-command-tray-heading,
+.wire-match-page .wire-object-command-tray-metrics span,
+.wire-match-page .wire-object-command-tray-next,
+.wire-match-page .wire-object-command-tray-empty,
 .wire-match-page .wire-prompt-candidates,
 .wire-match-page .wire-prompt-contract,
 .wire-match-page .wire-candidate-row,
