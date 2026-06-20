@@ -2,35 +2,35 @@ import type { ActionPromptCandidateDto, ActionPromptDto, GameCommand, SnapshotDt
 import { promptStampedCommand } from "./actionPromptCandidates";
 import { buildActionPanelCandidateCommandPlan, type ActionPanelDirectActionKind } from "./actionPanelCommandPlan";
 
-export type TopbarQuickActionId = "endTurn" | "pass" | "ready" | "submitDeck" | "surrender";
+export type ServerQuickActionId = "endTurn" | "pass" | "ready" | "submitDeck" | "surrender";
 
-export type TopbarQuickActionState = "blocked" | "disconnected" | "missing" | "readonly" | "ready";
+export type ServerQuickActionState = "blocked" | "disconnected" | "missing" | "readonly" | "ready";
 
-export type TopbarQuickActionEntry = {
+export type ServerQuickActionEntry = {
   candidateAction?: string;
   command?: GameCommand;
   directAction?: ActionPanelDirectActionKind;
   disabled: boolean;
-  id: TopbarQuickActionId;
+  id: ServerQuickActionId;
   label: string;
-  state: TopbarQuickActionState;
+  state: ServerQuickActionState;
   title: string;
   variant: "danger" | "secondary";
 };
 
-export type TopbarQuickActionPlan = {
-  entries: TopbarQuickActionEntry[];
+export type ServerQuickActionPlan = {
+  entries: ServerQuickActionEntry[];
 };
 
-type TopbarQuickActionDefinition = {
+type ServerQuickActionDefinition = {
   actions: string[];
-  id: TopbarQuickActionId;
+  id: ServerQuickActionId;
   label: string;
   missingTitle: string;
   variant: "danger" | "secondary";
 };
 
-const quickActionDefinitions: TopbarQuickActionDefinition[] = [
+const quickActionDefinitions: ServerQuickActionDefinition[] = [
   {
     actions: ["READY"],
     id: "ready",
@@ -68,30 +68,35 @@ const quickActionDefinitions: TopbarQuickActionDefinition[] = [
   }
 ];
 
-export function buildTopbarQuickActionPlan({
+export function buildServerQuickActionPlan({
   canAct,
   connected,
+  ids,
   prompt,
   snapshot
 }: {
   canAct: boolean;
   connected: boolean;
+  ids?: readonly ServerQuickActionId[];
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
-}): TopbarQuickActionPlan {
+}): ServerQuickActionPlan {
+  const includedIds = ids ? new Set(ids) : undefined;
   return {
-    entries: quickActionDefinitions.map((definition) => topbarEntryForDefinition({
-      canAct,
-      candidate: candidateForDefinition(prompt?.candidates ?? [], definition),
-      connected,
-      definition,
-      prompt,
-      snapshot
-    }))
+    entries: quickActionDefinitions
+      .filter((definition) => !includedIds || includedIds.has(definition.id))
+      .map((definition) => quickActionEntryForDefinition({
+        canAct,
+        candidate: candidateForDefinition(prompt?.candidates ?? [], definition),
+        connected,
+        definition,
+        prompt,
+        snapshot
+      }))
   };
 }
 
-function topbarEntryForDefinition({
+function quickActionEntryForDefinition({
   canAct,
   candidate,
   connected,
@@ -102,10 +107,10 @@ function topbarEntryForDefinition({
   canAct: boolean;
   candidate?: ActionPromptCandidateDto;
   connected: boolean;
-  definition: TopbarQuickActionDefinition;
+  definition: ServerQuickActionDefinition;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
-}): TopbarQuickActionEntry {
+}): ServerQuickActionEntry {
   if (!candidate) {
     return {
       disabled: true,
@@ -133,15 +138,15 @@ function topbarEntryForDefinition({
     disabled,
     id: definition.id,
     label: definition.label,
-    state: topbarState({ canAct, candidate, connected, disabled, executable }),
-    title: topbarTitle({ canAct, candidate, connected, executable }),
+    state: quickActionState({ canAct, candidate, connected, disabled, executable }),
+    title: quickActionTitle({ canAct, candidate, connected, executable }),
     variant: definition.variant
   };
 }
 
 function candidateForDefinition(
   candidates: ActionPromptCandidateDto[],
-  definition: TopbarQuickActionDefinition
+  definition: ServerQuickActionDefinition
 ): ActionPromptCandidateDto | undefined {
   for (const action of definition.actions) {
     const enabled = candidates.find((candidate) => candidate.action === action && candidate.enabled);
@@ -153,7 +158,7 @@ function candidateForDefinition(
   return candidates.find((candidate) => definition.actions.includes(candidate.action));
 }
 
-function topbarState({
+function quickActionState({
   canAct,
   candidate,
   connected,
@@ -165,7 +170,7 @@ function topbarState({
   connected: boolean;
   disabled: boolean;
   executable: boolean;
-}): TopbarQuickActionState {
+}): ServerQuickActionState {
   if (!connected) {
     return "disconnected";
   }
@@ -181,7 +186,7 @@ function topbarState({
   return "ready";
 }
 
-function topbarTitle({
+function quickActionTitle({
   canAct,
   candidate,
   connected,

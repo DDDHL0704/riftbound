@@ -93,6 +93,9 @@ try {
     await waitForText(cdp, route.texts);
     await expectAbsentText(cdp, route.absentTexts ?? []);
     await runAccessibilitySmoke(cdp, route.path);
+    if (route.path === "/rooms/stage3-smoke") {
+      await runRoomLifecycleSmoke(cdp);
+    }
     console.log(`Chrome smoke OK: ${route.path}`);
   }
 
@@ -317,6 +320,31 @@ async function readBodyText(cdp) {
     returnByValue: true
   });
   return String(result.result?.value ?? "");
+}
+
+async function runRoomLifecycleSmoke(cdp) {
+  const result = await evaluateJson(cdp, `(() => {
+    const entries = Array.from(document.querySelectorAll("[data-room-quick-action]")).map((button) => ({
+      candidate: button.getAttribute("data-room-quick-action-candidate") ?? "",
+      disabled: button.hasAttribute("disabled"),
+      id: button.getAttribute("data-room-quick-action") ?? "",
+      state: button.getAttribute("data-room-quick-action-state") ?? "",
+      text: button.textContent ?? ""
+    }));
+    return { entries };
+  })()`);
+
+  const entries = result.entries ?? [];
+  const byId = Object.fromEntries(entries.map((entry) => [entry.id, entry]));
+  if (entries.length !== 2) {
+    throw new Error(`Room lifecycle smoke expected 2 server quick actions, got ${entries.length}`);
+  }
+  if (byId.submitDeck?.state !== "missing" || byId.submitDeck?.disabled !== true) {
+    throw new Error(`Room submit deck quick action should be missing and disabled: ${JSON.stringify(byId.submitDeck)}`);
+  }
+  if (byId.ready?.state !== "missing" || byId.ready?.disabled !== true) {
+    throw new Error(`Room ready quick action should be missing and disabled: ${JSON.stringify(byId.ready)}`);
+  }
 }
 
 async function runWireLayoutGeometrySmoke(cdp) {

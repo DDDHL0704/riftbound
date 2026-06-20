@@ -8,7 +8,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const srcRoot = resolve(scriptDir, "../src");
 const moduleCache = new Map();
 
-const { buildTopbarQuickActionPlan } = loadTsModule(resolve(srcRoot, "utils/topbarQuickActionPlan.ts")).exports;
+const { buildServerQuickActionPlan } = loadTsModule(resolve(srcRoot, "utils/serverQuickActionPlan.ts")).exports;
 
 const prompt = {
   actionable: true,
@@ -24,7 +24,7 @@ const prompt = {
   snapshotTick: 7
 };
 
-const readyPlan = buildTopbarQuickActionPlan({
+const readyPlan = buildServerQuickActionPlan({
   canAct: true,
   connected: true,
   prompt,
@@ -52,7 +52,7 @@ assert.equal(readyById.ready.state, "blocked");
 assert.equal(readyById.ready.disabled, true);
 assert.equal(readyById.submitDeck.state, "blocked");
 
-const disconnectedPlan = buildTopbarQuickActionPlan({
+const disconnectedPlan = buildServerQuickActionPlan({
   canAct: true,
   connected: false,
   prompt,
@@ -63,7 +63,7 @@ assert.equal(disconnectedById.pass.state, "disconnected");
 assert.equal(disconnectedById.pass.disabled, true);
 assert.equal(disconnectedById.pass.title, "连接恢复前不能提交快捷操作。");
 
-const readonlyPlan = buildTopbarQuickActionPlan({
+const readonlyPlan = buildServerQuickActionPlan({
   canAct: false,
   connected: true,
   prompt,
@@ -74,7 +74,7 @@ assert.equal(readonlyById.endTurn.state, "readonly");
 assert.equal(readonlyById.endTurn.disabled, true);
 assert.equal(readonlyById.endTurn.title, "当前不是你的服务端行动窗口。");
 
-const missingPlan = buildTopbarQuickActionPlan({
+const missingPlan = buildServerQuickActionPlan({
   canAct: true,
   connected: true,
   prompt: { actionable: true, candidates: [], playerId: "P1" },
@@ -86,7 +86,17 @@ assert.equal(missingById.pass.disabled, true);
 assert.equal(missingById.pass.command, undefined);
 assert.equal(missingById.endTurn.title, "当前服务端没有提供结束回合候选。");
 
-console.log("Topbar quick action plan check passed.");
+const roomPlan = buildServerQuickActionPlan({
+  canAct: true,
+  connected: true,
+  ids: ["submitDeck", "ready"],
+  prompt,
+  snapshot: {}
+});
+assert.deepEqual(roomPlan.entries.map((entry) => entry.id), ["ready", "submitDeck"]);
+assert.equal(roomPlan.entries.some((entry) => entry.id === "pass"), false);
+
+console.log("Server quick action plan check passed.");
 
 function entriesById(entries) {
   return Object.fromEntries(entries.map((entry) => [entry.id, entry]));
@@ -120,7 +130,7 @@ function loadTsModule(filename) {
       return loadTsModule(`${target}.ts`).exports;
     }
 
-    throw new Error(`Unexpected import in topbar quick action plan check: ${id}`);
+    throw new Error(`Unexpected import in server quick action plan check: ${id}`);
   };
 
   new Function("exports", "module", "require", output)(module.exports, module, requireShim);

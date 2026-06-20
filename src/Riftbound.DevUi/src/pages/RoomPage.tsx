@@ -1,4 +1,5 @@
 import { Check, RefreshCw, Send, Swords } from "lucide-react";
+import { useCallback, useMemo } from "react";
 import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
@@ -6,14 +7,43 @@ import { useMatchController } from "../stores/useMatchController";
 import { useSettings } from "../stores/settingsStore";
 import { candidateListLabel } from "../components/match/ActionPanel";
 import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
-import { ActionPromptCandidateDto } from "../types/protocol";
 import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
-import { connectionStatusLabel, connectionStatusTone, promptActionLabel, promptReasonTitle } from "../utils/formatters";
+import { connectionStatusLabel, connectionStatusTone } from "../utils/formatters";
+import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 
 export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
   const controller = useMatchController(settings.serverUrl, roomId, settings.playerId);
   const snapshot = controller.state.snapshot;
+  const prompt = controller.state.prompt;
+  const connected = controller.state.status === "connected";
+  const canAct = Boolean(prompt?.actionable && prompt.playerId === settings.playerId);
+  const roomQuickActionPlan = useMemo(() => buildServerQuickActionPlan({
+    canAct,
+    connected,
+    ids: ["submitDeck", "ready"],
+    prompt,
+    snapshot
+  }), [canAct, connected, prompt, snapshot]);
+  const runRoomQuickAction = useCallback((entry: ServerQuickActionEntry) => {
+    if (entry.disabled) {
+      return;
+    }
+
+    if (entry.command) {
+      void controller.submitCommand(entry.command);
+      return;
+    }
+
+    if (entry.directAction === "submitDeck") {
+      void controller.submitStarterDeck();
+      return;
+    }
+
+    if (entry.directAction === "ready") {
+      void controller.ready();
+    }
+  }, [controller]);
 
   return (
     <div className="page-grid">
@@ -30,16 +60,15 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
       <section className="room-actions">
         <Button icon={<RefreshCw size={18} />} onClick={() => void controller.join()}>连接/重连并入座</Button>
         <RoomPromptButtons
-          candidates={controller.state.prompt?.candidates ?? []}
-          onReady={() => void controller.ready()}
-          onSubmitStarterDeck={() => void controller.submitStarterDeck()}
+          entries={roomQuickActionPlan.entries}
+          onRunAction={runRoomQuickAction}
         />
         <Button icon={<Swords size={18} />} onClick={() => onNavigate({ name: "match", matchId: roomId })}>进入对战桌面</Button>
       </section>
       <RoomSetupChecklist
-        candidateActions={controller.state.prompt?.candidates?.filter((candidate) => candidate.enabled).map((candidate) => candidate.action) ?? []}
         playerCount={Object.keys(snapshot?.players ?? {}).length}
         players={Object.values(snapshot?.players ?? {})}
+        quickActions={roomQuickActionPlan.entries}
       />
       <section className="seat-grid">
         {Object.entries(snapshot?.players ?? {}).map(([playerId, player]) => (
@@ -91,18 +120,19 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
 }
 
 function RoomSetupChecklist({
-  candidateActions,
   playerCount,
-  players
+  players,
+  quickActions
 }: {
-  candidateActions: string[];
   playerCount: number;
   players: Array<{ deckSubmitted?: boolean; ready?: boolean }>;
+  quickActions: ServerQuickActionEntry[];
 }) {
   const submittedCount = players.filter((player) => player.deckSubmitted).length;
   const readyCount = players.filter((player) => player.ready).length;
-  const canSubmitDeck = candidateActions.includes("SUBMIT_DECK");
-  const canReady = candidateActions.includes("READY");
+  const quickActionById = Object.fromEntries(quickActions.map((entry) => [entry.id, entry]));
+  const canSubmitDeck = quickActionById.submitDeck?.state === "ready";
+  const canReady = quickActionById.ready?.state === "ready";
 
   return (
     <section className="room-flow-panel">
@@ -123,39 +153,32 @@ function RoomSetupChecklist({
 }
 
 function RoomPromptButtons({
-  candidates,
-  onReady,
-  onSubmitStarterDeck
+  entries,
+  onRunAction
 }: {
-  candidates: ActionPromptCandidateDto[];
-  onReady: () => void;
-  onSubmitStarterDeck: () => void;
+  entries: ServerQuickActionEntry[];
+  onRunAction: (entry: ServerQuickActionEntry) => void;
 }) {
-  const roomCandidates = candidates.filter((candidate) =>
-    candidate.enabled && (candidate.action === "SUBMIT_DECK" || candidate.action === "READY"));
+  const hasServerLifecycleCandidate = entries.some((entry) => entry.candidateAction);
 
-  if (roomCandidates.length === 0) {
-    const hasOtherEnabledCandidate = candidates.some((candidate) => candidate.enabled);
-    return <span className="empty-hint">{hasOtherEnabledCandidate ? "其他可提交行动请进入对战桌面。" : "等待服务端可提交候选。"}</span>;
-  }
-
-  return roomCandidates.map((candidate) => {
-    if (candidate.action === "SUBMIT_DECK") {
-      return (
-        <Button icon={<Send size={16} />} key={candidate.action} onClick={onSubmitStarterDeck} title={promptReasonTitle(candidate.reason)} variant="secondary">
-          {promptActionLabel(candidate)}
+  return (
+    <>
+      {entries.map((entry) => (
+        <Button
+          data-room-quick-action={entry.id}
+          data-room-quick-action-candidate={entry.candidateAction ?? ""}
+          data-room-quick-action-state={entry.state}
+          disabled={entry.disabled}
+          icon={entry.id === "submitDeck" ? <Send size={16} /> : <Check size={16} />}
+          key={entry.id}
+          onClick={() => onRunAction(entry)}
+          title={entry.title}
+          variant="secondary"
+        >
+          {entry.label}
         </Button>
-      );
-    }
-
-    if (candidate.action === "READY") {
-      return (
-        <Button icon={<Check size={16} />} key={candidate.action} onClick={onReady} title={promptReasonTitle(candidate.reason)} variant="secondary">
-          {promptActionLabel(candidate)}
-        </Button>
-      );
-    }
-
-    return null;
-  });
+      ))}
+      {!hasServerLifecycleCandidate && <span className="empty-hint">等待服务端可提交候选。</span>}
+    </>
+  );
 }

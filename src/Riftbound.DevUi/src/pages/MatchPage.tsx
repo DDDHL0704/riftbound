@@ -56,7 +56,7 @@ import type { CandidateSelectionDraft } from "../utils/candidateSelectionDraft";
 import { buildPromptInteractionModel, type PromptObjectState } from "../utils/promptInteraction";
 import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
-import { buildTopbarQuickActionPlan, type TopbarQuickActionEntry } from "../utils/topbarQuickActionPlan";
+import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 
 type WireTableInteraction = {
   interactionByObjectId: Record<string, PromptObjectState | undefined>;
@@ -132,7 +132,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const roomStatus = asString(timing.roomStatus, "");
   const promptTitle = tablePrompt?.view?.title?.trim() || "无行动窗口";
   const canAct = Boolean(tablePrompt?.actionable && tablePrompt.playerId === settings.playerId);
-  const topbarQuickActionPlan = useMemo(() => buildTopbarQuickActionPlan({
+  const topbarQuickActionPlan = useMemo(() => buildServerQuickActionPlan({
     canAct,
     connected: tableConnectionStatus === "connected",
     prompt: tablePrompt,
@@ -273,7 +273,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       trigger?.focus();
     }, 0);
   }, [timelineDetail?.id]);
-  const runTopbarQuickAction = useCallback((entry: TopbarQuickActionEntry) => {
+  const runTopbarQuickAction = useCallback((entry: ServerQuickActionEntry) => {
     if (entry.disabled) {
       return;
     }
