@@ -11887,6 +11887,13 @@ button.card-face:hover {
 .wire-response-coach-next,
 .wire-response-coach-metrics span,
 .wire-response-coach-rows li,
+.wire-server-flow,
+.wire-server-flow-header,
+.wire-server-flow-next,
+.wire-server-flow-metrics span,
+.wire-server-flow-lanes li,
+.wire-server-flow-steps li,
+.wire-server-flow-detail-button,
 .wire-rule-authority,
 .wire-rule-authority-header,
 .wire-rule-authority-metrics span,
@@ -12489,6 +12496,121 @@ button.card-face:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-server-flow {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-server-flow[data-wire-server-flow-state="ready"],
+.wire-server-flow[data-wire-server-flow-state="respond"],
+.wire-server-flow[data-wire-server-flow-state="selecting"] {
+  border-width: 2px;
+}
+
+.wire-server-flow-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+}
+
+.wire-server-flow-header > div,
+.wire-server-flow-next {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-server-flow-next {
+  padding: 5px;
+}
+
+.wire-server-flow-metrics,
+.wire-server-flow-lanes,
+.wire-server-flow-steps {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-server-flow-metrics,
+.wire-server-flow-lanes {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wire-server-flow-steps {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wire-server-flow-metrics span,
+.wire-server-flow-lanes li,
+.wire-server-flow-steps li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-server-flow-lanes li[data-wire-server-flow-lane-state="active"],
+.wire-server-flow-lanes li[data-wire-server-flow-lane-state="blocked"],
+.wire-server-flow-steps li[data-wire-server-flow-step-state="respond"],
+.wire-server-flow-steps li[data-wire-server-flow-step-state="ready"],
+.wire-server-flow-steps li[data-wire-server-flow-step-state="selecting"],
+.wire-server-flow-steps li[data-wire-server-flow-step-state="server"],
+.wire-server-flow-steps li[data-wire-server-flow-step-state="watch"] {
+  border-width: 2px;
+}
+
+.wire-server-flow-lanes li[data-wire-server-flow-lane-state="empty"],
+.wire-server-flow-steps li[data-wire-server-flow-step-state="waiting"],
+.wire-server-flow-steps li[data-wire-server-flow-step-state="history"] {
+  border-style: dashed;
+}
+
+.wire-server-flow-detail-button {
+  width: 100%;
+  border-radius: 0;
+  padding: 4px 6px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-server-flow-detail-button:disabled {
+  cursor: not-allowed;
+}
+
+.wire-server-flow-header strong,
+.wire-server-flow-header span,
+.wire-server-flow-next small,
+.wire-server-flow-next strong,
+.wire-server-flow-next span,
+.wire-server-flow-metrics small,
+.wire-server-flow-metrics strong,
+.wire-server-flow-lanes span,
+.wire-server-flow-lanes strong,
+.wire-server-flow-lanes small,
+.wire-server-flow-steps span,
+.wire-server-flow-steps strong,
+.wire-server-flow-steps small,
+.wire-server-flow-steps em {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: normal;
 }
 
 .wire-rule-authority {
@@ -14990,6 +15112,13 @@ button.wire-object-ref {
 .wire-match-page .wire-response-coach-next,
 .wire-match-page .wire-response-coach-metrics span,
 .wire-match-page .wire-response-coach-rows li,
+.wire-match-page .wire-server-flow,
+.wire-match-page .wire-server-flow-header,
+.wire-match-page .wire-server-flow-next,
+.wire-match-page .wire-server-flow-metrics span,
+.wire-match-page .wire-server-flow-lanes li,
+.wire-match-page .wire-server-flow-steps li,
+.wire-match-page .wire-server-flow-detail-button,
 .wire-match-page .wire-rule-authority,
 .wire-match-page .wire-rule-authority-header,
 .wire-match-page .wire-rule-authority-metrics span,

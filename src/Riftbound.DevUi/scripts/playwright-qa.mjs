@@ -101,6 +101,7 @@ try {
       const page = await newPage();
       await openSeededMatch(page, seeded, shot.playerId);
       await assertTexts(page, shot.texts);
+      await assertServerFlow(page);
       await captureAndAudit(page, shot, report);
       await page.close();
     } finally {
@@ -162,6 +163,20 @@ async function captureAndAudit(page, shot, report) {
     accessibility
   });
   console.log(`QA shot OK: ${shot.name}`);
+}
+
+async function assertServerFlow(page) {
+  const flow = page.locator("[data-wire-server-flow-state]").first();
+  await flow.waitFor({ timeout: 10_000 });
+  const state = await flow.getAttribute("data-wire-server-flow-state");
+  const text = await flow.textContent() ?? "";
+  if (!state) {
+    throw new Error("Server flow panel is missing state.");
+  }
+
+  if (!text.includes("下一步")) {
+    throw new Error(`Server flow panel is missing next-step copy: ${text}`);
+  }
 }
 
 async function waitForCardImages(page) {

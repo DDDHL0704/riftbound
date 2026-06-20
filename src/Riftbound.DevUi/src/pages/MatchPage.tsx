@@ -11,6 +11,7 @@ import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WirePromptAuthorityPanel } from "../components/match/WirePromptAuthorityPanel";
 import { WireResponseCoachPanel } from "../components/match/WireResponseCoachPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
+import { WireServerFlowPanel } from "../components/match/WireServerFlowPanel";
 import { WireTableAuthorityPanel } from "../components/match/WireTableAuthorityPanel";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
 import { WireTurnWindowPanel } from "../components/match/WireTurnWindowPanel";
@@ -360,16 +361,15 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               snapshot={tableSnapshot}
             />
           </section>
-          <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" tabIndex={0}>
-            <WireTableAuthorityPanel table={tableView} />
-          </section>
-          <section aria-label="隐藏信息边界契约区" className="wire-panel wire-information-boundary-panel" tabIndex={0}>
-            <WireInformationBoundaryPanel events={tableEvents} table={tableView} />
-          </section>
-          <section aria-label="服务端行动窗口契约区" className="wire-panel wire-prompt-authority-panel" tabIndex={0}>
-            <WirePromptAuthorityPanel
+          <section aria-label="服务端结算与行动总览区" className="wire-panel wire-server-flow-panel" tabIndex={0}>
+            <WireServerFlowPanel
+              connectionStatus={tableConnectionStatus}
+              events={tableEvents}
+              onSelectDetail={selectTimelineDetail}
               playerId={settings.playerId}
               prompt={tablePrompt}
+              selectionDraft={selectionDraft}
+              snapshot={tableSnapshot}
               submissionGate={tableSubmissionGate}
             />
           </section>
@@ -380,6 +380,19 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               prompt={tablePrompt}
               selectionDraft={selectionDraft}
               snapshot={tableSnapshot}
+              submissionGate={tableSubmissionGate}
+            />
+          </section>
+          <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" tabIndex={0}>
+            <WireTableAuthorityPanel table={tableView} />
+          </section>
+          <section aria-label="隐藏信息边界契约区" className="wire-panel wire-information-boundary-panel" tabIndex={0}>
+            <WireInformationBoundaryPanel events={tableEvents} table={tableView} />
+          </section>
+          <section aria-label="服务端行动窗口契约区" className="wire-panel wire-prompt-authority-panel" tabIndex={0}>
+            <WirePromptAuthorityPanel
+              playerId={settings.playerId}
+              prompt={tablePrompt}
               submissionGate={tableSubmissionGate}
             />
           </section>
