@@ -142,6 +142,49 @@ export type WireActionRoleCount = {
   role: PromptChoiceRole;
 };
 
+export type WireActionCoverageState = "blocked" | "empty" | "ready" | "warning";
+
+export type WireActionCoverageMetricPlan = {
+  key: string;
+  label: string;
+  state: WireActionCoverageState;
+  value: string;
+};
+
+export type WireActionRoleCoveragePlan = {
+  candidateCount: number;
+  choiceCount: number;
+  emptyRequiredCount: number;
+  hiddenChoiceCount: number;
+  key: string;
+  label: string;
+  objectCount: number;
+  requiredCandidateCount: number;
+  role: PromptChoiceRole;
+  sampleLabel: string;
+  state: WireActionCoverageState;
+  summary: string;
+  unknownObjectCount: number;
+};
+
+export type WireActionBlockerPlan = {
+  actions: string[];
+  count: number;
+  key: string;
+  reason: string;
+};
+
+export type WireActionCoveragePlan = {
+  blockers: WireActionBlockerPlan[];
+  commandRows: WireActionCoverageMetricPlan[];
+  hiddenBoundaryLabel: string;
+  metrics: WireActionCoverageMetricPlan[];
+  roles: WireActionRoleCoveragePlan[];
+  state: WireActionCoverageState;
+  stateLabel: string;
+  summary: string;
+};
+
 export type WireActionGroupPlan = {
   action: string;
   enabled: boolean;
@@ -196,6 +239,7 @@ export type WireActionMapPlan = {
   candidatePlanTotalCount: number;
   candidatePlans: WireActionCandidatePlan[];
   contract?: WireActionContractPlan;
+  coverage: WireActionCoveragePlan;
   disabledOnlyObjectCount: number;
   grammarCandidateTotalCount: number;
   grammarCandidates: WireActionGrammarCandidatePlan[];
@@ -269,6 +313,7 @@ export function buildWireActionMapPlan({
     candidatePlanTotalCount: candidatePlans.length,
     candidatePlans: candidatePlans.slice(0, nonNegativeLimit(maxCandidatePlans)),
     contract: contractPlan(prompt?.contract),
+    coverage: coveragePlan(model, objects, gate, windowGate),
     disabledOnlyObjectCount: knownDisabledOnlyObjects.length,
     grammarCandidateTotalCount: grammarCandidates.length,
     grammarCandidates: grammarCandidates
@@ -561,6 +606,235 @@ function wireActionRouteCheckRows({
       stateLabel: serverInjectedFieldCount > 0 ? `${serverInjectedFieldCount} 项` : "无"
     }
   ];
+}
+
+function coveragePlan(
+  model: PromptInteractionModel,
+  objects: ObjectIndex,
+  submissionGate: WireActionSubmissionGatePlan,
+  windowGate: WireActionWindowGatePlan
+): WireActionCoveragePlan {
+  const enabledCount = model.candidates.filter((candidate) => candidate.enabled).length;
+  const disabledCount = model.candidates.length - enabledCount;
+  const roles = promptChoiceRoleOrder.map((role) => roleCoveragePlan(role, model.candidates, objects));
+  const emptyRequiredCount = roles.reduce((total, role) => total + role.emptyRequiredCount, 0);
+  const templateCount = model.candidates.filter((candidate) => candidate.command).length;
+  const composerCount = model.candidates.filter((candidate) => candidate.composer?.supported).length;
+  const requiredFieldCount = model.candidates.reduce((total, candidate) =>
+    total + (candidate.command?.bindings.filter((binding) => binding.required).length ?? 0), 0);
+  const serverInjectedFieldCount = model.candidates.reduce((total, candidate) =>
+    total + (candidate.command?.bindings.filter((binding) => binding.source === "requirementMetadata").length ?? 0), 0);
+  const missingTemplateCount = model.candidates.filter((candidate) => !candidate.command).length;
+  const state = coverageStateFor({
+    disabledCount,
+    emptyRequiredCount,
+    enabledCount,
+    missingTemplateCount,
+    submissionGate,
+    totalCount: model.candidates.length,
+    windowGate
+  });
+
+  return {
+    blockers: blockerRowsFor(model.candidates),
+    commandRows: [
+      coverageMetric("template", "命令模板", `${templateCount}/${model.candidates.length}`, missingTemplateCount > 0 ? "warning" : templateCount > 0 ? "ready" : "empty"),
+      coverageMetric("composer", "组合声明", `${composerCount}/${model.candidates.length}`, composerCount > 0 ? "ready" : "empty"),
+      coverageMetric("required-fields", "必填字段", `${requiredFieldCount}`, requiredFieldCount > 0 ? "ready" : "empty"),
+      coverageMetric("server-fields", "服务端字段", `${serverInjectedFieldCount}`, serverInjectedFieldCount > 0 ? "warning" : "empty")
+    ],
+    hiddenBoundaryLabel: "只显示服务端公开的选择角色、对象引用与字段计数；隐藏 metadata 和隐藏区身份不在前端展开。",
+    metrics: [
+      coverageMetric("candidates", "候选覆盖", `${enabledCount} 可 / ${disabledCount} 阻`, model.candidates.length > 0 ? "ready" : "empty"),
+      coverageMetric("gate", "提交门禁", submissionGate.stateLabel, submissionGate.canSubmit ? "ready" : "blocked"),
+      coverageMetric("window", "行动窗口", windowGate.stateLabel, windowGate.canAct ? "ready" : "blocked"),
+      coverageMetric("required-empty", "空必选角色", `${emptyRequiredCount}`, emptyRequiredCount > 0 ? "warning" : "ready")
+    ],
+    roles,
+    state,
+    stateLabel: coverageStateLabel(state),
+    summary: coverageSummaryFor({
+      disabledCount,
+      emptyRequiredCount,
+      enabledCount,
+      missingTemplateCount,
+      state
+    })
+  };
+}
+
+function roleCoveragePlan(
+  role: PromptChoiceRole,
+  candidates: PromptCandidateSummary[],
+  objects: ObjectIndex
+): WireActionRoleCoveragePlan {
+  const choiceIds = new Set<string>();
+  const objectIds = new Set<string>();
+  const unknownObjectIds = new Set<string>();
+  const sampleLabels: string[] = [];
+  let candidateCount = 0;
+  let emptyRequiredCount = 0;
+  let hiddenChoiceCount = 0;
+  let requiredCandidateCount = 0;
+
+  for (const candidate of candidates) {
+    const roleChoices = candidate.choices.filter((choice) => choice.role === role);
+    const step = candidate.steps.find((candidateStep) => candidateStep.role === role);
+    if (!step && roleChoices.length === 0) {
+      continue;
+    }
+
+    candidateCount += 1;
+    if (step?.required) {
+      requiredCandidateCount += 1;
+    }
+
+    if (step?.required && roleChoices.length === 0) {
+      emptyRequiredCount += 1;
+    }
+
+    for (const label of step?.sampleLabels ?? roleChoices.map((choice) => choice.label)) {
+      if (sampleLabels.length < 3 && label.trim()) {
+        sampleLabels.push(label);
+      }
+    }
+
+    for (const choice of roleChoices) {
+      choiceIds.add(choice.id);
+      const refs = promptChoiceSummaryObjectIds(choice);
+      if (refs.includes("HIDDEN")) {
+        hiddenChoiceCount += 1;
+      }
+
+      for (const objectId of refs) {
+        if (objectId === "HIDDEN") {
+          continue;
+        }
+
+        if (objects[objectId]) {
+          objectIds.add(objectId);
+        } else {
+          unknownObjectIds.add(objectId);
+        }
+      }
+    }
+  }
+
+  const state = emptyRequiredCount > 0
+    ? "warning"
+    : candidateCount === 0
+      ? "empty"
+      : requiredCandidateCount > 0
+        ? "ready"
+        : "warning";
+
+  return {
+    candidateCount,
+    choiceCount: choiceIds.size,
+    emptyRequiredCount,
+    hiddenChoiceCount,
+    key: role,
+    label: promptChoiceRoleLabel(role),
+    objectCount: objectIds.size,
+    requiredCandidateCount,
+    role,
+    sampleLabel: uniqueStrings(sampleLabels).join(" / ") || "无公开样例",
+    state,
+    summary: `${candidateCount} 候选 / ${requiredCandidateCount} 必选 / ${choiceIds.size} 选项 / ${objectIds.size} 对象`,
+    unknownObjectCount: unknownObjectIds.size
+  };
+}
+
+function coverageStateFor({
+  disabledCount,
+  emptyRequiredCount,
+  enabledCount,
+  missingTemplateCount,
+  submissionGate,
+  totalCount,
+  windowGate
+}: {
+  disabledCount: number;
+  emptyRequiredCount: number;
+  enabledCount: number;
+  missingTemplateCount: number;
+  submissionGate: WireActionSubmissionGatePlan;
+  totalCount: number;
+  windowGate: WireActionWindowGatePlan;
+}): WireActionCoverageState {
+  if (totalCount === 0) {
+    return "empty";
+  }
+
+  if (!submissionGate.canSubmit || !windowGate.canAct) {
+    return "blocked";
+  }
+
+  if (enabledCount === 0 || emptyRequiredCount > 0 || missingTemplateCount > 0 || disabledCount > 0) {
+    return "warning";
+  }
+
+  return "ready";
+}
+
+function coverageStateLabel(state: WireActionCoverageState): string {
+  switch (state) {
+    case "blocked":
+      return "门禁阻断";
+    case "empty":
+      return "等待候选";
+    case "ready":
+      return "覆盖齐备";
+    case "warning":
+      return "需要关注";
+  }
+}
+
+function coverageSummaryFor({
+  disabledCount,
+  emptyRequiredCount,
+  enabledCount,
+  missingTemplateCount,
+  state
+}: {
+  disabledCount: number;
+  emptyRequiredCount: number;
+  enabledCount: number;
+  missingTemplateCount: number;
+  state: WireActionCoverageState;
+}): string {
+  if (state === "empty") {
+    return "当前窗口没有服务端候选，前端保持只读。";
+  }
+
+  return `${enabledCount} 个可提交候选；${disabledCount} 个服务端阻断；${emptyRequiredCount} 个必选角色暂无公开选项；${missingTemplateCount} 个候选未公开命令模板。`;
+}
+
+function coverageMetric(
+  key: string,
+  label: string,
+  value: string,
+  state: WireActionCoverageState
+): WireActionCoverageMetricPlan {
+  return { key, label, state, value };
+}
+
+function blockerRowsFor(candidates: PromptCandidateSummary[]): WireActionBlockerPlan[] {
+  const byReason = new Map<string, PromptCandidateSummary[]>();
+  for (const candidate of candidates.filter((item) => !item.enabled)) {
+    const reason = candidate.reason || "服务端阻断";
+    byReason.set(reason, [...(byReason.get(reason) ?? []), candidate]);
+  }
+
+  return [...byReason.entries()]
+    .map(([reason, rows], index) => ({
+      actions: uniqueStrings(rows.map((row) => row.label)).slice(0, 3),
+      count: rows.length,
+      key: `blocker-${index}`,
+      reason
+    }))
+    .sort((left, right) => right.count - left.count || left.reason.localeCompare(right.reason, "zh-Hans-CN"))
+    .slice(0, 4);
 }
 
 function routeCheckSummary(rows: WireActionRouteCheckPlan[]): string {

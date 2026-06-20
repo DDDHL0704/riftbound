@@ -13314,11 +13314,93 @@ button.card-face:hover {
 
 .wire-action-map-metric strong,
 .wire-action-object-chip strong,
-.wire-action-group-heading strong {
+.wire-action-group-heading strong,
+.wire-action-coverage-heading strong,
+.wire-action-coverage-heading span,
+.wire-action-coverage-summary,
+.wire-action-coverage-boundary,
+.wire-action-coverage-metrics span,
+.wire-action-coverage-command span,
+.wire-action-coverage-roles span,
+.wire-action-coverage-roles small,
+.wire-action-coverage-roles strong,
+.wire-action-coverage-blockers span,
+.wire-action-coverage-blockers small,
+.wire-action-coverage-blockers strong,
+.wire-action-coverage-blockers b {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-action-coverage {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-action-coverage[data-action-coverage-state="ready"],
+.wire-action-coverage-metrics span[data-action-coverage-state="ready"],
+.wire-action-coverage-command span[data-action-coverage-state="ready"],
+.wire-action-coverage-roles article[data-action-role-coverage-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-action-coverage[data-action-coverage-state="blocked"],
+.wire-action-coverage[data-action-coverage-state="warning"],
+.wire-action-coverage-metrics span[data-action-coverage-state="blocked"],
+.wire-action-coverage-metrics span[data-action-coverage-state="warning"],
+.wire-action-coverage-command span[data-action-coverage-state="warning"],
+.wire-action-coverage-roles article[data-action-role-coverage-state="warning"] {
+  border-style: dashed;
+}
+
+.wire-action-coverage-heading,
+.wire-action-coverage-roles article > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-action-coverage-metrics,
+.wire-action-coverage-command {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.wire-action-coverage-metrics span,
+.wire-action-coverage-command span,
+.wire-action-coverage-blockers span {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 3px;
+}
+
+.wire-action-coverage-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 3px;
+}
+
+.wire-action-coverage-roles article {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 3px;
+}
+
+.wire-action-coverage-blockers {
+  display: grid;
+  gap: 3px;
+}
+
+.wire-action-coverage-blockers > strong {
+  font-size: 11px;
 }
 
 .wire-action-entry-strip {
@@ -14657,6 +14739,12 @@ button.wire-object-ref {
 .wire-match-page .wire-action-map-header,
 .wire-match-page .wire-action-map-metrics,
 .wire-match-page .wire-action-map-metric,
+.wire-match-page .wire-action-coverage,
+.wire-match-page .wire-action-coverage-heading,
+.wire-match-page .wire-action-coverage-metrics span,
+.wire-match-page .wire-action-coverage-roles article,
+.wire-match-page .wire-action-coverage-command span,
+.wire-match-page .wire-action-coverage-blockers span,
 .wire-match-page .wire-action-contract-strip,
 .wire-match-page .wire-action-contract-strip > div,
 .wire-match-page .wire-action-contract-strip > span,

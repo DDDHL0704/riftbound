@@ -4,10 +4,14 @@ import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraf
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildWireActionMapPlan,
+  type WireActionBlockerPlan,
   type WireActionContractPlan,
+  type WireActionCoverageMetricPlan,
+  type WireActionCoveragePlan,
   type WireActionGrammarCandidatePlan,
   type WireActionMapMetric,
   type WireActionMapPlan,
+  type WireActionRoleCoveragePlan,
   type WireActionRoutePlan
 } from "../../utils/wireActionMapPlan";
 import type { WireActionSubmissionGatePlan, WireActionWindowGatePlan } from "../../utils/wireActionGates";
@@ -52,6 +56,7 @@ export function WireActionMapPanel({
 
       <SubmissionGateStrip gate={plan.submissionGate} />
       <WindowGateStrip gate={plan.windowGate} />
+      <ActionCoveragePanel coverage={plan.coverage} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CurrentRouteStrip route={plan.route} />
 
@@ -136,6 +141,78 @@ export function WireActionMapPanel({
         ))}
       </div>
     </section>
+  );
+}
+
+function ActionCoveragePanel({ coverage }: { coverage: WireActionCoveragePlan }) {
+  return (
+    <section
+      aria-label="服务端候选覆盖审计"
+      className="wire-action-coverage"
+      data-action-coverage-state={coverage.state}
+    >
+      <div className="wire-action-coverage-heading">
+        <strong>候选覆盖审计</strong>
+        <span>{coverage.stateLabel}</span>
+      </div>
+      <small className="wire-action-coverage-summary">{coverage.summary}</small>
+      <div className="wire-action-coverage-metrics">
+        {coverage.metrics.map((metric) => <CoverageMetric key={metric.key} metric={metric} />)}
+      </div>
+      <div className="wire-action-coverage-roles" aria-label="选择角色覆盖">
+        {coverage.roles.map((role) => <RoleCoverage key={role.key} role={role} />)}
+      </div>
+      <div className="wire-action-coverage-command" aria-label="命令模板覆盖">
+        {coverage.commandRows.map((metric) => <CoverageMetric key={metric.key} metric={metric} />)}
+      </div>
+      <BlockerList blockers={coverage.blockers} />
+      <small className="wire-action-coverage-boundary">{coverage.hiddenBoundaryLabel}</small>
+    </section>
+  );
+}
+
+function CoverageMetric({ metric }: { metric: WireActionCoverageMetricPlan }) {
+  return (
+    <span data-action-coverage-metric={metric.key} data-action-coverage-state={metric.state}>
+      <b>{metric.label}</b>
+      <strong>{metric.value}</strong>
+    </span>
+  );
+}
+
+function RoleCoverage({ role }: { role: WireActionRoleCoveragePlan }) {
+  return (
+    <article data-action-role-coverage={role.role} data-action-role-coverage-state={role.state}>
+      <div>
+        <strong>{role.label}</strong>
+        <span>{role.requiredCandidateCount > 0 ? "必选参与" : role.candidateCount > 0 ? "可选参与" : "未参与"}</span>
+      </div>
+      <small>{role.summary}</small>
+      <small>{role.sampleLabel}</small>
+      {(role.emptyRequiredCount > 0 || role.hiddenChoiceCount > 0 || role.unknownObjectCount > 0) && (
+        <small>
+          空必选 {role.emptyRequiredCount}
+          {" / 隐藏引用 "}{role.hiddenChoiceCount}
+          {" / 未映射对象 "}{role.unknownObjectCount}
+        </small>
+      )}
+    </article>
+  );
+}
+
+function BlockerList({ blockers }: { blockers: WireActionBlockerPlan[] }) {
+  return (
+    <div className="wire-action-coverage-blockers" aria-label="服务端阻断原因">
+      <strong>阻断原因</strong>
+      {blockers.length === 0 && <span className="empty-hint">当前没有服务端阻断候选。</span>}
+      {blockers.map((blocker) => (
+        <span data-action-coverage-blocker={blocker.key} key={blocker.key}>
+          <b>{blocker.count} 项</b>
+          <small>{blocker.reason}</small>
+          <small>{blocker.actions.join(" / ")}</small>
+        </span>
+      ))}
+    </div>
   );
 }
 

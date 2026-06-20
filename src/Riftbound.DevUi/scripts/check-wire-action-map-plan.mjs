@@ -140,6 +140,32 @@ assert.deepEqual(plan.focus.relatedCandidates[0].nextObjectRefs, [{
   roleLabel: "目标"
 }]);
 assert.equal(plan.disabledOnlyObjectCount, 1);
+assert.equal(plan.coverage.state, "warning");
+assert.equal(plan.coverage.stateLabel, "需要关注");
+assert.equal(plan.coverage.summary, "1 个可提交候选；2 个服务端阻断；0 个必选角色暂无公开选项；2 个候选未公开命令模板。");
+assert.deepEqual(plan.coverage.metrics.map((metric) => `${metric.key}:${metric.value}:${metric.state}`), [
+  "candidates:1 可 / 2 阻:ready",
+  "gate:可提交:ready",
+  "window:当前可行动:ready",
+  "required-empty:0:ready"
+]);
+assert.deepEqual(plan.coverage.commandRows.map((metric) => `${metric.key}:${metric.value}:${metric.state}`), [
+  "template:1/3:warning",
+  "composer:1/3:ready",
+  "required-fields:1:ready",
+  "server-fields:1:warning"
+]);
+assert.equal(plan.coverage.roles.find((role) => role.role === "source").summary, "3 候选 / 3 必选 / 2 选项 / 2 对象");
+assert.equal(plan.coverage.roles.find((role) => role.role === "source").state, "ready");
+assert.equal(plan.coverage.roles.find((role) => role.role === "target").summary, "1 候选 / 0 必选 / 1 选项 / 1 对象");
+assert.equal(plan.coverage.roles.find((role) => role.role === "target").state, "warning");
+assert.equal(plan.coverage.roles.find((role) => role.role === "destination").summary, "0 候选 / 0 必选 / 0 选项 / 0 对象");
+assert.equal(plan.coverage.blockers.length, 2);
+assert.deepEqual(plan.coverage.blockers.map((blocker) => `${blocker.count}:${blocker.reason}`), [
+  "1:窗口不允许",
+  "1:单位不能移动"
+]);
+assert.equal(JSON.stringify(plan.coverage).includes("serverPaymentState"), false);
 assert.equal(plan.groups[0].label, "打出手牌");
 assert.equal(plan.groups[0].enabledCount, 1);
 assert.equal(plan.groups[0].roleCounts.find((role) => role.role === "source")?.count, 1);
@@ -239,6 +265,8 @@ const staleDraftPlan = buildWireActionMapPlan({
 });
 assert.equal(staleDraftPlan.canAct, false);
 assert.equal(staleDraftPlan.submissionGate.state, "stale-snapshot");
+assert.equal(staleDraftPlan.coverage.state, "blocked");
+assert.equal(staleDraftPlan.coverage.metrics.find((metric) => metric.key === "gate")?.state, "blocked");
 assert.equal(staleDraftPlan.route.state, "blocked");
 assert.equal(staleDraftPlan.route.stateLabel, "提交门禁阻断");
 assert.equal(staleDraftPlan.route.nextStepLabel, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
@@ -253,6 +281,8 @@ const readOnlyPlan = buildWireActionMapPlan({
 });
 assert.equal(readOnlyPlan.canAct, false);
 assert.equal(readOnlyPlan.windowGate.state, "wrong-player");
+assert.equal(readOnlyPlan.coverage.state, "blocked");
+assert.equal(readOnlyPlan.coverage.metrics.find((metric) => metric.key === "window")?.state, "blocked");
 assert.equal(readOnlyPlan.focus, undefined);
 
 const wrongPlayerDraftPlan = buildWireActionMapPlan({
