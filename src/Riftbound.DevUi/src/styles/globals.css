@@ -14313,6 +14313,8 @@ button.card-face:hover {
 .wire-timeline-detail-header,
 .wire-timeline-detail-status-grid,
 .wire-timeline-detail-status-grid span,
+.wire-timeline-evidence-list,
+.wire-timeline-evidence-list li,
 .wire-timeline-inspector,
 .wire-timeline-inspector header,
 .wire-timeline-inspector section,
@@ -14687,6 +14689,7 @@ button.card-face:hover {
 .wire-rule-line > strong,
 .wire-rule-metric > strong,
 .wire-timeline-detail-status-grid strong,
+.wire-timeline-evidence-list strong,
 .wire-timeline-detail-line > strong,
 .wire-timeline-projection-list strong,
 .wire-timeline-action-hint-list strong,
@@ -15061,6 +15064,44 @@ button.card-face:hover {
   padding: 3px;
 }
 
+.wire-timeline-evidence-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 3px;
+  list-style: none;
+}
+
+.wire-timeline-evidence-list li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 3px;
+}
+
+.wire-timeline-evidence-list li[data-timeline-evidence-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-timeline-evidence-list li[data-timeline-evidence-state="warn"],
+.wire-timeline-evidence-list li[data-timeline-evidence-state="blocked"] {
+  border-style: double;
+}
+
+.wire-timeline-evidence-list li[data-timeline-evidence-state="empty"] {
+  border-style: dashed;
+}
+
+.wire-timeline-evidence-list span,
+.wire-timeline-evidence-list small,
+.wire-timeline-evidence-list strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-timeline-detail-line {
   display: grid;
   grid-template-columns: 62px minmax(0, 1fr);
@@ -15369,6 +15410,10 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-line,
 .wire-match-page .wire-timeline-detail,
 .wire-match-page .wire-timeline-detail-header,
+.wire-match-page .wire-timeline-detail-status-grid,
+.wire-match-page .wire-timeline-detail-status-grid span,
+.wire-match-page .wire-timeline-evidence-list,
+.wire-match-page .wire-timeline-evidence-list li,
 .wire-match-page .wire-timeline-inspector,
 .wire-match-page .wire-timeline-inspector header,
 .wire-match-page .wire-timeline-inspector section,
@@ -15377,6 +15422,8 @@ button.wire-object-ref {
 .wire-match-page .wire-timeline-inspector-toggle,
 .wire-match-page .wire-timeline-detail-lines,
 .wire-match-page .wire-timeline-detail-line,
+.wire-match-page .wire-timeline-projection-list,
+.wire-match-page .wire-timeline-projection-list li,
 .wire-match-page .wire-timeline-action-hint-list,
 .wire-match-page .wire-timeline-action-hint-list li,
 .wire-match-page .wire-selected-object-context,

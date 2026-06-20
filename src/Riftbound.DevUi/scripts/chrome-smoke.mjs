@@ -1500,6 +1500,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
       commandBridgeServerRoles: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-server-role]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-server-role") ?? ""),
       commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
+      evidenceKeys: Array.from(panel?.querySelectorAll("[data-timeline-evidence]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-evidence") ?? ""),
+      evidenceStates: Array.from(panel?.querySelectorAll("[data-timeline-evidence-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-evidence-state") ?? ""),
+      evidenceText: panel?.querySelector(".wire-timeline-evidence-list")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
       actionHintButtonCount: panel?.querySelectorAll(".wire-timeline-action-hint-button").length ?? 0,
@@ -1582,6 +1587,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
       commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
       commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
+      evidenceKeys: Array.from(panel?.querySelectorAll("[data-timeline-evidence]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-evidence") ?? ""),
+      evidenceStates: Array.from(panel?.querySelectorAll("[data-timeline-evidence-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-evidence-state") ?? ""),
+      evidenceText: panel?.querySelector(".wire-timeline-evidence-list")?.textContent ?? "",
       sourceSelected: sourceObject?.getAttribute("data-selected") ?? null,
       sourceStepProgress: sourceStep?.getAttribute("data-step-progress") ?? null,
       targetRouteStepState: targetRouteStep?.getAttribute("data-route-step-state") ?? null,
@@ -1691,6 +1701,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
       commandBridgeServerRoles: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-server-role]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-server-role") ?? ""),
       commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
+      evidenceKeys: Array.from(panel?.querySelectorAll("[data-timeline-evidence]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-evidence") ?? ""),
+      evidenceStates: Array.from(panel?.querySelectorAll("[data-timeline-evidence-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-evidence-state") ?? ""),
+      evidenceText: panel?.querySelector(".wire-timeline-evidence-list")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
       actionHintText: panel?.querySelector(".wire-timeline-action-hint-list")?.textContent ?? "",
@@ -1753,6 +1768,14 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.statusText.includes("桌面投影")) failures.push("rule detail projection status missing");
   if (!ruleDetailResult.statusText.includes("当前焦点")) failures.push("rule detail focus status missing");
   if (!ruleDetailResult.statusText.includes("关联候选")) failures.push("rule detail candidate status missing");
+  if (!ruleDetailResult.evidenceKeys.includes("source")) failures.push("rule detail evidence source row missing");
+  if (!ruleDetailResult.evidenceKeys.includes("projection")) failures.push("rule detail evidence projection row missing");
+  if (!ruleDetailResult.evidenceKeys.includes("candidate")) failures.push("rule detail evidence candidate row missing");
+  if (!ruleDetailResult.evidenceKeys.includes("path")) failures.push("rule detail evidence path row missing");
+  if (!ruleDetailResult.evidenceKeys.includes("boundary")) failures.push("rule detail evidence boundary row missing");
+  if (!ruleDetailResult.evidenceStates.includes("ready")) failures.push("rule detail evidence ready state missing");
+  if (!ruleDetailResult.evidenceText.includes("服务端规则")) failures.push("rule detail evidence source authority missing");
+  if (!ruleDetailResult.evidenceText.includes("路径")) failures.push("rule detail evidence path label missing");
   if (!ruleDetailResult.projectionStates.includes("visible")) failures.push("rule detail did not expose visible projection rows");
   if (!ruleDetailResult.projectionText.includes("来源")) failures.push("rule detail projection source role missing");
   if (!ruleDetailResult.projectionText.includes("目标")) failures.push("rule detail projection target role missing");
@@ -1834,6 +1857,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeFocusResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("command bridge detail grammar submit ready missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeGateStates.includes("ready")) failures.push("command bridge detail gate ready state missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("提交门禁")) failures.push("command bridge detail gate label missing after target selection");
+  if (!commandBridgeFocusResult.evidenceKeys.includes("path")) failures.push("command bridge detail evidence path missing after target selection");
+  if (!commandBridgeFocusResult.evidenceStates.includes("ready")) failures.push("command bridge detail evidence ready state missing after target selection");
+  if (!commandBridgeFocusResult.evidenceText.includes("可送")) failures.push("command bridge detail evidence route summary missing after target selection");
   if (commandBridgeFocusResult.detailLayerOpen) failures.push("command bridge button opened card detail layer");
   if (commandBridgeDraftDetailResult.objectId !== "p1-hand-spell") failures.push(`command bridge draft detail opened unexpected object: ${commandBridgeDraftDetailResult.objectId}`);
   if (!commandBridgeDraftDetailResult.open) failures.push("command bridge draft detail did not open card detail layer");
@@ -1861,6 +1887,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (eventDetailResult.visibleRefCount < 2) failures.push(`event detail visible ref count too low: ${eventDetailResult.visibleRefCount}`);
   if (eventDetailResult.actionCandidateCount < 1) failures.push("event detail action candidate count missing");
   if (eventDetailResult.commandBridgeCount < 1) failures.push("event detail command bridge count missing");
+  if (!eventDetailResult.evidenceKeys.includes("source")) failures.push("event detail evidence source row missing");
+  if (!eventDetailResult.evidenceKeys.includes("path")) failures.push("event detail evidence path row missing");
+  if (!eventDetailResult.evidenceText.includes("服务端日志")) failures.push("event detail evidence source authority missing");
   if (eventDetailResult.logState !== "events") failures.push(`event log plan state unexpected: ${eventDetailResult.logState}`);
   if (eventDetailResult.logVisibleCount < 1) failures.push("event log plan visible count missing");
   if (eventDetailResult.logHiddenCount !== 0) failures.push(`event log hidden count unexpected: ${eventDetailResult.logHiddenCount}`);

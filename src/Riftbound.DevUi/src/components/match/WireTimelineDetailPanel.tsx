@@ -6,6 +6,7 @@ import {
   buildWireTimelineDetailPlan,
   type WireTimelineCommandBridgeRow,
   type WireTimelineDetailInspectorPlan,
+  type WireTimelineEvidenceRow,
   type WireTimelineNavigationRow
 } from "../../utils/wireTimelineDetailPlan";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
@@ -99,6 +100,7 @@ export function WireTimelineDetailPanel({
           </span>
         ))}
       </div>
+      <TimelineEvidenceRows rows={plan.evidenceRows} />
       <div className="wire-timeline-detail-body" id="wire-timeline-detail-body">
         {detail ? (
           <>
@@ -177,6 +179,28 @@ export function WireTimelineDetailPanel({
         )}
       </div>
     </section>
+  );
+}
+
+function TimelineEvidenceRows({ rows }: { rows: WireTimelineEvidenceRow[] }) {
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <ol className="wire-timeline-evidence-list" aria-label="规则事件证据摘要">
+      {rows.map((row) => (
+        <li
+          data-timeline-evidence={row.key}
+          data-timeline-evidence-state={row.state}
+          key={row.key}
+        >
+          <span>{row.label}</span>
+          <strong>{row.value}</strong>
+          <small>{row.stateLabel}</small>
+        </li>
+      ))}
+    </ol>
   );
 }
 

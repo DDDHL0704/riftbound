@@ -193,6 +193,16 @@ assert.equal(plan.statusCards[2].value, "我方手牌");
 assert.equal(plan.statusCards[3].value, "已命中详情对象");
 assert.equal(plan.statusCards[4].value, "1 可用 / 1 阻断");
 assert.equal(plan.statusCards[5].value, "2 条");
+assert.equal(plan.evidenceRows.find((row) => row.key === "source")?.value, "规则队列");
+assert.equal(plan.evidenceRows.find((row) => row.key === "source")?.stateLabel, "服务端规则");
+assert.equal(plan.evidenceRows.find((row) => row.key === "projection")?.value, "2/4 可定位");
+assert.equal(plan.evidenceRows.find((row) => row.key === "projection")?.state, "warn");
+assert.equal(plan.evidenceRows.find((row) => row.key === "candidate")?.value, "1 可用 / 1 阻断");
+assert.equal(plan.evidenceRows.find((row) => row.key === "candidate")?.state, "ready");
+assert.equal(plan.evidenceRows.find((row) => row.key === "path")?.value, "2 路径 / 0 可送 / 0 待选 / 0 阻断 / 2 未进");
+assert.equal(plan.evidenceRows.find((row) => row.key === "path")?.stateLabel, "未进入草稿");
+assert.equal(plan.evidenceRows.find((row) => row.key === "boundary")?.value, "1 隐藏 / 1 未公开");
+assert.equal(plan.evidenceRows.find((row) => row.key === "boundary")?.state, "warn");
 assert.equal(plan.inspector.sourceLabel, "规则队列");
 assert.equal(plan.inspector.visibleRefCount, 2);
 assert.equal(plan.inspector.selectedProjectionCount, 1);
@@ -225,6 +235,11 @@ const visibilityPlan = buildWireTimelineDetailPlan({
 });
 
 assert.deepEqual(visibilityPlan.projectionRows.map((row) => row.state), ["hidden", "missing", "visible"]);
+assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "source")?.value, "日志事件");
+assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "source")?.stateLabel, "服务端日志");
+assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "projection")?.value, "1/3 可定位");
+assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "projection")?.state, "warn");
+assert.equal(visibilityPlan.evidenceRows.find((row) => row.key === "boundary")?.value, "1 隐藏 / 1 未公开");
 assert.equal(visibilityPlan.inspector.hiddenRefCount, 1);
 assert.equal(visibilityPlan.inspector.missingRefCount, 1);
 assert.equal(visibilityPlan.inspector.visibleRefCount, 1);
@@ -319,6 +334,8 @@ const draftPlan = buildWireTimelineDetailPlan({
 });
 
 assert.equal(draftPlan.statusCards.find((card) => card.label === "候选路径")?.value, "2 条 / 2 草稿");
+assert.equal(draftPlan.evidenceRows.find((row) => row.key === "path")?.value, "2 路径 / 2 可送 / 0 待选 / 0 阻断 / 0 未进");
+assert.equal(draftPlan.evidenceRows.find((row) => row.key === "path")?.state, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].draftActive, true);
 assert.equal(draftPlan.commandBridgeRows[0].routeState, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].routeStateLabel, "可送服务端校验");
@@ -393,6 +410,8 @@ const disconnectedDraftPlan = buildWireTimelineDetailPlan({
 });
 
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].routeState, "blocked");
+assert.equal(disconnectedDraftPlan.evidenceRows.find((row) => row.key === "path")?.value, "2 路径 / 0 可送 / 0 待选 / 2 阻断 / 0 未进");
+assert.equal(disconnectedDraftPlan.evidenceRows.find((row) => row.key === "path")?.state, "blocked");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarState, "blocked");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 阻断 / 仅有模板 / 提交入口阻断");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].gateSummary, "3 通过 / 2 阻断 / 0 等待");

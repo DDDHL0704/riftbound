@@ -50,6 +50,16 @@ export type WireTimelineStatusCard = {
   value: string;
 };
 
+export type WireTimelineEvidenceRowState = "blocked" | "empty" | "ready" | "warn";
+
+export type WireTimelineEvidenceRow = {
+  key: string;
+  label: string;
+  state: WireTimelineEvidenceRowState;
+  stateLabel: string;
+  value: string;
+};
+
 export type WireTimelineProjectionRow = {
   id: string;
   key: string;
@@ -201,6 +211,7 @@ export type WireTimelineDetailInspectorPlan = {
 export type WireTimelineDetailPlan = {
   actionHintRows: WireTimelineActionHintRow[];
   commandBridgeRows: WireTimelineCommandBridgeRow[];
+  evidenceRows: WireTimelineEvidenceRow[];
   headerSubtitle: string;
   headerTitle: string;
   inspector: WireTimelineDetailInspectorPlan;
@@ -236,6 +247,8 @@ export function buildWireTimelineDetailPlan({
   const visibleProjectionCount = projectionRows.filter((row) => row.state === "selected" || row.state === "visible").length;
   const enabledActionHintCount = actionHintRows.reduce((sum, row) => sum + row.enabledCount, 0);
   const disabledActionHintCount = actionHintRows.reduce((sum, row) => sum + row.disabledCount, 0);
+  const hiddenRefCount = projectionRows.filter((row) => row.state === "hidden").length;
+  const missingRefCount = projectionRows.filter((row) => row.state === "missing").length;
   const focusValue = selectedObjectContext
     ? selectedObjectContext.zone.label
     : selectedObjectId
@@ -244,6 +257,16 @@ export function buildWireTimelineDetailPlan({
 
   return {
     actionHintRows,
+    evidenceRows: evidenceRowsForDetail({
+      commandBridgeRows,
+      detail,
+      disabledActionHintCount,
+      enabledActionHintCount,
+      hiddenRefCount,
+      missingRefCount,
+      projectionRows,
+      visibleProjectionCount
+    }),
     headerSubtitle: detail?.subtitle
       ?? (selectedObjectContext
         ? "来自服务端快照、行动窗口、结算链和事件索引。"
@@ -268,6 +291,111 @@ export function buildWireTimelineDetailPlan({
       { label: "候选路径", value: commandBridgeRows.length > 0 ? commandBridgeStatusLabel(commandBridgeRows) : "无路径" }
     ]
   };
+}
+
+function evidenceRowsForDetail({
+  commandBridgeRows,
+  detail,
+  disabledActionHintCount,
+  enabledActionHintCount,
+  hiddenRefCount,
+  missingRefCount,
+  projectionRows,
+  visibleProjectionCount
+}: {
+  commandBridgeRows: WireTimelineCommandBridgeRow[];
+  detail?: WireTimelineDetailLike;
+  disabledActionHintCount: number;
+  enabledActionHintCount: number;
+  hiddenRefCount: number;
+  missingRefCount: number;
+  projectionRows: WireTimelineProjectionRow[];
+  visibleProjectionCount: number;
+}): WireTimelineEvidenceRow[] {
+  if (!detail) {
+    return [];
+  }
+
+  const readyPathCount = commandBridgeRows.filter((row) => row.routeState === "ready").length;
+  const selectingPathCount = commandBridgeRows.filter((row) => row.routeState === "selecting").length;
+  const blockedPathCount = commandBridgeRows.filter((row) => row.routeState === "blocked").length;
+  const inactivePathCount = commandBridgeRows.filter((row) => row.routeState === "inactive").length;
+  const totalActionCandidateCount = enabledActionHintCount + disabledActionHintCount;
+  const totalProjectionCount = projectionRows.length;
+
+  return [
+    {
+      key: "source",
+      label: "材料",
+      state: "ready",
+      stateLabel: detail.source === "event" ? "服务端日志" : "服务端规则",
+      value: detailSourceLabel(detail.source)
+    },
+    {
+      key: "projection",
+      label: "投影",
+      state: totalProjectionCount === 0 ? "empty" : missingRefCount > 0 ? "warn" : "ready",
+      stateLabel: totalProjectionCount === 0
+        ? "无对象"
+        : missingRefCount > 0
+          ? "存在未公开对象"
+          : hiddenRefCount > 0
+            ? "隐藏边界内"
+            : "可定位",
+      value: totalProjectionCount > 0 ? `${visibleProjectionCount}/${totalProjectionCount} 可定位` : "无对象"
+    },
+    {
+      key: "candidate",
+      label: "候选",
+      state: enabledActionHintCount > 0
+        ? "ready"
+        : disabledActionHintCount > 0
+          ? "blocked"
+          : "empty",
+      stateLabel: totalActionCandidateCount > 0
+        ? enabledActionHintCount > 0
+          ? "服务端开放"
+          : "服务端阻断"
+        : "无候选",
+      value: totalActionCandidateCount > 0 ? `${enabledActionHintCount} 可用 / ${disabledActionHintCount} 阻断` : "无候选"
+    },
+    {
+      key: "path",
+      label: "路径",
+      state: commandBridgeRows.length === 0
+        ? "empty"
+        : readyPathCount > 0
+          ? "ready"
+          : selectingPathCount > 0
+            ? "warn"
+            : blockedPathCount > 0
+              ? "blocked"
+              : "empty",
+      stateLabel: commandBridgeRows.length === 0
+        ? "无提交路径"
+        : readyPathCount > 0
+          ? "可送服务端"
+          : selectingPathCount > 0
+            ? "等待选择"
+            : blockedPathCount > 0
+              ? "路径阻断"
+              : "未进入草稿",
+      value: commandBridgeRows.length > 0
+        ? `${commandBridgeRows.length} 路径 / ${readyPathCount} 可送 / ${selectingPathCount} 待选 / ${blockedPathCount} 阻断 / ${inactivePathCount} 未进`
+        : "无路径"
+    },
+    {
+      key: "boundary",
+      label: "边界",
+      state: hiddenRefCount > 0 || missingRefCount > 0 ? "warn" : "ready",
+      stateLabel: hiddenRefCount > 0
+        ? "隐藏保护"
+        : missingRefCount > 0
+          ? "未公开对象"
+          : "可公开",
+      value: `${hiddenRefCount} 隐藏 / ${missingRefCount} 未公开`
+    }
+  ];
 }
 
 function commandBridgeRowsForDetail(
