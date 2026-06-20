@@ -132,14 +132,35 @@ export function WireServerFlowPanel({
       </ol>
 
       <ol className="wire-server-flow-steps" aria-label="服务端行动顺序总览">
-        {plan.steps.map((step) => (
-          <li data-wire-server-flow-step={step.key} data-wire-server-flow-step-state={step.state} key={step.key}>
-            <span>{step.label}</span>
-            <strong>{step.stateLabel}</strong>
-            <small>{step.value}</small>
-            <em>{step.detail}</em>
-          </li>
-        ))}
+        {plan.steps.map((step) => {
+          const content = (
+            <>
+              <span>{step.label}</span>
+              <strong>{step.stateLabel}</strong>
+              <small>{step.value}</small>
+              <em>{step.detail}</em>
+            </>
+          );
+          return (
+            <li
+              data-wire-server-flow-step={step.key}
+              data-wire-server-flow-step-detail={step.timelineDetail ? "available" : "empty"}
+              data-wire-server-flow-step-state={step.state}
+              key={step.key}
+            >
+              {step.timelineDetail && onSelectDetail ? (
+                <button
+                  aria-label={`查看服务端流程步骤：${step.label}`}
+                  className="wire-server-flow-step-button"
+                  onClick={() => onSelectDetail(timelineDetailFromServerFlow(step.timelineDetail!))}
+                  type="button"
+                >
+                  {content}
+                </button>
+              ) : content}
+            </li>
+          );
+        })}
       </ol>
 
       <button

@@ -52,6 +52,7 @@ export type WireServerFlowStep = {
   label: string;
   state: string;
   stateLabel: string;
+  timelineDetail?: WireServerFlowDetail;
   value: string;
 };
 
@@ -176,7 +177,7 @@ export function buildWireServerFlowPlan({
     relatedActionRows,
     state,
     stateLabel: flowStateLabel(state),
-    steps: flowSteps(rulePlan, responsePlan),
+    steps: flowSteps(rulePlan, responsePlan).map((step, index) => withFallbackStepDetail(step, index, detail)),
     summary: `${rulePlan.stateLabel} / ${responsePlan.stateLabel} / ${flowNextStep(state, rulePlan, responsePlan)}`,
     tone: flowTone(state)
   };
@@ -222,16 +223,67 @@ function serverBackedFlowPlan(
     relatedActionRows,
     state,
     stateLabel: state === "selecting" ? "选择中" : serverFlow.stateLabel,
-    steps: serverFlow.steps.map((step) => ({
+    steps: serverFlow.steps.map((step, index) => ({
       detail: step.detail,
       key: `server:${step.key}`,
       label: step.label,
       state: step.state,
       stateLabel: step.stateLabel,
+      timelineDetail: serverFlowStepDetail(serverFlow, step, index, relatedObjectRefs),
       value: step.value
     })),
     summary: state === "selecting" ? `${serverFlow.summary} / 本地选择中` : serverFlow.summary,
     tone: state === "selecting" ? "info" : serverFlowToneFromDto(serverFlow)
+  };
+}
+
+function serverFlowStepDetail(
+  serverFlow: ActionPromptServerFlowDto,
+  step: ActionPromptServerFlowDto["steps"][number],
+  index: number,
+  relatedObjectRefs: WireServerFlowDetail["refs"]
+): WireServerFlowDetail {
+  const stepKey = step.key?.trim() || `step-${index}`;
+  return {
+    id: `server-flow:${serverFlow.promptType || "UNKNOWN"}:${serverFlow.promptPlayerId || "UNKNOWN"}:step:${stepKey}:${index}`,
+    lines: [
+      { label: "步骤", value: step.label || stepKey },
+      { label: "状态", value: [step.stateLabel, step.state].filter(Boolean).join(" / ") || "无" },
+      { label: "值", value: step.value || "无" },
+      { label: "说明", value: step.detail || "无" },
+      { label: "提示类型", value: serverFlow.promptType || "无" },
+      { label: "窗口", value: [serverFlow.stateLabel, serverFlow.state].filter(Boolean).join(" / ") || "无" },
+      { label: "下一步", value: serverFlow.nextStep || "无" },
+      { label: "责任玩家", mine: serverFlow.isResponsiblePlayer, value: serverFlow.responsiblePlayerId || "无" }
+    ],
+    refs: relatedObjectRefs,
+    source: "rule",
+    subtitle: serverFlow.summary || serverFlow.primaryLabel,
+    title: `服务端流程：${step.label || stepKey}`
+  };
+}
+
+function withFallbackStepDetail(
+  step: WireServerFlowStep,
+  index: number,
+  detail: WireServerFlowDetail | undefined
+): WireServerFlowStep {
+  return {
+    ...step,
+    timelineDetail: {
+      id: `server-flow:fallback:step:${step.key}:${index}`,
+      lines: [
+        { label: "步骤", value: step.label || step.key },
+        { label: "状态", value: [step.stateLabel, step.state].filter(Boolean).join(" / ") || "无" },
+        { label: "值", value: step.value || "无" },
+        { label: "说明", value: step.detail || "无" },
+        { label: "来源", value: "前端从服务端快照与 prompt 组合的回退视图" }
+      ],
+      refs: detail?.refs ?? [],
+      source: "rule",
+      subtitle: "缺少正式 serverFlow 时的安全回退详情",
+      title: `流程步骤：${step.label || step.key}`
+    }
   };
 }
 

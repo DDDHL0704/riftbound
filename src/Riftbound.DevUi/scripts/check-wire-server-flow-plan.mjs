@@ -163,6 +163,10 @@ assert.equal(serverBackedPlan.detail?.title, "服务端关联对象");
 assert.deepEqual(serverBackedPlan.detail?.refs, [{ id: "unit-1", role: "结算来源" }]);
 assert.equal(serverBackedPlan.detailButtonLabel, "打开关联对象");
 assert.equal(serverBackedPlan.lanes.find((lane) => lane.key === "stack").headline, "DAMAGE / OGN-001");
+assert.equal(serverBackedPlan.steps[0].timelineDetail?.id, "server-flow:STACK_PRIORITY:P1:step:stack:0");
+assert.equal(serverBackedPlan.steps[0].timelineDetail?.title, "服务端流程：结算链");
+assert.equal(serverBackedPlan.steps[0].timelineDetail?.lines.find((line) => line.label === "说明").value, "服务端候选裁定。");
+assert.deepEqual(serverBackedPlan.steps[0].timelineDetail?.refs, [{ id: "unit-1", role: "结算来源" }]);
 
 const crowdedServerFlowFixture = {
   ...serverFlowFixture,
@@ -239,6 +243,9 @@ assert.deepEqual(
 );
 assert.equal(crowdedServerBackedPlan.steps.at(-1).value, "WAIT / SURRENDER");
 assert.equal(crowdedServerBackedPlan.steps.at(-1).detail, "前端只提交服务端候选，不重算合法性。");
+assert.equal(crowdedServerBackedPlan.steps.at(-1).timelineDetail?.id, "server-flow:STACK_PRIORITY:P1:step:candidate:5");
+assert.equal(crowdedServerBackedPlan.steps.at(-1).timelineDetail?.lines.find((line) => line.label === "值").value, "WAIT / SURRENDER");
+assert.equal(crowdedServerBackedPlan.steps.at(-1).timelineDetail?.lines.find((line) => line.label === "责任玩家").mine, true);
 
 const serverFlowActionBridgePlan = buildWireServerFlowPlan({
   connectionStatus: "connected",

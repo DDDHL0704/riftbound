@@ -12583,6 +12583,28 @@ button.card-face:hover {
   cursor: pointer;
 }
 
+.wire-server-flow-step-button {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-server-flow-step-button:focus-visible,
+.wire-server-flow-action-bridge li > button:focus-visible,
+.wire-server-flow-detail-button:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
 .wire-server-flow-lanes li[data-wire-server-flow-lane-state="active"],
 .wire-server-flow-lanes li[data-wire-server-flow-lane-state="blocked"],
 .wire-server-flow-action-bridge li[data-server-flow-action-state="ready"] > button,
@@ -12636,7 +12658,11 @@ button.card-face:hover {
 .wire-server-flow-steps span,
 .wire-server-flow-steps strong,
 .wire-server-flow-steps small,
-.wire-server-flow-steps em {
+.wire-server-flow-steps em,
+.wire-server-flow-step-button span,
+.wire-server-flow-step-button strong,
+.wire-server-flow-step-button small,
+.wire-server-flow-step-button em {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
