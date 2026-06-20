@@ -11,6 +11,7 @@ import { buildWireCardDetailActionPlan } from "../../utils/wireCardDetailActionP
 import { buildWireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
 import { CandidateComposer } from "../match/CandidateComposer";
 import { WireFocusedLegalActionMatrix } from "../match/WireFocusedLegalActionMatrix";
+import { WireFocusedReadinessStrip } from "../match/WireFocusedReadinessStrip";
 import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -145,6 +146,7 @@ export function CardDetailDrawer({
               ))}
             </dl>
             <DetailObjectContext context={objectContext} contract={prompt?.contract} focusModel={detailInteractionPlan.focusModel} />
+            <WireFocusedReadinessStrip plan={detailInteractionPlan} />
             <WireFocusedLegalActionMatrix plan={detailInteractionPlan} />
             <DetailInspector inspector={detailPlan.inspector} />
             {detailPlan.sections.map((section) => (
