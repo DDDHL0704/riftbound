@@ -164,6 +164,82 @@ assert.deepEqual(serverBackedPlan.detail?.refs, [{ id: "unit-1", role: "结算�
 assert.equal(serverBackedPlan.detailButtonLabel, "打开关联对象");
 assert.equal(serverBackedPlan.lanes.find((lane) => lane.key === "stack").headline, "DAMAGE / OGN-001");
 
+const crowdedServerFlowFixture = {
+  ...serverFlowFixture,
+  reason: "服务端声明结算链、规则任务与触发队列同时存在。",
+  steps: [
+    {
+      detail: "当前窗口由服务端裁定。",
+      key: "prompt",
+      label: "行动窗口",
+      state: "waiting",
+      stateLabel: "等待",
+      value: "结算链响应"
+    },
+    {
+      detail: "责任方仍由服务端指定。",
+      key: "responsibility",
+      label: "责任方",
+      state: "ready",
+      stateLabel: "负责",
+      value: "P1"
+    },
+    {
+      detail: "已有项目等待响应。",
+      key: "stack",
+      label: "结算链",
+      state: "respond",
+      stateLabel: "响应",
+      value: "1 项"
+    },
+    {
+      detail: "规则任务阻塞主阶段行动。",
+      key: "task",
+      label: "规则任务",
+      state: "blocked",
+      stateLabel: "阻塞",
+      value: "1 项"
+    },
+    {
+      detail: "触发等待服务端结算。",
+      key: "trigger",
+      label: "触发队列",
+      state: "server",
+      stateLabel: "服务端",
+      value: "1 项"
+    },
+    {
+      detail: "前端只提交服务端候选，不重算合法性。",
+      key: "candidate",
+      label: "候选",
+      state: "ready",
+      stateLabel: "2 可提交",
+      value: "WAIT / SURRENDER"
+    }
+  ],
+  summary: "拥挤流程 / 响应 / 按服务端 prompt 选择响应或让过。"
+};
+
+const crowdedServerBackedPlan = buildWireServerFlowPlan({
+  connectionStatus: "connected",
+  events: [],
+  playerId: "P1",
+  prompt: prompt({
+    serverFlow: crowdedServerFlowFixture,
+    title: "结算链响应",
+    type: "STACK_PRIORITY"
+  }),
+  snapshot: snapshot(),
+  submissionGate: connectedGate
+});
+assert.equal(crowdedServerBackedPlan.steps.length, 6);
+assert.deepEqual(
+  crowdedServerBackedPlan.steps.map((step) => step.key),
+  ["server:prompt", "server:responsibility", "server:stack", "server:task", "server:trigger", "server:candidate"]
+);
+assert.equal(crowdedServerBackedPlan.steps.at(-1).value, "WAIT / SURRENDER");
+assert.equal(crowdedServerBackedPlan.steps.at(-1).detail, "前端只提交服务端候选，不重算合法性。");
+
 const serverFlowActionBridgePlan = buildWireServerFlowPlan({
   connectionStatus: "connected",
   events: [],
