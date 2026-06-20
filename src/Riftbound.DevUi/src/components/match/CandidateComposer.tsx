@@ -27,7 +27,10 @@ import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 
 type CandidateComposerProps = {
+  actionGateReason?: string;
+  actionGateStateLabel?: string;
   candidate: ActionPromptCandidateDto;
+  disabledByActionGate?: boolean;
   disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
   onSubmitted?: () => void;
@@ -43,7 +46,10 @@ export function canComposeCandidate(candidate: ActionPromptCandidateDto): boolea
 }
 
 export function CandidateComposer({
+  actionGateReason,
+  actionGateStateLabel,
   candidate,
+  disabledByActionGate = false,
   disabledByConnection,
   forcedSourceObjectId,
   onCommand,
@@ -63,8 +69,11 @@ export function CandidateComposer({
   const requirement = selectedRequirement(model, state.sourceId);
   const controls = composerControls(candidate, model, requirement, forcedSourceObjectId);
   const submission = buildCandidateComposerSubmissionPlan({
+    actionGateReason,
+    actionGateStateLabel,
     candidate,
     controls,
+    disabledByActionGate,
     disabledByConnection,
     requirement,
     snapshot,

@@ -248,15 +248,21 @@ export function composerCommand(
 }
 
 export function buildCandidateComposerSubmissionPlan({
+  actionGateReason,
+  actionGateStateLabel,
   candidate,
   controls,
+  disabledByActionGate = false,
   disabledByConnection,
   requirement,
   submissionGate,
   state
 }: {
+  actionGateReason?: string;
+  actionGateStateLabel?: string;
   candidate: ActionPromptCandidateDto;
   controls: CandidateComposerControls;
+  disabledByActionGate?: boolean;
   disabledByConnection: boolean;
   requirement: Record<string, unknown> | undefined;
   snapshot: SnapshotDto | undefined;
@@ -277,15 +283,24 @@ export function buildCandidateComposerSubmissionPlan({
   const unsupportedReason = requirementUnsupportedReason ?? composerUnsupportedReason;
   const missingRequiredTarget = controls.targetGroups
     .some((group) => group.required && !state.targetIdsByGroup[group.key]);
-  const gateCanSubmit = submissionGate?.canSubmit ?? !disabledByConnection;
-  const gateReason = submissionGate?.reason ?? (disabledByConnection
-    ? "当前入口不可提交，等待服务端窗口或连接恢复。"
-    : "当前未提供额外提交门禁。");
-  const gateStateLabel = submissionGate?.stateLabel ?? (gateCanSubmit ? "可提交" : "连接未就绪");
+  const serverGateCanSubmit = submissionGate?.canSubmit ?? !disabledByConnection;
+  const gateBlockedByAction = serverGateCanSubmit && disabledByActionGate;
+  const gateCanSubmit = serverGateCanSubmit && !gateBlockedByAction;
+  const gateReason = !serverGateCanSubmit
+    ? submissionGate?.reason ?? "当前入口不可提交，等待服务端窗口或连接恢复。"
+    : gateBlockedByAction
+      ? actionGateReason ?? "当前行动窗口不能提交该候选。"
+      : submissionGate?.reason ?? "当前未提供额外提交门禁。";
+  const gateStateLabel = !serverGateCanSubmit
+    ? submissionGate?.stateLabel ?? "入口未就绪"
+    : gateBlockedByAction
+      ? actionGateStateLabel ?? "窗口不可提交"
+      : submissionGate?.stateLabel ?? "可提交";
   const missingRequiredSource = controls.sourceRequired && !state.sourceId;
   const missingRequiredDestination = controls.destinationRequired && !state.destinationId;
   const missingCommand = !command;
   const canSubmit = !disabledByConnection
+    && !gateBlockedByAction
     && gateCanSubmit
     && candidate.enabled
     && !unsupportedReason
@@ -295,7 +310,9 @@ export function buildCandidateComposerSubmissionPlan({
     && !missingRequiredTarget;
   const blockReason = composerBlockReason({
     candidate,
+    disabledByActionGate: gateBlockedByAction,
     disabledByConnection,
+    actionGateReason,
     gateCanSubmit,
     gateReason,
     missingCommand,
@@ -418,7 +435,9 @@ function composerCheckSummary(rows: CandidateComposerCheckPlan[]): string {
 }
 
 function composerBlockReason({
+  actionGateReason,
   candidate,
+  disabledByActionGate,
   disabledByConnection,
   gateCanSubmit,
   gateReason,
@@ -428,7 +447,9 @@ function composerBlockReason({
   missingRequiredTarget,
   unsupportedReason
 }: {
+  actionGateReason?: string;
   candidate: ActionPromptCandidateDto;
+  disabledByActionGate: boolean;
   disabledByConnection: boolean;
   gateCanSubmit: boolean;
   gateReason: string;
@@ -444,6 +465,10 @@ function composerBlockReason({
 
   if (disabledByConnection) {
     return "当前入口不可提交，等待服务端窗口或连接恢复。";
+  }
+
+  if (disabledByActionGate) {
+    return actionGateReason ?? "当前行动窗口不能提交该候选。";
   }
 
   if (!candidate.enabled) {

@@ -9,12 +9,28 @@ export type ActionPanelRenderEntryKind =
 
 export type ActionPanelRenderState = "blocked" | "disabled" | "empty" | "ready" | "readonly";
 
+export type ActionPanelSubmitGateState =
+  | "ready"
+  | "readonly"
+  | "server-blocked"
+  | "submission-gate-blocked"
+  | "window-blocked";
+
+export type ActionPanelSubmitGate = {
+  canSubmit: boolean;
+  reason: string;
+  state: ActionPanelSubmitGateState;
+  stateLabel: string;
+  title?: string;
+};
+
 export type ActionPanelRenderEntry = {
   canAct: boolean;
   candidate?: ActionPromptCandidateDto;
   key: string;
   kind: ActionPanelRenderEntryKind;
   readOnly: boolean;
+  submitGate: ActionPanelSubmitGate;
 };
 
 export type ActionPanelRenderPlan = {
@@ -26,26 +42,33 @@ export type ActionPanelRenderPlan = {
 
 export type BuildActionPanelRenderPlanOptions = {
   canAct: boolean;
-  connected: boolean;
+  connected?: boolean;
   prompt?: ActionPromptDto;
+  submissionGate?: {
+    canSubmit: boolean;
+    reason: string;
+    stateLabel: string;
+  };
 };
 
 export function buildActionPanelRenderPlan({
   canAct,
   connected,
-  prompt
+  prompt,
+  submissionGate
 }: BuildActionPanelRenderPlanOptions): ActionPanelRenderPlan {
   const allCandidates = prompt?.candidates ?? [];
   const enabledCandidates = allCandidates.filter((candidate) => candidate.enabled);
   const promptType = prompt?.view?.type?.trim() ?? "";
+  const baseSubmitGate = submissionGate ?? fallbackSubmissionGate(connected ?? true);
   const entries = [
     ...readonlyEntriesForPrompt(promptType, allCandidates, enabledCandidates),
     ...allCandidates.map((candidate, index) => entryForCandidate({
       canAct,
       candidate,
-      connected,
       index,
-      readOnly: false
+      readOnly: false,
+      submissionGate: baseSubmitGate
     }))
   ];
 
@@ -53,7 +76,7 @@ export function buildActionPanelRenderPlan({
     emptyLabel: "服务端暂未提供可提交候选。",
     entries,
     promptType: promptType || "无",
-    state: renderStateFor(entries, connected, canAct)
+    state: renderStateFor(entries, baseSubmitGate.canSubmit, canAct)
   };
 }
 
@@ -90,29 +113,114 @@ function readonlyEntry(
     candidate,
     key: `readonly-${kind}-${candidate?.label ?? "prompt"}`,
     kind,
-    readOnly: true
+    readOnly: true,
+    submitGate: readonlySubmitGate()
   };
 }
 
 function entryForCandidate({
   canAct,
   candidate,
-  connected,
   index,
-  readOnly
+  readOnly,
+  submissionGate
 }: {
   canAct: boolean;
   candidate: ActionPromptCandidateDto;
-  connected: boolean;
   index: number;
   readOnly: boolean;
+  submissionGate: NonNullable<BuildActionPanelRenderPlanOptions["submissionGate"]>;
 }): ActionPanelRenderEntry {
+  const submitGate = submitGateForCandidate({ canAct, candidate, readOnly, submissionGate });
+
   return {
-    canAct: connected && canAct && !readOnly && candidate.enabled,
+    canAct: submitGate.canSubmit,
     candidate,
     key: `${candidate.action}-${candidate.label ?? "candidate"}-${index}`,
     kind: entryKindForAction(candidate.action),
-    readOnly
+    readOnly,
+    submitGate
+  };
+}
+
+function submitGateForCandidate({
+  canAct,
+  candidate,
+  readOnly,
+  submissionGate
+}: {
+  canAct: boolean;
+  candidate: ActionPromptCandidateDto;
+  readOnly: boolean;
+  submissionGate: NonNullable<BuildActionPanelRenderPlanOptions["submissionGate"]>;
+}): ActionPanelSubmitGate {
+  if (!submissionGate.canSubmit) {
+    return {
+      canSubmit: false,
+      reason: submissionGate.reason,
+      state: "submission-gate-blocked",
+      stateLabel: submissionGate.stateLabel,
+      title: submissionGate.reason
+    };
+  }
+
+  if (readOnly) {
+    return readonlySubmitGate();
+  }
+
+  if (!canAct) {
+    return {
+      canSubmit: false,
+      reason: "当前行动窗口不能提交该候选。",
+      state: "window-blocked",
+      stateLabel: "窗口不可提交",
+      title: "当前行动窗口不能提交该候选"
+    };
+  }
+
+  if (!candidate.enabled) {
+    const reason = candidate.reason?.trim() || "服务端候选暂不可提交。";
+    return {
+      canSubmit: false,
+      reason,
+      state: "server-blocked",
+      stateLabel: "服务端阻断",
+      title: reason
+    };
+  }
+
+  return {
+    canSubmit: true,
+    reason: candidate.reason?.trim() || "服务端候选可提交。",
+    state: "ready",
+    stateLabel: "可提交",
+    title: candidate.reason?.trim() || undefined
+  };
+}
+
+function readonlySubmitGate(): ActionPanelSubmitGate {
+  return {
+    canSubmit: false,
+    reason: "当前提示只读。",
+    state: "readonly",
+    stateLabel: "只读",
+    title: "当前提示只读"
+  };
+}
+
+function fallbackSubmissionGate(connected: boolean): NonNullable<BuildActionPanelRenderPlanOptions["submissionGate"]> {
+  if (connected) {
+    return {
+      canSubmit: true,
+      reason: "提交入口已就绪。",
+      stateLabel: "可提交"
+    };
+  }
+
+  return {
+    canSubmit: false,
+    reason: "行动入口未就绪，等待服务端窗口、连接或快照同步。",
+    stateLabel: "入口未就绪"
   };
 }
 

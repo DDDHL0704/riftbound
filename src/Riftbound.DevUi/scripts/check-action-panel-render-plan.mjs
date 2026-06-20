@@ -59,7 +59,10 @@ assert.deepEqual(mainPlan.entries.map((entry) => entry.kind), [
 ]);
 assert.equal(mainPlan.entries.some((entry) => entry.candidate?.action === "ACTIVATE_ABILITY"), true);
 assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.canAct, false);
+assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.submitGate.state, "server-blocked");
+assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.submitGate.stateLabel, "服务端阻断");
 assert.equal(mainPlan.entries.filter((entry) => entry.canAct).length, 5);
+assert.equal(mainPlan.entries.filter((entry) => entry.submitGate.state === "ready").length, 5);
 
 const readonlyHandPlan = buildActionPanelRenderPlan({
   canAct: false,
@@ -79,6 +82,7 @@ assert.equal(readonlyHandPlan.entries.length, 1);
 assert.equal(readonlyHandPlan.entries[0].kind, "hand-choice");
 assert.equal(readonlyHandPlan.entries[0].readOnly, false);
 assert.equal(readonlyHandPlan.entries[0].canAct, false);
+assert.equal(readonlyHandPlan.entries[0].submitGate.state, "window-blocked");
 
 const readonlyTriggerPlan = buildActionPanelRenderPlan({
   canAct: false,
@@ -95,6 +99,7 @@ assert.equal(readonlyTriggerPlan.state, "readonly");
 assert.equal(readonlyTriggerPlan.entries.length, 1);
 assert.equal(readonlyTriggerPlan.entries[0].key, "readonly-order-triggers-prompt");
 assert.equal(readonlyTriggerPlan.entries[0].kind, "order-triggers");
+assert.equal(readonlyTriggerPlan.entries[0].submitGate.state, "readonly");
 
 const disconnectedPlan = buildActionPanelRenderPlan({
   canAct: true,
@@ -113,6 +118,8 @@ assert.equal(disconnectedPlan.state, "disabled");
 assert.equal(disconnectedPlan.entries.length, 1);
 assert.equal(disconnectedPlan.entries[0].kind, "candidate-button");
 assert.equal(disconnectedPlan.entries[0].canAct, false);
+assert.equal(disconnectedPlan.entries[0].submitGate.state, "submission-gate-blocked");
+assert.equal(disconnectedPlan.entries[0].submitGate.stateLabel, "入口未就绪");
 
 const blockedPlan = buildActionPanelRenderPlan({
   canAct: true,
@@ -132,5 +139,45 @@ assert.equal(blockedPlan.state, "blocked");
 assert.equal(blockedPlan.entries.length, 2);
 assert.equal(blockedPlan.entries.every((entry) => entry.kind === "candidate-button"), true);
 assert.equal(blockedPlan.entries.every((entry) => entry.canAct === false), true);
+assert.equal(blockedPlan.entries.every((entry) => entry.submitGate.state === "server-blocked"), true);
+assert.equal(blockedPlan.entries[0].submitGate.reason, "法力不足");
+
+const staleSnapshotPlan = buildActionPanelRenderPlan({
+  canAct: true,
+  prompt: {
+    actionable: true,
+    candidates: [
+      { action: "PASS", enabled: true, label: "让过" }
+    ],
+    playerId: "P1",
+    view: { type: "PRIORITY" }
+  },
+  submissionGate: {
+    canSubmit: false,
+    reason: "行动提示属于 tick 12，当前桌面快照是 tick 11。",
+    stateLabel: "等待同步"
+  }
+});
+
+assert.equal(staleSnapshotPlan.state, "disabled");
+assert.equal(staleSnapshotPlan.entries[0].submitGate.state, "submission-gate-blocked");
+assert.equal(staleSnapshotPlan.entries[0].submitGate.reason, "行动提示属于 tick 12，当前桌面快照是 tick 11。");
+
+const windowBlockedPlan = buildActionPanelRenderPlan({
+  canAct: false,
+  connected: true,
+  prompt: {
+    actionable: false,
+    candidates: [
+      { action: "PASS", enabled: true, label: "让过", reason: "等待对手" }
+    ],
+    playerId: "P1",
+    view: { type: "PRIORITY" }
+  }
+});
+
+assert.equal(windowBlockedPlan.state, "readonly");
+assert.equal(windowBlockedPlan.entries[0].submitGate.state, "window-blocked");
+assert.equal(windowBlockedPlan.entries[0].submitGate.reason, "当前行动窗口不能提交该候选。");
 
 console.log("Action panel render plan check passed.");

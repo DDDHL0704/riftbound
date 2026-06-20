@@ -21,19 +21,21 @@ export type ActionPanelCandidateCommandPlan = {
 };
 
 type BuildActionPanelCandidateCommandPlanOptions = {
+  disabledByActionGate?: boolean;
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
 };
 
 export function buildActionPanelCandidateCommandPlan({
   candidate,
+  disabledByActionGate = false,
   disabledByConnection
 }: BuildActionPanelCandidateCommandPlanOptions): ActionPanelCandidateCommandPlan {
   const command = simpleCommand(candidate);
   const directAction = directCandidateAction(candidate);
   const needsComposer = !command && !directAction && canComposeActionCandidate(candidate);
   const executable = command || directAction;
-  const disabled = disabledByConnection || !candidate.enabled || (!executable && !needsComposer);
+  const disabled = disabledByConnection || disabledByActionGate || !candidate.enabled || (!executable && !needsComposer);
 
   return {
     command,

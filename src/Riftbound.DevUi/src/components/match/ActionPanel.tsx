@@ -11,7 +11,7 @@ import {
 } from "../../utils/actionPanelChoiceModels";
 import { buildActionPanelCandidateCommandPlan, type ActionPanelCandidateButtonIcon, type ActionPanelDirectActionKind } from "../../utils/actionPanelCommandPlan";
 import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
-import { buildActionPanelRenderPlan, type ActionPanelRenderEntry } from "../../utils/actionPanelRenderPlan";
+import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
 import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -35,8 +35,8 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
   const promptPlan = buildActionPanelPromptPlan({ connectionStatus, playerId, prompt, snapshot, submissionGate });
   const renderPlan = buildActionPanelRenderPlan({
     canAct: promptPlan.canAct,
-    connected: submissionGate.canSubmit,
-    prompt
+    prompt,
+    submissionGate
   });
 
   return (
@@ -107,9 +107,9 @@ function ActionPanelRenderEntryView({
       content = candidate ? (
         <MulliganCandidate
           candidate={candidate}
-          disabledByConnection={disabledByConnection || !entry.canAct}
           onCommand={onCommand}
           prompt={prompt}
+          submitGate={entry.submitGate}
         />
       ) : null;
       break;
@@ -118,10 +118,10 @@ function ActionPanelRenderEntryView({
         <HandChoiceCandidate
           canAct={entry.canAct}
           candidate={candidate}
-          disabledByConnection={disabledByConnection}
           onCommand={onCommand}
           prompt={prompt}
           readOnly={entry.readOnly}
+          submitGate={entry.submitGate}
         />
       );
       break;
@@ -129,10 +129,10 @@ function ActionPanelRenderEntryView({
       content = candidate ? (
         <DamageAssignmentCandidate
           candidate={candidate}
-          disabledByConnection={disabledByConnection || !entry.canAct}
           onCommand={onCommand}
           prompt={prompt}
           snapshot={snapshot}
+          submitGate={entry.submitGate}
         />
       ) : null;
       break;
@@ -141,10 +141,10 @@ function ActionPanelRenderEntryView({
         <OrderTriggersCandidate
           canAct={entry.canAct}
           candidate={candidate}
-          disabledByConnection={disabledByConnection}
           onCommand={onCommand}
           prompt={prompt}
           readOnly={entry.readOnly}
+          submitGate={entry.submitGate}
         />
       );
       break;
@@ -152,13 +152,13 @@ function ActionPanelRenderEntryView({
       content = candidate ? (
         <CandidateButton
           candidate={candidate}
-          disabledByConnection={disabledByConnection || !entry.canAct}
-          disabledTitle={entryDisabledTitle(entry, disabledByConnection)}
+          disabledByConnection={disabledByConnection}
           onCommand={onCommand}
           onReady={onReady}
           onSubmitStarterDeck={onSubmitStarterDeck}
           prompt={prompt}
           snapshot={snapshot}
+          submitGate={entry.submitGate}
           submissionGate={submissionGate}
         />
       ) : null;
@@ -176,6 +176,7 @@ function ActionPanelRenderEntryView({
       data-action-render-candidate-enabled={entry.candidate?.enabled == null ? "none" : entry.candidate.enabled ? "true" : "false"}
       data-action-render-kind={entry.kind}
       data-action-render-readonly={entry.readOnly ? "true" : "false"}
+      data-action-render-submit-state={entry.submitGate.state}
     >
       {content}
     </div>
@@ -269,14 +270,14 @@ function PromptContractSummary({ contract }: { contract: NonNullable<ActionPanel
 
 function MulliganCandidate({
   candidate,
-  disabledByConnection,
   onCommand,
-  prompt
+  prompt,
+  submitGate
 }: {
   candidate: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
   prompt?: ActionPromptDto;
+  submitGate: ActionPanelSubmitGate;
 }) {
   const choices = useMemo(() => candidate.sources ?? [], [candidate.sources]);
   const maxSelectionCount = numberMetadata(candidate.metadata, "maxSelectionCount");
@@ -292,7 +293,8 @@ function MulliganCandidate({
   }, [maxSelectionCount, sourceKey, choices]);
 
   const hasServerLimit = maxSelectionCount != null;
-  const canSubmit = !disabledByConnection && candidate.enabled && hasServerLimit && selectedObjectIds.length <= maxSelectionCount;
+  const canSubmit = submitGate.canSubmit && hasServerLimit && selectedObjectIds.length <= maxSelectionCount;
+  const buttonTitle = hasServerLimit ? submitGate.title ?? promptReasonTitle(candidate.reason) : "等待服务端提供选择上限";
 
   return (
     <div className="mulligan-selector">
@@ -305,7 +307,7 @@ function MulliganCandidate({
         {choices.map((choice) => (
           <MulliganChoiceButton
             choice={choice}
-            disabled={disabledByConnection || !candidate.enabled || !hasServerLimit}
+            disabled={!submitGate.canSubmit || !hasServerLimit}
             key={choice.id}
             maxSelectionCount={maxSelectionCount ?? 0}
             selected={selectedObjectIds.includes(choice.id)}
@@ -324,7 +326,7 @@ function MulliganCandidate({
         disabled={!canSubmit}
         icon={<Check size={16} />}
         onClick={() => onCommand(withPromptStamp({ cmdType: "MULLIGAN", handObjectIds: selectedObjectIds }, prompt))}
-        title={disabledByConnection ? "连接恢复前不能提交起手调整" : promptReasonTitle(candidate.reason)}
+        title={buttonTitle}
         variant={candidate.enabled ? "primary" : "ghost"}
       >
         确认起手调整
@@ -366,17 +368,17 @@ function MulliganChoiceButton({
 function HandChoiceCandidate({
   canAct,
   candidate,
-  disabledByConnection,
   onCommand,
   prompt,
-  readOnly = false
+  readOnly = false,
+  submitGate
 }: {
   canAct: boolean;
   candidate?: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
   prompt?: ActionPromptDto;
   readOnly?: boolean;
+  submitGate: ActionPanelSubmitGate;
 }) {
   const model = useMemo(() => buildHandChoiceModel(candidate, prompt), [candidate, prompt]);
   const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
@@ -395,7 +397,7 @@ function HandChoiceCandidate({
     && selectedObjectIds.length <= model.maxCount!;
   const canSubmit = !readOnly
     && canAct
-    && !disabledByConnection
+    && submitGate.canSubmit
     && Boolean(candidate?.enabled)
     && model.choiceId.length > 0
     && model.choiceWindow.length > 0
@@ -429,7 +431,7 @@ function HandChoiceCandidate({
           return (
             <button
               className={`hand-choice-row ${selected ? "is-selected" : ""}`}
-              disabled={readOnly || !canAct || disabledByConnection || lockedByLimit}
+              disabled={readOnly || !submitGate.canSubmit || lockedByLimit}
               key={choice.objectId}
               onClick={() => {
                 setSelectedObjectIds((current) => current.includes(choice.objectId)
@@ -457,7 +459,7 @@ function HandChoiceCandidate({
           choiceWindow: model.choiceWindow,
           chosenObjectIds: selectedObjectIds
         }, prompt))}
-        title={disabledByConnection ? "连接恢复前不能提交手牌选择" : promptReasonTitle(candidate?.reason)}
+        title={submitGate.title ?? promptReasonTitle(candidate?.reason)}
         variant={canSubmit ? "primary" : "ghost"}
       >
         提交手牌选择
@@ -468,16 +470,16 @@ function HandChoiceCandidate({
 
 function DamageAssignmentCandidate({
   candidate,
-  disabledByConnection,
   onCommand,
   prompt,
-  snapshot
+  snapshot,
+  submitGate
 }: {
   candidate: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
+  submitGate: ActionPanelSubmitGate;
 }) {
   const model = useMemo(() => buildDamageAssignmentModel(candidate, prompt, snapshot), [candidate, prompt, snapshot]);
   const [damageByKey, setDamageByKey] = useState<Record<string, number>>({});
@@ -501,8 +503,7 @@ function DamageAssignmentCandidate({
     }))
     .filter((assignment) => assignment.damage > 0);
   const assignedDamage = assignments.reduce((total, assignment) => total + assignment.damage, 0);
-  const canSubmit = !disabledByConnection
-    && candidate.enabled
+  const canSubmit = submitGate.canSubmit
     && model.battleId.length > 0
     && model.battlefieldId.length > 0
     && assignments.length > 0;
@@ -537,7 +538,7 @@ function DamageAssignmentCandidate({
             </span>
             <input
               aria-label={`${choice.sourceLabel} 对 ${choice.targetLabel} 分配伤害`}
-              disabled={disabledByConnection || !candidate.enabled}
+              disabled={!submitGate.canSubmit}
               inputMode="numeric"
               min={0}
               onChange={(event) => {
@@ -560,7 +561,7 @@ function DamageAssignmentCandidate({
           battlefieldId: model.battlefieldId,
           assignments
         }, prompt))}
-        title={disabledByConnection ? "连接恢复前不能提交伤害分配" : promptReasonTitle(candidate.reason)}
+        title={submitGate.title ?? promptReasonTitle(candidate.reason)}
         variant={candidate.enabled ? "primary" : "ghost"}
       >
         提交伤害分配
@@ -572,17 +573,17 @@ function DamageAssignmentCandidate({
 function OrderTriggersCandidate({
   canAct,
   candidate,
-  disabledByConnection,
   onCommand,
   prompt,
-  readOnly = false
+  readOnly = false,
+  submitGate
 }: {
   canAct: boolean;
   candidate?: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
   prompt?: ActionPromptDto;
   readOnly?: boolean;
+  submitGate: ActionPanelSubmitGate;
 }) {
   const model = useMemo(() => buildOrderTriggersModel(candidate, prompt), [candidate, prompt]);
   const [orderedTriggerIds, setOrderedTriggerIds] = useState<string[]>([]);
@@ -598,7 +599,7 @@ function OrderTriggersCandidate({
   const submitIds = orderedTriggers.map((trigger) => trigger.triggerId);
   const canSubmit = !readOnly
     && canAct
-    && !disabledByConnection
+    && submitGate.canSubmit
     && Boolean(candidate?.enabled)
     && submitIds.length === model.triggers.length
     && submitIds.length > 0;
@@ -641,7 +642,7 @@ function OrderTriggersCandidate({
               <button
                 aria-label={`${trigger.label} 上移`}
                 className="trigger-order-move"
-                disabled={readOnly || !canAct || index === 0}
+                disabled={readOnly || !submitGate.canSubmit || index === 0}
                 onClick={() => setOrderedTriggerIds((current) => moveTriggerId(current, trigger.triggerId, -1))}
                 type="button"
               >
@@ -650,7 +651,7 @@ function OrderTriggersCandidate({
               <button
                 aria-label={`${trigger.label} 下移`}
                 className="trigger-order-move"
-                disabled={readOnly || !canAct || index === orderedTriggers.length - 1}
+                disabled={readOnly || !submitGate.canSubmit || index === orderedTriggers.length - 1}
                 onClick={() => setOrderedTriggerIds((current) => moveTriggerId(current, trigger.triggerId, 1))}
                 type="button"
               >
@@ -668,7 +669,7 @@ function OrderTriggersCandidate({
           orderedTriggerIds: submitIds,
           triggerIds: submitIds
         }, prompt))}
-        title={disabledByConnection ? "连接恢复前不能提交触发排序" : promptReasonTitle(candidate?.reason)}
+        title={submitGate.title ?? promptReasonTitle(candidate?.reason)}
         variant={canSubmit ? "primary" : "ghost"}
       >
         提交触发顺序
@@ -693,27 +694,28 @@ function moveTriggerId(triggerIds: string[], triggerId: string, delta: number): 
 function CandidateButton({
   candidate,
   disabledByConnection,
-  disabledTitle,
   onCommand,
   onReady,
   onSubmitStarterDeck,
   prompt,
   snapshot,
+  submitGate,
   submissionGate
 }: {
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
-  disabledTitle?: string;
   onCommand: (command: GameCommand) => void;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
+  submitGate: ActionPanelSubmitGate;
   submissionGate: ServerSubmissionGatePlan;
 }) {
   const [confirmingSurrender, setConfirmingSurrender] = useState(false);
-  const plan = buildActionPanelCandidateCommandPlan({ candidate, disabledByConnection });
-  const buttonTitle = disabledTitle ?? (disabledByConnection ? "当前行动入口不可提交" : promptReasonTitle(candidate.reason));
+  const disabledByActionGate = submitGate.state === "readonly" || submitGate.state === "window-blocked";
+  const plan = buildActionPanelCandidateCommandPlan({ candidate, disabledByActionGate, disabledByConnection });
+  const buttonTitle = submitGate.title ?? (disabledByConnection ? "当前行动入口不可提交" : promptReasonTitle(candidate.reason));
 
   useEffect(() => {
     setConfirmingSurrender(false);
@@ -758,7 +760,10 @@ function CandidateButton({
   if (plan.needsComposer) {
     return (
       <CandidateComposer
+        actionGateReason={disabledByActionGate ? submitGate.reason : undefined}
+        actionGateStateLabel={disabledByActionGate ? submitGate.stateLabel : undefined}
         candidate={candidate}
+        disabledByActionGate={disabledByActionGate}
         disabledByConnection={disabledByConnection}
         onCommand={onCommand}
         prompt={prompt}
@@ -815,22 +820,6 @@ function candidateIcon(icon: ActionPanelCandidateButtonIcon) {
 function numberMetadata(metadata: Record<string, unknown> | null | undefined, key: string): number | undefined {
   const value = metadata?.[key];
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-function entryDisabledTitle(entry: ActionPanelRenderEntry, disabledByConnection: boolean): string | undefined {
-  if (disabledByConnection) {
-    return "连接恢复前不能提交行动";
-  }
-
-  if (entry.canAct) {
-    return undefined;
-  }
-
-  if (entry.candidate && !entry.candidate.enabled) {
-    return promptReasonTitle(entry.candidate.reason) ?? "服务端候选暂不可提交";
-  }
-
-  return "当前行动窗口不能提交该候选";
 }
 
 export function candidateListLabel(prompt?: ActionPromptDto): string {

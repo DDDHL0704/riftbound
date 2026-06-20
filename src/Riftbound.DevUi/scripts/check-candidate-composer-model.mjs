@@ -274,10 +274,28 @@ const disconnectedSubmission = buildCandidateComposerSubmissionPlan({
 });
 assert.equal(disconnectedSubmission.canSubmit, false);
 assert.equal(disconnectedSubmission.gateCanSubmit, false);
-assert.equal(disconnectedSubmission.stateLabel, "连接未就绪");
+assert.equal(disconnectedSubmission.stateLabel, "入口未就绪");
 assert.equal(disconnectedSubmission.blockReason, "当前入口不可提交，等待服务端窗口或连接恢复。");
 assert.equal(disconnectedSubmission.checkSummary, "6 通过 / 1 阻断 / 0 等待");
 assert.equal(disconnectedSubmission.checkRows.find((check) => check.key === "submission-gate")?.state, "blocked");
+
+const actionGateSubmission = buildCandidateComposerSubmissionPlan({
+  actionGateReason: "当前行动窗口不能提交该候选。",
+  actionGateStateLabel: "窗口不可提交",
+  candidate: playCandidate,
+  controls,
+  disabledByActionGate: true,
+  disabledByConnection: false,
+  requirement,
+  snapshot: undefined,
+  state
+});
+assert.equal(actionGateSubmission.canSubmit, false);
+assert.equal(actionGateSubmission.gateCanSubmit, false);
+assert.equal(actionGateSubmission.gateStateLabel, "窗口不可提交");
+assert.equal(actionGateSubmission.stateLabel, "窗口不可提交");
+assert.equal(actionGateSubmission.blockReason, "当前行动窗口不能提交该候选。");
+assert.equal(actionGateSubmission.checkRows.find((check) => check.key === "submission-gate")?.stateLabel, "窗口不可提交");
 
 const staleGateSubmission = buildCandidateComposerSubmissionPlan({
   candidate: playCandidate,

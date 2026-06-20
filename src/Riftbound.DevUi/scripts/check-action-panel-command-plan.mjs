@@ -70,6 +70,16 @@ assert.deepEqual(endTurn.command, { cmdType: "END_TURN" });
 assert.equal(endTurn.needsComposer, false);
 assert.equal(endTurn.icon, "play");
 
+const endTurnWindowBlocked = plan({
+  action: "END_TURN",
+  enabled: true,
+  label: "结束回合",
+  reason: "可结束"
+}, { disabledByActionGate: true });
+assert.deepEqual(endTurnWindowBlocked.command, { cmdType: "END_TURN" });
+assert.equal(endTurnWindowBlocked.disabled, true);
+assert.equal(endTurnWindowBlocked.icon, "play");
+
 const templatedEndTurn = plan({
   action: "END_TURN",
   commandTemplate: { bindings: [], cmdType: "END_TURN" },
@@ -231,6 +241,7 @@ console.log("Action panel command plan check passed.");
 function plan(candidate, options = {}) {
   return buildActionPanelCandidateCommandPlan({
     candidate,
+    disabledByActionGate: options.disabledByActionGate ?? false,
     disabledByConnection: options.disabledByConnection ?? false
   });
 }
