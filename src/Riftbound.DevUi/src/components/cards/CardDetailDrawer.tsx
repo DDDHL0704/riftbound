@@ -4,12 +4,13 @@ import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import { buildCardDetailPlan, type CardDetailInspectorPlan } from "../../utils/cardDetailPlan";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
-import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
-import { buildPromptInteractionModel } from "../../utils/promptInteraction";
+import type { FocusedActionModel } from "../../utils/focusedActionModel";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { buildWireCardDetailActionPlan } from "../../utils/wireCardDetailActionPlan";
+import { buildWireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
 import { CandidateComposer } from "../match/CandidateComposer";
+import { WireFocusedLegalActionMatrix } from "../match/WireFocusedLegalActionMatrix";
 import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -87,9 +88,13 @@ export function CardDetailDrawer({
   }
 
   const sourceObjectId = detailPlan.sourceObjectId;
-  const detailFocusModel = buildFocusedActionModel({
-    interactionModel: buildPromptInteractionModel(prompt),
+  const detailInteractionPlan = buildWireFocusedInteractionPlan({
+    canSubmitCommands: Boolean(onCommand),
+    disabledByConnection,
     prompt,
+    selectionDraft,
+    snapshot,
+    sourceControllerId: card.object?.controllerId,
     sourceObjectId
   });
   const stampedOnCommand = onCommand
@@ -139,7 +144,8 @@ export function CardDetailDrawer({
                 </div>
               ))}
             </dl>
-            <DetailObjectContext context={objectContext} contract={prompt?.contract} focusModel={detailFocusModel} />
+            <DetailObjectContext context={objectContext} contract={prompt?.contract} focusModel={detailInteractionPlan.focusModel} />
+            <WireFocusedLegalActionMatrix plan={detailInteractionPlan} />
             <DetailInspector inspector={detailPlan.inspector} />
             {detailPlan.sections.map((section) => (
               <section className="detail-section" key={section.key}>

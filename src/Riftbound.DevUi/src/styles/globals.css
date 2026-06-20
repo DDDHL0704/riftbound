@@ -12695,6 +12695,7 @@ button.card-face:hover {
   gap: 5px;
   padding: 5px;
   font-size: 12px;
+  border: 1px solid #000;
 }
 
 .wire-focused-legal-actions-heading {
@@ -12702,6 +12703,8 @@ button.card-face:hover {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
+  border: 1px solid #000;
+  padding: 4px;
 }
 
 .wire-focused-legal-action-list {
@@ -12715,6 +12718,7 @@ button.card-face:hover {
 .wire-focused-legal-action-list li {
   display: grid;
   gap: 2px;
+  border: 1px solid #000;
   padding: 4px;
 }
 
@@ -14573,6 +14577,9 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-authority-rows li,
 .wire-match-page .wire-interaction-panel,
 .wire-match-page .wire-selected-candidates,
+.wire-match-page .wire-focused-legal-actions,
+.wire-match-page .wire-focused-legal-actions-heading,
+.wire-match-page .wire-focused-legal-action-list li,
 .wire-match-page .wire-focused-action-summary,
 .wire-match-page .wire-focused-action-metrics span,
 .wire-match-page .wire-focused-next-step,
