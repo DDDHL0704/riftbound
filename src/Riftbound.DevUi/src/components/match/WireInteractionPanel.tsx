@@ -1,8 +1,7 @@
 import type { InspectedCard } from "../cards/CardFace";
-import { Maximize2, Play } from "lucide-react";
+import { Maximize2 } from "lucide-react";
 import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
-import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
@@ -11,13 +10,13 @@ import {
 } from "../../utils/wireFocusedInteractionPlan";
 import type { WirePromptCandidateListPlan } from "../../utils/wirePromptCandidatePlan";
 import { CardFace } from "../cards/CardFace";
-import { CandidateComposer } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import type { WireObjectIndex } from "./WireObjectRefChips";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireEmpty } from "./wireCardFlow";
 import { WireFocusedActionSummary } from "./WireFocusedActionSummary";
+import { WireFocusedActionEntryList } from "./WireFocusedActionEntryList";
 import { WireFocusedInteractionGrammar } from "./WireFocusedInteractionGrammar";
 import { WireFocusedLegalActionMatrix } from "./WireFocusedLegalActionMatrix";
 import { WireFocusedReadinessStrip } from "./WireFocusedReadinessStrip";
@@ -163,41 +162,15 @@ function FocusedActionList({
       <WireFocusedInteractionGrammar plan={plan.grammarPlan} />
       {plan.sourceCandidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
       <WireFocusedSelectionGuide plan={plan} />
-      {plan.actionEntries.slice(0, 4).map(({ actionPlan, candidate, candidateDraft, key, mode }) => {
-        if (mode === "composer" && onCommand) {
-          return (
-            <CandidateComposer
-              candidate={candidate}
-              disabledByConnection={disabledByConnection}
-              forcedSourceObjectId={plan.sourceObjectId}
-              key={key}
-              onCommand={onCommand}
-              prompt={prompt}
-              selectionDraft={candidateDraft}
-              snapshot={snapshot}
-              submissionGate={submissionGate}
-            />
-          );
-        }
-
-        return (
-          <Button
-            disabled={actionPlan.disabled}
-            icon={<Play size={16} />}
-            key={key}
-            onClick={() => {
-              if (actionPlan.command && onCommand) {
-                onCommand(promptStampedCommand(actionPlan.command, prompt));
-              }
-            }}
-            title={actionPlan.title}
-            variant={actionPlan.variant}
-          >
-            {actionPlan.label}
-            {actionPlan.labelSuffix}
-          </Button>
-        );
-      })}
+      <WireFocusedActionEntryList
+        disabledByConnection={disabledByConnection}
+        maxEntries={4}
+        onCommand={onCommand}
+        plan={plan}
+        prompt={prompt}
+        snapshot={snapshot}
+        submissionGate={submissionGate}
+      />
     </div>
   );
 }

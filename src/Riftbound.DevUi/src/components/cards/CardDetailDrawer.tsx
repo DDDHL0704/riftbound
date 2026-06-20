@@ -1,7 +1,6 @@
-import { Play, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
-import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import { buildCardDetailPlan, type CardDetailInspectorPlan } from "../../utils/cardDetailPlan";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { FocusedActionModel } from "../../utils/focusedActionModel";
@@ -9,7 +8,7 @@ import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGateP
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { buildWireCardDetailActionPlan } from "../../utils/wireCardDetailActionPlan";
 import { buildWireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
-import { CandidateComposer } from "../match/CandidateComposer";
+import { WireFocusedActionEntryList } from "../match/WireFocusedActionEntryList";
 import { WireFocusedActionSummary } from "../match/WireFocusedActionSummary";
 import { WireFocusedInteractionGrammar } from "../match/WireFocusedInteractionGrammar";
 import { WireFocusedLegalActionMatrix } from "../match/WireFocusedLegalActionMatrix";
@@ -104,11 +103,8 @@ export function CardDetailDrawer({
     sourceControllerId: card.object?.controllerId,
     sourceObjectId
   });
-  const stampedOnCommand = onCommand
-    ? (command: GameCommand) => onCommand(promptStampedCommand(command, prompt))
-    : undefined;
   const detailActionPlan = buildWireCardDetailActionPlan({
-    canSubmitCommands: Boolean(stampedOnCommand),
+    canSubmitCommands: Boolean(onCommand),
     detailPlan,
     disabledByConnection
   });
@@ -187,57 +183,22 @@ export function CardDetailDrawer({
               {detailActionPlan.entries.length === 0 ? (
                 <p className="detail-muted">{detailActionPlan.emptyLabel}</p>
               ) : (
-                <div className="detail-action-list" data-card-detail-action-count={detailActionPlan.entries.length}>
-                  {detailActionPlan.entries.map((entry) => {
-                    if (entry.mode === "composer" && stampedOnCommand) {
-                      return (
-                        <div
-                          className="detail-action-entry"
-                          data-card-detail-action-entry={entry.key}
-                          data-card-detail-action-mode={entry.mode}
-                          key={entry.key}
-                        >
-                          <CandidateComposer
-                            candidate={entry.candidate}
-                            disabledByConnection={disabledByConnection}
-                            forcedSourceObjectId={sourceObjectId}
-                            onCommand={stampedOnCommand}
-                            onSubmitted={onClose}
-                            prompt={prompt}
-                            selectionDraft={selectionDraft}
-                            snapshot={snapshot}
-                            submissionGate={submissionGate}
-                          />
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div
-                        className="detail-action-entry"
-                        data-card-detail-action-entry={entry.key}
-                        data-card-detail-action-mode={entry.mode}
-                        key={entry.key}
-                      >
-                        <Button
-                          disabled={entry.actionPlan.disabled}
-                          icon={<Play size={16} />}
-                          onClick={() => {
-                            if (entry.actionPlan.command && stampedOnCommand) {
-                              stampedOnCommand(entry.actionPlan.command);
-                              onClose();
-                            }
-                          }}
-                          title={entry.actionPlan.title}
-                          variant={entry.actionPlan.variant}
-                        >
-                          {entry.actionPlan.label}
-                          {entry.actionPlan.labelSuffix}
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
+                <WireFocusedActionEntryList
+                  className="detail-action-list"
+                  dataAttributes={{
+                    count: "data-card-detail-action-count",
+                    entry: "data-card-detail-action-entry",
+                    mode: "data-card-detail-action-mode"
+                  }}
+                  disabledByConnection={disabledByConnection}
+                  entryClassName="detail-action-entry"
+                  onCommand={onCommand}
+                  onSubmitted={onClose}
+                  plan={detailInteractionPlan}
+                  prompt={prompt}
+                  snapshot={snapshot}
+                  submissionGate={submissionGate}
+                />
               )}
             </section>
           </>

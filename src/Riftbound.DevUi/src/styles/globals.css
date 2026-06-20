@@ -12706,6 +12706,18 @@ button.card-face:hover {
   padding: 4px;
 }
 
+.wire-focused-action-entry-list {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wire-focused-action-entry {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
 .wire-focused-legal-actions {
   display: grid;
   gap: 5px;
