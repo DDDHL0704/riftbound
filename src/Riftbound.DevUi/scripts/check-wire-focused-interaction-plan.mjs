@@ -182,6 +182,9 @@ assert.equal(blockedPlan.actionEntries.length, 1);
 assert.equal(blockedPlan.actionEntries[0].candidate.enabled, false);
 assert.equal(blockedPlan.actionEntries[0].actionPlan.disabled, true);
 assert.equal(blockedPlan.actionEntries[0].actionPlan.title, "法力不足");
+assert.equal(blockedPlan.grammarPlan.state, "blocked");
+assert.equal(blockedPlan.grammarPlan.candidateLabel, "打出手牌");
+assert.equal(blockedPlan.sourceCandidatePaths.length, 1);
 assert.equal(blockedPlan.legalActionRows[0].state, "blocked");
 assert.equal(blockedPlan.legalActionRows[0].nextStepLabel, "法力不足");
 
