@@ -13721,6 +13721,7 @@ button.card-face:hover {
 .wire-rule-inspector footer,
 .wire-rule-inspector li,
 .wire-rule-inspector-toggle,
+.wire-rule-coverage li,
 .wire-rule-focus,
 .wire-rule-focus-heading,
 .wire-rule-focus-lines,
@@ -13865,6 +13866,7 @@ button.card-face:hover {
 }
 
 .wire-rule-inspector-lanes,
+.wire-rule-inspector-coverage,
 .wire-rule-inspector-sequence {
   display: grid;
   gap: 3px;
@@ -13873,7 +13875,8 @@ button.card-face:hover {
   list-style: none;
 }
 
-.wire-rule-inspector-lanes {
+.wire-rule-inspector-lanes,
+.wire-rule-inspector-coverage {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
@@ -13901,6 +13904,7 @@ button.card-face:hover {
 }
 
 .wire-rule-lanes,
+.wire-rule-coverage,
 .wire-rule-sequence {
   display: grid;
   gap: 3px;
@@ -13909,7 +13913,8 @@ button.card-face:hover {
   list-style: none;
 }
 
-.wire-rule-lanes {
+.wire-rule-lanes,
+.wire-rule-coverage {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
@@ -13918,6 +13923,7 @@ button.card-face:hover {
 }
 
 .wire-rule-lanes li,
+.wire-rule-coverage li,
 .wire-rule-sequence li {
   min-width: 0;
   display: grid;
@@ -13935,7 +13941,16 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-rule-coverage li[data-rule-coverage-state="live"],
+.wire-rule-coverage li[data-rule-coverage-state="mixed"] {
+  border-width: 2px;
+}
+
 .wire-rule-lanes li[data-rule-lane-state="empty"] {
+  border-style: dashed;
+}
+
+.wire-rule-coverage li[data-rule-coverage-state="empty"] {
   border-style: dashed;
 }
 
@@ -13943,6 +13958,10 @@ button.card-face:hover {
 .wire-rule-lanes strong,
 .wire-rule-lanes span,
 .wire-rule-lanes em,
+.wire-rule-coverage small,
+.wire-rule-coverage strong,
+.wire-rule-coverage span,
+.wire-rule-coverage em,
 .wire-rule-focus-heading strong,
 .wire-rule-focus-heading span,
 .wire-rule-sequence small,

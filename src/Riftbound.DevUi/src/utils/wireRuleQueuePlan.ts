@@ -66,9 +66,25 @@ export type WireRuleQueueInspectorSequence = {
   tickLabel?: string;
 };
 
+export type WireRuleQueueCoverageKey = "battle" | "payment" | "stack" | "trigger" | "window";
+
+export type WireRuleQueueCoverageState = "empty" | "history" | "live" | "mixed";
+
+export type WireRuleQueueCoverageRow = {
+  eventCount: number;
+  hint: string;
+  key: WireRuleQueueCoverageKey;
+  label: string;
+  liveCount: number;
+  objectRefCount: number;
+  state: WireRuleQueueCoverageState;
+  stateLabel: string;
+};
+
 export type WireRuleQueueInspectorPlan = {
   activeLaneKey: WireRuleQueueLaneKey | "none";
   activeLaneLabel: string;
+  coverage: WireRuleQueueCoverageRow[];
   lanes: WireRuleQueueInspectorLane[];
   nextStepLabel: string;
   sequence: WireRuleQueueInspectorSequence[];
@@ -135,6 +151,7 @@ export type WireRuleQueueFocusPlan = {
 
 export type WireRuleQueuePlan = {
   activeLaneKey: WireRuleQueueLaneKey | "none";
+  coverage: WireRuleQueueCoverageRow[];
   focus: WireRuleQueueFocusPlan;
   header: WireRuleQueueHeaderPlan;
   inspector: WireRuleQueueInspectorPlan;
@@ -181,6 +198,7 @@ export function buildWireRuleQueuePlan({
   const battlefieldResolutions = asArray<Record<string, unknown>>(timing.battlefieldResolutions);
   const battleResolutions = asArray<Record<string, unknown>>(timing.battleResolutions);
   const ruleEvents = ruleQueueEvents(events);
+  const coverage = ruleCoverageRows({ battleResolutions, battlefieldResolutions, prompt, ruleEvents, stack, tasks, timing, triggers });
   const counts: RuleQueueCounts = {
     battlefieldResolutionCount: battlefieldResolutions.length,
     battleResolutionCount: battleResolutions.length,
@@ -241,7 +259,8 @@ export function buildWireRuleQueuePlan({
     { key: "stack", label: "结算链", value: `${counts.stackCount} 项` },
     { key: "task", label: "任务", value: `${counts.taskCount} 项` },
     { key: "trigger", label: "触发", value: `${counts.triggerCount} 项` },
-    { key: "resolution", label: "近期事件", value: `${resolutionCount} 项` }
+    { key: "resolution", label: "近期事件", value: `${resolutionCount} 项` },
+    { key: "coverage", label: "事件覆盖", value: `${coverage.filter((row) => row.state !== "empty").length} 类` }
   ];
   const sequence = queueSequence({ battleResolutions, battlefieldResolutions, ruleEvents, stack, tasks, triggers });
   const nextStep = nextStepLabel(state);
@@ -261,13 +280,14 @@ export function buildWireRuleQueuePlan({
 
   return {
     activeLaneKey,
+    coverage,
     focus,
     header: headerPlanFor({
       promptId: prompt?.promptId,
       snapshotTick: snapshot?.tick,
       state
     }),
-    inspector: inspectorPlan({ activeLaneKey, lanes, nextStepLabel: nextStep, sequence, state }),
+    inspector: inspectorPlan({ activeLaneKey, coverage, lanes, nextStepLabel: nextStep, sequence, state }),
     lanes,
     metrics,
     nextStepLabel: nextStep,
@@ -449,12 +469,14 @@ function laneState(
 
 function inspectorPlan({
   activeLaneKey,
+  coverage,
   lanes,
   nextStepLabel,
   sequence,
   state
 }: {
   activeLaneKey: WireRuleQueueLaneKey | "none";
+  coverage: WireRuleQueueCoverageRow[];
   lanes: WireRuleQueueLane[];
   nextStepLabel: string;
   sequence: WireRuleQueueSequenceItem[];
@@ -467,6 +489,7 @@ function inspectorPlan({
   return {
     activeLaneKey,
     activeLaneLabel,
+    coverage,
     lanes: lanes.map((laneItem) => ({
       ...laneItem,
       stateLabel: laneStateLabel(laneItem.state)
@@ -486,6 +509,177 @@ function inspectorPlan({
     stateLabel,
     summary: `${stateLabel} / ${activeLaneLabel} / ${nextStepLabel}`
   };
+}
+
+function ruleCoverageRows({
+  battleResolutions,
+  battlefieldResolutions,
+  prompt,
+  ruleEvents,
+  stack,
+  tasks,
+  timing,
+  triggers
+}: {
+  battleResolutions: Array<Record<string, unknown>>;
+  battlefieldResolutions: Array<Record<string, unknown>>;
+  prompt?: ActionPromptDto;
+  ruleEvents: GameEvent[];
+  stack: Array<Record<string, unknown>>;
+  tasks: Array<Record<string, unknown>>;
+  timing: Record<string, unknown>;
+  triggers: Array<Record<string, unknown>>;
+}): WireRuleQueueCoverageRow[] {
+  const eventCounts = coverageEventCounts(ruleEvents);
+  const objectRefCounts = coverageObjectRefCounts(ruleEvents);
+  const liveCounts: Record<WireRuleQueueCoverageKey, number> = {
+    battle: battleResolutions.length
+      + battlefieldResolutions.length
+      + tasks.filter((task) => isBattleLiveTaskKind(asString(task.kind, ""))).length,
+    payment: tasks.filter((task) => isPaymentLiveTaskKind(asString(task.kind, ""))).length,
+    stack: stack.length,
+    trigger: triggers.length,
+    window: prompt || asString(asRecord(timing.turnWindow).state, "") ? 1 : 0
+  };
+
+  return coverageKeys.map((key) => {
+    const liveCount = liveCounts[key] ?? 0;
+    const eventCount = eventCounts[key] ?? 0;
+    const objectRefCount = objectRefCounts[key] ?? 0;
+    const state = coverageState(liveCount, eventCount);
+    return {
+      eventCount,
+      hint: coverageHint(key, state, liveCount, eventCount, objectRefCount),
+      key,
+      label: coverageLabel(key),
+      liveCount,
+      objectRefCount,
+      state,
+      stateLabel: coverageStateLabel(state)
+    };
+  });
+}
+
+const coverageKeys: WireRuleQueueCoverageKey[] = ["stack", "trigger", "battle", "window", "payment"];
+
+function coverageEventCounts(events: GameEvent[]): Record<WireRuleQueueCoverageKey, number> {
+  const counts = emptyCoverageRecord();
+  for (const event of events) {
+    for (const key of coverageKeysForEventKind(event.kind)) {
+      counts[key] += 1;
+    }
+  }
+
+  return counts;
+}
+
+function coverageObjectRefCounts(events: GameEvent[]): Record<WireRuleQueueCoverageKey, number> {
+  const counts = emptyCoverageRecord();
+  for (const event of events) {
+    const refCount = ruleEventObjectRefs(event).filter((ref) => ref.id !== "HIDDEN").length;
+    for (const key of coverageKeysForEventKind(event.kind)) {
+      counts[key] += refCount;
+    }
+  }
+
+  return counts;
+}
+
+function emptyCoverageRecord(): Record<WireRuleQueueCoverageKey, number> {
+  return {
+    battle: 0,
+    payment: 0,
+    stack: 0,
+    trigger: 0,
+    window: 0
+  };
+}
+
+function coverageKeysForEventKind(kind: string): WireRuleQueueCoverageKey[] {
+  const keys: WireRuleQueueCoverageKey[] = [];
+  if (kind.startsWith("STACK") || kind.startsWith("SPELL_DUEL")) {
+    keys.push("stack");
+  }
+  if (kind.startsWith("TRIGGER") || kind.endsWith("_TRIGGER_RESOLVED")) {
+    keys.push("trigger");
+  }
+  if (kind.startsWith("BATTLE") || kind.startsWith("COMBAT") || kind === "DAMAGE_APPLIED" || kind.includes("CONQUEST")) {
+    keys.push("battle");
+  }
+  if (kind === "PRIORITY_PASSED" || kind === "FOCUS_PASSED") {
+    keys.push("window");
+  }
+  if (kind.startsWith("PAYMENT") || kind === "COST_PAID") {
+    keys.push("payment");
+  }
+
+  return keys;
+}
+
+function isBattleLiveTaskKind(kind: string): boolean {
+  return kind.startsWith("BATTLE") || kind === "START_BATTLE";
+}
+
+function isPaymentLiveTaskKind(kind: string): boolean {
+  return kind.startsWith("PAYMENT") || kind === "COST_PAID";
+}
+
+function coverageState(liveCount: number, eventCount: number): WireRuleQueueCoverageState {
+  if (liveCount > 0 && eventCount > 0) {
+    return "mixed";
+  }
+
+  if (liveCount > 0) {
+    return "live";
+  }
+
+  if (eventCount > 0) {
+    return "history";
+  }
+
+  return "empty";
+}
+
+function coverageLabel(key: WireRuleQueueCoverageKey): string {
+  switch (key) {
+    case "battle":
+      return "战斗/战场";
+    case "payment":
+      return "费用/支付";
+    case "stack":
+      return "结算链";
+    case "trigger":
+      return "触发";
+    case "window":
+      return "窗口/优先权";
+  }
+}
+
+function coverageStateLabel(state: WireRuleQueueCoverageState): string {
+  switch (state) {
+    case "empty":
+      return "未出现";
+    case "history":
+      return "近期事件";
+    case "live":
+      return "实时快照";
+    case "mixed":
+      return "快照+事件";
+  }
+}
+
+function coverageHint(
+  key: WireRuleQueueCoverageKey,
+  state: WireRuleQueueCoverageState,
+  liveCount: number,
+  eventCount: number,
+  objectRefCount: number
+): string {
+  if (state === "empty") {
+    return `${coverageLabel(key)}当前没有服务端快照或近期事件。`;
+  }
+
+  return `${coverageLabel(key)}：实时 ${liveCount} / 事件 ${eventCount} / 对象引用 ${objectRefCount}`;
 }
 
 function laneLabel(key: WireRuleQueueLaneKey): string {

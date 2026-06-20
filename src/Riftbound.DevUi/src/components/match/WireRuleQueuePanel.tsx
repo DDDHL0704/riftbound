@@ -1,6 +1,6 @@
 import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protocol";
 import { Children, type ReactNode, useState } from "react";
-import { buildWireRuleQueuePlan, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
+import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
 import { WireDetailTrigger } from "./WireDetailTrigger";
@@ -51,6 +51,7 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
         <div className="wire-rule-flow-next" data-wire-rule-next-lane={plan.activeLaneKey}>
           下一步：{plan.nextStepLabel}
         </div>
+        <RuleCoverageStrip coverage={plan.coverage} />
         {plan.sequence.length > 0 && (
           <ol className="wire-rule-sequence" aria-label="服务端规则队列顺序">
             {plan.sequence.map((item) => (
@@ -207,6 +208,14 @@ function RuleQueueInspector({
         </ol>
       </section>
       <section>
+        <strong>事件覆盖</strong>
+        <ol className="wire-rule-inspector-coverage">
+          {plan.coverage.map((row) => (
+            <RuleCoverageItem key={row.key} row={row} />
+          ))}
+        </ol>
+      </section>
+      <section>
         <strong>顺序</strong>
         {plan.sequence.length > 0 ? (
           <ol className="wire-rule-inspector-sequence">
@@ -236,6 +245,27 @@ function RuleQueueInspector({
         <span>下一步 {plan.nextStepLabel}</span>
       </footer>
     </aside>
+  );
+}
+
+function RuleCoverageStrip({ coverage }: { coverage: WireRuleQueueCoverageRow[] }) {
+  return (
+    <ol className="wire-rule-coverage" aria-label="规则事件覆盖">
+      {coverage.map((row) => (
+        <RuleCoverageItem key={row.key} row={row} />
+      ))}
+    </ol>
+  );
+}
+
+function RuleCoverageItem({ row }: { row: WireRuleQueueCoverageRow }) {
+  return (
+    <li data-rule-coverage={row.key} data-rule-coverage-state={row.state}>
+      <small>{row.label}</small>
+      <strong>{row.stateLabel}</strong>
+      <span>快照 {row.liveCount} / 事件 {row.eventCount}</span>
+      <em>{row.hint}</em>
+    </li>
   );
 }
 

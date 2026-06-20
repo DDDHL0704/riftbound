@@ -117,6 +117,12 @@ new Function("exports", "module", "require", output)(moduleShim.exports, moduleS
 
 const { buildWireRuleQueuePlan } = moduleShim.exports;
 
+function coverageRow(plan, key) {
+  const row = plan.coverage.find((item) => item.key === key);
+  assert.ok(row, `Missing coverage row: ${key}`);
+  return row;
+}
+
 const baseSnapshot = {
   activePlayerId: "P1",
   lanes: {},
@@ -175,6 +181,9 @@ assert.equal(taskBlocked.lanes.find((lane) => lane.key === "task")?.state, "bloc
 assert.ok(taskBlocked.nextStepLabel.includes("阻塞规则任务"));
 assert.ok(taskBlocked.sequence[0].detailLabel.includes("战场控制检查"));
 assert.equal(taskBlocked.metrics.find((metric) => metric.key === "task")?.value, "1 项");
+assert.equal(taskBlocked.metrics.find((metric) => metric.key === "coverage")?.value, "2 类");
+assert.equal(coverageRow(taskBlocked, "battle").state, "live");
+assert.equal(coverageRow(taskBlocked, "battle").liveCount, 1);
 assert.equal(taskBlocked.sections.find((section) => section.key === "task")?.items.length, 1);
 assert.ok(taskBlocked.sections.find((section) => section.key === "task")?.notes.some((note) => note.includes("阻塞普通行动")));
 assert.ok(taskBlocked.sections.find((section) => section.key === "task")?.items[0]?.detail.id.includes("rule:task:task-1"));
@@ -207,6 +216,10 @@ assert.equal(stackResponse.focus.detail?.title, "结算链项目");
 assert.equal(stackResponse.inspector.activeLaneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].laneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].objectCount, 2);
+assert.equal(coverageRow(stackResponse, "stack").state, "live");
+assert.equal(coverageRow(stackResponse, "stack").liveCount, 1);
+assert.equal(coverageRow(stackResponse, "stack").eventCount, 0);
+assert.equal(stackResponse.metrics.find((metric) => metric.key === "coverage")?.value, "2 类");
 assert.deepEqual(
   stackResponse.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`),
   ["来源:spell-1", "目标:unit-1"]
@@ -315,6 +328,8 @@ assert.equal(triggerPending.focus.detail?.title, "触发 1");
 assert.ok(triggerPending.lanes.find((lane) => lane.key === "trigger")?.headline.includes("触发"));
 assert.equal(triggerPending.sequence[0].stateLabel, "P1");
 assert.deepEqual(triggerPending.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`), ["来源:jinx-1"]);
+assert.equal(coverageRow(triggerPending, "trigger").state, "live");
+assert.equal(coverageRow(triggerPending, "trigger").liveCount, 1);
 assert.ok(triggerPending.sections.find((section) => section.key === "trigger")?.items[0]?.detail.lines.some((line) => line.label === "来源事件"));
 
 const resolutionHistory = buildWireRuleQueuePlan({
@@ -353,6 +368,8 @@ assert.equal(resolutionHistory.focus.laneKey, "resolution");
 assert.equal(resolutionHistory.focus.detail?.title, "据守");
 assert.equal(resolutionHistory.sequence.length, 2);
 assert.equal(resolutionHistory.sequence[0].tickLabel, "tick 8");
+assert.equal(coverageRow(resolutionHistory, "battle").state, "live");
+assert.equal(coverageRow(resolutionHistory, "battle").liveCount, 2);
 assert.deepEqual(
   resolutionHistory.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`),
   ["战场:battlefield-a", "参与:unit-b"]
@@ -408,6 +425,14 @@ assert.equal(eventResolutionHistory.activeLaneKey, "resolution");
 assert.equal(eventResolutionHistory.lanes.find((lane) => lane.key === "resolution")?.count, 2);
 assert.equal(eventResolutionHistory.lanes.find((lane) => lane.key === "resolution")?.headline, "触发排队");
 assert.equal(eventResolutionHistory.metrics.find((metric) => metric.key === "resolution")?.value, "2 项");
+assert.equal(eventResolutionHistory.metrics.find((metric) => metric.key === "coverage")?.value, "3 类");
+assert.equal(coverageRow(eventResolutionHistory, "trigger").state, "history");
+assert.equal(coverageRow(eventResolutionHistory, "trigger").eventCount, 1);
+assert.equal(coverageRow(eventResolutionHistory, "trigger").objectRefCount, 0);
+assert.equal(coverageRow(eventResolutionHistory, "battle").state, "history");
+assert.equal(coverageRow(eventResolutionHistory, "battle").eventCount, 1);
+assert.equal(coverageRow(eventResolutionHistory, "battle").objectRefCount, 2);
+assert.equal(coverageRow(eventResolutionHistory, "window").state, "live");
 assert.equal(eventResolutionHistory.sequence.length, 2);
 assert.equal(eventResolutionHistory.sequence[0].detailLabel, "触发排队");
 assert.deepEqual(eventResolutionHistory.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}:${ref.visibility ?? "auto"}`), ["来源:HIDDEN:hidden"]);
@@ -423,6 +448,36 @@ assert.equal(eventResolutionSection?.items[0]?.detail.lines.find((line) => line.
 assert.equal(eventResolutionSection?.items[0]?.detail.lines.find((line) => line.label === "对象可见性")?.value, "可见 0 / 隐藏 1 / 缺失 0");
 assert.equal(eventResolutionSection?.items[1]?.detail.lines.find((line) => line.label === "对象可见性")?.value, "可见 2 / 隐藏 0 / 缺失 0");
 
+const mixedCoverage = buildWireRuleQueuePlan({
+  events: [
+    {
+      description: "结算链顶部项目结算",
+      kind: "STACK_ITEM_RESOLVED",
+      objectRefs: [{ objectId: "spell-1", role: "来源" }],
+      payload: {}
+    }
+  ],
+  playerId: "P1",
+  snapshot: {
+    ...baseSnapshot,
+    stack: [
+      {
+        controllerId: "P1",
+        effectKind: "SPELL",
+        sourceObjectId: "spell-2",
+        stackItemId: "stack-live",
+        targetObjectIds: []
+      }
+    ]
+  }
+});
+
+assert.equal(coverageRow(mixedCoverage, "stack").state, "mixed");
+assert.equal(coverageRow(mixedCoverage, "stack").liveCount, 1);
+assert.equal(coverageRow(mixedCoverage, "stack").eventCount, 1);
+assert.equal(coverageRow(mixedCoverage, "stack").objectRefCount, 1);
+assert.equal(mixedCoverage.metrics.find((metric) => metric.key === "coverage")?.value, "2 类");
+
 const idle = buildWireRuleQueuePlan({ playerId: "P1", snapshot: baseSnapshot });
 assert.equal(idle.state, "idle");
 assert.equal(idle.activeLaneKey, "none");
@@ -435,5 +490,7 @@ assert.equal(idle.inspector.activeLaneLabel, "无活动通道");
 assert.equal(idle.sequence.length, 0);
 assert.ok(idle.lanes.every((lane) => lane.state === "empty"));
 assert.ok(idle.sections.every((section) => section.items.length === 0));
+assert.equal(coverageRow(idle, "window").state, "live");
+assert.equal(idle.metrics.find((metric) => metric.key === "coverage")?.value, "1 类");
 
 console.log("Wire rule queue plan check passed.");
