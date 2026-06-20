@@ -197,6 +197,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       spec: object.cardNo ? tableSpecByNo[object.cardNo] : undefined
     });
   }, [tableObjectIndex, tableSpecByNo]);
+  const inspectObjectFromDetail = useCallback((objectId: string) => {
+    inspectObjectFromTable(objectId);
+    openObjectDetail(objectId);
+  }, [inspectObjectFromTable, openObjectDetail]);
   const chooseObjectFromActionMap = useCallback((objectId: string) => {
     const object = tableObjectIndex[objectId];
     if (!object) {
@@ -472,6 +476,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         objectContext={detailObjectContext}
         onClose={() => setDetailCard(undefined)}
         onCommand={(command) => void controller.submitCommand(command)}
+        onInspectObject={inspectObjectFromDetail}
         prompt={tablePrompt}
         selectionDraft={selectionDraft}
         snapshot={tableSnapshot}

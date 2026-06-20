@@ -2713,6 +2713,17 @@ button.card-face:hover {
   gap: 10px;
 }
 
+.detail-related-candidates {
+  display: grid;
+  gap: 8px;
+}
+
+.detail-related-candidate-list {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
 .detail-action-list {
   display: flex;
   flex-wrap: wrap;
@@ -14533,6 +14544,7 @@ button.wire-object-ref {
 .wire-match-page .candidate-composer-warning,
 .wire-match-page .detail-drawer,
 .wire-match-page .detail-section,
+.wire-match-page .detail-related-candidate-list,
 .wire-match-page .detail-grid div,
 .wire-match-page .play-card-composer,
 .wire-match-page .composer-meta span,

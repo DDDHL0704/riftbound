@@ -9,18 +9,19 @@ import {
   buildWireFocusedInteractionPlan,
   type WireFocusedInteractionPlan
 } from "../../utils/wireFocusedInteractionPlan";
-import type { WirePromptCandidateListPlan, WirePromptCandidateRowPlan } from "../../utils/wirePromptCandidatePlan";
+import type { WirePromptCandidateListPlan } from "../../utils/wirePromptCandidatePlan";
 import { CardFace } from "../cards/CardFace";
 import { CandidateComposer } from "./CandidateComposer";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
-import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
+import type { WireObjectIndex } from "./WireObjectRefChips";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireEmpty } from "./wireCardFlow";
 import { WireFocusedActionSummary } from "./WireFocusedActionSummary";
 import { WireFocusedInteractionGrammar } from "./WireFocusedInteractionGrammar";
 import { WireFocusedLegalActionMatrix } from "./WireFocusedLegalActionMatrix";
 import { WireFocusedReadinessStrip } from "./WireFocusedReadinessStrip";
+import { WirePromptCandidateRow } from "./WirePromptCandidateRow";
 
 export function WireInteractionPanel({
   disabledByConnection,
@@ -98,7 +99,7 @@ export function WireInteractionPanel({
           <strong>焦点候选</strong>
           {plan.relatedCandidateRows.length === 0 && <span className="empty-hint">该卡当前未出现在服务端候选中。</span>}
           {plan.relatedCandidateRows.slice(0, 5).map((row) => (
-            <CandidateSummaryRow
+            <WirePromptCandidateRow
               key={row.key}
               objects={plan.objectIndex}
               onInspectObject={onInspectObject}
@@ -245,7 +246,7 @@ function PromptCandidateList({
       </div>
       {plan.emptyLabel && <span className="empty-hint">{plan.emptyLabel}</span>}
       {plan.enabledRows.map((row) => (
-        <CandidateSummaryRow
+        <WirePromptCandidateRow
           key={row.key}
           objects={objects}
           onInspectObject={onInspectObject}
@@ -254,7 +255,7 @@ function PromptCandidateList({
         />
       ))}
       {plan.disabledRows.map((row) => (
-        <CandidateSummaryRow
+        <WirePromptCandidateRow
           key={row.key}
           objects={objects}
           onInspectObject={onInspectObject}
@@ -263,38 +264,5 @@ function PromptCandidateList({
         />
       ))}
     </div>
-  );
-}
-
-function CandidateSummaryRow({
-  objects,
-  onInspectObject,
-  row,
-  selectedObjectId
-}: {
-  objects: WireObjectIndex;
-  onInspectObject?: (objectId: string) => void;
-  row: WirePromptCandidateRowPlan;
-  selectedObjectId?: string;
-}) {
-  return (
-    <article className={`wire-candidate-row ${row.enabled ? "is-enabled" : "is-disabled"}`}>
-      <div>
-        <strong>{row.label}</strong>
-        <StatusPill tone={row.enabled ? "good" : "neutral"}>{row.enabled ? "可提交" : "不可提交"}</StatusPill>
-      </div>
-      <span>{row.reason}</span>
-      {row.choiceGroups.map((group) => (
-        <small key={group.key}>{group.summary}</small>
-      ))}
-      <WireObjectRefChips
-        className="wire-candidate-object-ref-list"
-        objects={objects}
-        onInspectObject={onInspectObject}
-        refs={row.objectRefs}
-        selectedObjectId={selectedObjectId}
-        source="candidate"
-      />
-    </article>
   );
 }

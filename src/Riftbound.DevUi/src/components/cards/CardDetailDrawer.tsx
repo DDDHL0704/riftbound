@@ -15,6 +15,7 @@ import { WireFocusedInteractionGrammar } from "../match/WireFocusedInteractionGr
 import { WireFocusedLegalActionMatrix } from "../match/WireFocusedLegalActionMatrix";
 import { WireFocusedReadinessStrip } from "../match/WireFocusedReadinessStrip";
 import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
+import { WirePromptCandidateRow } from "../match/WirePromptCandidateRow";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { InspectedCard } from "./CardFace";
@@ -24,6 +25,7 @@ type CardDetailDrawerProps = {
   disabledByConnection?: boolean;
   onClose: () => void;
   onCommand?: (command: GameCommand) => void;
+  onInspectObject?: (objectId: string) => void;
   objectContext?: TableObjectContext;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
@@ -36,6 +38,7 @@ export function CardDetailDrawer({
   disabledByConnection = false,
   onClose,
   onCommand,
+  onInspectObject,
   objectContext,
   prompt,
   selectionDraft,
@@ -152,6 +155,11 @@ export function CardDetailDrawer({
             <WireFocusedActionSummary focusModel={detailInteractionPlan.focusModel} />
             <WireFocusedInteractionGrammar plan={detailInteractionPlan.grammarPlan} />
             <WireFocusedLegalActionMatrix plan={detailInteractionPlan} />
+            <DetailRelatedCandidates
+              onInspectObject={onInspectObject}
+              plan={detailInteractionPlan}
+              selectedObjectId={sourceObjectId}
+            />
             <DetailInspector inspector={detailPlan.inspector} />
             {detailPlan.sections.map((section) => (
               <section className="detail-section" key={section.key}>
@@ -234,6 +242,41 @@ export function CardDetailDrawer({
         )}
       </aside>
     </div>
+  );
+}
+
+function DetailRelatedCandidates({
+  onInspectObject,
+  plan,
+  selectedObjectId
+}: {
+  onInspectObject?: (objectId: string) => void;
+  plan: ReturnType<typeof buildWireFocusedInteractionPlan>;
+  selectedObjectId?: string;
+}) {
+  return (
+    <section
+      aria-label="卡牌相关服务端候选"
+      className="detail-section detail-related-candidates"
+      data-card-detail-related-candidate-count={plan.relatedCandidateRows.length}
+    >
+      <strong>相关服务端候选</strong>
+      {plan.relatedCandidateRows.length === 0 ? (
+        <span className="detail-muted">该对象当前未出现在服务端行动候选中。</span>
+      ) : (
+        <div className="detail-related-candidate-list">
+          {plan.relatedCandidateRows.slice(0, 5).map((row) => (
+            <WirePromptCandidateRow
+              key={row.key}
+              objects={plan.objectIndex}
+              onInspectObject={onInspectObject}
+              row={row}
+              selectedObjectId={selectedObjectId}
+            />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
