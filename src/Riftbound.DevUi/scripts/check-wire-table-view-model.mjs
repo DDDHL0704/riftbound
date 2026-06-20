@@ -158,7 +158,7 @@ assert.deepEqual(table.self.baseObjectIds, ["p1-base-1"]);
 assert.equal(table.self.basePartitionSource, "server");
 assert.deepEqual(table.self.runeIds, ["p1-rune-1", "p1-rune-tagged"]);
 assert.deepEqual(table.self.handIds, ["p1-hand-1"]);
-assert.deepEqual(table.self.hiddenHandIds, ["hidden-P1-0", "hidden-P1-1"]);
+assert.deepEqual(table.self.hiddenHandIds, []);
 assert.deepEqual(table.opponent.baseObjectIds, ["p2-base-1"]);
 assert.equal(table.opponent.basePartitionSource, "server");
 assert.deepEqual(table.opponent.runeIds, ["p2-rune-1"]);

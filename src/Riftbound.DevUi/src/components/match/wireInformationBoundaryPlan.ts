@@ -67,7 +67,7 @@ export function buildWireInformationBoundaryPlan({
 function handBoundaryRow(entry: WirePlayerEntry): WireInformationBoundaryRow {
   const visible = entry.handIds.length;
   const hidden = entry.hiddenHandIds.length;
-  const declaredHidden = numberValue(entry.player.handSize ?? entry.zones.handHidden);
+  const declaredHidden = numberValue(entry.zones.handHidden ?? (entry.side === "opponent" ? entry.player.handSize : undefined));
 
   if (entry.side === "self") {
     if (hidden > 0 && visible === 0) {

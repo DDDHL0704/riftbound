@@ -148,6 +148,7 @@ function buildWirePlayerEntry(
   const zones = player.zones ?? {};
   const objects = player.objects ?? {};
   const baseIds = zones.base ?? [];
+  const handIds = zones.hand ?? [];
   const serverRuneIds = zonePartitionIds(zones.baseRunes, baseIds);
   const serverBaseCardIds = zonePartitionIds(zones.baseCards, baseIds);
   const locationPartition = basePartitionFromObjectLocations(baseIds, objects);
@@ -162,8 +163,8 @@ function buildWirePlayerEntry(
   const entry: WirePlayerEntry = {
     baseObjectIds,
     basePartitionSource: basePartitionSource(serverBaseCardIds, serverRuneIds, locationPartition),
-    handIds: zones.hand ?? [],
-    hiddenHandIds: hiddenCards(player.handSize ?? zones.handHidden ?? 0, id),
+    handIds,
+    hiddenHandIds: hiddenCards(hiddenHandCount(player, zones, side, handIds.length), id),
     id,
     label: "",
     objects,
@@ -358,6 +359,25 @@ function hiddenCards(count: number, playerId: string): string[] {
   return Array.from({ length: count }, (_, index) => `hidden-${playerId}-${index}`);
 }
 
+function hiddenHandCount(
+  player: PlayerSnapshotView,
+  zones: ZoneView,
+  side: WirePlayerSide,
+  visibleHandCount: number
+): number {
+  if (side === "self") {
+    return 0;
+  }
+
+  const zoneHidden = nonNegativeNumberOrUndefined(zones.handHidden);
+  if (zoneHidden !== undefined) {
+    return zoneHidden;
+  }
+
+  const handSize = nonNegativeNumberOrUndefined(player.handSize);
+  return handSize === undefined ? 0 : Math.max(0, handSize - visibleHandCount);
+}
+
 function zonePartitionIds(ids: string[] | undefined, parentIds: string[]): string[] | undefined {
   if (!ids) {
     return undefined;
@@ -410,4 +430,8 @@ function asString(value: unknown, fallback = ""): string {
 
 function nonNegativeNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+
+function nonNegativeNumberOrUndefined(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : undefined;
 }
