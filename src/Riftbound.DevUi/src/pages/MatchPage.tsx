@@ -393,6 +393,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               selectedObjectId={selectedObjectId}
               selectionDraft={selectionDraft}
               snapshot={tableSnapshot}
+              submissionFeedback={controller.state.lastCommandSubmission}
               submissionGate={tableSubmissionGate}
             />
           </section>

@@ -11926,6 +11926,9 @@ button.card-face:hover {
 .wire-command-review-fields li,
 .wire-command-review-next,
 .wire-command-review-submit,
+.wire-command-submission-feedback,
+.wire-command-submission-heading,
+.wire-command-submission-metrics span,
 .wire-action-route-strip,
 .wire-action-route-fields span,
 .wire-action-route-inspector,
@@ -13176,6 +13179,10 @@ button.card-face:hover {
 .wire-command-review small,
 .wire-command-review strong,
 .wire-command-review b,
+.wire-command-submission-feedback span,
+.wire-command-submission-feedback small,
+.wire-command-submission-feedback strong,
+.wire-command-submission-feedback b,
 .wire-action-route-strip span,
 .wire-action-route-strip small,
 .wire-action-route-strip strong,
@@ -13256,6 +13263,46 @@ button.card-face:hover {
 
 .wire-command-review-submit[data-command-review-submit-state="ready"] {
   border-width: 2px;
+}
+
+.wire-command-submission-feedback {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-command-submission-feedback[data-command-submission-state="sent"],
+.wire-command-submission-feedback[data-command-submission-state="submitting"] {
+  border-width: 2px;
+}
+
+.wire-command-submission-feedback[data-command-submission-state="failed"] {
+  border-style: dashed;
+}
+
+.wire-command-submission-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border: 0;
+  border-bottom: 1px solid #000;
+  padding-bottom: 3px;
+}
+
+.wire-command-submission-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.wire-command-submission-metrics span {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 3px;
 }
 
 .wire-command-review-fields {
@@ -13409,6 +13456,10 @@ button.card-face:hover {
 .wire-command-review small,
 .wire-command-review strong,
 .wire-command-review b,
+.wire-command-submission-feedback span,
+.wire-command-submission-feedback small,
+.wire-command-submission-feedback strong,
+.wire-command-submission-feedback b,
 .wire-action-coverage-heading strong,
 .wire-action-coverage-heading span,
 .wire-action-coverage-summary,
@@ -14899,6 +14950,9 @@ button.wire-object-ref {
 .wire-match-page .wire-command-review-fields li,
 .wire-match-page .wire-command-review-next,
 .wire-match-page .wire-command-review-submit,
+.wire-match-page .wire-command-submission-feedback,
+.wire-match-page .wire-command-submission-heading,
+.wire-match-page .wire-command-submission-metrics span,
 .wire-match-page .wire-action-coverage,
 .wire-match-page .wire-action-coverage-heading,
 .wire-match-page .wire-action-coverage-metrics span,

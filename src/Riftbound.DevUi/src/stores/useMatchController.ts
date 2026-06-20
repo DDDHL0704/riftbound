@@ -20,7 +20,21 @@ export type MatchControllerState = {
   prompt?: ActionPromptDto;
   events: GameEvent[];
   errors: ErrorDto[];
+  lastCommandSubmission?: CommandSubmissionFeedback;
   lastSystemMessage?: string;
+};
+
+export type CommandSubmissionState = "failed" | "sent" | "submitting";
+
+export type CommandSubmissionFeedback = {
+  clientIntentId: string;
+  cmdType: string;
+  message: string;
+  promptId?: string | null;
+  snapshotTick?: number | null;
+  state: CommandSubmissionState;
+  stateLabel: string;
+  submittedAt: number;
 };
 
 export function useMatchController(serverUrl: string, roomId: string, playerId: string) {
@@ -127,7 +141,50 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
   const submitCommand = useCallback(
     async (command: GameCommand) => {
       const stampedCommand = withCurrentPromptStamp(command, state.prompt);
-      await socket.submitIntent(roomId, playerId, intentId(playerId, command.cmdType), stampedCommand);
+      const clientIntentId = intentId(playerId, command.cmdType);
+      const pending = commandSubmissionFeedback({
+        clientIntentId,
+        command: stampedCommand,
+        message: "命令已从前端发出，等待服务端入口确认。",
+        state: "submitting",
+        stateLabel: "提交中"
+      });
+      setState((current) => ({
+        ...current,
+        lastCommandSubmission: pending,
+        lastSystemMessage: pending.message
+      }));
+
+      try {
+        await socket.submitIntent(roomId, playerId, clientIntentId, stampedCommand);
+        const sent = commandSubmissionFeedback({
+          clientIntentId,
+          command: stampedCommand,
+          message: "命令已送达服务端入口，等待快照或规则事件回写。",
+          state: "sent",
+          stateLabel: "已送达"
+        });
+        setState((current) => ({
+          ...current,
+          lastCommandSubmission: current.lastCommandSubmission?.clientIntentId === clientIntentId ? sent : current.lastCommandSubmission,
+          lastSystemMessage: sent.message
+        }));
+      } catch (error) {
+        const message = submitErrorMessage(error);
+        const failed = commandSubmissionFeedback({
+          clientIntentId,
+          command: stampedCommand,
+          message,
+          state: "failed",
+          stateLabel: "提交失败"
+        });
+        setState((current) => ({
+          ...current,
+          lastCommandSubmission: current.lastCommandSubmission?.clientIntentId === clientIntentId ? failed : current.lastCommandSubmission,
+          lastSystemMessage: message
+        }));
+        throw error;
+      }
     },
     [playerId, roomId, socket, state.prompt]
   );
@@ -166,6 +223,39 @@ function withCurrentPromptStamp(command: GameCommand, prompt: ActionPromptDto | 
     promptId: command.promptId ?? prompt.promptId ?? null,
     snapshotTick: command.snapshotTick ?? prompt.snapshotTick ?? null
   };
+}
+
+function commandSubmissionFeedback({
+  clientIntentId,
+  command,
+  message,
+  state,
+  stateLabel
+}: {
+  clientIntentId: string;
+  command: GameCommand;
+  message: string;
+  state: CommandSubmissionState;
+  stateLabel: string;
+}): CommandSubmissionFeedback {
+  return {
+    clientIntentId,
+    cmdType: command.cmdType,
+    message,
+    promptId: typeof command.promptId === "string" ? command.promptId : command.promptId ?? undefined,
+    snapshotTick: typeof command.snapshotTick === "number" ? command.snapshotTick : command.snapshotTick ?? undefined,
+    state,
+    stateLabel,
+    submittedAt: Date.now()
+  };
+}
+
+function submitErrorMessage(error: unknown): string {
+  if (isErrorDto(error)) {
+    return errorMessageLabel(error);
+  }
+
+  return error instanceof Error ? error.message : "命令提交失败，等待重新同步。";
 }
 
 function sessionKey(roomId: string, playerId: string): string {

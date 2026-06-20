@@ -23,7 +23,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选覆盖审计", "提交审阅", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "响应责任时间线", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选覆盖审计", "提交审阅", "提交反馈", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "响应责任时间线", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -100,7 +100,7 @@ try {
   }
 
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "提交审阅", "响应责任时间线", "责任来源：服务端", "焦点 / 候选 / 规则队列"]);
+  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "提交审阅", "提交反馈", "响应责任时间线", "责任来源：服务端", "焦点 / 候选 / 规则队列"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
   await runWireLayoutGeometrySmoke(cdp);
   console.log("Chrome smoke OK: wire layout geometry");
@@ -612,6 +612,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    const commandSubmission = document.querySelector("[data-command-submission-state]");
+    const commandSubmissionState = commandSubmission?.getAttribute("data-command-submission-state") ?? "missing";
+    if (!["empty", "failed", "sent", "submitting"].includes(commandSubmissionState)) {
+      failures.push(\`wire command submission state is unsupported: \${commandSubmissionState}\`);
+    }
+
     const promptAuthority = document.querySelector("[data-wire-prompt-authority-state]");
     const promptAuthorityState = promptAuthority?.getAttribute("data-wire-prompt-authority-state") ?? "missing";
     if (promptAuthorityState !== "server") {
@@ -674,6 +680,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
       flowCount: document.querySelectorAll(".wire-card-flow").length,
       commandReviewState,
+      commandSubmissionState,
       informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
@@ -713,6 +720,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (!["blocked", "drafting", "empty", "ready"].includes(result.commandReviewState)) {
     throw new Error(`Wire layout geometry smoke did not find command review: ${result.commandReviewState}`);
+  }
+  if (!["empty", "failed", "sent", "submitting"].includes(result.commandSubmissionState)) {
+    throw new Error(`Wire layout geometry smoke did not find command submission feedback: ${result.commandSubmissionState}`);
   }
   if (result.responsibilitySource !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server responsibility metadata: ${result.responsibilitySource}`);
@@ -882,6 +892,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector("[data-action-route-state]");
     const commandReview = document.querySelector("[data-command-review-state]");
+    const commandSubmission = document.querySelector("[data-command-submission-state]");
     const actionButtons = document.querySelector(".wire-action-panel .action-buttons");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
@@ -904,6 +915,8 @@ async function runWireClickSelectionSmoke(cdp) {
       commandReviewSubmitDisabled: commandReview?.querySelector(".wire-command-review-submit")?.hasAttribute("disabled") ?? null,
       commandReviewSubmitState: commandReview?.querySelector(".wire-command-review-submit")?.getAttribute("data-command-review-submit-state") ?? null,
       commandReviewText: commandReview?.textContent ?? "",
+      commandSubmissionState: commandSubmission?.getAttribute("data-command-submission-state") ?? null,
+      commandSubmissionText: commandSubmission?.textContent ?? "",
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       focusBridgeState: focusBridge?.getAttribute("data-action-focus-state") ?? null,
       focusBridgeText: focusBridge?.textContent ?? "",
@@ -1198,6 +1211,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.commandReviewState !== "ready") failures.push(`action command review source-focus state unexpected: ${actionMapResult.commandReviewState}`);
   if (!actionMapResult.commandReviewText.includes("提交审阅")) failures.push("action command review heading missing");
   if (!actionMapResult.commandReviewText.includes("提交当前路线")) failures.push("action command review submit button missing");
+  if (actionMapResult.commandSubmissionState !== "empty") failures.push(`action command submission initial state unexpected: ${actionMapResult.commandSubmissionState}`);
+  if (!actionMapResult.commandSubmissionText.includes("提交反馈")) failures.push("action command submission feedback heading missing");
+  if (!actionMapResult.commandSubmissionText.includes("尚未提交")) failures.push("action command submission feedback empty state missing");
   if (!actionMapResult.commandReviewText.includes("打出手牌")) failures.push("action command review candidate missing");
   if (!actionMapResult.commandReviewText.includes("PLAY_CARD")) failures.push("action command review command type missing");
   if (!actionMapResult.commandReviewText.includes("下一步")) failures.push("action command review next step missing");

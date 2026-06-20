@@ -1,6 +1,7 @@
 import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import type { CommandSubmissionFeedback } from "../../stores/useMatchController";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildWireActionMapPlan,
@@ -27,6 +28,7 @@ type WireActionMapPanelProps = {
   selectedObjectId?: string;
   selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
+  submissionFeedback?: CommandSubmissionFeedback;
   submissionGate?: ServerSubmissionGatePlan;
 };
 
@@ -39,6 +41,7 @@ export function WireActionMapPanel({
   selectedObjectId,
   selectionDraft,
   snapshot,
+  submissionFeedback,
   submissionGate
 }: WireActionMapPanelProps) {
   const plan = buildWireActionMapPlan({ playerId, prompt, selectedObjectId, selectionDraft, snapshot, submissionGate });
@@ -62,6 +65,7 @@ export function WireActionMapPanel({
       <ActionCoveragePanel coverage={plan.coverage} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
+      <CommandSubmissionFeedbackPanel feedback={submissionFeedback} />
       <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
@@ -146,6 +150,60 @@ export function WireActionMapPanel({
       </div>
     </section>
   );
+}
+
+function CommandSubmissionFeedbackPanel({ feedback }: { feedback?: CommandSubmissionFeedback }) {
+  if (!feedback) {
+    return (
+      <section
+        aria-label="服务端提交反馈"
+        className="wire-command-submission-feedback"
+        data-command-submission-state="empty"
+      >
+        <div className="wire-command-submission-heading">
+          <strong>提交反馈</strong>
+          <span>尚未提交</span>
+        </div>
+        <span>等待右侧路线或候选操作提交给服务端。</span>
+      </section>
+    );
+  }
+
+  return (
+    <section
+      aria-label="服务端提交反馈"
+      className="wire-command-submission-feedback"
+      data-command-submission-state={feedback.state}
+    >
+      <div className="wire-command-submission-heading">
+        <strong>提交反馈</strong>
+        <span>{feedback.stateLabel}</span>
+      </div>
+      <small>{feedback.message}</small>
+      <div className="wire-command-submission-metrics">
+        <span data-command-submission-metric="command">
+          <b>命令</b>
+          <strong>{feedback.cmdType}</strong>
+        </span>
+        <span data-command-submission-metric="prompt">
+          <b>提示</b>
+          <strong>{feedback.promptId ?? "无"}</strong>
+        </span>
+        <span data-command-submission-metric="snapshot">
+          <b>快照</b>
+          <strong>{feedback.snapshotTick ?? "无"}</strong>
+        </span>
+        <span data-command-submission-metric="intent">
+          <b>追踪</b>
+          <strong>{shortIntentId(feedback.clientIntentId)}</strong>
+        </span>
+      </div>
+    </section>
+  );
+}
+
+function shortIntentId(clientIntentId: string): string {
+  return clientIntentId.length > 8 ? clientIntentId.slice(-8) : clientIntentId;
 }
 
 function CommandReviewPanel({ onCommand, review }: { onCommand?: (command: GameCommand) => void; review: WireActionCommandReviewPlan }) {
