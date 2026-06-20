@@ -11901,6 +11901,7 @@ button.card-face:hover {
 .wire-focused-grammar-heading,
 .wire-focused-grammar-summary,
 .wire-focused-grammar-steps li,
+.wire-focused-selection-guide,
 .wire-object-context,
 .wire-object-context-grid span,
 .wire-object-contract-block,
@@ -13000,6 +13001,12 @@ button.card-face:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-focused-selection-guide {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
 }
 
 .wire-focused-actions .candidate-composer,
@@ -14607,6 +14614,11 @@ button.wire-object-ref {
 .wire-match-page .wire-focused-grammar-heading,
 .wire-match-page .wire-focused-grammar-summary,
 .wire-match-page .wire-focused-grammar-steps li,
+.wire-match-page .wire-focused-selection-guide,
+.wire-match-page .wire-selection-draft,
+.wire-match-page .wire-focused-path,
+.wire-match-page .wire-focused-path article,
+.wire-match-page .wire-focused-path li,
 .wire-match-page .wire-prompt-candidates,
 .wire-match-page .wire-prompt-contract,
 .wire-match-page .wire-candidate-row,

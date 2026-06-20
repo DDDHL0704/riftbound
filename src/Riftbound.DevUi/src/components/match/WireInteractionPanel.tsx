@@ -21,6 +21,7 @@ import { WireFocusedActionSummary } from "./WireFocusedActionSummary";
 import { WireFocusedInteractionGrammar } from "./WireFocusedInteractionGrammar";
 import { WireFocusedLegalActionMatrix } from "./WireFocusedLegalActionMatrix";
 import { WireFocusedReadinessStrip } from "./WireFocusedReadinessStrip";
+import { WireFocusedSelectionGuide } from "./WireFocusedSelectionGuide";
 import { WirePromptCandidateRow } from "./WirePromptCandidateRow";
 
 export function WireInteractionPanel({
@@ -161,31 +162,7 @@ function FocusedActionList({
       <WireFocusedActionSummary focusModel={plan.focusModel} />
       <WireFocusedInteractionGrammar plan={plan.grammarPlan} />
       {plan.sourceCandidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
-      {plan.draft && (
-        <div className="wire-selection-draft" role="group" aria-label="已点选候选草稿">
-          <strong>桌面点选</strong>
-          <span>目标 {plan.draft.targetCount}</span>
-          <span>位置 {plan.draft.destinationSelected ? "已选" : "未选"}</span>
-          <span>费用 {plan.draft.optionalCostCount}</span>
-        </div>
-      )}
-      {plan.sourceCandidatePaths.length > 0 && (
-        <div className="wire-focused-path" role="group" aria-label="焦点候选路径">
-          {plan.sourceCandidatePaths.map((path) => (
-            <article key={path.key}>
-              <strong>{path.label}</strong>
-              <ol>
-                {path.steps.map((step) => (
-                  <li className={step.required ? "is-required" : ""} key={step.key}>
-                    <span>{step.label}</span>
-                    <small>{step.required ? "必需；" : ""}{step.sampleLabel}</small>
-                  </li>
-                ))}
-              </ol>
-            </article>
-          ))}
-        </div>
-      )}
+      <WireFocusedSelectionGuide plan={plan} />
       {plan.actionEntries.slice(0, 4).map(({ actionPlan, candidate, candidateDraft, key, mode }) => {
         if (mode === "composer" && onCommand) {
           return (

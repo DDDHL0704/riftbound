@@ -14,6 +14,7 @@ import { WireFocusedActionSummary } from "../match/WireFocusedActionSummary";
 import { WireFocusedInteractionGrammar } from "../match/WireFocusedInteractionGrammar";
 import { WireFocusedLegalActionMatrix } from "../match/WireFocusedLegalActionMatrix";
 import { WireFocusedReadinessStrip } from "../match/WireFocusedReadinessStrip";
+import { WireFocusedSelectionGuide } from "../match/WireFocusedSelectionGuide";
 import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
 import { WirePromptCandidateRow } from "../match/WirePromptCandidateRow";
 import { Button } from "../ui/Button";
@@ -154,6 +155,7 @@ export function CardDetailDrawer({
             <WireFocusedReadinessStrip plan={detailInteractionPlan} />
             <WireFocusedActionSummary focusModel={detailInteractionPlan.focusModel} />
             <WireFocusedInteractionGrammar plan={detailInteractionPlan.grammarPlan} />
+            <WireFocusedSelectionGuide plan={detailInteractionPlan} />
             <WireFocusedLegalActionMatrix plan={detailInteractionPlan} />
             <DetailRelatedCandidates
               onInspectObject={onInspectObject}
