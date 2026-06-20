@@ -11753,6 +11753,10 @@ button.card-face:hover {
 .wire-table-authority-metrics span,
 .wire-table-authority-group,
 .wire-table-authority-group li,
+.wire-information-boundary,
+.wire-information-boundary-header,
+.wire-information-boundary-metrics span,
+.wire-information-boundary-rows li,
 .wire-prompt-authority,
 .wire-prompt-authority-header,
 .wire-prompt-authority-metrics span,
@@ -12183,6 +12187,84 @@ button.card-face:hover {
 .wire-prompt-authority-rows li span,
 .wire-prompt-authority-rows li strong,
 .wire-prompt-authority-rows li small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-information-boundary {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-information-boundary-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+}
+
+.wire-information-boundary-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-information-boundary-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-information-boundary-metrics span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-information-boundary-rows {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-information-boundary-rows li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(74px, 0.8fr) minmax(76px, 0.8fr) minmax(70px, 0.7fr) minmax(0, 1.7fr);
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+}
+
+.wire-information-boundary [data-wire-information-boundary-row-state="safe"],
+.wire-information-boundary [data-wire-information-boundary-metric-state="safe"] {
+  border-width: 2px;
+}
+
+.wire-information-boundary [data-wire-information-boundary-row-state="leak"],
+.wire-information-boundary [data-wire-information-boundary-row-state="missing"],
+.wire-information-boundary [data-wire-information-boundary-metric-state="leak"],
+.wire-information-boundary [data-wire-information-boundary-metric-state="missing"] {
+  border-style: dashed;
+}
+
+.wire-information-boundary-header strong,
+.wire-information-boundary-header span,
+.wire-information-boundary-metrics small,
+.wire-information-boundary-metrics strong,
+.wire-information-boundary-rows li span,
+.wire-information-boundary-rows li strong,
+.wire-information-boundary-rows li small,
+.wire-information-boundary-rows li em {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -14282,6 +14364,10 @@ button.wire-object-ref {
 .wire-match-page .wire-table-authority-metrics span,
 .wire-match-page .wire-table-authority-group,
 .wire-match-page .wire-table-authority-group li,
+.wire-match-page .wire-information-boundary,
+.wire-match-page .wire-information-boundary-header,
+.wire-match-page .wire-information-boundary-metrics span,
+.wire-match-page .wire-information-boundary-rows li,
 .wire-match-page .wire-prompt-authority,
 .wire-match-page .wire-prompt-authority-header,
 .wire-match-page .wire-prompt-authority-metrics span,

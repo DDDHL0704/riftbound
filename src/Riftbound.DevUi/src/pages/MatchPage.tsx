@@ -6,6 +6,7 @@ import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
 import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { useDelayedWireCardPreview, WireCardPreview } from "../components/match/WireCardPreview";
+import { WireInformationBoundaryPanel } from "../components/match/WireInformationBoundaryPanel";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WirePromptAuthorityPanel } from "../components/match/WirePromptAuthorityPanel";
 import { WireResponseCoachPanel } from "../components/match/WireResponseCoachPanel";
@@ -357,6 +358,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </section>
           <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" tabIndex={0}>
             <WireTableAuthorityPanel table={tableView} />
+          </section>
+          <section aria-label="隐藏信息边界契约区" className="wire-panel wire-information-boundary-panel" tabIndex={0}>
+            <WireInformationBoundaryPanel events={tableEvents} table={tableView} />
           </section>
           <section aria-label="服务端行动窗口契约区" className="wire-panel wire-prompt-authority-panel" tabIndex={0}>
             <WirePromptAuthorityPanel

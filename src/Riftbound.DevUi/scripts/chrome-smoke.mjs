@@ -512,6 +512,36 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures.push("wire table authority did not expose two server-authored battlefield lane splits");
     }
 
+    const informationBoundary = document.querySelector("[data-wire-information-boundary-state]");
+    const informationBoundaryState = informationBoundary?.getAttribute("data-wire-information-boundary-state") ?? "missing";
+    if (informationBoundaryState !== "safe") {
+      failures.push(\`wire information boundary should be safe for fixture view, got \${informationBoundaryState}\`);
+    }
+    const informationBoundaryRows = new Map(Array.from(document.querySelectorAll("[data-wire-information-boundary-row]")).map((row) => [
+      row.getAttribute("data-wire-information-boundary-row") ?? "",
+      row.getAttribute("data-wire-information-boundary-row-state") ?? ""
+    ]));
+    const informationBoundaryRowEntries = Array.from(informationBoundaryRows.entries());
+    for (const [rowKey, rowState] of informationBoundaryRowEntries) {
+      if (rowState !== "safe") {
+        failures.push(\`wire information boundary row \${rowKey} is not safe: \${rowState}\`);
+      }
+    }
+    if (informationBoundaryRowEntries.filter(([rowKey]) => rowKey.startsWith("hand:")).length < 2) {
+      failures.push("wire information boundary did not expose both player hand rows");
+    }
+    if (informationBoundaryRowEntries.filter(([rowKey]) => rowKey.startsWith("deck:")).length < 2) {
+      failures.push("wire information boundary did not expose both player deck rows");
+    }
+    for (const rowKey of ["faceDown", "eventRefs"]) {
+      if (informationBoundaryRows.get(rowKey) !== "safe") {
+        failures.push(\`wire information boundary row \${rowKey} is not safe: \${informationBoundaryRows.get(rowKey) ?? "missing"}\`);
+      }
+    }
+    if (document.querySelectorAll("[data-wire-information-boundary-metric]").length < 6) {
+      failures.push("wire information boundary did not expose the expected metric strip");
+    }
+
     for (const pile of Array.from(document.querySelectorAll(".wire-fixed-pile"))) {
       const pileRect = rectOf(pile);
       const child = pile.querySelector(":scope > .card-face, :scope > .card-image-only, :scope > .card-back, :scope > .wire-stack-box");
@@ -625,6 +655,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures,
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
       flowCount: document.querySelectorAll(".wire-card-flow").length,
+      informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
       responseCoachState,
@@ -653,6 +684,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (result.tableAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server table authority: ${result.tableAuthorityState}`);
+  }
+  if (result.informationBoundaryState !== "safe") {
+    throw new Error(`Wire layout geometry smoke did not find safe information boundary: ${result.informationBoundaryState}`);
   }
   if (result.promptAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server prompt authority: ${result.promptAuthorityState}`);
