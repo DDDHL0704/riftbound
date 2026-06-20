@@ -177,6 +177,11 @@ const blockedPlan = buildWireFocusedInteractionPlan({
 assert.equal(blockedPlan.readiness.state, "server-blocked");
 assert.equal(blockedPlan.readiness.canSubmit, false);
 assert.equal(blockedPlan.readiness.nextStepLabel, "法力不足");
+assert.equal(blockedPlan.sourceCandidates.length, 1);
+assert.equal(blockedPlan.actionEntries.length, 1);
+assert.equal(blockedPlan.actionEntries[0].candidate.enabled, false);
+assert.equal(blockedPlan.actionEntries[0].actionPlan.disabled, true);
+assert.equal(blockedPlan.actionEntries[0].actionPlan.title, "法力不足");
 assert.equal(blockedPlan.legalActionRows[0].state, "blocked");
 assert.equal(blockedPlan.legalActionRows[0].nextStepLabel, "法力不足");
 

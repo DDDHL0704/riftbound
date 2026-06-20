@@ -112,7 +112,7 @@ export function buildCardDetailPlan({
   }
 
   const states = objectStateLabels(card.object);
-  const actionCandidates = sourceCandidatesForPrompt(prompt, sourceObjectId);
+  const actionCandidates = sourceCandidatesForPrompt(prompt, sourceObjectId, { enabledOnly: false });
   const detailRows: CardDetailRow[] = [
     { key: "cost", label: "费用", value: costText(card.spec) },
     { key: "power", label: "战力", value: `${card.object?.effectivePower ?? card.object?.power ?? card.object?.basePower ?? "未知"}` },

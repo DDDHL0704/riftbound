@@ -9,7 +9,7 @@ export type WireCardDetailActionEntryPlan = {
   mode: "button" | "composer";
 };
 
-export type WireCardDetailActionState = "empty" | "ready" | "readonly";
+export type WireCardDetailActionState = "blocked" | "empty" | "ready" | "readonly";
 
 export type WireCardDetailActionSummaryRow = {
   key: string;
@@ -111,10 +111,18 @@ function stateFor(
     return "readonly";
   }
 
+  if (!entries.some((entry) => entry.candidate.enabled)) {
+    return "blocked";
+  }
+
   return "ready";
 }
 
 function stateLabelFor(state: WireCardDetailActionState, disabledByConnection: boolean): string {
+  if (state === "blocked") {
+    return "服务端候选暂不可提交";
+  }
+
   if (state === "empty") {
     return "无服务端候选";
   }

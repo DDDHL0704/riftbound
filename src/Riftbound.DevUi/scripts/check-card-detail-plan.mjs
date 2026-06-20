@@ -178,6 +178,13 @@ const visiblePlan = buildCardDetailPlan({
         sources: [{ id: "p1-hand-spell", label: "测试法术" }]
       },
       {
+        action: "ACTIVATE_ABILITY",
+        enabled: false,
+        label: "激活能力",
+        reason: "缺少合法目标",
+        sources: [{ id: "p1-hand-spell", label: "测试法术" }]
+      },
+      {
         action: "MOVE_UNIT",
         enabled: true,
         label: "移动单位",
@@ -200,8 +207,10 @@ assert.equal(visiblePlan.sections.find((section) => section.key === "keywords")?
 assert.ok(visiblePlan.sections.find((section) => section.key === "rules")?.body.includes("战力"));
 assert.ok(visiblePlan.sections.find((section) => section.key === "evidence")?.body.includes("代表性规则通过"));
 assert.ok(visiblePlan.sections.find((section) => section.key === "state")?.body.includes("1 伤害"));
-assert.equal(visiblePlan.actionCandidates.length, 1);
+assert.equal(visiblePlan.actionCandidates.length, 2);
 assert.equal(visiblePlan.actionCandidates[0].action, "PLAY_CARD");
+assert.equal(visiblePlan.actionCandidates[1].action, "ACTIVATE_ABILITY");
+assert.equal(visiblePlan.actionCandidates[1].enabled, false);
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "zone")?.value, "我方手牌");
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "candidate")?.value, "1 可提交 / 1 阻断");
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "source")?.value, "服务端对象上下文");
@@ -214,9 +223,11 @@ assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "events")?.
 
 console.log("Card detail plan check passed.");
 
-function sourceCandidatesForPrompt(prompt, sourceObjectId) {
+function sourceCandidatesForPrompt(prompt, sourceObjectId, options = {}) {
+  const enabledOnly = options.enabledOnly ?? true;
   return (prompt?.candidates ?? []).filter((candidate) =>
-    candidate.enabled && (candidate.sources ?? []).some((source) => source.id === sourceObjectId));
+    (!enabledOnly || candidate.enabled)
+    && (candidate.sources ?? []).some((source) => source.id === sourceObjectId));
 }
 
 function conformanceLabel(value) {

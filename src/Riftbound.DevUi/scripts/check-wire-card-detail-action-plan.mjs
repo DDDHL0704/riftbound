@@ -114,6 +114,10 @@ const blockedPlan = buildWireCardDetailActionPlan({
   disabledByConnection: false
 });
 
+assert.equal(blockedPlan.state, "blocked");
+assert.equal(blockedPlan.stateLabel, "服务端候选暂不可提交");
+assert.equal(blockedPlan.entries[0].actionPlan.disabled, true);
+assert.equal(blockedPlan.entries[0].actionPlan.title, "等待优先权");
 assert.equal(blockedPlan.summaryRows.find((row) => row.key === "candidate")?.value, "0 可用 / 1 阻断");
 assert.equal(blockedPlan.summaryRows.find((row) => row.key === "field")?.value, "2 字段 / 2 必需 / 1 服务端");
 assert.equal(blockedPlan.summaryRows.find((row) => row.key === "blocked")?.value, "等待优先权");

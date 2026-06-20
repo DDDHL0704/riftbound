@@ -142,7 +142,7 @@ export function buildWireFocusedInteractionPlan({
       candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(sourceObjectId)))
     : [];
   const relatedCandidateRows = candidateRowsFor(relatedCandidates, objectIndex);
-  const sourceCandidates = sourceCandidatesForPrompt(prompt, sourceObjectId);
+  const sourceCandidates = sourceCandidatesForPrompt(prompt, sourceObjectId, { enabledOnly: false });
   const sourceCandidateSummaries = sourceObjectId
     ? model.candidates.filter((candidate) =>
       candidate.enabled
