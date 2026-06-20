@@ -380,6 +380,7 @@ function buildZoneIndex(
   perspectivePlayerId: string
 ): Record<string, TableObjectZoneContext> {
   const zones: Record<string, TableObjectZoneContext> = {};
+  const laneLabelByBattlefieldId: Record<string, string> = {};
   for (const [playerId, player] of Object.entries(snapshot?.players ?? {})) {
     const sideLabel = playerSideLabel(playerId, perspectivePlayerId);
     for (const { key, kind, label } of zoneKeyLabels) {
@@ -397,6 +398,10 @@ function buildZoneIndex(
   for (const [index, battlefield] of asArray<BattlefieldSnapshotView>(asRecord(snapshot?.lanes).battlefields).entries()) {
     const laneLabel = index === 0 ? "左战场" : "右战场";
     const battlefieldId = asString(battlefield.battlefieldObjectId, "");
+    if (battlefieldId) {
+      laneLabelByBattlefieldId[battlefieldId] = laneLabel;
+    }
+
     if (battlefieldId) {
       zones[battlefieldId] = {
         battlefieldObjectId: battlefieldId,
@@ -418,7 +423,71 @@ function buildZoneIndex(
     }
   }
 
+  for (const [objectId, object] of Object.entries(objects)) {
+    const locationZone = zoneContextFromObjectLocation(object, objectId, laneLabelByBattlefieldId, perspectivePlayerId);
+    if (locationZone) {
+      zones[objectId] = locationZone;
+    }
+  }
+
   return zones;
+}
+
+function zoneContextFromObjectLocation(
+  object: CardObjectView | undefined,
+  objectId: string,
+  laneLabelByBattlefieldId: Record<string, string>,
+  perspectivePlayerId: string
+): TableObjectZoneContext | undefined {
+  const location = asRecord(object?.location);
+  const zone = asString(location.zone, "").trim().toUpperCase();
+  if (!zone) {
+    return undefined;
+  }
+
+  const battlefieldObjectId = asString(location.battlefieldObjectId, "").trim();
+  const playerId = asString(location.playerId, "").trim() || object?.controllerId || object?.ownerId || undefined;
+  const sideLabel = playerSideLabel(playerId, perspectivePlayerId);
+  const battlefieldLabel = laneLabelByBattlefieldId[battlefieldObjectId] ?? laneLabelByBattlefieldId[objectId] ?? "战场";
+  const shared: Pick<TableObjectZoneContext, "battlefieldObjectId" | "playerId"> = {
+    battlefieldObjectId: battlefieldObjectId || undefined,
+    playerId
+  };
+
+  switch (zone) {
+    case "BANISHED":
+      return { ...shared, kind: "banished", label: `${sideLabel}放逐区` };
+    case "BASE":
+      return isRuneObject(object)
+        ? { ...shared, kind: "rune", label: `${sideLabel}已抽出符文` }
+        : { ...shared, kind: "base", label: `${sideLabel}基地` };
+    case "BATTLEFIELD":
+      if (isBattlefieldSiteObject(object, objectId, laneLabelByBattlefieldId)) {
+        return { ...shared, battlefieldObjectId: objectId, kind: "battlefield-site", label: `${battlefieldLabel}牌` };
+      }
+
+      return { ...shared, kind: "battlefield", label: `${battlefieldLabel} / ${sideLabel}单位` };
+    case "CHAMPION":
+      return { ...shared, kind: "champion", label: `${sideLabel}英雄区` };
+    case "GRAVEYARD":
+      return { ...shared, kind: "graveyard", label: `${sideLabel}已打出牌堆` };
+    case "HAND":
+      return { ...shared, kind: "hand", label: `${sideLabel}手牌` };
+    case "LEGEND":
+      return { ...shared, kind: "legend", label: `${sideLabel}传奇区` };
+    case "STACK":
+      return { ...shared, kind: "stack", label: "结算链" };
+    default:
+      return { ...shared, kind: "unknown", label: `${sideLabel}服务端区域` };
+  }
+}
+
+function isBattlefieldSiteObject(
+  object: CardObjectView | undefined,
+  objectId: string,
+  laneLabelByBattlefieldId: Record<string, string>
+): boolean {
+  return Boolean(laneLabelByBattlefieldId[objectId] || object?.tags?.some((tag) => tag === "CARD_TYPE:BATTLEFIELD"));
 }
 
 function buildStackRoles(stack: StackItemView[]): Record<string, string[]> {

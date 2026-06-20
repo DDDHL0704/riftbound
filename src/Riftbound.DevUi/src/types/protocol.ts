@@ -442,6 +442,12 @@ export type ZoneView = {
   championZone?: string[];
 };
 
+export type ObjectLocationView = {
+  battlefieldObjectId?: string | null;
+  playerId?: string | null;
+  zone?: string | null;
+};
+
 export type CardObjectView = {
   objectId?: string;
   cardNo?: string | null;
@@ -460,7 +466,7 @@ export type CardObjectView = {
   attachedToObjectId?: string | null;
   ownerId?: string | null;
   controllerId?: string | null;
-  location?: Record<string, unknown> | null;
+  location?: ObjectLocationView | null;
 };
 
 export type PlayerSnapshotView = {

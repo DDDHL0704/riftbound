@@ -21,7 +21,7 @@ export function buildCardObjectIndex(snapshot?: SnapshotDto): SnapshotObjectInde
     indexed[objectId] = {
       cardNo: battlefield.cardNo ?? null,
       controllerId: battlefield.controllerId ?? undefined,
-      location: { kind: "BATTLEFIELD_SITE" },
+      location: { battlefieldObjectId: objectId, playerId: battlefield.zonePlayerId, zone: "BATTLEFIELD" },
       objectId,
       ownerId: battlefield.zonePlayerId,
       tags: ["CARD_TYPE:BATTLEFIELD"]
