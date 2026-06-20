@@ -11757,6 +11757,10 @@ button.card-face:hover {
 .wire-prompt-authority-header,
 .wire-prompt-authority-metrics span,
 .wire-prompt-authority-rows li,
+.wire-rule-authority,
+.wire-rule-authority-header,
+.wire-rule-authority-metrics span,
+.wire-rule-authority-rows li,
 .wire-interaction-panel,
 .wire-selected-candidates,
 .wire-focused-actions,
@@ -12174,6 +12178,83 @@ button.card-face:hover {
 .wire-prompt-authority-rows li span,
 .wire-prompt-authority-rows li strong,
 .wire-prompt-authority-rows li small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-rule-authority {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-rule-authority-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+}
+
+.wire-rule-authority-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-rule-authority-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-rule-authority-metrics span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-rule-authority-rows {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-rule-authority-rows li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(62px, 0.7fr) minmax(74px, 0.85fr) minmax(0, 1.45fr);
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+}
+
+.wire-rule-authority [data-wire-rule-authority-row-state="server"],
+.wire-rule-authority [data-wire-rule-authority-metric-state="server"] {
+  border-width: 2px;
+}
+
+.wire-rule-authority [data-wire-rule-authority-row-state="fallback"],
+.wire-rule-authority [data-wire-rule-authority-row-state="missing"],
+.wire-rule-authority [data-wire-rule-authority-metric-state="fallback"],
+.wire-rule-authority [data-wire-rule-authority-metric-state="missing"] {
+  border-style: dashed;
+}
+
+.wire-rule-authority-header strong,
+.wire-rule-authority-header span,
+.wire-rule-authority-metrics small,
+.wire-rule-authority-metrics strong,
+.wire-rule-authority-rows li span,
+.wire-rule-authority-rows li strong,
+.wire-rule-authority-rows li small {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -14115,6 +14196,10 @@ button.wire-object-ref {
 .wire-match-page .wire-prompt-authority-header,
 .wire-match-page .wire-prompt-authority-metrics span,
 .wire-match-page .wire-prompt-authority-rows li,
+.wire-match-page .wire-rule-authority,
+.wire-match-page .wire-rule-authority-header,
+.wire-match-page .wire-rule-authority-metrics span,
+.wire-match-page .wire-rule-authority-rows li,
 .wire-match-page .wire-interaction-panel,
 .wire-match-page .wire-selected-candidates,
 .wire-match-page .wire-focused-action-summary,

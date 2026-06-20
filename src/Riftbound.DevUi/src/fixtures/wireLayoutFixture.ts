@@ -437,6 +437,11 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
     {
       description: "左战场控制结算完成。",
       kind: "BATTLEFIELD_CONTROL_RESOLVED",
+      objectRefs: [
+        { cardNo: "UNL-205/219", objectId: "fixture-left-battlefield", role: "战场" },
+        { cardNo: "UNL-002/219", objectId: "p1-left-1", role: "参与" },
+        { cardNo: "UNL-030/219", objectId: "p2-left-1", role: "参与" }
+      ],
       payload: {
         battlefieldObjectId: "fixture-left-battlefield",
         controllerId: selfId,
@@ -447,6 +452,12 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
     {
       description: "右战场战斗结算，无胜者。",
       kind: "BATTLE_NO_RESULT",
+      objectRefs: [
+        { cardNo: "UNL-206/219", objectId: "fixture-right-battlefield", role: "战场" },
+        { cardNo: "UNL-001/219", objectId: "p1-right-1", role: "攻击" },
+        { cardNo: "UNL-008/219", objectId: "p2-right-1", role: "防守" },
+        { cardNo: "UNL-002/219", objectId: "p2-right-2", role: "被摧毁" }
+      ],
       payload: {
         attackerObjectIds: ["p1-right-1"],
         battlefieldId: "fixture-right-battlefield",

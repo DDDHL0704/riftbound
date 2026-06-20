@@ -1,13 +1,15 @@
-import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protocol";
 import { Children, type ReactNode, useState } from "react";
 import { buildWireRuleQueuePlan, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
 import { WireDetailTrigger } from "./WireDetailTrigger";
 import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
+import { WireRuleAuthorityPanel } from "./WireRuleAuthorityPanel";
 import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 
 type WireRuleQueuePanelProps = {
+  events?: GameEvent[];
   onSelectDetail?: (detail: WireTimelineDetail) => void;
   onInspectObject?: (objectId: string) => void;
   playerId: string;
@@ -19,7 +21,7 @@ type WireRuleQueuePanelProps = {
 
 type ObjectIndex = WireObjectIndex;
 
-export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
+export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const plan = buildWireRuleQueuePlan({ playerId, prompt, snapshot });
   const objects = buildCardObjectIndex(snapshot);
@@ -33,6 +35,8 @@ export function WireRuleQueuePanel({ onInspectObject, onSelectDetail, playerId, 
         </div>
         <StatusPill tone={plan.header.statusTone}>{plan.header.statusLabel}</StatusPill>
       </header>
+
+      <WireRuleAuthorityPanel events={events} snapshot={snapshot} />
 
       <section className="wire-rule-flow" aria-label="服务端规则队列地图">
         <div className="wire-rule-flow-heading">

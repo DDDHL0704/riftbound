@@ -584,12 +584,28 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    const ruleAuthority = document.querySelector("[data-wire-rule-authority-state]");
+    const ruleAuthorityState = ruleAuthority?.getAttribute("data-wire-rule-authority-state") ?? "missing";
+    if (ruleAuthorityState !== "server") {
+      failures.push(\`wire rule authority should be server-authored, got \${ruleAuthorityState}\`);
+    }
+    const ruleAuthorityRows = new Map(Array.from(document.querySelectorAll("[data-wire-rule-authority-row]")).map((row) => [
+      row.getAttribute("data-wire-rule-authority-row") ?? "",
+      row.getAttribute("data-wire-rule-authority-row-state") ?? ""
+    ]));
+    for (const rowKey of ["stack", "task", "trigger", "resolution", "eventRefs"]) {
+      if (ruleAuthorityRows.get(rowKey) !== "server") {
+        failures.push(\`wire rule authority row \${rowKey} is not server-authored: \${ruleAuthorityRows.get(rowKey) ?? "missing"}\`);
+      }
+    }
+
     return {
       failures,
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
       flowCount: document.querySelectorAll(".wire-card-flow").length,
       promptAuthorityState,
       quickActionCount: quickActions.size,
+      ruleAuthorityState,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length,
       tableAuthorityState
     };
@@ -617,6 +633,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (result.promptAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server prompt authority: ${result.promptAuthorityState}`);
+  }
+  if (result.ruleAuthorityState !== "server") {
+    throw new Error(`Wire layout geometry smoke did not find server rule authority: ${result.ruleAuthorityState}`);
   }
 }
 

@@ -396,6 +396,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </section>
           <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" tabIndex={0}>
             <WireRuleQueuePanel
+              events={tableEvents}
               onInspectObject={inspectObjectFromTable}
               onSelectDetail={selectTimelineDetail}
               playerId={settings.playerId}
