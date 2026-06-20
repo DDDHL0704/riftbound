@@ -258,6 +258,41 @@ public sealed class LocalPlayabilityRuleRegressionTests
     }
 
     [Fact]
+    public void ServerFlowStepsKeepCandidateStepWhenRuleQueuesAreCrowded()
+    {
+        var state = CrowdedServerFlowState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        var serverFlow = Assert.IsType<ActionPromptServerFlowDto>(prompt.ServerFlow);
+        var stepKeys = serverFlow.Steps.Select(step => step.Key).ToArray();
+
+        Assert.Contains("prompt", stepKeys);
+        Assert.Contains("responsibility", stepKeys);
+        Assert.Contains("stack", stepKeys);
+        Assert.Contains("task", stepKeys);
+        Assert.Contains("trigger", stepKeys);
+        Assert.Contains("candidate", stepKeys);
+        Assert.True(serverFlow.Steps.Count >= 6);
+        var candidateStep = Assert.Single(serverFlow.Steps, step => string.Equals(step.Key, "candidate", StringComparison.Ordinal));
+        Assert.Equal("候选", candidateStep.Label);
+        Assert.NotNull(prompt.Candidates);
+        var promptCandidates = prompt.Candidates!;
+        Assert.NotEmpty(promptCandidates);
+        var expectedCandidateValue = string.Join(
+            " / ",
+            promptCandidates
+                .Select(candidate => candidate.Action)
+                .Distinct(StringComparer.Ordinal));
+        Assert.Equal(expectedCandidateValue, candidateStep.Value);
+        Assert.Contains("WAIT", candidateStep.Value, StringComparison.Ordinal);
+        Assert.Contains(CommandTypes.Surrender, candidateStep.Value, StringComparison.Ordinal);
+        Assert.Contains("前端只提交服务端候选", candidateStep.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SnapshotExposesAuthoritativeTableLayoutPartitionsForFrontend()
     {
         var state = FrontendTableLayoutSnapshotState();
@@ -566,6 +601,67 @@ public sealed class LocalPlayabilityRuleRegressionTests
                 ["P1-HAND-UNIT"] = new("P1", "HAND"),
                 ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "BF-1")
             });
+    }
+
+    private static MatchState CrowdedServerFlowState()
+    {
+        return new MatchState(
+            roomId: "local-playability-crowded-server-flow",
+            tick: 11,
+            turnNumber: 3,
+            activePlayerId: "P1",
+            seats: Seats(),
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(10, 10),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNIT"],
+                    Battlefields = ["P1-FIELD-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "P2-DEFENDER"]
+                }
+            },
+            playerScores: Scores(),
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = Battlefield("BF-1", "P2", "OGN·275/298"),
+                ["P1-HAND-UNIT"] = Unit("P1-HAND-UNIT", "P1", power: 2),
+                ["P1-FIELD-UNIT"] = Unit("P1-FIELD-UNIT", "P1", power: 2),
+                ["P2-DEFENDER"] = Unit("P2-DEFENDER", "P2", power: 2)
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P2", "BATTLEFIELD", "BF-1"),
+                ["P1-HAND-UNIT"] = new("P1", "HAND"),
+                ["P1-FIELD-UNIT"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "BF-1")
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-crowded-1",
+                    "P1",
+                    "P1-FIELD-UNIT",
+                    "DAMAGE",
+                    "SFD·125/221",
+                    targetObjectIds: ["P2-DEFENDER"])
+            ],
+            triggerQueue:
+            [
+                new TriggerQueueItemState("trigger-crowded-1", "P1", "P1-FIELD-UNIT", "TEST_TRIGGER", "UNIT_ENTERED")
+            ]);
     }
 
     private static MatchState FrontendTableLayoutSnapshotState()

@@ -5800,10 +5800,10 @@ internal static class ActionPromptBuilder
             "候选",
             candidates.Any(candidate => candidate.Enabled) ? "ready" : "waiting",
             $"{candidates.Count(candidate => candidate.Enabled)} 可提交",
-            actions.Count == 0 ? "无行动" : string.Join(" / ", actions.Take(4)),
+            actions.Count == 0 ? "无行动" : string.Join(" / ", actions),
             "前端只提交服务端候选，不重算合法性。"));
 
-        return steps.Take(4).ToArray();
+        return steps.ToArray();
     }
 
     private static ActionPromptInspectionDto PromptInspectionFor(
