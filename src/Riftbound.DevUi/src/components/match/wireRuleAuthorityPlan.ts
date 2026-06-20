@@ -1,5 +1,6 @@
 import type { GameEvent, SnapshotDto } from "../../types/protocol";
 import { asArray, asRecord, asString } from "../../utils/collections";
+import { gameEventObjectRefPlans, visibleGameEventObjectRefCount } from "../../utils/gameEventObjectRefs";
 
 export type WireRuleAuthorityState = "fallback" | "missing" | "mixed" | "server";
 
@@ -176,12 +177,17 @@ function eventRefRow(events: GameEvent[]): WireRuleAuthorityRow {
     return row("eventRefs", "事件对象引用", "server", "暂无事件", "0 个引用");
   }
 
-  const explicitRefCount = eventObjectRefCount(events);
-  if (events.every((event) => (event.objectRefs?.length ?? 0) > 0)) {
+  const plans = gameEventObjectRefPlans(events);
+  const explicitRefCount = plans
+    .filter((plan) => plan.source === "server")
+    .reduce((count, plan) => count + visibleGameEventObjectRefCount(plan), 0);
+  if (plans.every((plan) => plan.source === "server")) {
     return row("eventRefs", "事件对象引用", "server", "服务端 objectRefs", `${explicitRefCount} 个引用`);
   }
 
-  const derivedRefCount = events.reduce((count, event) => count + payloadObjectRefCount(event.payload), 0);
+  const derivedRefCount = plans
+    .filter((plan) => plan.source === "payload")
+    .reduce((count, plan) => count + visibleGameEventObjectRefCount(plan), 0);
   if (derivedRefCount > 0) {
     return row("eventRefs", "事件对象引用", "mixed", "payload 派生", `${explicitRefCount} 显式 / ${derivedRefCount} 派生`);
   }
@@ -246,30 +252,6 @@ function hasText(value: unknown): boolean {
 }
 
 function eventObjectRefCount(events: GameEvent[]): number {
-  return events.reduce((count, event) => count + (event.objectRefs?.filter((ref) => ref.objectId && !ref.isHidden).length ?? 0), 0);
-}
-
-function payloadObjectRefCount(payload: Record<string, unknown>, depth = 0): number {
-  if (depth > 2) {
-    return 0;
-  }
-
-  let count = 0;
-  for (const [key, value] of Object.entries(payload ?? {})) {
-    if ((key.endsWith("ObjectId") || key.endsWith("Id")) && hasText(value)) {
-      count += 1;
-      continue;
-    }
-
-    if ((key.endsWith("ObjectIds") || key.endsWith("Ids")) && Array.isArray(value)) {
-      count += value.filter(hasText).length;
-      continue;
-    }
-
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      count += payloadObjectRefCount(value as Record<string, unknown>, depth + 1);
-    }
-  }
-
-  return count;
+  return gameEventObjectRefPlans(events)
+    .reduce((count, plan) => count + visibleGameEventObjectRefCount(plan), 0);
 }

@@ -15,6 +15,7 @@ const output = ts.transpileModule(source, {
   }
 }).outputText;
 const moduleShim = { exports: {} };
+const gameEventObjectRefs = loadGameEventObjectRefs();
 
 function requireShim(id) {
   if (id === "../../utils/collections") {
@@ -29,6 +30,10 @@ function requireShim(id) {
         return typeof value === "string" && value.trim().length > 0 ? value : fallback;
       }
     };
+  }
+
+  if (id === "../../utils/gameEventObjectRefs") {
+    return gameEventObjectRefs;
   }
 
   throw new Error(`Unexpected wire rule authority import: ${id}`);
@@ -96,6 +101,36 @@ assert.equal(missingPlan.state, "missing");
 assert.equal(missingPlan.rows.find((row) => row.key === "snapshot").state, "missing");
 
 console.log("Wire rule authority plan check passed.");
+
+function loadGameEventObjectRefs() {
+  const helperSource = readFileSync(resolve(scriptDir, "../src/utils/gameEventObjectRefs.ts"), "utf8");
+  const helperOutput = ts.transpileModule(helperSource, {
+    compilerOptions: {
+      esModuleInterop: true,
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022
+    }
+  }).outputText;
+  const helperModule = { exports: {} };
+  new Function("exports", "module", "require", helperOutput)(
+    helperModule.exports,
+    helperModule,
+    (id) => {
+      if (id === "./collections") {
+        return {
+          asArray(value) {
+            return Array.isArray(value) ? value : [];
+          },
+          asRecord(value) {
+            return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+          }
+        };
+      }
+      throw new Error(`Unexpected game event object refs import: ${id}`);
+    }
+  );
+  return helperModule.exports;
+}
 
 function snapshot({
   resolutions = false,

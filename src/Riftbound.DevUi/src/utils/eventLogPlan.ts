@@ -1,7 +1,7 @@
 import type { CardObjectView, ErrorDto, GameEvent, GameEventObjectRef } from "../types/protocol";
 import type { WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
-import { asArray, asRecord } from "./collections";
 import { errorCodeLabel, errorMessageLabel } from "./errors";
+import { gameEventObjectRefPlan, gameEventObjectRefSourceLabel, type GameEventObjectRefSource } from "./gameEventObjectRefs";
 import { redactInternalText } from "./redaction";
 
 export type LogDensity = "compact" | "standard" | "detailed";
@@ -186,43 +186,6 @@ const eventKindLabels: Record<string, string> = {
   UNTIL_END_OF_TURN_EXPIRED: "回合结束效果过期"
 };
 
-const singularObjectKeyRoles: Record<string, string> = {
-  attachedToObjectId: "贴附",
-  attackerObjectId: "攻击",
-  battlefieldId: "战场",
-  battlefieldObjectId: "战场",
-  cardObjectId: "卡牌",
-  defenderObjectId: "防守",
-  destroyedObjectId: "被摧毁",
-  equipmentObjectId: "装备",
-  hostObjectId: "贴附",
-  objectId: "对象",
-  runeObjectId: "符文",
-  sourceObjectId: "来源",
-  targetObjectId: "目标",
-  unitObjectId: "单位"
-};
-
-const arrayObjectKeyRoles: Record<string, string> = {
-  attackerObjectIds: "攻击",
-  banishedObjectIds: "放逐",
-  cardObjectIds: "卡牌",
-  chosenObjectIds: "已选",
-  defenderObjectIds: "防守",
-  destroyedObjectIds: "被摧毁",
-  discardedObjectIds: "弃置",
-  exhaustedObjectIds: "横置",
-  objectIds: "对象",
-  participantObjectIds: "参与",
-  paymentObjectIds: "费用",
-  readyObjectIds: "重置",
-  revealedObjectIds: "展示",
-  runeObjectIds: "符文",
-  sourceObjectIds: "来源",
-  targetObjectIds: "目标",
-  unitObjectIds: "单位"
-};
-
 export function buildEventLogPlan({
   density = "standard",
   errors,
@@ -280,10 +243,11 @@ function eventLogState(errorCount: number, eventCount: number): EventLogPlan["st
 }
 
 function eventRowPlan(event: GameEvent, index: number, objects: Record<string, CardObjectView>): EventLogEventRowPlan {
-  const refs = eventObjectRefs(event, objects);
+  const refPlan = gameEventObjectRefPlan(event);
+  const refs = eventObjectRefs(refPlan.refs, objects, refPlan.source);
   return {
     description: eventDescriptionLabel(event),
-    detail: eventDetail(event, index, refs),
+    detail: eventDetail(event, index, refs, refPlan.source),
     key: `${event.kind}-${index}`,
     kind: event.kind,
     refs,
@@ -291,21 +255,32 @@ function eventRowPlan(event: GameEvent, index: number, objects: Record<string, C
   };
 }
 
-function eventObjectRefs(event: GameEvent, objects: Record<string, CardObjectView>): EventLogObjectRef[] {
-  const serverRefs = event.objectRefs
-    ?.map((ref) => serverObjectRef(ref, objects))
+function eventObjectRefs(
+  refs: GameEventObjectRef[],
+  objects: Record<string, CardObjectView>,
+  source: GameEventObjectRefSource
+): EventLogObjectRef[] {
+  const eventRefs = refs
+    .map((ref) => serverObjectRef(ref, objects))
     .filter((ref): ref is EventLogObjectRef => Boolean(ref));
-  return serverRefs?.length ? serverRefs : collectEventObjectRefs(event.payload, objects, 0);
+  return source === "payload"
+    ? eventRefs.filter((ref) => ref.visibility !== "missing")
+    : eventRefs;
 }
 
-function eventDetail(event: GameEvent, index: number, refs: EventLogObjectRef[]): WireTimelineDetail {
+function eventDetail(
+  event: GameEvent,
+  index: number,
+  refs: EventLogObjectRef[],
+  source: GameEventObjectRefSource
+): WireTimelineDetail {
   return {
     id: `event:${event.kind}:${index}`,
     lines: [
       { label: "类型", value: eventKindLabel(event.kind) },
       { label: "描述", value: eventDescriptionLabel(event) },
       { label: "对象", value: refs.length > 0 ? `${refs.length} 项` : "无" },
-      { label: "对象来源", value: event.objectRefs?.length ? "服务端摘要" : "事件字段" },
+      { label: "对象来源", value: gameEventObjectRefSourceLabel(source) },
       { label: "引用边界", value: objectRefBoundaryLabel(refs) }
     ],
     refs,
@@ -328,52 +303,6 @@ function serverObjectRef(ref: GameEventObjectRef, objects: Record<string, CardOb
     role: ref.role?.trim() || "对象",
     visibility
   };
-}
-
-function collectEventObjectRefs(record: Record<string, unknown>, objects: Record<string, CardObjectView>, depth: number): EventLogObjectRef[] {
-  if (depth > 2) {
-    return [];
-  }
-
-  const refs: EventLogObjectRef[] = [];
-  for (const [key, value] of Object.entries(record)) {
-    const singularRole = singularObjectKeyRoles[key];
-    if (singularRole && typeof value === "string" && isVisibleObjectRef(value, objects)) {
-      refs.push({ id: value, role: singularRole, visibility: collectedRefVisibility(value) });
-      continue;
-    }
-
-    const arrayRole = arrayObjectKeyRoles[key];
-    if (arrayRole) {
-      refs.push(...asArray<unknown>(value)
-        .filter((item): item is string => typeof item === "string" && isVisibleObjectRef(item, objects))
-        .map((objectId) => ({ id: objectId, role: arrayRole, visibility: collectedRefVisibility(objectId) })));
-      continue;
-    }
-
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        if (item && typeof item === "object") {
-          refs.push(...collectEventObjectRefs(asRecord(item), objects, depth + 1));
-        }
-      }
-      continue;
-    }
-
-    if (value && typeof value === "object") {
-      refs.push(...collectEventObjectRefs(asRecord(value), objects, depth + 1));
-    }
-  }
-
-  return refs;
-}
-
-function isVisibleObjectRef(objectId: string, objects: Record<string, CardObjectView>): boolean {
-  return objectId === "HIDDEN" || Boolean(objects[objectId]);
-}
-
-function collectedRefVisibility(objectId: string): EventLogObjectRef["visibility"] {
-  return objectId === "HIDDEN" ? "hidden" : "visible";
 }
 
 function eventRefVisibility(ref: GameEventObjectRef, objects: Record<string, CardObjectView>): EventLogObjectRef["visibility"] {

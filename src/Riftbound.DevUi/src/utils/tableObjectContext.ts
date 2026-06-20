@@ -6,12 +6,12 @@ import type {
   BattlefieldSnapshotView,
   CardObjectView,
   GameEvent,
-  GameEventObjectRef,
   SnapshotDto,
   StackItemView
 } from "../types/protocol";
 import { asArray, asRecord, asString } from "./collections";
 import { promptReasonLabel } from "./formatters";
+import { gameEventObjectRefPlan } from "./gameEventObjectRefs";
 import {
   buildPromptInteractionModel,
   promptCommandBindingLabel,
@@ -105,43 +105,6 @@ const zoneKeyLabels: Array<{ key: keyof NonNullable<SnapshotDto["players"][strin
   { key: "championZone", kind: "champion", label: "英雄区" },
   { key: "battlefields", kind: "battlefield-site", label: "战场牌区" }
 ];
-
-const singularObjectKeyRoles: Record<string, string> = {
-  attachedToObjectId: "贴附",
-  attackerObjectId: "攻击",
-  battlefieldId: "战场",
-  battlefieldObjectId: "战场",
-  cardObjectId: "卡牌",
-  defenderObjectId: "防守",
-  destroyedObjectId: "被摧毁",
-  equipmentObjectId: "装备",
-  hostObjectId: "贴附",
-  objectId: "对象",
-  runeObjectId: "符文",
-  sourceObjectId: "来源",
-  targetObjectId: "目标",
-  unitObjectId: "单位"
-};
-
-const arrayObjectKeyRoles: Record<string, string> = {
-  attackerObjectIds: "攻击",
-  banishedObjectIds: "放逐",
-  cardObjectIds: "卡牌",
-  chosenObjectIds: "已选",
-  defenderObjectIds: "防守",
-  destroyedObjectIds: "被摧毁",
-  discardedObjectIds: "弃置",
-  exhaustedObjectIds: "横置",
-  objectIds: "对象",
-  participantObjectIds: "参与",
-  paymentObjectIds: "费用",
-  readyObjectIds: "重置",
-  revealedObjectIds: "展示",
-  runeObjectIds: "符文",
-  sourceObjectIds: "来源",
-  targetObjectIds: "目标",
-  unitObjectIds: "单位"
-};
 
 export function buildTableObjectContextModel({
   events = [],
@@ -434,7 +397,7 @@ function buildStackRoles(stack: StackItemView[]): Record<string, string[]> {
 function buildEventLinks(events: GameEvent[]): Record<string, TableObjectEventContext[]> {
   const links: Record<string, TableObjectEventContext[]> = {};
   for (const event of events) {
-    for (const ref of eventObjectRefs(event)) {
+    for (const ref of gameEventObjectRefPlan(event).refs) {
       if (!ref.objectId || ref.isHidden) {
         continue;
       }
@@ -449,57 +412,6 @@ function buildEventLinks(events: GameEvent[]): Record<string, TableObjectEventCo
     }
   }
   return links;
-}
-
-function eventObjectRefs(event: GameEvent): GameEventObjectRef[] {
-  if (event.objectRefs?.length) {
-    return event.objectRefs;
-  }
-
-  return collectPayloadObjectRefs(event.payload).map(({ objectId, role }) => ({ objectId, role }));
-}
-
-function collectPayloadObjectRefs(payload: Record<string, unknown>, depth = 0): Array<{ objectId: string; role: string }> {
-  if (depth > 2) {
-    return [];
-  }
-
-  const refs: Array<{ objectId: string; role: string }> = [];
-  for (const [key, value] of Object.entries(payload)) {
-    const singularRole = singularObjectKeyRoles[key];
-    if (singularRole && typeof value === "string" && value.trim()) {
-      refs.push({ objectId: value.trim(), role: singularRole });
-      continue;
-    }
-
-    const arrayRole = arrayObjectKeyRoles[key];
-    if (arrayRole && Array.isArray(value)) {
-      refs.push(...value
-        .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
-        .map((objectId) => ({ objectId: objectId.trim(), role: arrayRole })));
-      continue;
-    }
-
-    if (isRecord(value)) {
-      refs.push(...collectPayloadObjectRefs(value, depth + 1));
-    } else if (Array.isArray(value)) {
-      for (const item of value) {
-        if (isRecord(item)) {
-          refs.push(...collectPayloadObjectRefs(item, depth + 1));
-        }
-      }
-    }
-  }
-
-  const seen = new Set<string>();
-  return refs.filter((ref) => {
-    const key = `${ref.role}:${ref.objectId}`;
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
 }
 
 function objectStateLabels(object?: CardObjectView): string[] {
@@ -544,8 +456,4 @@ function uniqueStrings(values: string[]): string[] {
 
 function uniquePromptRoles(values: PromptChoiceRole[]): PromptChoiceRole[] {
   return [...new Set(values)];
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }

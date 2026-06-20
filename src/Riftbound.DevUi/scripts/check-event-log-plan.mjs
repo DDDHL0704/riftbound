@@ -6,32 +6,46 @@ import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const sourcePath = resolve(scriptDir, "../src/utils/eventLogPlan.ts");
-const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
+const source = readFileSync(sourcePath, "utf8");
 const output = ts.transpileModule(source, {
   compilerOptions: {
+    esModuleInterop: true,
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2022
   }
 }).outputText;
 const moduleShim = { exports: {} };
+const gameEventObjectRefs = loadGameEventObjectRefs();
+
+function requireShim(id) {
+  if (id === "./collections") {
+    return { asArray, asRecord };
+  }
+
+  if (id === "./errors") {
+    return { errorCodeLabel, errorMessageLabel };
+  }
+
+  if (id === "./gameEventObjectRefs") {
+    return gameEventObjectRefs;
+  }
+
+  if (id === "./redaction") {
+    return { redactInternalText };
+  }
+
+  throw new Error(`Unexpected event log plan import: ${id}`);
+}
 
 new Function(
   "exports",
   "module",
-  "asArray",
-  "asRecord",
-  "errorCodeLabel",
-  "errorMessageLabel",
-  "redactInternalText",
+  "require",
   output
 )(
   moduleShim.exports,
   moduleShim,
-  asArray,
-  asRecord,
-  errorCodeLabel,
-  errorMessageLabel,
-  redactInternalText
+  requireShim
 );
 
 const { buildEventLogPlan, eventDescriptionLabel, eventKindLabel } = moduleShim.exports;
@@ -149,6 +163,29 @@ assert.equal(eventKindLabel("UNKNOWN_EVENT"), "服务端事件");
 assert.equal(eventDescriptionLabel({ description: "", kind: "DEV_SCENARIO_SEEDED", payload: {} }), "测试状态已载入");
 
 console.log("Event log plan check passed.");
+
+function loadGameEventObjectRefs() {
+  const helperSource = readFileSync(resolve(scriptDir, "../src/utils/gameEventObjectRefs.ts"), "utf8");
+  const helperOutput = ts.transpileModule(helperSource, {
+    compilerOptions: {
+      esModuleInterop: true,
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022
+    }
+  }).outputText;
+  const helperModule = { exports: {} };
+  new Function("exports", "module", "require", helperOutput)(
+    helperModule.exports,
+    helperModule,
+    (id) => {
+      if (id === "./collections") {
+        return { asArray, asRecord };
+      }
+      throw new Error(`Unexpected game event object refs import: ${id}`);
+    }
+  );
+  return helperModule.exports;
+}
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
