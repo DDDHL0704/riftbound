@@ -65,6 +65,7 @@ export function WireObjectCommandTray({
         </header>
         <MetricGrid plan={trayPlan} />
         <strong className="wire-object-command-tray-next">{trayPlan.nextStepLabel}</strong>
+        <ContextRows plan={trayPlan} />
       </div>
 
       {trayPlan.canShowActions ? (
@@ -93,6 +94,23 @@ export function WireObjectCommandTray({
         <Button icon={<X size={16} />} onClick={onClear} variant="ghost">清除</Button>
       </div>
     </section>
+  );
+}
+
+function ContextRows({ plan }: { plan: WireObjectCommandTrayPlan }) {
+  if (plan.contextRows.length === 0) {
+    return null;
+  }
+
+  return (
+    <dl className="wire-object-command-tray-context" aria-label="焦点对象服务端上下文">
+      {plan.contextRows.map((row) => (
+        <div data-wire-object-command-tray-context={row.key} data-wire-object-command-tray-context-tone={row.tone} key={row.key}>
+          <dt>{row.label}</dt>
+          <dd>{row.value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 

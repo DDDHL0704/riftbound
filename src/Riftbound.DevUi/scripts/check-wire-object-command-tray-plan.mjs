@@ -50,6 +50,10 @@ assert.equal(readyPlan.metrics.find((metric) => metric.key === "candidate")?.val
 assert.equal(readyPlan.metrics.find((metric) => metric.key === "role")?.value, "来源");
 assert.equal(readyPlan.metrics.find((metric) => metric.key === "command")?.value, "PLAY_CARD");
 assert.equal(readyPlan.subtitle, "我方手牌 / 法术 / 服务端对象上下文");
+assert.equal(readyPlan.contextRows.find((row) => row.key === "source")?.value, "服务端对象上下文");
+assert.equal(readyPlan.contextRows.find((row) => row.key === "fields")?.value, "1 必填 / 2 公开");
+assert.equal(readyPlan.contextRows.find((row) => row.key === "fields")?.tone, "warn");
+assert.equal(readyPlan.contextRows.find((row) => row.key === "boundary")?.value, "不公开隐藏 metadata");
 
 const selectingPlan = buildWireObjectCommandTrayPlan({
   card: card(),
@@ -72,7 +76,7 @@ const readonlyPlan = buildWireObjectCommandTrayPlan({
   objectContext: objectContext({ candidateSource: "none", contextSource: "snapshot-public-index" })
 });
 assert.equal(readonlyPlan.state, "readonly");
-assert.equal(readonlyPlan.canShowActions, true);
+assert.equal(readonlyPlan.canShowActions, false);
 assert.equal(readonlyPlan.primaryLabel, "查看对象");
 
 const hiddenPlan = buildWireObjectCommandTrayPlan({
@@ -85,6 +89,7 @@ const hiddenPlan = buildWireObjectCommandTrayPlan({
 assert.equal(hiddenPlan.state, "readonly");
 assert.equal(hiddenPlan.title, "未公开卡牌");
 assert.equal(hiddenPlan.canShowActions, false);
+assert.equal(hiddenPlan.contextRows.length, 0);
 assert.equal(JSON.stringify(hiddenPlan).includes("PLAY_CARD"), false);
 assert.equal(hiddenPlan.metrics.find((metric) => metric.key === "command")?.value, "不公开");
 assert.equal(hiddenPlan.nextStepLabel.includes("不展示或提交前端推断操作"), true);
@@ -148,7 +153,16 @@ function card() {
 
 function objectContext(overrides = {}) {
   return {
+    candidateLinks: [
+      {
+        commandFields: ["来源:sourceObjectId*", "位置:destination"],
+        enabled: true,
+        reason: "可提交",
+        requiredCommandFields: ["来源:sourceObjectId*"]
+      }
+    ],
     candidateSource: "server",
+    contextBoundary: "服务端对象上下文只公开当前行动提示中的对象候选、选择角色和命令字段；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入对象上下文。",
     contextSource: "server-action-prompt",
     zone: { kind: "hand", label: "我方手牌", playerId: "P1" },
     ...overrides

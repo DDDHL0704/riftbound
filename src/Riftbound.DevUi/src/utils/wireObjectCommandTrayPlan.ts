@@ -22,9 +22,17 @@ export type WireObjectCommandTrayMetric = {
   value: string;
 };
 
+export type WireObjectCommandTrayContextRow = {
+  key: string;
+  label: string;
+  tone: "neutral" | "warn";
+  value: string;
+};
+
 export type WireObjectCommandTrayPlan = {
   actionLimit: number;
   canShowActions: boolean;
+  contextRows: WireObjectCommandTrayContextRow[];
   metrics: WireObjectCommandTrayMetric[];
   nextStepLabel: string;
   objectId?: string;
@@ -58,10 +66,15 @@ export function buildWireObjectCommandTrayPlan({
   const roleLabel = hidden ? "隐藏" : roleSummary(focusedPlan);
   const commandLabel = hidden ? "不公开" : focusedPlan.readiness.commandType ?? "无";
   const sourceLabel = objectContext ? tableObjectContextSourceLabel(objectContext) : "公开快照索引";
+  const canShowActions = !hidden
+    && focusedPlan.actionEntries.length > 0
+    && state !== "readonly"
+    && state !== "empty";
 
   return {
     actionLimit: 3,
-    canShowActions: !hidden && focusedPlan.actionEntries.length > 0,
+    canShowActions,
+    contextRows: hidden ? [] : objectCommandContextRows(objectContext, sourceLabel),
     metrics: [
       { key: "candidate", label: "候选", value: `${enabledCount} 可用 / ${blockedCount} 阻断` },
       { key: "role", label: "角色", value: roleLabel },
@@ -86,6 +99,7 @@ export function buildWireObjectCommandTrayPlan({
 const emptyPlan: WireObjectCommandTrayPlan = {
   actionLimit: 0,
   canShowActions: false,
+  contextRows: [],
   metrics: [],
   nextStepLabel: "点击桌面上的公开卡牌查看服务端候选和下一步。",
   primaryLabel: "等待焦点",
@@ -181,6 +195,66 @@ function subtitleFor(
 function roleSummary(focusedPlan: WireFocusedInteractionPlan): string {
   const roles = uniqueStrings(focusedPlan.legalActionRows.flatMap((row) => row.roleLabels));
   return roles.length > 0 ? compactList(roles, 3) : "无";
+}
+
+function objectCommandContextRows(
+  objectContext: TableObjectContext | undefined,
+  sourceLabel: string
+): WireObjectCommandTrayContextRow[] {
+  if (!objectContext) {
+    return [
+      { key: "source", label: "来源", tone: "neutral", value: sourceLabel },
+      { key: "fields", label: "字段", tone: "neutral", value: "无提交字段" }
+    ];
+  }
+
+  const requiredFields = uniqueStrings(objectContext.candidateLinks.flatMap((candidate) => candidate.requiredCommandFields));
+  const commandFields = uniqueStrings(objectContext.candidateLinks.flatMap((candidate) => candidate.commandFields));
+  const blockedReasons = uniqueStrings(objectContext.candidateLinks
+    .filter((candidate) => !candidate.enabled)
+    .map((candidate) => candidate.reason));
+  const rows: WireObjectCommandTrayContextRow[] = [
+    { key: "source", label: "来源", tone: "neutral", value: sourceLabel },
+    {
+      key: "fields",
+      label: "字段",
+      tone: requiredFields.length > 0 ? "warn" : "neutral",
+      value: requiredFields.length > 0 || commandFields.length > 0
+        ? `${requiredFields.length} 必填 / ${commandFields.length} 公开`
+        : "无提交字段"
+    }
+  ];
+
+  if (blockedReasons.length > 0) {
+    rows.push({
+      key: "blocked",
+      label: "阻断",
+      tone: "warn",
+      value: compactList(blockedReasons, 2)
+    });
+  }
+
+  rows.push({
+    key: "boundary",
+    label: "边界",
+    tone: "neutral",
+    value: boundarySummary(objectContext.contextBoundary)
+  });
+
+  return rows;
+}
+
+function boundarySummary(boundary: string | undefined): string {
+  const text = boundary?.trim();
+  if (!text) {
+    return "只读公开对象";
+  }
+
+  if (text.includes("隐藏 metadata")) {
+    return "不公开隐藏 metadata";
+  }
+
+  return text.length > 24 ? `${text.slice(0, 24)}...` : text;
 }
 
 function uniqueStrings(values: string[]): string[] {

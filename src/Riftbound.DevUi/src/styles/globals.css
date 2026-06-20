@@ -12846,6 +12846,8 @@ button.card-face:hover {
 .wire-object-command-tray-heading strong,
 .wire-object-command-tray-heading span,
 .wire-object-command-tray-metrics strong,
+.wire-object-command-tray-context dt,
+.wire-object-command-tray-context dd,
 .wire-object-command-tray-next,
 .wire-object-command-tray-empty {
   min-width: 0;
@@ -12868,6 +12870,33 @@ button.card-face:hover {
 
 .wire-object-command-tray-metrics small {
   color: #000;
+}
+
+.wire-object-command-tray-context {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+}
+
+.wire-object-command-tray-context div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-object-command-tray-context div[data-wire-object-command-tray-context-tone="warn"] {
+  border-width: 2px;
+}
+
+.wire-object-command-tray-context dt,
+.wire-object-command-tray-context dd {
+  margin: 0;
+}
+
+.wire-object-command-tray-context dt {
+  font-size: 11px;
 }
 
 .wire-object-command-tray-next,
@@ -15269,6 +15298,7 @@ button.wire-object-ref {
 .wire-match-page .wire-object-command-tray,
 .wire-match-page .wire-object-command-tray-heading,
 .wire-match-page .wire-object-command-tray-metrics span,
+.wire-match-page .wire-object-command-tray-context div,
 .wire-match-page .wire-object-command-tray-next,
 .wire-match-page .wire-object-command-tray-empty,
 .wire-match-page .wire-prompt-candidates,
