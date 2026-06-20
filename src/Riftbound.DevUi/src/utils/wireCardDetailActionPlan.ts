@@ -11,15 +11,31 @@ export type WireCardDetailActionEntryPlan = {
 
 export type WireCardDetailActionState = "blocked" | "empty" | "ready" | "readonly";
 
+export type WireCardDetailActionRouteState = "blocked" | "composer" | "direct" | "incomplete" | "readonly";
+
 export type WireCardDetailActionSummaryRow = {
   key: string;
   label: string;
   value: string;
 };
 
+export type WireCardDetailActionRouteRow = {
+  action: string;
+  commandType: string;
+  fieldSummary: string;
+  key: string;
+  label: string;
+  modeLabel: string;
+  nextStepLabel: string;
+  reasonLabel: string;
+  state: WireCardDetailActionRouteState;
+  stateLabel: string;
+};
+
 export type WireCardDetailActionPlan = {
   emptyLabel: string;
   entries: WireCardDetailActionEntryPlan[];
+  routeRows: WireCardDetailActionRouteRow[];
   sourceObjectId?: string;
   state: WireCardDetailActionState;
   stateLabel: string;
@@ -58,11 +74,118 @@ export function buildWireCardDetailActionPlan({
   return {
     emptyLabel: detailPlan.actionEmptyLabel,
     entries,
+    routeRows: routeRowsFor(entries, canSubmitCommands, disabledByConnection),
     sourceObjectId: detailPlan.sourceObjectId,
     state,
     stateLabel: stateLabelFor(state, disabledByConnection),
     summaryRows: summaryRowsFor(entries)
   };
+}
+
+function routeRowsFor(
+  entries: WireCardDetailActionEntryPlan[],
+  canSubmitCommands: boolean,
+  disabledByConnection: boolean
+): WireCardDetailActionRouteRow[] {
+  return entries.map((entry) => {
+    const state = routeStateFor(entry, canSubmitCommands, disabledByConnection);
+    return {
+      action: entry.candidate.action,
+      commandType: entry.candidate.commandTemplate?.cmdType?.trim() || entry.candidate.action,
+      fieldSummary: routeFieldSummary(entry.candidate),
+      key: `route:${entry.key}`,
+      label: entry.candidate.label?.trim() || entry.actionPlan.label,
+      modeLabel: routeModeLabel(state),
+      nextStepLabel: routeNextStepLabel(state, entry),
+      reasonLabel: entry.actionPlan.title || entry.candidate.reason || "服务端候选",
+      state,
+      stateLabel: routeStateLabel(state)
+    };
+  });
+}
+
+function routeStateFor(
+  entry: WireCardDetailActionEntryPlan,
+  canSubmitCommands: boolean,
+  disabledByConnection: boolean
+): WireCardDetailActionRouteState {
+  if (disabledByConnection || !canSubmitCommands) {
+    return "readonly";
+  }
+
+  if (!entry.candidate.enabled) {
+    return "blocked";
+  }
+
+  if (entry.mode === "composer") {
+    return "composer";
+  }
+
+  if (entry.actionPlan.command) {
+    return "direct";
+  }
+
+  return "incomplete";
+}
+
+function routeModeLabel(state: WireCardDetailActionRouteState): string {
+  switch (state) {
+    case "blocked":
+      return "阻断";
+    case "composer":
+      return "组合";
+    case "direct":
+      return "直接";
+    case "incomplete":
+      return "不完整";
+    case "readonly":
+      return "只读";
+  }
+}
+
+function routeStateLabel(state: WireCardDetailActionRouteState): string {
+  switch (state) {
+    case "blocked":
+      return "服务端阻断";
+    case "composer":
+      return "需要组合";
+    case "direct":
+      return "可直接提交";
+    case "incomplete":
+      return "等待服务端字段";
+    case "readonly":
+      return "只读检查";
+  }
+}
+
+function routeNextStepLabel(
+  state: WireCardDetailActionRouteState,
+  entry: WireCardDetailActionEntryPlan
+): string {
+  switch (state) {
+    case "blocked":
+      return entry.actionPlan.title || "等待服务端开放该候选。";
+    case "composer":
+      return "打开组合入口补齐服务端要求的选择。";
+    case "direct":
+      return "可直接提交服务端候选。";
+    case "incomplete":
+      return "等待服务端公开完整选择或命令模板。";
+    case "readonly":
+      return entry.actionPlan.title || "当前只可检查，不提交命令。";
+  }
+}
+
+function routeFieldSummary(candidate: ActionPromptCandidateDto): string {
+  const bindings = candidate.commandTemplate?.bindings ?? [];
+  if (bindings.length === 0) {
+    return "命令字段未公开";
+  }
+
+  const requiredCount = bindings.filter((binding) => binding.required).length;
+  const serverCount = bindings.filter((binding) => binding.source === "requirementMetadata").length;
+  const playerCount = bindings.length - serverCount;
+  return `${bindings.length} 字段 / ${requiredCount} 必需 / ${playerCount} 玩家 / ${serverCount} 服务端`;
 }
 
 function summaryRowsFor(entries: WireCardDetailActionEntryPlan[]): WireCardDetailActionSummaryRow[] {

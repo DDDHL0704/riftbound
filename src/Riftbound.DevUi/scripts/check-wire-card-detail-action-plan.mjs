@@ -52,6 +52,17 @@ assert.equal(readyPlan.entries.find((entry) => entry.candidate.action === "PLAY_
 assert.equal(readyPlan.entries.find((entry) => entry.candidate.action === "TAP_RUNE")?.mode, "button");
 assert.equal(readyPlan.entries.find((entry) => entry.candidate.action === "TAP_RUNE")?.actionPlan.command?.cmdType, "TAP_RUNE");
 assert.equal(new Set(readyPlan.entries.map((entry) => entry.key)).size, readyPlan.entries.length);
+assert.equal(readyPlan.routeRows.length, 2);
+assert.deepEqual(readyPlan.routeRows.map((row) => `${row.action}:${row.state}:${row.modeLabel}`), [
+  "PLAY_CARD:composer:组合",
+  "TAP_RUNE:direct:直接"
+]);
+assert.equal(readyPlan.routeRows[0].commandType, "PLAY_CARD");
+assert.equal(readyPlan.routeRows[0].fieldSummary, "2 字段 / 1 必需 / 2 玩家 / 0 服务端");
+assert.equal(readyPlan.routeRows[0].nextStepLabel, "打开组合入口补齐服务端要求的选择。");
+assert.equal(readyPlan.routeRows[1].commandType, "TAP_RUNE");
+assert.equal(readyPlan.routeRows[1].fieldSummary, "命令字段未公开");
+assert.equal(readyPlan.routeRows[1].nextStepLabel, "可直接提交服务端候选。");
 assert.deepEqual(readyPlan.summaryRows.map((row) => `${row.key}:${row.value}`), [
   "candidate:2 可用 / 0 阻断",
   "route:1 组合 / 1 直接",
@@ -74,6 +85,9 @@ assert.equal(readOnlyPlan.state, "readonly");
 assert.equal(readOnlyPlan.stateLabel, "当前视图仅可查看");
 assert.equal(readOnlyPlan.entries[0].mode, "button");
 assert.equal(readOnlyPlan.entries[0].actionPlan.disabled, true);
+assert.equal(readOnlyPlan.routeRows[0].state, "readonly");
+assert.equal(readOnlyPlan.routeRows[0].stateLabel, "只读检查");
+assert.equal(readOnlyPlan.routeRows[0].nextStepLabel, "当前视图只能查看，不能提交行动");
 assert.equal(readOnlyPlan.summaryRows.find((row) => row.key === "route")?.value, "0 组合 / 0 直接");
 
 const disconnectedPlan = buildWireCardDetailActionPlan({
@@ -89,6 +103,8 @@ const disconnectedPlan = buildWireCardDetailActionPlan({
 assert.equal(disconnectedPlan.state, "readonly");
 assert.equal(disconnectedPlan.stateLabel, "连接恢复前仅可查看");
 assert.equal(disconnectedPlan.entries[0].actionPlan.disabled, true);
+assert.equal(disconnectedPlan.routeRows[0].state, "readonly");
+assert.equal(disconnectedPlan.routeRows[0].nextStepLabel, "提交入口未就绪，暂不能提交行动");
 
 const blockedCandidate = {
   action: "PLAY_CARD",
@@ -118,6 +134,10 @@ assert.equal(blockedPlan.state, "blocked");
 assert.equal(blockedPlan.stateLabel, "服务端候选暂不可提交");
 assert.equal(blockedPlan.entries[0].actionPlan.disabled, true);
 assert.equal(blockedPlan.entries[0].actionPlan.title, "等待优先权");
+assert.equal(blockedPlan.routeRows[0].state, "blocked");
+assert.equal(blockedPlan.routeRows[0].stateLabel, "服务端阻断");
+assert.equal(blockedPlan.routeRows[0].fieldSummary, "2 字段 / 2 必需 / 1 玩家 / 1 服务端");
+assert.equal(blockedPlan.routeRows[0].nextStepLabel, "等待优先权");
 assert.equal(blockedPlan.summaryRows.find((row) => row.key === "candidate")?.value, "0 可用 / 1 阻断");
 assert.equal(blockedPlan.summaryRows.find((row) => row.key === "field")?.value, "2 字段 / 2 必需 / 1 服务端");
 assert.equal(blockedPlan.summaryRows.find((row) => row.key === "blocked")?.value, "等待优先权");
@@ -136,6 +156,7 @@ assert.equal(emptyPlan.state, "empty");
 assert.equal(emptyPlan.stateLabel, "无服务端候选");
 assert.equal(emptyPlan.emptyLabel, "隐藏对象不会展示或提交任何前端推断操作。");
 assert.equal(emptyPlan.entries.length, 0);
+assert.equal(emptyPlan.routeRows.length, 0);
 assert.equal(emptyPlan.summaryRows.find((row) => row.key === "candidate")?.value, "0 可用 / 0 阻断");
 
 console.log("Wire card detail action plan check passed.");

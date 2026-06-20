@@ -6,7 +6,7 @@ import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraf
 import type { FocusedActionModel } from "../../utils/focusedActionModel";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
-import { buildWireCardDetailActionPlan } from "../../utils/wireCardDetailActionPlan";
+import { buildWireCardDetailActionPlan, type WireCardDetailActionPlan } from "../../utils/wireCardDetailActionPlan";
 import { buildWireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
 import { WireFocusedActionEntryList } from "../match/WireFocusedActionEntryList";
 import { WireFocusedActionSummary } from "../match/WireFocusedActionSummary";
@@ -184,6 +184,7 @@ export function CardDetailDrawer({
                   </div>
                 ))}
               </dl>
+              <DetailActionRoutes plan={detailActionPlan} />
               {detailActionPlan.entries.length === 0 ? (
                 <p className="detail-muted">{detailActionPlan.emptyLabel}</p>
               ) : (
@@ -209,6 +210,40 @@ export function CardDetailDrawer({
         )}
       </aside>
     </div>
+  );
+}
+
+function DetailActionRoutes({ plan }: { plan: WireCardDetailActionPlan }) {
+  if (plan.routeRows.length === 0) {
+    return null;
+  }
+
+  return (
+    <section
+      aria-label="卡牌详情候选入口路线"
+      className="detail-action-routes"
+      data-card-detail-route-count={plan.routeRows.length}
+    >
+      <header>
+        <strong>候选入口路线</strong>
+        <span>{plan.stateLabel}</span>
+      </header>
+      <ol>
+        {plan.routeRows.map((row) => (
+          <li
+            data-card-detail-action-route={row.key}
+            data-card-detail-action-route-state={row.state}
+            key={row.key}
+          >
+            <span>{row.modeLabel}</span>
+            <strong>{row.label}</strong>
+            <small>{row.commandType} / {row.stateLabel}</small>
+            <small>{row.fieldSummary}</small>
+            <em>{row.nextStepLabel}</em>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
