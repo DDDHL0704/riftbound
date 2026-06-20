@@ -204,13 +204,16 @@ function TimelineCommandBridge({
           <li
             data-timeline-command-bridge-draft-active={row.draftActive ? "true" : "false"}
             data-timeline-command-bridge-enabled={row.enabled ? "true" : "false"}
+            data-timeline-command-bridge-detail-role={row.detailRoleLabel}
             data-timeline-command-bridge-object-id={row.detailObjectId}
             data-timeline-command-bridge-route-state={row.routeState}
+            data-timeline-command-bridge-server-role={row.serverRoleSummary}
             key={row.key}
           >
             <div className="wire-timeline-command-bridge-main">
               <span>{row.label}</span>
               <strong>{row.nextStepLabel}</strong>
+              <small>{row.detailLinkLabel}</small>
               <small>{row.roleLabels.join(" / ")} / {row.commandType ?? "未公开命令"} / {row.stateLabel}</small>
               <small>{row.selectionLabel} / {row.routeStateLabel} / {row.selectedStepCount}/{row.totalStepCount}</small>
               <small>{row.commandFieldSummary}</small>

@@ -1349,6 +1349,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-bridge-enabled")),
       commandBridgeDraftActiveStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
+      commandBridgeDetailRoles: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-detail-role]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-detail-role") ?? ""),
       commandBridgeFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-state")),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
@@ -1366,6 +1368,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
       commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
       commandBridgeRowCount: panel?.querySelectorAll(".wire-timeline-command-bridge li").length ?? 0,
+      commandBridgeServerRoles: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-server-role]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-server-role") ?? ""),
       commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
@@ -1435,6 +1439,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
       routeText: route?.textContent ?? "",
       commandBridgeDraftActiveStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
+      commandBridgeDetailRoles: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-detail-role]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-detail-role") ?? ""),
       commandBridgeFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-state")),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
@@ -1537,6 +1543,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-bridge-enabled")),
       commandBridgeDraftActiveStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
+      commandBridgeDetailRoles: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-detail-role]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-detail-role") ?? ""),
       commandBridgeFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-state")),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
@@ -1551,6 +1559,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
       commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
       commandBridgeRowCount: panel?.querySelectorAll(".wire-timeline-command-bridge li").length ?? 0,
+      commandBridgeServerRoles: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-server-role]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-bridge-server-role") ?? ""),
       commandBridgeText: panel?.querySelector(".wire-timeline-command-bridge")?.textContent ?? "",
       statusText: panel?.querySelector(".wire-timeline-detail-status-grid")?.textContent ?? "",
       actionHintCount: panel?.querySelectorAll(".wire-timeline-action-hint-list li").length ?? 0,
@@ -1634,6 +1644,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.commandBridgeText.includes("候选路径")) failures.push("rule detail command bridge title missing");
   if (!ruleDetailResult.commandBridgeText.includes("PLAY_CARD")) failures.push("rule detail command bridge command type missing");
   if (!ruleDetailResult.commandBridgeText.includes("可选目标")) failures.push("rule detail command bridge next step missing");
+  if (!ruleDetailResult.commandBridgeDetailRoles.includes("来源")) failures.push("rule detail command bridge detail role missing");
+  if (!ruleDetailResult.commandBridgeServerRoles.includes("来源")) failures.push("rule detail command bridge server role missing");
+  if (!ruleDetailResult.commandBridgeText.includes("详情来源 / 候选来源")) failures.push("rule detail command bridge detail link missing");
   if (!ruleDetailResult.commandBridgeText.includes("已选 来源")) failures.push("rule detail command bridge source draft label missing");
   if (!ruleDetailResult.commandBridgeFieldStates.includes("covered")) failures.push("rule detail command bridge covered field state missing");
   if (!ruleDetailResult.commandBridgeFieldStates.includes("server")) failures.push("rule detail command bridge server field state missing");
@@ -1747,6 +1760,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.commandBridgeText.includes("候选路径")) failures.push("event detail command bridge title missing");
   if (!eventDetailResult.commandBridgeText.includes("PLAY_CARD")) failures.push("event detail command bridge command type missing");
   if (!eventDetailResult.commandBridgeText.includes("可选目标")) failures.push("event detail command bridge next step missing");
+  if (!eventDetailResult.commandBridgeDetailRoles.includes("来源")) failures.push("event detail command bridge detail role missing");
+  if (!eventDetailResult.commandBridgeServerRoles.includes("来源")) failures.push("event detail command bridge server role missing");
+  if (!eventDetailResult.commandBridgeText.includes("详情来源 / 候选来源")) failures.push("event detail command bridge detail link missing");
   if (!eventDetailResult.commandBridgeFieldStates.includes("covered")) failures.push("event detail command bridge covered field state missing");
   if (!eventDetailResult.commandBridgeFieldStates.includes("server")) failures.push("event detail command bridge server field state missing");
   if (!eventDetailResult.commandBridgeText.includes("服务端注入")) failures.push("event detail command bridge server field label missing");

@@ -225,6 +225,9 @@ assert.equal(visibilityPlan.inspector.visibleRefCount, 1);
 
 assert.equal(plan.commandBridgeRows.length, 2);
 assert.equal(plan.commandBridgeRows[0].detailObjectId, "source-1");
+assert.equal(plan.commandBridgeRows[0].detailRoleLabel, "来源");
+assert.equal(plan.commandBridgeRows[0].serverRoleSummary, "来源");
+assert.equal(plan.commandBridgeRows[0].detailLinkLabel, "详情来源 / 候选来源");
 assert.equal(plan.commandBridgeRows[0].commandType, "PLAY_CARD");
 assert.equal(plan.commandBridgeRows[0].draftActive, false);
 assert.equal(plan.commandBridgeRows[0].enabled, true);
@@ -251,6 +254,9 @@ assert.deepEqual(plan.commandBridgeRows[0].nextObjectRefs, [{
   roleLabel: "目标"
 }]);
 assert.equal(plan.commandBridgeRows[1].detailObjectId, "target-1");
+assert.equal(plan.commandBridgeRows[1].detailRoleLabel, "目标");
+assert.equal(plan.commandBridgeRows[1].serverRoleSummary, "目标");
+assert.equal(plan.commandBridgeRows[1].detailLinkLabel, "详情目标 / 候选目标");
 assert.deepEqual(plan.commandBridgeRows[1].roleLabels, ["目标"]);
 assert.equal(plan.commandBridgeRows[1].nextStepLabel, "需要来源");
 

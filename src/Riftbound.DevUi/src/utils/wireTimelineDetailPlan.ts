@@ -141,7 +141,9 @@ export type WireTimelineCommandBridgeRow = {
   commandFieldSummary: string;
   commandFields: WireTimelineCommandBridgeFieldRow[];
   commandType?: string;
+  detailLinkLabel: string;
   detailObjectId: string;
+  detailRoleLabel: string;
   draftActive: boolean;
   enabled: boolean;
   grammarState: FocusedInteractionGrammarState;
@@ -160,6 +162,7 @@ export type WireTimelineCommandBridgeRow = {
   routeState: WireTimelineCommandBridgeRouteState;
   routeStateLabel: string;
   selectedRoleLabels: string[];
+  serverRoleSummary: string;
   selectedStepCount: number;
   selectionLabel: string;
   stateLabel: string;
@@ -277,11 +280,11 @@ function commandBridgeRowsForDetail(
   const promptModel = buildPromptInteractionModel(prompt);
   const rows: WireTimelineCommandBridgeRow[] = [];
   const seen = new Set<string>();
-  const visibleRefIds = detail.refs
-    .map((ref) => ref.id.trim())
-    .filter((id) => id && id !== "HIDDEN" && objectIndex[id]);
+  const visibleRefs = detail.refs
+    .map((ref) => ({ ref, objectId: ref.id.trim() }))
+    .filter(({ objectId }) => objectId && objectId !== "HIDDEN" && objectIndex[objectId]);
 
-  for (const objectId of visibleRefIds) {
+  for (const { ref, objectId } of visibleRefs) {
     for (const candidate of promptModel.candidates) {
       const roleLabels = roleLabelsForObject(candidate, objectId);
       if (roleLabels.length === 0) {
@@ -315,11 +318,15 @@ function commandBridgeRowsForDetail(
       const routeState: WireTimelineCommandBridgeRouteState = disabledByConnection && draftState.draftActive
         ? "blocked"
         : draftState.routeState;
+      const detailRoleLabel = ref.role?.trim() || "详情对象";
+      const serverRoleSummary = roleLabels.join(" / ");
       rows.push({
         commandFieldSummary: commandFieldSummary(commandFields),
         commandFields,
         commandType: candidate.command?.cmdType ?? candidate.action,
+        detailLinkLabel: `详情${detailRoleLabel} / 候选${serverRoleSummary}`,
         detailObjectId: objectId,
+        detailRoleLabel,
         draftActive: draftState.draftActive,
         enabled: candidate.enabled,
         grammarState: grammar.state,
@@ -347,6 +354,7 @@ function commandBridgeRowsForDetail(
         routeState,
         routeStateLabel: routeStateLabel(routeState),
         selectedRoleLabels: draftState.selectedRoleLabels,
+        serverRoleSummary,
         selectedStepCount: draftState.selectedStepCount,
         selectionLabel: selectionLabel(draftState.draftActive, draftState.selectedRoleLabels),
         stateLabel: candidate.enabled ? "可提交" : "暂不可提交",
