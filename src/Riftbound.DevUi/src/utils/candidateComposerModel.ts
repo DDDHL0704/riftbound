@@ -92,6 +92,13 @@ export function buildCandidateComposerModel(candidate: ActionPromptCandidateDto)
   const resetKey = [
     candidate.action,
     candidate.label,
+    (candidate.selectionSteps ?? [])
+      .map((step) => [
+        step.role,
+        step.required ? "required" : "optional",
+        step.choices.map((choice) => choice.id).join(",")
+      ].join(":"))
+      .join("|"),
     (candidate.sources ?? []).map((choice) => choice.id).join("|"),
     sourceRequirements
       .map((requirement) => [
@@ -114,8 +121,10 @@ export function initialComposerState(
   forcedSourceId?: string,
   selectionDraft?: CandidateSelectionDraft
 ): CandidateComposerState {
+  const firstServerSourceId = selectionStepChoices(candidate, "source")[0]?.id;
   const fallbackSourceId = forcedSourceId
     ?? selectionDraft?.sourceObjectId
+    ?? firstServerSourceId
     ?? candidate.sources?.[0]?.id
     ?? firstRequirementSourceId(model);
   const requirement = selectedRequirement(model, fallbackSourceId);
@@ -184,11 +193,11 @@ export function composerControls(
   const minTargetCount = requirement ? firstNumberMetadata(requirement, ["minTargetCount", "requiredTargetCount"]) ?? 0 : 0;
   const minDefenderCount = requirement ? firstNumberMetadata(requirement, ["minDefenderCount"]) ?? 0 : 0;
   const sources = sourceChoicesForCandidate(candidate, model, forcedSourceObjectId);
-  const modeChoices = uniqueChoices([
+  const modeChoices = selectionStepChoicesOrFallback(candidate, "mode", [
     ...(candidate.modes ?? []),
     ...modeChoiceForRequirement(requirement)
   ]);
-  const destinationChoices = uniqueChoices([
+  const destinationChoices = selectionStepChoicesOrFallback(candidate, "destination", [
     ...(candidate.destinations ?? []),
     ...choiceArrayMetadata(requirement?.destinationChoices),
     ...choiceArrayMetadata(requirement?.battlefieldChoices)
@@ -197,7 +206,7 @@ export function composerControls(
   const requiredOptionalCostIds = uniqueStrings([
     ...(stringArrayFromValue(requirement?.requiredOptionalCosts) ?? [])
   ]);
-  const optionalCostChoices = uniqueChoices([
+  const optionalCostChoices = selectionStepChoicesOrFallback(candidate, "optionalCost", [
     ...(candidate.optionalCosts ?? []),
     ...choiceArrayMetadata(requirement?.optionalCostChoices),
     ...choiceArrayMetadata(requirement?.additionalCostChoices),
@@ -207,11 +216,12 @@ export function composerControls(
 
   return {
     destinationChoices,
-    destinationRequired: destinationChoices.length > 0,
+    destinationRequired: destinationChoices.length > 0
+      && roleRequiresSelection(candidate, "destination", true),
     modeChoices,
     optionalCostChoices,
     requiredOptionalCostIds,
-    sourceRequired: true,
+    sourceRequired: roleRequiresSelection(candidate, "source", true),
     sources,
     targetGroups
   };
@@ -558,7 +568,10 @@ function sourceChoicesForCandidate(
       };
     })
     .filter((choice): choice is ActionPromptChoiceDto => Boolean(choice));
-  const choices = uniqueChoices([...(candidate.sources ?? []), ...requirementChoices]);
+  const choices = selectionStepChoicesOrFallback(candidate, "source", [
+    ...(candidate.sources ?? []),
+    ...requirementChoices
+  ]);
   return forcedSourceObjectId
     ? choices.filter((choice) => choice.id === forcedSourceObjectId)
     : choices;
@@ -583,13 +596,23 @@ function targetGroupsForRequirement(
   minTargetCount: number,
   minDefenderCount: number
 ): ChoiceGroup[] {
+  const requiredCount = candidate.action === "DECLARE_BATTLE" ? minDefenderCount : minTargetCount;
   const indexedTargetGroups = choiceGroupsByIndex(
     requirement?.targetChoicesByIndex,
-    candidate.action === "DECLARE_BATTLE" ? minDefenderCount : minTargetCount,
+    requiredCount,
     candidate.action === "DECLARE_BATTLE" ? "防守方" : "目标"
   );
   if (indexedTargetGroups.length > 0) {
     return indexedTargetGroups;
+  }
+
+  const selectionTargetGroups = targetGroupsFromSelectionSteps(
+    candidate,
+    requiredCount,
+    candidate.action === "DECLARE_BATTLE" ? "防守方" : "目标"
+  );
+  if (selectionTargetGroups.length > 0) {
+    return selectionTargetGroups;
   }
 
   const targetChoices = uniqueChoices([
@@ -604,11 +627,33 @@ function targetGroupsForRequirement(
     choices: targetChoices,
     key: "target-0",
     label: candidate.action === "DECLARE_BATTLE" ? "防守方 1" : "目标 1",
-    required: candidate.action === "ASSEMBLE_EQUIPMENT"
+    required: roleRequiresSelection(candidate, "target", candidate.action === "ASSEMBLE_EQUIPMENT"
       || candidate.action === "DECLARE_BATTLE"
       || minTargetCount > 0
-      || minDefenderCount > 0
+      || minDefenderCount > 0)
   }];
+}
+
+function targetGroupsFromSelectionSteps(
+  candidate: ActionPromptCandidateDto,
+  requiredCount: number,
+  labelPrefix: string
+): ChoiceGroup[] {
+  const targetSteps = selectionStepsForRole(candidate, "target");
+  if (targetSteps.length === 0) {
+    return [];
+  }
+
+  return targetSteps
+    .map((step, index) => ({
+      choices: uniqueChoices(step.choices.map(selectionChoiceToPromptChoice)),
+      key: `target-step-${index}`,
+      label: step.label || `${labelPrefix} ${index + 1}`,
+      required: step.required
+        || roleRequiresSelection(candidate, "target", false)
+        || index < requiredCount
+    }))
+    .filter((group) => group.choices.length > 0 || group.required);
 }
 
 function choiceGroupsByIndex(value: unknown, requiredCount: number, labelPrefix: string): ChoiceGroup[] {
@@ -626,6 +671,83 @@ function choiceGroupsByIndex(value: unknown, requiredCount: number, labelPrefix:
       label: `${labelPrefix} ${index + 1}`,
       required: index < requiredCount
     }));
+}
+
+function selectionStepsForRole(
+  candidate: ActionPromptCandidateDto,
+  role: "source" | "target" | "destination" | "mode" | "optionalCost"
+) {
+  return (candidate.selectionSteps ?? []).filter((step) => step.role === role);
+}
+
+function selectionStepChoices(
+  candidate: ActionPromptCandidateDto,
+  role: "source" | "destination" | "mode" | "optionalCost"
+): ActionPromptChoiceDto[] {
+  return uniqueChoices(selectionStepsForRole(candidate, role)
+    .flatMap((step) => step.choices.map(selectionChoiceToPromptChoice)));
+}
+
+function selectionStepChoicesOrFallback(
+  candidate: ActionPromptCandidateDto,
+  role: "source" | "destination" | "mode" | "optionalCost",
+  fallbackChoices: ActionPromptChoiceDto[]
+): ActionPromptChoiceDto[] {
+  const stepChoices = selectionStepChoices(candidate, role);
+  return stepChoices.length > 0 ? stepChoices : uniqueChoices(fallbackChoices);
+}
+
+function selectionChoiceToPromptChoice(choice: {
+  id: string;
+  label: string;
+  objectIds?: string[] | null;
+  reason?: string | null;
+}): ActionPromptChoiceDto {
+  return {
+    id: choice.id,
+    label: choice.label || choice.id,
+    objectIds: normalizedObjectIds(choice.objectIds),
+    reason: choice.reason ?? undefined
+  };
+}
+
+function roleRequiresSelection(
+  candidate: ActionPromptCandidateDto,
+  role: "source" | "target" | "destination" | "mode" | "optionalCost",
+  fallback: boolean
+): boolean {
+  const steps = selectionStepsForRole(candidate, role);
+  if (steps.some((step) => step.required)) {
+    return true;
+  }
+
+  return commandTemplateRequiresRole(candidate, role) || fallback;
+}
+
+function commandTemplateRequiresRole(
+  candidate: ActionPromptCandidateDto,
+  role: "source" | "target" | "destination" | "mode" | "optionalCost"
+): boolean {
+  const sources = commandBindingSourcesForRole(role);
+  return (candidate.commandTemplate?.bindings ?? []).some((binding) =>
+    Boolean(binding.required) && sources.includes(binding.source));
+}
+
+function commandBindingSourcesForRole(role: "source" | "target" | "destination" | "mode" | "optionalCost"): string[] {
+  switch (role) {
+    case "source":
+      return ["selectedSource"];
+    case "target":
+      return ["selectedTarget", "selectedTargets"];
+    case "destination":
+      return ["selectedDestination"];
+    case "mode":
+      return ["selectedMode"];
+    case "optionalCost":
+      return ["selectedOptionalCosts"];
+    default:
+      return [];
+  }
 }
 
 function targetChoiceGroupCount(value: unknown): number {

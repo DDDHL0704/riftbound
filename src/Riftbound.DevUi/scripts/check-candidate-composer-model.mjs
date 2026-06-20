@@ -178,6 +178,73 @@ assert.deepEqual(composerCommand(playCandidate, state, requirement, selectedTarg
 const forcedControls = composerControls(playCandidate, model, requirement, "hand-1");
 assert.deepEqual(forcedControls.sources.map((choice) => choice.id), ["hand-1"]);
 
+const serverStepCandidate = {
+  action: "MOVE_UNIT",
+  commandTemplate: {
+    bindings: [
+      { field: "sourceObjectId", required: true, source: "selectedSource" },
+      { field: "destination", required: true, source: "selectedDestination" },
+      { asArray: true, field: "optionalCosts", source: "selectedOptionalCosts" }
+    ],
+    cmdType: "MOVE_UNIT"
+  },
+  enabled: true,
+  label: "移动单位",
+  metadata: {
+    sourceRequirements: [
+      {
+        destinationChoices: [{ id: "metadata-destination", label: "旧位置" }],
+        optionalCostChoices: [{ id: "metadata-cost", label: "旧费用" }],
+        sourceObjectId: "metadata-source"
+      }
+    ]
+  },
+  reason: "可移动",
+  selectionSteps: [
+    {
+      choices: [{ id: "step-source", label: "步骤来源", objectIds: ["step-source"] }],
+      label: "来源",
+      required: true,
+      role: "source"
+    },
+    {
+      choices: [{ id: "step-destination", label: "步骤位置", objectIds: ["step-destination"] }],
+      label: "位置",
+      required: true,
+      role: "destination"
+    },
+    {
+      choices: [{ id: "step-cost", label: "步骤费用", objectIds: ["step-cost"] }],
+      label: "费用",
+      required: false,
+      role: "optionalCost"
+    }
+  ],
+  sources: [{ id: "candidate-source", label: "旧来源" }]
+};
+const serverStepModel = buildCandidateComposerModel(serverStepCandidate);
+assert.ok(serverStepModel.resetKey.includes("source:required:step-source"));
+const serverStepState = initialComposerState(serverStepCandidate, serverStepModel);
+const serverStepRequirement = selectedRequirement(serverStepModel, serverStepState.sourceId);
+const serverStepControls = composerControls(serverStepCandidate, serverStepModel, serverStepRequirement, undefined);
+assert.equal(serverStepState.sourceId, "step-source");
+assert.deepEqual(serverStepControls.sources.map((choice) => choice.id), ["step-source"]);
+assert.deepEqual(serverStepControls.destinationChoices.map((choice) => choice.id), ["step-destination"]);
+assert.equal(serverStepControls.destinationRequired, true);
+assert.deepEqual(serverStepControls.optionalCostChoices.map((choice) => choice.id), ["step-cost"]);
+assert.deepEqual(composerCommand(
+  serverStepCandidate,
+  serverStepState,
+  serverStepRequirement,
+  [],
+  ["step-cost"]
+), {
+  cmdType: "MOVE_UNIT",
+  destination: "step-destination",
+  optionalCosts: ["step-cost"],
+  sourceObjectId: "step-source"
+});
+
 const blockedRequirement = {
   ...requirement,
   composable: false,
