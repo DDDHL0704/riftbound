@@ -11677,7 +11677,7 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: minmax(248px, auto) minmax(150px, 0.5fr) minmax(170px, 0.55fr) minmax(250px, 1fr) minmax(210px, 0.75fr) minmax(120px, 0.35fr) minmax(150px, 0.45fr);
+  grid-template-rows: minmax(248px, auto) minmax(150px, auto) minmax(150px, auto) minmax(170px, 0.55fr) minmax(250px, 1fr) minmax(210px, 0.75fr) minmax(120px, 0.35fr) minmax(120px, 0.35fr) minmax(150px, 0.45fr);
   gap: 4px;
   overflow: auto;
   padding: 4px;
@@ -11753,6 +11753,10 @@ button.card-face:hover {
 .wire-table-authority-metrics span,
 .wire-table-authority-group,
 .wire-table-authority-group li,
+.wire-prompt-authority,
+.wire-prompt-authority-header,
+.wire-prompt-authority-metrics span,
+.wire-prompt-authority-rows li,
 .wire-interaction-panel,
 .wire-selected-candidates,
 .wire-focused-actions,
@@ -12093,6 +12097,83 @@ button.card-face:hover {
 .wire-table-authority-group li span,
 .wire-table-authority-group li strong,
 .wire-table-authority-group li small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-prompt-authority {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.wire-prompt-authority-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+}
+
+.wire-prompt-authority-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-prompt-authority-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-prompt-authority-metrics span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-prompt-authority-rows {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-prompt-authority-rows li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(62px, 0.7fr) minmax(76px, 0.9fr) minmax(0, 1.4fr);
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+}
+
+.wire-prompt-authority [data-wire-prompt-authority-row-state="server"],
+.wire-prompt-authority [data-wire-prompt-authority-metric-state="server"] {
+  border-width: 2px;
+}
+
+.wire-prompt-authority [data-wire-prompt-authority-row-state="fallback"],
+.wire-prompt-authority [data-wire-prompt-authority-row-state="missing"],
+.wire-prompt-authority [data-wire-prompt-authority-metric-state="fallback"],
+.wire-prompt-authority [data-wire-prompt-authority-metric-state="missing"] {
+  border-style: dashed;
+}
+
+.wire-prompt-authority-header strong,
+.wire-prompt-authority-header span,
+.wire-prompt-authority-metrics small,
+.wire-prompt-authority-metrics strong,
+.wire-prompt-authority-rows li span,
+.wire-prompt-authority-rows li strong,
+.wire-prompt-authority-rows li small {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -14030,6 +14111,10 @@ button.wire-object-ref {
 .wire-match-page .wire-table-authority-metrics span,
 .wire-match-page .wire-table-authority-group,
 .wire-match-page .wire-table-authority-group li,
+.wire-match-page .wire-prompt-authority,
+.wire-match-page .wire-prompt-authority-header,
+.wire-match-page .wire-prompt-authority-metrics span,
+.wire-match-page .wire-prompt-authority-rows li,
 .wire-match-page .wire-interaction-panel,
 .wire-match-page .wire-selected-candidates,
 .wire-match-page .wire-focused-action-summary,

@@ -188,6 +188,16 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       },
       {
         action: "DECLARE_BATTLE",
+        commandTemplate: {
+          bindings: [
+            { asArray: true, field: "attackerObjectIds", label: "攻击", required: true, source: "selectedSource" },
+            { field: "battlefieldId", label: "战场", required: true, source: "selectedDestination" },
+            { asArray: true, field: "battlefieldTargetObjectIds", label: "战场目标", required: true, source: "selectedDestination" },
+            { asArray: true, field: "defenderObjectIds", label: "防守", required: true, source: "selectedTargets" },
+            { asArray: true, field: "optionalCosts", label: "费用", source: "selectedOptionalCosts" }
+          ],
+          cmdType: "DECLARE_BATTLE"
+        },
         destinations: [{ id: "fixture-right-battlefield", label: "右战场牌" }],
         enabled: true,
         label: "声明战斗样例",
@@ -239,6 +249,15 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
         reason: "前端线框样例；真实窗口由服务端推进。"
       }
     ],
+    contract: {
+      candidateAction: "SERVER_CANDIDATE",
+      hiddenMetadata: ["serverPaymentState", "ruleWindowState"],
+      legalChoices: ["candidate.sources", "candidate.targets", "candidate.destinations", "candidate.optionalCosts", "candidate.selectionSteps"],
+      promptKind: "MAIN_ACTION",
+      requiredPayload: ["candidate.commandTemplate", "candidate.selectionSteps", "promptId", "snapshotTick"],
+      validationErrors: ["INVALID_PAYLOAD", "PHASE_NOT_ALLOWED", "INVALID_TARGET", "INSUFFICIENT_COST", "PROMPT_EXPIRED"],
+      visibleMetadata: ["sourceRequirements", "paymentResourceChoices", "targetChoicesByIndex"]
+    },
     objectContexts: [
       {
         candidates: [

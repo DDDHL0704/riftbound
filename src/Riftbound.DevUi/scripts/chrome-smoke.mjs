@@ -569,10 +569,26 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures.push(\`action map submission gate not connected: \${submissionGateState}\`);
     }
 
+    const promptAuthority = document.querySelector("[data-wire-prompt-authority-state]");
+    const promptAuthorityState = promptAuthority?.getAttribute("data-wire-prompt-authority-state") ?? "missing";
+    if (promptAuthorityState !== "server") {
+      failures.push(\`wire prompt authority should be server-authored, got \${promptAuthorityState}\`);
+    }
+    const promptAuthorityRows = new Map(Array.from(document.querySelectorAll("[data-wire-prompt-authority-row]")).map((row) => [
+      row.getAttribute("data-wire-prompt-authority-row") ?? "",
+      row.getAttribute("data-wire-prompt-authority-row-state") ?? ""
+    ]));
+    for (const rowKey of ["candidates", "commandTemplates", "objectContexts", "contract", "submissionGate"]) {
+      if (promptAuthorityRows.get(rowKey) !== "server") {
+        failures.push(\`wire prompt authority row \${rowKey} is not server-authored: \${promptAuthorityRows.get(rowKey) ?? "missing"}\`);
+      }
+    }
+
     return {
       failures,
       fixedPileCount: document.querySelectorAll(".wire-fixed-pile").length,
       flowCount: document.querySelectorAll(".wire-card-flow").length,
+      promptAuthorityState,
       quickActionCount: quickActions.size,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length,
       tableAuthorityState
@@ -598,6 +614,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (result.tableAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server table authority: ${result.tableAuthorityState}`);
+  }
+  if (result.promptAuthorityState !== "server") {
+    throw new Error(`Wire layout geometry smoke did not find server prompt authority: ${result.promptAuthorityState}`);
   }
 }
 
