@@ -116,7 +116,7 @@ function validateBattlefield() {
   expectAllowedSet("battlefield.slots", battlefield.slots, battlefieldSlots);
   expectLength("battlefield.columns", battlefield.columns, battlefield.slots?.length ?? 0);
   expectLength("battlefield.centerColumns", battlefield.centerColumns, 2);
-  expectLength("battlefield.centerRows", battlefield.centerRows, 2);
+  expectLength("battlefield.centerRows", battlefield.centerRows, 3);
 
   const zones = battlefield.unitZones;
   if (!Array.isArray(zones) || zones.length !== 4) {
@@ -128,6 +128,15 @@ function validateBattlefield() {
   expectUnitZone(1, 1, "opponent");
   expectUnitZone(2, 0, "self");
   expectUnitZone(3, 1, "self");
+
+  const standbyZones = battlefield.standbyZones;
+  if (!Array.isArray(standbyZones) || standbyZones.length !== 2) {
+    errors.push("battlefield.standbyZones must contain one standby rail per battlefield");
+    return;
+  }
+
+  expectStandbyZone(0, 0);
+  expectStandbyZone(1, 1);
 }
 
 function validateHandRail(side, expectedSlots, expectedBodySlots, expectedPileSlots, expectedRuneReverse) {
@@ -176,6 +185,13 @@ function expectUnitZone(index, laneIndex, side) {
   const zone = layout.battlefield.unitZones[index];
   if (zone?.laneIndex !== laneIndex || zone?.side !== side) {
     errors.push(`battlefield.unitZones[${index}] should be lane ${laneIndex} / ${side}`);
+  }
+}
+
+function expectStandbyZone(index, laneIndex) {
+  const zone = layout.battlefield.standbyZones[index];
+  if (zone?.laneIndex !== laneIndex) {
+    errors.push(`battlefield.standbyZones[${index}] should be lane ${laneIndex}`);
   }
 }
 

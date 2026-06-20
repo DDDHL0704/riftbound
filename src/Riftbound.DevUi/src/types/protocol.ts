@@ -436,6 +436,7 @@ export type ZoneView = {
   baseCards?: string[];
   baseRunes?: string[];
   battlefields?: string[];
+  battlefieldHiddenStandbyCount?: number;
   graveyard?: string[];
   banished?: string[];
   legendZone?: string[];
@@ -485,6 +486,17 @@ export type PlayerSnapshotView = {
   objects?: Record<string, CardObjectView>;
 };
 
+export type BattlefieldStandbySlotView = {
+  slotId?: string;
+  battlefieldObjectId?: string;
+  sidePlayerId?: string | null;
+  controllerId?: string | null;
+  visible?: boolean;
+  state?: "VISIBLE" | "HIDDEN" | (string & {});
+  isFaceDown?: boolean;
+  objectId?: string;
+};
+
 export type BattlefieldSnapshotView = {
   battlefieldObjectId?: string;
   zonePlayerId?: string;
@@ -496,9 +508,13 @@ export type BattlefieldSnapshotView = {
   occupantControllerIds?: string[];
   unitsBySide?: Record<string, string[]>;
   standbyObjectIds?: string[];
+  standbySlots?: BattlefieldStandbySlotView[];
+  standbySlotCount?: number;
   faceDownStandbyCount?: number;
+  hiddenStandbyCount?: number;
   pendingTaskKinds?: string[];
   scoredThisTurn?: boolean;
+  scoredThisTurnPlayerIds?: string[];
   scoredPlayerId?: string | null;
   scoreStatus?: string | null;
 };

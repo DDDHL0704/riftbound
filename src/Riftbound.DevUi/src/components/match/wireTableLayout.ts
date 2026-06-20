@@ -60,10 +60,16 @@ export type WireBattlefieldUnitZoneLayout = {
   side: WireBattlefieldUnitSide;
 };
 
+export type WireBattlefieldStandbyZoneLayout = {
+  id: string;
+  laneIndex: number;
+};
+
 export type WireBattlefieldLayout = {
   centerColumns: string[];
   centerRows: string[];
   columns: string[];
+  standbyZones: WireBattlefieldStandbyZoneLayout[];
   slots: WireBattlefieldSlot[];
   unitZones: WireBattlefieldUnitZoneLayout[];
 };

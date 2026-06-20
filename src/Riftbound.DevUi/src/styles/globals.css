@@ -11505,7 +11505,8 @@ button.card-face:hover {
 }
 
 .wire-battlefield-site,
-.wire-battlefield-unit-zone {
+.wire-battlefield-unit-zone,
+.wire-battlefield-standby-zone {
   min-width: 0;
   min-height: 0;
   display: grid;
@@ -11555,6 +11556,20 @@ button.card-face:hover {
 
 .wire-card-flow-battlefield-unit {
   justify-content: space-evenly;
+}
+
+.wire-battlefield-standby-zone {
+  align-items: center;
+  justify-items: center;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.wire-card-flow-standby {
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  padding: 2px;
 }
 
 .wire-card-flow {

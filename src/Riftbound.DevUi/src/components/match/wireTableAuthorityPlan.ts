@@ -1,6 +1,7 @@
 import type {
   WireBasePartitionSource,
   WireBattlefieldOccupantSplitSource,
+  WireBattlefieldStandbySlotSource,
   WireTableViewModel
 } from "./wireTableViewModel";
 
@@ -25,10 +26,15 @@ export type WireTableAuthorityPlayerRow = {
 
 export type WireTableAuthorityLaneRow = {
   battlefieldId: string;
+  hiddenStandbyCount: number;
   key: string;
   label: string;
   opposingCount: number;
   ownCount: number;
+  standbyCount: number;
+  standbySource: WireBattlefieldStandbySlotSource | "missing";
+  standbySourceLabel: string;
+  standbyState: WireTableAuthorityState;
   source: WireBattlefieldOccupantSplitSource | "missing";
   sourceLabel: string;
   state: WireTableAuthorityState;
@@ -61,8 +67,13 @@ export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTabl
     battlefieldId: lane.battlefieldId,
     key: `${lane.index}:${lane.battlefieldId}`,
     label: lane.index === 0 ? "左战场" : "右战场",
+    hiddenStandbyCount: lane.hiddenStandbyCount,
     opposingCount: lane.opposingOccupants.length,
     ownCount: lane.ownOccupants.length,
+    standbyCount: lane.standbySlots.length,
+    standbySource: lane.standbySlotSource,
+    standbySourceLabel: standbySlotSourceLabel(lane.standbySlotSource),
+    standbyState: standbySlotState(lane.standbySlotSource),
     source: lane.occupantSplitSource,
     sourceLabel: battlefieldSplitSourceLabel(lane.occupantSplitSource),
     state: battlefieldSplitState(lane.occupantSplitSource)
@@ -72,8 +83,11 @@ export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTabl
   const missingLaneCount = Math.max(0, REQUIRED_LANE_COUNT - lanes.length);
   const rows = [
     ...players,
-    ...lanes,
-    ...Array.from({ length: missingPlayerCount + missingLaneCount }, (_, index) => ({ state: "missing" as const, key: `missing-${index}` }))
+    ...lanes.flatMap((lane) => [
+      { key: `${lane.key}:units`, state: lane.state },
+      { key: `${lane.key}:standby`, state: lane.standbyState }
+    ]),
+    ...Array.from({ length: missingPlayerCount + missingLaneCount * 2 }, (_, index) => ({ state: "missing" as const, key: `missing-${index}` }))
   ];
   const issueCount = rows.filter((row) => row.state !== "server").length;
   const state = resolveAuthorityState(rows.map((row) => row.state));
@@ -93,6 +107,12 @@ export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTabl
         label: "战场分边",
         state: missingLaneCount > 0 ? "missing" : aggregateRows(lanes.map((row) => row.state)),
         value: `${lanes.filter((row) => row.state === "server").length}/${REQUIRED_LANE_COUNT}`
+      },
+      {
+        key: "standbySlots",
+        label: "待命槽位",
+        state: missingLaneCount > 0 ? "missing" : aggregateRows(lanes.map((row) => row.standbyState)),
+        value: `${lanes.filter((row) => row.standbyState === "server").length}/${REQUIRED_LANE_COUNT}`
       },
       {
         key: "issues",
@@ -144,6 +164,10 @@ function battlefieldSplitState(source: WireBattlefieldOccupantSplitSource): Wire
   return source === "server-unitsBySide" ? "server" : "fallback";
 }
 
+function standbySlotState(source: WireBattlefieldStandbySlotSource): WireTableAuthorityState {
+  return source === "server-standbySlots" ? "server" : "fallback";
+}
+
 function basePartitionSourceLabel(source: WireBasePartitionSource | "missing"): string {
   switch (source) {
     case "server":
@@ -165,6 +189,17 @@ function battlefieldSplitSourceLabel(source: WireBattlefieldOccupantSplitSource 
       return "服务端 unitsBySide";
     case "controller-fallback":
       return "控制权兜底";
+    case "missing":
+      return "缺少战场快照";
+  }
+}
+
+function standbySlotSourceLabel(source: WireBattlefieldStandbySlotSource | "missing"): string {
+  switch (source) {
+    case "server-standbySlots":
+      return "服务端 standbySlots";
+    case "standbyObjectIds-fallback":
+      return "待命对象兜底";
     case "missing":
       return "缺少战场快照";
   }

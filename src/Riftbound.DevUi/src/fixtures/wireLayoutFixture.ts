@@ -663,9 +663,11 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
     obj("p1-left-2", "UNL-006/219", selfId, selfId, { isExhausted: true }),
     obj("p1-left-3", "UNL-008/219", selfId),
     obj("p1-left-4", "UNL-019/219", selfId),
+    obj("p1-left-standby", "UNL-009/219", selfId, selfId, { location: { battlefieldObjectId: "fixture-left-battlefield", playerId: selfId, zone: "BATTLEFIELD" } }),
     obj("p1-right-1", "UNL-001/219", selfId),
     obj("p1-right-2", "UNL-003/219", selfId),
-    obj("p1-right-3", "UNL-022/219", selfId)
+    obj("p1-right-3", "UNL-022/219", selfId),
+    obj("p1-right-standby", "UNL-007/219", selfId, selfId, { location: { battlefieldObjectId: "fixture-right-battlefield", playerId: selfId, zone: "BATTLEFIELD" } })
   ], {
     base: ["p1-base-unit", "p1-base-equip", "p1-base-spell", "p1-rune-1", "p1-rune-2", "p1-rune-3", "p1-rune-4", "p1-rune-5", "p1-rune-6"],
     baseCards: ["p1-base-unit", "p1-base-equip", "p1-base-spell"],
@@ -697,7 +699,8 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
     obj("p2-right-1", "UNL-008/219", opponentId),
     obj("p2-right-2", "UNL-002/219", opponentId),
     obj("p2-right-3", "UNL-006/219", opponentId),
-    obj("p2-right-4", "UNL-019/219", opponentId)
+    obj("p2-right-4", "UNL-019/219", opponentId),
+    obj("p2-right-standby", "UNL-011/219", opponentId, opponentId, { location: { battlefieldObjectId: "fixture-right-battlefield", playerId: opponentId, zone: "BATTLEFIELD" } })
   ], {
     base: ["p2-base-unit", "p2-base-equip", "p2-rune-1", "p2-rune-2", "p2-rune-3", "p2-rune-4", "p2-rune-5"],
     baseCards: ["p2-base-unit", "p2-base-equip"],
@@ -719,9 +722,32 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
           battlefieldObjectId: "fixture-left-battlefield",
           cardNo: "UNL-205/219",
           controllerId: selfId,
+          hiddenStandbyCount: 1,
           occupantObjectIds: ["p2-left-1", "p2-left-2", "p2-left-3", "p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"],
           scoredThisTurn: false,
           status: "CONTESTED",
+          standbySlotCount: 2,
+          standbySlots: [
+            {
+              battlefieldObjectId: "fixture-left-battlefield",
+              controllerId: selfId,
+              isFaceDown: false,
+              objectId: "p1-left-standby",
+              sidePlayerId: selfId,
+              slotId: "fixture-left-battlefield:standby:1",
+              state: "VISIBLE",
+              visible: true
+            },
+            {
+              battlefieldObjectId: "fixture-left-battlefield",
+              controllerId: opponentId,
+              isFaceDown: false,
+              sidePlayerId: opponentId,
+              slotId: "fixture-left-battlefield:standby:2",
+              state: "HIDDEN",
+              visible: false
+            }
+          ],
           unitsBySide: {
             [opponentId]: ["p2-left-1", "p2-left-2", "p2-left-3"],
             [selfId]: ["p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"]
@@ -732,9 +758,34 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
           battlefieldObjectId: "fixture-right-battlefield",
           cardNo: "UNL-206/219",
           controllerId: opponentId,
+          hiddenStandbyCount: 0,
           occupantObjectIds: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4", "p1-right-1", "p1-right-2", "p1-right-3"],
           scoredThisTurn: true,
+          scoredThisTurnPlayerIds: [opponentId],
           status: "CONTROLLED",
+          standbySlotCount: 2,
+          standbySlots: [
+            {
+              battlefieldObjectId: "fixture-right-battlefield",
+              controllerId: opponentId,
+              isFaceDown: false,
+              objectId: "p2-right-standby",
+              sidePlayerId: opponentId,
+              slotId: "fixture-right-battlefield:standby:1",
+              state: "VISIBLE",
+              visible: true
+            },
+            {
+              battlefieldObjectId: "fixture-right-battlefield",
+              controllerId: selfId,
+              isFaceDown: true,
+              objectId: "p1-right-standby",
+              sidePlayerId: selfId,
+              slotId: "fixture-right-battlefield:standby:2",
+              state: "VISIBLE",
+              visible: true
+            }
+          ],
           unitsBySide: {
             [opponentId]: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4"],
             [selfId]: ["p1-right-1", "p1-right-2", "p1-right-3"]

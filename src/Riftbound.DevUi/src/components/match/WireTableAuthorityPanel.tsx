@@ -61,6 +61,23 @@ export function WireTableAuthorityPanel({ table }: { table: WireTableViewModel }
           ))}
         </ol>
       </section>
+
+      <section className="wire-table-authority-group" aria-label="战场待命槽位来源">
+        <strong>待命槽位</strong>
+        <ol>
+          {plan.lanes.map((row) => (
+            <li
+              data-wire-table-authority-row-state={row.standbyState}
+              data-wire-table-authority-standby-source={row.standbySource}
+              key={`${row.key}:standby`}
+            >
+              <span>{row.label}</span>
+              <strong>{row.standbySourceLabel}</strong>
+              <small>槽位 {row.standbyCount} / 隐藏 {row.hiddenStandbyCount}</small>
+            </li>
+          ))}
+        </ol>
+      </section>
     </section>
   );
 }

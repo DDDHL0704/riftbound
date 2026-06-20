@@ -1,4 +1,4 @@
-export type WireCardFlowKind = "battlefield-unit" | "base" | "hand" | "signature";
+export type WireCardFlowKind = "battlefield-unit" | "base" | "hand" | "signature" | "standby";
 export type WireCardFlowDensity = "single" | "sparse" | "normal" | "dense" | "packed";
 export type WireCardFlowFit = "fixed-slot" | "elastic-rail" | "overflow-rail";
 export type WireCardFlowLayout = "grid" | "rail";
@@ -66,6 +66,19 @@ export function buildWireCardFlowPlan({
       return railPlan(kind, itemCount, minSlots, slotCount, "packed", 48, 3, 12);
     }
     return railPlan(kind, itemCount, minSlots, slotCount, "packed", 42, 3, 12);
+  }
+
+  if (kind === "standby") {
+    if (effectiveCount <= 2) {
+      return railPlan(kind, itemCount, minSlots, slotCount, "sparse", 58, 4, 8);
+    }
+    if (effectiveCount <= 4) {
+      return railPlan(kind, itemCount, minSlots, slotCount, "normal", 52, 4, 8);
+    }
+    if (effectiveCount <= 8) {
+      return railPlan(kind, itemCount, minSlots, slotCount, "dense", 46, 3, 8);
+    }
+    return railPlan(kind, itemCount, minSlots, slotCount, "packed", 40, 3, 8);
   }
 
   if (kind === "base") {

@@ -20,7 +20,7 @@ new Function("exports", "module", output)(moduleShim.exports, moduleShim);
 const { buildWireCardFlowPlan } = moduleShim.exports;
 const cardAspect = 744 / 1039;
 
-for (const kind of ["battlefield-unit", "base", "hand", "signature"]) {
+for (const kind of ["battlefield-unit", "base", "hand", "signature", "standby"]) {
   for (const itemCount of [0, 1, 3, 5, 8, 12, 20, 40]) {
     const plan = buildWireCardFlowPlan({ itemCount, kind });
     assert.equal(plan.kind, kind);
@@ -48,7 +48,7 @@ for (const kind of ["battlefield-unit", "base", "hand", "signature"]) {
   }
 }
 
-for (const kind of ["battlefield-unit", "base", "hand"]) {
+for (const kind of ["battlefield-unit", "base", "hand", "standby"]) {
   assertNonIncreasingWidths(kind, [0, 1, 3, 5, 8, 12, 20, 40]);
 }
 
@@ -74,6 +74,16 @@ assert.equal(crowdedBattlefield.scrollAfter, 12);
 assert.equal(crowdedBattlefield.visibleSlotCount, 12);
 assert.equal(crowdedBattlefield.overflowCount, 28);
 assert.equal(crowdedBattlefield.overflow, "scroll");
+
+const crowdedStandby = buildWireCardFlowPlan({ itemCount: 40, kind: "standby" });
+assert.equal(crowdedStandby.density, "packed");
+assert.equal(crowdedStandby.layout, "rail");
+assert.equal(crowdedStandby.cardWidth, 40);
+assert.equal(crowdedStandby.slotCount, 40);
+assert.equal(crowdedStandby.scrollAfter, 8);
+assert.equal(crowdedStandby.visibleSlotCount, 8);
+assert.equal(crowdedStandby.overflowCount, 32);
+assert.equal(crowdedStandby.overflow, "scroll");
 
 const crowdedBase = buildWireCardFlowPlan({ itemCount: 40, kind: "base" });
 assert.equal(crowdedBase.density, "packed");

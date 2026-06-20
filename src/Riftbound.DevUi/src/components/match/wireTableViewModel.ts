@@ -1,11 +1,19 @@
 import type { BehaviorSpec } from "../../types/catalog";
-import type { BattlefieldSnapshotView, CardObjectView, PlayerSnapshotView, SnapshotDto, ZoneView } from "../../types/protocol";
+import type {
+  BattlefieldSnapshotView,
+  BattlefieldStandbySlotView,
+  CardObjectView,
+  PlayerSnapshotView,
+  SnapshotDto,
+  ZoneView
+} from "../../types/protocol";
 import { buildWireCardFlowPlan, type WireCardFlowPlan } from "./wireCardFlowPlan";
 
 export type WirePlayerSide = "self" | "opponent";
 export type WireZoneObjects = Record<string, CardObjectView | undefined>;
 export type WireBasePartitionSource = "catalog-fallback" | "mixed" | "server" | "server-location";
 export type WireBattlefieldOccupantSplitSource = "controller-fallback" | "server-unitsBySide";
+export type WireBattlefieldStandbySlotSource = "server-standbySlots" | "standbyObjectIds-fallback";
 
 export type WirePlayerEntry = {
   basePartitionSource: WireBasePartitionSource;
@@ -26,16 +34,34 @@ export type WireBattlefieldLane = {
   battlefieldId: string;
   cardNo: string;
   controllerId: string;
+  hiddenStandbyCount: number;
   index: number;
   occupantSplitSource: WireBattlefieldOccupantSplitSource;
   ownOccupants: string[];
   opposingOccupants: string[];
+  scoredThisTurnPlayerIds: string[];
+  standbySlotCount: number;
+  standbySlotSource: WireBattlefieldStandbySlotSource;
+  standbySlots: WireBattlefieldStandbySlot[];
   zonePlayerId: string;
+};
+
+export type WireBattlefieldStandbySlot = {
+  battlefieldObjectId: string;
+  controllerId: string;
+  isFaceDown: boolean;
+  objectId?: string;
+  side: WirePlayerSide | "unknown";
+  sidePlayerId: string;
+  slotId: string;
+  state: "VISIBLE" | "HIDDEN" | (string & {});
+  visible: boolean;
 };
 
 export type WireBattlefieldModel = {
   lanes: WireBattlefieldLane[];
   objects: WireZoneObjects;
+  standbyPlan: WireCardFlowPlan;
   unitPlan: WireCardFlowPlan;
 };
 
@@ -82,10 +108,16 @@ export function buildWireBattlefieldModel(
   const objects = buildWireObjectIndex(snapshot);
   const lanes = [0, 1].map((index) => buildWireBattlefieldLane(battlefields[index], index, objects, perspectivePlayerId));
   const maxOccupants = Math.max(...lanes.flatMap((lane) => [lane.ownOccupants.length, lane.opposingOccupants.length]), 0);
+  const maxStandbySlots = Math.max(...lanes.map((lane) => lane.standbySlots.length), 0);
 
   return {
     lanes,
     objects,
+    standbyPlan: buildWireCardFlowPlan({
+      itemCount: maxStandbySlots,
+      kind: "standby",
+      minSlots: 1
+    }),
     unitPlan: buildWireCardFlowPlan({
       itemCount: maxOccupants,
       kind: "battlefield-unit",
@@ -154,16 +186,23 @@ function buildWireBattlefieldLane(
   perspectivePlayerId: string
 ): WireBattlefieldLane {
   const occupants = asArray<string>(battlefield?.occupantObjectIds);
+  const battlefieldId = asString(battlefield?.battlefieldObjectId, `empty-battlefield-${index}`);
   const splitOccupants = splitBattlefieldOccupants(battlefield?.unitsBySide, occupants, objects, perspectivePlayerId);
+  const standbySlots = buildBattlefieldStandbySlots(battlefield, battlefieldId, objects, perspectivePlayerId);
   return {
     battlefield,
-    battlefieldId: asString(battlefield?.battlefieldObjectId, `empty-battlefield-${index}`),
+    battlefieldId,
     cardNo: asString(battlefield?.cardNo, ""),
     controllerId: asString(battlefield?.controllerId, ""),
+    hiddenStandbyCount: nonNegativeNumber(battlefield?.hiddenStandbyCount ?? battlefield?.faceDownStandbyCount, 0),
     index,
     occupantSplitSource: splitOccupants.source,
     ownOccupants: splitOccupants.own,
     opposingOccupants: splitOccupants.opposing,
+    scoredThisTurnPlayerIds: asArray<string>(battlefield?.scoredThisTurnPlayerIds),
+    standbySlotCount: nonNegativeNumber(battlefield?.standbySlotCount, standbySlots.slots.length),
+    standbySlotSource: standbySlots.source,
+    standbySlots: standbySlots.slots,
     zonePlayerId: asString(battlefield?.zonePlayerId, "")
   };
 }
@@ -189,6 +228,68 @@ function splitBattlefieldOccupants(
     own: occupants.filter((id) => ownerOrController(objects[id]) === perspectivePlayerId),
     opposing: occupants.filter((id) => ownerOrController(objects[id]) !== perspectivePlayerId),
     source: "controller-fallback"
+  };
+}
+
+function buildBattlefieldStandbySlots(
+  battlefield: BattlefieldSnapshotView | undefined,
+  battlefieldId: string,
+  objects: WireZoneObjects,
+  perspectivePlayerId: string
+): { slots: WireBattlefieldStandbySlot[]; source: WireBattlefieldStandbySlotSource } {
+  if (Array.isArray(battlefield?.standbySlots)) {
+    return {
+      slots: battlefield.standbySlots.map((slot, index) =>
+        normalizeStandbySlot(slot, battlefieldId, index, objects, perspectivePlayerId)
+      ),
+      source: "server-standbySlots"
+    };
+  }
+
+  const objectIds = asArray<string>(battlefield?.standbyObjectIds);
+  return {
+    slots: objectIds.map((objectId, index) =>
+      normalizeStandbySlot(
+        {
+          battlefieldObjectId: battlefieldId,
+          controllerId: ownerOrController(objects[objectId]),
+          isFaceDown: objects[objectId]?.isFaceDown ?? false,
+          objectId,
+          sidePlayerId: ownerOrController(objects[objectId]),
+          slotId: `${battlefieldId}:standby:${index + 1}`,
+          state: "VISIBLE",
+          visible: true
+        },
+        battlefieldId,
+        index,
+        objects,
+        perspectivePlayerId
+      )
+    ),
+    source: "standbyObjectIds-fallback"
+  };
+}
+
+function normalizeStandbySlot(
+  slot: BattlefieldStandbySlotView,
+  battlefieldId: string,
+  index: number,
+  objects: WireZoneObjects,
+  perspectivePlayerId: string
+): WireBattlefieldStandbySlot {
+  const object = slot.objectId ? objects[slot.objectId] : undefined;
+  const visible = slot.visible !== false && asString(slot.state, "VISIBLE") !== "HIDDEN" && Boolean(slot.objectId);
+  const sidePlayerId = asString(slot.sidePlayerId, asString(slot.controllerId, ownerOrController(object)));
+  return {
+    battlefieldObjectId: asString(slot.battlefieldObjectId, battlefieldId),
+    controllerId: asString(slot.controllerId, ownerOrController(object)),
+    isFaceDown: Boolean(slot.isFaceDown ?? object?.isFaceDown ?? !visible),
+    objectId: visible ? slot.objectId : undefined,
+    side: resolvePlayerSide(sidePlayerId, perspectivePlayerId),
+    sidePlayerId,
+    slotId: asString(slot.slotId, `${battlefieldId}:standby:${index + 1}`),
+    state: asString(slot.state, visible ? "VISIBLE" : "HIDDEN") as WireBattlefieldStandbySlot["state"],
+    visible
   };
 }
 
@@ -270,6 +371,14 @@ function sideOrder(side: WirePlayerSide): number {
   return side === "opponent" ? 0 : 1;
 }
 
+function resolvePlayerSide(playerId: string, perspectivePlayerId: string): WirePlayerSide | "unknown" {
+  if (!playerId) {
+    return "unknown";
+  }
+
+  return playerId === perspectivePlayerId ? "self" : "opponent";
+}
+
 function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
@@ -297,4 +406,8 @@ function asStringArrayRecord(value: unknown): Record<string, string[]> | undefin
 
 function asString(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
+}
+
+function nonNegativeNumber(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : fallback;
 }

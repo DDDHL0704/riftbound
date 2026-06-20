@@ -68,12 +68,16 @@
     "columns": ["var(--wire-battlefield-card-w)", "minmax(0, 1fr)", "var(--wire-battlefield-card-w)"],
     "slots": ["leftSite", "center", "rightSite"],
     "centerColumns": ["1fr", "1fr"],
-    "centerRows": ["1fr", "1fr"],
+    "centerRows": ["1fr", "78px", "1fr"],
     "unitZones": [
       { "id": "left-opponent", "laneIndex": 0, "side": "opponent" },
       { "id": "right-opponent", "laneIndex": 1, "side": "opponent" },
       { "id": "left-self", "laneIndex": 0, "side": "self" },
       { "id": "right-self", "laneIndex": 1, "side": "self" }
+    ],
+    "standbyZones": [
+      { "id": "left-standby", "laneIndex": 0 },
+      { "id": "right-standby", "laneIndex": 1 }
     ]
   }
 }
