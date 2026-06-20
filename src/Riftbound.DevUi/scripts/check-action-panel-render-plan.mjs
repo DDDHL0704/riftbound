@@ -54,10 +54,12 @@ assert.deepEqual(mainPlan.entries.map((entry) => entry.kind), [
   "hand-choice",
   "damage-assignment",
   "order-triggers",
+  "candidate-button",
   "candidate-button"
 ]);
-assert.equal(mainPlan.entries.some((entry) => entry.candidate?.action === "ACTIVATE_ABILITY"), false);
-assert.equal(mainPlan.entries.every((entry) => entry.canAct), true);
+assert.equal(mainPlan.entries.some((entry) => entry.candidate?.action === "ACTIVATE_ABILITY"), true);
+assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.canAct, false);
+assert.equal(mainPlan.entries.filter((entry) => entry.canAct).length, 5);
 
 const readonlyHandPlan = buildActionPanelRenderPlan({
   canAct: false,
@@ -75,7 +77,7 @@ const readonlyHandPlan = buildActionPanelRenderPlan({
 assert.equal(readonlyHandPlan.state, "readonly");
 assert.equal(readonlyHandPlan.entries.length, 1);
 assert.equal(readonlyHandPlan.entries[0].kind, "hand-choice");
-assert.equal(readonlyHandPlan.entries[0].readOnly, true);
+assert.equal(readonlyHandPlan.entries[0].readOnly, false);
 assert.equal(readonlyHandPlan.entries[0].canAct, false);
 
 const readonlyTriggerPlan = buildActionPanelRenderPlan({
@@ -111,5 +113,24 @@ assert.equal(disconnectedPlan.state, "disabled");
 assert.equal(disconnectedPlan.entries.length, 1);
 assert.equal(disconnectedPlan.entries[0].kind, "candidate-button");
 assert.equal(disconnectedPlan.entries[0].canAct, false);
+
+const blockedPlan = buildActionPanelRenderPlan({
+  canAct: true,
+  connected: true,
+  prompt: {
+    actionable: true,
+    candidates: [
+      { action: "ACTIVATE_ABILITY", enabled: false, label: "禁用能力", reason: "法力不足" },
+      { action: "MOVE_UNIT", enabled: false, label: "禁用移动", reason: "时机不允许" }
+    ],
+    playerId: "P1",
+    view: { type: "MAIN_ACTION" }
+  }
+});
+
+assert.equal(blockedPlan.state, "blocked");
+assert.equal(blockedPlan.entries.length, 2);
+assert.equal(blockedPlan.entries.every((entry) => entry.kind === "candidate-button"), true);
+assert.equal(blockedPlan.entries.every((entry) => entry.canAct === false), true);
 
 console.log("Action panel render plan check passed.");

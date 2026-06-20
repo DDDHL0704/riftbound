@@ -22,7 +22,7 @@ const serverPlan = buildWirePromptAuthorityPlan({
 });
 assert.equal(serverPlan.state, "server");
 assert.equal(serverPlan.issueCount, 0);
-assert.deepEqual(serverPlan.metrics.map((metric) => metric.value), ["可操作", "2", "2/2", "1/1", "0"]);
+assert.deepEqual(serverPlan.metrics.map((metric) => metric.value), ["可操作", "2", "2/2；0 阻断", "1/1", "0"]);
 assert.equal(serverPlan.rows.find((row) => row.key === "commandTemplates").stateLabel, "全部可解释");
 assert.equal(serverPlan.rows.find((row) => row.key === "composerSupport").stateLabel, "服务端声明");
 
@@ -39,7 +39,7 @@ const mixedPlan = buildWirePromptAuthorityPlan({
   submissionGate: connectedGate()
 });
 assert.equal(mixedPlan.state, "mixed");
-assert.equal(mixedPlan.rows.find((row) => row.key === "commandTemplates").value, "1/2");
+assert.equal(mixedPlan.rows.find((row) => row.key === "commandTemplates").value, "1/2；0 阻断");
 assert.equal(mixedPlan.rows.find((row) => row.key === "composerSupport").state, "server");
 assert.equal(mixedPlan.rows.find((row) => row.key === "composerSupport").value, "1/1");
 assert.equal(mixedPlan.rows.find((row) => row.key === "objectContexts").state, "mixed");
@@ -78,6 +78,25 @@ const blockedComposerPlan = buildWirePromptAuthorityPlan({
 assert.equal(blockedComposerPlan.state, "mixed");
 assert.equal(blockedComposerPlan.rows.find((row) => row.key === "composerSupport").state, "mixed");
 assert.equal(blockedComposerPlan.rows.find((row) => row.key === "composerSupport").stateLabel, "服务端阻断");
+
+const disabledCandidatePlan = buildWirePromptAuthorityPlan({
+  playerId: "P1",
+  prompt: prompt({
+    candidates: [
+      candidate("PLAY_CARD", { commandTemplate: true, enabled: false }),
+      candidate("PASS", { enabled: false })
+    ],
+    contract: true,
+    objectContexts: true
+  }),
+  submissionGate: connectedGate()
+});
+assert.equal(disabledCandidatePlan.state, "server");
+assert.equal(disabledCandidatePlan.rows.find((row) => row.key === "candidates").value, "0 可提交 / 2 总数");
+assert.equal(disabledCandidatePlan.rows.find((row) => row.key === "commandTemplates").stateLabel, "当前全阻断");
+assert.equal(disabledCandidatePlan.rows.find((row) => row.key === "commandTemplates").value, "0 可提交；2 阻断");
+assert.equal(disabledCandidatePlan.rows.find((row) => row.key === "composerSupport").stateLabel, "当前全阻断");
+assert.equal(disabledCandidatePlan.rows.find((row) => row.key === "composerSupport").value, "2 阻断");
 
 const fallbackPlan = buildWirePromptAuthorityPlan({
   playerId: "P1",
@@ -163,7 +182,7 @@ function prompt({
   };
 }
 
-function candidate(action, { commandTemplate = false, composer = commandTemplate } = {}) {
+function candidate(action, { commandTemplate = false, composer = commandTemplate, enabled = true } = {}) {
   return {
     action,
     commandTemplate: commandTemplate ? {
@@ -177,7 +196,7 @@ function candidate(action, { commandTemplate = false, composer = commandTemplate
       selectionRoles: ["source"],
       supported: composer !== "blocked"
     } : undefined,
-    enabled: true,
+    enabled,
     label: action,
     reason: "可提交"
   };

@@ -153,6 +153,7 @@ function ActionPanelRenderEntryView({
         <CandidateButton
           candidate={candidate}
           disabledByConnection={disabledByConnection || !entry.canAct}
+          disabledTitle={entryDisabledTitle(entry, disabledByConnection)}
           onCommand={onCommand}
           onReady={onReady}
           onSubmitStarterDeck={onSubmitStarterDeck}
@@ -172,6 +173,7 @@ function ActionPanelRenderEntryView({
     <div
       className="action-render-entry"
       data-action-render-entry={entry.key}
+      data-action-render-candidate-enabled={entry.candidate?.enabled == null ? "none" : entry.candidate.enabled ? "true" : "false"}
       data-action-render-kind={entry.kind}
       data-action-render-readonly={entry.readOnly ? "true" : "false"}
     >
@@ -691,6 +693,7 @@ function moveTriggerId(triggerIds: string[], triggerId: string, delta: number): 
 function CandidateButton({
   candidate,
   disabledByConnection,
+  disabledTitle,
   onCommand,
   onReady,
   onSubmitStarterDeck,
@@ -700,6 +703,7 @@ function CandidateButton({
 }: {
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
+  disabledTitle?: string;
   onCommand: (command: GameCommand) => void;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
@@ -709,6 +713,7 @@ function CandidateButton({
 }) {
   const [confirmingSurrender, setConfirmingSurrender] = useState(false);
   const plan = buildActionPanelCandidateCommandPlan({ candidate, disabledByConnection });
+  const buttonTitle = disabledTitle ?? (disabledByConnection ? "当前行动入口不可提交" : promptReasonTitle(candidate.reason));
 
   useEffect(() => {
     setConfirmingSurrender(false);
@@ -724,7 +729,7 @@ function CandidateButton({
               disabled={plan.disabled}
               icon={<Flag size={16} />}
               onClick={() => onCommand(withPromptStamp(plan.command!, prompt))}
-              title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
+              title={buttonTitle}
               variant="danger"
             >
               确认投降
@@ -742,7 +747,7 @@ function CandidateButton({
         disabled={plan.disabled}
         icon={<Flag size={16} />}
         onClick={() => setConfirmingSurrender(true)}
-        title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
+        title={buttonTitle}
         variant="danger"
       >
         {promptActionLabel(candidate)}
@@ -774,7 +779,7 @@ function CandidateButton({
           onCommand(withPromptStamp(plan.command, prompt));
         }
       }}
-      title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
+      title={buttonTitle}
       variant={plan.variant}
     >
       {promptActionLabel(candidate)}
@@ -812,7 +817,31 @@ function numberMetadata(metadata: Record<string, unknown> | null | undefined, ke
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
+function entryDisabledTitle(entry: ActionPanelRenderEntry, disabledByConnection: boolean): string | undefined {
+  if (disabledByConnection) {
+    return "连接恢复前不能提交行动";
+  }
+
+  if (entry.canAct) {
+    return undefined;
+  }
+
+  if (entry.candidate && !entry.candidate.enabled) {
+    return promptReasonTitle(entry.candidate.reason) ?? "服务端候选暂不可提交";
+  }
+
+  return "当前行动窗口不能提交该候选";
+}
+
 export function candidateListLabel(prompt?: ActionPromptDto): string {
-  const enabledCandidates = (prompt?.candidates ?? []).filter((candidate) => candidate.enabled);
-  return enabledCandidates.map(promptActionLabel).join("、") || "无可提交行动";
+  const candidates = prompt?.candidates ?? [];
+  if (candidates.length === 0) {
+    return "无服务端候选";
+  }
+
+  const enabledCandidates = candidates.filter((candidate) => candidate.enabled);
+  const blockedCount = candidates.length - enabledCandidates.length;
+  const labels = enabledCandidates.map(promptActionLabel);
+  const prefix = labels.length > 0 ? labels.join("、") : "无可提交行动";
+  return blockedCount > 0 ? `${prefix}；${blockedCount} 个阻断候选` : prefix;
 }

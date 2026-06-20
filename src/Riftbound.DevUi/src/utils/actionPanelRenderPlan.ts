@@ -7,7 +7,7 @@ export type ActionPanelRenderEntryKind =
   | "mulligan"
   | "order-triggers";
 
-export type ActionPanelRenderState = "disabled" | "empty" | "ready" | "readonly";
+export type ActionPanelRenderState = "blocked" | "disabled" | "empty" | "ready" | "readonly";
 
 export type ActionPanelRenderEntry = {
   canAct: boolean;
@@ -40,7 +40,7 @@ export function buildActionPanelRenderPlan({
   const promptType = prompt?.view?.type?.trim() ?? "";
   const entries = [
     ...readonlyEntriesForPrompt(promptType, allCandidates, enabledCandidates),
-    ...enabledCandidates.map((candidate, index) => entryForCandidate({
+    ...allCandidates.map((candidate, index) => entryForCandidate({
       canAct,
       candidate,
       connected,
@@ -63,10 +63,18 @@ function readonlyEntriesForPrompt(
   enabledCandidates: ActionPromptCandidateDto[]
 ): ActionPanelRenderEntry[] {
   if (promptType === "ORDER_TRIGGERS" && !enabledCandidates.some((candidate) => candidate.action === "ORDER_TRIGGERS")) {
+    if (allCandidates.some((candidate) => candidate.action === "ORDER_TRIGGERS")) {
+      return [];
+    }
+
     return [readonlyEntry("order-triggers", allCandidates.find((candidate) => candidate.action === "ORDER_TRIGGERS"))];
   }
 
   if (promptType === "HAND_CHOICE" && !enabledCandidates.some((candidate) => candidate.action === "CHOOSE_HAND_CARDS")) {
+    if (allCandidates.some((candidate) => candidate.action === "CHOOSE_HAND_CARDS")) {
+      return [];
+    }
+
     return [readonlyEntry("hand-choice", allCandidates.find((candidate) => candidate.action === "CHOOSE_HAND_CARDS"))];
   }
 
@@ -100,7 +108,7 @@ function entryForCandidate({
   readOnly: boolean;
 }): ActionPanelRenderEntry {
   return {
-    canAct: connected && canAct && !readOnly,
+    canAct: connected && canAct && !readOnly && candidate.enabled,
     candidate,
     key: `${candidate.action}-${candidate.label ?? "candidate"}-${index}`,
     kind: entryKindForAction(candidate.action),
@@ -138,6 +146,10 @@ function renderStateFor(
 
   if (!canAct || entries.every((entry) => entry.readOnly)) {
     return "readonly";
+  }
+
+  if (!entries.some((entry) => entry.canAct)) {
+    return "blocked";
   }
 
   return "ready";
