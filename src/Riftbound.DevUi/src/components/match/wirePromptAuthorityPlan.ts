@@ -43,6 +43,7 @@ export function buildWirePromptAuthorityPlan({
     promptWindowRow(prompt, playerId),
     candidateRow(prompt, candidates, actions),
     commandTemplateRow(candidates),
+    composerSupportRow(candidates),
     objectContextRow(prompt, candidates),
     contractRow(prompt, candidates),
     submissionGateRow(submissionGate)
@@ -70,6 +71,12 @@ export function buildWirePromptAuthorityPlan({
         label: "命令形态",
         state: commandTemplateState(candidates),
         value: commandTemplateMetricValue(candidates)
+      },
+      {
+        key: "composer",
+        label: "组合提交",
+        state: composerSupportState(candidates),
+        value: composerSupportMetricValue(candidates)
       },
       {
         key: "issues",
@@ -125,6 +132,29 @@ function commandTemplateRow(candidates: ActionPromptCandidateDto[]): WirePromptA
   const count = enabledCandidates.filter(hasExecutableCommandShape).length;
   const state = commandTemplateState(candidates);
   return row("commandTemplates", "命令形态", state, commandTemplateStateLabel(state), `${count}/${enabledCandidates.length}`);
+}
+
+function composerSupportRow(candidates: ActionPromptCandidateDto[]): WirePromptAuthorityRow {
+  const enabledCandidates = candidates.filter((candidate) => candidate.enabled);
+  if (enabledCandidates.length === 0) {
+    return row("composerSupport", "组合提交", "missing", "无可提交候选", "0/0");
+  }
+
+  const composerCandidates = composerRelevantCandidates(candidates);
+  if (composerCandidates.length === 0) {
+    const directCount = enabledCandidates.filter(hasDirectCommandShape).length;
+    return directCount === enabledCandidates.length
+      ? row("composerSupport", "组合提交", "server", "无需组合", `${directCount} 个直接命令`)
+      : row("composerSupport", "组合提交", "fallback", "无组合协议", "0/0");
+  }
+
+  const supportedCount = composerCandidates.filter(hasServerComposerSupport).length;
+  const blockedCount = composerCandidates.filter(hasBlockedServerComposer).length;
+  const state = composerSupportState(candidates);
+  const stateLabel = blockedCount > 0
+    ? "服务端阻断"
+    : composerSupportStateLabel(state);
+  return row("composerSupport", "组合提交", state, stateLabel, `${supportedCount}/${composerCandidates.length}`);
 }
 
 function objectContextRow(
@@ -208,11 +238,78 @@ function commandTemplateMetricValue(candidates: ActionPromptCandidateDto[]): str
   return `${enabledCandidates.filter(hasExecutableCommandShape).length}/${enabledCandidates.length}`;
 }
 
+function composerSupportState(candidates: ActionPromptCandidateDto[]): WirePromptAuthorityState {
+  const enabledCandidates = candidates.filter((candidate) => candidate.enabled);
+  if (enabledCandidates.length === 0) {
+    return "missing";
+  }
+
+  const composerCandidates = composerRelevantCandidates(candidates);
+  if (composerCandidates.length === 0) {
+    return enabledCandidates.every(hasDirectCommandShape) ? "server" : "fallback";
+  }
+
+  const supportedCount = composerCandidates.filter(hasServerComposerSupport).length;
+  const blockedCount = composerCandidates.filter(hasBlockedServerComposer).length;
+  if (supportedCount === composerCandidates.length) {
+    return "server";
+  }
+
+  if (supportedCount > 0 || blockedCount > 0) {
+    return "mixed";
+  }
+
+  return "fallback";
+}
+
+function composerSupportStateLabel(state: WirePromptAuthorityState): string {
+  switch (state) {
+    case "server":
+      return "服务端声明";
+    case "mixed":
+      return "部分声明";
+    case "fallback":
+      return "仅有模板";
+    case "missing":
+      return "无可提交候选";
+  }
+}
+
+function composerSupportMetricValue(candidates: ActionPromptCandidateDto[]): string {
+  const composerCandidates = composerRelevantCandidates(candidates);
+  if (composerCandidates.length === 0) {
+    const directCount = candidates.filter((candidate) => candidate.enabled && hasDirectCommandShape(candidate)).length;
+    return directCount > 0 ? `${directCount} 直接` : "0/0";
+  }
+
+  return `${composerCandidates.filter(hasServerComposerSupport).length}/${composerCandidates.length}`;
+}
+
+function composerRelevantCandidates(candidates: ActionPromptCandidateDto[]): ActionPromptCandidateDto[] {
+  return candidates.filter((candidate) =>
+    candidate.enabled
+    && Boolean(candidate.commandTemplate)
+    && !hasDirectCommandShape(candidate)
+  );
+}
+
+function hasServerComposerSupport(candidate: ActionPromptCandidateDto): boolean {
+  return Boolean(candidate.commandTemplate && candidate.composer?.supported);
+}
+
+function hasBlockedServerComposer(candidate: ActionPromptCandidateDto): boolean {
+  return Boolean(candidate.commandTemplate && candidate.composer && !candidate.composer.supported);
+}
+
 function hasExecutableCommandShape(candidate: ActionPromptCandidateDto): boolean {
   if (candidate.commandTemplate) {
     return true;
   }
 
+  return hasDirectCommandShape(candidate);
+}
+
+function hasDirectCommandShape(candidate: ActionPromptCandidateDto): boolean {
   return directCommandActions.has(candidate.action);
 }
 

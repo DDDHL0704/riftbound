@@ -22,8 +22,9 @@ const serverPlan = buildWirePromptAuthorityPlan({
 });
 assert.equal(serverPlan.state, "server");
 assert.equal(serverPlan.issueCount, 0);
-assert.deepEqual(serverPlan.metrics.map((metric) => metric.value), ["可操作", "2", "2/2", "0"]);
+assert.deepEqual(serverPlan.metrics.map((metric) => metric.value), ["可操作", "2", "2/2", "1/1", "0"]);
 assert.equal(serverPlan.rows.find((row) => row.key === "commandTemplates").stateLabel, "全部可解释");
+assert.equal(serverPlan.rows.find((row) => row.key === "composerSupport").stateLabel, "服务端声明");
 
 const mixedPlan = buildWirePromptAuthorityPlan({
   playerId: "P1",
@@ -39,9 +40,44 @@ const mixedPlan = buildWirePromptAuthorityPlan({
 });
 assert.equal(mixedPlan.state, "mixed");
 assert.equal(mixedPlan.rows.find((row) => row.key === "commandTemplates").value, "1/2");
+assert.equal(mixedPlan.rows.find((row) => row.key === "composerSupport").state, "server");
+assert.equal(mixedPlan.rows.find((row) => row.key === "composerSupport").value, "1/1");
 assert.equal(mixedPlan.rows.find((row) => row.key === "objectContexts").state, "mixed");
 assert.equal(mixedPlan.rows.find((row) => row.key === "contract").state, "mixed");
 assert.match(mixedPlan.summary, /继续补齐/);
+
+const missingComposerPlan = buildWirePromptAuthorityPlan({
+  playerId: "P1",
+  prompt: prompt({
+    candidates: [
+      candidate("PLAY_CARD", { commandTemplate: true, composer: false }),
+      candidate("PASS")
+    ],
+    contract: true,
+    objectContexts: true
+  }),
+  submissionGate: connectedGate()
+});
+assert.equal(missingComposerPlan.state, "mixed");
+assert.equal(missingComposerPlan.rows.find((row) => row.key === "composerSupport").state, "fallback");
+assert.equal(missingComposerPlan.rows.find((row) => row.key === "composerSupport").stateLabel, "仅有模板");
+assert.equal(missingComposerPlan.rows.find((row) => row.key === "composerSupport").value, "0/1");
+
+const blockedComposerPlan = buildWirePromptAuthorityPlan({
+  playerId: "P1",
+  prompt: prompt({
+    candidates: [
+      candidate("PLAY_CARD", { commandTemplate: true, composer: "blocked" }),
+      candidate("PASS")
+    ],
+    contract: true,
+    objectContexts: true
+  }),
+  submissionGate: connectedGate()
+});
+assert.equal(blockedComposerPlan.state, "mixed");
+assert.equal(blockedComposerPlan.rows.find((row) => row.key === "composerSupport").state, "mixed");
+assert.equal(blockedComposerPlan.rows.find((row) => row.key === "composerSupport").stateLabel, "服务端阻断");
 
 const fallbackPlan = buildWirePromptAuthorityPlan({
   playerId: "P1",
@@ -57,6 +93,7 @@ const fallbackPlan = buildWirePromptAuthorityPlan({
 assert.equal(fallbackPlan.state, "missing");
 assert.equal(fallbackPlan.rows.find((row) => row.key === "candidates").state, "fallback");
 assert.equal(fallbackPlan.rows.find((row) => row.key === "commandTemplates").state, "missing");
+assert.equal(fallbackPlan.rows.find((row) => row.key === "composerSupport").state, "missing");
 
 const missingPlan = buildWirePromptAuthorityPlan({ playerId: "P1" });
 assert.equal(missingPlan.state, "missing");
@@ -126,12 +163,19 @@ function prompt({
   };
 }
 
-function candidate(action, { commandTemplate = false } = {}) {
+function candidate(action, { commandTemplate = false, composer = commandTemplate } = {}) {
   return {
     action,
     commandTemplate: commandTemplate ? {
       bindings: [{ field: "sourceObjectId", required: true, source: "selectedSource" }],
       cmdType: action
+    } : undefined,
+    composer: composer ? {
+      commandFields: ["sourceObjectId"],
+      reason: composer === "blocked" ? "服务端暂未开放组合提交。" : "服务端已公开组合提交模板。",
+      requiredSelectionRoles: ["source"],
+      selectionRoles: ["source"],
+      supported: composer !== "blocked"
     } : undefined,
     enabled: true,
     label: action,

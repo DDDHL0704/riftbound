@@ -63,6 +63,13 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           ],
           cmdType: "PLAY_CARD"
         },
+        composer: {
+          commandFields: ["sourceObjectId", "cardNo", "targetObjectIds", "destination", "optionalCosts"],
+          reason: "服务端 fixture 已公开 PLAY_CARD 命令模板；前端只组装选择并提交校验。",
+          requiredSelectionRoles: ["source"],
+          selectionRoles: ["destination", "optionalCost", "source", "target"],
+          supported: true
+        },
         destinations: [{ id: "STACK", label: "结算链" }],
         enabled: true,
         label: "打出手牌样例",
@@ -128,6 +135,13 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             { field: "optionalCosts", asArray: true, label: "费用", source: "selectedOptionalCosts" }
           ],
           cmdType: "MOVE_UNIT"
+        },
+        composer: {
+          commandFields: ["sourceObjectId", "origin", "destination", "optionalCosts"],
+          reason: "服务端 fixture 已公开 MOVE_UNIT 命令模板；移动合法性由服务端最终裁定。",
+          requiredSelectionRoles: ["source"],
+          selectionRoles: ["destination", "optionalCost", "source"],
+          supported: true
         },
         destinations: [{ id: "BATTLEFIELD:fixture-right-battlefield", label: "右战场" }],
         enabled: true,
@@ -197,6 +211,13 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             { asArray: true, field: "optionalCosts", label: "费用", source: "selectedOptionalCosts" }
           ],
           cmdType: "DECLARE_BATTLE"
+        },
+        composer: {
+          commandFields: ["attackerObjectIds", "battlefieldId", "battlefieldTargetObjectIds", "defenderObjectIds", "optionalCosts"],
+          reason: "服务端 fixture 已公开 DECLARE_BATTLE 命令模板；战场、攻击方、防守方仍由服务端规则校验。",
+          requiredSelectionRoles: ["destination", "source", "target"],
+          selectionRoles: ["destination", "optionalCost", "source", "target"],
+          supported: true
         },
         destinations: [{ id: "fixture-right-battlefield", label: "右战场牌" }],
         enabled: true,

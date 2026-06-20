@@ -608,7 +608,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       row.getAttribute("data-wire-prompt-authority-row") ?? "",
       row.getAttribute("data-wire-prompt-authority-row-state") ?? ""
     ]));
-    for (const rowKey of ["candidates", "commandTemplates", "objectContexts", "contract", "submissionGate"]) {
+    for (const rowKey of ["candidates", "commandTemplates", "composerSupport", "objectContexts", "contract", "submissionGate"]) {
       if (promptAuthorityRows.get(rowKey) !== "server") {
         failures.push(\`wire prompt authority row \${rowKey} is not server-authored: \${promptAuthorityRows.get(rowKey) ?? "missing"}\`);
       }
