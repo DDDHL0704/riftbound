@@ -107,5 +107,158 @@ public sealed class PromptResponsibilityTests
         Assert.Equal("触发等待结算", triggerLane.Headline);
         Assert.DoesNotContain("SECRET_HIDDEN_STANDBY_TRIGGER", triggerLane.Headline, StringComparison.Ordinal);
         Assert.DoesNotContain("P2-hidden-source", triggerLane.Headline, StringComparison.Ordinal);
+        Assert.DoesNotContain("P2-hidden-source", flow.RelatedObjectIds);
+    }
+
+    [Fact]
+    public void ServerFlowRelatedObjectIdsExposeVisibleRuleQueueObjects()
+    {
+        var tempResourceActionId = PaymentCostRules.TemporaryPaymentResourceActionId("temp-1");
+        var state = new MatchState(
+            "prompt-related-objects-room",
+            12,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "seat-1",
+                ["P2"] = "seat-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["stack-source"] = PublicCard("stack-source", "P1"),
+                ["stack-target"] = PublicCard("stack-target", "P2"),
+                ["stack-rune"] = PublicCard("stack-rune", "P1"),
+                ["payment-rune"] = PublicCard("payment-rune", "P1"),
+                ["temp-source"] = PublicCard("temp-source", "P1"),
+                ["trigger-source"] = PublicCard("trigger-source", "P1"),
+                ["hidden-trigger-source"] = PublicCard(
+                    "hidden-trigger-source",
+                    "P2",
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["stack-source"] = new("P1", "STACK"),
+                ["stack-target"] = new("P2", "BATTLEFIELD", "battlefield-1"),
+                ["stack-rune"] = new("P1", "BASE"),
+                ["payment-rune"] = new("P1", "BASE"),
+                ["temp-source"] = new("P1", "BATTLEFIELD", "battlefield-1"),
+                ["trigger-source"] = new("P1", "BATTLEFIELD", "battlefield-1"),
+                ["hidden-trigger-source"] = new("P2", "BATTLEFIELD", "battlefield-1")
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "stack-1",
+                    "P1",
+                    "stack-source",
+                    "DAMAGE",
+                    "OGN-001",
+                    targetObjectIds: ["stack-target"],
+                    optionalCosts: ["RECYCLE_RUNE:stack-rune", tempResourceActionId, "missing-object"])
+            ],
+            pendingPayment: new PendingPaymentState(
+                "payment-1",
+                "PAY_CARD",
+                "P1",
+                powerCost: 1,
+                legalPaymentChoiceIds: ["RECYCLE_RUNE:payment-rune"],
+                paymentResourceActionIds: [tempResourceActionId]),
+            temporaryPaymentResources:
+            [
+                new TemporaryPaymentResourceState(
+                    "temp-1",
+                    "P1",
+                    "temp-source",
+                    "ability-1",
+                    "PAY_CARD",
+                    generatedPower: 1,
+                    remainingPower: 1,
+                    allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
+                    createdTick: 12)
+            ],
+            triggerQueue:
+            [
+                new TriggerQueueItemState("visible-trigger", "P1", "trigger-source", "VISIBLE_TRIGGER", "UNIT_ENTERED"),
+                new TriggerQueueItemState("hidden-trigger", "P2", "hidden-trigger-source", "SECRET_HIDDEN_STANDBY_TRIGGER", "UNIT_DESTROYED")
+            ]);
+
+        var related = ResolutionResult.BuildPrompts(state)["P1"].ServerFlow!.RelatedObjectIds;
+
+        Assert.Contains("stack-source", related);
+        Assert.Contains("stack-target", related);
+        Assert.Contains("stack-rune", related);
+        Assert.Contains("payment-rune", related);
+        Assert.Contains("temp-source", related);
+        Assert.Contains("trigger-source", related);
+        Assert.DoesNotContain("hidden-trigger-source", related);
+        Assert.DoesNotContain("missing-object", related);
+        Assert.DoesNotContain(tempResourceActionId, related);
+    }
+
+    [Fact]
+    public void ServerFlowRelatedObjectIdsKeepOpponentHandChoicesHidden()
+    {
+        var state = new MatchState(
+            "prompt-related-hand-choice-room",
+            12,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "seat-1",
+                ["P2"] = "seat-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["choice-source"] = PublicCard("choice-source", "P1"),
+                ["p1-hand-card"] = PublicCard("p1-hand-card", "P1")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["choice-source"] = new("P1", "BATTLEFIELD", "battlefield-1"),
+                ["p1-hand-card"] = new("P1", "HAND")
+            },
+            pendingHandChoice: new PendingHandChoiceState(
+                "choice-1",
+                "SELECT_HAND_CARD",
+                "P1",
+                requiredCount: 1,
+                maxCount: 1,
+                legalObjectIds: ["p1-hand-card"],
+                sourceObjectId: "choice-source",
+                effectKind: "HAND_CHOICE"));
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        Assert.Contains("choice-source", prompts["P1"].ServerFlow!.RelatedObjectIds);
+        Assert.Contains("p1-hand-card", prompts["P1"].ServerFlow!.RelatedObjectIds);
+        Assert.Contains("choice-source", prompts["P2"].ServerFlow!.RelatedObjectIds);
+        Assert.DoesNotContain("p1-hand-card", prompts["P2"].ServerFlow!.RelatedObjectIds);
+    }
+
+    private static CardObjectState PublicCard(
+        string objectId,
+        string ownerId,
+        bool isFaceDown = false,
+        IReadOnlyList<string>? tags = null)
+    {
+        return new CardObjectState(
+            objectId,
+            isFaceDown: isFaceDown,
+            tags: tags ?? [CardObjectTags.UnitCard],
+            ownerId: ownerId,
+            controllerId: ownerId);
     }
 }

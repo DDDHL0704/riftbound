@@ -6170,7 +6170,7 @@ internal static class ActionPromptBuilder
             responsibilityState,
             PromptResponsibilityNextStep(responsibilityType, reason, actionable, responsiblePlayerId, responsibilityState),
             PromptResponsibilityQueueCounts(state),
-            PromptResponsibilityRelatedObjectIds(state, type));
+            PromptResponsibilityRelatedObjectIds(state, playerId, type));
     }
 
     private static string PromptResponsibilityTypeFor(MatchState state, string fallbackType)
@@ -6385,16 +6385,254 @@ internal static class ActionPromptBuilder
         };
     }
 
-    private static IReadOnlyList<string> PromptResponsibilityRelatedObjectIds(MatchState state, string type)
+    private static IReadOnlyList<string> PromptResponsibilityRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        string type)
     {
-        return new[]
-            {
-                RelatedBattlefieldIdFor(state, type)
-            }
-            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
-            .Select(objectId => objectId!.Trim())
+        var relatedObjectIds = new List<string>();
+        AddRelatedObjectId(state, playerId, relatedObjectIds, RelatedBattlefieldIdFor(state, type));
+        AddStackRelatedObjectIds(state, playerId, relatedObjectIds);
+        AddTaskRelatedObjectIds(state, playerId, relatedObjectIds);
+        AddBattleRelatedObjectIds(state, playerId, relatedObjectIds);
+        AddPendingPaymentRelatedObjectIds(state, playerId, relatedObjectIds);
+        AddPendingHandChoiceRelatedObjectIds(state, playerId, relatedObjectIds);
+        AddTriggerRelatedObjectIds(state, playerId, relatedObjectIds);
+
+        return relatedObjectIds
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static void AddStackRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds)
+    {
+        foreach (var stackItem in state.StackItems)
+        {
+            AddRelatedObjectId(state, playerId, relatedObjectIds, stackItem.SourceObjectId);
+            AddRelatedObjectIds(state, playerId, relatedObjectIds, stackItem.TargetObjectIds);
+            AddPaymentResourceRelatedObjectIds(state, playerId, relatedObjectIds, stackItem.OptionalCosts);
+        }
+    }
+
+    private static void AddTaskRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds)
+    {
+        foreach (var task in state.PendingTaskQueue.Tasks)
+        {
+            AddRelatedObjectId(state, playerId, relatedObjectIds, task.ObjectId);
+            AddRelatedObjectId(state, playerId, relatedObjectIds, task.BattlefieldObjectId);
+        }
+
+        foreach (var task in state.BattlefieldTasks)
+        {
+            AddRelatedObjectId(state, playerId, relatedObjectIds, task.BattlefieldObjectId);
+            AddRelatedObjectIds(state, playerId, relatedObjectIds, task.ParticipantObjectIds);
+        }
+    }
+
+    private static void AddBattleRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds)
+    {
+        var battle = state.BattleState;
+        if (!battle.IsActive)
+        {
+            return;
+        }
+
+        AddRelatedObjectId(state, playerId, relatedObjectIds, battle.BattlefieldObjectId);
+        AddRelatedObjectIds(state, playerId, relatedObjectIds, battle.AttackerObjectIds);
+        AddRelatedObjectIds(state, playerId, relatedObjectIds, battle.DefenderObjectIds);
+    }
+
+    private static void AddPendingPaymentRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds)
+    {
+        if (state.PendingPayment is not { } payment)
+        {
+            return;
+        }
+
+        AddPaymentResourceRelatedObjectIds(state, playerId, relatedObjectIds, PendingPaymentResourceActionIds(state, payment));
+    }
+
+    private static void AddPendingHandChoiceRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds)
+    {
+        if (state.PendingHandChoice is not { } choice)
+        {
+            return;
+        }
+
+        AddRelatedObjectId(state, playerId, relatedObjectIds, choice.SourceObjectId);
+        if (string.Equals(choice.PlayerId, playerId, StringComparison.Ordinal))
+        {
+            AddRelatedObjectIds(state, playerId, relatedObjectIds, choice.LegalObjectIds);
+        }
+    }
+
+    private static void AddTriggerRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds)
+    {
+        foreach (var trigger in state.TriggerQueue)
+        {
+            if (IsHiddenRelatedTriggerSourceForViewer(state, trigger, playerId))
+            {
+                continue;
+            }
+
+            AddRelatedObjectId(state, playerId, relatedObjectIds, trigger.SourceObjectId);
+        }
+    }
+
+    private static void AddPaymentResourceRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds,
+        IReadOnlyList<string> resourceActionIds)
+    {
+        foreach (var actionId in resourceActionIds)
+        {
+            AddPaymentResourceRelatedObjectId(state, playerId, relatedObjectIds, actionId);
+        }
+    }
+
+    private static void AddPaymentResourceRelatedObjectId(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds,
+        string resourceActionId)
+    {
+        if (TryParseRecycleRunePaymentActionId(resourceActionId, out var runeObjectId))
+        {
+            AddRelatedObjectId(state, playerId, relatedObjectIds, runeObjectId);
+            return;
+        }
+
+        if (PaymentCostRules.TryParseTemporaryPaymentResourceActionId(resourceActionId, out var resourceId))
+        {
+            var resource = state.TemporaryPaymentResources.FirstOrDefault(candidate =>
+                string.Equals(candidate.ResourceId, resourceId, StringComparison.Ordinal));
+            AddRelatedObjectId(state, playerId, relatedObjectIds, resource?.SourceObjectId);
+            return;
+        }
+
+        if (TryParseBlueSentinelDelayedResourceActionId(resourceActionId, out var triggerId))
+        {
+            var trigger = state.TriggerQueue.FirstOrDefault(candidate =>
+                string.Equals(candidate.TriggerId, triggerId, StringComparison.Ordinal));
+            if (trigger is not null && !IsHiddenRelatedTriggerSourceForViewer(state, trigger, playerId))
+            {
+                AddRelatedObjectId(state, playerId, relatedObjectIds, trigger.SourceObjectId);
+            }
+
+            if (TryReadBlueSentinelDelayedTriggerContext(triggerId, out _, out _, out var battlefieldObjectId))
+            {
+                AddRelatedObjectId(state, playerId, relatedObjectIds, battlefieldObjectId);
+            }
+
+            return;
+        }
+
+        AddRelatedObjectId(state, playerId, relatedObjectIds, resourceActionId);
+    }
+
+    private static void AddRelatedObjectIds(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds,
+        IReadOnlyList<string> objectIds)
+    {
+        foreach (var objectId in objectIds)
+        {
+            AddRelatedObjectId(state, playerId, relatedObjectIds, objectId);
+        }
+    }
+
+    private static void AddRelatedObjectId(
+        MatchState state,
+        string playerId,
+        List<string> relatedObjectIds,
+        string? objectId)
+    {
+        if (string.IsNullOrWhiteSpace(objectId))
+        {
+            return;
+        }
+
+        var normalizedObjectId = objectId.Trim();
+        if (string.Equals(normalizedObjectId, "HIDDEN", StringComparison.OrdinalIgnoreCase)
+            || !CanExposeRelatedObjectIdForViewer(state, normalizedObjectId, playerId))
+        {
+            return;
+        }
+
+        relatedObjectIds.Add(normalizedObjectId);
+    }
+
+    private static bool CanExposeRelatedObjectIdForViewer(
+        MatchState state,
+        string objectId,
+        string viewerPlayerId)
+    {
+        if (!state.CardObjects.ContainsKey(objectId)
+            || !state.ObjectLocations.TryGetValue(objectId, out var location)
+            || IsHiddenRelatedBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
+        {
+            return false;
+        }
+
+        if (!string.Equals(location.Zone, "HAND", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return string.Equals(location.PlayerId, viewerPlayerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsHiddenRelatedTriggerSourceForViewer(
+        MatchState state,
+        TriggerQueueItemState trigger,
+        string viewerPlayerId)
+    {
+        return !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
+            && IsHiddenRelatedBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
+    }
+
+    private static bool IsHiddenRelatedBattlefieldStandbyForViewer(
+        MatchState state,
+        string objectId,
+        string viewerPlayerId)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || !cardObject.IsFaceDown
+            || !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !state.ObjectLocations.TryGetValue(objectId, out var location)
+            || !string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+        {
+            return false;
+        }
+
+        var effectiveControllerId = !string.IsNullOrWhiteSpace(cardObject.ControllerId)
+            ? cardObject.ControllerId
+            : !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+                ? cardObject.OwnerId
+                : location.PlayerId;
+        return !string.Equals(cardObject.OwnerId, viewerPlayerId, StringComparison.Ordinal)
+            && !string.Equals(effectiveControllerId, viewerPlayerId, StringComparison.Ordinal);
     }
 
     private static string? EmptyAsNull(string? value)
