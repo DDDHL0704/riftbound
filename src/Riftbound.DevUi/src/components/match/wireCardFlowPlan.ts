@@ -25,6 +25,43 @@ export type WireCardFlowPlan = {
 const CARD_RATIO = 744 / 1039;
 const UNBOUNDED_CAPACITY = "unbounded" as const;
 
+type RailFlowKind = Exclude<WireCardFlowKind, "signature">;
+type WireCardFlowStep = {
+  cardWidth: number;
+  density: WireCardFlowDensity;
+  gap: number;
+  maxCount: number;
+  scrollAfter: number;
+};
+
+const RAIL_FLOW_STRATEGIES: Record<RailFlowKind, WireCardFlowStep[]> = {
+  "battlefield-unit": [
+    step(3, "sparse", 74, 4, 12),
+    step(5, "normal", 68, 4, 12),
+    step(8, "dense", 58, 4, 12),
+    step(12, "packed", 48, 3, 12),
+    step(Number.POSITIVE_INFINITY, "packed", 42, 3, 12)
+  ],
+  base: [
+    step(3, "sparse", 86, 4, 10),
+    step(6, "normal", 74, 4, 10),
+    step(10, "dense", 62, 3, 10),
+    step(Number.POSITIVE_INFINITY, "packed", 52, 3, 10)
+  ],
+  hand: [
+    step(5, "sparse", 86, 4, 12),
+    step(8, "normal", 74, 4, 12),
+    step(12, "dense", 62, 3, 12),
+    step(Number.POSITIVE_INFINITY, "packed", 52, 3, 12)
+  ],
+  standby: [
+    step(2, "sparse", 58, 4, 8),
+    step(4, "normal", 52, 4, 8),
+    step(8, "dense", 46, 3, 8),
+    step(Number.POSITIVE_INFINITY, "packed", 40, 3, 8)
+  ]
+};
+
 export function buildWireCardFlowPlan({
   itemCount,
   kind,
@@ -52,82 +89,43 @@ export function buildWireCardFlowPlan({
     });
   }
 
-  if (kind === "battlefield-unit") {
-    if (effectiveCount <= 3) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "sparse", 74, 4, 12);
-    }
-    if (effectiveCount <= 5) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "normal", 68, 4, 12);
-    }
-    if (effectiveCount <= 8) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "dense", 58, 4, 12);
-    }
-    if (effectiveCount <= 12) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "packed", 48, 3, 12);
-    }
-    return railPlan(kind, itemCount, minSlots, slotCount, "packed", 42, 3, 12);
-  }
-
-  if (kind === "standby") {
-    if (effectiveCount <= 2) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "sparse", 58, 4, 8);
-    }
-    if (effectiveCount <= 4) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "normal", 52, 4, 8);
-    }
-    if (effectiveCount <= 8) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "dense", 46, 3, 8);
-    }
-    return railPlan(kind, itemCount, minSlots, slotCount, "packed", 40, 3, 8);
-  }
-
-  if (kind === "base") {
-    if (effectiveCount <= 3) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "sparse", 86, 4, 10);
-    }
-    if (effectiveCount <= 6) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "normal", 74, 4, 10);
-    }
-    if (effectiveCount <= 10) {
-      return railPlan(kind, itemCount, minSlots, slotCount, "dense", 62, 3, 10);
-    }
-    return railPlan(kind, itemCount, minSlots, slotCount, "packed", 52, 3, 10);
-  }
-
-  if (effectiveCount <= 5) {
-    return railPlan(kind, itemCount, minSlots, slotCount, "sparse", 86, 4, 12);
-  }
-  if (effectiveCount <= 8) {
-    return railPlan(kind, itemCount, minSlots, slotCount, "normal", 74, 4, 12);
-  }
-  if (effectiveCount <= 12) {
-    return railPlan(kind, itemCount, minSlots, slotCount, "dense", 62, 3, 12);
-  }
-  return railPlan(kind, itemCount, minSlots, slotCount, "packed", 52, 3, 12);
+  const strategy = selectRailStrategy(RAIL_FLOW_STRATEGIES[kind], effectiveCount);
+  return railPlan(kind, itemCount, minSlots, slotCount, strategy);
 }
 
 function railPlan(
-  kind: Exclude<WireCardFlowKind, "signature">,
+  kind: RailFlowKind,
   itemCount: number,
   minSlots: number,
   slotCount: number,
-  density: WireCardFlowDensity,
-  cardWidth: number,
-  gap: number,
-  scrollAfter: number
+  strategy: WireCardFlowStep
 ): WireCardFlowPlan {
   return plan({
     capacity: UNBOUNDED_CAPACITY,
-    cardWidth,
-    density,
-    gap,
+    cardWidth: strategy.cardWidth,
+    density: strategy.density,
+    gap: strategy.gap,
     itemCount,
     kind,
     layout: "rail",
     minSlots,
-    scrollAfter,
+    scrollAfter: strategy.scrollAfter,
     slotCount
   });
+}
+
+function selectRailStrategy(steps: WireCardFlowStep[], effectiveCount: number): WireCardFlowStep {
+  return steps.find((candidate) => effectiveCount <= candidate.maxCount) ?? steps[steps.length - 1];
+}
+
+function step(
+  maxCount: number,
+  density: WireCardFlowDensity,
+  cardWidth: number,
+  gap: number,
+  scrollAfter: number
+): WireCardFlowStep {
+  return { cardWidth, density, gap, maxCount, scrollAfter };
 }
 
 function plan({
