@@ -398,6 +398,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         onClose={() => setDetailCard(undefined)}
         onCommand={(command) => void controller.submitCommand(command)}
         prompt={tablePrompt}
+        selectionDraft={selectionDraft}
         snapshot={tableSnapshot}
       />
       <WireCardPreview card={previewCard} />

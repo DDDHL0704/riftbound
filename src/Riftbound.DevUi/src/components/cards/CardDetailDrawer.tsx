@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import { buildCardDetailPlan, type CardDetailInspectorPlan } from "../../utils/cardDetailPlan";
+import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
 import { buildPromptInteractionModel } from "../../utils/promptInteraction";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
@@ -19,10 +20,11 @@ type CardDetailDrawerProps = {
   onCommand?: (command: GameCommand) => void;
   objectContext?: TableObjectContext;
   prompt?: ActionPromptDto;
+  selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
 };
 
-export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prompt, snapshot }: CardDetailDrawerProps) {
+export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prompt, selectionDraft, snapshot }: CardDetailDrawerProps) {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
@@ -151,6 +153,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, objectContext, prom
                             onCommand={stampedOnCommand}
                             onSubmitted={onClose}
                             prompt={prompt}
+                            selectionDraft={selectionDraft}
                             snapshot={snapshot}
                           />
                         </div>

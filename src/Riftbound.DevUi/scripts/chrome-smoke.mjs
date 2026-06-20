@@ -1276,6 +1276,22 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
+  const commandBridgeDraftDetailObjectId = await clickTimelineCommandBridgeDetail(cdp, "p1-hand-spell");
+  await delay(150);
+  const commandBridgeDraftDetailResult = await evaluateJson(cdp, `(() => {
+    const detail = document.querySelector(".detail-layer");
+    const preview = detail?.querySelector(".candidate-command-preview");
+    return {
+      composerCount: detail?.querySelectorAll(".candidate-composer").length ?? 0,
+      objectId: ${JSON.stringify(commandBridgeDraftDetailObjectId)},
+      open: Boolean(detail),
+      previewText: preview?.textContent ?? ""
+    };
+  })()`);
+  await pressEscape(cdp);
+  await delay(120);
+  const commandBridgeDraftDetailClosed = await evaluateJson(cdp, `(() => !document.querySelector(".detail-layer"))()`);
+
   const actionHintObjectId = await clickTimelineActionHint(cdp);
   await delay(150);
   const actionHintFocusResult = await evaluateJson(cdp, `(() => {
@@ -1492,6 +1508,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeFocusResult.commandBridgeGateStates.includes("ready")) failures.push("command bridge detail gate ready state missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("提交门禁")) failures.push("command bridge detail gate label missing after target selection");
   if (commandBridgeFocusResult.detailLayerOpen) failures.push("command bridge button opened card detail layer");
+  if (commandBridgeDraftDetailResult.objectId !== "p1-hand-spell") failures.push(`command bridge draft detail opened unexpected object: ${commandBridgeDraftDetailResult.objectId}`);
+  if (!commandBridgeDraftDetailResult.open) failures.push("command bridge draft detail did not open card detail layer");
+  if (commandBridgeDraftDetailResult.composerCount < 1) failures.push("command bridge draft detail composer missing");
+  if (!commandBridgeDraftDetailResult.previewText.includes("目标：")) failures.push("command bridge draft detail preview target row missing");
+  if (commandBridgeDraftDetailResult.previewText.includes("目标：无")) failures.push("command bridge draft detail did not inherit selected target");
+  if (!commandBridgeDraftDetailClosed) failures.push("command bridge draft detail drawer did not close before continuing");
   if (ruleDetailResult.sourceState !== "rule") failures.push("rule detail did not project source to table");
   if (ruleDetailResult.targetState !== "rule") failures.push("rule detail did not project target to table");
   if (!ruleDetailResult.selectedRow) failures.push("rule detail selected row missing");
