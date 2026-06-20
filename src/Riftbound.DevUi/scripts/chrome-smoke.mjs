@@ -100,7 +100,7 @@ try {
   }
 
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "响应责任时间线", "焦点 / 候选 / 规则队列"]);
+  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "响应责任时间线", "责任来源：服务端", "焦点 / 候选 / 规则队列"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
   await runWireLayoutGeometrySmoke(cdp);
   console.log("Chrome smoke OK: wire layout geometry");
@@ -636,6 +636,11 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures.push("wire response coach did not expose the expected metric strip");
     }
 
+    const responsibilitySource = document.querySelector("[data-wire-window-responsibility-source]")?.getAttribute("data-wire-window-responsibility-source") ?? "missing";
+    if (responsibilitySource !== "server") {
+      failures.push(\`wire turn window did not use server responsibility metadata: \${responsibilitySource}\`);
+    }
+
     const ruleAuthority = document.querySelector("[data-wire-rule-authority-state]");
     const ruleAuthorityState = ruleAuthority?.getAttribute("data-wire-rule-authority-state") ?? "missing";
     if (ruleAuthorityState !== "server") {
@@ -658,6 +663,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
+      responsibilitySource,
       responseCoachState,
       ruleAuthorityState,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length,
@@ -690,6 +696,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (result.promptAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server prompt authority: ${result.promptAuthorityState}`);
+  }
+  if (result.responsibilitySource !== "server") {
+    throw new Error(`Wire layout geometry smoke did not find server responsibility metadata: ${result.responsibilitySource}`);
   }
   if (!["blocked", "opponent", "ready", "resolving", "selecting", "waiting"].includes(result.responseCoachState)) {
     throw new Error(`Wire layout geometry smoke did not find response coach: ${result.responseCoachState}`);

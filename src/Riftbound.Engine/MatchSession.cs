@@ -5769,7 +5769,8 @@ internal static class ActionPromptBuilder
             type == PromptTypes.Mulligan && actions.Contains("MULLIGAN", StringComparer.Ordinal)
                 ? OfficialDeckValidator.MaximumMulliganCount
                 : null,
-            PromptViewMetadata(state, playerId, type));
+            PromptViewMetadata(state, playerId, type),
+            PromptResponsibilityFor(state, playerId, type, actionable, reason));
     }
 
     private static string PromptTypeFor(
@@ -5881,6 +5882,259 @@ internal static class ActionPromptBuilder
         return string.IsNullOrWhiteSpace(reason)
             ? "等待服务端确认下一步。"
             : reason;
+    }
+
+    private static PromptResponsibilityDto PromptResponsibilityFor(
+        MatchState state,
+        string playerId,
+        string type,
+        bool actionable,
+        string reason)
+    {
+        var responsibilityType = PromptResponsibilityTypeFor(state, type);
+        var responsiblePlayerId = ResponsiblePlayerIdFor(state, type, actionable, playerId);
+        var isResponsiblePlayer = !string.IsNullOrWhiteSpace(responsiblePlayerId)
+            && string.Equals(responsiblePlayerId, playerId, StringComparison.Ordinal);
+        var responsibilityState = PromptResponsibilityStateFor(state, type, actionable, responsiblePlayerId, isResponsiblePlayer);
+        return new PromptResponsibilityDto(
+            responsibilityType,
+            playerId,
+            string.IsNullOrWhiteSpace(responsiblePlayerId) ? null : responsiblePlayerId,
+            isResponsiblePlayer,
+            actionable,
+            responsibilityState,
+            PromptResponsibilityNextStep(responsibilityType, reason, actionable, responsiblePlayerId, responsibilityState),
+            PromptResponsibilityQueueCounts(state),
+            PromptResponsibilityRelatedObjectIds(state, type));
+    }
+
+    private static string PromptResponsibilityTypeFor(MatchState state, string fallbackType)
+    {
+        if (!string.Equals(fallbackType, PromptTypes.Wait, StringComparison.Ordinal))
+        {
+            return fallbackType;
+        }
+
+        if (string.Equals(state.Status, MatchStatuses.Finished, StringComparison.Ordinal))
+        {
+            return PromptTypes.MatchResult;
+        }
+
+        if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
+        {
+            return PromptTypes.RoomSetup;
+        }
+
+        if (string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal))
+        {
+            return PromptTypes.Mulligan;
+        }
+
+        if (state.PendingPayment is not null)
+        {
+            return PromptTypes.PayCost;
+        }
+
+        if (state.PendingHandChoice is not null)
+        {
+            return PromptTypes.HandChoice;
+        }
+
+        if ((state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+            || HasOpenBattleResponsePriority(state))
+        {
+            return PromptTypes.StackPriority;
+        }
+
+        if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.FocusPlayerId))
+        {
+            return PromptTypes.SpellDuelFocus;
+        }
+
+        if (ResolutionResult.HasOpenOrderTriggersWindow(state))
+        {
+            return PromptTypes.OrderTriggers;
+        }
+
+        if (ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
+        {
+            return PromptTypes.AssignCombatDamage;
+        }
+
+        if (ResolutionResult.ActiveStartBattleTask(state) is not null)
+        {
+            return PromptTypes.BattleDeclaration;
+        }
+
+        if (ResolutionResult.HasBlockingPendingTaskQueue(state))
+        {
+            return PromptTypes.TaskQueue;
+        }
+
+        return PromptTypes.MainAction;
+    }
+
+    private static string? ResponsiblePlayerIdFor(
+        MatchState state,
+        string type,
+        bool actionable,
+        string playerId)
+    {
+        if (string.Equals(type, PromptTypes.PayCost, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(state.PendingPayment?.PlayerId);
+        }
+
+        if (string.Equals(type, PromptTypes.HandChoice, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(state.PendingHandChoice?.PlayerId);
+        }
+
+        if (string.Equals(type, PromptTypes.StackPriority, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(state.PriorityPlayerId);
+        }
+
+        if (string.Equals(type, PromptTypes.SpellDuelFocus, StringComparison.Ordinal)
+            || string.Equals(type, PromptTypes.SpellDuelAction, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(state.FocusPlayerId);
+        }
+
+        if (string.Equals(type, PromptTypes.OrderTriggers, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(ResolutionResult.OrderTriggersOrderingPlayerId(state));
+        }
+
+        if (string.Equals(type, PromptTypes.AssignCombatDamage, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(ResolutionResult.BattleDamageAssigningPlayerId(state));
+        }
+
+        if (string.Equals(type, PromptTypes.BattleDeclaration, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(state.ActivePlayerId);
+        }
+
+        if (string.Equals(type, PromptTypes.Mulligan, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(ResolutionResult.OpeningMulliganPlayerId(state));
+        }
+
+        if (string.Equals(type, PromptTypes.MainAction, StringComparison.Ordinal)
+            || string.Equals(type, PromptTypes.Wait, StringComparison.Ordinal))
+        {
+            return EmptyAsNull(state.ActivePlayerId);
+        }
+
+        if (string.Equals(type, PromptTypes.RoomSetup, StringComparison.Ordinal) && actionable)
+        {
+            return EmptyAsNull(playerId);
+        }
+
+        return null;
+    }
+
+    private static string PromptResponsibilityStateFor(
+        MatchState state,
+        string type,
+        bool actionable,
+        string? responsiblePlayerId,
+        bool isResponsiblePlayer)
+    {
+        if (string.Equals(type, PromptTypes.MatchResult, StringComparison.Ordinal)
+            || string.Equals(state.Status, MatchStatuses.Finished, StringComparison.Ordinal))
+        {
+            return "MATCH_COMPLETE";
+        }
+
+        if (actionable)
+        {
+            return "PLAYER_ACTION";
+        }
+
+        if (!string.IsNullOrWhiteSpace(responsiblePlayerId))
+        {
+            return isResponsiblePlayer ? "PLAYER_WAIT" : "WAITING_PLAYER";
+        }
+
+        if (ResolutionResult.HasBlockingPendingTaskQueue(state)
+            || state.PendingTaskQueue.Tasks.Count > 0
+            || state.StackItems.Count > 0
+            || state.TriggerQueue.Count > 0)
+        {
+            return "SERVER_RESOLVING";
+        }
+
+        if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
+        {
+            return "ROOM_SETUP";
+        }
+
+        return "SERVER_WAIT";
+    }
+
+    private static string PromptResponsibilityNextStep(
+        string type,
+        string reason,
+        bool actionable,
+        string? responsiblePlayerId,
+        string responsibilityState)
+    {
+        if (string.Equals(responsibilityState, "MATCH_COMPLETE", StringComparison.Ordinal))
+        {
+            return "查看对局结果。";
+        }
+
+        if (actionable)
+        {
+            return $"根据服务端候选处理{PromptTitleFor(type)}。";
+        }
+
+        if (!string.IsNullOrWhiteSpace(responsiblePlayerId))
+        {
+            return $"等待 {responsiblePlayerId} 处理{PromptTitleFor(type)}。";
+        }
+
+        if (string.Equals(responsibilityState, "SERVER_RESOLVING", StringComparison.Ordinal))
+        {
+            return "等待服务端推进规则队列。";
+        }
+
+        return string.IsNullOrWhiteSpace(reason)
+            ? "等待服务端确认下一步。"
+            : reason;
+    }
+
+    private static IReadOnlyDictionary<string, int> PromptResponsibilityQueueCounts(MatchState state)
+    {
+        return new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["stack"] = state.StackItems.Count,
+            ["pendingTasks"] = state.PendingTaskQueue.Tasks.Count,
+            ["triggerQueue"] = state.TriggerQueue.Count,
+            ["pendingPayment"] = state.PendingPayment is null ? 0 : 1,
+            ["pendingHandChoice"] = state.PendingHandChoice is null ? 0 : 1,
+            ["activeBattle"] = state.BattleState.IsActive ? 1 : 0
+        };
+    }
+
+    private static IReadOnlyList<string> PromptResponsibilityRelatedObjectIds(MatchState state, string type)
+    {
+        return new[]
+            {
+                RelatedBattlefieldIdFor(state, type)
+            }
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId!.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string? EmptyAsNull(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
     private static IReadOnlyDictionary<string, object?>? PromptViewMetadata(

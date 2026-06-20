@@ -148,7 +148,11 @@ export function WireTurnWindowPanel({
 
       <div className="wire-window-plan-contract">
         <span>提示类型：{plan.promptType}</span>
+        <span>责任窗口：{plan.responsibilityPromptType || plan.promptType}</span>
         <span>{plan.queueStateLabel}</span>
+        <span data-wire-window-responsibility-source={plan.responsibilitySource}>
+          责任来源：{plan.responsibilitySource === "server" ? "服务端" : "前端兜底"}
+        </span>
       </div>
     </section>
   );

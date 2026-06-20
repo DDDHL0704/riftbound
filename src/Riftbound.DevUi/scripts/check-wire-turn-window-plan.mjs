@@ -108,6 +108,100 @@ assert.equal(actionable.inspection.summaryRows.find((row) => row.key === "candid
 assert.ok(actionable.inspection.groups.find((group) => group.key === "candidate")?.rows.some((row) => row.value.includes("ACTIVATE_ABILITY")));
 assert.ok(actionable.inspection.groups.find((group) => group.key === "safe-boundary")?.rows.some((row) => row.label.includes("前端职责") && row.value.includes("不重算规则")));
 
+const serverResponsibilityActionable = buildWireTurnWindowPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["PLAY_CARD"],
+    candidates: [{ action: "PLAY_CARD", enabled: true, label: "打出卡牌", reason: "可提交" }],
+    playerId: "P1",
+    reason: "服务端责任窗口",
+    view: {
+      message: "请选择行动",
+      responsibility: {
+        actionableForPromptPlayer: true,
+        isResponsiblePlayer: true,
+        nextStep: "根据服务端候选处理主行动。",
+        promptPlayerId: "P1",
+        promptType: "MAIN_ACTION",
+        queueCounts: { stack: 0 },
+        relatedObjectIds: [],
+        responsiblePlayerId: "P1",
+        state: "PLAYER_ACTION"
+      },
+      title: "主行动窗口",
+      type: "MAIN_ACTION"
+    }
+  },
+  snapshot: {
+    activePlayerId: "P1",
+    lanes: {},
+    players: {},
+    stack: [],
+    tick: 10,
+    timing: {
+      phase: "MAIN",
+      roomStatus: "IN_PROGRESS",
+      turnWindow: { actingPlayerId: "P1", state: "NEUTRAL_OPEN" }
+    },
+    turnNumber: 2,
+    turnState: "MAIN"
+  }
+});
+assert.equal(serverResponsibilityActionable.state, "you-action");
+assert.equal(serverResponsibilityActionable.responsibilitySource, "server");
+assert.equal(serverResponsibilityActionable.responsibilityPromptType, "MAIN_ACTION");
+assert.equal(serverResponsibilityActionable.metrics.find((metric) => metric.key === "prompt")?.mine, true);
+assert.equal(serverResponsibilityActionable.queueStateLabel, "责任玩家可行动");
+
+const serverResponsibilityOpponent = buildWireTurnWindowPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: false,
+    actions: ["WAIT"],
+    candidates: [],
+    playerId: "P1",
+    reason: "等待对手优先行动",
+    view: {
+      message: "等待对手。",
+      responsibility: {
+        actionableForPromptPlayer: false,
+        isResponsiblePlayer: false,
+        nextStep: "等待 P2 处理优先行动。",
+        promptPlayerId: "P1",
+        promptType: "STACK_PRIORITY",
+        queueCounts: { stack: 1 },
+        relatedObjectIds: [],
+        responsiblePlayerId: "P2",
+        state: "WAITING_PLAYER"
+      },
+      title: "优先行动",
+      type: "STACK_PRIORITY"
+    }
+  },
+  snapshot: {
+    activePlayerId: "P1",
+    lanes: {},
+    players: {},
+    stack: [{ stackItemId: "stack-1", controllerId: "P2" }],
+    tick: 10,
+    timing: {
+      turnWindow: { actingPlayerId: "P2", state: "NEUTRAL_OPEN" }
+    },
+    turnNumber: 2,
+    turnState: "MAIN"
+  }
+});
+assert.equal(serverResponsibilityOpponent.state, "opponent-action");
+assert.equal(serverResponsibilityOpponent.responsibilitySource, "server");
+assert.equal(serverResponsibilityOpponent.responsibilityPromptType, "STACK_PRIORITY");
+assert.equal(serverResponsibilityOpponent.promptOwnerId, "P2");
+assert.equal(serverResponsibilityOpponent.metrics.find((metric) => metric.key === "prompt")?.value, "P2");
+assert.equal(serverResponsibilityOpponent.queueStateLabel, "等待责任玩家");
+assert.equal(serverResponsibilityOpponent.nextStepLabel, "等待 P2 处理优先行动。");
+
 const actionableWithStack = buildWireTurnWindowPlan({
   connectionStatus: "connected",
   playerId: "P1",

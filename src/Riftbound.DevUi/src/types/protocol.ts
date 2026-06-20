@@ -305,6 +305,19 @@ export type PromptViewDto = {
   minSelection?: number | null;
   maxSelection?: number | null;
   metadata?: Record<string, unknown> | null;
+  responsibility?: PromptResponsibilityDto | null;
+};
+
+export type PromptResponsibilityDto = {
+  promptType: PromptType;
+  promptPlayerId: string;
+  responsiblePlayerId?: string | null;
+  isResponsiblePlayer: boolean;
+  actionableForPromptPlayer: boolean;
+  state: string;
+  nextStep: string;
+  queueCounts: Record<string, number>;
+  relatedObjectIds: string[];
 };
 
 export type ActionPromptContractDto = {

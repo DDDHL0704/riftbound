@@ -465,6 +465,24 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
     view: {
       message: "展示点击卡牌、候选行动、目标/费用和规则队列的线框占位。",
       relatedBattlefieldId: "fixture-left-battlefield",
+      responsibility: {
+        actionableForPromptPlayer: true,
+        isResponsiblePlayer: true,
+        nextStep: "根据服务端候选处理主行动。",
+        promptPlayerId: selfId,
+        promptType: "MAIN_ACTION",
+        queueCounts: {
+          activeBattle: 1,
+          pendingHandChoice: 0,
+          pendingPayment: 0,
+          pendingTasks: 1,
+          stack: 1,
+          triggerQueue: 2
+        },
+        relatedObjectIds: ["fixture-left-battlefield"],
+        responsiblePlayerId: selfId,
+        state: "PLAYER_ACTION"
+      },
       title: "前端线框交互样例",
       type: "MAIN_ACTION"
     }

@@ -329,7 +329,19 @@ public sealed record PromptViewDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? RelatedSpellDuelId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? MinSelection = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? MaxSelection = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, object?>? Metadata = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, object?>? Metadata = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PromptResponsibilityDto? Responsibility = null);
+
+public sealed record PromptResponsibilityDto(
+    string PromptType,
+    string PromptPlayerId,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ResponsiblePlayerId,
+    bool IsResponsiblePlayer,
+    bool ActionableForPromptPlayer,
+    string State,
+    string NextStep,
+    IReadOnlyDictionary<string, int> QueueCounts,
+    IReadOnlyList<string> RelatedObjectIds);
 
 public sealed record ActionPromptDto(
     string PlayerId,

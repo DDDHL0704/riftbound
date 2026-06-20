@@ -32,6 +32,9 @@ export type WireTurnWindowPlan = {
   promptTitle: string;
   promptType: string;
   queueStateLabel: string;
+  responsibilityPromptType?: string;
+  responsibilitySource: "fallback" | "server";
+  responsibilityState?: string;
   roomStatus: string;
   stackCount: number;
   state: "disconnected" | "opponent-action" | "resolving" | "server-wait" | "you-action";
@@ -56,22 +59,30 @@ export function buildWireTurnWindowPlan({
   const timing = record(snapshot?.timing);
   const turnWindow = record(timing.turnWindow);
   const queue = record(timing.pendingTaskQueue);
+  const responsibility = prompt?.view?.responsibility;
+  const responsibilityPromptType = stringValue(responsibility?.promptType);
+  const responsibilityState = stringValue(responsibility?.state);
+  const responsibilityNextStep = stringValue(responsibility?.nextStep);
   const stackCount = arrayLength(snapshot?.stack);
   const taskCount = arrayLength(queue.tasks) + arrayLength(timing.battlefieldTasks);
   const triggerCount = arrayLength(timing.triggerQueue);
-  const promptOwnerId = prompt?.playerId ?? stringValue(timing.promptPlayerId);
+  const responsiblePlayerId = stringValue(responsibility?.responsiblePlayerId);
+  const promptOwnerId = responsiblePlayerId || prompt?.playerId || stringValue(timing.promptPlayerId);
   const activePlayerId = snapshot?.activePlayerId || stringValue(turnWindow.actingPlayerId) || stringValue(timing.priorityPlayerId);
   const enabledCandidateCount = (prompt?.candidates ?? []).filter((candidate) => candidate.enabled).length;
   const isConnected = connectionStatus === "connected" || connectionStatus === "resyncing";
   const isBlocking = Boolean(queue.isBlocking);
-  const promptActionable = Boolean(prompt?.actionable);
-  const mine = promptActionable && promptOwnerId === playerId;
+  const promptActionable = Boolean(responsibility?.actionableForPromptPlayer ?? prompt?.actionable);
+  const mine = Boolean(responsibility?.isResponsiblePlayer ?? (promptActionable && promptOwnerId === playerId));
+  const responsibleOther = Boolean(promptOwnerId && promptOwnerId !== playerId && !mine);
   const state = windowState({
     connectionStatus,
     isBlocking,
     isConnected,
     mine,
     promptActionable,
+    responsibilityState,
+    responsibleOther,
     stackCount,
     triggerCount
   });
@@ -92,6 +103,8 @@ export function buildWireTurnWindowPlan({
       mine,
       promptActionable,
       promptOwnerId,
+      responsibilityNextStep,
+      responsibleOther,
       stackCount,
       triggerCount
     }),
@@ -100,7 +113,10 @@ export function buildWireTurnWindowPlan({
     promptOwnerId,
     promptTitle: prompt?.view?.title?.trim() || "无行动窗口",
     promptType: prompt?.view?.type || "WAIT",
-    queueStateLabel: isBlocking ? "规则任务阻塞" : taskCount > 0 ? "规则任务待处理" : "无阻塞任务",
+    queueStateLabel: responsibilityQueueStateLabel(responsibilityState, isBlocking, taskCount),
+    responsibilityPromptType,
+    responsibilitySource: responsibility ? "server" : "fallback",
+    responsibilityState,
     roomStatus: stringValue(timing.roomStatus),
     stackCount,
     state,
@@ -110,7 +126,7 @@ export function buildWireTurnWindowPlan({
     windowState: stringValue(turnWindow.state) || stringValue(timing.timingState),
     metrics: [
       { key: "active", label: "当前玩家", mine: activePlayerId === playerId, value: activePlayerId || "无" },
-      { key: "prompt", label: "提示归属", mine: promptOwnerId === playerId, value: promptOwnerId || "无" },
+      { key: "prompt", label: "责任玩家", mine, value: promptOwnerId || "无" },
       { key: "candidates", label: "可提交", value: String(enabledCandidateCount) },
       { key: "stack", label: "结算链", value: `${stackCount} 项` },
       { key: "tasks", label: "任务", value: `${taskCount} 项` },
@@ -125,6 +141,8 @@ function windowState({
   isConnected,
   mine,
   promptActionable,
+  responsibilityState,
+  responsibleOther,
   stackCount,
   triggerCount
 }: {
@@ -133,6 +151,8 @@ function windowState({
   isConnected: boolean;
   mine: boolean;
   promptActionable: boolean;
+  responsibilityState?: string;
+  responsibleOther: boolean;
   stackCount: number;
   triggerCount: number;
 }): WireTurnWindowPlan["state"] {
@@ -140,7 +160,7 @@ function windowState({
     return "disconnected";
   }
 
-  if (isBlocking) {
+  if (isBlocking || responsibilityState === "SERVER_RESOLVING") {
     return "resolving";
   }
 
@@ -148,7 +168,7 @@ function windowState({
     return "you-action";
   }
 
-  if (promptActionable) {
+  if (responsibleOther || promptActionable) {
     return "opponent-action";
   }
 
@@ -196,6 +216,8 @@ function nextStepLabel({
   mine,
   promptActionable,
   promptOwnerId,
+  responsibilityNextStep,
+  responsibleOther,
   stackCount,
   triggerCount
 }: {
@@ -205,11 +227,17 @@ function nextStepLabel({
   mine: boolean;
   promptActionable: boolean;
   promptOwnerId?: string;
+  responsibilityNextStep?: string;
+  responsibleOther: boolean;
   stackCount: number;
   triggerCount: number;
 }): string {
   if (!isConnected) {
     return "先恢复连接或重新同步快照";
+  }
+
+  if (responsibilityNextStep) {
+    return responsibilityNextStep;
   }
 
   if (isBlocking) {
@@ -220,7 +248,7 @@ function nextStepLabel({
     return "从服务端候选中选择并提交";
   }
 
-  if (promptActionable) {
+  if (responsibleOther || promptActionable) {
     return `等待 ${promptOwnerId || "对手"} 提交服务端候选`;
   }
 
@@ -237,6 +265,30 @@ function nextStepLabel({
   }
 
   return "等待服务端推进对局";
+}
+
+function responsibilityQueueStateLabel(
+  responsibilityState: string,
+  isBlocking: boolean,
+  taskCount: number
+): string {
+  if (responsibilityState === "SERVER_RESOLVING") {
+    return "服务端规则队列";
+  }
+
+  if (responsibilityState === "WAITING_PLAYER") {
+    return "等待责任玩家";
+  }
+
+  if (responsibilityState === "PLAYER_ACTION") {
+    return "责任玩家可行动";
+  }
+
+  if (isBlocking) {
+    return "规则任务阻塞";
+  }
+
+  return taskCount > 0 ? "规则任务待处理" : "无阻塞任务";
 }
 
 function record(value: unknown): Record<string, unknown> {
