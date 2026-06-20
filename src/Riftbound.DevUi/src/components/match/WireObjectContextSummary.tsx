@@ -64,6 +64,7 @@ export function WireObjectContextSummary({
               >
                 <span>{row.enabled ? "可提交" : "阻断"}{row.roles.length > 0 ? ` / ${row.roles.join("/")}` : ""}</span>
                 <strong>{row.commandType ?? row.label}{row.requiredFields.length > 0 ? `：${row.requiredFields.join(" / ")}` : ""}</strong>
+                {row.stepSummary && <small>步骤：{row.stepSummary}</small>}
                 <small title={row.composerReason}>组合：{row.composerStateLabel}</small>
                 {row.secondaryFields.length > 0 && <small>{row.secondaryFields.join(" / ")}</small>}
                 {!row.enabled && <small>{row.reason}</small>}

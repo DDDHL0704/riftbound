@@ -1,6 +1,7 @@
 import type {
   ActionPromptDto,
   ActionPromptObjectCandidateDto,
+  ActionPromptObjectCandidateStepDto,
   ActionPromptObjectContextDto,
   ActionPromptObjectInspectionDto,
   BattlefieldSnapshotView,
@@ -62,6 +63,16 @@ export type TableObjectCandidateContext = {
   reason: string;
   requiredCommandFields: string[];
   roles: string[];
+  selectionSteps: TableObjectCandidateStepContext[];
+};
+
+export type TableObjectCandidateStepContext = {
+  choiceCount: number;
+  index: number;
+  label: string;
+  objectChoiceCount: number;
+  required: boolean;
+  role: string;
 };
 
 export type TableObjectCandidateSource = "derived" | "none" | "server";
@@ -259,7 +270,8 @@ function candidateContextFromServerObjectCandidate(candidate: ActionPromptObject
     label: candidate.label || candidate.action,
     reason: promptReasonLabel(candidate.reason, candidate.enabled ? "可提交" : "暂不可提交"),
     requiredCommandFields: candidate.requiredCommandFields ?? [],
-    roles: candidate.roles ?? []
+    roles: candidate.roles ?? [],
+    selectionSteps: objectCandidateStepsFromServer(candidate.selectionSteps)
   };
 }
 
@@ -279,8 +291,34 @@ function candidateContextForObject(candidate: PromptCandidateSummary, objectId: 
     label: candidate.label,
     reason: candidate.reason,
     requiredCommandFields: commandBindings.filter((binding) => binding.required).map(promptCommandBindingLabel),
-    roles: uniqueStrings(linkedChoices.map((choice) => promptChoiceRoleLabel(choice.role)))
+    roles: uniqueStrings(linkedChoices.map((choice) => promptChoiceRoleLabel(choice.role))),
+    selectionSteps: candidate.steps.map((step, index) => {
+      const objectChoiceCount = linkedChoices.filter((choice) => choice.role === step.role).length;
+      return {
+        choiceCount: step.count,
+        index,
+        label: step.label,
+        objectChoiceCount,
+        required: step.required,
+        role: step.role
+      };
+    })
   };
+}
+
+function objectCandidateStepsFromServer(
+  steps: ActionPromptObjectCandidateStepDto[] | null | undefined
+): TableObjectCandidateStepContext[] {
+  return (steps ?? [])
+    .map((step) => ({
+      choiceCount: numberOrZero(step.choiceCount),
+      index: numberOrZero(step.index),
+      label: step.label || step.role || "步骤",
+      objectChoiceCount: numberOrZero(step.objectChoiceCount),
+      required: Boolean(step.required),
+      role: step.role || step.label || "step"
+    }))
+    .sort((left, right) => left.index - right.index || left.role.localeCompare(right.role));
 }
 
 function composerContextFromServerObjectCandidate(candidate: ActionPromptObjectCandidateDto): PromptCandidateComposerSummary {
@@ -448,6 +486,10 @@ function playerSideLabel(playerId: string | null | undefined, perspectivePlayerI
     return "未知";
   }
   return playerId === perspectivePlayerId ? "我方" : "对方";
+}
+
+function numberOrZero(value: number | null | undefined): number {
+  return Number.isFinite(value) ? Number(value) : 0;
 }
 
 function uniqueStrings(values: string[]): string[] {

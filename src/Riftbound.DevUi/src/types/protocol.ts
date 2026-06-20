@@ -226,6 +226,15 @@ export type ActionPromptCandidateDto = {
   composer?: ActionPromptComposerDto | null;
 };
 
+export type ActionPromptObjectCandidateStepDto = {
+  role: string;
+  label: string;
+  required: boolean;
+  choiceCount: number;
+  objectChoiceCount: number;
+  index: number;
+};
+
 export type ActionPromptObjectCandidateDto = {
   action: string;
   label: string;
@@ -236,6 +245,7 @@ export type ActionPromptObjectCandidateDto = {
   requiredCommandFields?: string[] | null;
   commandFields?: string[] | null;
   composer?: ActionPromptComposerDto | null;
+  selectionSteps?: ActionPromptObjectCandidateStepDto[] | null;
 };
 
 export type ActionPromptObjectInspectionRowDto = {
@@ -371,6 +381,7 @@ export type ActionPromptServerFlowObjectRefDto = {
   disabledCandidateCount?: number | null;
   candidateSource?: string | null;
   candidateBoundary?: string | null;
+  candidateSteps?: ActionPromptObjectCandidateStepDto[] | null;
 };
 
 export type ActionPromptServerFlowDto = {

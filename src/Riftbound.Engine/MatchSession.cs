@@ -5506,7 +5506,8 @@ internal static class ActionPromptBuilder
                     EnabledCandidateCount = context.EnabledCandidateCount,
                     DisabledCandidateCount = context.DisabledCandidateCount,
                     CandidateSource = string.IsNullOrWhiteSpace(context.Source) ? null : context.Source,
-                    CandidateBoundary = string.IsNullOrWhiteSpace(context.Boundary) ? null : context.Boundary
+                    CandidateBoundary = string.IsNullOrWhiteSpace(context.Boundary) ? null : context.Boundary,
+                    CandidateSteps = ActionPromptObjectContextCandidateSteps(context)
                 };
             })
             .Concat(objectContexts
@@ -5522,7 +5523,8 @@ internal static class ActionPromptBuilder
                         context.EnabledCandidateCount,
                         context.DisabledCandidateCount,
                         string.IsNullOrWhiteSpace(context.Source) ? null : context.Source,
-                        string.IsNullOrWhiteSpace(context.Boundary) ? null : context.Boundary);
+                        string.IsNullOrWhiteSpace(context.Boundary) ? null : context.Boundary,
+                        ActionPromptObjectContextCandidateSteps(context));
                 }))
             .GroupBy(item => $"{item.Role}\u001f{item.ObjectId}", StringComparer.Ordinal)
             .Select(group => group.First())
@@ -5538,6 +5540,32 @@ internal static class ActionPromptBuilder
             .Distinct(StringComparer.Ordinal)
             .OrderBy(role => role, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptObjectCandidateStepDto>? ActionPromptObjectContextCandidateSteps(
+        ActionPromptObjectContextDto context)
+    {
+        var steps = context.Candidates
+            .SelectMany(candidate => candidate.SelectionSteps ?? [])
+            .Where(step => !string.IsNullOrWhiteSpace(step.Role))
+            .GroupBy(step => step.Role.Trim(), StringComparer.Ordinal)
+            .Select(group =>
+            {
+                var ordered = group.OrderBy(step => step.Index).ToArray();
+                var first = ordered[0];
+                return new ActionPromptObjectCandidateStepDto(
+                    first.Role,
+                    first.Label,
+                    ordered.Any(step => step.Required),
+                    ordered.Max(step => step.ChoiceCount),
+                    ordered.Max(step => step.ObjectChoiceCount),
+                    ordered.Min(step => step.Index));
+            })
+            .OrderBy(step => step.Index)
+            .ThenBy(step => step.Role, StringComparer.Ordinal)
+            .ToArray();
+
+        return steps.Length == 0 ? null : steps;
     }
 
     private static string ServerFlowCandidateRelatedObjectRole(IReadOnlyList<string> candidateRoles)
@@ -5902,7 +5930,8 @@ internal static class ActionPromptBuilder
                     candidate.CommandTemplate?.CmdType ?? candidate.Action,
                     CommandFieldLabels(candidate.CommandTemplate, requiredOnly: true),
                     CommandFieldLabels(candidate.CommandTemplate, requiredOnly: false),
-                    candidate.Composer));
+                    candidate.Composer,
+                    ObjectCandidateSelectionSteps(candidate, objectId)));
             }
         }
 
@@ -5975,6 +6004,11 @@ internal static class ActionPromptBuilder
                         .ToArray(),
                     "当前行动提示没有公开候选。"),
                 new(
+                    "selection-steps",
+                    "选择步骤",
+                    ObjectSelectionStepInspectionRows(candidates),
+                    "当前候选没有公开选择步骤。"),
+                new(
                     "command-fields",
                     "命令字段",
                     ObjectCommandFieldInspectionRows(requiredFields, commandFields),
@@ -5996,6 +6030,7 @@ internal static class ActionPromptBuilder
         {
             string.IsNullOrWhiteSpace(candidate.CommandType) ? candidate.Action : candidate.CommandType,
             candidate.Roles.Count > 0 ? string.Join("/", candidate.Roles) : string.Empty,
+            candidate.SelectionSteps?.Count > 0 ? $"步骤 {ObjectSelectionStepSummary(candidate.SelectionSteps)}" : string.Empty,
             candidate.RequiredCommandFields?.Count > 0 ? $"需 {string.Join("/", candidate.RequiredCommandFields)}" : string.Empty,
             ComposerInspectionLabel(candidate.Composer),
             candidate.Enabled ? string.Empty : candidate.Reason
@@ -6011,6 +6046,65 @@ internal static class ActionPromptBuilder
         }
 
         return composer.Supported ? "组合 服务端声明" : "组合 服务端阻断";
+    }
+
+    private static IReadOnlyList<ActionPromptObjectCandidateStepDto>? ObjectCandidateSelectionSteps(
+        ActionPromptCandidateDto candidate,
+        string objectId)
+    {
+        var steps = (candidate.SelectionSteps ?? [])
+            .Select((step, index) => ObjectCandidateSelectionStep(step, objectId, index))
+            .Where(step => step.Required || step.ChoiceCount > 0 || step.ObjectChoiceCount > 0)
+            .ToArray();
+
+        return steps.Length == 0 ? null : steps;
+    }
+
+    private static ActionPromptObjectCandidateStepDto ObjectCandidateSelectionStep(
+        ActionPromptSelectionStepDto step,
+        string objectId,
+        int index)
+    {
+        var normalizedObjectId = objectId.Trim();
+        var choiceCount = step.Choices
+            .Select(choice => choice.Id)
+            .Where(choiceId => !string.IsNullOrWhiteSpace(choiceId))
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+        var objectChoiceCount = step.Choices
+            .Count(choice => choice.ObjectIds.Any(candidateObjectId =>
+                string.Equals(candidateObjectId, normalizedObjectId, StringComparison.Ordinal)));
+
+        return new ActionPromptObjectCandidateStepDto(
+            step.Role,
+            step.Label,
+            step.Required,
+            choiceCount,
+            objectChoiceCount,
+            index);
+    }
+
+    private static IReadOnlyList<ActionPromptObjectInspectionRowDto> ObjectSelectionStepInspectionRows(
+        IReadOnlyList<ActionPromptObjectCandidateDto> candidates)
+    {
+        return candidates
+            .SelectMany((candidate, candidateIndex) => (candidate.SelectionSteps ?? [])
+                .Select((step, stepIndex) => new ActionPromptObjectInspectionRowDto(
+                    $"step-{candidateIndex}-{stepIndex}",
+                    step.Required ? "必选" : "可选",
+                    $"{candidate.Label} / {step.Label} / {step.ObjectChoiceCount}/{step.ChoiceCount}",
+                    step.Required ? "warn" : "info")))
+            .ToArray();
+    }
+
+    private static string ObjectSelectionStepSummary(IReadOnlyList<ActionPromptObjectCandidateStepDto> steps)
+    {
+        return string.Join(
+            " / ",
+            steps
+                .OrderBy(step => step.Index)
+                .ThenBy(step => step.Role, StringComparer.Ordinal)
+                .Select(step => $"{step.Label}{(step.Required ? "*" : string.Empty)} {step.ObjectChoiceCount}/{step.ChoiceCount}"));
     }
 
     private static IReadOnlyList<ActionPromptObjectInspectionRowDto> ObjectCommandFieldInspectionRows(

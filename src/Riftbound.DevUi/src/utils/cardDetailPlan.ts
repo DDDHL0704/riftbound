@@ -211,6 +211,7 @@ function buildVisibleInspectorPlan({
     value: [
       candidate.commandType ?? candidate.label,
       candidate.roles.length > 0 ? candidate.roles.join("/") : "",
+      (candidate.selectionSteps?.length ?? 0) > 0 ? `步骤 ${cardDetailSelectionStepSummary(candidate.selectionSteps ?? [])}` : "",
       candidate.requiredCommandFields.length > 0 ? `需 ${candidate.requiredCommandFields.join("/")}` : "",
       candidate.enabled ? "" : candidate.reason
     ].filter(Boolean).join(" / ")
@@ -318,6 +319,17 @@ function cardDetailToneFromServer(tone: string | null | undefined): CardDetailTo
     default:
       return undefined;
   }
+}
+
+function cardDetailSelectionStepSummary(
+  steps: Array<{ choiceCount: number; index: number; label: string; objectChoiceCount: number; required: boolean; role: string }>
+): string {
+  return steps
+    .filter((step) => step.required || step.objectChoiceCount > 0)
+    .sort((left, right) => left.index - right.index || left.role.localeCompare(right.role))
+    .slice(0, 4)
+    .map((step) => `${step.label}${step.required ? "*" : ""} ${step.objectChoiceCount}/${step.choiceCount}`)
+    .join(" / ");
 }
 
 function uniqueRowsByKey(rows: CardDetailInspectorRow[]): CardDetailInspectorRow[] {

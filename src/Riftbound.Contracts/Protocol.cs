@@ -365,7 +365,8 @@ public sealed record ActionPromptServerFlowObjectRefDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? EnabledCandidateCount = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? DisabledCandidateCount = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CandidateSource = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CandidateBoundary = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CandidateBoundary = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectCandidateStepDto>? CandidateSteps = null);
 
 public sealed record ActionPromptServerFlowDto(
     string State,
@@ -430,7 +431,7 @@ public sealed record ActionPromptObjectContextDto(
 public static class ActionPromptContextSources
 {
     public const string ServerActionPrompt = "server-action-prompt";
-    public const string ObjectContextBoundary = "服务端对象上下文只公开当前行动提示中的对象候选、选择角色和命令字段；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入对象上下文。";
+    public const string ObjectContextBoundary = "服务端对象上下文只公开当前行动提示中的对象候选、选择步骤和命令字段；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入对象上下文。";
 }
 
 public sealed record ActionPromptObjectInspectionDto(
@@ -451,6 +452,14 @@ public sealed record ActionPromptObjectInspectionRowDto(
     string Value,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Tone = null);
 
+public sealed record ActionPromptObjectCandidateStepDto(
+    string Role,
+    string Label,
+    bool Required,
+    int ChoiceCount,
+    int ObjectChoiceCount,
+    int Index);
+
 public sealed record ActionPromptObjectCandidateDto(
     string Action,
     string Label,
@@ -460,7 +469,8 @@ public sealed record ActionPromptObjectCandidateDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CommandType = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? RequiredCommandFields = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? CommandFields = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptComposerDto? Composer = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptComposerDto? Composer = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectCandidateStepDto>? SelectionSteps = null);
 
 public sealed record ActionPromptSelectionChoiceDto(
     string Id,

@@ -167,6 +167,22 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Contains("sourceObjectId", sourceCandidate.Composer?.CommandFields ?? []);
         Assert.Contains("来源:sourceObjectId*", sourceCandidate.RequiredCommandFields ?? []);
         Assert.Contains("位置:destination", sourceCandidate.CommandFields ?? []);
+        var sourceCandidateSteps = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptObjectCandidateStepDto>>(
+            sourceCandidate.SelectionSteps);
+        var sourceCandidateSourceStep = Assert.Single(
+            sourceCandidateSteps,
+            step => string.Equals(step.Role, "source", StringComparison.Ordinal));
+        Assert.Equal("来源", sourceCandidateSourceStep.Label);
+        Assert.True(sourceCandidateSourceStep.Required);
+        Assert.Equal(1, sourceCandidateSourceStep.ChoiceCount);
+        Assert.Equal(1, sourceCandidateSourceStep.ObjectChoiceCount);
+        var sourceCandidateDestinationStep = Assert.Single(
+            sourceCandidateSteps,
+            step => string.Equals(step.Role, "destination", StringComparison.Ordinal));
+        Assert.Equal("位置", sourceCandidateDestinationStep.Label);
+        Assert.False(sourceCandidateDestinationStep.Required);
+        Assert.True(sourceCandidateDestinationStep.ChoiceCount >= 2);
+        Assert.Equal(0, sourceCandidateDestinationStep.ObjectChoiceCount);
         var sourceInspection = Assert.IsType<ActionPromptObjectInspectionDto>(sourceContext.Inspection);
         Assert.Equal("server-action-prompt", sourceInspection.Source);
         Assert.Contains("隐藏 metadata", sourceInspection.Boundary);
@@ -182,6 +198,11 @@ public sealed class LocalPlayabilityRuleRegressionTests
             string.Equals(group.Key, "command-fields", StringComparison.Ordinal)
             && group.Rows.Any(row => row.Value.Contains("sourceObjectId", StringComparison.Ordinal)));
         Assert.Contains(sourceInspection.Groups, group =>
+            string.Equals(group.Key, "selection-steps", StringComparison.Ordinal)
+            && group.Rows.Any(row =>
+                row.Value.Contains("来源", StringComparison.Ordinal)
+                && row.Value.Contains("1/1", StringComparison.Ordinal)));
+        Assert.Contains(sourceInspection.Groups, group =>
             string.Equals(group.Key, "safe-boundary", StringComparison.Ordinal)
             && group.Rows.Any(row => row.Value.Contains("前端不重算", StringComparison.Ordinal)));
 
@@ -196,6 +217,15 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(["位置"], battlefieldCandidate.Roles);
         Assert.Equal(CommandTypes.PlayCard, battlefieldCandidate.CommandType);
         Assert.True(battlefieldCandidate.Composer?.Supported);
+        var battlefieldCandidateSteps = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptObjectCandidateStepDto>>(
+            battlefieldCandidate.SelectionSteps);
+        var battlefieldDestinationStep = Assert.Single(
+            battlefieldCandidateSteps,
+            step => string.Equals(step.Role, "destination", StringComparison.Ordinal));
+        Assert.Equal("位置", battlefieldDestinationStep.Label);
+        Assert.False(battlefieldDestinationStep.Required);
+        Assert.True(battlefieldDestinationStep.ChoiceCount >= 2);
+        Assert.Equal(1, battlefieldDestinationStep.ObjectChoiceCount);
 
         var serverFlow = Assert.IsType<ActionPromptServerFlowDto>(prompt.ServerFlow);
         Assert.Contains(serverFlow.RelatedObjectIds, objectId => string.Equals(objectId, "P1-HAND-UNIT", StringComparison.Ordinal));
@@ -209,6 +239,11 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(0, sourceFlowRef.DisabledCandidateCount);
         Assert.Equal(ActionPromptContextSources.ServerActionPrompt, sourceFlowRef.CandidateSource);
         Assert.Contains("隐藏 metadata", sourceFlowRef.CandidateBoundary ?? string.Empty, StringComparison.Ordinal);
+        var sourceFlowSourceStep = Assert.Single(
+            sourceFlowRef.CandidateSteps ?? [],
+            step => string.Equals(step.Role, "source", StringComparison.Ordinal));
+        Assert.True(sourceFlowSourceStep.Required);
+        Assert.Equal(1, sourceFlowSourceStep.ObjectChoiceCount);
 
         var battlefieldFlowRef = Assert.Single(
             serverFlow.RelatedObjects,
@@ -216,6 +251,10 @@ public sealed class LocalPlayabilityRuleRegressionTests
                 && string.Equals(relatedObject.Role, "候选位置", StringComparison.Ordinal));
         Assert.Equal(["位置"], battlefieldFlowRef.CandidateRoles ?? []);
         Assert.Equal(1, battlefieldFlowRef.EnabledCandidateCount);
+        var battlefieldFlowDestinationStep = Assert.Single(
+            battlefieldFlowRef.CandidateSteps ?? [],
+            step => string.Equals(step.Role, "destination", StringComparison.Ordinal));
+        Assert.Equal(1, battlefieldFlowDestinationStep.ObjectChoiceCount);
     }
 
     [Fact]

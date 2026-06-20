@@ -26,6 +26,7 @@ export type FocusedObjectCommandRow = {
   requiredFields: string[];
   roles: string[];
   secondaryFields: string[];
+  stepSummary: string;
 };
 
 export type FocusedObjectNextStepRow = {
@@ -121,8 +122,23 @@ function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: 
     reason: candidate.reason,
     requiredFields,
     roles: uniqueStrings(candidate.roles),
-    secondaryFields
+    secondaryFields,
+    stepSummary: objectCandidateStepSummary(candidate)
   };
+}
+
+function objectCandidateStepSummary(candidate: TableObjectCandidateContext): string {
+  const steps = (candidate.selectionSteps ?? [])
+    .filter((step) => step.required || step.objectChoiceCount > 0)
+    .sort((left, right) => left.index - right.index || left.role.localeCompare(right.role));
+  if (steps.length === 0) {
+    return "";
+  }
+
+  return steps
+    .slice(0, 4)
+    .map((step) => `${step.label}${step.required ? "*" : ""} ${step.objectChoiceCount}/${step.choiceCount}`)
+    .join(" / ");
 }
 
 function commandRowSort(left: FocusedObjectCommandRow, right: FocusedObjectCommandRow): number {
