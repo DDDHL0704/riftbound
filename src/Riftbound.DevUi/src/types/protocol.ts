@@ -21,6 +21,20 @@ export type ErrorDto = {
   message: string;
 };
 
+export type CommandReceiptDto = {
+  accepted: boolean;
+  clientIntentId: string;
+  cmdType: string;
+  errorCode?: string | null;
+  message: string;
+  playerId: string;
+  promptId?: string | null;
+  roomId: string;
+  serverTick: number;
+  snapshotTick?: number | null;
+  state: "ACCEPTED" | "FAILED" | "REJECTED" | (string & {});
+};
+
 export type GameEventObjectRef = {
   objectId: string;
   role: string;

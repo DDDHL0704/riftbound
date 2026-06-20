@@ -120,7 +120,7 @@ public sealed class GameHub(
             prompt));
     }
 
-    public Task Pass(string roomId, string playerId, string clientIntentId)
+    public Task<CommandReceiptDto> Pass(string roomId, string playerId, string clientIntentId)
     {
         return SubmitCommand(
             roomId,
@@ -130,7 +130,7 @@ public sealed class GameHub(
             JsonSerializer.SerializeToElement(new { cmdType = "PASS" }));
     }
 
-    public Task EndTurn(string roomId, string playerId, string clientIntentId)
+    public Task<CommandReceiptDto> EndTurn(string roomId, string playerId, string clientIntentId)
     {
         return SubmitCommand(
             roomId,
@@ -140,7 +140,7 @@ public sealed class GameHub(
             JsonSerializer.SerializeToElement(new { cmdType = "END_TURN" }));
     }
 
-    public Task Ready(string roomId, string playerId, string clientIntentId)
+    public Task<CommandReceiptDto> Ready(string roomId, string playerId, string clientIntentId)
     {
         return SubmitCommand(
             roomId,
@@ -150,7 +150,7 @@ public sealed class GameHub(
             JsonSerializer.SerializeToElement(new { cmdType = "READY" }));
     }
 
-    public Task SubmitIntent(string roomId, string playerId, string clientIntentId, JsonElement cmd)
+    public Task<CommandReceiptDto> SubmitIntent(string roomId, string playerId, string clientIntentId, JsonElement cmd)
     {
         return SubmitCommand(roomId, playerId, clientIntentId, GameCommandJsonMapper.Map(cmd), cmd.Clone());
     }
@@ -219,7 +219,7 @@ public sealed class GameHub(
         }
     }
 
-    private async Task SubmitCommand(
+    private async Task<CommandReceiptDto> SubmitCommand(
         string roomId,
         string playerId,
         string clientIntentId,
@@ -254,20 +254,42 @@ public sealed class GameHub(
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {
             await SendError(roomId, normalizedPlayerId, 0, ex);
-            return;
+            return CommandReceipt(
+                roomId,
+                normalizedPlayerId,
+                clientIntentId,
+                command,
+                rawCommand,
+                accepted: false,
+                serverTick: 0,
+                state: "FAILED",
+                message: "服务端未能接收命令，已返回错误。",
+                errorCode: ErrorCodeFor(ex));
         }
 
         if (!result.Accepted)
         {
+            var errorCode = result.ErrorCode ?? ErrorCodes.UnsupportedCommand;
+            var errorMessage = result.ErrorMessage ?? "command rejected";
             await Clients.Caller.Error(new WsServerMessage(
                 MessageType.ERROR,
                 roomId,
                 normalizedPlayerId,
                 result.State.Tick,
                 new ErrorDto(
-                    result.ErrorCode ?? ErrorCodes.UnsupportedCommand,
-                    result.ErrorMessage ?? "command rejected")));
-            return;
+                    errorCode,
+                    errorMessage)));
+            return CommandReceipt(
+                roomId,
+                normalizedPlayerId,
+                clientIntentId,
+                command,
+                rawCommand,
+                accepted: false,
+                serverTick: result.State.Tick,
+                state: "REJECTED",
+                message: errorMessage,
+                errorCode: errorCode);
         }
 
         if (result.Events.Count > 0)
@@ -300,6 +322,17 @@ public sealed class GameHub(
                 result.State.Tick,
                 prompt));
         }
+
+        return CommandReceipt(
+            roomId,
+            normalizedPlayerId,
+            clientIntentId,
+            command,
+            rawCommand,
+            accepted: true,
+            serverTick: result.State.Tick,
+            state: "ACCEPTED",
+            message: "服务端已接受命令，后续以快照和规则事件为准。");
     }
 
     private static MessageType EventMessageType(GameCommand command, ResolutionResult result)
@@ -340,5 +373,60 @@ public sealed class GameHub(
             playerId,
             serverTick,
             new ErrorDto(code, ex.Message)));
+    }
+
+    private static CommandReceiptDto CommandReceipt(
+        string roomId,
+        string playerId,
+        string clientIntentId,
+        GameCommand command,
+        JsonElement rawCommand,
+        bool accepted,
+        long serverTick,
+        string state,
+        string message,
+        string? errorCode = null)
+    {
+        return new CommandReceiptDto(
+            roomId,
+            playerId,
+            clientIntentId,
+            command.CmdType,
+            accepted,
+            serverTick,
+            state,
+            message,
+            errorCode,
+            PromptIdFromRawCommand(rawCommand),
+            SnapshotTickFromRawCommand(rawCommand));
+    }
+
+    private static string ErrorCodeFor(Exception ex)
+    {
+        return ex is MatchSessionException matchSessionException
+            ? matchSessionException.Code
+            : ErrorCodes.UnsupportedCommand;
+    }
+
+    private static string? PromptIdFromRawCommand(JsonElement rawCommand)
+    {
+        return rawCommand.ValueKind == JsonValueKind.Object
+            && rawCommand.TryGetProperty("promptId", out var promptId)
+            && promptId.ValueKind == JsonValueKind.String
+            ? promptId.GetString()
+            : null;
+    }
+
+    private static long? SnapshotTickFromRawCommand(JsonElement rawCommand)
+    {
+        if (rawCommand.ValueKind != JsonValueKind.Object
+            || !rawCommand.TryGetProperty("snapshotTick", out var snapshotTick))
+        {
+            return null;
+        }
+
+        return snapshotTick.ValueKind == JsonValueKind.Number && snapshotTick.TryGetInt64(out var value)
+            ? value
+            : null;
     }
 }

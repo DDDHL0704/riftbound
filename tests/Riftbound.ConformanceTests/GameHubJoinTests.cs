@@ -594,9 +594,16 @@ public sealed class GameHubJoinTests
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1")
+        var receipt = await CreateHub(clients, new RecordingGroupManager(), "connection-1")
             .SubmitIntent("room-a", "alice", "intent-pass", cmd);
 
+        Assert.False(receipt.Accepted);
+        Assert.Equal("FAILED", receipt.State);
+        Assert.Equal("room-a", receipt.RoomId);
+        Assert.Equal("alice", receipt.PlayerId);
+        Assert.Equal("intent-pass", receipt.ClientIntentId);
+        Assert.Equal("PASS_PRIORITY", receipt.CmdType);
+        Assert.Equal(ErrorCodes.PlayerNotInRoom, receipt.ErrorCode);
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.PlayerNotInRoom, payload.Code);
@@ -872,9 +879,17 @@ public sealed class GameHubJoinTests
         var clients = new RecordingHubClients();
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        var receipt = await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
             .SubmitIntent("room-a", " alice ", "intent-pass-protocol-envelope", pass);
 
+        Assert.True(receipt.Accepted);
+        Assert.Equal("ACCEPTED", receipt.State);
+        Assert.Equal("room-a", receipt.RoomId);
+        Assert.Equal("alice", receipt.PlayerId);
+        Assert.Equal("intent-pass-protocol-envelope", receipt.ClientIntentId);
+        Assert.Equal("PASS_PRIORITY", receipt.CmdType);
+        Assert.Null(receipt.ErrorCode);
+        Assert.True(receipt.ServerTick > 0);
         Assert.Empty(clients.CallerClient.Errors);
         var eventsMessage = Assert.Single(clients.GroupClient.EventMessages);
         Assert.Equal(MessageType.EVENTS, eventsMessage.Type);

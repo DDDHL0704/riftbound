@@ -3,6 +3,7 @@ import { MatchSocket } from "../services/matchSocket";
 import { buildStarterDeck } from "../services/starterDeck";
 import {
   ActionPromptDto,
+  CommandReceiptDto,
   ConnectionStatus,
   ErrorDto,
   GameCommand,
@@ -30,7 +31,10 @@ export type CommandSubmissionFeedback = {
   clientIntentId: string;
   cmdType: string;
   message: string;
+  errorCode?: string | null;
   promptId?: string | null;
+  receiptState?: string | null;
+  serverTick?: number | null;
   snapshotTick?: number | null;
   state: CommandSubmissionState;
   stateLabel: string;
@@ -156,14 +160,20 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
       }));
 
       try {
-        await socket.submitIntent(roomId, playerId, clientIntentId, stampedCommand);
-        const sent = commandSubmissionFeedback({
-          clientIntentId,
-          command: stampedCommand,
-          message: "命令已送达服务端入口，等待快照或规则事件回写。",
-          state: "sent",
-          stateLabel: "已送达"
-        });
+        const receipt = await socket.submitIntent(roomId, playerId, clientIntentId, stampedCommand);
+        const sent = receipt.accepted
+          ? commandSubmissionFeedbackFromReceipt({
+            command: stampedCommand,
+            receipt,
+            state: "sent",
+            stateLabel: "服务端已接受"
+          })
+          : commandSubmissionFeedbackFromReceipt({
+            command: stampedCommand,
+            receipt,
+            state: "failed",
+            stateLabel: "服务端拒绝"
+          });
         setState((current) => ({
           ...current,
           lastCommandSubmission: current.lastCommandSubmission?.clientIntentId === clientIntentId ? sent : current.lastCommandSubmission,
@@ -243,7 +253,39 @@ function commandSubmissionFeedback({
     cmdType: command.cmdType,
     message,
     promptId: typeof command.promptId === "string" ? command.promptId : command.promptId ?? undefined,
+    receiptState: undefined,
+    serverTick: undefined,
     snapshotTick: typeof command.snapshotTick === "number" ? command.snapshotTick : command.snapshotTick ?? undefined,
+    state,
+    stateLabel,
+    submittedAt: Date.now()
+  };
+}
+
+function commandSubmissionFeedbackFromReceipt({
+  command,
+  receipt,
+  state,
+  stateLabel
+}: {
+  command: GameCommand;
+  receipt: CommandReceiptDto;
+  state: CommandSubmissionState;
+  stateLabel: string;
+}): CommandSubmissionFeedback {
+  return {
+    clientIntentId: receipt.clientIntentId,
+    cmdType: receipt.cmdType || command.cmdType,
+    errorCode: receipt.errorCode ?? undefined,
+    message: receipt.message,
+    promptId: receipt.promptId ?? (typeof command.promptId === "string" ? command.promptId : command.promptId ?? undefined),
+    receiptState: receipt.state,
+    serverTick: receipt.serverTick,
+    snapshotTick: typeof receipt.snapshotTick === "number"
+      ? receipt.snapshotTick
+      : typeof command.snapshotTick === "number"
+        ? command.snapshotTick
+        : command.snapshotTick ?? undefined,
     state,
     stateLabel,
     submittedAt: Date.now()

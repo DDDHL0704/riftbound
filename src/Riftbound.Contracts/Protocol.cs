@@ -477,3 +477,16 @@ public sealed record ClientIntentDto(
     string PlayerId,
     string ClientIntentId,
     JsonElement Cmd);
+
+public sealed record CommandReceiptDto(
+    string RoomId,
+    string PlayerId,
+    string ClientIntentId,
+    string CmdType,
+    bool Accepted,
+    long ServerTick,
+    string State,
+    string Message,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ErrorCode = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? PromptId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? SnapshotTick = null);

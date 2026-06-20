@@ -1,6 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import {
   ActionPromptDto,
+  CommandReceiptDto,
   ErrorDto,
   GameCommand,
   GameEvent,
@@ -85,8 +86,8 @@ export class MatchSocket {
     await this.invoke("Ready", roomId, playerId, clientIntentId);
   }
 
-  async submitIntent(roomId: string, playerId: string, clientIntentId: string, command: GameCommand): Promise<void> {
-    await this.invoke("SubmitIntent", roomId, playerId, clientIntentId, command);
+  async submitIntent(roomId: string, playerId: string, clientIntentId: string, command: GameCommand): Promise<CommandReceiptDto> {
+    return await this.invoke<CommandReceiptDto>("SubmitIntent", roomId, playerId, clientIntentId, command);
   }
 
   async disconnect(): Promise<void> {
@@ -96,12 +97,12 @@ export class MatchSocket {
     }
   }
 
-  private async invoke(method: string, ...args: unknown[]): Promise<void> {
+  private async invoke<T = void>(method: string, ...args: unknown[]): Promise<T> {
     if (!this.connection || this.connection.state !== signalR.HubConnectionState.Connected) {
       await this.connect();
     }
 
-    await this.connection!.invoke(method, ...args);
+    return await this.connection!.invoke<T>(method, ...args);
   }
 
   private async invokeExpectJoined(method: "JoinRoom" | "Reconnect", ...args: unknown[]): Promise<PlayerSessionDto> {

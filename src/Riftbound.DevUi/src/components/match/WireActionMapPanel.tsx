@@ -185,6 +185,10 @@ function CommandSubmissionFeedbackPanel({ feedback }: { feedback?: CommandSubmis
           <b>命令</b>
           <strong>{feedback.cmdType}</strong>
         </span>
+        <span data-command-submission-metric="receipt">
+          <b>回执</b>
+          <strong>{feedback.receiptState ?? feedback.state}</strong>
+        </span>
         <span data-command-submission-metric="prompt">
           <b>提示</b>
           <strong>{feedback.promptId ?? "无"}</strong>
@@ -193,6 +197,16 @@ function CommandSubmissionFeedbackPanel({ feedback }: { feedback?: CommandSubmis
           <b>快照</b>
           <strong>{feedback.snapshotTick ?? "无"}</strong>
         </span>
+        <span data-command-submission-metric="server">
+          <b>服务端</b>
+          <strong>{feedback.serverTick ?? "无"}</strong>
+        </span>
+        {feedback.errorCode ? (
+          <span data-command-submission-metric="error">
+            <b>错误</b>
+            <strong>{feedback.errorCode}</strong>
+          </span>
+        ) : null}
         <span data-command-submission-metric="intent">
           <b>追踪</b>
           <strong>{shortIntentId(feedback.clientIntentId)}</strong>
