@@ -82,6 +82,18 @@ const hiddenRefMixedPlan = buildWireInformationBoundaryPlan({
 assert.equal(hiddenRefMixedPlan.state, "mixed");
 assert.equal(hiddenRefMixedPlan.rows.find((row) => row.key === "eventRefs").state, "mixed");
 
+const faceDownHiddenRefPlan = buildWireInformationBoundaryPlan({
+  events: [{
+    description: "face-down source with visible object id",
+    kind: "TRIGGER",
+    objectRefs: [{ isFaceDown: true, isHidden: true, objectId: "face-down-object", role: "来源" }],
+    payload: {}
+  }],
+  table: table()
+});
+assert.equal(faceDownHiddenRefPlan.state, "safe");
+assert.equal(faceDownHiddenRefPlan.rows.find((row) => row.key === "eventRefs").stateLabel, "盖放身份遮蔽");
+
 const missingCountPlan = buildWireInformationBoundaryPlan({
   table: table({
     opponentZones: {

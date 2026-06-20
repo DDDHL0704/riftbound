@@ -132,6 +132,7 @@ public static class GameEventObjectRefProjector
             cardObject.ControllerId,
             location?.Zone,
             location?.BattlefieldObjectId,
+            cardObject.IsFaceDown,
             cardObject.IsFaceDown);
     }
 

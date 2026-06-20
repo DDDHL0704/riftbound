@@ -78,6 +78,7 @@ public sealed class GameHubJoinTests
         Assert.Equal("UNIT-002", byObjectId["P2-DEFENDER"].CardNo);
         Assert.Null(byObjectId["P2-HIDDEN"].CardNo);
         Assert.True(byObjectId["P2-HIDDEN"].IsFaceDown);
+        Assert.True(byObjectId["P2-HIDDEN"].IsHidden);
         Assert.True(byObjectId["HIDDEN"].IsHidden);
     }
 

@@ -190,8 +190,10 @@ function faceDownBoundaryRow(table: WireTableViewModel): WireInformationBoundary
 
 function eventRefBoundaryRow(events: GameEvent[]): WireInformationBoundaryRow {
   const hiddenRefs = hiddenEventRefs(events);
-  const cardNoLeaks = hiddenRefs.filter((ref) => typeof ref.cardNo === "string" && ref.cardNo.trim().length > 0);
+  const cardNoLeaks = hiddenRefs.filter(hasCardNo);
   const realObjectIds = hiddenRefs.filter((ref) => ref.objectId && ref.objectId !== "HIDDEN");
+  const visibleFaceDownObjectIds = realObjectIds.filter((ref) => ref.isFaceDown && !hasCardNo(ref));
+  const unresolvedRealObjectIds = realObjectIds.filter((ref) => !ref.isFaceDown || hasCardNo(ref));
 
   if (cardNoLeaks.length > 0) {
     return row(
@@ -204,13 +206,13 @@ function eventRefBoundaryRow(events: GameEvent[]): WireInformationBoundaryRow {
     );
   }
 
-  if (realObjectIds.length > 0) {
+  if (unresolvedRealObjectIds.length > 0) {
     return row(
       "eventRefs",
       "事件隐藏引用",
       "mixed",
       "隐藏对象带真实 ID",
-      `${realObjectIds.length} / ${hiddenRefs.length}`,
+      `${unresolvedRealObjectIds.length} / ${hiddenRefs.length}`,
       "隐藏引用已遮蔽牌号，但仍携带真实 objectId，后端应确认该 ID 是否允许公开。"
     );
   }
@@ -219,9 +221,11 @@ function eventRefBoundaryRow(events: GameEvent[]): WireInformationBoundaryRow {
     "eventRefs",
     "事件隐藏引用",
     "safe",
-    hiddenRefs.length > 0 ? "隐藏占位" : "无隐藏引用",
+    visibleFaceDownObjectIds.length > 0 ? "盖放身份遮蔽" : hiddenRefs.length > 0 ? "隐藏占位" : "无隐藏引用",
     `${hiddenRefs.length}`,
-    "事件引用未公开隐藏对象身份。"
+    visibleFaceDownObjectIds.length > 0
+      ? "事件引用保留可定位对象 ID，但未公开盖放对象牌号。"
+      : "事件引用未公开隐藏对象身份。"
   );
 }
 
@@ -324,6 +328,10 @@ function faceDownObjects(table: WireTableViewModel): CardObjectView[] {
 function hiddenEventRefs(events: GameEvent[]): GameEventObjectRef[] {
   return events.flatMap((event) =>
     (event.objectRefs ?? []).filter((ref) => ref.isHidden || ref.objectId === "HIDDEN"));
+}
+
+function hasCardNo(ref: GameEventObjectRef): boolean {
+  return typeof ref.cardNo === "string" && ref.cardNo.trim().length > 0;
 }
 
 function asZoneRecord(zones: ZoneView): Record<string, unknown> {
