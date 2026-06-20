@@ -252,6 +252,8 @@ export type ActionPromptObjectContextDto = {
   disabledCandidateCount: number;
   candidates: ActionPromptObjectCandidateDto[];
   inspection?: ActionPromptObjectInspectionDto | null;
+  source?: string | null;
+  boundary?: string | null;
 };
 
 export type KnownPromptType =

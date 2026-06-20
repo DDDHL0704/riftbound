@@ -27,6 +27,8 @@ new Function(
   "rulesText",
   "statusLabel",
   "isHiddenObject",
+  "tableObjectCandidateSourceLabel",
+  "tableObjectContextSourceLabel",
   output
 )(
   moduleShim.exports,
@@ -39,7 +41,9 @@ new Function(
   objectTypeText,
   rulesText,
   statusLabel,
-  isHiddenObject
+  isHiddenObject,
+  tableObjectCandidateSourceLabel,
+  tableObjectContextSourceLabel
 );
 
 const { buildCardDetailPlan } = moduleShim.exports;
@@ -120,6 +124,8 @@ const visiblePlan = buildCardDetailPlan({
     candidateSource: "server",
     cardNo: "OGN-001/298",
     controllerId: "P1",
+    contextBoundary: "服务端对象上下文只公开当前行动提示中的对象候选、选择角色和命令字段；隐藏 metadata 不进入对象上下文。",
+    contextSource: "server-action-prompt",
     eventLinks: [{ description: "测试法术加入结算链", kind: "STACK_ITEM_ADDED", role: "来源" }],
     objectId: "p1-hand-spell",
     ownerId: "P1",
@@ -192,7 +198,8 @@ assert.equal(visiblePlan.actionCandidates.length, 1);
 assert.equal(visiblePlan.actionCandidates[0].action, "PLAY_CARD");
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "zone")?.value, "我方手牌");
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "candidate")?.value, "1 可提交 / 1 阻断");
-assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "source")?.value, "服务端检查摘要");
+assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "source")?.value, "服务端对象上下文");
+assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "authority")?.value, "服务端对象上下文");
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "identity")?.rows.some((row) => row.value.includes("prompt-1")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "candidate")?.rows.some((row) => row.value.includes("缺少合法目标")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "safe-boundary")?.rows.some((row) => row.value.includes("前端不重算")));
@@ -237,4 +244,30 @@ function statusLabel(value) {
 
 function isHiddenObject(object) {
   return !object || object.isFaceDown === true || !object.cardNo;
+}
+
+function tableObjectCandidateSourceLabel(source) {
+  switch (source) {
+    case "server":
+      return "服务端对象上下文";
+    case "derived":
+      return "公开候选只读派生";
+    case "none":
+      return "无候选上下文";
+    default:
+      return "未建立上下文";
+  }
+}
+
+function tableObjectContextSourceLabel(context) {
+  switch (context?.contextSource) {
+    case "server-action-prompt":
+      return "服务端对象上下文";
+    case "prompt-public-derived":
+      return "公开候选只读派生";
+    case "snapshot-public-index":
+      return "公开快照索引";
+    default:
+      return tableObjectCandidateSourceLabel(context?.candidateSource);
+  }
 }

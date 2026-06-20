@@ -66,6 +66,8 @@ export type TableObjectContext = {
   candidateSource: TableObjectCandidateSource;
   cardNo?: string | null;
   controllerId?: string | null;
+  contextBoundary: string;
+  contextSource: string;
   eventLinks: TableObjectEventContext[];
   object?: CardObjectView;
   objectId: string;
@@ -168,11 +170,16 @@ export function buildTableObjectContextModel({
     const candidateLinks = serverContext
       ? serverContext.candidates.map(candidateContextFromServerObjectCandidate)
       : derivedCandidateLinks;
+    const candidateSource: TableObjectCandidateSource = serverContext
+      ? "server"
+      : candidateLinks.length > 0 ? "derived" : "none";
     byId[objectId] = {
       candidateLinks,
-      candidateSource: serverContext ? "server" : candidateLinks.length > 0 ? "derived" : "none",
+      candidateSource,
       cardNo: object?.cardNo,
       controllerId: object?.controllerId,
+      contextBoundary: objectContextBoundary(serverContext, candidateSource),
+      contextSource: objectContextSource(serverContext, candidateSource),
       eventLinks: eventLinksById[objectId] ?? [],
       object,
       objectId,
@@ -189,6 +196,37 @@ export function buildTableObjectContextModel({
   return { byId };
 }
 
+export function tableObjectCandidateSourceLabel(source: TableObjectCandidateSource | undefined): string {
+  switch (source) {
+    case "server":
+      return "服务端对象上下文";
+    case "derived":
+      return "公开候选只读派生";
+    case "none":
+      return "无候选上下文";
+    default:
+      return "未建立上下文";
+  }
+}
+
+export function tableObjectContextSourceLabel(context: Pick<TableObjectContext, "candidateSource" | "contextSource"> | undefined): string {
+  const source = context?.contextSource?.trim();
+  if (!source) {
+    return tableObjectCandidateSourceLabel(context?.candidateSource);
+  }
+
+  switch (source) {
+    case "server-action-prompt":
+      return "服务端对象上下文";
+    case "prompt-public-derived":
+      return "公开候选只读派生";
+    case "snapshot-public-index":
+      return "公开快照索引";
+    default:
+      return source;
+  }
+}
+
 function buildServerObjectContextIndex(
   contexts: ActionPromptObjectContextDto[] | null | undefined
 ): Map<string, ActionPromptObjectContextDto> {
@@ -200,6 +238,44 @@ function buildServerObjectContextIndex(
     }
   }
   return byId;
+}
+
+function objectContextSource(
+  context: ActionPromptObjectContextDto | undefined,
+  candidateSource: TableObjectCandidateSource
+): string {
+  const serverSource = context?.source?.trim() || context?.inspection?.source?.trim();
+  if (serverSource) {
+    return serverSource;
+  }
+
+  switch (candidateSource) {
+    case "derived":
+      return "prompt-public-derived";
+    case "server":
+      return "server-action-prompt";
+    case "none":
+      return "snapshot-public-index";
+  }
+}
+
+function objectContextBoundary(
+  context: ActionPromptObjectContextDto | undefined,
+  candidateSource: TableObjectCandidateSource
+): string {
+  const serverBoundary = context?.boundary?.trim() || context?.inspection?.boundary?.trim();
+  if (serverBoundary) {
+    return serverBoundary;
+  }
+
+  switch (candidateSource) {
+    case "derived":
+      return "当前对象上下文由公开 prompt 候选派生，只用于只读定位；合法性和提交仍以服务端候选与校验为准。";
+    case "server":
+      return "服务端对象上下文只公开当前行动提示中的对象候选、选择角色和命令字段；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入对象上下文。";
+    case "none":
+      return "当前对象只有公开快照索引，没有服务端候选上下文；前端不会从该对象推断可提交操作。";
+  }
 }
 
 function candidateContextFromServerObjectCandidate(candidate: ActionPromptObjectCandidateDto): TableObjectCandidateContext {

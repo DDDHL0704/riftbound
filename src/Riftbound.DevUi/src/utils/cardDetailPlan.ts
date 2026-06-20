@@ -11,7 +11,11 @@ import {
   statusLabel
 } from "./formatters";
 import { isHiddenObject } from "./hiddenInfo";
-import type { TableObjectContext } from "./tableObjectContext";
+import {
+  tableObjectCandidateSourceLabel,
+  tableObjectContextSourceLabel,
+  type TableObjectContext
+} from "./tableObjectContext";
 
 export type CardDetailTone = "bad" | "good" | "info" | "neutral" | "warn";
 
@@ -229,13 +233,18 @@ function buildVisibleInspectorPlan({
   } satisfies CardDetailInspectorRow));
 
   return {
-    boundaryLabel: serverInspection?.boundary ?? "公开对象：详情只汇总当前快照、行动提示、结算链和公开事件，不在前端重算规则。",
+    boundaryLabel: serverInspection?.boundary
+      ?? objectContext?.contextBoundary
+      ?? "公开对象：详情只汇总当前快照、行动提示、结算链和公开事件，不在前端重算规则。",
     summaryRows: uniqueRowsByKey([
-      ...(serverInspection?.summaryRows.map(cardDetailRowFromServerInspection) ?? []),
+      ...(serverInspection?.summaryRows
+        .filter((row) => row.key !== "source")
+        .map(cardDetailRowFromServerInspection) ?? []),
       { key: "object", label: "对象", value: sourceObjectId || card.object?.objectId || "服务端未公开" },
       { key: "zone", label: "区域", value: objectContext?.zone.label ?? detailRows.find((row) => row.key === "zone")?.value ?? "服务端未公开" },
       { key: "candidate", label: "候选", value: `${objectContext?.promptEnabledCount ?? actionCandidateCount} 可提交 / ${objectContext?.promptDisabledCount ?? 0} 阻断` },
-      { key: "source", label: "来源", value: serverInspection ? serverInspectionSourceLabel(serverInspection.source) : candidateSourceLabel(objectContext?.candidateSource) }
+      { key: "source", label: "来源", value: objectContext ? tableObjectContextSourceLabel(objectContext) : serverInspectionSourceLabel(serverInspection?.source) },
+      { key: "authority", label: "权威", value: tableObjectCandidateSourceLabel(objectContext?.candidateSource) }
     ]),
     groups: [
       {
@@ -349,19 +358,6 @@ function formatLocation(location?: Record<string, unknown> | null): string {
   const playerId = typeof location.playerId === "string" ? location.playerId : "";
   const zone = typeof location.zone === "string" ? location.zone : "";
   return [playerId, zoneLabel(zone)].filter(Boolean).join(" / ") || "服务端未公开";
-}
-
-function candidateSourceLabel(source: TableObjectContext["candidateSource"] | undefined): string {
-  switch (source) {
-    case "server":
-      return "服务端对象上下文";
-    case "derived":
-      return "公开 prompt 派生";
-    case "none":
-      return "无候选关联";
-    default:
-      return "未建立上下文";
-  }
 }
 
 function serverInspectionSourceLabel(source: string | undefined): string {

@@ -1,7 +1,12 @@
 import type { ActionPromptContractDto } from "../types/protocol";
 import type { FocusedActionModel } from "./focusedActionModel";
 import { commandFieldLabelsForCandidate } from "./promptCandidateSemantics";
-import type { TableObjectCandidateContext, TableObjectContext, TableObjectEventContext } from "./tableObjectContext";
+import {
+  tableObjectContextSourceLabel,
+  type TableObjectCandidateContext,
+  type TableObjectContext,
+  type TableObjectEventContext
+} from "./tableObjectContext";
 
 export type FocusedObjectStatusCard = {
   label: string;
@@ -44,6 +49,7 @@ export type FocusedObjectEventRow = {
 };
 
 export type FocusedObjectCommandPlan = {
+  boundaryLabel: string;
   commandRows: FocusedObjectCommandRow[];
   contract?: FocusedObjectContractSummary;
   eventRows: FocusedObjectEventRow[];
@@ -81,6 +87,7 @@ export function buildFocusedObjectCommandPlan({
   const candidateValue = `${context.promptEnabledCount} 可用 / ${context.promptDisabledCount} 阻断`;
 
   return {
+    boundaryLabel: context.contextBoundary,
     commandRows,
     contract: contractSummary(contract),
     eventRows: context.eventLinks.slice(-3).reverse().map(eventRowFromContext),
@@ -90,21 +97,10 @@ export function buildFocusedObjectCommandPlan({
       { label: "位置", value: context.zone.label },
       { label: "状态", value: stateValue },
       { label: "候选", value: candidateValue },
-      { label: "候选来源", value: candidateSourceLabel(context.candidateSource) },
+      { label: "上下文", value: tableObjectContextSourceLabel(context) },
       { label: "下一步", value: focusModel?.nextStepLabel ?? "点击桌面对象查看服务端候选" }
     ]
   };
-}
-
-function candidateSourceLabel(source: TableObjectContext["candidateSource"]): string {
-  switch (source) {
-    case "derived":
-      return "前端兜底";
-    case "server":
-      return "服务端索引";
-    case "none":
-      return "无候选";
-  }
 }
 
 function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: number): FocusedObjectCommandRow {

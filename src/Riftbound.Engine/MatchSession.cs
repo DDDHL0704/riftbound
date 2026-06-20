@@ -5365,7 +5365,7 @@ internal static class ActionPromptBuilder
         var disabledCount = candidates.Count(candidate => !candidate.Enabled);
         var objectContextCount = objectContexts?.Count ?? 0;
         return new ActionPromptInspectionDto(
-            "server-action-prompt",
+            ActionPromptContextSources.ServerActionPrompt,
             "服务端只公开当前行动窗口的类型、候选、命令契约和对象索引摘要；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入提示检查。",
             [
                 new("kind", "提示类型", view.Type),
@@ -5527,8 +5527,8 @@ internal static class ActionPromptBuilder
             .ToArray();
 
         return new ActionPromptObjectInspectionDto(
-            "server-action-prompt",
-            "服务端只公开当前行动提示中的对象候选、角色和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
+            ActionPromptContextSources.ServerActionPrompt,
+            ActionPromptContextSources.ObjectContextBoundary,
             [
                 new("object", "对象", objectId),
                 new("candidate", "候选", $"{enabledCount} 可提交 / {disabledCount} 阻断"),

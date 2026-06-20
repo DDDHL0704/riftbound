@@ -1033,7 +1033,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.contextText.includes("我方手牌")) failures.push("object context did not locate hand source");
   if (!focusResult.contextText.includes("下一步")) failures.push("object context next-step plan missing");
   if (!focusResult.contextText.includes("服务端命令")) failures.push("object context command plan missing");
-  if (!focusResult.contextText.includes("服务端索引")) failures.push("object context did not use server object candidate index");
+  if (!focusResult.contextText.includes("服务端对象上下文")) failures.push("object context did not use server object candidate index");
   if (!focusResult.contextText.includes("近期事件")) failures.push("object context event section missing");
   if (focusResult.contextText.includes("serverPaymentState")) failures.push("object context leaked hidden server state");
   if (!detailContextResult.open) failures.push("card detail did not open");
@@ -1043,7 +1043,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.text.includes("规则上下文")) failures.push("card detail context section missing");
   if (!detailContextResult.text.includes("我方手牌")) failures.push("card detail did not reuse object context location");
   if (!detailContextResult.text.includes("服务端命令")) failures.push("card detail command context missing");
-  if (!detailContextResult.text.includes("服务端索引")) failures.push("card detail did not use server object candidate index");
+  if (!detailContextResult.text.includes("服务端对象上下文")) failures.push("card detail did not use server object candidate index");
   if (!detailContextResult.text.includes("PLAY_CARD")) failures.push("card detail command type missing");
   if (!detailContextResult.text.includes("来源:sourceObjectId*")) failures.push("card detail command field missing");
   if (!detailContextResult.text.includes("服务端字段")) failures.push("card detail command metadata summary missing");
@@ -1062,7 +1062,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.groups.includes("identity")) failures.push("card detail inspector identity group missing");
   if (!detailContextResult.groups.includes("candidate")) failures.push("card detail inspector candidate group missing");
   if (!detailContextResult.groups.includes("events")) failures.push("card detail inspector event group missing");
-  if (!detailContextResult.inspectorText.includes("服务端检查摘要")) failures.push("card detail inspector server inspection source missing");
+  if (!detailContextResult.inspectorText.includes("服务端对象上下文")) failures.push("card detail inspector server inspection source missing");
   if (!detailContextResult.inspectorText.includes("前端不重算")) failures.push("card detail inspector safe boundary missing");
   if (!detailContextResult.inspectorText.includes("结算链")) failures.push("card detail inspector stack boundary missing");
   if (detailEscapeResult.open) failures.push("card detail did not close on Escape");
@@ -1228,7 +1228,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (runeActionMapResult.chipSelected !== "true") failures.push("rune action map object chip did not show selected state");
   if (!runeActionMapResult.hasSelectedObjectContext) failures.push("rune action map did not render selected object context");
   if (!runeActionMapResult.detailContextText.includes("TAP_RUNE")) failures.push("rune object context did not expose server tap command template");
-  if (!runeActionMapResult.detailContextText.includes("服务端索引")) failures.push("rune object context did not use server object candidate index");
+  if (!runeActionMapResult.detailContextText.includes("服务端对象上下文")) failures.push("rune object context did not use server object candidate index");
   if (!runeActionMapResult.detailContextText.includes("来源:sourceObjectId*")) failures.push("rune object context did not expose required source binding");
   if (!runeActionMapResult.actionButtonText.includes("横置符文样例")) failures.push("rune action panel template button missing");
   if (runeActionMapResult.actionButtonText.includes("需选择")) failures.push("rune action panel did not build direct command from server template");
@@ -1240,7 +1240,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.hasSelectedObjectContext) failures.push("timeline detail did not render selected object context");
   if (!candidateRefResult.detailContextText.includes("右战场 / 对方单位")) failures.push("timeline selected object context did not use server zone");
   if (!candidateRefResult.detailContextText.includes("服务端命令")) failures.push("timeline selected object context command section missing");
-  if (!candidateRefResult.detailContextText.includes("服务端索引")) failures.push("timeline selected object context did not use server object candidate index");
+  if (!candidateRefResult.detailContextText.includes("服务端对象上下文")) failures.push("timeline selected object context did not use server object candidate index");
   if (!candidateRefResult.detailContextText.includes("PLAY_CARD")) failures.push("timeline selected object context command type missing");
   if (!candidateRefResult.detailContextText.includes("服务端字段")) failures.push("timeline selected object context command metadata summary missing");
   if (candidateRefResult.detailContextText.includes("服务端:cardNo*")) failures.push("timeline selected object context leaked raw metadata command field");

@@ -367,7 +367,15 @@ public sealed record ActionPromptObjectContextDto(
     int EnabledCandidateCount,
     int DisabledCandidateCount,
     IReadOnlyList<ActionPromptObjectCandidateDto> Candidates,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptObjectInspectionDto? Inspection = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptObjectInspectionDto? Inspection = null,
+    string Source = ActionPromptContextSources.ServerActionPrompt,
+    string Boundary = ActionPromptContextSources.ObjectContextBoundary);
+
+public static class ActionPromptContextSources
+{
+    public const string ServerActionPrompt = "server-action-prompt";
+    public const string ObjectContextBoundary = "服务端对象上下文只公开当前行动提示中的对象候选、选择角色和命令字段；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入对象上下文。";
+}
 
 public sealed record ActionPromptObjectInspectionDto(
     string Source,

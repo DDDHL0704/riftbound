@@ -42,11 +42,13 @@ new Function(
   "exports",
   "module",
   "commandFieldLabelsForCandidate",
+  "tableObjectContextSourceLabel",
   output
 )(
   moduleShim.exports,
   moduleShim,
-  candidateSemanticsModuleShim.exports.commandFieldLabelsForCandidate
+  candidateSemanticsModuleShim.exports.commandFieldLabelsForCandidate,
+  tableObjectContextSourceLabel
 );
 
 const { buildFocusedObjectCommandPlan } = moduleShim.exports;
@@ -76,6 +78,8 @@ const plan = buildFocusedObjectCommandPlan({
     candidateSource: "server",
     cardNo: "OGN-001/298",
     controllerId: "P1",
+    contextBoundary: "服务端对象上下文只公开当前行动提示中的对象候选、选择角色和命令字段；隐藏 metadata 不进入对象上下文。",
+    contextSource: "server-action-prompt",
     eventLinks: [
       { description: "进场", kind: "UNIT_ENTERED", role: "对象" },
       { description: "横置", kind: "OBJECT_EXHAUSTED", role: "对象" }
@@ -136,7 +140,8 @@ const plan = buildFocusedObjectCommandPlan({
 
 assert.equal(plan.statusCards.length, 5);
 assert.equal(plan.statusCards[0].value, "我方手牌");
-assert.equal(plan.statusCards[3].value, "服务端索引");
+assert.equal(plan.statusCards[3].value, "服务端对象上下文");
+assert.ok(plan.boundaryLabel.includes("服务端对象上下文"));
 assert.equal(plan.commandRows.length, 2);
 assert.equal(plan.commandRows[0].commandType, "PLAY_CARD");
 assert.deepEqual(plan.commandRows[0].requiredFields, ["来源:sourceObjectId*", "服务端字段*"]);
@@ -150,3 +155,25 @@ assert.equal(JSON.stringify(plan).includes("服务端:cardNo"), false);
 assert.equal(JSON.stringify(plan).includes("serverPaymentState"), false);
 
 console.log("Focused object command plan check passed.");
+
+function tableObjectContextSourceLabel(context) {
+  switch (context?.contextSource) {
+    case "server-action-prompt":
+      return "服务端对象上下文";
+    case "prompt-public-derived":
+      return "公开候选只读派生";
+    case "snapshot-public-index":
+      return "公开快照索引";
+    default:
+      switch (context?.candidateSource) {
+        case "server":
+          return "服务端对象上下文";
+        case "derived":
+          return "公开候选只读派生";
+        case "none":
+          return "无候选上下文";
+        default:
+          return "未建立上下文";
+      }
+  }
+}

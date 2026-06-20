@@ -27,6 +27,7 @@ export function WireObjectContextSummary({
           </span>
         ))}
       </div>
+      <span className="wire-object-context-line" data-wire-object-context-boundary>{plan.boundaryLabel}</span>
       {plan.contract && (
         <div className="wire-object-contract-block" aria-label="焦点对象提示契约">
           <span className="wire-object-context-line">提示契约：{plan.contract.promptKind} / {plan.contract.candidateAction}</span>

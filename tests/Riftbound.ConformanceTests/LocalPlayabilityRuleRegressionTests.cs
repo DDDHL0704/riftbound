@@ -154,6 +154,8 @@ public sealed class LocalPlayabilityRuleRegressionTests
         var sourceContext = Assert.Single(
             objectContexts,
             context => string.Equals(context.ObjectId, "P1-HAND-UNIT", StringComparison.Ordinal));
+        Assert.Equal(ActionPromptContextSources.ServerActionPrompt, sourceContext.Source);
+        Assert.Contains("隐藏 metadata", sourceContext.Boundary);
         var sourceCandidate = Assert.Single(
             sourceContext.Candidates,
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
@@ -180,6 +182,8 @@ public sealed class LocalPlayabilityRuleRegressionTests
         var battlefieldContext = Assert.Single(
             objectContexts,
             context => string.Equals(context.ObjectId, "BF-1", StringComparison.Ordinal));
+        Assert.Equal(ActionPromptContextSources.ServerActionPrompt, battlefieldContext.Source);
+        Assert.Contains("对象候选", battlefieldContext.Boundary);
         var battlefieldCandidate = Assert.Single(
             battlefieldContext.Candidates,
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
