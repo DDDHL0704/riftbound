@@ -55,6 +55,7 @@ const tapCandidate = {
 const plan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,
   disabledByConnection: false,
+  playerId: "P1",
   prompt: {
     actionable: true,
     actions: ["PLAY_CARD", "TAP_RUNE"],
@@ -125,6 +126,8 @@ assert.equal(plan.grammarPlan.steps.find((step) => step.role === "target")?.stat
 assert.equal(plan.draft?.targetCount, 1);
 assert.equal(plan.promptCandidateList.versionLabel, "版本：prompt-1 / tick 42");
 assert.ok(plan.sourceCandidatePaths[0]?.steps.some((step) => step.label === "目标"));
+assert.equal(plan.submissionGate.state, "connected");
+assert.equal(plan.windowGate.state, "ready");
 assert.equal(plan.readiness.state, "ready");
 assert.equal(plan.readiness.canSubmit, true);
 assert.equal(plan.readiness.commandType, "PLAY_CARD");
@@ -141,6 +144,7 @@ assert.deepEqual(plan.legalActionRows[0].missingRequiredLabels, []);
 const noFocusPlan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,
   disabledByConnection: false,
+  playerId: "P1",
   prompt: promptFor([playCandidate]),
   snapshot: emptySnapshot()
 });
@@ -150,6 +154,7 @@ assert.equal(noFocusPlan.readiness.canSubmit, false);
 const notCandidatePlan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,
   disabledByConnection: false,
+  playerId: "P1",
   prompt: promptFor([playCandidate]),
   snapshot: emptySnapshot(),
   sourceObjectId: "object-not-in-server-candidates"
@@ -160,16 +165,52 @@ assert.equal(notCandidatePlan.readiness.canSubmit, false);
 const disconnectedPlan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,
   disabledByConnection: true,
+  playerId: "P1",
   prompt: promptFor([playCandidate]),
   snapshot: emptySnapshot(),
   sourceObjectId
 });
-assert.equal(disconnectedPlan.readiness.state, "connection-blocked");
+assert.equal(disconnectedPlan.readiness.state, "submission-gate-blocked");
 assert.equal(disconnectedPlan.readiness.canSubmit, false);
+assert.equal(disconnectedPlan.readiness.nextStepLabel, "行动入口未就绪，等待服务端窗口、连接或快照同步。");
+
+const staleSubmissionPlan = buildWireFocusedInteractionPlan({
+  canSubmitCommands: true,
+  disabledByConnection: true,
+  playerId: "P1",
+  prompt: promptFor([playCandidate]),
+  snapshot: emptySnapshot(),
+  sourceObjectId,
+  submissionGate: {
+    canSubmit: false,
+    reason: "行动提示属于 tick 7，当前桌面快照是 tick 8。",
+    state: "stale-snapshot",
+    stateLabel: "等待同步"
+  }
+});
+assert.equal(staleSubmissionPlan.readiness.state, "submission-gate-blocked");
+assert.equal(staleSubmissionPlan.readiness.nextStepLabel, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
+assert.equal(staleSubmissionPlan.grammarPlan.steps.find((step) => step.role === "submit")?.stateLabel, "等待同步");
+
+const wrongPlayerPlan = buildWireFocusedInteractionPlan({
+  canSubmitCommands: true,
+  disabledByConnection: false,
+  playerId: "P2",
+  prompt: promptFor([playCandidate]),
+  snapshot: emptySnapshot(),
+  sourceObjectId
+});
+assert.equal(wrongPlayerPlan.readiness.state, "window-blocked");
+assert.equal(wrongPlayerPlan.windowGate.state, "wrong-player");
+assert.equal(wrongPlayerPlan.actionEntries[0].disabledByActionGate, true);
+assert.equal(wrongPlayerPlan.actionEntries[0].actionPlan.disabled, true);
+assert.ok(wrongPlayerPlan.actionEntries[0].actionPlan.title.includes("只读观察"));
+assert.equal(wrongPlayerPlan.legalActionRows[0].state, "blocked");
 
 const blockedPlan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,
   disabledByConnection: false,
+  playerId: "P1",
   prompt: promptFor([{ ...playCandidate, enabled: false, reason: "法力不足" }]),
   snapshot: emptySnapshot(),
   sourceObjectId
@@ -196,6 +237,7 @@ const requiredTargetCandidate = {
 const needsSelectionPlan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,
   disabledByConnection: false,
+  playerId: "P1",
   prompt: promptFor([requiredTargetCandidate]),
   snapshot: emptySnapshot(),
   sourceObjectId
@@ -211,6 +253,7 @@ assert.equal(needsSelectionPlan.legalActionRows[0].nextStepLabel, "选择目标"
 const targetOnlyPlan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,
   disabledByConnection: false,
+  playerId: "P1",
   prompt: promptFor([requiredTargetCandidate]),
   snapshot: emptySnapshot(),
   sourceObjectId: "p2-unit-1"

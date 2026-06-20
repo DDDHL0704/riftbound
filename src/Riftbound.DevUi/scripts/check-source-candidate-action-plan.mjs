@@ -109,7 +109,18 @@ const disconnected = plan({
 }, { disabledByConnection: true, sourceObjectId: "hand-1" });
 assert.equal(disconnected.needsComposer, true);
 assert.equal(disconnected.disabled, true);
-assert.equal(disconnected.title, "连接恢复前不能提交行动");
+assert.equal(disconnected.title, "提交入口未就绪，暂不能提交行动");
+
+const windowBlocked = plan({
+  action: "TAP_RUNE",
+  enabled: true,
+  label: "横置符文",
+  reason: "可支付",
+  sources: [{ id: "rune-1", label: "符文 1" }]
+}, { actionGateReason: "当前行动窗口属于 P2，P1 只读观察。", disabledByActionGate: true });
+assert.deepEqual(windowBlocked.command, { cmdType: "TAP_RUNE", sourceObjectId: "rune-1" });
+assert.equal(windowBlocked.disabled, true);
+assert.equal(windowBlocked.title, "当前行动窗口属于 P2，P1 只读观察。");
 
 const incomplete = plan({
   action: "FUTURE_ACTION",
@@ -137,8 +148,10 @@ console.log("Source candidate action plan check passed.");
 
 function plan(candidate, options = {}) {
   return buildSourceCandidateActionPlan({
+    actionGateReason: options.actionGateReason,
     canSubmitCommands: options.canSubmitCommands ?? true,
     candidate,
+    disabledByActionGate: options.disabledByActionGate ?? false,
     disabledByConnection: options.disabledByConnection ?? false,
     sourceObjectId: options.sourceObjectId ?? "rune-1"
   });

@@ -10,6 +10,7 @@ const candidatePlanExports = loadTsModule(resolve(scriptDir, "../src/utils/candi
   promptChoiceRoleLabel
 });
 const commandFieldDisplayExports = loadTsModule(resolve(scriptDir, "../src/utils/commandFieldDisplay.ts"));
+const actionGateExports = loadTsModule(resolve(scriptDir, "../src/utils/wireActionGates.ts"));
 const promptInteractionExports = loadTsModule(resolve(scriptDir, "../src/utils/promptInteraction.ts"), {
   promptActionLabel,
   promptReasonLabel,
@@ -19,6 +20,8 @@ const promptInteractionExports = loadTsModule(resolve(scriptDir, "../src/utils/p
 const actionMapExports = loadTsModule(resolve(scriptDir, "../src/utils/wireActionMapPlan.ts"), {
   buildCandidateInteractionPlans: candidatePlanExports.buildCandidateInteractionPlans,
   buildPromptInteractionModel: promptInteractionExports.buildPromptInteractionModel,
+  buildWireActionSubmissionGatePlan: actionGateExports.buildWireActionSubmissionGatePlan,
+  buildWireActionWindowGatePlan: actionGateExports.buildWireActionWindowGatePlan,
   commandBindingDisplayLabel: commandFieldDisplayExports.commandBindingDisplayLabel,
   commandBindingFieldKey: commandFieldDisplayExports.commandBindingFieldKey,
   promptActionLabel,

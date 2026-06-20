@@ -8,10 +8,9 @@ import {
   type WireActionGrammarCandidatePlan,
   type WireActionMapMetric,
   type WireActionMapPlan,
-  type WireActionRoutePlan,
-  type WireActionSubmissionGatePlan,
-  type WireActionWindowGatePlan
+  type WireActionRoutePlan
 } from "../../utils/wireActionMapPlan";
+import type { WireActionSubmissionGatePlan, WireActionWindowGatePlan } from "../../utils/wireActionGates";
 import { StatusPill } from "../ui/StatusPill";
 
 type WireActionMapPanelProps = {

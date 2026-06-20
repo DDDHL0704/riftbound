@@ -57,11 +57,13 @@ const roleLabels: Record<"submit", string> = {
 export function buildFocusedInteractionGrammarPlan({
   candidates,
   disabledByConnection,
+  submitBlockedStateLabel,
   selectionDraft,
   sourceObjectId
 }: {
   candidates: PromptCandidateSummary[];
   disabledByConnection: boolean;
+  submitBlockedStateLabel?: string;
   selectionDraft?: CandidateSelectionDraft;
   sourceObjectId?: string;
 }): FocusedInteractionGrammarPlan {
@@ -94,7 +96,8 @@ export function buildFocusedInteractionGrammarPlan({
     commandFieldCount: candidate.command?.bindings.length ?? 0,
     disabledByConnection,
     enabled: candidate.enabled,
-    missingRequiredCount
+    missingRequiredCount,
+    submitBlockedStateLabel
   });
   const allSteps = [...steps, submitStep].sort((left, right) => roleOrder.indexOf(left.role) - roleOrder.indexOf(right.role));
   const nextStepLabel = nextGrammarStepLabel(allSteps);
@@ -269,20 +272,22 @@ function submitGrammarStep({
   commandFieldCount,
   disabledByConnection,
   enabled,
-  missingRequiredCount
+  missingRequiredCount,
+  submitBlockedStateLabel
 }: {
   blocked: boolean;
   commandFieldCount: number;
   disabledByConnection: boolean;
   enabled: boolean;
   missingRequiredCount: number;
+  submitBlockedStateLabel?: string;
 }): FocusedInteractionGrammarStep {
   let state: FocusedInteractionGrammarStepState = "ready";
   let stateLabel = "可提交给服务端";
   if (blocked) {
     state = "blocked";
     stateLabel = disabledByConnection
-      ? "等待连接恢复"
+      ? submitBlockedStateLabel ?? "提交入口阻断"
       : enabled
         ? `缺少 ${missingRequiredCount} 项`
         : "服务端阻断";

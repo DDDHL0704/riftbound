@@ -394,7 +394,7 @@ const disconnectedDraftPlan = buildWireTimelineDetailPlan({
 
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].routeState, "blocked");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarState, "blocked");
-assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 阻断 / 仅有模板 / 等待连接恢复");
+assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 阻断 / 仅有模板 / 提交入口阻断");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].gateSummary, "3 通过 / 2 阻断 / 0 等待");
 assert.deepEqual(disconnectedDraftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.key), ["server-candidate", "connection", "player-draft", "required-fields", "submit-step"]);
 assert.deepEqual(disconnectedDraftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.state), ["ready", "blocked", "ready", "ready", "blocked"]);

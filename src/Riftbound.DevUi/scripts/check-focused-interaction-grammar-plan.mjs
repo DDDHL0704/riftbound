@@ -106,7 +106,23 @@ const blockedByConnection = buildFocusedInteractionGrammarPlan({
 });
 
 assert.equal(blockedByConnection.state, "blocked");
-assert.equal(blockedByConnection.steps.find((step) => step.role === "submit")?.stateLabel, "等待连接恢复");
+assert.equal(blockedByConnection.steps.find((step) => step.role === "submit")?.stateLabel, "提交入口阻断");
+
+const blockedByWindowGate = buildFocusedInteractionGrammarPlan({
+  candidates: [playCardCandidate],
+  disabledByConnection: true,
+  selectionDraft: {
+    candidateKey: candidateGrammarKey(playCardCandidate),
+    optionalCostIds: [],
+    sourceObjectId: "P1-HAND-1",
+    targetChoiceIds: []
+  },
+  sourceObjectId: "P1-HAND-1",
+  submitBlockedStateLabel: "非当前玩家"
+});
+
+assert.equal(blockedByWindowGate.state, "blocked");
+assert.equal(blockedByWindowGate.steps.find((step) => step.role === "submit")?.stateLabel, "非当前玩家");
 
 const missingSourcePlan = buildFocusedInteractionGrammarPlan({
   candidates: [{

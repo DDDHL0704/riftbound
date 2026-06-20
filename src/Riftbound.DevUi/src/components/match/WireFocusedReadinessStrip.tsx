@@ -11,6 +11,8 @@ export function WireFocusedReadinessStrip({ plan }: { plan: WireFocusedInteracti
       data-wire-focused-readiness-enabled-count={plan.readiness.enabledCount}
       data-wire-focused-readiness-missing-required-count={plan.readiness.missingRequiredCount}
       data-wire-focused-readiness-state={plan.readiness.state}
+      data-wire-focused-readiness-submission-gate={plan.submissionGate.state}
+      data-wire-focused-readiness-window-gate={plan.windowGate.state}
     >
       <div className="wire-focused-readiness-heading">
         <strong>行动状态</strong>
@@ -32,6 +34,14 @@ export function WireFocusedReadinessStrip({ plan }: { plan: WireFocusedInteracti
         <span>
           <small>命令</small>
           <strong>{plan.readiness.commandType ?? "无"}</strong>
+        </span>
+        <span>
+          <small>门禁</small>
+          <strong>{plan.submissionGate.stateLabel}</strong>
+        </span>
+        <span>
+          <small>窗口</small>
+          <strong>{plan.windowGate.stateLabel}</strong>
         </span>
       </div>
       <span className="wire-focused-readiness-next">{plan.readiness.nextStepLabel}</span>

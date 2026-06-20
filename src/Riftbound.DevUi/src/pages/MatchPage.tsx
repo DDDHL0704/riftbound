@@ -477,6 +477,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         onClose={() => setDetailCard(undefined)}
         onCommand={(command) => void controller.submitCommand(command)}
         onInspectObject={inspectObjectFromDetail}
+        playerId={settings.playerId}
         prompt={tablePrompt}
         selectionDraft={selectionDraft}
         snapshot={tableSnapshot}

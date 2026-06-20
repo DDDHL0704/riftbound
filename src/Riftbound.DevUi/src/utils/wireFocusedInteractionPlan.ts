@@ -15,12 +15,22 @@ import {
 } from "./promptInteraction";
 import { buildCardObjectIndex, type SnapshotObjectIndex } from "./snapshotObjectIndex";
 import { buildSourceCandidateActionPlan, type SourceCandidateActionPlan } from "./sourceCandidateActionPlan";
+import type { ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
+import {
+  buildWireActionSubmissionGatePlan,
+  buildWireActionWindowGatePlan,
+  type WireActionSubmissionGatePlan,
+  type WireActionWindowGatePlan
+} from "./wireActionGates";
 import { buildWirePromptCandidateListPlan, type WirePromptCandidateListPlan, type WirePromptCandidateRowPlan } from "./wirePromptCandidatePlan";
 
 export type WireFocusedActionEntryPlan = {
   actionPlan: SourceCandidateActionPlan;
+  actionGateReason?: string;
+  actionGateStateLabel?: string;
   candidate: ActionPromptCandidateDto;
   candidateDraft?: CandidateSelectionDraft;
+  disabledByActionGate: boolean;
   key: string;
   mode: "button" | "composer";
 };
@@ -51,12 +61,13 @@ export type WireFocusedObjectPlan = {
 };
 
 export type WireFocusedReadinessState =
-  | "connection-blocked"
   | "needs-selection"
   | "no-focus"
   | "not-candidate"
   | "ready"
-  | "server-blocked";
+  | "server-blocked"
+  | "submission-gate-blocked"
+  | "window-blocked";
 
 export type WireFocusedReadinessTone = "good" | "neutral" | "warn";
 
@@ -107,29 +118,40 @@ export type WireFocusedInteractionPlan = {
   sourceCandidates: ActionPromptCandidateDto[];
   sourceObject: WireFocusedObjectPlan;
   sourceObjectId?: string;
+  submissionGate: WireActionSubmissionGatePlan;
+  windowGate: WireActionWindowGatePlan;
 };
 
 export type BuildWireFocusedInteractionPlanOptions = {
   canSubmitCommands: boolean;
   disabledByConnection: boolean;
+  playerId: string;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
   sourceControllerId?: string | null;
   sourceObjectId?: string;
+  submissionGate?: ServerSubmissionGatePlan;
 };
 
 export function buildWireFocusedInteractionPlan({
   canSubmitCommands,
   disabledByConnection,
+  playerId,
   prompt,
   selectionDraft,
   snapshot,
   sourceControllerId,
-  sourceObjectId
+  sourceObjectId,
+  submissionGate
 }: BuildWireFocusedInteractionPlanOptions): WireFocusedInteractionPlan {
   const model = buildPromptInteractionModel(prompt);
   const objectIndex = buildCardObjectIndex(snapshot);
+  const submitGate = buildWireActionSubmissionGatePlan(submissionGate, !disabledByConnection);
+  const windowGate = buildWireActionWindowGatePlan({ playerId, prompt });
+  const blockedByAnyGate = !submitGate.canSubmit || !windowGate.canAct;
+  const gateBlockReason = !submitGate.canSubmit ? submitGate.reason : !windowGate.canAct ? windowGate.reason : undefined;
+  const gateBlockStateLabel = !submitGate.canSubmit ? submitGate.stateLabel : !windowGate.canAct ? windowGate.stateLabel : undefined;
   const objectSummary = sourceObjectId ? model.objectById.get(sourceObjectId) : undefined;
   const focusModel = buildFocusedActionModel({
     interactionModel: model,
@@ -151,22 +173,27 @@ export function buildWireFocusedInteractionPlan({
     : [];
   const grammarPlan = buildFocusedInteractionGrammarPlan({
     candidates: sourceCandidateSummaries,
-    disabledByConnection,
+    disabledByConnection: blockedByAnyGate,
     selectionDraft,
+    submitBlockedStateLabel: gateBlockStateLabel,
     sourceObjectId
   });
   const actionEntries = sourceCandidates.map((candidate) => actionEntryFor({
+    actionGateReason: !windowGate.canAct ? windowGate.reason : undefined,
     canSubmitCommands,
     candidate,
-    disabledByConnection,
+    disabledByActionGate: !windowGate.canAct,
+    disabledByConnection: !submitGate.canSubmit,
     selectionDraft,
     sourceObjectId
   }));
   const readiness = readinessPlanFor({
-    disabledByConnection,
     focusModel,
     grammarPlan,
-    sourceObjectId
+    gateBlockReason,
+    sourceObjectId,
+    submissionGate: submitGate,
+    windowGate
   });
 
   return {
@@ -176,7 +203,8 @@ export function buildWireFocusedInteractionPlan({
     grammarPlan,
     legalActionRows: legalActionRowsFor({
       candidates: relatedCandidates,
-      disabledByConnection,
+      gateBlockReason,
+      gateBlocked: blockedByAnyGate,
       selectionDraft,
       sourceObjectId
     }),
@@ -203,26 +231,33 @@ export function buildWireFocusedInteractionPlan({
       serverCandidateLabel: objectSummary ? `${objectSummary.enabledCandidateCount} 可用 / ${objectSummary.disabledCandidateCount} 禁用` : "无候选",
       summary: objectSummary
     },
-    sourceObjectId
+    sourceObjectId,
+    submissionGate: submitGate,
+    windowGate
   };
 }
 
 function readinessPlanFor({
-  disabledByConnection,
   focusModel,
+  gateBlockReason,
   grammarPlan,
-  sourceObjectId
+  sourceObjectId,
+  submissionGate,
+  windowGate
 }: {
-  disabledByConnection: boolean;
   focusModel: FocusedActionModel;
+  gateBlockReason?: string;
   grammarPlan: FocusedInteractionGrammarPlan;
   sourceObjectId?: string;
+  submissionGate: WireActionSubmissionGatePlan;
+  windowGate: WireActionWindowGatePlan;
 }): WireFocusedReadinessPlan {
   const state = readinessStateFor({
-    disabledByConnection,
     focusModel,
     grammarPlan,
-    sourceObjectId
+    sourceObjectId,
+    submissionGate,
+    windowGate
   });
 
   return {
@@ -232,7 +267,7 @@ function readinessPlanFor({
     commandType: grammarPlan.commandType,
     enabledCount: focusModel.enabledCount,
     missingRequiredCount: grammarPlan.missingRequiredCount,
-    nextStepLabel: readinessNextStepLabel(state, focusModel, grammarPlan),
+    nextStepLabel: readinessNextStepLabel(state, focusModel, grammarPlan, gateBlockReason),
     state,
     stateLabel: readinessStateLabel(state),
     tone: readinessTone(state)
@@ -240,15 +275,17 @@ function readinessPlanFor({
 }
 
 function readinessStateFor({
-  disabledByConnection,
   focusModel,
   grammarPlan,
-  sourceObjectId
+  sourceObjectId,
+  submissionGate,
+  windowGate
 }: {
-  disabledByConnection: boolean;
   focusModel: FocusedActionModel;
   grammarPlan: FocusedInteractionGrammarPlan;
   sourceObjectId?: string;
+  submissionGate: WireActionSubmissionGatePlan;
+  windowGate: WireActionWindowGatePlan;
 }): WireFocusedReadinessState {
   if (!sourceObjectId) {
     return "no-focus";
@@ -258,8 +295,12 @@ function readinessStateFor({
     return "not-candidate";
   }
 
-  if (disabledByConnection) {
-    return "connection-blocked";
+  if (!submissionGate.canSubmit) {
+    return "submission-gate-blocked";
+  }
+
+  if (!windowGate.canAct) {
+    return "window-blocked";
   }
 
   if (focusModel.enabledCount <= 0) {
@@ -280,11 +321,10 @@ function readinessStateFor({
 function readinessNextStepLabel(
   state: WireFocusedReadinessState,
   focusModel: FocusedActionModel,
-  grammarPlan: FocusedInteractionGrammarPlan
+  grammarPlan: FocusedInteractionGrammarPlan,
+  gateBlockReason?: string
 ): string {
   switch (state) {
-    case "connection-blocked":
-      return "等待连接恢复后再提交服务端候选。";
     case "needs-selection":
       return grammarPlan.nextStepLabel;
     case "no-focus":
@@ -295,13 +335,14 @@ function readinessNextStepLabel(
       return "可以提交服务端候选。";
     case "server-blocked":
       return focusModel.blockingReasons[0] || focusModel.nextStepLabel;
+    case "submission-gate-blocked":
+    case "window-blocked":
+      return gateBlockReason ?? "当前行动入口不能提交该候选。";
   }
 }
 
 function readinessStateLabel(state: WireFocusedReadinessState): string {
   switch (state) {
-    case "connection-blocked":
-      return "连接阻断";
     case "needs-selection":
       return "待选择";
     case "no-focus":
@@ -312,6 +353,10 @@ function readinessStateLabel(state: WireFocusedReadinessState): string {
       return "可提交";
     case "server-blocked":
       return "服务端阻断";
+    case "submission-gate-blocked":
+      return "提交门禁阻断";
+    case "window-blocked":
+      return "行动窗口阻断";
   }
 }
 
@@ -319,9 +364,10 @@ function readinessTone(state: WireFocusedReadinessState): WireFocusedReadinessTo
   switch (state) {
     case "ready":
       return "good";
-    case "connection-blocked":
     case "needs-selection":
     case "server-blocked":
+    case "submission-gate-blocked":
+    case "window-blocked":
       return "warn";
     case "no-focus":
     case "not-candidate":
@@ -330,21 +376,27 @@ function readinessTone(state: WireFocusedReadinessState): WireFocusedReadinessTo
 }
 
 function actionEntryFor({
+  actionGateReason,
   canSubmitCommands,
   candidate,
+  disabledByActionGate,
   disabledByConnection,
   selectionDraft,
   sourceObjectId
 }: {
+  actionGateReason?: string;
   canSubmitCommands: boolean;
   candidate: ActionPromptCandidateDto;
+  disabledByActionGate: boolean;
   disabledByConnection: boolean;
   selectionDraft?: CandidateSelectionDraft;
   sourceObjectId?: string;
 }): WireFocusedActionEntryPlan {
   const actionPlan = buildSourceCandidateActionPlan({
+    actionGateReason,
     canSubmitCommands,
     candidate,
+    disabledByActionGate,
     disabledByConnection,
     sourceObjectId
   });
@@ -354,8 +406,11 @@ function actionEntryFor({
 
   return {
     actionPlan,
+    actionGateReason,
+    actionGateStateLabel: disabledByActionGate ? "行动窗口阻断" : undefined,
     candidate,
     candidateDraft,
+    disabledByActionGate,
     key: `${candidate.action}-${candidate.label}`,
     mode: actionPlan.needsComposer && canSubmitCommands ? "composer" : "button"
   };
@@ -363,12 +418,14 @@ function actionEntryFor({
 
 function legalActionRowsFor({
   candidates,
-  disabledByConnection,
+  gateBlocked,
+  gateBlockReason,
   selectionDraft,
   sourceObjectId
 }: {
   candidates: PromptCandidateSummary[];
-  disabledByConnection: boolean;
+  gateBlocked: boolean;
+  gateBlockReason?: string;
   selectionDraft?: CandidateSelectionDraft;
   sourceObjectId?: string;
 }): WireFocusedLegalActionRowPlan[] {
@@ -379,7 +436,8 @@ function legalActionRowsFor({
   return candidates
     .map((candidate) => legalActionRowFor({
       candidate,
-      disabledByConnection,
+      gateBlocked,
+      gateBlockReason,
       selectionDraft,
       sourceObjectId
     }))
@@ -388,12 +446,14 @@ function legalActionRowsFor({
 
 function legalActionRowFor({
   candidate,
-  disabledByConnection,
+  gateBlocked,
+  gateBlockReason,
   selectionDraft,
   sourceObjectId
 }: {
   candidate: PromptCandidateSummary;
-  disabledByConnection: boolean;
+  gateBlocked: boolean;
+  gateBlockReason?: string;
   selectionDraft?: CandidateSelectionDraft;
   sourceObjectId: string;
 }): WireFocusedLegalActionRowPlan {
@@ -405,7 +465,7 @@ function legalActionRowFor({
     : [];
   const state = legalActionStateFor({
     candidate,
-    disabledByConnection,
+    gateBlocked,
     missingRequiredSteps,
     sourceRole
   });
@@ -418,7 +478,8 @@ function legalActionRowFor({
     missingRequiredLabels: missingRequiredSteps.map((step) => step.label),
     nextStepLabel: legalActionNextStepLabel({
       candidate,
-      disabledByConnection,
+      gateBlocked,
+      gateBlockReason,
       missingRequiredSteps,
       roleLabels,
       sourceRole,
@@ -444,16 +505,16 @@ function objectRolesForCandidate(candidate: PromptCandidateSummary, sourceObject
 
 function legalActionStateFor({
   candidate,
-  disabledByConnection,
+  gateBlocked,
   missingRequiredSteps,
   sourceRole
 }: {
   candidate: PromptCandidateSummary;
-  disabledByConnection: boolean;
+  gateBlocked: boolean;
   missingRequiredSteps: PromptCandidateSummary["steps"];
   sourceRole: boolean;
 }): WireFocusedLegalActionState {
-  if (disabledByConnection || !candidate.enabled) {
+  if (gateBlocked || !candidate.enabled) {
     return "blocked";
   }
 
@@ -487,21 +548,23 @@ function legalActionStateLabel(
 
 function legalActionNextStepLabel({
   candidate,
-  disabledByConnection,
+  gateBlocked,
+  gateBlockReason,
   missingRequiredSteps,
   roleLabels,
   sourceRole,
   state
 }: {
   candidate: PromptCandidateSummary;
-  disabledByConnection: boolean;
+  gateBlocked: boolean;
+  gateBlockReason?: string;
   missingRequiredSteps: PromptCandidateSummary["steps"];
   roleLabels: string[];
   sourceRole: boolean;
   state: WireFocusedLegalActionState;
 }): string {
-  if (disabledByConnection) {
-    return "等待连接恢复后再提交。";
+  if (gateBlocked) {
+    return gateBlockReason ?? "当前行动入口不能提交该候选。";
   }
 
   if (!candidate.enabled) {

@@ -2,6 +2,12 @@ import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import type { ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 import {
+  buildWireActionSubmissionGatePlan,
+  buildWireActionWindowGatePlan,
+  type WireActionSubmissionGatePlan,
+  type WireActionWindowGatePlan
+} from "./wireActionGates";
+import {
   buildCandidateInteractionPlans,
   type CandidateInteractionPlan,
   type CandidateInteractionStepPlan
@@ -25,22 +31,6 @@ export type WireActionMapMetric = {
   key: string;
   label: string;
   value: string;
-};
-
-export type WireActionSubmissionGatePlan = {
-  canSubmit: boolean;
-  reason: string;
-  state: ServerSubmissionGatePlan["state"];
-  stateLabel: string;
-};
-
-export type WireActionWindowGateState = "not-actionable" | "ready" | "waiting-prompt" | "wrong-player";
-
-export type WireActionWindowGatePlan = {
-  canAct: boolean;
-  reason: string;
-  state: WireActionWindowGateState;
-  stateLabel: string;
 };
 
 export type WireActionObjectEntry = {
@@ -255,8 +245,8 @@ export function buildWireActionMapPlan({
 }: BuildWireActionMapPlanOptions): WireActionMapPlan {
   const model = buildPromptInteractionModel(prompt);
   const objects = objectIndex(snapshot);
-  const gate = wireActionSubmissionGatePlan(submissionGate);
-  const windowGate = wireActionWindowGatePlan(prompt, playerId);
+  const gate = buildWireActionSubmissionGatePlan(submissionGate);
+  const windowGate = buildWireActionWindowGatePlan({ playerId, prompt });
   const canAct = Boolean(gate.canSubmit && windowGate.canAct);
   const enabledCandidates = model.candidates.filter((candidate) => candidate.enabled);
   const enabledObjects = [...model.enabledObjectIds];
@@ -304,63 +294,6 @@ export function buildWireActionMapPlan({
     route: wireActionRoutePlan(candidatePlans, gate, windowGate),
     submissionGate: gate,
     windowGate
-  };
-}
-
-function wireActionSubmissionGatePlan(submissionGate?: ServerSubmissionGatePlan): WireActionSubmissionGatePlan {
-  if (!submissionGate) {
-    return {
-      canSubmit: true,
-      reason: "当前未提供额外提交门禁。",
-      state: "connected",
-      stateLabel: "可提交"
-    };
-  }
-
-  return {
-    canSubmit: submissionGate.canSubmit,
-    reason: submissionGate.reason,
-    state: submissionGate.state,
-    stateLabel: submissionGate.stateLabel
-  };
-}
-
-function wireActionWindowGatePlan(
-  prompt: ActionPromptDto | undefined,
-  playerId: string
-): WireActionWindowGatePlan {
-  if (!prompt) {
-    return {
-      canAct: false,
-      reason: "服务端尚未提供行动窗口。",
-      state: "waiting-prompt",
-      stateLabel: "等待窗口"
-    };
-  }
-
-  if (prompt.playerId !== playerId) {
-    return {
-      canAct: false,
-      reason: `当前行动窗口属于 ${prompt.playerId || "未知玩家"}，本地玩家 ${playerId} 只读观察。`,
-      state: "wrong-player",
-      stateLabel: "非当前玩家"
-    };
-  }
-
-  if (!prompt.actionable) {
-    return {
-      canAct: false,
-      reason: "服务端提示当前只读，不能提交行动。",
-      state: "not-actionable",
-      stateLabel: "只读窗口"
-    };
-  }
-
-  return {
-    canAct: true,
-    reason: "当前玩家拥有服务端行动窗口。",
-    state: "ready",
-    stateLabel: "当前可行动"
   };
 }
 

@@ -17,15 +17,19 @@ export type SourceCandidateActionPlan = {
 };
 
 type BuildSourceCandidateActionPlanOptions = {
+  actionGateReason?: string;
   canSubmitCommands: boolean;
   candidate: ActionPromptCandidateDto;
+  disabledByActionGate?: boolean;
   disabledByConnection: boolean;
   sourceObjectId?: string;
 };
 
 export function buildSourceCandidateActionPlan({
+  actionGateReason,
   canSubmitCommands,
   candidate,
+  disabledByActionGate = false,
   disabledByConnection,
   sourceObjectId
 }: BuildSourceCandidateActionPlanOptions): SourceCandidateActionPlan {
@@ -37,14 +41,16 @@ export function buildSourceCandidateActionPlan({
 
   return {
     command,
-    disabled: disabledByConnection || !candidate.enabled || !actionable || !canSubmitCommands,
+    disabled: disabledByConnection || disabledByActionGate || !candidate.enabled || !actionable || !canSubmitCommands,
     label: promptActionLabel(candidate),
     labelSuffix: !actionable && candidate.action !== "WAIT" ? "（需选择）" : "",
     needsComposer,
     title: sourceCandidateActionTitle({
       actionable,
+      actionGateReason,
       canSubmitCommands,
       candidate,
+      disabledByActionGate,
       disabledByConnection
     }),
     variant: candidate.enabled && actionable ? "primary" : "ghost"
@@ -53,17 +59,25 @@ export function buildSourceCandidateActionPlan({
 
 function sourceCandidateActionTitle({
   actionable,
+  actionGateReason,
   canSubmitCommands,
   candidate,
+  disabledByActionGate,
   disabledByConnection
 }: {
   actionable: boolean;
+  actionGateReason?: string;
   canSubmitCommands: boolean;
   candidate: ActionPromptCandidateDto;
+  disabledByActionGate: boolean;
   disabledByConnection: boolean;
 }): string {
   if (disabledByConnection) {
-    return "连接恢复前不能提交行动";
+    return "提交入口未就绪，暂不能提交行动";
+  }
+
+  if (disabledByActionGate) {
+    return actionGateReason ?? "当前行动窗口不能提交该候选";
   }
 
   if (!canSubmitCommands) {

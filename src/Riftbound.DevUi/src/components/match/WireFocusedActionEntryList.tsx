@@ -59,7 +59,7 @@ export function WireFocusedActionEntryList({
       data-wire-focused-action-entry-count={entries.length}
       {...countDataAttributes}
     >
-      {entries.map(({ actionPlan, candidate, candidateDraft, key, mode }) => {
+      {entries.map(({ actionGateReason, actionGateStateLabel, actionPlan, candidate, candidateDraft, disabledByActionGate, key, mode }) => {
         const entryDataAttributes = {
           ...(dataAttributes?.entry ? { [dataAttributes.entry]: key } : {}),
           ...(dataAttributes?.mode ? { [dataAttributes.mode]: mode } : {})
@@ -75,7 +75,10 @@ export function WireFocusedActionEntryList({
           >
             {mode === "composer" && onCommand ? (
               <CandidateComposer
+                actionGateReason={actionGateReason}
+                actionGateStateLabel={actionGateStateLabel}
                 candidate={candidate}
+                disabledByActionGate={disabledByActionGate}
                 disabledByConnection={disabledByConnection}
                 forcedSourceObjectId={plan.sourceObjectId}
                 onCommand={onCommand}

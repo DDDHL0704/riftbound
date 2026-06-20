@@ -54,11 +54,13 @@ export function WireInteractionPanel({
   const plan = buildWireFocusedInteractionPlan({
     canSubmitCommands: Boolean(onCommand),
     disabledByConnection,
+    playerId,
     prompt,
     selectionDraft,
     snapshot,
     sourceControllerId: inspectedCard?.object?.controllerId,
-    sourceObjectId: selectedObjectId
+    sourceObjectId: selectedObjectId,
+    submissionGate
   });
 
   return (

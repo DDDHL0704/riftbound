@@ -26,6 +26,7 @@ type CardDetailDrawerProps = {
   onClose: () => void;
   onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
+  playerId?: string;
   objectContext?: TableObjectContext;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
@@ -39,6 +40,7 @@ export function CardDetailDrawer({
   onClose,
   onCommand,
   onInspectObject,
+  playerId = "local",
   objectContext,
   prompt,
   selectionDraft,
@@ -97,11 +99,13 @@ export function CardDetailDrawer({
   const detailInteractionPlan = buildWireFocusedInteractionPlan({
     canSubmitCommands: Boolean(onCommand),
     disabledByConnection,
+    playerId,
     prompt,
     selectionDraft,
     snapshot,
     sourceControllerId: card.object?.controllerId,
-    sourceObjectId
+    sourceObjectId,
+    submissionGate
   });
   const detailActionPlan = buildWireCardDetailActionPlan({
     canSubmitCommands: Boolean(onCommand),
