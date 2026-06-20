@@ -1,4 +1,6 @@
-import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto, CardObjectView, SnapshotDto } from "../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptContractDto, ActionPromptDto, CardObjectView, GameCommand, SnapshotDto } from "../types/protocol";
+import { promptStampedCommand, sourceRequirementFor } from "./actionPromptCandidates";
+import { commandFromActionPromptTemplate } from "./actionPromptCommandTemplate";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import type { ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 import {
@@ -110,6 +112,7 @@ export type WireActionRoutePlan = {
   candidateLabel: string;
   checkRows: WireActionRouteCheckPlan[];
   checkSummary: string;
+  command?: GameCommand;
   commandPreview: WireActionCommandPreviewRow[];
   commandType?: string;
   enabled: boolean;
@@ -145,14 +148,18 @@ export type WireActionCommandReviewMetric = {
 };
 
 export type WireActionCommandReviewPlan = {
+  canSubmit: boolean;
   candidateLabel: string;
   checkRows: WireActionRouteCheckPlan[];
+  command?: GameCommand;
   commandPreview: WireActionCommandPreviewRow[];
   commandType: string;
   metrics: WireActionCommandReviewMetric[];
   nextStepLabel: string;
   state: WireActionCommandReviewState;
   stateLabel: string;
+  submitLabel: string;
+  submitReason: string;
   summary: string;
 };
 
@@ -331,9 +338,10 @@ export function buildWireActionMapPlan({
   const knownDisabledOnlyObjects = disabledOnlyObjects.filter((objectId) => objects[objectId]);
   const groups = actionGroups(model);
   const candidateByKey = new Map(model.candidates.map((candidate) => [candidateKey(candidate), candidate]));
+  const candidateDtoByKey = new Map((prompt?.candidates ?? []).map((candidate) => [candidateKeyFromDto(candidate), candidate]));
   const candidatePlans = buildCandidateInteractionPlans(model.candidates)
     .map((candidatePlan) => wireActionCandidatePlan(candidatePlan, candidateByKey.get(candidatePlan.key), objects, selectionDraft));
-  const route = wireActionRoutePlan(candidatePlans, gate, windowGate);
+  const route = wireActionRoutePlan(candidatePlans, gate, windowGate, candidateDtoByKey, selectionDraft, prompt);
   const grammarCandidates = model.candidates.filter((candidate) => candidate.enabled);
   const objectLimit = nonNegativeLimit(maxObjectEntries);
 
@@ -504,22 +512,28 @@ function choiceMatchesSelection(choice: PromptCandidateSummary["choices"][number
 function wireActionRoutePlan(
   candidatePlans: WireActionCandidatePlan[],
   submissionGate: WireActionSubmissionGatePlan,
-  windowGate: WireActionWindowGatePlan
+  windowGate: WireActionWindowGatePlan,
+  candidateDtoByKey: Map<string, ActionPromptCandidateDto>,
+  selectionDraft: CandidateSelectionDraft | undefined,
+  prompt: ActionPromptDto | undefined
 ): WireActionRoutePlan | undefined {
   const candidatePlan = candidatePlans.find((candidate) => candidate.draftActive);
   if (!candidatePlan) {
     return undefined;
   }
 
+  const command = commandForRoute(candidateDtoByKey.get(candidatePlan.key), selectionDraft, prompt);
+  const commandReady = Boolean(command);
   const missingRequiredSelectionCount = candidatePlan.stepRows.filter((step) => step.required && step.selectedCount <= 0).length;
   const missingRequiredFieldCount = candidatePlan.commandFields.filter((field) => field.state === "missing").length;
   const serverInjectedFieldCount = candidatePlan.commandFields.filter((field) => field.state === "server").length;
   const selectedStepCount = candidatePlan.stepRows.filter((step) => step.selectedCount > 0).length;
+  const missingRoutePieces = missingRequiredSelectionCount > 0 || missingRequiredFieldCount > 0;
   const nextStep = candidatePlan.stepRows.find((step) => step.required && step.selectedCount <= 0)
     ?? candidatePlan.stepRows.find((step) => !step.required && step.count > 0 && step.selectedCount <= 0);
-  const state: WireActionRouteState = !candidatePlan.enabled || !submissionGate.canSubmit || !windowGate.canAct
+  const state: WireActionRouteState = !candidatePlan.enabled || !submissionGate.canSubmit || !windowGate.canAct || (!commandReady && !missingRoutePieces)
     ? "blocked"
-    : missingRequiredSelectionCount > 0 || missingRequiredFieldCount > 0
+    : missingRoutePieces
       ? "incomplete"
       : "ready";
   const stateLabel = !submissionGate.canSubmit
@@ -536,9 +550,12 @@ function wireActionRoutePlan(
     ? `继续选择${nextStep.label}`
     : nextMissingField
       ? `补齐字段${nextMissingField.label}`
+      : !commandReady
+        ? "等待服务端命令模板齐备"
       : "可送服务端校验";
   const checkRows = wireActionRouteCheckRows({
     candidateEnabled: candidatePlan.enabled,
+    commandReady,
     missingRequiredFieldCount,
     missingRequiredSelectionCount,
     serverInjectedFieldCount,
@@ -550,6 +567,7 @@ function wireActionRoutePlan(
     candidateLabel: candidatePlan.candidateLabel,
     checkRows,
     checkSummary: routeCheckSummary(checkRows),
+    command: state === "ready" ? command : undefined,
     commandPreview: candidatePlan.commandFields.map(commandPreviewRow),
     commandType: candidatePlan.commandType,
     enabled: candidatePlan.enabled,
@@ -579,8 +597,10 @@ function wireActionRoutePlan(
 function commandReviewPlan(route: WireActionRoutePlan | undefined): WireActionCommandReviewPlan {
   if (!route) {
     return {
+      canSubmit: false,
       candidateLabel: "未选择候选",
       checkRows: [],
+      command: undefined,
       commandPreview: [],
       commandType: "无",
       metrics: [
@@ -591,6 +611,8 @@ function commandReviewPlan(route: WireActionRoutePlan | undefined): WireActionCo
       nextStepLabel: "先点击服务端候选对象，建立提交路线。",
       state: "empty",
       stateLabel: "无提交草稿",
+      submitLabel: "提交当前路线",
+      submitReason: "尚未选择服务端候选。",
       summary: "尚未选择服务端候选。"
     };
   }
@@ -601,8 +623,10 @@ function commandReviewPlan(route: WireActionRoutePlan | undefined): WireActionCo
       ? "blocked"
       : "drafting";
   return {
+    canSubmit: route.state === "ready" && Boolean(route.command),
     candidateLabel: route.candidateLabel,
     checkRows: route.checkRows,
+    command: route.command,
     commandPreview: route.commandPreview,
     commandType: route.commandType ?? "未公开命令",
     metrics: [
@@ -613,8 +637,35 @@ function commandReviewPlan(route: WireActionRoutePlan | undefined): WireActionCo
     nextStepLabel: route.nextStepLabel,
     state,
     stateLabel: commandReviewStateLabel(state),
+    submitLabel: "提交当前路线",
+    submitReason: route.state === "ready" && route.command
+      ? "命令已由服务端候选模板组装完成，提交后仍由服务端规则校验。"
+      : route.nextStepLabel,
     summary: `${route.candidateLabel} / ${route.commandType ?? "未公开命令"} / ${route.checkSummary}`
   };
+}
+
+function commandForRoute(
+  candidate: ActionPromptCandidateDto | undefined,
+  selectionDraft: CandidateSelectionDraft | undefined,
+  prompt: ActionPromptDto | undefined
+): GameCommand | undefined {
+  if (!candidate || !selectionDraft || selectionDraft.candidateKey !== candidateDraftKeyFromDto(candidate)) {
+    return undefined;
+  }
+
+  const command = commandFromActionPromptTemplate(
+    candidate.commandTemplate,
+    {
+      destinationId: selectionDraft.destinationId,
+      mode: selectionDraft.mode,
+      optionalCostIds: selectionDraft.optionalCostIds,
+      sourceId: selectionDraft.sourceObjectId,
+      targetObjectIds: selectionDraft.targetChoiceIds
+    },
+    { candidateMetadata: candidate.metadata, requirement: sourceRequirementFor(candidate, selectionDraft.sourceObjectId) }
+  );
+  return command ? promptStampedCommand(command, prompt) : undefined;
 }
 
 function commandPreviewRow(field: WireActionRouteFieldPlan): WireActionCommandPreviewRow {
@@ -644,6 +695,7 @@ function commandReviewStateLabel(state: WireActionCommandReviewState): string {
 
 function wireActionRouteCheckRows({
   candidateEnabled,
+  commandReady,
   missingRequiredFieldCount,
   missingRequiredSelectionCount,
   serverInjectedFieldCount,
@@ -651,6 +703,7 @@ function wireActionRouteCheckRows({
   windowGate
 }: {
   candidateEnabled: boolean;
+  commandReady: boolean;
   missingRequiredFieldCount: number;
   missingRequiredSelectionCount: number;
   serverInjectedFieldCount: number;
@@ -696,6 +749,15 @@ function wireActionRouteCheckRows({
         : "前端草稿已覆盖所有可选择命令字段。",
       state: missingRequiredFieldCount > 0 ? "blocked" : "ready",
       stateLabel: missingRequiredFieldCount > 0 ? `缺少 ${missingRequiredFieldCount}` : "齐备"
+    },
+    {
+      key: "command-assembled",
+      label: "提交命令",
+      reason: commandReady
+        ? "命令已由服务端候选模板和当前草稿组装完成。"
+        : "服务端命令模板或当前草稿还不能形成可提交命令。",
+      state: commandReady ? "ready" : missingRequiredSelectionCount > 0 || missingRequiredFieldCount > 0 ? "waiting" : "blocked",
+      stateLabel: commandReady ? "齐备" : "未形成"
     },
     {
       key: "server-injected",
@@ -1080,8 +1142,16 @@ function candidateKey(candidate: PromptCandidateSummary): string {
   return `${candidate.action}:${candidate.label}`;
 }
 
+function candidateKeyFromDto(candidate: ActionPromptCandidateDto): string {
+  return `${candidate.action}:${promptActionLabel(candidate)}`;
+}
+
 function candidateDraftKey(candidate: PromptCandidateSummary): string {
   return `${candidate.action}::${candidate.label}`;
+}
+
+function candidateDraftKeyFromDto(candidate: ActionPromptCandidateDto): string {
+  return `${candidate.action}::${promptActionLabel(candidate)}`;
 }
 
 function focusStateLabel(candidateCount: number, enabledCount: number): string {

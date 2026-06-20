@@ -10,6 +10,10 @@ const candidatePlanExports = loadTsModule(resolve(scriptDir, "../src/utils/candi
   promptChoiceRoleLabel
 });
 const commandFieldDisplayExports = loadTsModule(resolve(scriptDir, "../src/utils/commandFieldDisplay.ts"));
+const commandTemplateExports = loadTsModule(resolve(scriptDir, "../src/utils/actionPromptCommandTemplate.ts"));
+const actionPromptCandidatesExports = loadTsModule(resolve(scriptDir, "../src/utils/actionPromptCandidates.ts"), {
+  commandFromActionPromptTemplate: commandTemplateExports.commandFromActionPromptTemplate
+});
 const actionGateExports = loadTsModule(resolve(scriptDir, "../src/utils/wireActionGates.ts"));
 const promptInteractionExports = loadTsModule(resolve(scriptDir, "../src/utils/promptInteraction.ts"), {
   promptActionLabel,
@@ -24,13 +28,16 @@ const actionMapExports = loadTsModule(resolve(scriptDir, "../src/utils/wireActio
   buildWireActionWindowGatePlan: actionGateExports.buildWireActionWindowGatePlan,
   commandBindingDisplayLabel: commandFieldDisplayExports.commandBindingDisplayLabel,
   commandBindingFieldKey: commandFieldDisplayExports.commandBindingFieldKey,
+  commandFromActionPromptTemplate: commandTemplateExports.commandFromActionPromptTemplate,
   promptActionLabel,
   promptChoiceSummaryObjectIds: promptInteractionExports.promptChoiceSummaryObjectIds,
   promptChoiceRoleOrder: promptInteractionExports.promptChoiceRoleOrder,
   promptChoiceRoleLabel: promptInteractionExports.promptChoiceRoleLabel,
   promptCommandBindingLabel: promptInteractionExports.promptCommandBindingLabel,
   promptCommandBindingSourceLabel: promptInteractionExports.promptCommandBindingSourceLabel,
-  promptReasonLabel
+  promptReasonLabel,
+  promptStampedCommand: actionPromptCandidatesExports.promptStampedCommand,
+  sourceRequirementFor: actionPromptCandidatesExports.sourceRequirementFor
 });
 
 const { buildWireActionMapPlan } = actionMapExports;
@@ -78,7 +85,9 @@ const prompt = {
     validationErrors: [],
     visibleMetadata: ["sourceRequirements"]
   },
-  playerId: "P1"
+  playerId: "P1",
+  promptId: "prompt-1",
+  snapshotTick: 4
 };
 
 const snapshot = {
@@ -177,6 +186,8 @@ assert.equal(plan.candidatePlans[0].stepRows[0].selectionState, "inactive");
 assert.equal(plan.candidatePlans[0].stepRows[0].progressLabel, "未进入当前草稿");
 assert.equal(plan.route, undefined);
 assert.equal(plan.commandReview.state, "empty");
+assert.equal(plan.commandReview.canSubmit, false);
+assert.equal(plan.commandReview.command, undefined);
 assert.equal(plan.commandReview.nextStepLabel, "先点击服务端候选对象，建立提交路线。");
 assert.deepEqual(plan.commandReview.metrics.map((metric) => `${metric.key}:${metric.value}`), [
   "selection:0",
@@ -234,16 +245,24 @@ assert.equal(draftPlan.route.selectedStepCount, 2);
 assert.equal(draftPlan.route.missingRequiredFieldCount, 0);
 assert.equal(draftPlan.route.missingRequiredSelectionCount, 0);
 assert.equal(draftPlan.route.serverInjectedFieldCount, 1);
-assert.equal(draftPlan.route.checkSummary, "6 通过 / 0 阻断 / 0 等待");
+assert.equal(draftPlan.route.checkSummary, "7 通过 / 0 阻断 / 0 等待");
 assert.deepEqual(draftPlan.route.checkRows.map((check) => check.key), [
   "server-candidate",
   "submission-gate",
   "action-window",
   "required-selections",
   "command-fields",
+  "command-assembled",
   "server-injected"
 ]);
-assert.deepEqual(draftPlan.route.checkRows.map((check) => check.state), ["ready", "ready", "ready", "ready", "ready", "ready"]);
+assert.deepEqual(draftPlan.route.checkRows.map((check) => check.state), ["ready", "ready", "ready", "ready", "ready", "ready", "ready"]);
+assert.deepEqual(draftPlan.route.command, {
+  cmdType: "PLAY_CARD",
+  promptId: "prompt-1",
+  snapshotTick: 4,
+  sourceObjectId: "p1-hand-1",
+  targetObjectIds: ["p2-unit-1"]
+});
 assert.equal(draftPlan.route.checkRows.find((check) => check.key === "server-injected")?.stateLabel, "1 项");
 assert.equal(draftPlan.route.steps.find((step) => step.role === "source").state, "selected");
 assert.equal(draftPlan.route.steps.find((step) => step.role === "target").state, "selected");
@@ -252,7 +271,9 @@ assert.equal(draftPlan.route.fields[2].field, "server-metadata-2");
 assert.equal(draftPlan.route.fields[2].label, "服务端字段");
 assert.equal(draftPlan.commandReview.state, "ready");
 assert.equal(draftPlan.commandReview.stateLabel, "可送服务端");
+assert.equal(draftPlan.commandReview.canSubmit, true);
 assert.equal(draftPlan.commandReview.commandType, "PLAY_CARD");
+assert.deepEqual(draftPlan.commandReview.command, draftPlan.route.command);
 assert.equal(draftPlan.commandReview.metrics.find((metric) => metric.key === "selection")?.value, "2");
 assert.equal(draftPlan.commandReview.metrics.find((metric) => metric.key === "server")?.value, "1");
 assert.deepEqual(draftPlan.commandReview.commandPreview.map((field) => `${field.field}:${field.state}`), [
@@ -287,10 +308,12 @@ assert.equal(staleDraftPlan.coverage.metrics.find((metric) => metric.key === "ga
 assert.equal(staleDraftPlan.route.state, "blocked");
 assert.equal(staleDraftPlan.route.stateLabel, "提交门禁阻断");
 assert.equal(staleDraftPlan.route.nextStepLabel, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
-assert.equal(staleDraftPlan.route.checkSummary, "5 通过 / 1 阻断 / 0 等待");
+assert.equal(staleDraftPlan.route.checkSummary, "6 通过 / 1 阻断 / 0 等待");
 assert.equal(staleDraftPlan.route.checkRows.find((check) => check.key === "submission-gate")?.state, "blocked");
 assert.equal(staleDraftPlan.route.checkRows.find((check) => check.key === "submission-gate")?.stateLabel, "等待同步");
 assert.equal(staleDraftPlan.commandReview.state, "blocked");
+assert.equal(staleDraftPlan.commandReview.canSubmit, false);
+assert.equal(staleDraftPlan.commandReview.command, undefined);
 assert.equal(staleDraftPlan.commandReview.nextStepLabel, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
 
 const readOnlyPlan = buildWireActionMapPlan({
@@ -322,6 +345,7 @@ assert.equal(wrongPlayerDraftPlan.route.stateLabel, "行动窗口阻断");
 assert.equal(wrongPlayerDraftPlan.route.checkRows.find((check) => check.key === "action-window")?.state, "blocked");
 assert.equal(wrongPlayerDraftPlan.route.checkRows.find((check) => check.key === "action-window")?.stateLabel, "非当前玩家");
 assert.equal(wrongPlayerDraftPlan.commandReview.state, "blocked");
+assert.equal(wrongPlayerDraftPlan.commandReview.canSubmit, false);
 
 const blockedFocusPlan = buildWireActionMapPlan({
   playerId: "P1",

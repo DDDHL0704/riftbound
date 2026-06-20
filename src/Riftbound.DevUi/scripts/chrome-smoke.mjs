@@ -901,6 +901,8 @@ async function runWireClickSelectionSmoke(cdp) {
       commandReviewFieldStates: Array.from(commandReview?.querySelectorAll("[data-command-review-field-state]") ?? [])
         .map((node) => node.getAttribute("data-command-review-field-state")),
       commandReviewState: commandReview?.getAttribute("data-command-review-state") ?? null,
+      commandReviewSubmitDisabled: commandReview?.querySelector(".wire-command-review-submit")?.hasAttribute("disabled") ?? null,
+      commandReviewSubmitState: commandReview?.querySelector(".wire-command-review-submit")?.getAttribute("data-command-review-submit-state") ?? null,
       commandReviewText: commandReview?.textContent ?? "",
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       focusBridgeState: focusBridge?.getAttribute("data-action-focus-state") ?? null,
@@ -984,6 +986,8 @@ async function runWireClickSelectionSmoke(cdp) {
       commandReviewFieldStates: Array.from(commandReview?.querySelectorAll("[data-command-review-field-state]") ?? [])
         .map((node) => node.getAttribute("data-command-review-field-state")),
       commandReviewState: commandReview?.getAttribute("data-command-review-state") ?? null,
+      commandReviewSubmitDisabled: commandReview?.querySelector(".wire-command-review-submit")?.hasAttribute("disabled") ?? null,
+      commandReviewSubmitState: commandReview?.querySelector(".wire-command-review-submit")?.getAttribute("data-command-review-submit-state") ?? null,
       commandReviewText: commandReview?.textContent ?? "",
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
@@ -1193,12 +1197,15 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.actionMapText.includes("服务端:cardNo*")) failures.push("action map leaked raw metadata command field");
   if (actionMapResult.commandReviewState !== "ready") failures.push(`action command review source-focus state unexpected: ${actionMapResult.commandReviewState}`);
   if (!actionMapResult.commandReviewText.includes("提交审阅")) failures.push("action command review heading missing");
+  if (!actionMapResult.commandReviewText.includes("提交当前路线")) failures.push("action command review submit button missing");
   if (!actionMapResult.commandReviewText.includes("打出手牌")) failures.push("action command review candidate missing");
   if (!actionMapResult.commandReviewText.includes("PLAY_CARD")) failures.push("action command review command type missing");
   if (!actionMapResult.commandReviewText.includes("下一步")) failures.push("action command review next step missing");
   if (!actionMapResult.commandReviewText.includes("服务端字段")) failures.push("action command review server field safe label missing");
   if (!actionMapResult.commandReviewFieldStates.includes("covered")) failures.push("action command review covered field missing");
   if (!actionMapResult.commandReviewFieldStates.includes("server")) failures.push("action command review server field missing");
+  if (actionMapResult.commandReviewSubmitState !== "ready") failures.push(`action command review submit state unexpected: ${actionMapResult.commandReviewSubmitState}`);
+  if (actionMapResult.commandReviewSubmitDisabled !== false) failures.push("action command review submit button should be enabled for ready route");
   if (actionMapResult.commandReviewText.includes("serverPaymentState")) failures.push("action command review leaked hidden server state");
   if (actionMapResult.focusBridgeState !== "enabled") failures.push(`action map focus bridge state unexpected: ${actionMapResult.focusBridgeState}`);
   if (!actionMapResult.focusBridgeText.includes("角色 来源")) failures.push("action map focus bridge role summary missing");
@@ -1304,9 +1311,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionFocusChoiceResult.routeCheckStates.includes("ready")) failures.push("action focus choice route audit ready state missing");
   if (actionFocusChoiceResult.commandReviewState !== "ready") failures.push(`action focus choice command review state unexpected: ${actionFocusChoiceResult.commandReviewState}`);
   if (!actionFocusChoiceResult.commandReviewText.includes("提交审阅")) failures.push("action focus choice command review heading missing");
+  if (!actionFocusChoiceResult.commandReviewText.includes("提交当前路线")) failures.push("action focus choice command review submit button missing");
   if (!actionFocusChoiceResult.commandReviewText.includes("打出手牌")) failures.push("action focus choice command review candidate missing");
   if (!actionFocusChoiceResult.commandReviewFieldStates.includes("covered")) failures.push("action focus choice command review covered field missing");
   if (!actionFocusChoiceResult.commandReviewFieldStates.includes("server")) failures.push("action focus choice command review server field missing");
+  if (actionFocusChoiceResult.commandReviewSubmitState !== "ready") failures.push(`action focus choice command review submit state unexpected: ${actionFocusChoiceResult.commandReviewSubmitState}`);
+  if (actionFocusChoiceResult.commandReviewSubmitDisabled !== false) failures.push("action focus choice command review submit button should be enabled for ready route");
   if (actionFocusChoiceResult.targetRouteStepState !== "selected") failures.push("action focus choice route target step missing selected state");
   if (actionFocusChoiceResult.sourceStepProgress !== "selected") failures.push("action focus choice did not mark source step selected");
   if (actionFocusChoiceResult.targetStepProgress !== "selected") failures.push("action focus choice did not mark target step selected");

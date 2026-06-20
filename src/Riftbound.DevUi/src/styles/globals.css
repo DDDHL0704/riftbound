@@ -11925,6 +11925,7 @@ button.card-face:hover {
 .wire-command-review-metrics span,
 .wire-command-review-fields li,
 .wire-command-review-next,
+.wire-command-review-submit,
 .wire-action-route-strip,
 .wire-action-route-fields span,
 .wire-action-route-inspector,
@@ -13233,6 +13234,28 @@ button.card-face:hover {
   display: grid;
   gap: 1px;
   padding: 3px;
+}
+
+.wire-command-review-submit {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-weight: 700;
+  padding: 5px 6px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-command-review-submit:disabled {
+  cursor: not-allowed;
+}
+
+.wire-command-review-submit[data-command-review-submit-state="ready"] {
+  border-width: 2px;
 }
 
 .wire-command-review-fields {
@@ -14875,6 +14898,7 @@ button.wire-object-ref {
 .wire-match-page .wire-command-review-metrics span,
 .wire-match-page .wire-command-review-fields li,
 .wire-match-page .wire-command-review-next,
+.wire-match-page .wire-command-review-submit,
 .wire-match-page .wire-action-coverage,
 .wire-match-page .wire-action-coverage-heading,
 .wire-match-page .wire-action-coverage-metrics span,

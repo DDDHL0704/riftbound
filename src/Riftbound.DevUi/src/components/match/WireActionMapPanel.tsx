@@ -1,4 +1,4 @@
-import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -20,6 +20,7 @@ import { StatusPill } from "../ui/StatusPill";
 
 type WireActionMapPanelProps = {
   onChooseObject?: (objectId: string) => void;
+  onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
   playerId: string;
   prompt?: ActionPromptDto;
@@ -31,6 +32,7 @@ type WireActionMapPanelProps = {
 
 export function WireActionMapPanel({
   onChooseObject,
+  onCommand,
   onInspectObject,
   playerId,
   prompt,
@@ -59,7 +61,7 @@ export function WireActionMapPanel({
       <WindowGateStrip gate={plan.windowGate} />
       <ActionCoveragePanel coverage={plan.coverage} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
-      <CommandReviewPanel review={plan.commandReview} />
+      <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
       <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
@@ -146,7 +148,9 @@ export function WireActionMapPanel({
   );
 }
 
-function CommandReviewPanel({ review }: { review: WireActionCommandReviewPlan }) {
+function CommandReviewPanel({ onCommand, review }: { onCommand?: (command: GameCommand) => void; review: WireActionCommandReviewPlan }) {
+  const canSubmit = review.canSubmit && Boolean(review.command) && Boolean(onCommand);
+
   return (
     <section
       aria-label="服务端候选提交审阅"
@@ -184,6 +188,22 @@ function CommandReviewPanel({ review }: { review: WireActionCommandReviewPlan })
           ))}
         </ol>
       )}
+      <button
+        className="wire-command-review-submit"
+        data-command-review-submit-state={canSubmit ? "ready" : "blocked"}
+        disabled={!canSubmit}
+        onClick={() => {
+          if (!review.command || !onCommand) {
+            return;
+          }
+
+          onCommand(review.command);
+        }}
+        title={review.submitReason}
+        type="button"
+      >
+        {review.submitLabel}
+      </button>
     </section>
   );
 }
