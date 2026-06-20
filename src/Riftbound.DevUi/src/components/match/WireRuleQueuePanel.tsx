@@ -1,6 +1,6 @@
 import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protocol";
 import { Children, type ReactNode, useState } from "react";
-import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
+import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
 import { WireDetailTrigger } from "./WireDetailTrigger";
@@ -51,6 +51,12 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
         <div className="wire-rule-flow-next" data-wire-rule-next-lane={plan.activeLaneKey}>
           下一步：{plan.nextStepLabel}
         </div>
+        <RuleResponsibilityTimeline
+          objects={objects}
+          onInspectObject={onInspectObject}
+          plan={plan.responsibility}
+          selectedObjectId={selectedObjectId}
+        />
         <RuleCoverageStrip coverage={plan.coverage} />
         {plan.sequence.length > 0 && (
           <ol className="wire-rule-sequence" aria-label="服务端规则队列顺序">
@@ -276,6 +282,79 @@ function RuleLaneCard({ lane }: { lane: WireRuleQueueLane }) {
       <strong>{lane.count} 项</strong>
       <span>{lane.headline}</span>
       <em>{lane.hint}</em>
+    </li>
+  );
+}
+
+function RuleResponsibilityTimeline({
+  objects,
+  onInspectObject,
+  plan,
+  selectedObjectId
+}: {
+  objects: ObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  plan: WireRuleQueueResponsibilityPlan;
+  selectedObjectId?: string;
+}) {
+  return (
+    <section
+      aria-label="响应责任时间线"
+      className="wire-rule-responsibility"
+      data-rule-responsibility-active-count={plan.activeCount}
+    >
+      <div className="wire-rule-responsibility-heading">
+        <strong>响应责任时间线</strong>
+        <span>{plan.stateLabel}</span>
+      </div>
+      <small>{plan.summary}</small>
+      {plan.items.length === 0 ? (
+        <span className="empty-hint">当前没有服务端队列项。</span>
+      ) : (
+        <ol>
+          {plan.items.map((item) => (
+            <RuleResponsibilityItem
+              item={item}
+              key={item.key}
+              objects={objects}
+              onInspectObject={onInspectObject}
+              selectedObjectId={selectedObjectId}
+            />
+          ))}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+function RuleResponsibilityItem({
+  item,
+  objects,
+  onInspectObject,
+  selectedObjectId
+}: {
+  item: WireRuleQueueResponsibilityItem;
+  objects: ObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  selectedObjectId?: string;
+}) {
+  return (
+    <li data-rule-responsibility-lane={item.lane} data-rule-responsibility-state={item.state}>
+      <div>
+        <small>{item.label}</small>
+        <strong>{item.stateLabel}</strong>
+      </div>
+      <span>{item.actionLabel} / {item.detailLabel}</span>
+      <em>{item.actorLabel} / {item.objectCount} 对象</em>
+      <small>{item.reason}</small>
+      <WireObjectRefChips
+        className="wire-rule-responsibility-object-refs"
+        objects={objects}
+        onInspectObject={onInspectObject}
+        refs={item.refs}
+        selectedObjectId={selectedObjectId}
+        source="rule"
+      />
     </li>
   );
 }

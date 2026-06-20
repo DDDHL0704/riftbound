@@ -45,6 +45,34 @@ export type WireRuleQueueSequenceItem = {
   tickLabel?: string;
 };
 
+export type WireRuleQueueResponsibilityState =
+  | "blocked"
+  | "history"
+  | "respond"
+  | "waiting"
+  | "watch";
+
+export type WireRuleQueueResponsibilityItem = {
+  actorLabel: string;
+  actionLabel: string;
+  detailLabel: string;
+  key: string;
+  label: string;
+  lane: WireRuleQueueLaneKey;
+  objectCount: number;
+  reason: string;
+  refs: WireRuleQueueObjectRef[];
+  state: WireRuleQueueResponsibilityState;
+  stateLabel: string;
+};
+
+export type WireRuleQueueResponsibilityPlan = {
+  activeCount: number;
+  items: WireRuleQueueResponsibilityItem[];
+  stateLabel: string;
+  summary: string;
+};
+
 export type WireRuleQueueInspectorLane = {
   count: number;
   headline: string;
@@ -165,6 +193,7 @@ export type WireRuleQueuePlan = {
   lanes: WireRuleQueueLane[];
   metrics: WireRuleQueueMetric[];
   nextStepLabel: string;
+  responsibility: WireRuleQueueResponsibilityPlan;
   sections: WireRuleQueueSectionPlan[];
   sequence: WireRuleQueueSequenceItem[];
   state: WireRuleQueueState;
@@ -284,6 +313,7 @@ export function buildWireRuleQueuePlan({
     triggers
   });
   const focus = focusPlanFor({ activeLaneKey, sections, state });
+  const responsibility = responsibilityPlanFor({ activeLaneKey, sequence, state });
 
   return {
     activeLaneKey,
@@ -298,11 +328,211 @@ export function buildWireRuleQueuePlan({
     lanes,
     metrics,
     nextStepLabel: nextStep,
+    responsibility,
     sections,
     sequence,
     state,
     stateLabel: queueStateLabel(state)
   };
+}
+
+function responsibilityPlanFor({
+  activeLaneKey,
+  sequence,
+  state
+}: {
+  activeLaneKey: WireRuleQueueLaneKey | "none";
+  sequence: WireRuleQueueSequenceItem[];
+  state: WireRuleQueueState;
+}): WireRuleQueueResponsibilityPlan {
+  const laneCounters = new Map<WireRuleQueueLaneKey, number>();
+  const items = sequence.map((item) => {
+    const laneIndex = laneCounters.get(item.lane) ?? 0;
+    laneCounters.set(item.lane, laneIndex + 1);
+    return responsibilityItemFor({
+      activeLaneKey,
+      item,
+      laneIndex,
+      state
+    });
+  });
+  const activeCount = items.filter((item) => item.state === "respond" || item.state === "blocked" || item.state === "watch").length;
+  const stateLabel = responsibilityStateLabel(state);
+
+  return {
+    activeCount,
+    items,
+    stateLabel,
+    summary: responsibilitySummaryFor(state, activeCount, items.length)
+  };
+}
+
+function responsibilityItemFor({
+  activeLaneKey,
+  item,
+  laneIndex,
+  state
+}: {
+  activeLaneKey: WireRuleQueueLaneKey | "none";
+  item: WireRuleQueueSequenceItem;
+  laneIndex: number;
+  state: WireRuleQueueState;
+}): WireRuleQueueResponsibilityItem {
+  const activeForLane = activeLaneKey === item.lane && laneIndex === 0;
+  const responsibilityState = responsibilityItemState(item.lane, state, activeForLane);
+
+  return {
+    actorLabel: responsibilityActorLabel(item),
+    actionLabel: responsibilityActionLabel(item.lane, responsibilityState),
+    detailLabel: item.detailLabel,
+    key: `responsibility:${item.key}`,
+    label: item.label,
+    lane: item.lane,
+    objectCount: item.objectCount,
+    reason: responsibilityReason(item, responsibilityState),
+    refs: item.refs,
+    state: responsibilityState,
+    stateLabel: responsibilityItemStateLabel(responsibilityState)
+  };
+}
+
+function responsibilityItemState(
+  lane: WireRuleQueueLaneKey,
+  state: WireRuleQueueState,
+  activeForLane: boolean
+): WireRuleQueueResponsibilityState {
+  if (lane === "resolution") {
+    return "history";
+  }
+
+  if (!activeForLane) {
+    return "waiting";
+  }
+
+  switch (state) {
+    case "stack-response":
+      return lane === "stack" ? "respond" : "waiting";
+    case "task-blocked":
+      return lane === "task" ? "blocked" : "waiting";
+    case "task-open":
+    case "trigger-pending":
+      return "watch";
+    case "idle":
+    case "resolution-history":
+      return "waiting";
+  }
+}
+
+function responsibilityStateLabel(state: WireRuleQueueState): string {
+  switch (state) {
+    case "idle":
+      return "无待响应";
+    case "resolution-history":
+      return "可回看";
+    case "stack-response":
+      return "响应窗口";
+    case "task-blocked":
+      return "规则阻塞";
+    case "task-open":
+      return "任务观察";
+    case "trigger-pending":
+      return "触发观察";
+  }
+}
+
+function responsibilitySummaryFor(state: WireRuleQueueState, activeCount: number, totalCount: number): string {
+  if (totalCount === 0) {
+    return "当前没有服务端结算链、规则任务、触发或近期规则事件。";
+  }
+
+  switch (state) {
+    case "stack-response":
+      return `${activeCount} 个当前响应入口；提交动作仍以服务端 prompt 候选为准。`;
+    case "task-blocked":
+      return `${activeCount} 个阻塞规则任务；普通行动保持只读直到服务端推进。`;
+    case "task-open":
+      return `${activeCount} 个规则任务可观察；等待服务端任务队列推进。`;
+    case "trigger-pending":
+      return `${activeCount} 个触发队列项可观察；排序或结算由服务端窗口裁定。`;
+    case "resolution-history":
+      return `${totalCount} 个近期规则事件可回看。`;
+    case "idle":
+      return "当前没有活动响应责任。";
+  }
+}
+
+function responsibilityActorLabel(item: WireRuleQueueSequenceItem): string {
+  if (item.lane === "stack") {
+    return `控制者 ${item.stateLabel}`;
+  }
+
+  if (item.lane === "task") {
+    return item.stateLabel;
+  }
+
+  if (item.lane === "trigger") {
+    return `控制者 ${item.stateLabel}`;
+  }
+
+  return item.tickLabel ?? item.stateLabel;
+}
+
+function responsibilityActionLabel(
+  lane: WireRuleQueueLaneKey,
+  state: WireRuleQueueResponsibilityState
+): string {
+  if (state === "blocked") {
+    return "等待规则任务";
+  }
+
+  if (state === "respond") {
+    return "响应结算链";
+  }
+
+  if (state === "history") {
+    return "查看事件";
+  }
+
+  if (state === "watch") {
+    return lane === "trigger" ? "查看触发" : "查看任务";
+  }
+
+  return "等待前序";
+}
+
+function responsibilityReason(
+  item: WireRuleQueueSequenceItem,
+  state: WireRuleQueueResponsibilityState
+): string {
+  switch (state) {
+    case "blocked":
+      return "该规则任务阻塞普通行动，前端只展示服务端队列并等待推进。";
+    case "history":
+      return "已完成的规则事件，可打开详情核对对象投影。";
+    case "respond":
+      return "结算链顶部项目；是否能响应、响应方式和提交字段都以服务端 prompt 为准。";
+    case "waiting":
+      return "等待前序结算、任务或触发先处理。";
+    case "watch":
+      return item.lane === "trigger"
+        ? "触发队列等待排序或结算，前端不自行决定触发顺序。"
+        : "规则任务等待服务端推进，前端不重算状态动作。";
+  }
+}
+
+function responsibilityItemStateLabel(state: WireRuleQueueResponsibilityState): string {
+  switch (state) {
+    case "blocked":
+      return "阻塞";
+    case "history":
+      return "历史";
+    case "respond":
+      return "可响应";
+    case "waiting":
+      return "等待";
+    case "watch":
+      return "观察";
+  }
 }
 
 function headerPlanFor({

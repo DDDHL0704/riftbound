@@ -13881,6 +13881,13 @@ button.card-face:hover {
 .wire-rule-flow-heading strong,
 .wire-rule-flow-heading span,
 .wire-rule-flow-next,
+.wire-rule-responsibility-heading strong,
+.wire-rule-responsibility-heading span,
+.wire-rule-responsibility > small,
+.wire-rule-responsibility li small,
+.wire-rule-responsibility li strong,
+.wire-rule-responsibility li span,
+.wire-rule-responsibility li em,
 .wire-rule-inspector span,
 .wire-rule-inspector small,
 .wire-rule-inspector strong {
@@ -13899,6 +13906,59 @@ button.card-face:hover {
   font-weight: 700;
   text-align: left;
   cursor: pointer;
+}
+
+.wire-rule-responsibility {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-rule-responsibility-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px;
+}
+
+.wire-rule-responsibility ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-rule-responsibility li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-rule-responsibility li > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.wire-rule-responsibility li[data-rule-responsibility-state="respond"],
+.wire-rule-responsibility li[data-rule-responsibility-state="blocked"],
+.wire-rule-responsibility li[data-rule-responsibility-state="watch"] {
+  border-width: 2px;
+}
+
+.wire-rule-responsibility li[data-rule-responsibility-state="waiting"],
+.wire-rule-responsibility li[data-rule-responsibility-state="history"] {
+  border-style: dashed;
+}
+
+.wire-rule-responsibility .wire-object-refs {
+  padding: 0;
 }
 
 .wire-rule-focus {
@@ -14775,6 +14835,9 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-inspector footer,
 .wire-match-page .wire-rule-inspector li,
 .wire-match-page .wire-rule-inspector-toggle,
+.wire-match-page .wire-rule-responsibility,
+.wire-match-page .wire-rule-responsibility-heading,
+.wire-match-page .wire-rule-responsibility li,
 .wire-match-page .wire-rule-focus,
 .wire-match-page .wire-rule-focus-heading,
 .wire-match-page .wire-rule-focus-lines,

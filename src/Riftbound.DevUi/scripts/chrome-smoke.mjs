@@ -23,7 +23,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选覆盖审计", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选覆盖审计", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "响应责任时间线", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -100,7 +100,7 @@ try {
   }
 
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "焦点 / 候选 / 规则队列"]);
+  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "响应责任时间线", "焦点 / 候选 / 规则队列"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
   await runWireLayoutGeometrySmoke(cdp);
   console.log("Chrome smoke OK: wire layout geometry");
