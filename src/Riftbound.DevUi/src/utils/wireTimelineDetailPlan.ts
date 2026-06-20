@@ -241,6 +241,30 @@ export type WireTimelineDetailInspectorPlan = {
   visibleRefCount: number;
 };
 
+export type WireTimelineRouteSummaryState = "blocked" | "empty" | "inactive" | "ready" | "selecting";
+
+export type WireTimelineRouteSummaryCount = {
+  key: WireTimelineCommandBridgeRouteState | "draft";
+  label: string;
+  state: WireTimelineRouteSummaryState;
+  value: number;
+};
+
+export type WireTimelineRouteSummaryPlan = {
+  blockedCount: number;
+  body: string;
+  draftCount: number;
+  headline: string;
+  inactiveCount: number;
+  nextStepLabel: string;
+  readyCount: number;
+  rows: WireTimelineRouteSummaryCount[];
+  selectingCount: number;
+  state: WireTimelineRouteSummaryState;
+  stateLabel: string;
+  totalCount: number;
+};
+
 export type WireTimelineDetailPlan = {
   actionHintRows: WireTimelineActionHintRow[];
   commandBridgeRows: WireTimelineCommandBridgeRow[];
@@ -251,6 +275,7 @@ export type WireTimelineDetailPlan = {
   navigationRows: WireTimelineNavigationRow[];
   nextStep: WireTimelineNextStepPlan;
   projectionRows: WireTimelineProjectionRow[];
+  routeSummary: WireTimelineRouteSummaryPlan;
   statusCards: WireTimelineStatusCard[];
 };
 
@@ -315,6 +340,7 @@ export function buildWireTimelineDetailPlan({
     }),
     navigationRows,
     commandBridgeRows,
+    routeSummary: routeSummaryPlan(commandBridgeRows),
     nextStep: nextStepPlanForDetail({
       actionHintRows,
       commandBridgeRows,
@@ -331,6 +357,123 @@ export function buildWireTimelineDetailPlan({
       { label: "候选路径", value: commandBridgeRows.length > 0 ? commandBridgeStatusLabel(commandBridgeRows) : "无路径" }
     ]
   };
+}
+
+function routeSummaryPlan(rows: WireTimelineCommandBridgeRow[]): WireTimelineRouteSummaryPlan {
+  const readyCount = rows.filter((row) => row.routeState === "ready").length;
+  const selectingCount = rows.filter((row) => row.routeState === "selecting").length;
+  const blockedCount = rows.filter((row) => row.routeState === "blocked").length;
+  const inactiveCount = rows.filter((row) => row.routeState === "inactive").length;
+  const draftCount = rows.filter((row) => row.draftActive).length;
+  const primaryRow = rows.find((row) => row.routeState === "ready")
+    ?? rows.find((row) => row.routeState === "selecting")
+    ?? rows.find((row) => row.enabled && row.routeState === "inactive")
+    ?? rows.find((row) => row.routeState === "blocked")
+    ?? rows[0];
+  const state: WireTimelineRouteSummaryState = readyCount > 0
+    ? "ready"
+    : selectingCount > 0
+      ? "selecting"
+      : blockedCount > 0 && inactiveCount === 0
+        ? "blocked"
+        : rows.length > 0
+          ? "inactive"
+          : "empty";
+
+  return {
+    blockedCount,
+    body: routeSummaryBody(state, primaryRow),
+    draftCount,
+    headline: routeSummaryHeadline(state),
+    inactiveCount,
+    nextStepLabel: routeSummaryNextStep(state, primaryRow),
+    readyCount,
+    rows: [
+      { key: "ready", label: "可送", state: readyCount > 0 ? "ready" : "empty", value: readyCount },
+      { key: "selecting", label: "待选", state: selectingCount > 0 ? "selecting" : "empty", value: selectingCount },
+      { key: "blocked", label: "阻断", state: blockedCount > 0 ? "blocked" : "empty", value: blockedCount },
+      { key: "inactive", label: "未进", state: inactiveCount > 0 ? "inactive" : "empty", value: inactiveCount },
+      { key: "draft", label: "草稿", state: draftCount > 0 ? "selecting" : "empty", value: draftCount }
+    ],
+    selectingCount,
+    state,
+    stateLabel: routeSummaryStateLabel(state),
+    totalCount: rows.length
+  };
+}
+
+function routeSummaryHeadline(state: WireTimelineRouteSummaryState): string {
+  switch (state) {
+    case "blocked":
+      return "提交路线阻断";
+    case "empty":
+      return "无候选路线";
+    case "inactive":
+      return "等待选择候选对象";
+    case "ready":
+      return "存在可提交路线";
+    case "selecting":
+      return "继续补齐候选选择";
+  }
+}
+
+function routeSummaryBody(
+  state: WireTimelineRouteSummaryState,
+  primaryRow?: WireTimelineCommandBridgeRow
+): string {
+  if (!primaryRow) {
+    return "当前详情没有可由服务端候选解释的提交路线。";
+  }
+
+  switch (state) {
+    case "blocked":
+      return `${primaryRow.label} / ${primaryRow.gateSummary || primaryRow.reasonLabel}`;
+    case "empty":
+      return "当前详情没有可由服务端候选解释的提交路线。";
+    case "inactive":
+      return `${primaryRow.detailRoleLabel} -> ${primaryRow.label}`;
+    case "ready":
+      return `${primaryRow.label} / ${primaryRow.commandType ?? "服务端命令"}`;
+    case "selecting":
+      return `${primaryRow.label} / ${primaryRow.selectionLabel}`;
+  }
+}
+
+function routeSummaryNextStep(
+  state: WireTimelineRouteSummaryState,
+  primaryRow?: WireTimelineCommandBridgeRow
+): string {
+  if (!primaryRow) {
+    return "只查看规则事件。";
+  }
+
+  switch (state) {
+    case "blocked":
+      return primaryRow.gateSummary || primaryRow.reasonLabel || "等待服务端开放。";
+    case "empty":
+      return "只查看规则事件。";
+    case "inactive":
+      return primaryRow.nextStepLabel || "先聚焦候选对象。";
+    case "ready":
+      return "可从卡牌详情或操作区送服务端校验。";
+    case "selecting":
+      return primaryRow.nextStepLabel || "补齐服务端要求的选择。";
+  }
+}
+
+function routeSummaryStateLabel(state: WireTimelineRouteSummaryState): string {
+  switch (state) {
+    case "blocked":
+      return "阻断";
+    case "empty":
+      return "无路径";
+    case "inactive":
+      return "未进入";
+    case "ready":
+      return "可提交";
+    case "selecting":
+      return "待选择";
+  }
 }
 
 function nextStepPlanForDetail({

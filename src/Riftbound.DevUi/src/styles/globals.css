@@ -15125,9 +15125,76 @@ button.card-face:hover {
   border-style: dashed;
 }
 
+.wire-timeline-route-summary {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 3px;
+}
+
+.wire-timeline-route-summary header {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 4px;
+}
+
+.wire-timeline-route-summary p {
+  margin: 0;
+  padding: 0 4px;
+  font-weight: 700;
+}
+
+.wire-timeline-route-summary > small {
+  padding: 0 4px 2px;
+}
+
+.wire-timeline-route-summary ol {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-timeline-route-summary li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px;
+  padding: 2px 4px;
+}
+
+.wire-timeline-route-summary[data-timeline-route-summary-state="ready"],
+.wire-timeline-route-summary li[data-timeline-route-count-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-timeline-route-summary[data-timeline-route-summary-state="blocked"],
+.wire-timeline-route-summary li[data-timeline-route-count-state="blocked"] {
+  border-style: double;
+}
+
+.wire-timeline-route-summary[data-timeline-route-summary-state="selecting"],
+.wire-timeline-route-summary[data-timeline-route-summary-state="inactive"],
+.wire-timeline-route-summary[data-timeline-route-summary-state="empty"],
+.wire-timeline-route-summary li[data-timeline-route-count-state="selecting"],
+.wire-timeline-route-summary li[data-timeline-route-count-state="inactive"],
+.wire-timeline-route-summary li[data-timeline-route-count-state="empty"] {
+  border-style: dashed;
+}
+
 .wire-timeline-evidence-list span,
 .wire-timeline-evidence-list small,
 .wire-timeline-evidence-list strong,
+.wire-timeline-route-summary span,
+.wire-timeline-route-summary small,
+.wire-timeline-route-summary strong,
+.wire-timeline-route-summary p,
 .wire-timeline-next-step span,
 .wire-timeline-next-step small,
 .wire-timeline-next-step strong,
@@ -15561,6 +15628,9 @@ button.wire-object-ref {
 .wire-match-page .wire-timeline-detail-status-grid span,
 .wire-match-page .wire-timeline-evidence-list,
 .wire-match-page .wire-timeline-evidence-list li,
+.wire-match-page .wire-timeline-route-summary,
+.wire-match-page .wire-timeline-route-summary header,
+.wire-match-page .wire-timeline-route-summary li,
 .wire-match-page .wire-timeline-next-step,
 .wire-match-page .wire-timeline-next-step header,
 .wire-match-page .wire-timeline-next-step-checks li,

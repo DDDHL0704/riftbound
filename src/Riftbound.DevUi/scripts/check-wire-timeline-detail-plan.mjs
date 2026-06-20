@@ -212,6 +212,20 @@ assert.deepEqual(plan.nextStep.checks.map((check) => check.key), ["server-candid
 assert.deepEqual(plan.nextStep.checks.map((check) => check.state), ["ready", "ready", "waiting", "blocked", "blocked"]);
 assert.deepEqual(plan.nextStep.steps.map((step) => step.role), ["source", "target", "submit"]);
 assert.deepEqual(plan.nextStep.steps.map((step) => step.state), ["available", "optional", "blocked"]);
+assert.equal(plan.routeSummary.state, "inactive");
+assert.equal(plan.routeSummary.stateLabel, "未进入");
+assert.equal(plan.routeSummary.headline, "等待选择候选对象");
+assert.equal(plan.routeSummary.body, "来源 -> 打出卡牌");
+assert.equal(plan.routeSummary.nextStepLabel, "可选目标");
+assert.equal(plan.routeSummary.totalCount, 2);
+assert.equal(plan.routeSummary.draftCount, 0);
+assert.deepEqual(plan.routeSummary.rows.map((row) => `${row.key}:${row.value}:${row.state}`), [
+  "ready:0:empty",
+  "selecting:0:empty",
+  "blocked:0:empty",
+  "inactive:2:inactive",
+  "draft:0:empty"
+]);
 assert.equal(plan.inspector.sourceLabel, "规则队列");
 assert.equal(plan.inspector.visibleRefCount, 2);
 assert.equal(plan.inspector.selectedProjectionCount, 1);
@@ -254,6 +268,11 @@ assert.equal(visibilityPlan.nextStep.headline, "仅查看公开证据");
 assert.equal(visibilityPlan.nextStep.detail, "1 隐藏 / 1 未公开，等待服务端公开后再操作。");
 assert.deepEqual(visibilityPlan.nextStep.checks, []);
 assert.deepEqual(visibilityPlan.nextStep.steps, []);
+assert.equal(visibilityPlan.routeSummary.state, "empty");
+assert.equal(visibilityPlan.routeSummary.headline, "无候选路线");
+assert.equal(visibilityPlan.routeSummary.body, "当前详情没有可由服务端候选解释的提交路线。");
+assert.equal(visibilityPlan.routeSummary.nextStepLabel, "只查看规则事件。");
+assert.equal(visibilityPlan.routeSummary.totalCount, 0);
 assert.equal(visibilityPlan.inspector.hiddenRefCount, 1);
 assert.equal(visibilityPlan.inspector.missingRefCount, 1);
 assert.equal(visibilityPlan.inspector.visibleRefCount, 1);
@@ -355,6 +374,21 @@ assert.equal(draftPlan.nextStep.headline, "可送服务端校验");
 assert.equal(draftPlan.nextStep.commandType, "PLAY_CARD");
 assert.deepEqual(draftPlan.nextStep.checks.map((check) => check.state), ["ready", "ready", "ready", "ready", "ready"]);
 assert.deepEqual(draftPlan.nextStep.steps.map((step) => step.state), ["locked", "selected", "ready"]);
+assert.equal(draftPlan.routeSummary.state, "ready");
+assert.equal(draftPlan.routeSummary.stateLabel, "可提交");
+assert.equal(draftPlan.routeSummary.headline, "存在可提交路线");
+assert.equal(draftPlan.routeSummary.body, "打出卡牌 / PLAY_CARD");
+assert.equal(draftPlan.routeSummary.nextStepLabel, "可从卡牌详情或操作区送服务端校验。");
+assert.equal(draftPlan.routeSummary.totalCount, 2);
+assert.equal(draftPlan.routeSummary.readyCount, 2);
+assert.equal(draftPlan.routeSummary.draftCount, 2);
+assert.deepEqual(draftPlan.routeSummary.rows.map((row) => `${row.key}:${row.value}:${row.state}`), [
+  "ready:2:ready",
+  "selecting:0:empty",
+  "blocked:0:empty",
+  "inactive:0:empty",
+  "draft:2:selecting"
+]);
 assert.equal(draftPlan.commandBridgeRows[0].draftActive, true);
 assert.equal(draftPlan.commandBridgeRows[0].routeState, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].routeStateLabel, "可送服务端校验");
@@ -435,6 +469,14 @@ assert.equal(disconnectedDraftPlan.nextStep.state, "blocked");
 assert.equal(disconnectedDraftPlan.nextStep.headline, "服务端暂不允许");
 assert.deepEqual(disconnectedDraftPlan.nextStep.checks.map((check) => check.state), ["ready", "blocked", "ready", "ready", "blocked"]);
 assert.deepEqual(disconnectedDraftPlan.nextStep.steps.map((step) => step.state), ["locked", "selected", "blocked"]);
+assert.equal(disconnectedDraftPlan.routeSummary.state, "blocked");
+assert.equal(disconnectedDraftPlan.routeSummary.stateLabel, "阻断");
+assert.equal(disconnectedDraftPlan.routeSummary.headline, "提交路线阻断");
+assert.equal(disconnectedDraftPlan.routeSummary.body, "打出卡牌 / 3 通过 / 2 阻断 / 0 等待");
+assert.equal(disconnectedDraftPlan.routeSummary.nextStepLabel, "3 通过 / 2 阻断 / 0 等待");
+assert.equal(disconnectedDraftPlan.routeSummary.totalCount, 2);
+assert.equal(disconnectedDraftPlan.routeSummary.blockedCount, 2);
+assert.equal(disconnectedDraftPlan.routeSummary.draftCount, 2);
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarState, "blocked");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 阻断 / 仅有模板 / 提交入口阻断");
 assert.equal(disconnectedDraftPlan.commandBridgeRows[0].gateSummary, "3 通过 / 2 阻断 / 0 等待");

@@ -8,7 +8,8 @@ import {
   type WireTimelineDetailInspectorPlan,
   type WireTimelineEvidenceRow,
   type WireTimelineNavigationRow,
-  type WireTimelineNextStepPlan
+  type WireTimelineNextStepPlan,
+  type WireTimelineRouteSummaryPlan
 } from "../../utils/wireTimelineDetailPlan";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
@@ -102,6 +103,7 @@ export function WireTimelineDetailPanel({
         ))}
       </div>
       <TimelineEvidenceRows rows={plan.evidenceRows} />
+      <TimelineRouteSummary plan={plan.routeSummary} />
       <div className="wire-timeline-detail-body" id="wire-timeline-detail-body">
         {detail ? (
           <>
@@ -183,6 +185,36 @@ export function WireTimelineDetailPanel({
           <span className="empty-hint">暂无焦点事件。</span>
         )}
       </div>
+    </section>
+  );
+}
+
+function TimelineRouteSummary({ plan }: { plan: WireTimelineRouteSummaryPlan }) {
+  return (
+    <section
+      aria-label="候选提交路线摘要"
+      className="wire-timeline-route-summary"
+      data-timeline-route-summary-state={plan.state}
+    >
+      <header>
+        <span>{plan.headline}</span>
+        <strong>{plan.stateLabel}</strong>
+        <small>{plan.totalCount} 路径 / {plan.draftCount} 草稿</small>
+      </header>
+      <p>{plan.body}</p>
+      <small>{plan.nextStepLabel}</small>
+      <ol aria-label="候选路线状态计数">
+        {plan.rows.map((row) => (
+          <li
+            data-timeline-route-count={row.key}
+            data-timeline-route-count-state={row.state}
+            key={row.key}
+          >
+            <span>{row.label}</span>
+            <strong>{row.value}</strong>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
