@@ -5973,6 +5973,7 @@ internal static class ActionPromptBuilder
                     && state.Seats.ContainsKey(playerId)))
             && !string.Equals(action, "WAIT", StringComparison.Ordinal)
             && hasRequiredChoices;
+        var commandTemplate = CommandTemplateFor(action);
         var selectionSteps = SelectionStepsFor(
             requiresSourceChoices,
             requiresTargetChoices,
@@ -5980,8 +5981,8 @@ internal static class ActionPromptBuilder
             targets,
             destinations,
             modes,
-            optionalCosts);
-        var commandTemplate = CommandTemplateFor(action);
+            optionalCosts,
+            commandTemplate);
         return new ActionPromptCandidateDto(
             action,
             LabelFor(action),
@@ -6023,15 +6024,51 @@ internal static class ActionPromptBuilder
         IReadOnlyList<ActionPromptChoiceDto>? targets,
         IReadOnlyList<ActionPromptChoiceDto>? destinations,
         IReadOnlyList<ActionPromptChoiceDto>? modes,
-        IReadOnlyList<ActionPromptChoiceDto>? optionalCosts)
+        IReadOnlyList<ActionPromptChoiceDto>? optionalCosts,
+        ActionPromptCommandTemplateDto? commandTemplate)
     {
         var steps = new List<ActionPromptSelectionStepDto>();
-        AddSelectionStep(steps, "source", "来源", requiresSourceChoices, sources);
-        AddSelectionStep(steps, "target", "目标", requiresTargetChoices, targets);
-        AddSelectionStep(steps, "destination", "位置", false, destinations);
-        AddSelectionStep(steps, "mode", "模式", false, modes);
-        AddSelectionStep(steps, "optionalCost", "费用", false, optionalCosts);
+        AddSelectionStep(
+            steps,
+            "source",
+            "来源",
+            requiresSourceChoices || CommandTemplateRequiresRole(commandTemplate, "selectedSource"),
+            sources);
+        AddSelectionStep(
+            steps,
+            "target",
+            "目标",
+            requiresTargetChoices
+                || CommandTemplateRequiresRole(commandTemplate, "selectedTarget", "selectedTargets"),
+            targets);
+        AddSelectionStep(
+            steps,
+            "destination",
+            "位置",
+            CommandTemplateRequiresRole(commandTemplate, "selectedDestination"),
+            destinations);
+        AddSelectionStep(
+            steps,
+            "mode",
+            "模式",
+            CommandTemplateRequiresRole(commandTemplate, "selectedMode"),
+            modes);
+        AddSelectionStep(
+            steps,
+            "optionalCost",
+            "费用",
+            CommandTemplateRequiresRole(commandTemplate, "selectedOptionalCosts"),
+            optionalCosts);
         return steps.Count == 0 ? null : steps;
+    }
+
+    private static bool CommandTemplateRequiresRole(
+        ActionPromptCommandTemplateDto? commandTemplate,
+        params string[] bindingSources)
+    {
+        return commandTemplate?.Bindings.Any(binding =>
+            binding.Required
+            && bindingSources.Contains(binding.Source, StringComparer.Ordinal)) == true;
     }
 
     private static ActionPromptCommandTemplateDto? CommandTemplateFor(string action)

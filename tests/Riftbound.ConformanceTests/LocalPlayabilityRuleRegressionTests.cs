@@ -301,6 +301,46 @@ public sealed class LocalPlayabilityRuleRegressionTests
     }
 
     [Fact]
+    public void DeclareBattlePromptSelectionStepsReflectRequiredCommandTemplateRoles()
+    {
+        var state = BattleStateForConquest();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var prompt = session.PromptFor("P1");
+        var declareBattleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+
+        var template = Assert.IsType<ActionPromptCommandTemplateDto>(declareBattleCandidate.CommandTemplate);
+        Assert.Equal(CommandTypes.DeclareBattle, template.CmdType);
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Source, "selectedSource", StringComparison.Ordinal)
+            && binding.Required);
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Source, "selectedDestination", StringComparison.Ordinal)
+            && binding.Required);
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Source, "selectedTargets", StringComparison.Ordinal)
+            && binding.Required);
+
+        var steps = declareBattleCandidate.SelectionSteps ?? [];
+        Assert.Contains(steps, step =>
+            string.Equals(step.Role, "source", StringComparison.Ordinal)
+            && step.Required
+            && step.Choices.Count > 0);
+        Assert.Contains(steps, step =>
+            string.Equals(step.Role, "target", StringComparison.Ordinal)
+            && step.Required
+            && step.Choices.Count > 0);
+        Assert.Contains(steps, step =>
+            string.Equals(step.Role, "destination", StringComparison.Ordinal)
+            && step.Required
+            && step.Choices.Count > 0);
+    }
+
+    [Fact]
     public async Task DeclareBattleConquestScoresAndTriggersConquestForNonHuntUnit()
     {
         var result = await new CoreRuleEngine().ResolveAsync(
