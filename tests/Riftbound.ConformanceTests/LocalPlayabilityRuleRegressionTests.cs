@@ -188,6 +188,35 @@ public sealed class LocalPlayabilityRuleRegressionTests
     }
 
     [Fact]
+    public void SnapshotExposesAuthoritativeTableLayoutPartitionsForFrontend()
+    {
+        var state = FrontendTableLayoutSnapshotState();
+        var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var snapshot = session.SnapshotFor("P1");
+        var p1Zones = ZoneView(PlayerView(snapshot, "P1"));
+        var p2Zones = ZoneView(PlayerView(snapshot, "P2"));
+
+        Assert.Equal(["P1-BASE-CARD"], StringList(p1Zones["baseCards"]));
+        Assert.Equal(["P1-RUNE-READY"], StringList(p1Zones["baseRunes"]));
+        Assert.Equal(["P2-BASE-CARD"], StringList(p2Zones["baseCards"]));
+        Assert.Equal(["P2-RUNE-READY"], StringList(p2Zones["baseRunes"]));
+
+        var battlefields = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Lanes["battlefields"]);
+        var battlefield = Assert.Single(
+            battlefields,
+            item => string.Equals(item["battlefieldObjectId"] as string, "BF-LAYOUT", StringComparison.Ordinal));
+        Assert.Equal(["P1-LAYOUT-UNIT", "P2-LAYOUT-UNIT"], StringList(battlefield["occupantObjectIds"]));
+
+        var unitsBySide = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<string>>>(
+            battlefield["unitsBySide"]);
+        Assert.Equal(["P1-LAYOUT-UNIT"], unitsBySide["P1"]);
+        Assert.Equal(["P2-LAYOUT-UNIT"], unitsBySide["P2"]);
+    }
+
+    [Fact]
     public void ActionPromptCandidatesProvideServerCommandTemplateForFrontendComposer()
     {
         var state = PlayUnitToContestedBattlefieldState();
@@ -415,6 +444,60 @@ public sealed class LocalPlayabilityRuleRegressionTests
             });
     }
 
+    private static MatchState FrontendTableLayoutSnapshotState()
+    {
+        return new MatchState(
+            roomId: "local-playability-frontend-table-layout",
+            tick: 7,
+            turnNumber: 3,
+            activePlayerId: "P1",
+            seats: Seats(),
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BASE-CARD", "P1-RUNE-READY"],
+                    Battlefields = ["BF-LAYOUT", "P1-LAYOUT-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-CARD", "P2-RUNE-READY"],
+                    Battlefields = ["P2-LAYOUT-UNIT"]
+                }
+            },
+            playerScores: Scores(),
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-LAYOUT"] = Battlefield("BF-LAYOUT", "P1", "OGN·275/298"),
+                ["P1-BASE-CARD"] = Unit("P1-BASE-CARD", "P1", power: 2),
+                ["P1-RUNE-READY"] = Rune("P1-RUNE-READY", "P1"),
+                ["P1-LAYOUT-UNIT"] = Unit("P1-LAYOUT-UNIT", "P1", power: 2),
+                ["P2-BASE-CARD"] = Unit("P2-BASE-CARD", "P2", power: 2),
+                ["P2-RUNE-READY"] = Rune("P2-RUNE-READY", "P2"),
+                ["P2-LAYOUT-UNIT"] = Unit("P2-LAYOUT-UNIT", "P2", power: 2)
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-LAYOUT"] = new("P1", "BATTLEFIELD", "BF-LAYOUT"),
+                ["P1-BASE-CARD"] = new("P1", "BASE"),
+                ["P1-RUNE-READY"] = new("P1", "BASE"),
+                ["P1-LAYOUT-UNIT"] = new("P1", "BATTLEFIELD", "BF-LAYOUT"),
+                ["P2-BASE-CARD"] = new("P2", "BASE"),
+                ["P2-RUNE-READY"] = new("P2", "BASE"),
+                ["P2-LAYOUT-UNIT"] = new("P2", "BATTLEFIELD", "BF-LAYOUT")
+            });
+    }
+
     private static MatchState BattleStateForConquest()
     {
         return new MatchState(
@@ -601,9 +684,34 @@ public sealed class LocalPlayabilityRuleRegressionTests
             controllerId: playerId);
     }
 
+    private static CardObjectState Rune(string objectId, string playerId)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: "SFD·001/221",
+            tags: [CardObjectTags.RuneCard],
+            ownerId: playerId,
+            controllerId: playerId);
+    }
+
     private static OfficialCard Card(OfficialCardCatalog catalog, string cardNo)
     {
         return catalog.Cards.Single(card => string.Equals(card.CardNo, cardNo, StringComparison.Ordinal));
+    }
+
+    private static Dictionary<string, object?> PlayerView(SnapshotDto snapshot, string playerId)
+    {
+        return Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
+    }
+
+    private static Dictionary<string, object?> ZoneView(Dictionary<string, object?> player)
+    {
+        return Assert.IsType<Dictionary<string, object?>>(player["zones"]);
+    }
+
+    private static IReadOnlyList<string> StringList(object? value)
+    {
+        return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal
