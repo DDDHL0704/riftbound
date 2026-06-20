@@ -51,9 +51,19 @@ export type CardDetailInspectorGroup = {
   title: string;
 };
 
+export type CardDetailInspectorAuthorityState =
+  | "derived"
+  | "hidden"
+  | "server-inspection"
+  | "server-object-context"
+  | "snapshot";
+
 export type CardDetailInspectorPlan = {
+  authorityLabel: string;
+  authorityState: CardDetailInspectorAuthorityState;
   boundaryLabel: string;
   groups: CardDetailInspectorGroup[];
+  sourceLabel: string;
   summaryRows: CardDetailInspectorRow[];
 };
 
@@ -165,7 +175,10 @@ export function buildCardDetailPlan({
 
 function buildHiddenInspectorPlan(sourceObjectId?: string): CardDetailInspectorPlan {
   return {
+    authorityLabel: "隐藏信息边界",
+    authorityState: "hidden",
     boundaryLabel: "隐藏对象：只展示服务端公开外壳，不展示卡名、费用、规则文本或前端推断操作。",
+    sourceLabel: "隐藏对象安全外壳",
     summaryRows: [
       { key: "visibility", label: "信息边界", value: "隐藏信息", tone: "warn" },
       { key: "object", label: "对象", value: sourceObjectId || "服务端未公开", tone: "neutral" },
@@ -201,6 +214,7 @@ function buildVisibleInspectorPlan({
   sourceObjectId?: string;
 }): CardDetailInspectorPlan {
   const serverInspection = objectContext?.serverInspection;
+  const authority = inspectorAuthorityFor(objectContext, serverInspection);
   const serverGroups = serverInspection?.groups.map(cardDetailGroupFromServerInspection) ?? [];
   const serverCandidateGroup = serverGroups.find((group) => group.key === "candidate");
   const serverSupportGroups = serverGroups.filter((group) => group.key !== "candidate");
@@ -216,6 +230,19 @@ function buildVisibleInspectorPlan({
       candidate.enabled ? "" : candidate.reason
     ].filter(Boolean).join(" / ")
   } satisfies CardDetailInspectorRow)) ?? [];
+  const candidateStepRows = objectContext?.candidateLinks.flatMap((candidate, index) => {
+    const summary = cardDetailSelectionStepSummary(candidate.selectionSteps ?? []);
+    if (!summary) {
+      return [];
+    }
+
+    return [{
+      key: `selection-step-${index}`,
+      label: candidate.enabled ? "可提交" : "阻断",
+      tone: candidate.enabled ? "good" : "warn",
+      value: `${candidate.commandType ?? candidate.label} / ${summary}`
+    } satisfies CardDetailInspectorRow];
+  }) ?? [];
   const eventRows = objectContext?.eventLinks.map((event, index) => ({
     key: `event-${index}`,
     label: event.role,
@@ -234,9 +261,12 @@ function buildVisibleInspectorPlan({
   } satisfies CardDetailInspectorRow));
 
   return {
+    authorityLabel: authority.authorityLabel,
+    authorityState: authority.authorityState,
     boundaryLabel: serverInspection?.boundary
       ?? objectContext?.contextBoundary
       ?? "公开对象：详情只汇总当前快照、行动提示、结算链和公开事件，不在前端重算规则。",
+    sourceLabel: authority.sourceLabel,
     summaryRows: uniqueRowsByKey([
       ...(serverInspection?.summaryRows
         .filter((row) => row.key !== "source")
@@ -273,6 +303,13 @@ function buildVisibleInspectorPlan({
           title: "服务端候选",
           rows: candidateRows
         },
+      ...(candidateStepRows.length > 0
+        ? [{
+            key: "selection-steps",
+            title: "选择步骤",
+            rows: candidateStepRows
+          } satisfies CardDetailInspectorGroup]
+        : []),
       ...serverSupportGroups,
       {
         emptyLabel: "当前结算链没有公开引用这张牌。",
@@ -287,6 +324,45 @@ function buildVisibleInspectorPlan({
         rows: eventRows
       }
     ]
+  };
+}
+
+function inspectorAuthorityFor(
+  objectContext: TableObjectContext | undefined,
+  serverInspection: TableObjectContext["serverInspection"] | undefined
+): {
+  authorityLabel: string;
+  authorityState: CardDetailInspectorAuthorityState;
+  sourceLabel: string;
+} {
+  if (serverInspection) {
+    return {
+      authorityLabel: "服务端检查摘要",
+      authorityState: "server-inspection",
+      sourceLabel: serverInspectionSourceLabel(serverInspection.source)
+    };
+  }
+
+  if (objectContext?.candidateSource === "server") {
+    return {
+      authorityLabel: "服务端对象上下文",
+      authorityState: "server-object-context",
+      sourceLabel: tableObjectContextSourceLabel(objectContext)
+    };
+  }
+
+  if (objectContext?.candidateSource === "derived") {
+    return {
+      authorityLabel: "公开候选只读派生",
+      authorityState: "derived",
+      sourceLabel: tableObjectContextSourceLabel(objectContext)
+    };
+  }
+
+  return {
+    authorityLabel: "公开快照索引",
+    authorityState: "snapshot",
+    sourceLabel: objectContext ? tableObjectContextSourceLabel(objectContext) : "公开快照索引"
   };
 }
 

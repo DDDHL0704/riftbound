@@ -18,7 +18,13 @@ export function WireObjectContextSummary({
   }
 
   return (
-    <div className="wire-object-context" role="group" aria-label="焦点对象上下文">
+    <div
+      className="wire-object-context"
+      role="group"
+      aria-label="焦点对象上下文"
+      data-wire-object-context-authority={plan.authorityState}
+      data-wire-object-context-source={plan.contextSourceLabel}
+    >
       <div className="wire-object-context-grid">
         {plan.statusCards.map((card) => (
           <span key={card.label}>
@@ -27,6 +33,7 @@ export function WireObjectContextSummary({
           </span>
         ))}
       </div>
+      <span className="wire-object-context-line" data-wire-object-context-authority-label>权威：{plan.authorityLabel}</span>
       <span className="wire-object-context-line" data-wire-object-context-boundary>{plan.boundaryLabel}</span>
       {plan.contract && (
         <div className="wire-object-contract-block" aria-label="焦点对象提示契约">

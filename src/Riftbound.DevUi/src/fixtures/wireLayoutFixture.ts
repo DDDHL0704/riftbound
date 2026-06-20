@@ -321,7 +321,13 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             label: "打出手牌样例",
             reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
             requiredCommandFields: ["来源:sourceObjectId*", "服务端字段*"],
-            roles: ["来源"]
+            roles: ["来源"],
+            selectionSteps: [
+              { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" },
+              { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 0, required: false, role: "target" },
+              { choiceCount: 1, index: 2, label: "位置", objectChoiceCount: 0, required: false, role: "destination" },
+              { choiceCount: 1, index: 3, label: "费用", objectChoiceCount: 0, required: false, role: "optionalCost" }
+            ]
           }
         ],
         disabledCandidateCount: 0,
@@ -410,7 +416,13 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             label: "打出手牌样例",
             reason: "前端线框样例；真实合法性由服务端规则窗口裁定。",
             requiredCommandFields: ["来源:sourceObjectId*", "服务端字段*"],
-            roles: ["目标"]
+            roles: ["目标"],
+            selectionSteps: [
+              { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 0, required: true, role: "source" },
+              { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 1, required: false, role: "target" },
+              { choiceCount: 1, index: 2, label: "位置", objectChoiceCount: 0, required: false, role: "destination" },
+              { choiceCount: 1, index: 3, label: "费用", objectChoiceCount: 0, required: false, role: "optionalCost" }
+            ]
           },
           {
             action: "ACTIVATE_ABILITY",
@@ -421,7 +433,12 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
             label: "激活技能禁用样例",
             reason: "前端线框样例；真实不可提交原因由服务端规则窗口提供。",
             requiredCommandFields: ["来源:sourceObjectId*", "服务端字段*"],
-            roles: ["目标"]
+            roles: ["目标"],
+            selectionSteps: [
+              { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 0, required: true, role: "source" },
+              { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 1, required: true, role: "target" },
+              { choiceCount: 1, index: 2, label: "费用", objectChoiceCount: 0, required: false, role: "optionalCost" }
+            ]
           }
         ],
         disabledCandidateCount: 1,

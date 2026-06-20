@@ -72,6 +72,9 @@ assert.equal(hiddenPlan.actionCandidates.length, 0);
 assert.equal(hiddenPlan.badges[0].label, "隐藏信息");
 assert.ok(hiddenPlan.hiddenMessage.includes("不读取或推断"));
 assert.equal(hiddenPlan.inspector.summaryRows.find((row) => row.key === "visibility")?.value, "隐藏信息");
+assert.equal(hiddenPlan.inspector.authorityState, "hidden");
+assert.equal(hiddenPlan.inspector.authorityLabel, "隐藏信息边界");
+assert.equal(hiddenPlan.inspector.sourceLabel, "隐藏对象安全外壳");
 assert.equal(hiddenPlan.inspector.groups[0].rows.find((row) => row.key === "rules")?.value, "未公开");
 assert.equal(JSON.stringify(hiddenPlan).includes("PLAY_CARD"), false);
 
@@ -112,7 +115,11 @@ const visiblePlan = buildCardDetailPlan({
         label: "打出手牌",
         reason: "可提交",
         requiredCommandFields: ["sourceObjectId"],
-        roles: ["来源"]
+        roles: ["来源"],
+        selectionSteps: [
+          { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" },
+          { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 0, required: false, role: "target" }
+        ]
       },
       {
         commandFields: ["目标"],
@@ -124,7 +131,11 @@ const visiblePlan = buildCardDetailPlan({
         label: "激活能力",
         reason: "缺少合法目标",
         requiredCommandFields: ["targetObjectIds"],
-        roles: ["目标"]
+        roles: ["目标"],
+        selectionSteps: [
+          { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" },
+          { choiceCount: 0, index: 1, label: "目标", objectChoiceCount: 0, required: true, role: "target" }
+        ]
       }
     ],
     candidateSource: "server",
@@ -215,8 +226,12 @@ assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "zone")
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "candidate")?.value, "1 可提交 / 1 阻断");
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "source")?.value, "服务端对象上下文");
 assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "authority")?.value, "服务端对象上下文");
+assert.equal(visiblePlan.inspector.authorityState, "server-inspection");
+assert.equal(visiblePlan.inspector.authorityLabel, "服务端检查摘要");
+assert.equal(visiblePlan.inspector.sourceLabel, "服务端检查摘要");
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "identity")?.rows.some((row) => row.value.includes("prompt-1")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "candidate")?.rows.some((row) => row.value.includes("缺少合法目标")));
+assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "selection-steps")?.rows.some((row) => row.value.includes("来源* 1/1")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "safe-boundary")?.rows.some((row) => row.value.includes("前端不重算")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "stack")?.rows.some((row) => row.value === "结算链来源"));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "events")?.rows.some((row) => row.value.includes("STACK_ITEM_ADDED")));

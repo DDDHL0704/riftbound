@@ -46,6 +46,8 @@ export type FocusedObjectContractSummary = {
   visibleMetadataCount: number;
 };
 
+export type FocusedObjectAuthorityState = "derived" | "none" | "server" | "snapshot";
+
 export type FocusedObjectEventRow = {
   description: string;
   kind: string;
@@ -53,9 +55,12 @@ export type FocusedObjectEventRow = {
 };
 
 export type FocusedObjectCommandPlan = {
+  authorityLabel: string;
+  authorityState: FocusedObjectAuthorityState;
   boundaryLabel: string;
   commandRows: FocusedObjectCommandRow[];
   contract?: FocusedObjectContractSummary;
+  contextSourceLabel: string;
   eventRows: FocusedObjectEventRow[];
   nextStepRows: FocusedObjectNextStepRow[];
   stackRoles: string[];
@@ -89,11 +94,15 @@ export function buildFocusedObjectCommandPlan({
     ? context.stateLabels.slice(0, 3).join(" / ")
     : "无公开状态";
   const candidateValue = `${context.promptEnabledCount} 可用 / ${context.promptDisabledCount} 阻断`;
+  const authority = focusedObjectAuthorityFor(context);
 
   return {
+    authorityLabel: authority.label,
+    authorityState: authority.state,
     boundaryLabel: context.contextBoundary,
     commandRows,
     contract: contractSummary(contract),
+    contextSourceLabel: authority.sourceLabel,
     eventRows: context.eventLinks.slice(-3).reverse().map(eventRowFromContext),
     nextStepRows,
     stackRoles: context.stackRoles,
@@ -105,6 +114,28 @@ export function buildFocusedObjectCommandPlan({
       { label: "下一步", value: focusModel?.nextStepLabel ?? "点击桌面对象查看服务端候选" }
     ]
   };
+}
+
+function focusedObjectAuthorityFor(context: TableObjectContext): {
+  label: string;
+  sourceLabel: string;
+  state: FocusedObjectAuthorityState;
+} {
+  const sourceLabel = tableObjectContextSourceLabel(context);
+
+  if (context.candidateSource === "server" || context.contextSource === "server-action-prompt") {
+    return { label: "服务端对象上下文", sourceLabel, state: "server" };
+  }
+
+  if (context.candidateSource === "derived" || context.contextSource === "prompt-public-derived") {
+    return { label: "公开候选只读派生", sourceLabel, state: "derived" };
+  }
+
+  if (context.candidateSource === "none" || context.contextSource === "snapshot-public-index") {
+    return { label: "公开快照索引", sourceLabel, state: "snapshot" };
+  }
+
+  return { label: "无候选上下文", sourceLabel, state: "none" };
 }
 
 function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: number): FocusedObjectCommandRow {

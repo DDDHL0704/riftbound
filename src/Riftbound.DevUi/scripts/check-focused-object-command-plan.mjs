@@ -66,7 +66,11 @@ const plan = buildFocusedObjectCommandPlan({
         label: "打出卡牌",
         reason: "可提交",
         requiredCommandFields: ["来源:sourceObjectId*", "服务端:cardNo*"],
-        roles: ["来源"]
+        roles: ["来源"],
+        selectionSteps: [
+          { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" },
+          { choiceCount: 2, index: 1, label: "目标", objectChoiceCount: 0, required: true, role: "target" }
+        ]
       },
       {
         commandFields: ["来源:sourceObjectId*"],
@@ -78,7 +82,10 @@ const plan = buildFocusedObjectCommandPlan({
         label: "启动能力",
         reason: "窗口不允许",
         requiredCommandFields: ["来源:sourceObjectId*"],
-        roles: ["来源"]
+        roles: ["来源"],
+        selectionSteps: [
+          { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" }
+        ]
       }
     ],
     candidateSource: "server",
@@ -144,6 +151,9 @@ const plan = buildFocusedObjectCommandPlan({
   }
 });
 
+assert.equal(plan.authorityState, "server");
+assert.equal(plan.authorityLabel, "服务端对象上下文");
+assert.equal(plan.contextSourceLabel, "服务端对象上下文");
 assert.equal(plan.statusCards.length, 5);
 assert.equal(plan.statusCards[0].value, "我方手牌");
 assert.equal(plan.statusCards[3].value, "服务端对象上下文");
@@ -152,6 +162,7 @@ assert.equal(plan.commandRows.length, 2);
 assert.equal(plan.commandRows[0].commandType, "PLAY_CARD");
 assert.equal(plan.commandRows[0].composerState, "server");
 assert.equal(plan.commandRows[0].composerStateLabel, "服务端声明");
+assert.equal(plan.commandRows[0].stepSummary, "来源* 1/1 / 目标* 0/2");
 assert.deepEqual(plan.commandRows[0].requiredFields, ["来源:sourceObjectId*", "服务端字段*"]);
 assert.deepEqual(plan.commandRows[0].secondaryFields, ["目标:targetObjectId"]);
 assert.equal(plan.commandRows[1].enabled, false);

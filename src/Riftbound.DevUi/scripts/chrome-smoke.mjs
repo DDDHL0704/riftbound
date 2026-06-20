@@ -759,6 +759,8 @@ async function runWireClickSelectionSmoke(cdp) {
     return {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
       text: summary?.textContent ?? "",
+      contextAuthority: document.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-authority") ?? null,
+      contextSource: document.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-source") ?? null,
       contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
       objectCommandComposerStates: Array.from(document.querySelectorAll(".wire-object-context [data-wire-object-command-composer-state]"))
         .map((node) => node.getAttribute("data-wire-object-command-composer-state")),
@@ -803,7 +805,9 @@ async function runWireClickSelectionSmoke(cdp) {
       actionText: actions?.textContent ?? "",
       activeText: document.activeElement?.textContent ?? "",
       groups: Array.from(inspector?.querySelectorAll("[data-card-detail-inspector-group]") ?? []).map((node) => node.getAttribute("data-card-detail-inspector-group")),
+      inspectorAuthority: inspector?.getAttribute("data-card-detail-inspector-authority") ?? null,
       inspectorOpen: Boolean(inspector),
+      inspectorSource: inspector?.getAttribute("data-card-detail-inspector-source") ?? null,
       inspectorText: inspector?.textContent ?? "",
       labelledBy: detail?.getAttribute("aria-labelledby") ?? "",
       state: detail?.getAttribute("data-detail-dialog-state") ?? null,
@@ -1112,6 +1116,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.contextText.includes("下一步")) failures.push("object context next-step plan missing");
   if (!focusResult.contextText.includes("服务端命令")) failures.push("object context command plan missing");
   if (!focusResult.contextText.includes("组合：服务端声明")) failures.push("object context composer authority missing");
+  if (focusResult.contextAuthority !== "server") failures.push(`object context authority unexpected: ${focusResult.contextAuthority}`);
+  if (focusResult.contextSource !== "服务端对象上下文") failures.push(`object context source unexpected: ${focusResult.contextSource}`);
+  if (!focusResult.contextText.includes("权威：服务端对象上下文")) failures.push("object context authority label missing");
   if (!focusResult.contextText.includes("服务端对象上下文")) failures.push("object context did not use server object candidate index");
   if (!focusResult.objectCommandComposerStates.includes("server")) failures.push("object context composer state missing");
   if (!focusResult.contextText.includes("近期事件")) failures.push("object context event section missing");
@@ -1140,12 +1147,16 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.actionText.includes("字段")) failures.push("card detail action field summary text missing");
   if (!detailContextResult.actionText.includes("提交服务端候选")) failures.push("card detail composer submit control missing");
   if (!detailContextResult.inspectorOpen) failures.push("card detail inspector missing");
+  if (detailContextResult.inspectorAuthority !== "server-inspection") failures.push(`card detail inspector authority unexpected: ${detailContextResult.inspectorAuthority}`);
+  if (detailContextResult.inspectorSource !== "服务端检查摘要") failures.push(`card detail inspector source unexpected: ${detailContextResult.inspectorSource}`);
   if (!detailContextResult.inspectorText.includes("卡牌检查")) failures.push("card detail inspector header missing");
   if (!detailContextResult.inspectorText.includes("服务端只公开")) failures.push("card detail inspector boundary missing");
+  if (!detailContextResult.summaryKeys.includes("authority")) failures.push("card detail inspector authority summary missing");
   if (!detailContextResult.summaryKeys.includes("zone")) failures.push("card detail inspector zone summary missing");
   if (!detailContextResult.summaryKeys.includes("candidate")) failures.push("card detail inspector candidate summary missing");
   if (!detailContextResult.groups.includes("identity")) failures.push("card detail inspector identity group missing");
   if (!detailContextResult.groups.includes("candidate")) failures.push("card detail inspector candidate group missing");
+  if (!detailContextResult.groups.includes("selection-steps")) failures.push("card detail inspector selection steps group missing");
   if (!detailContextResult.groups.includes("events")) failures.push("card detail inspector event group missing");
   if (!detailContextResult.inspectorText.includes("服务端对象上下文")) failures.push("card detail inspector server inspection source missing");
   if (!detailContextResult.inspectorText.includes("前端不重算")) failures.push("card detail inspector safe boundary missing");

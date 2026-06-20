@@ -249,12 +249,22 @@ function DetailRelatedCandidates({
 
 function DetailInspector({ inspector }: { inspector: CardDetailInspectorPlan }) {
   return (
-    <section className="detail-section detail-inspector" aria-label="卡牌检查" data-card-detail-inspector>
+    <section
+      className="detail-section detail-inspector"
+      aria-label="卡牌检查"
+      data-card-detail-inspector
+      data-card-detail-inspector-authority={inspector.authorityState}
+      data-card-detail-inspector-source={inspector.sourceLabel}
+    >
       <div className="detail-inspector-heading">
         <strong>卡牌检查</strong>
-        <span>{inspector.boundaryLabel}</span>
+        <span>{inspector.sourceLabel} / {inspector.boundaryLabel}</span>
       </div>
       <dl className="detail-inspector-summary">
+        <div data-card-detail-inspector-summary="authority">
+          <dt>权威</dt>
+          <dd>{inspector.authorityLabel}</dd>
+        </div>
         {inspector.summaryRows.map((row) => (
           <div data-card-detail-inspector-summary={row.key} key={row.key}>
             <dt>{row.label}</dt>

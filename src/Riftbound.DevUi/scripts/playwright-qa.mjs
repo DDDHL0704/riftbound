@@ -416,6 +416,17 @@ async function runObjectCommandTrayInteraction(report) {
       throw new Error(`Object command tray is missing server context or command: ${text}`);
     }
 
+    const objectContext = page.locator(".wire-object-context").first();
+    const objectContextAuthority = await objectContext.getAttribute("data-wire-object-context-authority");
+    const objectContextSource = await objectContext.getAttribute("data-wire-object-context-source");
+    const objectContextText = await objectContext.textContent() ?? "";
+    if (objectContextAuthority !== "server" || objectContextSource !== "服务端对象上下文") {
+      throw new Error(`Object context should expose server authority, got ${objectContextAuthority}/${objectContextSource}: ${objectContextText}`);
+    }
+    if (!objectContextText.includes("权威：服务端对象上下文") || !objectContextText.includes("步骤：来源* 1/1")) {
+      throw new Error(`Object context should expose authority label and selection steps, got: ${objectContextText}`);
+    }
+
     const leaked = hiddenDebugTexts.filter((hiddenText) => text.includes(hiddenText));
     if (leaked.length > 0) {
       throw new Error(`Object command tray leaked hidden debug text: ${leaked.join(", ")}`);
