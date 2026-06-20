@@ -3104,6 +3104,7 @@ public sealed record ResolutionResult(
                 ["battlefieldResolutions"] = state.BattlefieldResolutions.Select(BuildBattlefieldResolutionSnapshotView).ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state, state.PendingTaskQueue, viewerPlayerId),
                 ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, state.PendingPayment),
+                ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state.PendingHandChoice, viewerPlayerId),
                 ["temporaryPaymentResources"] = state.TemporaryPaymentResources
                     .Where(resource => string.Equals(resource.OwnerPlayerId, viewerPlayerId, StringComparison.Ordinal)
@@ -3161,6 +3162,85 @@ public sealed record ResolutionResult(
         }
 
         return view;
+    }
+
+    private static IReadOnlyList<Dictionary<string, object?>> BuildRuleQueueCoverageSnapshotView(MatchState state)
+    {
+        var pendingBattleTaskCount = state.PendingTaskQueue.Tasks.Count(task => IsRuleQueueBattleTaskKind(task.Kind));
+        var pendingPaymentTaskCount = state.PendingTaskQueue.Tasks.Count(task => IsRuleQueuePaymentTaskKind(task.Kind));
+        var liveBattleCount =
+            (state.BattleState.IsActive ? 1 : 0)
+            + state.BattlefieldTasks.Count
+            + pendingBattleTaskCount
+            + state.BattlefieldResolutions.Count
+            + state.BattleResolutions.Count;
+        var livePaymentCount = (state.PendingPayment is null ? 0 : 1) + pendingPaymentTaskCount;
+        var liveWindowCount = string.IsNullOrWhiteSpace(state.TurnWindow.State) ? 0 : 1;
+
+        return
+        [
+            BuildRuleQueueCoverageSnapshotRow(
+                "stack",
+                state.StackItems.Count,
+                RuleQueueCoverageEvidenceKeys(("stack", state.StackItems.Count))),
+            BuildRuleQueueCoverageSnapshotRow(
+                "trigger",
+                state.TriggerQueue.Count,
+                RuleQueueCoverageEvidenceKeys(("triggerQueue", state.TriggerQueue.Count))),
+            BuildRuleQueueCoverageSnapshotRow(
+                "battle",
+                liveBattleCount,
+                RuleQueueCoverageEvidenceKeys(
+                    ("battle", state.BattleState.IsActive ? 1 : 0),
+                    ("battlefieldTasks", state.BattlefieldTasks.Count),
+                    ("pendingTaskQueue", pendingBattleTaskCount),
+                    ("battlefieldResolutions", state.BattlefieldResolutions.Count),
+                    ("battleResolutions", state.BattleResolutions.Count))),
+            BuildRuleQueueCoverageSnapshotRow(
+                "window",
+                liveWindowCount,
+                RuleQueueCoverageEvidenceKeys(("turnWindow", liveWindowCount))),
+            BuildRuleQueueCoverageSnapshotRow(
+                "payment",
+                livePaymentCount,
+                RuleQueueCoverageEvidenceKeys(
+                    ("pendingPayment", state.PendingPayment is null ? 0 : 1),
+                    ("pendingTaskQueue", pendingPaymentTaskCount)))
+        ];
+    }
+
+    private static Dictionary<string, object?> BuildRuleQueueCoverageSnapshotRow(
+        string key,
+        int liveCount,
+        IReadOnlyList<string> evidenceKeys)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["key"] = key,
+            ["liveCount"] = liveCount,
+            ["evidenceKeys"] = evidenceKeys
+        };
+    }
+
+    private static IReadOnlyList<string> RuleQueueCoverageEvidenceKeys(params (string Key, int Count)[] evidence)
+    {
+        return evidence
+            .Where(item => item.Count > 0)
+            .Select(item => item.Key)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsRuleQueueBattleTaskKind(string kind)
+    {
+        return kind.StartsWith("BATTLE", StringComparison.Ordinal)
+            || string.Equals(kind, "START_BATTLE", StringComparison.Ordinal);
+    }
+
+    private static bool IsRuleQueuePaymentTaskKind(string kind)
+    {
+        return kind.StartsWith("PAYMENT", StringComparison.Ordinal)
+            || string.Equals(kind, "COST_PAID", StringComparison.Ordinal);
     }
 
     private static Dictionary<string, object?> BuildTriggerQueueItemSnapshotView(

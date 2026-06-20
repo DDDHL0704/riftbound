@@ -121,12 +121,21 @@ export type TurnWindowView = {
   actingPlayerId?: string | null;
 };
 
+export type RuleQueueCoverageSnapshotRow = {
+  key?: "battle" | "payment" | "stack" | "trigger" | "window" | (string & {});
+  liveCount?: number;
+  evidenceKeys?: string[];
+};
+
 export type MatchTimingView = Record<string, unknown> & {
+  battle?: { isActive?: boolean } | null;
   battleResolutions?: BattleResolutionView[];
   battlefieldResolutions?: BattlefieldResolutionView[];
   battlefieldTasks?: PendingTaskView[];
+  pendingPayment?: Record<string, unknown> | null;
   pendingTaskQueue?: PendingTaskQueueView | null;
   phase?: string;
+  ruleQueueCoverage?: RuleQueueCoverageSnapshotRow[] | null;
   roomStatus?: string;
   timingState?: string;
   triggerQueue?: TriggerQueueItemView[];

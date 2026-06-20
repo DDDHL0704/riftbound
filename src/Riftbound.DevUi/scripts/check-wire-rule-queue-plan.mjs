@@ -24,6 +24,9 @@ const helperModules = {
     },
     asString(value, fallback = "未提供") {
       return typeof value === "string" && value.trim().length > 0 ? value : fallback;
+    },
+    asNumber(value, fallback = 0) {
+      return typeof value === "number" && Number.isFinite(value) ? value : fallback;
     }
   },
   "./eventLogPlan": {
@@ -477,6 +480,43 @@ assert.equal(coverageRow(mixedCoverage, "stack").liveCount, 1);
 assert.equal(coverageRow(mixedCoverage, "stack").eventCount, 1);
 assert.equal(coverageRow(mixedCoverage, "stack").objectRefCount, 1);
 assert.equal(mixedCoverage.metrics.find((metric) => metric.key === "coverage")?.value, "2 类");
+
+const serverCoverage = buildWireRuleQueuePlan({
+  events: [
+    {
+      description: "费用支付完成",
+      kind: "COST_PAID",
+      objectRefs: [{ objectId: "rune-1", role: "费用" }],
+      payload: {}
+    }
+  ],
+  playerId: "P1",
+  snapshot: {
+    ...baseSnapshot,
+    timing: {
+      ...baseSnapshot.timing,
+      pendingPayment: {
+        paymentId: "pay-1",
+        paymentWindow: "PLAY_CARD",
+        playerId: "P1"
+      },
+      ruleQueueCoverage: [
+        { evidenceKeys: ["pendingPayment"], key: "payment", liveCount: 1 },
+        { evidenceKeys: ["battle"], key: "battle", liveCount: 1 },
+        { evidenceKeys: ["ignored"], key: "unknown", liveCount: 99 }
+      ]
+    }
+  }
+});
+
+assert.equal(coverageRow(serverCoverage, "payment").state, "mixed");
+assert.equal(coverageRow(serverCoverage, "payment").liveCount, 1);
+assert.equal(coverageRow(serverCoverage, "payment").eventCount, 1);
+assert.equal(coverageRow(serverCoverage, "payment").objectRefCount, 1);
+assert.ok(coverageRow(serverCoverage, "payment").hint.includes("pendingPayment"));
+assert.equal(coverageRow(serverCoverage, "battle").state, "live");
+assert.equal(coverageRow(serverCoverage, "battle").liveCount, 1);
+assert.equal(serverCoverage.metrics.find((metric) => metric.key === "coverage")?.value, "3 类");
 
 const idle = buildWireRuleQueuePlan({ playerId: "P1", snapshot: baseSnapshot });
 assert.equal(idle.state, "idle");

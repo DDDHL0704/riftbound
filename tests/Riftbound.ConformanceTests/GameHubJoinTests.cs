@@ -150,6 +150,13 @@ public sealed class GameHubJoinTests
         var snapshot = Assert.IsType<SnapshotDto>(snapshotMessage.Payload);
         var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["alice"]);
         Assert.Equal("P1", player["seat"]);
+        var ruleQueueCoverage = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["ruleQueueCoverage"]);
+        Assert.Equal(["stack", "trigger", "battle", "window", "payment"], ruleQueueCoverage.Select(row => Assert.IsType<string>(row["key"])));
+        Assert.All(ruleQueueCoverage, row =>
+        {
+            Assert.True(Assert.IsType<int>(row["liveCount"]) >= 0);
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(row["evidenceKeys"]);
+        });
 
         var prompt = Assert.IsType<ActionPromptDto>(promptMessage.Payload);
         Assert.Equal("alice", prompt.PlayerId);
