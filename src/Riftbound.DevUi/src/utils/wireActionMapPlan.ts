@@ -34,6 +34,15 @@ export type WireActionSubmissionGatePlan = {
   stateLabel: string;
 };
 
+export type WireActionWindowGateState = "not-actionable" | "ready" | "waiting-prompt" | "wrong-player";
+
+export type WireActionWindowGatePlan = {
+  canAct: boolean;
+  reason: string;
+  state: WireActionWindowGateState;
+  stateLabel: string;
+};
+
 export type WireActionObjectEntry = {
   disabledCandidateCount: number;
   enabledCandidateCount: number;
@@ -208,6 +217,7 @@ export type WireActionMapPlan = {
   objectEntryOverflowCount: number;
   route?: WireActionRoutePlan;
   submissionGate: WireActionSubmissionGatePlan;
+  windowGate: WireActionWindowGatePlan;
 };
 
 type BuildWireActionMapPlanOptions = {
@@ -246,6 +256,8 @@ export function buildWireActionMapPlan({
   const model = buildPromptInteractionModel(prompt);
   const objects = objectIndex(snapshot);
   const gate = wireActionSubmissionGatePlan(submissionGate);
+  const windowGate = wireActionWindowGatePlan(prompt, playerId);
+  const canAct = Boolean(gate.canSubmit && windowGate.canAct);
   const enabledCandidates = model.candidates.filter((candidate) => candidate.enabled);
   const enabledObjects = [...model.enabledObjectIds];
   const disabledOnlyObjects = [...model.disabledObjectIds];
@@ -259,7 +271,7 @@ export function buildWireActionMapPlan({
   const objectLimit = nonNegativeLimit(maxObjectEntries);
 
   return {
-    canAct: Boolean(gate.canSubmit && prompt?.actionable && prompt.playerId === playerId),
+    canAct,
     blockedObjectEntries: knownDisabledOnlyObjects
       .slice(0, objectLimit)
       .map((objectId) => objectEntryPlan(objectId, objects, model, selectedObjectId)),
@@ -279,6 +291,7 @@ export function buildWireActionMapPlan({
     focus: focusPlan(selectedObjectId, objects, model),
     metrics: [
       { key: "gate", label: "提交门禁", value: gate.stateLabel },
+      { key: "window", label: "行动窗口", value: windowGate.stateLabel },
       { key: "enabled", label: "可提交", value: `${enabledCandidates.length}` },
       { key: "total", label: "全部候选", value: `${model.candidates.length}` },
       { key: "entry", label: "对象入口", value: `${knownEnabledObjects.length}` },
@@ -288,8 +301,9 @@ export function buildWireActionMapPlan({
       .slice(0, objectLimit)
       .map((objectId) => objectEntryPlan(objectId, objects, model, selectedObjectId)),
     objectEntryOverflowCount: Math.max(knownEnabledObjects.length - objectLimit, 0),
-    route: wireActionRoutePlan(candidatePlans, gate),
-    submissionGate: gate
+    route: wireActionRoutePlan(candidatePlans, gate, windowGate),
+    submissionGate: gate,
+    windowGate
   };
 }
 
@@ -308,6 +322,45 @@ function wireActionSubmissionGatePlan(submissionGate?: ServerSubmissionGatePlan)
     reason: submissionGate.reason,
     state: submissionGate.state,
     stateLabel: submissionGate.stateLabel
+  };
+}
+
+function wireActionWindowGatePlan(
+  prompt: ActionPromptDto | undefined,
+  playerId: string
+): WireActionWindowGatePlan {
+  if (!prompt) {
+    return {
+      canAct: false,
+      reason: "服务端尚未提供行动窗口。",
+      state: "waiting-prompt",
+      stateLabel: "等待窗口"
+    };
+  }
+
+  if (prompt.playerId !== playerId) {
+    return {
+      canAct: false,
+      reason: `当前行动窗口属于 ${prompt.playerId || "未知玩家"}，本地玩家 ${playerId} 只读观察。`,
+      state: "wrong-player",
+      stateLabel: "非当前玩家"
+    };
+  }
+
+  if (!prompt.actionable) {
+    return {
+      canAct: false,
+      reason: "服务端提示当前只读，不能提交行动。",
+      state: "not-actionable",
+      stateLabel: "只读窗口"
+    };
+  }
+
+  return {
+    canAct: true,
+    reason: "当前玩家拥有服务端行动窗口。",
+    state: "ready",
+    stateLabel: "当前可行动"
   };
 }
 
@@ -438,7 +491,8 @@ function choiceMatchesSelection(choice: PromptCandidateSummary["choices"][number
 
 function wireActionRoutePlan(
   candidatePlans: WireActionCandidatePlan[],
-  submissionGate: WireActionSubmissionGatePlan
+  submissionGate: WireActionSubmissionGatePlan,
+  windowGate: WireActionWindowGatePlan
 ): WireActionRoutePlan | undefined {
   const candidatePlan = candidatePlans.find((candidate) => candidate.draftActive);
   if (!candidatePlan) {
@@ -451,15 +505,21 @@ function wireActionRoutePlan(
   const selectedStepCount = candidatePlan.stepRows.filter((step) => step.selectedCount > 0).length;
   const nextStep = candidatePlan.stepRows.find((step) => step.required && step.selectedCount <= 0)
     ?? candidatePlan.stepRows.find((step) => !step.required && step.count > 0 && step.selectedCount <= 0);
-  const state: WireActionRouteState = !candidatePlan.enabled || !submissionGate.canSubmit
+  const state: WireActionRouteState = !candidatePlan.enabled || !submissionGate.canSubmit || !windowGate.canAct
     ? "blocked"
     : missingRequiredSelectionCount > 0 || missingRequiredFieldCount > 0
       ? "incomplete"
       : "ready";
-  const stateLabel = !submissionGate.canSubmit ? "提交门禁阻断" : routeStateLabel(state);
+  const stateLabel = !submissionGate.canSubmit
+    ? "提交门禁阻断"
+    : !windowGate.canAct
+      ? "行动窗口阻断"
+      : routeStateLabel(state);
   const nextMissingField = candidatePlan.commandFields.find((field) => field.state === "missing");
   const nextStepLabel = !submissionGate.canSubmit
     ? submissionGate.reason
+    : !windowGate.canAct
+      ? windowGate.reason
     : nextStep
     ? `继续选择${nextStep.label}`
     : nextMissingField
@@ -470,7 +530,8 @@ function wireActionRoutePlan(
     missingRequiredFieldCount,
     missingRequiredSelectionCount,
     serverInjectedFieldCount,
-    submissionGate
+    submissionGate,
+    windowGate
   });
 
   return {
@@ -507,13 +568,15 @@ function wireActionRouteCheckRows({
   missingRequiredFieldCount,
   missingRequiredSelectionCount,
   serverInjectedFieldCount,
-  submissionGate
+  submissionGate,
+  windowGate
 }: {
   candidateEnabled: boolean;
   missingRequiredFieldCount: number;
   missingRequiredSelectionCount: number;
   serverInjectedFieldCount: number;
   submissionGate: WireActionSubmissionGatePlan;
+  windowGate: WireActionWindowGatePlan;
 }): WireActionRouteCheckPlan[] {
   return [
     {
@@ -529,6 +592,13 @@ function wireActionRouteCheckRows({
       reason: submissionGate.reason,
       state: submissionGate.canSubmit ? "ready" : "blocked",
       stateLabel: submissionGate.stateLabel
+    },
+    {
+      key: "action-window",
+      label: "行动窗口",
+      reason: windowGate.reason,
+      state: windowGate.canAct ? "ready" : "blocked",
+      stateLabel: windowGate.stateLabel
     },
     {
       key: "required-selections",

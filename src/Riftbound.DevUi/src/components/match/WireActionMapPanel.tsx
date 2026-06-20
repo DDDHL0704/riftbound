@@ -9,7 +9,8 @@ import {
   type WireActionMapMetric,
   type WireActionMapPlan,
   type WireActionRoutePlan,
-  type WireActionSubmissionGatePlan
+  type WireActionSubmissionGatePlan,
+  type WireActionWindowGatePlan
 } from "../../utils/wireActionMapPlan";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -51,6 +52,7 @@ export function WireActionMapPanel({
       </div>
 
       <SubmissionGateStrip gate={plan.submissionGate} />
+      <WindowGateStrip gate={plan.windowGate} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CurrentRouteStrip route={plan.route} />
 
@@ -148,6 +150,23 @@ function SubmissionGateStrip({ gate }: { gate: WireActionSubmissionGatePlan }) {
     >
       <div className="wire-action-route-heading">
         <strong>提交门禁</strong>
+        <span>{gate.stateLabel}</span>
+      </div>
+      <small>{gate.reason}</small>
+    </div>
+  );
+}
+
+function WindowGateStrip({ gate }: { gate: WireActionWindowGatePlan }) {
+  return (
+    <div
+      className="wire-action-route-strip"
+      data-action-window-gate-state={gate.state}
+      role="group"
+      aria-label="行动窗口门禁"
+    >
+      <div className="wire-action-route-heading">
+        <strong>行动窗口</strong>
         <span>{gate.stateLabel}</span>
       </div>
       <small>{gate.reason}</small>

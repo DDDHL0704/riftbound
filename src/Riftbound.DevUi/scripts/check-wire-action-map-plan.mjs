@@ -106,7 +106,9 @@ const plan = buildWireActionMapPlan({
 assert.equal(plan.canAct, true);
 assert.equal(plan.submissionGate.state, "connected");
 assert.equal(plan.submissionGate.stateLabel, "可提交");
-assert.deepEqual(plan.metrics.map((metric) => metric.value), ["可提交", "1", "3", "2", "1"]);
+assert.equal(plan.windowGate.state, "ready");
+assert.equal(plan.windowGate.stateLabel, "当前可行动");
+assert.deepEqual(plan.metrics.map((metric) => metric.value), ["可提交", "当前可行动", "1", "3", "2", "1"]);
 assert.equal(plan.objectEntries.length, 2);
 assert.equal(plan.objectEntries[0].label, "OGN-001/298");
 assert.equal(plan.objectEntries[0].selected, true);
@@ -196,15 +198,16 @@ assert.equal(draftPlan.route.selectedStepCount, 2);
 assert.equal(draftPlan.route.missingRequiredFieldCount, 0);
 assert.equal(draftPlan.route.missingRequiredSelectionCount, 0);
 assert.equal(draftPlan.route.serverInjectedFieldCount, 1);
-assert.equal(draftPlan.route.checkSummary, "5 通过 / 0 阻断 / 0 等待");
+assert.equal(draftPlan.route.checkSummary, "6 通过 / 0 阻断 / 0 等待");
 assert.deepEqual(draftPlan.route.checkRows.map((check) => check.key), [
   "server-candidate",
   "submission-gate",
+  "action-window",
   "required-selections",
   "command-fields",
   "server-injected"
 ]);
-assert.deepEqual(draftPlan.route.checkRows.map((check) => check.state), ["ready", "ready", "ready", "ready", "ready"]);
+assert.deepEqual(draftPlan.route.checkRows.map((check) => check.state), ["ready", "ready", "ready", "ready", "ready", "ready"]);
 assert.equal(draftPlan.route.checkRows.find((check) => check.key === "server-injected")?.stateLabel, "1 项");
 assert.equal(draftPlan.route.steps.find((step) => step.role === "source").state, "selected");
 assert.equal(draftPlan.route.steps.find((step) => step.role === "target").state, "selected");
@@ -236,7 +239,7 @@ assert.equal(staleDraftPlan.submissionGate.state, "stale-snapshot");
 assert.equal(staleDraftPlan.route.state, "blocked");
 assert.equal(staleDraftPlan.route.stateLabel, "提交门禁阻断");
 assert.equal(staleDraftPlan.route.nextStepLabel, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
-assert.equal(staleDraftPlan.route.checkSummary, "4 通过 / 1 阻断 / 0 等待");
+assert.equal(staleDraftPlan.route.checkSummary, "5 通过 / 1 阻断 / 0 等待");
 assert.equal(staleDraftPlan.route.checkRows.find((check) => check.key === "submission-gate")?.state, "blocked");
 assert.equal(staleDraftPlan.route.checkRows.find((check) => check.key === "submission-gate")?.stateLabel, "等待同步");
 
@@ -246,7 +249,26 @@ const readOnlyPlan = buildWireActionMapPlan({
   snapshot
 });
 assert.equal(readOnlyPlan.canAct, false);
+assert.equal(readOnlyPlan.windowGate.state, "wrong-player");
 assert.equal(readOnlyPlan.focus, undefined);
+
+const wrongPlayerDraftPlan = buildWireActionMapPlan({
+  playerId: "P2",
+  prompt,
+  selectedObjectId: "p1-hand-1",
+  selectionDraft: {
+    candidateKey: "PLAY_CARD::打出手牌",
+    optionalCostIds: [],
+    sourceObjectId: "p1-hand-1",
+    targetChoiceIds: ["p2-unit-1"]
+  },
+  snapshot
+});
+assert.equal(wrongPlayerDraftPlan.canAct, false);
+assert.equal(wrongPlayerDraftPlan.route.state, "blocked");
+assert.equal(wrongPlayerDraftPlan.route.stateLabel, "行动窗口阻断");
+assert.equal(wrongPlayerDraftPlan.route.checkRows.find((check) => check.key === "action-window")?.state, "blocked");
+assert.equal(wrongPlayerDraftPlan.route.checkRows.find((check) => check.key === "action-window")?.stateLabel, "非当前玩家");
 
 const blockedFocusPlan = buildWireActionMapPlan({
   playerId: "P1",
