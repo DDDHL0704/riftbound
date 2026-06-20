@@ -83,6 +83,48 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public void GameEventObjectRefProjectorKeepsDistinctRolesForSameObject()
+    {
+        var state = new MatchState(
+            "object-ref-role-projection-room",
+            1,
+            2,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RUNE"] = new("P1-RUNE", cardNo: "RUNE-001", ownerId: "P1", controllerId: "P1")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-RUNE"] = new("P1", "BASE")
+            });
+        var sourceEvent = new GameEvent(
+            "COST_PAID",
+            "P1 支付费用",
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["sourceObjectId"] = "P1-RUNE",
+                ["paymentObjectIds"] = new[] { "P1-RUNE", "P1-RUNE" }
+            });
+
+        var projected = Assert.Single(GameEventObjectRefProjector.ProjectEvents([sourceEvent], state));
+        Assert.NotNull(projected.ObjectRefs);
+        Assert.Equal(
+            ["来源:P1-RUNE", "费用:P1-RUNE"],
+            projected.ObjectRefs!.Select(item => $"{item.Role}:{item.ObjectId}"));
+    }
+
+    [Fact]
     public async Task JoinRoomSendsSnapshotPromptAndAddsRoomGroups()
     {
         var clients = new RecordingHubClients();

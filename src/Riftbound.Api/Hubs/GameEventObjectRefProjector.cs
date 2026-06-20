@@ -67,7 +67,7 @@ public static class GameEventObjectRefProjector
         foreach (var (role, objectId) in rawRefs)
         {
             var normalizedObjectId = NormalizeOptionalText(objectId);
-            if (normalizedObjectId is null || !seen.Add(normalizedObjectId))
+            if (normalizedObjectId is null || !seen.Add($"{role}:{normalizedObjectId}"))
             {
                 continue;
             }
