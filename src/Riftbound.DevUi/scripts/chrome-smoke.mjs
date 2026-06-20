@@ -737,6 +737,11 @@ async function runWireClickSelectionSmoke(cdp) {
       candidatePlanCount: document.querySelectorAll(".wire-focused-candidate-plan li").length,
       focusedPathCount: document.querySelectorAll(".wire-focused-path article").length,
       composerCount: document.querySelectorAll(".wire-focused-actions .candidate-composer").length,
+      composerCanSubmitStates: Array.from(document.querySelectorAll(".wire-focused-actions .candidate-composer"))
+        .map((node) => node.getAttribute("data-candidate-composer-can-submit")),
+      composerGateStates: Array.from(document.querySelectorAll(".wire-focused-actions .candidate-composer"))
+        .map((node) => node.getAttribute("data-candidate-composer-gate-state")),
+      composerGateText: document.querySelector(".wire-focused-actions .candidate-composer")?.textContent ?? "",
       focusedActionButtonCount: document.querySelectorAll(".wire-focused-actions button").length,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
@@ -1078,6 +1083,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (focusResult.candidatePlanCount < 1) failures.push("focused action candidate plan missing");
   if (focusResult.focusedPathCount < 1) failures.push("focused interaction candidate path missing");
   if (focusResult.composerCount < 1) failures.push("focused interaction composer entry missing");
+  if (!focusResult.composerCanSubmitStates.includes("true")) failures.push("focused interaction composer submit state missing");
+  if (!focusResult.composerGateStates.includes("可提交")) failures.push("focused interaction composer gate state missing");
+  if (!focusResult.composerGateText.includes("提交门禁")) failures.push("focused interaction composer gate text missing");
   if (focusResult.focusedActionButtonCount < 1) failures.push("focused interaction action controls missing");
   if (focusResult.grammarState !== "ready") failures.push(`focused interaction grammar state unexpected: ${focusResult.grammarState}`);
   if (!focusResult.grammarText.includes("交互语法")) failures.push("focused interaction grammar header missing");

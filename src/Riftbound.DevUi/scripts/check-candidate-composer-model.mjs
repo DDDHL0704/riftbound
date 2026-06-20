@@ -128,6 +128,10 @@ const submission = buildCandidateComposerSubmissionPlan({
   state
 });
 assert.equal(submission.canSubmit, true);
+assert.equal(submission.gateCanSubmit, true);
+assert.equal(submission.gateStateLabel, "可提交");
+assert.equal(submission.stateLabel, "待服务端校验");
+assert.equal(submission.blockReason, undefined);
 assert.deepEqual(submission.selectedTargetIds, ["target-a", "target-b"]);
 assert.deepEqual(submission.optionalCostIds, ["rune-main", "rune-extra"]);
 assert.equal(submission.unsupportedReason, undefined);
@@ -167,6 +171,7 @@ const blockedSubmission = buildCandidateComposerSubmissionPlan({
 });
 assert.equal(blockedSubmission.canSubmit, false);
 assert.equal(blockedSubmission.unsupportedReason, "需要后端补齐窗口");
+assert.equal(blockedSubmission.blockReason, "需要后端补齐窗口");
 
 const disconnectedSubmission = buildCandidateComposerSubmissionPlan({
   candidate: playCandidate,
@@ -177,6 +182,29 @@ const disconnectedSubmission = buildCandidateComposerSubmissionPlan({
   state
 });
 assert.equal(disconnectedSubmission.canSubmit, false);
+assert.equal(disconnectedSubmission.gateCanSubmit, false);
+assert.equal(disconnectedSubmission.stateLabel, "连接未就绪");
+assert.equal(disconnectedSubmission.blockReason, "当前入口不可提交，等待服务端窗口或连接恢复。");
+
+const staleGateSubmission = buildCandidateComposerSubmissionPlan({
+  candidate: playCandidate,
+  controls,
+  disabledByConnection: true,
+  requirement,
+  snapshot: undefined,
+  state,
+  submissionGate: {
+    canSubmit: false,
+    reason: "行动提示属于 tick 7，当前桌面快照是 tick 8。",
+    state: "stale-snapshot",
+    stateLabel: "等待同步"
+  }
+});
+assert.equal(staleGateSubmission.canSubmit, false);
+assert.equal(staleGateSubmission.gateCanSubmit, false);
+assert.equal(staleGateSubmission.gateStateLabel, "等待同步");
+assert.equal(staleGateSubmission.stateLabel, "等待同步");
+assert.equal(staleGateSubmission.blockReason, "行动提示属于 tick 7，当前桌面快照是 tick 8。");
 
 const battleCandidate = {
   action: "DECLARE_BATTLE",

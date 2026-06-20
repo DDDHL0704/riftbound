@@ -6,6 +6,7 @@ import { buildCardDetailPlan, type CardDetailInspectorPlan } from "../../utils/c
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import { buildFocusedActionModel, type FocusedActionModel } from "../../utils/focusedActionModel";
 import { buildPromptInteractionModel } from "../../utils/promptInteraction";
+import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { buildWireCardDetailActionPlan } from "../../utils/wireCardDetailActionPlan";
 import { CandidateComposer } from "../match/CandidateComposer";
@@ -23,6 +24,7 @@ type CardDetailDrawerProps = {
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
 };
 
 export function CardDetailDrawer({
@@ -33,7 +35,8 @@ export function CardDetailDrawer({
   objectContext,
   prompt,
   selectionDraft,
-  snapshot
+  snapshot,
+  submissionGate
 }: CardDetailDrawerProps) {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useRef<HTMLElement | null>(null);
@@ -173,6 +176,7 @@ export function CardDetailDrawer({
                             prompt={prompt}
                             selectionDraft={selectionDraft}
                             snapshot={snapshot}
+                            submissionGate={submissionGate}
                           />
                         </div>
                       );

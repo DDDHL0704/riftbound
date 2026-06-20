@@ -13,7 +13,7 @@ import { buildActionPanelCandidateCommandPlan, type ActionPanelCandidateButtonIc
 import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
-import { buildServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
+import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
 import { StatusPill } from "../ui/StatusPill";
@@ -68,6 +68,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
                 onSubmitStarterDeck={onSubmitStarterDeck}
                 prompt={prompt}
                 snapshot={snapshot}
+                submissionGate={submissionGate}
               />
             ))}
           </div>
@@ -84,7 +85,8 @@ function ActionPanelRenderEntryView({
   onReady,
   onSubmitStarterDeck,
   prompt,
-  snapshot
+  snapshot,
+  submissionGate
 }: {
   disabledByConnection: boolean;
   entry: ActionPanelRenderEntry;
@@ -93,6 +95,7 @@ function ActionPanelRenderEntryView({
   onSubmitStarterDeck: () => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
+  submissionGate: ServerSubmissionGatePlan;
 }) {
   const candidate = entry.candidate;
   let content: ReactNode = null;
@@ -153,6 +156,7 @@ function ActionPanelRenderEntryView({
           onSubmitStarterDeck={onSubmitStarterDeck}
           prompt={prompt}
           snapshot={snapshot}
+          submissionGate={submissionGate}
         />
       ) : null;
       break;
@@ -650,7 +654,8 @@ function CandidateButton({
   onReady,
   onSubmitStarterDeck,
   prompt,
-  snapshot
+  snapshot,
+  submissionGate
 }: {
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
@@ -659,6 +664,7 @@ function CandidateButton({
   onSubmitStarterDeck: () => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
+  submissionGate: ServerSubmissionGatePlan;
 }) {
   const [confirmingSurrender, setConfirmingSurrender] = useState(false);
   const plan = buildActionPanelCandidateCommandPlan({ candidate, disabledByConnection, snapshot });
@@ -711,6 +717,7 @@ function CandidateButton({
         onCommand={onCommand}
         prompt={prompt}
         snapshot={snapshot}
+        submissionGate={submissionGate}
       />
     );
   }

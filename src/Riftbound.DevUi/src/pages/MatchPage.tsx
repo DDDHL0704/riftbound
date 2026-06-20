@@ -407,6 +407,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               prompt={tablePrompt}
               selectionDraft={selectionDraft}
               snapshot={tableSnapshot}
+              submissionGate={tableSubmissionGate}
             />
           </section>
           <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" tabIndex={0}>
@@ -474,6 +475,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         prompt={tablePrompt}
         selectionDraft={selectionDraft}
         snapshot={tableSnapshot}
+        submissionGate={tableSubmissionGate}
       />
       <WireCardPreview card={previewCard} />
     </div>

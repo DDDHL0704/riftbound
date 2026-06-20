@@ -8,6 +8,7 @@ import type {
 } from "../../types/protocol";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildCandidateComposerModel,
   buildCandidateComposerSubmissionPlan,
@@ -32,6 +33,7 @@ type CandidateComposerProps = {
   onSubmitted?: () => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
   forcedSourceObjectId?: string;
   selectionDraft?: CandidateSelectionDraft;
 };
@@ -48,7 +50,8 @@ export function CandidateComposer({
   onSubmitted,
   prompt,
   selectionDraft,
-  snapshot
+  snapshot,
+  submissionGate
 }: CandidateComposerProps) {
   const model = useMemo(() => buildCandidateComposerModel(candidate), [candidate]);
   const [state, setState] = useState<CandidateComposerState>(() => initialComposerState(candidate, model, forcedSourceObjectId, selectionDraft));
@@ -65,24 +68,33 @@ export function CandidateComposer({
     disabledByConnection,
     requirement,
     snapshot,
+    submissionGate,
     state
   });
+  const gateDisabled = disabledByConnection || !submission.gateCanSubmit;
 
   return (
-    <div className="candidate-composer">
+    <div
+      className="candidate-composer"
+      data-candidate-composer-can-submit={submission.canSubmit ? "true" : "false"}
+      data-candidate-composer-gate-state={submission.gateStateLabel}
+    >
       <div className="candidate-composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <StatusPill tone={submission.canSubmit ? "warn" : "neutral"}>{submission.canSubmit ? "待服务端校验" : "需要选择"}</StatusPill>
+        <StatusPill tone={submission.canSubmit ? "warn" : "neutral"}>{submission.stateLabel}</StatusPill>
       </div>
       <p className="candidate-composer-note">
         仅使用服务端候选组装命令；费用、目标和结果仍由服务端按规则校验。
       </p>
-      {submission.unsupportedReason && <span className="candidate-composer-warning">{submission.unsupportedReason}</span>}
+      <span className="candidate-composer-gate" data-candidate-composer-gate-reason>
+        提交门禁：{submission.gateStateLabel} / {submission.gateReason}
+      </span>
+      {submission.blockReason && <span className="candidate-composer-warning" data-candidate-composer-block-reason>{submission.blockReason}</span>}
       {controls.sources.length > 0 && (
         <label className="candidate-composer-field">
           <span>来源</span>
           <select
-            disabled={disabledByConnection || !candidate.enabled || Boolean(forcedSourceObjectId)}
+            disabled={gateDisabled || !candidate.enabled || Boolean(forcedSourceObjectId)}
             onChange={(event) => setState(initialComposerState(candidate, model, event.currentTarget.value))}
             value={state.sourceId ?? ""}
           >
@@ -96,7 +108,7 @@ export function CandidateComposer({
         <label className="candidate-composer-field">
           <span>模式</span>
           <select
-            disabled={disabledByConnection || !candidate.enabled}
+            disabled={gateDisabled || !candidate.enabled}
             onChange={(event) => setState((current) => ({ ...current, mode: event.currentTarget.value || undefined }))}
             value={state.mode ?? ""}
           >
@@ -110,7 +122,7 @@ export function CandidateComposer({
         <label className="candidate-composer-field">
           <span>位置</span>
           <select
-            disabled={disabledByConnection || !candidate.enabled}
+            disabled={gateDisabled || !candidate.enabled}
             onChange={(event) => setState((current) => ({ ...current, destinationId: event.currentTarget.value || undefined }))}
             value={state.destinationId ?? ""}
           >
@@ -125,7 +137,7 @@ export function CandidateComposer({
         <label className="candidate-composer-field" key={group.key}>
           <span>{group.label}</span>
           <select
-            disabled={disabledByConnection || !candidate.enabled}
+            disabled={gateDisabled || !candidate.enabled}
             onChange={(event) => setState((current) => ({
               ...current,
               targetIdsByGroup: {
@@ -152,7 +164,7 @@ export function CandidateComposer({
               <label className="candidate-composer-check" key={choice.id}>
                 <input
                   checked={checked}
-                  disabled={disabledByConnection || !candidate.enabled || locked}
+                  disabled={gateDisabled || !candidate.enabled || locked}
                   onChange={(event) => setState((current) => ({
                     ...current,
                     optionalCostIds: event.currentTarget.checked
@@ -169,6 +181,7 @@ export function CandidateComposer({
       )}
       <CandidateCommandPreview
         canSubmit={submission.canSubmit}
+        statusLabel={submission.stateLabel}
         controls={controls}
         state={state}
       />
@@ -183,7 +196,7 @@ export function CandidateComposer({
           onCommand(promptStampedCommand(submission.command, prompt));
           onSubmitted?.();
         }}
-        title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
+        title={submission.blockReason ?? promptReasonTitle(candidate.reason)}
         variant={submission.canSubmit ? "primary" : "ghost"}
       >
         提交服务端候选
@@ -195,10 +208,12 @@ export function CandidateComposer({
 function CandidateCommandPreview({
   canSubmit,
   controls,
+  statusLabel,
   state
 }: {
   canSubmit: boolean;
   controls: CandidateComposerControls;
+  statusLabel: string;
   state: CandidateComposerState;
 }) {
   const plan = buildCandidateCommandPreviewPlan(controls, state);
@@ -207,7 +222,7 @@ function CandidateCommandPreview({
     <div className="candidate-command-preview" role="group" aria-label="候选提交摘要">
       <div>
         <strong>提交摘要</strong>
-        <StatusPill tone={canSubmit ? "warn" : "neutral"}>{canSubmit ? "可送服务端" : "缺少选择"}</StatusPill>
+        <StatusPill tone={canSubmit ? "warn" : "neutral"}>{canSubmit ? "可送服务端" : statusLabel}</StatusPill>
       </div>
       <span>来源：{plan.sourceLabel}</span>
       {plan.modeLabel && <span>模式：{plan.modeLabel}</span>}

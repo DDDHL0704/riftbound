@@ -7,6 +7,7 @@ import type {
 import { commandFromActionPromptTemplate } from "./actionPromptCommandTemplate";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import { redactInternalText } from "./redaction";
+import type { ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 
 export type ChoiceGroup = {
   key: string;
@@ -41,11 +42,16 @@ export type CandidateComposerControls = {
 };
 
 export type CandidateComposerSubmissionPlan = {
+  blockReason?: string;
   canSubmit: boolean;
   command?: GameCommand;
+  gateCanSubmit: boolean;
+  gateReason: string;
+  gateStateLabel: string;
   missingRequiredTarget: boolean;
   optionalCostIds: string[];
   selectedTargetIds: string[];
+  stateLabel: string;
   unsupportedReason?: string;
 };
 
@@ -290,6 +296,7 @@ export function buildCandidateComposerSubmissionPlan({
   disabledByConnection,
   requirement,
   snapshot,
+  submissionGate,
   state
 }: {
   candidate: ActionPromptCandidateDto;
@@ -297,6 +304,7 @@ export function buildCandidateComposerSubmissionPlan({
   disabledByConnection: boolean;
   requirement: Record<string, unknown> | undefined;
   snapshot: SnapshotDto | undefined;
+  submissionGate?: ServerSubmissionGatePlan;
   state: CandidateComposerState;
 }): CandidateComposerSubmissionPlan {
   const selectedTargetIds = controls.targetGroups
@@ -309,22 +317,107 @@ export function buildCandidateComposerSubmissionPlan({
     : undefined;
   const missingRequiredTarget = controls.targetGroups
     .some((group) => group.required && !state.targetIdsByGroup[group.key]);
+  const gateCanSubmit = submissionGate?.canSubmit ?? !disabledByConnection;
+  const gateReason = submissionGate?.reason ?? (disabledByConnection
+    ? "当前入口不可提交，等待服务端窗口或连接恢复。"
+    : "当前未提供额外提交门禁。");
+  const gateStateLabel = submissionGate?.stateLabel ?? (gateCanSubmit ? "可提交" : "连接未就绪");
+  const missingRequiredSource = controls.sourceRequired && !state.sourceId;
+  const missingRequiredDestination = controls.destinationRequired && !state.destinationId;
+  const missingCommand = !command;
   const canSubmit = !disabledByConnection
+    && gateCanSubmit
     && candidate.enabled
     && !unsupportedReason
-    && Boolean(command)
-    && (!controls.sourceRequired || Boolean(state.sourceId))
-    && (!controls.destinationRequired || Boolean(state.destinationId))
+    && !missingCommand
+    && !missingRequiredSource
+    && !missingRequiredDestination
     && !missingRequiredTarget;
+  const blockReason = composerBlockReason({
+    candidate,
+    disabledByConnection,
+    gateCanSubmit,
+    gateReason,
+    missingCommand,
+    missingRequiredDestination,
+    missingRequiredSource,
+    missingRequiredTarget,
+    unsupportedReason
+  });
 
   return {
+    blockReason,
     canSubmit,
     command,
+    gateCanSubmit,
+    gateReason,
+    gateStateLabel,
     missingRequiredTarget,
     optionalCostIds,
     selectedTargetIds,
+    stateLabel: canSubmit ? "待服务端校验" : blockReason ? gateStateLabelForBlock(blockReason, gateStateLabel) : "需要选择",
     unsupportedReason
   };
+}
+
+function composerBlockReason({
+  candidate,
+  disabledByConnection,
+  gateCanSubmit,
+  gateReason,
+  missingCommand,
+  missingRequiredDestination,
+  missingRequiredSource,
+  missingRequiredTarget,
+  unsupportedReason
+}: {
+  candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  gateCanSubmit: boolean;
+  gateReason: string;
+  missingCommand: boolean;
+  missingRequiredDestination: boolean;
+  missingRequiredSource: boolean;
+  missingRequiredTarget: boolean;
+  unsupportedReason?: string;
+}): string | undefined {
+  if (!gateCanSubmit) {
+    return gateReason;
+  }
+
+  if (disabledByConnection) {
+    return "当前入口不可提交，等待服务端窗口或连接恢复。";
+  }
+
+  if (!candidate.enabled) {
+    return candidate.reason || "服务端当前阻断该候选。";
+  }
+
+  if (unsupportedReason) {
+    return unsupportedReason;
+  }
+
+  if (missingRequiredSource) {
+    return "缺少服务端候选要求的来源。";
+  }
+
+  if (missingRequiredDestination) {
+    return "缺少服务端候选要求的位置。";
+  }
+
+  if (missingRequiredTarget) {
+    return "缺少服务端候选要求的目标。";
+  }
+
+  if (missingCommand) {
+    return "命令模板尚未齐备，不能提交。";
+  }
+
+  return undefined;
+}
+
+function gateStateLabelForBlock(blockReason: string, gateStateLabel: string): string {
+  return gateStateLabel && gateStateLabel !== "可提交" ? gateStateLabel : blockReason.includes("缺少") ? "需要选择" : "暂不可提交";
 }
 
 export function buildCandidateCommandPreviewPlan(

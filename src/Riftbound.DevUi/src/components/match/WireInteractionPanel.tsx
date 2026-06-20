@@ -4,6 +4,7 @@ import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/prot
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { FocusedActionModel } from "../../utils/focusedActionModel";
 import type { FocusedInteractionGrammarPlan } from "../../utils/focusedInteractionGrammarPlan";
 import {
@@ -30,7 +31,8 @@ export function WireInteractionPanel({
   playerId,
   prompt,
   selectionDraft,
-  snapshot
+  snapshot,
+  submissionGate
 }: {
   disabledByConnection: boolean;
   inspectedCard?: InspectedCard;
@@ -43,6 +45,7 @@ export function WireInteractionPanel({
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
 }) {
   const selectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
   const plan = buildWireFocusedInteractionPlan({
@@ -110,6 +113,7 @@ export function WireInteractionPanel({
         plan={plan}
         prompt={prompt}
         snapshot={snapshot}
+        submissionGate={submissionGate}
       />
 
       <PromptCandidateList
@@ -166,7 +170,8 @@ function FocusedActionList({
   onCommand,
   plan,
   prompt,
-  snapshot
+  snapshot,
+  submissionGate
 }: {
   disabledByConnection: boolean;
   inspectedCard?: InspectedCard;
@@ -174,6 +179,7 @@ function FocusedActionList({
   plan: WireFocusedInteractionPlan;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
 }) {
   if (!inspectedCard) {
     return null;
@@ -226,6 +232,7 @@ function FocusedActionList({
               prompt={prompt}
               selectionDraft={candidateDraft}
               snapshot={snapshot}
+              submissionGate={submissionGate}
             />
           );
         }
