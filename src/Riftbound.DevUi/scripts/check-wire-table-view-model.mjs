@@ -163,6 +163,12 @@ assert.deepEqual(table.opponent.baseObjectIds, ["p2-base-1"]);
 assert.equal(table.opponent.basePartitionSource, "server");
 assert.deepEqual(table.opponent.runeIds, ["p2-rune-1"]);
 assert.deepEqual(table.opponent.hiddenHandIds, ["hidden-P2-0", "hidden-P2-1", "hidden-P2-2", "hidden-P2-3"]);
+assert.equal(table.playerPlans.basePlan.kind, "base");
+assert.equal(table.playerPlans.basePlan.itemCount, 1);
+assert.equal(table.playerPlans.basePlan.minSlots, 1);
+assert.equal(table.playerPlans.handPlan.kind, "hand");
+assert.equal(table.playerPlans.handPlan.itemCount, 4);
+assert.equal(table.playerPlans.handPlan.cardWidth, 86);
 
 const battlefield = buildWireBattlefieldModel(snapshot, "P1");
 assert.equal(battlefield.lanes.length, 2);

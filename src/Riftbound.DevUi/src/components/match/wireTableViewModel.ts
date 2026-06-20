@@ -65,9 +65,15 @@ export type WireBattlefieldModel = {
   unitPlan: WireCardFlowPlan;
 };
 
+export type WirePlayerFlowPlans = {
+  basePlan: WireCardFlowPlan;
+  handPlan: WireCardFlowPlan;
+};
+
 export type WireTableViewModel = {
   battlefield: WireBattlefieldModel;
   opponent?: WirePlayerEntry;
+  playerPlans: WirePlayerFlowPlans;
   players: WirePlayerEntry[];
   self?: WirePlayerEntry;
 };
@@ -85,6 +91,7 @@ export function buildWireTableViewModel({
   return {
     battlefield: buildWireBattlefieldModel(snapshot, perspectivePlayerId),
     opponent: players.find((entry) => entry.side === "opponent"),
+    playerPlans: buildWirePlayerFlowPlans(players),
     players,
     self: players.find((entry) => entry.side === "self")
   };
@@ -122,6 +129,22 @@ export function buildWireBattlefieldModel(
       itemCount: maxOccupants,
       kind: "battlefield-unit",
       minSlots: 3
+    })
+  };
+}
+
+export function buildWirePlayerFlowPlans(players: WirePlayerEntry[]): WirePlayerFlowPlans {
+  const maxBaseObjects = Math.max(...players.map((entry) => entry.baseObjectIds.length), 0);
+  const maxHandObjects = Math.max(...players.flatMap((entry) => [entry.handIds.length, entry.hiddenHandIds.length]), 0);
+  return {
+    basePlan: buildWireCardFlowPlan({
+      itemCount: maxBaseObjects,
+      kind: "base",
+      minSlots: 1
+    }),
+    handPlan: buildWireCardFlowPlan({
+      itemCount: maxHandObjects,
+      kind: "hand"
     })
   };
 }

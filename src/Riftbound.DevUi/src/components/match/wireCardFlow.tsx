@@ -50,8 +50,9 @@ export function WireCardFlow({
   specs,
   timelineByObjectId
 }: WireCardFlowProps) {
-  const flowPlan = providedPlan ?? buildWireCardFlowPlan({ itemCount: ids.length, kind, minSlots });
-  const slotCount = renderEmptySlots ? Math.max(flowPlan.slotCount, ids.length, minSlots) : ids.length;
+  const sizingPlan = providedPlan ?? buildWireCardFlowPlan({ itemCount: ids.length, kind, minSlots });
+  const slotCount = renderEmptySlots ? Math.max(sizingPlan.slotCount, ids.length, minSlots) : ids.length;
+  const flowPlan = renderedFlowPlan(sizingPlan, ids.length, minSlots, slotCount);
   const slots = renderEmptySlots ? Array.from({ length: slotCount }, (_, index) => ids[index]) : ids;
 
   return (
@@ -170,6 +171,27 @@ function wireCardFlowStyle(flowPlan: WireCardFlowPlan): WireCssProperties {
     "--wire-card-w": `${flowPlan.cardWidth}px`,
     "--wire-flow-gap": `${flowPlan.gap}px`,
     "--wire-flow-visible-slots": flowPlan.visibleSlotCount
+  };
+}
+
+function renderedFlowPlan(
+  sizingPlan: WireCardFlowPlan,
+  itemCount: number,
+  minSlots: number,
+  slotCount: number
+): WireCardFlowPlan {
+  const visibleSlotCount = Math.min(slotCount, sizingPlan.scrollAfter);
+  const overflowCount = Math.max(0, slotCount - visibleSlotCount);
+  const overflow = overflowCount > 0 ? "scroll" : "none";
+  return {
+    ...sizingPlan,
+    fit: overflow === "scroll" ? "overflow-rail" : sizingPlan.layout === "rail" ? "elastic-rail" : "fixed-slot",
+    itemCount,
+    minSlots,
+    overflow,
+    overflowCount,
+    slotCount,
+    visibleSlotCount
   };
 }
 

@@ -273,6 +273,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         <WireHandRail
           entry={entry}
           fallbackSide={row.side}
+          handPlan={tableView.playerPlans.handPlan}
           hidden={row.side === "opponent"}
           interaction={tableInteraction}
           key={row.id}
@@ -287,6 +288,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <WirePlayerHome
         entry={entry}
         fallbackSide={row.side}
+        basePlan={tableView.playerPlans.basePlan}
         interaction={tableInteraction}
         key={row.id}
         onInspectCard={inspectCard}
@@ -584,6 +586,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 }
 
 function WirePlayerHome({
+  basePlan,
   entry,
   fallbackSide,
   interaction,
@@ -591,6 +594,7 @@ function WirePlayerHome({
   onPreviewCard,
   specs
 }: {
+  basePlan: WireCardFlowPlan;
   entry?: WirePlayerEntry;
   fallbackSide: WirePlayerEntry["side"];
   interaction: WireTableInteraction;
@@ -612,7 +616,7 @@ function WirePlayerHome({
     ),
     base: (
       <section className="wire-base-main" key="base" aria-label={`${ownerLabel} 基地`}>
-        <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" ids={baseObjectIds} interactionByObjectId={interaction.interactionByObjectId} kind="base" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" ids={baseObjectIds} interactionByObjectId={interaction.interactionByObjectId} kind="base" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={basePlan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </section>
     )
   } satisfies Record<string, ReactNode>;
@@ -646,6 +650,7 @@ function WirePlayerHome({
 function WireHandRail({
   entry,
   fallbackSide,
+  handPlan,
   hidden = false,
   interaction,
   onInspectCard,
@@ -654,6 +659,7 @@ function WireHandRail({
 }: {
   entry?: WirePlayerEntry;
   fallbackSide: WirePlayerEntry["side"];
+  handPlan: WireCardFlowPlan;
   hidden?: boolean;
   interaction: WireTableInteraction;
   onInspectCard: (card: InspectedCard) => void;
@@ -682,7 +688,7 @@ function WireHandRail({
   const handBodySections = {
     cards: (
       <div className="wire-hand-cards" key="cards">
-        <WireCardFlow ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="hand" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WireCardFlow ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="hand" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={handPlan} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </div>
     ),
     piles: (
