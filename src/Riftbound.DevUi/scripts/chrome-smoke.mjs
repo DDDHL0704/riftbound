@@ -796,9 +796,16 @@ async function runWireClickSelectionSmoke(cdp) {
     const detail = document.querySelector(".detail-layer");
     const inspector = detail?.querySelector("[data-card-detail-inspector]");
     const actions = detail?.querySelector("[data-card-detail-actions-state]");
+    const actionRoutes = detail?.querySelector(".detail-action-routes");
     return {
       actionCount: Number(actions?.querySelector("[data-card-detail-action-count]")?.getAttribute("data-card-detail-action-count") ?? "0"),
       actionModes: Array.from(actions?.querySelectorAll("[data-card-detail-action-mode]") ?? []).map((node) => node.getAttribute("data-card-detail-action-mode")),
+      actionRouteCount: Number(actionRoutes?.getAttribute("data-card-detail-route-count") ?? "0"),
+      actionRouteKeys: Array.from(actionRoutes?.querySelectorAll("[data-card-detail-action-route]") ?? [])
+        .map((node) => node.getAttribute("data-card-detail-action-route") ?? ""),
+      actionRouteStates: Array.from(actionRoutes?.querySelectorAll("[data-card-detail-action-route-state]") ?? [])
+        .map((node) => node.getAttribute("data-card-detail-action-route-state")),
+      actionRouteText: actionRoutes?.textContent ?? "",
       actionSource: actions?.getAttribute("data-card-detail-actions-source") ?? "",
       actionState: actions?.getAttribute("data-card-detail-actions-state") ?? null,
       actionSummaryKeys: Array.from(actions?.querySelectorAll("[data-card-detail-action-summary]") ?? []).map((node) => node.getAttribute("data-card-detail-action-summary")),
@@ -1142,6 +1149,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.actionSummaryKeys.includes("route")) failures.push("card detail action route summary missing");
   if (!detailContextResult.actionSummaryKeys.includes("field")) failures.push("card detail action field summary missing");
   if (!detailContextResult.actionModes.includes("composer")) failures.push("card detail composer action entry missing");
+  if (detailContextResult.actionRouteCount < 1) failures.push("card detail action route rows missing");
+  if (!detailContextResult.actionRouteStates.includes("composer")) failures.push("card detail action route composer state missing");
+  if (!detailContextResult.actionRouteText.includes("候选入口路线")) failures.push("card detail action route section title missing");
+  if (!detailContextResult.actionRouteText.includes("打开组合入口")) failures.push("card detail action route next step missing");
   if (!detailContextResult.actionText.includes("服务端可提交操作")) failures.push("card detail action section text missing");
   if (!detailContextResult.actionText.includes("组合")) failures.push("card detail action route summary text missing");
   if (!detailContextResult.actionText.includes("字段")) failures.push("card detail action field summary text missing");
@@ -1450,6 +1461,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   await delay(150);
   const ruleDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
+    const routeSummary = panel?.querySelector(".wire-timeline-route-summary");
     const trigger = document.querySelector('[data-wire-detail-id="rule:stack:fixture-stack-1"]');
     const selectedRow = document.querySelector(".wire-rule-item.is-detail-selected");
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
@@ -1476,6 +1488,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
       projectionStates: Array.from(panel?.querySelectorAll(".wire-timeline-projection-list li") ?? [])
         .map((item) => item.getAttribute("data-projection-state")),
       projectionText: panel?.querySelector(".wire-timeline-projection-list")?.textContent ?? "",
+      routeSummaryLabel: routeSummary?.getAttribute("aria-label") ?? "",
+      routeSummaryState: routeSummary?.getAttribute("data-timeline-route-summary-state") ?? null,
+      routeSummaryCountKeys: Array.from(routeSummary?.querySelectorAll("[data-timeline-route-count]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-route-count") ?? ""),
+      routeSummaryCountStates: Array.from(routeSummary?.querySelectorAll("[data-timeline-route-count-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-route-count-state")),
+      routeSummaryText: routeSummary?.textContent ?? "",
       navigationActionStates: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
         .map((item) => item.getAttribute("data-timeline-navigation-action-state")),
       navigationButtonCount: panel?.querySelectorAll(".wire-timeline-navigation-button").length ?? 0,
@@ -1546,8 +1565,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const commandBridgeDetailResult = await evaluateJson(cdp, `(() => {
     const detail = document.querySelector(".detail-layer");
     const actions = detail?.querySelector("[data-card-detail-actions-state]");
+    const actionRoutes = detail?.querySelector(".detail-action-routes");
     return {
       actionCount: Number(actions?.querySelector("[data-card-detail-action-count]")?.getAttribute("data-card-detail-action-count") ?? "0"),
+      actionRouteCount: Number(actionRoutes?.getAttribute("data-card-detail-route-count") ?? "0"),
+      actionRouteStates: Array.from(actionRoutes?.querySelectorAll("[data-card-detail-action-route-state]") ?? [])
+        .map((node) => node.getAttribute("data-card-detail-action-route-state")),
+      actionRouteText: actionRoutes?.textContent ?? "",
       actionText: actions?.textContent ?? "",
       activeText: document.activeElement?.textContent ?? "",
       composerCount: detail?.querySelectorAll(".candidate-composer").length ?? 0,
@@ -1582,6 +1606,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
     const targetObject = document.querySelector(\`[data-object-id="\${objectId}"]\`);
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const panel = document.querySelector(".wire-timeline-detail");
+    const routeSummary = panel?.querySelector(".wire-timeline-route-summary");
     const route = document.querySelector("[data-action-route-state]");
     const sourceStep = candidatePlan?.querySelector('[data-step-role="source"]');
     const targetStep = candidatePlan?.querySelector('[data-step-role="target"]');
@@ -1595,6 +1620,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
+      routeSummaryState: routeSummary?.getAttribute("data-timeline-route-summary-state") ?? null,
+      routeSummaryCountStates: Array.from(routeSummary?.querySelectorAll("[data-timeline-route-count-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-route-count-state")),
+      routeSummaryText: routeSummary?.textContent ?? "",
       commandBridgeDraftActiveStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-draft-active")),
       commandBridgeDetailRoles: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-detail-role]") ?? [])
@@ -1674,6 +1703,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   await delay(150);
   const eventDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
+    const routeSummary = panel?.querySelector(".wire-timeline-route-summary");
     const trigger = document.querySelector('[data-wire-detail-id="event:STACK_ITEM_ADDED:0"]');
     const log = document.querySelector(".event-log");
     const selectedRow = document.querySelector(".log-row.is-detail-selected");
@@ -1706,6 +1736,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
       projectionStates: Array.from(panel?.querySelectorAll(".wire-timeline-projection-list li") ?? [])
         .map((item) => item.getAttribute("data-projection-state")),
       projectionText: panel?.querySelector(".wire-timeline-projection-list")?.textContent ?? "",
+      routeSummaryLabel: routeSummary?.getAttribute("aria-label") ?? "",
+      routeSummaryState: routeSummary?.getAttribute("data-timeline-route-summary-state") ?? null,
+      routeSummaryCountKeys: Array.from(routeSummary?.querySelectorAll("[data-timeline-route-count]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-route-count") ?? ""),
+      routeSummaryCountStates: Array.from(routeSummary?.querySelectorAll("[data-timeline-route-count-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-route-count-state")),
+      routeSummaryText: routeSummary?.textContent ?? "",
       navigationActionStates: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
         .map((item) => item.getAttribute("data-timeline-navigation-action-state")),
       navigationButtonCount: panel?.querySelectorAll(".wire-timeline-navigation-button").length ?? 0,
@@ -1812,6 +1849,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (ruleDetailResult.visibleRefCount < 2) failures.push(`rule detail visible ref count too low: ${ruleDetailResult.visibleRefCount}`);
   if (ruleDetailResult.actionCandidateCount < 1) failures.push("rule detail action candidate count missing");
   if (ruleDetailResult.commandBridgeCount < 1) failures.push("rule detail command bridge count missing");
+  if (ruleDetailResult.routeSummaryLabel !== "候选提交路线摘要") failures.push("rule detail route summary label missing");
+  if (!["ready", "selecting", "inactive"].includes(ruleDetailResult.routeSummaryState)) failures.push(`rule detail route summary state unexpected: ${ruleDetailResult.routeSummaryState}`);
+  if (!ruleDetailResult.routeSummaryCountKeys.includes("ready")) failures.push("rule detail route summary ready count missing");
+  if (!ruleDetailResult.routeSummaryCountKeys.includes("draft")) failures.push("rule detail route summary draft count missing");
+  if (!ruleDetailResult.routeSummaryText.includes("路径")) failures.push("rule detail route summary total path text missing");
+  if (!ruleDetailResult.routeSummaryText.includes("PLAY_CARD")) failures.push("rule detail route summary command type missing");
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
   if (!ruleDetailResult.hasTargetRef) failures.push("rule detail target ref missing");
@@ -1878,6 +1921,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeDetailResult.open) failures.push("command bridge detail button did not open card detail layer");
   if (!commandBridgeDetailResult.activeText.includes("关闭")) failures.push("command bridge detail drawer did not focus close button");
   if (!commandBridgeDetailResult.actionText.includes("服务端可提交操作")) failures.push("command bridge detail drawer action section missing");
+  if (commandBridgeDetailResult.actionRouteCount < 1) failures.push("command bridge detail drawer route rows missing");
+  if (!commandBridgeDetailResult.actionRouteStates.includes("composer")) failures.push("command bridge detail drawer route composer state missing");
+  if (!commandBridgeDetailResult.actionRouteText.includes("候选入口路线")) failures.push("command bridge detail drawer route section title missing");
   if (commandBridgeDetailResult.connectionState !== "ready") failures.push(`command bridge detail drawer unexpected connection state: ${commandBridgeDetailResult.connectionState}`);
   if (commandBridgeDetailResult.actionCount < 1) failures.push("command bridge detail drawer action entries missing");
   if (commandBridgeDetailResult.composerCount < 1) failures.push("command bridge detail drawer composer missing");
@@ -1906,6 +1952,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (commandBridgeFocusResult.targetStepProgress !== "selected") failures.push("command bridge target step not selected in candidate plan");
   if (commandBridgeFocusResult.targetRouteStepState !== "selected") failures.push("command bridge target route step not selected");
   if (commandBridgeFocusResult.routeState !== "ready") failures.push(`command bridge route state unexpected: ${commandBridgeFocusResult.routeState}`);
+  if (commandBridgeFocusResult.routeSummaryState !== "ready") failures.push(`command bridge route summary state unexpected after target selection: ${commandBridgeFocusResult.routeSummaryState}`);
+  if (!commandBridgeFocusResult.routeSummaryCountStates.includes("ready")) failures.push("command bridge route summary ready count state missing after target selection");
+  if (!commandBridgeFocusResult.routeSummaryText.includes("存在可提交路线")) failures.push("command bridge route summary ready headline missing after target selection");
+  if (!commandBridgeFocusResult.routeSummaryText.includes("PLAY_CARD")) failures.push("command bridge route summary command text missing after target selection");
   if (!commandBridgeFocusResult.draftText.includes("目标 1")) failures.push("command bridge draft target count missing");
   if (!commandBridgeFocusResult.routeText.includes("PLAY_CARD")) failures.push("command bridge route command type missing");
   if (!commandBridgeFocusResult.commandBridgeDraftActiveStates.includes("true")) failures.push("command bridge detail draft state missing after target selection");
@@ -1958,6 +2008,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (eventDetailResult.visibleRefCount < 2) failures.push(`event detail visible ref count too low: ${eventDetailResult.visibleRefCount}`);
   if (eventDetailResult.actionCandidateCount < 1) failures.push("event detail action candidate count missing");
   if (eventDetailResult.commandBridgeCount < 1) failures.push("event detail command bridge count missing");
+  if (eventDetailResult.routeSummaryLabel !== "候选提交路线摘要") failures.push("event detail route summary label missing");
+  if (!["ready", "selecting", "inactive"].includes(eventDetailResult.routeSummaryState)) failures.push(`event detail route summary state unexpected: ${eventDetailResult.routeSummaryState}`);
+  if (!eventDetailResult.routeSummaryCountKeys.includes("ready")) failures.push("event detail route summary ready count missing");
+  if (!eventDetailResult.routeSummaryCountKeys.includes("draft")) failures.push("event detail route summary draft count missing");
+  if (!eventDetailResult.routeSummaryText.includes("路径")) failures.push("event detail route summary total path text missing");
+  if (!eventDetailResult.routeSummaryText.includes("PLAY_CARD")) failures.push("event detail route summary command type missing");
   if (!eventDetailResult.evidenceKeys.includes("source")) failures.push("event detail evidence source row missing");
   if (!eventDetailResult.evidenceKeys.includes("path")) failures.push("event detail evidence path row missing");
   if (!eventDetailResult.evidenceText.includes("服务端日志")) failures.push("event detail evidence source authority missing");
