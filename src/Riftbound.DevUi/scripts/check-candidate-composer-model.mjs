@@ -319,11 +319,13 @@ assert.equal(choiceLabelById(controls.sources, "hand-2"), "手牌 2");
 
 console.log("Candidate composer model check passed.");
 
-function commandFromActionPromptTemplate(template, selection, requirement) {
+function commandFromActionPromptTemplate(template, selection, context) {
   if (!template?.cmdType) {
     return undefined;
   }
 
+  const requirement = context?.requirement ?? context;
+  const candidateMetadata = context?.candidateMetadata;
   const command = { cmdType: template.cmdType };
   for (const binding of template.bindings ?? []) {
     let value;
@@ -341,6 +343,8 @@ function commandFromActionPromptTemplate(template, selection, requirement) {
       value = selection.optionalCostIds ?? [];
     } else if (binding.source === "requirementMetadata") {
       value = requirement?.[binding.metadataKey];
+    } else if (binding.source === "candidateMetadata") {
+      value = candidateMetadata?.[binding.metadataKey];
     }
     if (binding.asArray && !Array.isArray(value)) {
       value = value ? [value] : [];

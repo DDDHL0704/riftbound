@@ -233,7 +233,7 @@ export function composerCommand(
       sourceId: state.sourceId,
       targetObjectIds
     },
-    requirement
+    { candidateMetadata: candidate.metadata, requirement }
   );
 }
 

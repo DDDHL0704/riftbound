@@ -73,6 +73,18 @@ function candidateIcon(
 }
 
 function simpleCommand(candidate: ActionPromptCandidateDto): GameCommand | undefined {
+  if (candidate.commandTemplate && !candidateRequiresFurtherChoice(candidate)) {
+    const source = singlePromptChoiceId(candidate.sources);
+    const templatedCommand = commandFromActionPromptTemplate(
+      candidate.commandTemplate,
+      { sourceId: source },
+      { candidateMetadata: candidate.metadata, requirement: sourceRequirementFor(candidate, source) }
+    );
+    if (templatedCommand) {
+      return templatedCommand;
+    }
+  }
+
   switch (candidate.action) {
     case "PASS_PRIORITY":
       return { cmdType: "PASS_PRIORITY" };
@@ -89,20 +101,6 @@ function simpleCommand(candidate: ActionPromptCandidateDto): GameCommand | undef
     case "WAIT":
       return undefined;
     default:
-      if (candidate.commandTemplate && !candidateRequiresFurtherChoice(candidate)) {
-        const source = singlePromptChoiceId(candidate.sources);
-        if (!source) {
-          return undefined;
-        }
-        const templatedCommand = commandFromActionPromptTemplate(
-          candidate.commandTemplate,
-          { sourceId: source },
-          sourceRequirementFor(candidate, source)
-        );
-        if (templatedCommand) {
-          return templatedCommand;
-        }
-      }
       return undefined;
   }
 }

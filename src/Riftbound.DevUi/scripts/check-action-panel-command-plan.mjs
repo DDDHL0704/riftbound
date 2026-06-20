@@ -70,6 +70,16 @@ assert.deepEqual(endTurn.command, { cmdType: "END_TURN" });
 assert.equal(endTurn.needsComposer, false);
 assert.equal(endTurn.icon, "play");
 
+const templatedEndTurn = plan({
+  action: "END_TURN",
+  commandTemplate: { bindings: [], cmdType: "END_TURN" },
+  enabled: true,
+  label: "结束回合",
+  reason: "可结束"
+});
+assert.deepEqual(templatedEndTurn.command, { cmdType: "END_TURN" });
+assert.equal(templatedEndTurn.needsComposer, false);
+
 const surrender = plan({
   action: "SURRENDER",
   enabled: true,
@@ -82,6 +92,14 @@ assert.equal(surrender.variant, "danger");
 
 const payCost = plan({
   action: "PAY_COST",
+  commandTemplate: {
+    bindings: [
+      { field: "paymentId", metadataKey: "paymentId", required: true, source: "candidateMetadata" },
+      { field: "paymentWindow", metadataKey: "paymentWindow", required: true, source: "candidateMetadata" },
+      { asArray: true, field: "paymentChoiceIds", metadataKey: "paymentChoiceIds", required: true, source: "candidateMetadata" }
+    ],
+    cmdType: "PAY_COST"
+  },
   enabled: true,
   label: "支付费用",
   metadata: {
@@ -228,11 +246,13 @@ function playCardTemplate() {
   };
 }
 
-function commandFromActionPromptTemplate(template, selection, requirement) {
+function commandFromActionPromptTemplate(template, selection, context) {
   if (!template?.cmdType) {
     return undefined;
   }
 
+  const requirement = context?.requirement ?? context;
+  const candidateMetadata = context?.candidateMetadata;
   const command = { cmdType: template.cmdType };
   for (const binding of template.bindings ?? []) {
     let value;
@@ -242,6 +262,8 @@ function commandFromActionPromptTemplate(template, selection, requirement) {
       value = selection.targetIds ?? [];
     } else if (binding.source === "requirementMetadata") {
       value = requirement?.[binding.metadataKey];
+    } else if (binding.source === "candidateMetadata") {
+      value = candidateMetadata?.[binding.metadataKey];
     }
     if (binding.required && (!value || (Array.isArray(value) && value.length === 0))) {
       return undefined;

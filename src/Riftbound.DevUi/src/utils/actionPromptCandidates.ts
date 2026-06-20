@@ -36,7 +36,7 @@ export function commandForSourceCandidate(
   const templatedCommand = commandFromActionPromptTemplate(
     candidate.commandTemplate,
     { sourceId: sourceObjectId },
-    sourceRequirementFor(candidate, sourceObjectId)
+    { candidateMetadata: candidate.metadata, requirement: sourceRequirementFor(candidate, sourceObjectId) }
   );
   if (templatedCommand) {
     return templatedCommand;

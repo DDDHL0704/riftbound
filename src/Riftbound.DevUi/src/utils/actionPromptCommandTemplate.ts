@@ -12,18 +12,29 @@ export type ActionPromptCommandTemplateSelection = {
   targetObjectIds?: string[];
 };
 
+export type ActionPromptCommandTemplateContext = {
+  candidateMetadata?: Record<string, unknown> | null;
+  requirement?: Record<string, unknown>;
+};
+
+type NormalizedActionPromptCommandTemplateContext = {
+  candidateMetadata?: Record<string, unknown>;
+  requirement?: Record<string, unknown>;
+};
+
 export function commandFromActionPromptTemplate(
   template: ActionPromptCommandTemplateDto | null | undefined,
   selection: ActionPromptCommandTemplateSelection,
-  requirement: Record<string, unknown> | undefined
+  context: ActionPromptCommandTemplateContext | Record<string, unknown> | undefined
 ): GameCommand | undefined {
   if (!template?.cmdType || !Array.isArray(template.bindings)) {
     return undefined;
   }
 
+  const normalizedContext = normalizeTemplateContext(context);
   const command: Record<string, unknown> = { cmdType: template.cmdType };
   for (const binding of template.bindings) {
-    const value = commandTemplateValue(binding, selection, requirement);
+    const value = commandTemplateValue(binding, selection, normalizedContext);
     if (isMissingCommandTemplateValue(value)) {
       if (binding.required) {
         return undefined;
@@ -42,9 +53,9 @@ export function commandFromActionPromptTemplate(
 function commandTemplateValue(
   binding: ActionPromptCommandTemplateBindingDto,
   selection: ActionPromptCommandTemplateSelection,
-  requirement: Record<string, unknown> | undefined
+  context: NormalizedActionPromptCommandTemplateContext
 ): string | string[] | undefined {
-  const rawValue = commandTemplateRawValue(binding, selection, requirement);
+  const rawValue = commandTemplateRawValue(binding, selection, context);
   if (binding.asArray) {
     if (Array.isArray(rawValue)) {
       return rawValue;
@@ -59,7 +70,7 @@ function commandTemplateValue(
 function commandTemplateRawValue(
   binding: ActionPromptCommandTemplateBindingDto,
   selection: ActionPromptCommandTemplateSelection,
-  requirement: Record<string, unknown> | undefined
+  context: NormalizedActionPromptCommandTemplateContext
 ): string | string[] | undefined {
   switch (binding.source) {
     case "selectedSource":
@@ -74,18 +85,20 @@ function commandTemplateRawValue(
       return selection.mode;
     case "selectedOptionalCosts":
       return selection.optionalCostIds ?? [];
+    case "candidateMetadata":
+      return commandTemplateMetadataValue(binding, context.candidateMetadata);
     case "requirementMetadata":
-      return commandTemplateRequirementValue(binding, requirement);
+      return commandTemplateMetadataValue(binding, context.requirement);
     default:
       return undefined;
   }
 }
 
-function commandTemplateRequirementValue(
+function commandTemplateMetadataValue(
   binding: ActionPromptCommandTemplateBindingDto,
-  requirement: Record<string, unknown> | undefined
-): string | undefined {
-  if (!requirement) {
+  metadata: Record<string, unknown> | undefined
+): string | string[] | undefined {
+  if (!metadata) {
     return undefined;
   }
 
@@ -94,13 +107,30 @@ function commandTemplateRequirementValue(
     ...(Array.isArray(binding.metadataKeys) ? binding.metadataKeys : [])
   ];
   for (const key of keys) {
-    const value = stringMetadata(requirement, key);
+    const value = stringOrStringArrayMetadata(metadata, key);
     if (value) {
       return value;
     }
   }
 
   return undefined;
+}
+
+function normalizeTemplateContext(
+  context: ActionPromptCommandTemplateContext | Record<string, unknown> | undefined
+): NormalizedActionPromptCommandTemplateContext {
+  if (!context) {
+    return { candidateMetadata: undefined, requirement: undefined };
+  }
+
+  if ("candidateMetadata" in context || "requirement" in context) {
+    return {
+      candidateMetadata: isRecord(context.candidateMetadata) ? context.candidateMetadata : undefined,
+      requirement: isRecord(context.requirement) ? context.requirement : undefined
+    };
+  }
+
+  return { candidateMetadata: undefined, requirement: context };
 }
 
 function isMissingCommandTemplateValue(value: string | string[] | undefined): boolean {
@@ -112,4 +142,23 @@ function isMissingCommandTemplateValue(value: string | string[] | undefined): bo
 function stringMetadata(record: Record<string, unknown>, key: string): string | undefined {
   const value = record[key];
   return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+}
+
+function stringOrStringArrayMetadata(record: Record<string, unknown>, key: string): string | string[] | undefined {
+  const stringValue = stringMetadata(record, key);
+  if (stringValue) {
+    return stringValue;
+  }
+
+  const value = record[key];
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const strings = value.map((item) => typeof item === "string" ? item.trim() : "");
+  return strings.length > 0 && strings.every((item) => item.length > 0) ? strings : undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }

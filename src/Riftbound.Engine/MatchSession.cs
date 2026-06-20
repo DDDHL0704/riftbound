@@ -6038,6 +6038,11 @@ internal static class ActionPromptBuilder
     {
         return action switch
         {
+            CommandTypes.PassPriority => CommandTemplate(CommandTypes.PassPriority),
+            CommandTypes.PassFocus => CommandTemplate(CommandTypes.PassFocus),
+            CommandTypes.Pass => CommandTemplate(CommandTypes.Pass),
+            CommandTypes.EndTurn => CommandTemplate(CommandTypes.EndTurn),
+            CommandTypes.Surrender => CommandTemplate(CommandTypes.Surrender),
             CommandTypes.PlayCard => CommandTemplate(
                 CommandTypes.PlayCard,
                 SourceBinding("sourceObjectId", required: true),
@@ -6096,6 +6101,11 @@ internal static class ActionPromptBuilder
                 RequirementMetadataBinding("abilityId", required: true, "abilityId"),
                 SelectedTargetsBinding("targetObjectIds", required: false, omitEmpty: false),
                 SelectedOptionalCostsBinding("optionalCosts")),
+            CommandTypes.PayCost => CommandTemplate(
+                CommandTypes.PayCost,
+                CandidateMetadataBinding("paymentId", required: true, metadataKeys: ["paymentId"]),
+                CandidateMetadataBinding("paymentWindow", required: true, metadataKeys: ["paymentWindow"]),
+                CandidateMetadataBinding("paymentChoiceIds", required: true, asArray: true, metadataKeys: ["paymentChoiceIds"])),
             _ => null
         };
     }
@@ -6161,6 +6171,21 @@ internal static class ActionPromptBuilder
             metadataKeys: metadataKeys.Length > 1 ? metadataKeys : null);
     }
 
+    private static ActionPromptCommandBindingDto CandidateMetadataBinding(
+        string field,
+        bool required,
+        bool asArray = false,
+        params string[] metadataKeys)
+    {
+        return CommandBinding(
+            field,
+            "candidateMetadata",
+            required,
+            asArray,
+            metadataKey: metadataKeys.Length == 1 ? metadataKeys[0] : null,
+            metadataKeys: metadataKeys.Length > 1 ? metadataKeys : null);
+    }
+
     private static ActionPromptCommandBindingDto CommandBinding(
         string field,
         string source,
@@ -6192,6 +6217,7 @@ internal static class ActionPromptBuilder
             "selectedMode" => "模式",
             "selectedOptionalCosts" => "费用",
             "requirementMetadata" => "服务端",
+            "candidateMetadata" => "候选数据",
             _ => null
         };
     }

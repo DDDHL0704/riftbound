@@ -164,6 +164,7 @@ export type ActionPromptCommandTemplateBindingDto = {
     | "selectedDestination"
     | "selectedMode"
     | "selectedOptionalCosts"
+    | "candidateMetadata"
     | "requirementMetadata"
     | (string & {});
   required?: boolean;

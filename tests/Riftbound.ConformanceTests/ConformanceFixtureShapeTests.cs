@@ -2398,6 +2398,25 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("TEST_PAYMENT", Assert.IsType<string>(metadata["paymentWindow"]));
         var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
         Assert.Contains(choices, choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
+        var template = Assert.IsType<ActionPromptCommandTemplateDto>(candidate.CommandTemplate);
+        Assert.Equal(CommandTypes.PayCost, template.CmdType);
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Field, "paymentId", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "candidateMetadata", StringComparison.Ordinal)
+            && binding.Required
+            && string.Equals(binding.MetadataKey, "paymentId", StringComparison.Ordinal)
+            && string.Equals(binding.Label, "候选数据", StringComparison.Ordinal));
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Field, "paymentWindow", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "candidateMetadata", StringComparison.Ordinal)
+            && binding.Required
+            && string.Equals(binding.MetadataKey, "paymentWindow", StringComparison.Ordinal));
+        Assert.Contains(template.Bindings, binding =>
+            string.Equals(binding.Field, "paymentChoiceIds", StringComparison.Ordinal)
+            && string.Equals(binding.Source, "candidateMetadata", StringComparison.Ordinal)
+            && binding.Required
+            && binding.AsArray
+            && string.Equals(binding.MetadataKey, "paymentChoiceIds", StringComparison.Ordinal));
         Assert.Equal("PENDING", Assert.IsType<string>(metadata["serverPaymentState"]));
         var ledger = Assert.IsType<Dictionary<string, object?>>(metadata["resourceLedgerBeforePayment"]);
         Assert.Equal(1, Assert.IsType<int>(ledger["mana"]));

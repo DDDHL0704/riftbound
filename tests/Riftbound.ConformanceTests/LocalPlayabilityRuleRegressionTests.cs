@@ -284,6 +284,20 @@ public sealed class LocalPlayabilityRuleRegressionTests
             && string.Equals(binding.Source, "selectedSource", StringComparison.Ordinal)
             && binding.Required
             && string.Equals(binding.Label, "来源", StringComparison.Ordinal));
+
+        var endTurnCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.EndTurn, StringComparison.Ordinal));
+        var endTurnTemplate = Assert.IsType<ActionPromptCommandTemplateDto>(endTurnCandidate.CommandTemplate);
+        Assert.Equal(CommandTypes.EndTurn, endTurnTemplate.CmdType);
+        Assert.Empty(endTurnTemplate.Bindings);
+
+        var surrenderCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.Surrender, StringComparison.Ordinal));
+        var surrenderTemplate = Assert.IsType<ActionPromptCommandTemplateDto>(surrenderCandidate.CommandTemplate);
+        Assert.Equal(CommandTypes.Surrender, surrenderTemplate.CmdType);
+        Assert.Empty(surrenderTemplate.Bindings);
     }
 
     [Fact]
