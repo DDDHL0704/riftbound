@@ -757,6 +757,8 @@ async function runWireLayoutGeometrySmoke(cdp) {
     const commandCenterFollowupServerState = commandCenterFollowup?.getAttribute("data-command-followup-server-state") ?? "missing";
     const commandCenterFollowupBridge = commandCenterFollowup?.querySelector("[data-command-followup-bridge-state]");
     const commandCenterFollowupBridgeState = commandCenterFollowupBridge?.getAttribute("data-command-followup-bridge-state") ?? "missing";
+    const commandCenterFollowupLayout = commandCenterFollowup?.querySelector("[data-command-followup-layout-state]");
+    const commandCenterFollowupLayoutState = commandCenterFollowupLayout?.getAttribute("data-command-followup-layout-state") ?? "missing";
     if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(commandCenterFollowupState)) {
       failures.push(\`wire command center followup state is unsupported: \${commandCenterFollowupState}\`);
     }
@@ -765,6 +767,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
     }
     if (!["empty", "failed", "ready", "unknown", "waiting"].includes(commandCenterFollowupBridgeState)) {
       failures.push(\`wire command center followup bridge state is unsupported: \${commandCenterFollowupBridgeState}\`);
+    }
+    if (!["empty", "hidden-only", "linked", "unknown"].includes(commandCenterFollowupLayoutState)) {
+      failures.push(\`wire command center followup layout projection state is unsupported: \${commandCenterFollowupLayoutState}\`);
     }
     for (const rowKey of ["serverState", "tick", "events", "snapshot", "prompt"]) {
       if (!commandCenterFollowupBridge?.querySelector(\`[data-command-followup-bridge-row="\${rowKey}"]\`)) {
@@ -863,6 +868,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       commandCenterFollowupState,
       commandCenterFollowupServerState,
       commandCenterFollowupBridgeState,
+      commandCenterFollowupLayoutState,
       informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
@@ -925,6 +931,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   if (!result.commandCenterFollowupServerState || result.commandCenterFollowupServerState === "missing") {
     throw new Error("Wire layout geometry smoke did not find command center followup server state");
   }
+  if (!["empty", "hidden-only", "linked", "unknown"].includes(result.commandCenterFollowupLayoutState)) {
+    throw new Error(`Wire layout geometry smoke did not find command center followup layout projection: ${result.commandCenterFollowupLayoutState}`);
+  }
   if (result.ruleAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server rule authority: ${result.ruleAuthorityState}`);
   }
@@ -953,6 +962,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const readiness = document.querySelector(".wire-focused-readiness");
     const commandCenter = document.querySelector(".wire-command-center");
     const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
+    const commandCenterFollowupLayout = commandCenterFollowup?.querySelector("[data-command-followup-layout-state]");
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     return {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
@@ -1003,6 +1013,11 @@ async function runWireClickSelectionSmoke(cdp) {
       commandCenterFollowupBridgeState: commandCenterFollowup?.querySelector("[data-command-followup-bridge-state]")?.getAttribute("data-command-followup-bridge-state") ?? null,
       commandCenterFollowupBridgeRows: Array.from(commandCenterFollowup?.querySelectorAll("[data-command-followup-bridge-row]") ?? [])
         .map((node) => (node.getAttribute("data-command-followup-bridge-row") ?? "") + ":" + (node.getAttribute("data-command-followup-bridge-row-state") ?? "")),
+      commandCenterFollowupLayoutHiddenCount: Number(commandCenterFollowupLayout?.getAttribute("data-command-followup-layout-hidden-count") ?? "0"),
+      commandCenterFollowupLayoutLocatedCount: Number(commandCenterFollowupLayout?.getAttribute("data-command-followup-layout-located-count") ?? "0"),
+      commandCenterFollowupLayoutState: commandCenterFollowupLayout?.getAttribute("data-command-followup-layout-state") ?? null,
+      commandCenterFollowupLayoutText: commandCenterFollowupLayout?.textContent ?? "",
+      commandCenterFollowupLayoutTotalCount: Number(commandCenterFollowupLayout?.getAttribute("data-command-followup-layout-total-count") ?? "0"),
       commandCenterFollowupMetricCount: commandCenterFollowup?.querySelectorAll("[data-command-followup-metric]").length ?? 0,
       commandCenterFollowupText: commandCenterFollowup?.textContent ?? "",
       commandCenterText: commandCenter?.textContent ?? "",
@@ -1160,6 +1175,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const route = document.querySelector("[data-action-route-state]");
     const commandReview = document.querySelector("[data-command-review-state]");
     const commandSubmission = document.querySelector("[data-command-submission-state]");
+    const commandSubmissionLayout = commandSubmission?.querySelector("[data-command-followup-layout-state]");
     const actionButtons = document.querySelector(".wire-action-panel .action-buttons");
     const layoutProjection = document.querySelector("[data-action-layout-projection-state]");
     return {
@@ -1200,6 +1216,9 @@ async function runWireClickSelectionSmoke(cdp) {
       commandReviewText: commandReview?.textContent ?? "",
       commandSubmissionOpenLayerDisabled: commandSubmission?.querySelector(".wire-command-submission-open-layer")?.hasAttribute("disabled") ?? null,
       commandSubmissionOpenLayerState: commandSubmission?.querySelector(".wire-command-submission-open-layer")?.getAttribute("data-command-submission-open-layer-state") ?? null,
+      commandSubmissionLayoutState: commandSubmissionLayout?.getAttribute("data-command-followup-layout-state") ?? null,
+      commandSubmissionLayoutText: commandSubmissionLayout?.textContent ?? "",
+      commandSubmissionLayoutTotalCount: Number(commandSubmissionLayout?.getAttribute("data-command-followup-layout-total-count") ?? "0"),
       commandSubmissionState: commandSubmission?.getAttribute("data-command-submission-state") ?? null,
       commandSubmissionText: commandSubmission?.textContent ?? "",
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
@@ -1508,6 +1527,9 @@ async function runWireClickSelectionSmoke(cdp) {
   }
   if (focusResult.commandCenterFollowupMetricCount < 4) failures.push("command center followup metric strip missing");
   if (!focusResult.commandCenterFollowupText.includes("后续事件")) failures.push("command center followup heading missing");
+  if (focusResult.commandCenterFollowupLayoutState !== "empty") failures.push(`command center followup layout state unexpected before submit: ${focusResult.commandCenterFollowupLayoutState}`);
+  if (focusResult.commandCenterFollowupLayoutTotalCount !== 0) failures.push(`command center followup layout should not project refs before submit: ${focusResult.commandCenterFollowupLayoutTotalCount}`);
+  if (!focusResult.commandCenterFollowupLayoutText.includes("回执桌面投影")) failures.push("command center followup layout heading missing");
   if (!focusResult.commandCenterFollowupText.includes("等待提交")) failures.push("command center followup bridge headline missing");
   if (!focusResult.commandCenterFollowupText.includes("尚未提交")) failures.push("command center followup empty summary missing");
   if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
@@ -1660,6 +1682,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.commandSubmissionText.includes("打开回执检查层")) failures.push("action command submission receipt layer entry missing");
   if (actionMapResult.commandSubmissionOpenLayerState !== "empty") failures.push(`action command submission receipt layer initial state unexpected: ${actionMapResult.commandSubmissionOpenLayerState}`);
   if (actionMapResult.commandSubmissionOpenLayerDisabled !== true) failures.push("action command submission receipt layer entry should be disabled before submit");
+  if (actionMapResult.commandSubmissionLayoutState !== "empty") failures.push(`action command submission layout state unexpected before submit: ${actionMapResult.commandSubmissionLayoutState}`);
+  if (actionMapResult.commandSubmissionLayoutTotalCount !== 0) failures.push(`action command submission layout should not project refs before submit: ${actionMapResult.commandSubmissionLayoutTotalCount}`);
+  if (!actionMapResult.commandSubmissionLayoutText.includes("回执桌面投影")) failures.push("action command submission layout projection heading missing");
   if (!actionMapResult.commandReviewText.includes("打出手牌")) failures.push("action command review candidate missing");
   if (!actionMapResult.commandReviewText.includes("PLAY_CARD")) failures.push("action command review command type missing");
   if (!actionMapResult.commandReviewText.includes("下一步")) failures.push("action command review next step missing");

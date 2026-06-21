@@ -7,6 +7,7 @@ import {
 } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
+import type { WireTableViewModel } from "./wireTableViewModel";
 import {
   buildWireCommandCenterPlan,
   type WireCommandCenterActionRow,
@@ -34,7 +35,8 @@ export function WireCommandCenterPanel({
   selectionDraft,
   snapshot,
   submissionFeedback,
-  submissionGate
+  submissionGate,
+  table
 }: {
   connectionStatus: ConnectionStatus;
   disabledByConnection: boolean;
@@ -50,6 +52,7 @@ export function WireCommandCenterPanel({
   snapshot?: SnapshotDto;
   submissionFeedback?: CommandSubmissionFollowupFeedback;
   submissionGate?: ServerSubmissionGatePlan;
+  table: WireTableViewModel;
 }) {
   const coachPlan = buildWireResponseCoachPlan({
     connectionStatus,
@@ -98,6 +101,7 @@ export function WireCommandCenterPanel({
         className="wire-command-followup wire-command-center-followup"
         onInspectObject={onInspectObject}
         plan={plan.submissionFollowup}
+        table={table}
       />
 
       {plan.canShowFocusedActions ? (

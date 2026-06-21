@@ -80,7 +80,7 @@ export function WireActionMapPanel({
       <ActionLayoutProjectionPanel plan={layoutProjection} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
-      <CommandSubmissionFeedbackPanel events={events} feedback={submissionFeedback} onInspectObject={onInspectObject} snapshot={snapshot} />
+      <CommandSubmissionFeedbackPanel events={events} feedback={submissionFeedback} onInspectObject={onInspectObject} snapshot={snapshot} table={table} />
       <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
@@ -223,12 +223,14 @@ function CommandSubmissionFeedbackPanel({
   events,
   feedback,
   onInspectObject,
-  snapshot
+  snapshot,
+  table
 }: {
   events?: GameEvent[];
   feedback?: CommandSubmissionFeedback;
   onInspectObject?: (objectId: string) => void;
   snapshot?: SnapshotDto;
+  table: WireTableViewModel;
 }) {
   const [layerOpen, setLayerOpen] = useState(false);
   const followup = buildCommandSubmissionFollowupPlan({ events, feedback, snapshot });
@@ -257,6 +259,7 @@ function CommandSubmissionFeedbackPanel({
           ariaLabel="提交反馈服务端后续事件"
           onInspectObject={onInspectObject}
           plan={followup}
+          table={table}
         />
       </section>
     );
@@ -325,6 +328,7 @@ function CommandSubmissionFeedbackPanel({
         ariaLabel="提交反馈服务端后续事件"
         onInspectObject={onInspectObject}
         plan={followup}
+        table={table}
       />
       {layerOpen && (
         <CommandSubmissionFeedbackLayer
@@ -332,6 +336,7 @@ function CommandSubmissionFeedbackPanel({
           followup={followup}
           onClose={() => setLayerOpen(false)}
           onInspectObject={onInspectObject}
+          table={table}
         />
       )}
     </section>
@@ -346,12 +351,14 @@ function CommandSubmissionFeedbackLayer({
   feedback,
   followup,
   onClose,
-  onInspectObject
+  onInspectObject,
+  table
 }: {
   feedback: CommandSubmissionFeedback;
   followup: ReturnType<typeof buildCommandSubmissionFollowupPlan>;
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
+  table: WireTableViewModel;
 }) {
   const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);
 
@@ -431,6 +438,7 @@ function CommandSubmissionFeedbackLayer({
             className="wire-command-submission-layer-followup"
             onInspectObject={onInspectObject}
             plan={followup}
+            table={table}
           />
         </div>
         <footer className="wire-command-submission-layer-footer">

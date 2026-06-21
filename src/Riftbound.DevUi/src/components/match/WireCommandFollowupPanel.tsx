@@ -2,18 +2,29 @@ import type {
   CommandSubmissionFollowupMetric,
   CommandSubmissionFollowupPlan
 } from "../../utils/commandSubmissionFollowupPlan";
+import {
+  buildWireCommandFollowupLayoutProjectionPlan,
+  type WireCommandFollowupLayoutProjectionPlan
+} from "./wireCommandFollowupLayoutProjectionPlan";
+import type { WireTableViewModel } from "./wireTableViewModel";
 
 export function WireCommandFollowupPanel({
   ariaLabel = "服务端后续事件",
   className = "wire-command-followup",
   onInspectObject,
-  plan
+  plan,
+  table
 }: {
   ariaLabel?: string;
   className?: string;
   onInspectObject?: (objectId: string) => void;
   plan: CommandSubmissionFollowupPlan;
+  table?: WireTableViewModel;
 }) {
+  const layoutProjection = table
+    ? buildWireCommandFollowupLayoutProjectionPlan({ plan, table })
+    : undefined;
+
   return (
     <section
       aria-label={ariaLabel}
@@ -53,6 +64,9 @@ export function WireCommandFollowupPanel({
         <strong>后续事件</strong>
         <span>{plan.summary}</span>
       </div>
+      {layoutProjection && (
+        <CommandFollowupLayoutProjectionPanel onInspectObject={onInspectObject} plan={layoutProjection} />
+      )}
       <div className="wire-command-followup-metrics">
         {plan.metrics.map((metric) => <CommandSubmissionFollowupMetricCell key={metric.key} metric={metric} />)}
       </div>
@@ -93,6 +107,66 @@ export function WireCommandFollowupPanel({
         </ol>
       )}
       {plan.hiddenEventCount > 0 && <small>另有 {plan.hiddenEventCount} 条同 tick 事件。</small>}
+    </section>
+  );
+}
+
+function CommandFollowupLayoutProjectionPanel({
+  onInspectObject,
+  plan
+}: {
+  onInspectObject?: (objectId: string) => void;
+  plan: WireCommandFollowupLayoutProjectionPlan;
+}) {
+  return (
+    <section
+      aria-label="回执对象桌面投影"
+      className="wire-command-followup-layout-projection"
+      data-command-followup-layout-hidden-count={plan.hiddenRefCount}
+      data-command-followup-layout-located-count={plan.locatedCount}
+      data-command-followup-layout-public-count={plan.publicRefCount}
+      data-command-followup-layout-state={plan.state}
+      data-command-followup-layout-total-count={plan.totalRefCount}
+      data-command-followup-layout-unknown-count={plan.unknownCount}
+    >
+      <div className="wire-command-followup-layout-heading">
+        <strong>回执桌面投影</strong>
+        <span>{plan.stateLabel}</span>
+      </div>
+      <small>{plan.summary}</small>
+      {plan.rows.length === 0 ? (
+        <span className="empty-hint">
+          {plan.hiddenRefCount > 0 ? "仅有隐藏引用，不暴露对象身份。" : "没有公开引用。"}
+        </span>
+      ) : (
+        <ol aria-label="回执公开对象区域投影">
+          {plan.rows.map((row) => (
+            <li
+              data-command-followup-layout-capacity-row={row.capacityRowKey ?? ""}
+              data-command-followup-layout-event-kind={row.eventKind}
+              data-command-followup-layout-kind={row.layoutKind}
+              data-command-followup-layout-object={row.objectId}
+              data-command-followup-layout-role={row.refRole}
+              data-command-followup-layout-row=""
+              data-command-followup-layout-state={row.state}
+              data-command-followup-layout-zone={row.zoneKey ?? ""}
+              key={row.key}
+            >
+              <button
+                disabled={!onInspectObject}
+                onClick={() => onInspectObject?.(row.objectId)}
+                title={`检查 ${row.objectId}`}
+                type="button"
+              >
+                <strong>{row.zoneLabel}</strong>
+                <span>{row.refRole} · {row.eventTitle}</span>
+                <small>{row.objectLabel}</small>
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
+      {plan.overflowCount > 0 && <small>另有 {plan.overflowCount} 个公开引用未展开。</small>}
     </section>
   );
 }
