@@ -2,6 +2,7 @@ import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/prot
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type {
   CommandSubmissionFollowupFeedback,
+  CommandSubmissionFollowupServerEventKind,
   ObservedGameEvent
 } from "../../utils/commandSubmissionFollowupPlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
@@ -23,7 +24,7 @@ type WireTimelineDetailLayerProps = {
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
   onOpenObjectDetail?: (objectId: string) => void;
-  onSelectServerEventKind?: (kind: string) => void;
+  onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   open: boolean;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;

@@ -356,7 +356,8 @@ public sealed class GameHub(
                 snapshotCount: result.Snapshots.Count,
                 promptCount: result.Prompts.Count,
                 receiptState: "ACCEPTED",
-                eventKinds: projectedEvents.Select(gameEvent => gameEvent.Kind).ToArray()));
+                eventKinds: projectedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
+                eventRefs: CommandReceiptEventRefs(projectedEvents, result.State.Tick)));
     }
 
     private static MessageType EventMessageType(GameCommand command, ResolutionResult result)
@@ -434,7 +435,8 @@ public sealed class GameHub(
         int snapshotCount,
         int promptCount,
         string receiptState,
-        IReadOnlyList<string>? eventKinds = null)
+        IReadOnlyList<string>? eventKinds = null,
+        IReadOnlyList<CommandReceiptEventRefDto>? eventRefs = null)
     {
         var state = accepted
             ? eventCount > 0
@@ -453,7 +455,26 @@ public sealed class GameHub(
             promptCount,
             state,
             CommandReceiptFollowupSummary(state, serverTick, eventCount, snapshotCount, promptCount),
-            eventKinds is { Count: > 0 } ? eventKinds : null);
+            eventKinds is { Count: > 0 } ? eventKinds : null,
+            eventRefs is { Count: > 0 } ? eventRefs : null);
+    }
+
+    private static IReadOnlyList<CommandReceiptEventRefDto>? CommandReceiptEventRefs(
+        IReadOnlyList<GameEvent> events,
+        long serverTick)
+    {
+        if (events.Count == 0)
+        {
+            return null;
+        }
+
+        var refs = new CommandReceiptEventRefDto[events.Count];
+        for (var index = 0; index < events.Count; index++)
+        {
+            refs[index] = new CommandReceiptEventRefDto(serverTick, index, events[index].Kind);
+        }
+
+        return refs;
     }
 
     private static string CommandReceiptFollowupSummary(

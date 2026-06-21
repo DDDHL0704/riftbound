@@ -5,6 +5,7 @@ import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraf
 import {
   buildCommandSubmissionFollowupPlan,
   type CommandSubmissionFollowupFeedback,
+  type CommandSubmissionFollowupServerEventKind,
   type ObservedGameEvent
 } from "../../utils/commandSubmissionFollowupPlan";
 import {
@@ -70,7 +71,7 @@ export function WireTimelineDetailPanel({
   onInspectObject?: (objectId: string) => void;
   onOpenLayer?: () => void;
   onOpenObjectDetail?: (objectId: string) => void;
-  onSelectServerEventKind?: (kind: string) => void;
+  onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
   selectedObjectContext?: TableObjectContext;

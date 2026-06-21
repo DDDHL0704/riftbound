@@ -23,12 +23,19 @@ export type ErrorDto = {
 
 export type CommandReceiptFollowupDto = {
   eventCount: number;
+  eventRefs?: CommandReceiptEventRefDto[] | null;
   eventKinds?: string[] | null;
   promptCount: number;
   serverTick: number;
   snapshotCount: number;
   state: "events" | "failed" | "rejected" | "silent" | "snapshot-prompt" | (string & {});
   summary: string;
+};
+
+export type CommandReceiptEventRefDto = {
+  kind: string;
+  order: number;
+  serverTick: number;
 };
 
 export type CommandReceiptDto = {

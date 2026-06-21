@@ -79,6 +79,7 @@ import type { CandidateSelectionDraft } from "../utils/candidateSelectionDraft";
 import { buildPromptInteractionModel, type PromptObjectState } from "../utils/promptInteraction";
 import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
+import type { CommandSubmissionFollowupServerEventKind } from "../utils/commandSubmissionFollowupPlan";
 import { buildEventLogPlan } from "../utils/eventLogPlan";
 import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
@@ -342,13 +343,27 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     timelineDetailTriggerIdRef.current = detail.id;
     setTimelineDetail(detail);
   }, []);
-  const selectServerEventKind = useCallback((kind: string) => {
+  const selectServerEventKind = useCallback((eventKind: CommandSubmissionFollowupServerEventKind) => {
     const eventPlan = buildEventLogPlan({
       errors: [],
       events: tableEvents,
       objectIndex: tableObjectIndex
     });
-    const row = eventPlan.events.find((event) => event.kind === kind);
+    const exactIndex = eventKind.source === "event-ref"
+      ? tableEvents.findIndex((event) => {
+        const observed = event as { receivedBatchIndex?: number; receivedServerTick?: number };
+        return event.kind === eventKind.kind
+          && observed.receivedServerTick === eventKind.serverTick
+          && observed.receivedBatchIndex === eventKind.order;
+      })
+      : -1;
+    const exactRow = exactIndex >= 0 ? eventPlan.events[exactIndex] : undefined;
+    const fixtureRow = eventKind.source === "event-ref" && exactRow == null && eventKind.order != null
+      ? eventPlan.events[eventKind.order]
+      : undefined;
+    const row = exactRow
+      ?? (fixtureRow?.kind === eventKind.kind ? fixtureRow : undefined)
+      ?? eventPlan.events.find((event) => event.kind === eventKind.kind);
     if (row) {
       selectTimelineDetail(row.detail);
     }

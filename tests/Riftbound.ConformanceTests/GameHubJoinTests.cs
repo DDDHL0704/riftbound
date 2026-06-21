@@ -1034,6 +1034,11 @@ public sealed class GameHubJoinTests
         Assert.Equal(events.Count, receipt.Followup.EventCount);
         Assert.NotNull(receipt.Followup.EventKinds);
         Assert.Equal(events.Select(gameEvent => gameEvent.Kind), receipt.Followup.EventKinds);
+        Assert.NotNull(receipt.Followup.EventRefs);
+        Assert.Equal(events.Count, receipt.Followup.EventRefs.Count);
+        Assert.Equal(
+            events.Select((gameEvent, index) => $"{receipt.ServerTick}:{index}:{gameEvent.Kind}"),
+            receipt.Followup.EventRefs.Select(eventRef => $"{eventRef.ServerTick}:{eventRef.Order}:{eventRef.Kind}"));
         Assert.Equal(clients.GroupClient.Snapshots.Count, receipt.Followup.SnapshotCount);
         Assert.Equal(clients.GroupClient.Prompts.Count, receipt.Followup.PromptCount);
         Assert.Equal(MessageType.EVENTS, eventsMessage.Type);

@@ -2165,6 +2165,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
       timelineFollowupServerState: timelineFollowup?.getAttribute("data-command-followup-server-state") ?? "",
       timelineFollowupServerKindActions: Array.from(timelineFollowup?.querySelectorAll("[data-command-followup-server-event-kind-action]") ?? [])
         .map((item) => item.getAttribute("data-command-followup-server-event-kind-action") ?? ""),
+      timelineFollowupServerKindOrders: Array.from(timelineFollowup?.querySelectorAll("[data-command-followup-server-event-order]") ?? [])
+        .map((item) => item.getAttribute("data-command-followup-server-event-order") ?? ""),
+      timelineFollowupServerKindSources: Array.from(timelineFollowup?.querySelectorAll("[data-command-followup-server-event-kind-source]") ?? [])
+        .map((item) => item.getAttribute("data-command-followup-server-event-kind-source") ?? ""),
       timelineFollowupServerKindStates: Array.from(timelineFollowup?.querySelectorAll("[data-command-followup-server-event-kind-state]") ?? [])
         .map((item) => item.getAttribute("data-command-followup-server-event-kind-state") ?? ""),
       timelineFollowupSourceSurface: timelineFollowup?.querySelector("[data-command-followup-source-surface]")?.getAttribute("data-command-followup-source-surface") ?? "",
@@ -2485,6 +2489,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
       timelineFollowupServerState: timelineFollowup?.getAttribute("data-command-followup-server-state") ?? "",
       timelineFollowupServerKindActions: Array.from(timelineFollowup?.querySelectorAll("[data-command-followup-server-event-kind-action]") ?? [])
         .map((item) => item.getAttribute("data-command-followup-server-event-kind-action") ?? ""),
+      timelineFollowupServerKindOrders: Array.from(timelineFollowup?.querySelectorAll("[data-command-followup-server-event-order]") ?? [])
+        .map((item) => item.getAttribute("data-command-followup-server-event-order") ?? ""),
+      timelineFollowupServerKindSources: Array.from(timelineFollowup?.querySelectorAll("[data-command-followup-server-event-kind-source]") ?? [])
+        .map((item) => item.getAttribute("data-command-followup-server-event-kind-source") ?? ""),
       timelineFollowupServerKindStates: Array.from(timelineFollowup?.querySelectorAll("[data-command-followup-server-event-kind-state]") ?? [])
         .map((item) => item.getAttribute("data-command-followup-server-event-kind-state") ?? ""),
       timelineFollowupSourceSurface: timelineFollowup?.querySelector("[data-command-followup-source-surface]")?.getAttribute("data-command-followup-source-surface") ?? "",
@@ -2566,7 +2574,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
-  const serverKindJumpKind = await clickTimelineFollowupServerKind(cdp, "BATTLEFIELD_CONTROL_RESOLVED");
+  const serverKindJumpKind = await clickTimelineFollowupServerKind(cdp, "BATTLEFIELD_CONTROL_RESOLVED", 1);
   await delay(150);
   const serverKindJumpResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
@@ -2579,7 +2587,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
-  const serverKindRestoreKind = await clickTimelineFollowupServerKind(cdp, "STACK_ITEM_ADDED");
+  const serverKindRestoreKind = await clickTimelineFollowupServerKind(cdp, "STACK_ITEM_ADDED", 0);
   await delay(150);
   const serverKindRestoreResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
@@ -2724,6 +2732,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (ruleDetailResult.timelineFollowupSourceSurface !== "timeline-detail") failures.push(`rule detail followup source surface unexpected: ${ruleDetailResult.timelineFollowupSourceSurface}`);
   if (!ruleDetailResult.timelineFollowupServerKindActions.includes("STACK_ITEM_ADDED")) failures.push("rule detail followup stack event kind action missing");
   if (!ruleDetailResult.timelineFollowupServerKindActions.includes("BATTLEFIELD_CONTROL_RESOLVED")) failures.push("rule detail followup battlefield event kind action missing");
+  if (!ruleDetailResult.timelineFollowupServerKindSources.includes("event-ref")) failures.push("rule detail followup event-ref source missing");
+  if (!ruleDetailResult.timelineFollowupServerKindOrders.includes("0")) failures.push("rule detail followup stack event order missing");
+  if (!ruleDetailResult.timelineFollowupServerKindOrders.includes("1")) failures.push("rule detail followup battlefield event order missing");
   if (!ruleDetailResult.timelineFollowupServerKindStates.includes("declared")) failures.push("rule detail followup declared event kind state missing");
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
@@ -2927,6 +2938,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (eventDetailResult.timelineFollowupSourceSurface !== "timeline-detail") failures.push(`event detail followup source surface unexpected: ${eventDetailResult.timelineFollowupSourceSurface}`);
   if (!eventDetailResult.timelineFollowupServerKindActions.includes("STACK_ITEM_ADDED")) failures.push("event detail followup stack event kind action missing");
   if (!eventDetailResult.timelineFollowupServerKindActions.includes("BATTLEFIELD_CONTROL_RESOLVED")) failures.push("event detail followup battlefield event kind action missing");
+  if (!eventDetailResult.timelineFollowupServerKindSources.includes("event-ref")) failures.push("event detail followup event-ref source missing");
   if (!eventDetailResult.evidenceKeys.includes("source")) failures.push("event detail evidence source row missing");
   if (!eventDetailResult.evidenceKeys.includes("path")) failures.push("event detail evidence path row missing");
   if (!eventDetailResult.evidenceText.includes("服务端日志")) failures.push("event detail evidence source authority missing");
@@ -3300,10 +3312,12 @@ async function clickTimelineCommandBridgeDetail(cdp, objectId) {
   return clickedObjectId;
 }
 
-async function clickTimelineFollowupServerKind(cdp, kind) {
+async function clickTimelineFollowupServerKind(cdp, kind, order) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const selector = ${JSON.stringify(`.wire-timeline-command-followup [data-command-followup-server-event-kind-action="${kind}"]`)};
+      const selector = ${JSON.stringify(
+        `.wire-timeline-command-followup [data-command-followup-server-event-kind-action="${kind}"]${order == null ? "" : `[data-command-followup-server-event-order-action="${order}"]`}`
+      )};
       const element = document.querySelector(selector);
       if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
       element.click();

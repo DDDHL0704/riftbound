@@ -2,7 +2,7 @@ import type { ActionPromptDto, GameCommand, GameEvent, SnapshotDto } from "../..
 import { useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { CommandSubmissionFeedback } from "../../stores/useMatchController";
-import { buildCommandSubmissionFollowupPlan } from "../../utils/commandSubmissionFollowupPlan";
+import { buildCommandSubmissionFollowupPlan, type CommandSubmissionFollowupServerEventKind } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildWireActionMapPlan,
@@ -29,7 +29,7 @@ type WireActionMapPanelProps = {
   onChooseObject?: (objectId: string) => void;
   onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
-  onSelectServerEventKind?: (kind: string) => void;
+  onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   playerId: string;
   prompt?: ActionPromptDto;
   selectedObjectId?: string;
@@ -239,7 +239,7 @@ function CommandSubmissionFeedbackPanel({
   events?: GameEvent[];
   feedback?: CommandSubmissionFeedback;
   onInspectObject?: (objectId: string) => void;
-  onSelectServerEventKind?: (kind: string) => void;
+  onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   snapshot?: SnapshotDto;
   table: WireTableViewModel;
 }) {
@@ -373,7 +373,7 @@ function CommandSubmissionFeedbackLayer({
   followup: ReturnType<typeof buildCommandSubmissionFollowupPlan>;
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
-  onSelectServerEventKind?: (kind: string) => void;
+  onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   table: WireTableViewModel;
 }) {
   const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);

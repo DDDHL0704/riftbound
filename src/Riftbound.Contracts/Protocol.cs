@@ -544,6 +544,11 @@ public sealed record ClientIntentDto(
     string ClientIntentId,
     JsonElement Cmd);
 
+public sealed record CommandReceiptEventRefDto(
+    long ServerTick,
+    int Order,
+    string Kind);
+
 public sealed record CommandReceiptFollowupDto(
     long ServerTick,
     int EventCount,
@@ -551,7 +556,8 @@ public sealed record CommandReceiptFollowupDto(
     int PromptCount,
     string State,
     string Summary,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? EventKinds = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? EventKinds = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CommandReceiptEventRefDto>? EventRefs = null);
 
 public sealed record CommandReceiptDto(
     string RoomId,

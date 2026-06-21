@@ -1,6 +1,7 @@
 import type {
   CommandSubmissionFollowupMetric,
-  CommandSubmissionFollowupPlan
+  CommandSubmissionFollowupPlan,
+  CommandSubmissionFollowupServerEventKind
 } from "../../utils/commandSubmissionFollowupPlan";
 import {
   buildWireCommandFollowupLayoutProjectionPlan,
@@ -19,7 +20,7 @@ export function WireCommandFollowupPanel({
   ariaLabel?: string;
   className?: string;
   onInspectObject?: (objectId: string) => void;
-  onSelectServerEventKind?: (kind: string) => void;
+  onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   plan: CommandSubmissionFollowupPlan;
   table?: WireTableViewModel;
 }) {
@@ -80,23 +81,38 @@ export function WireCommandFollowupPanel({
       )}
       {plan.serverEventKinds.length > 0 && (
         <ol className="wire-command-followup-server-kinds" aria-label="服务端回执事件种类">
-          {plan.serverEventKinds.map((eventKind) => (
-            <li
-              data-command-followup-server-event-kind={eventKind.kind}
-              data-command-followup-server-event-kind-state={plan.events.some((event) => event.kind === eventKind.kind) ? "linked" : "declared"}
-              key={eventKind.key}
-            >
-              <button
-                data-command-followup-server-event-kind-action={eventKind.kind}
-                disabled={!onSelectServerEventKind}
-                onClick={() => onSelectServerEventKind?.(eventKind.kind)}
-                type="button"
+          {plan.serverEventKinds.map((eventKind) => {
+            const linked = plan.events.some((event) => {
+              if (event.kind !== eventKind.kind) {
+                return false;
+              }
+
+              return eventKind.source === "kind"
+                || (event.serverTick === eventKind.serverTick && event.order === eventKind.order);
+            });
+            return (
+              <li
+                data-command-followup-server-event-kind={eventKind.kind}
+                data-command-followup-server-event-kind-source={eventKind.source}
+                data-command-followup-server-event-kind-state={linked ? "linked" : "declared"}
+                data-command-followup-server-event-order={eventKind.order ?? ""}
+                data-command-followup-server-event-tick={eventKind.serverTick ?? ""}
+                key={eventKind.key}
               >
-                <span>{eventKind.label}</span>
-                <small>{eventKind.kind}</small>
-              </button>
-            </li>
-          ))}
+                <button
+                  data-command-followup-server-event-kind-action={eventKind.kind}
+                  data-command-followup-server-event-order-action={eventKind.order ?? ""}
+                  data-command-followup-server-event-tick-action={eventKind.serverTick ?? ""}
+                  disabled={!onSelectServerEventKind}
+                  onClick={() => onSelectServerEventKind?.(eventKind)}
+                  type="button"
+                >
+                  <span>{eventKind.label}</span>
+                  <small>{eventKind.source === "event-ref" ? `${eventKind.kind} #${(eventKind.order ?? 0) + 1}` : eventKind.kind}</small>
+                </button>
+              </li>
+            );
+          })}
         </ol>
       )}
       {layoutProjection && (

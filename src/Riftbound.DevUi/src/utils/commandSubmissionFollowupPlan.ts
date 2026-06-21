@@ -63,8 +63,10 @@ export type CommandSubmissionFollowupEventRow = {
   kind: string;
   key: string;
   messageType?: string;
+  order?: number;
   refCount: number;
   refs: CommandSubmissionFollowupEventRef[];
+  serverTick?: number;
   title: string;
 };
 
@@ -80,6 +82,9 @@ export type CommandSubmissionFollowupServerEventKind = {
   key: string;
   kind: string;
   label: string;
+  order?: number;
+  serverTick?: number;
+  source: "event-ref" | "kind";
 };
 
 export type CommandSubmissionFollowupPlan = {
@@ -134,8 +139,10 @@ export function buildCommandSubmissionFollowupPlan({
     kind: event.kind,
     key: `${serverTick}:${event.kind}:${event.receivedBatchIndex ?? index}`,
     messageType: event.receivedMessageType,
+    order: event.receivedBatchIndex,
     refCount: event.objectRefs?.length ?? 0,
     refs: followupEventRefs(event.objectRefs),
+    serverTick: event.receivedServerTick,
     title: eventKindLabel(event.kind)
   }));
   const snapshotTick = numberOrUndefined(snapshot?.tick);
@@ -429,10 +436,38 @@ function serverFollowupFields(feedback?: CommandSubmissionFollowupFeedback): {
 } {
   const state = serverFollowupState(feedback);
   return {
-    serverEventKinds: compactStringList(feedback?.followup?.eventKinds),
+    serverEventKinds: serverEventRefs(feedback?.followup) ?? compactStringList(feedback?.followup?.eventKinds),
     serverFollowupState: state,
     serverFollowupStateLabel: serverFollowupStateLabel(state)
   };
+}
+
+function serverEventRefs(followup?: CommandReceiptFollowupDto | null): CommandSubmissionFollowupServerEventKind[] | undefined {
+  const values = followup?.eventRefs;
+  if (!Array.isArray(values) || values.length === 0) {
+    return undefined;
+  }
+
+  const result: CommandSubmissionFollowupServerEventKind[] = [];
+  for (const value of values) {
+    const kind = typeof value?.kind === "string" ? value.kind.trim() : "";
+    const serverTick = numberOrUndefined(value?.serverTick);
+    const order = nonNegativeIntegerOrUndefined(value?.order);
+    if (!kind || serverTick == null || order == null) {
+      continue;
+    }
+
+    result.push({
+      key: `${serverTick}:${order}:${kind}`,
+      kind,
+      label: eventKindLabel(kind),
+      order,
+      serverTick,
+      source: "event-ref"
+    });
+  }
+
+  return result.length > 0 ? result : undefined;
 }
 
 function compactStringList(values?: readonly string[] | null): CommandSubmissionFollowupServerEventKind[] {
@@ -452,7 +487,8 @@ function compactStringList(values?: readonly string[] | null): CommandSubmission
     result.push({
       key: normalized,
       kind: normalized,
-      label: eventKindLabel(normalized)
+      label: eventKindLabel(normalized),
+      source: "kind"
     });
   }
 

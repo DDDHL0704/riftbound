@@ -659,6 +659,10 @@ export function buildWireLayoutFixtureCommandSubmission(): CommandSubmissionFeed
     cmdType: "PLAY_CARD",
     followup: {
       eventCount: 2,
+      eventRefs: [
+        { kind: "STACK_ITEM_ADDED", order: 0, serverTick: 7 },
+        { kind: "BATTLEFIELD_CONTROL_RESOLVED", order: 1, serverTick: 7 }
+      ],
       eventKinds: ["STACK_ITEM_ADDED", "BATTLEFIELD_CONTROL_RESOLVED"],
       promptCount: 1,
       serverTick: 7,

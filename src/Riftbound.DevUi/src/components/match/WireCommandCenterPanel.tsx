@@ -3,6 +3,7 @@ import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraf
 import {
   buildCommandSubmissionFollowupPlan,
   type CommandSubmissionFollowupFeedback,
+  type CommandSubmissionFollowupServerEventKind,
   type ObservedGameEvent
 } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -47,7 +48,7 @@ export function WireCommandCenterPanel({
   onClearFocus: () => void;
   onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
-  onSelectServerEventKind?: (kind: string) => void;
+  onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   playerId: string;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
