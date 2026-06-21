@@ -18,6 +18,7 @@ export function WireCommandFollowupPanel({
       className={className}
       data-command-followup-event-count={plan.events.length}
       data-command-followup-hidden-count={plan.hiddenEventCount}
+      data-command-followup-server-state={plan.serverFollowupState}
       data-command-followup-state={plan.state}
     >
       <div className="wire-command-followup-heading">

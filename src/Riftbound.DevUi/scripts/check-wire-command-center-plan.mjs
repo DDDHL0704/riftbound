@@ -139,6 +139,8 @@ function followup(state) {
     events: [],
     hiddenEventCount: 0,
     metrics: [],
+    serverFollowupState: state,
+    serverFollowupStateLabel: `${state} server`,
     state,
     summary: `${state} summary`
   };

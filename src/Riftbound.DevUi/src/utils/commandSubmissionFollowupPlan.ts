@@ -18,7 +18,7 @@ export type CommandSubmissionFollowupState =
   | "unknown-tick";
 
 export type CommandSubmissionFollowupMetric = {
-  key: "events" | "prompt" | "snapshot" | "tick";
+  key: "events" | "prompt" | "serverState" | "snapshot" | "tick";
   label: string;
   state: "empty" | "ready" | "waiting";
   value: string;
@@ -52,6 +52,8 @@ export type CommandSubmissionFollowupPlan = {
   events: CommandSubmissionFollowupEventRow[];
   hiddenEventCount: number;
   metrics: CommandSubmissionFollowupMetric[];
+  serverFollowupState: string;
+  serverFollowupStateLabel: string;
   state: CommandSubmissionFollowupState;
   summary: string;
 };
@@ -114,6 +116,7 @@ export function buildCommandSubmissionFollowupPlan({
         snapshotBroadcastCount: reportedSnapshotCount,
         serverTick
       }),
+      ...serverFollowupFields(feedback),
       state: "accepted-events",
       summary: receiptFollowup?.summary ?? `服务端 tick ${serverTick} 广播 ${authoritativeEventCount} 条后续事件。`
     };
@@ -131,6 +134,7 @@ export function buildCommandSubmissionFollowupPlan({
         snapshotBroadcastCount: reportedSnapshotCount,
         serverTick
       }),
+      ...serverFollowupFields(feedback),
       state: "accepted-awaiting",
       summary: `服务端回执声明 tick ${serverTick} 有 ${reportedEventCount} 条公开事件，等待事件流抵达。`
     };
@@ -148,6 +152,7 @@ export function buildCommandSubmissionFollowupPlan({
         snapshotBroadcastCount: reportedSnapshotCount,
         serverTick
       }),
+      ...serverFollowupFields(feedback),
       state: "accepted-snapshot",
       summary: receiptFollowup?.summary ?? `当前快照已追上 tick ${serverTick}；该命令没有公开事件，后续以当前快照/提示为准。`
     };
@@ -164,6 +169,7 @@ export function buildCommandSubmissionFollowupPlan({
       snapshotBroadcastCount: reportedSnapshotCount,
       serverTick
     }),
+    ...serverFollowupFields(feedback),
     state: "accepted-awaiting",
     summary: `等待 tick ${serverTick} 的事件或快照广播。`
   };
@@ -187,6 +193,7 @@ function emptyPlan(
       snapshotBroadcastCount: nonNegativeIntegerOrUndefined(feedback?.followup?.snapshotCount),
       serverTick: serverTick ?? numberOrUndefined(feedback?.followup?.serverTick)
     }),
+    ...serverFollowupFields(feedback),
     state,
     summary
   };
@@ -213,6 +220,12 @@ function followupMetrics({
   const effectivePromptCount = promptCount ?? 0;
 
   return [
+    {
+      key: "serverState",
+      label: "服务端后续",
+      state: serverFollowupMetricState(feedback),
+      value: serverFollowupStateLabel(serverFollowupState(feedback))
+    },
     {
       key: "tick",
       label: "回执 tick",
@@ -242,6 +255,75 @@ function followupMetrics({
       value: String(effectivePromptCount)
     }
   ];
+}
+
+function serverFollowupFields(feedback?: CommandSubmissionFollowupFeedback): {
+  serverFollowupState: string;
+  serverFollowupStateLabel: string;
+} {
+  const state = serverFollowupState(feedback);
+  return {
+    serverFollowupState: state,
+    serverFollowupStateLabel: serverFollowupStateLabel(state)
+  };
+}
+
+function serverFollowupState(feedback?: CommandSubmissionFollowupFeedback): string {
+  if (feedback?.followup?.state) {
+    return feedback.followup.state;
+  }
+
+  if (!feedback) {
+    return "none";
+  }
+
+  if (feedback.state === "submitting") {
+    return "pending";
+  }
+
+  if (feedback.state === "failed") {
+    return "client-failed";
+  }
+
+  if (feedback.state === "sent") {
+    return "receipt-only";
+  }
+
+  return "none";
+}
+
+function serverFollowupMetricState(feedback?: CommandSubmissionFollowupFeedback): CommandSubmissionFollowupMetric["state"] {
+  const state = serverFollowupState(feedback);
+  if (state === "none" || state === "client-failed") {
+    return "empty";
+  }
+
+  return state === "pending" ? "waiting" : "ready";
+}
+
+function serverFollowupStateLabel(state: string): string {
+  switch (state) {
+    case "events":
+      return "事件";
+    case "snapshot-prompt":
+      return "快照/提示";
+    case "silent":
+      return "静默";
+    case "rejected":
+      return "拒绝";
+    case "failed":
+      return "失败";
+    case "pending":
+      return "等待";
+    case "receipt-only":
+      return "仅回执";
+    case "client-failed":
+      return "本地失败";
+    case "none":
+      return "无";
+    default:
+      return state || "未知";
+  }
 }
 
 function numberOrUndefined(value: unknown): number | undefined {

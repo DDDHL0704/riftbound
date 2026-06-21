@@ -703,8 +703,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
     }
     const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
     const commandCenterFollowupState = commandCenterFollowup?.getAttribute("data-command-followup-state") ?? "missing";
+    const commandCenterFollowupServerState = commandCenterFollowup?.getAttribute("data-command-followup-server-state") ?? "missing";
     if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(commandCenterFollowupState)) {
       failures.push(\`wire command center followup state is unsupported: \${commandCenterFollowupState}\`);
+    }
+    if (commandCenterFollowupServerState === "missing" || commandCenterFollowupServerState.length === 0) {
+      failures.push("wire command center followup server state is missing");
     }
 
     const responsibilitySource = document.querySelector("[data-wire-window-responsibility-source]")?.getAttribute("data-wire-window-responsibility-source") ?? "missing";
@@ -756,6 +760,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       commandSubmissionState,
       commandCenterState,
       commandCenterFollowupState,
+      commandCenterFollowupServerState,
       informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
@@ -810,6 +815,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(result.commandCenterFollowupState)) {
     throw new Error(`Wire layout geometry smoke did not find command center followup: ${result.commandCenterFollowupState}`);
+  }
+  if (!result.commandCenterFollowupServerState || result.commandCenterFollowupServerState === "missing") {
+    throw new Error("Wire layout geometry smoke did not find command center followup server state");
   }
   if (result.ruleAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server rule authority: ${result.ruleAuthorityState}`);
@@ -874,6 +882,7 @@ async function runWireClickSelectionSmoke(cdp) {
       commandCenterState: document.querySelector("[data-wire-command-center-state]")?.getAttribute("data-wire-command-center-state") ?? null,
       commandCenterStepRole: document.querySelector("[data-wire-command-center-step-role]")?.getAttribute("data-wire-command-center-step-role") ?? null,
       commandCenterFollowupState: commandCenterFollowup?.getAttribute("data-command-followup-state") ?? null,
+      commandCenterFollowupServerState: commandCenterFollowup?.getAttribute("data-command-followup-server-state") ?? null,
       commandCenterFollowupMetricCount: commandCenterFollowup?.querySelectorAll("[data-command-followup-metric]").length ?? 0,
       commandCenterFollowupText: commandCenterFollowup?.textContent ?? "",
       commandCenterText: commandCenter?.textContent ?? "",
@@ -1216,6 +1225,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (focusResult.commandCenterActionCount < 1) failures.push("command center focused action entry missing");
   if (!focusResult.commandCenterText.includes("PLAY_CARD")) failures.push("command center did not expose command type");
   if (focusResult.commandCenterFollowupState !== "empty") failures.push(`command center followup state unexpected before submit: ${focusResult.commandCenterFollowupState}`);
+  if (focusResult.commandCenterFollowupServerState !== "none") failures.push(`command center followup server state unexpected before submit: ${focusResult.commandCenterFollowupServerState}`);
   if (focusResult.commandCenterFollowupMetricCount < 4) failures.push("command center followup metric strip missing");
   if (!focusResult.commandCenterFollowupText.includes("后续事件")) failures.push("command center followup heading missing");
   if (!focusResult.commandCenterFollowupText.includes("尚未提交")) failures.push("command center followup empty summary missing");

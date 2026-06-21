@@ -527,7 +527,7 @@ async function clickReadyQuickAction(page, actionId, expectedCandidate) {
 async function waitForAcceptedSubmissionFeedback(page, cmdType) {
   await page.waitForFunction((expectedCmdType) => {
     const feedback = document.querySelector("[data-command-submission-state]");
-    const followupState = document.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "";
+    const followupState = feedback?.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "";
     const text = feedback?.textContent ?? "";
     return feedback?.getAttribute("data-command-submission-state") === "sent"
       && text.includes("服务端已接受")
@@ -536,7 +536,7 @@ async function waitForAcceptedSubmissionFeedback(page, cmdType) {
       && (followupState === "accepted-events" || followupState === "accepted-snapshot");
   }, cmdType, { timeout: 10_000 });
   const receipt = await page.locator("[data-command-submission-state]").first().evaluate((node) => ({
-    followupState: document.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "",
+    followupState: node.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "",
     state: node.getAttribute("data-command-submission-state"),
     text: node.textContent ?? ""
   }));

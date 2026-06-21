@@ -35,6 +35,8 @@ assert.deepEqual(
   buildCommandSubmissionFollowupPlan({}).state,
   "empty"
 );
+assert.equal(buildCommandSubmissionFollowupPlan({}).serverFollowupState, "none");
+assert.equal(buildCommandSubmissionFollowupPlan({}).metrics.find((metric) => metric.key === "serverState").value, "无");
 
 const pendingPlan = buildCommandSubmissionFollowupPlan({
   feedback: {
@@ -48,6 +50,8 @@ const pendingPlan = buildCommandSubmissionFollowupPlan({
 });
 assert.equal(pendingPlan.state, "pending");
 assert.equal(pendingPlan.metrics.find((metric) => metric.key === "events").state, "empty");
+assert.equal(pendingPlan.serverFollowupState, "pending");
+assert.equal(pendingPlan.metrics.find((metric) => metric.key === "serverState").state, "waiting");
 
 const eventPlan = buildCommandSubmissionFollowupPlan({
   events: [
@@ -88,6 +92,8 @@ assert.equal(eventPlan.events[1].refs[1].label, "隐藏：隐藏对象");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "events").value, "2");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "snapshot").state, "ready");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "prompt").value, "0");
+assert.equal(eventPlan.serverFollowupState, "receipt-only");
+assert.equal(eventPlan.metrics.find((metric) => metric.key === "serverState").value, "仅回执");
 
 const receiptAwaitingPlan = buildCommandSubmissionFollowupPlan({
   events: [],
@@ -114,6 +120,9 @@ assert.equal(receiptAwaitingPlan.state, "accepted-awaiting");
 assert.equal(receiptAwaitingPlan.hiddenEventCount, 2);
 assert.equal(receiptAwaitingPlan.metrics.find((metric) => metric.key === "events").value, "2");
 assert.equal(receiptAwaitingPlan.metrics.find((metric) => metric.key === "prompt").state, "ready");
+assert.equal(receiptAwaitingPlan.serverFollowupState, "events");
+assert.equal(receiptAwaitingPlan.serverFollowupStateLabel, "事件");
+assert.equal(receiptAwaitingPlan.metrics.find((metric) => metric.key === "serverState").value, "事件");
 
 const hiddenPlan = buildCommandSubmissionFollowupPlan({
   events: [
@@ -177,6 +186,8 @@ assert.equal(receiptSnapshotPlan.state, "accepted-snapshot");
 assert.equal(receiptSnapshotPlan.summary, "tick 22 无公开事件，但已生成 2 个快照、2 个提示。");
 assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "events").state, "empty");
 assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "prompt").value, "2");
+assert.equal(receiptSnapshotPlan.serverFollowupState, "snapshot-prompt");
+assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "serverState").value, "快照/提示");
 
 const awaitingPlan = buildCommandSubmissionFollowupPlan({
   events: [],
@@ -218,5 +229,7 @@ const failedPlan = buildCommandSubmissionFollowupPlan({
   snapshot: { tick: 1 }
 });
 assert.equal(failedPlan.state, "failed");
+assert.equal(failedPlan.serverFollowupState, "client-failed");
+assert.equal(failedPlan.metrics.find((metric) => metric.key === "serverState").value, "本地失败");
 
 console.log("Command submission followup plan check passed.");

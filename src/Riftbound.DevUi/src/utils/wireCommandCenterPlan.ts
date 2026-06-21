@@ -106,6 +106,8 @@ function emptySubmissionFollowupPlan(): CommandSubmissionFollowupPlan {
     events: [],
     hiddenEventCount: 0,
     metrics: [],
+    serverFollowupState: "none",
+    serverFollowupStateLabel: "无",
     state: "empty",
     summary: "尚未提交命令。"
   };
