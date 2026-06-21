@@ -480,6 +480,9 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
     reason: "前端线框样例 prompt，不参与规则判断。",
     serverFlow: {
       actionableForPromptPlayer: true,
+      candidateCount: 6,
+      disabledCandidateCount: 1,
+      enabledCandidateCount: 5,
       isResponsiblePlayer: true,
       lanes: [
         { count: 1, headline: "前端样例结算链", key: "stack", label: "结算链", state: "active" },

@@ -285,6 +285,7 @@ const stackReadyPrompt = buildWireRuleQueuePlan({
     ],
     playerId: "P1",
     reason: "P1 可以响应",
+    serverFlow: { candidateCount: 9, disabledCandidateCount: 5, enabledCandidateCount: 4, promptType: "STACK_PRIORITY" },
     view: { message: "响应窗口", title: "响应", type: "STACK_PRIORITY" }
   },
   snapshot: stackPrioritySnapshot
@@ -294,9 +295,9 @@ assert.equal(stackReadyPrompt.responsibility.submitReadyCount, 1);
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.state, "ready");
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.canSubmit, true);
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.promptType, "STACK_PRIORITY");
-assert.equal(stackReadyPrompt.responsibility.items[0].submit.candidateCount, 2);
-assert.equal(stackReadyPrompt.responsibility.items[0].submit.enabledCandidateCount, 1);
-assert.ok(stackReadyPrompt.responsibility.items[0].submit.reason.includes("1/2"));
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.candidateCount, 9);
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.enabledCandidateCount, 4);
+assert.ok(stackReadyPrompt.responsibility.items[0].submit.reason.includes("4/9"));
 assert.ok(stackReadyPrompt.responsibility.summary.includes("1 个可提交入口"));
 
 const stackOpponentPrompt = buildWireRuleQueuePlan({

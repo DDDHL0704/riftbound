@@ -105,6 +105,9 @@ assert.equal(historyPlan.lanes.find((lane) => lane.key === "resolution").count, 
 
 const serverFlowFixture = {
   actionableForPromptPlayer: true,
+  candidateCount: 2,
+  disabledCandidateCount: 1,
+  enabledCandidateCount: 1,
   isResponsiblePlayer: true,
   lanes: [
     { count: 1, headline: "DAMAGE / OGN-001", key: "stack", label: "结算链", state: "active" },

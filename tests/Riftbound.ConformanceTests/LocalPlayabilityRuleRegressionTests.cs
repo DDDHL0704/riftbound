@@ -228,6 +228,10 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(1, battlefieldDestinationStep.ObjectChoiceCount);
 
         var serverFlow = Assert.IsType<ActionPromptServerFlowDto>(prompt.ServerFlow);
+        var promptCandidatesForFlow = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptCandidateDto>>(prompt.Candidates);
+        Assert.Equal(promptCandidatesForFlow.Count, serverFlow.CandidateCount);
+        Assert.Equal(promptCandidatesForFlow.Count(candidate => candidate.Enabled), serverFlow.EnabledCandidateCount);
+        Assert.Equal(promptCandidatesForFlow.Count(candidate => !candidate.Enabled), serverFlow.DisabledCandidateCount);
         Assert.Contains(serverFlow.RelatedObjectIds, objectId => string.Equals(objectId, "P1-HAND-UNIT", StringComparison.Ordinal));
         Assert.Contains(serverFlow.RelatedObjectIds, objectId => string.Equals(objectId, "BF-1", StringComparison.Ordinal));
         var sourceFlowRef = Assert.Single(
@@ -280,6 +284,9 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal("候选", candidateStep.Label);
         Assert.NotNull(prompt.Candidates);
         var promptCandidates = prompt.Candidates!;
+        Assert.Equal(promptCandidates.Count, serverFlow.CandidateCount);
+        Assert.Equal(promptCandidates.Count(candidate => candidate.Enabled), serverFlow.EnabledCandidateCount);
+        Assert.Equal(promptCandidates.Count(candidate => !candidate.Enabled), serverFlow.DisabledCandidateCount);
         Assert.NotEmpty(promptCandidates);
         var expectedCandidateValue = string.Join(
             " / ",

@@ -36,6 +36,9 @@ const linkedPlan = buildWireServerFlowProjectionPlan({
   reason: "可行动",
   serverFlow: {
     actionableForPromptPlayer: true,
+    candidateCount: 0,
+    disabledCandidateCount: 0,
+    enabledCandidateCount: 0,
     isResponsiblePlayer: true,
     lanes: [],
     nextStep: "选择服务端公开对象。",

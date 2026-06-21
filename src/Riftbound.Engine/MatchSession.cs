@@ -5456,6 +5456,8 @@ internal static class ActionPromptBuilder
         var flowState = ServerFlowStateFor(state, actionable, responsibility);
         var nextStep = ServerFlowNextStepFor(flowState, responsibility);
         var stateLabel = ServerFlowStateLabel(flowState);
+        var enabledCandidateCount = candidates.Count(candidate => candidate.Enabled);
+        var disabledCandidateCount = Math.Max(0, candidates.Count - enabledCandidateCount);
         return new ActionPromptServerFlowDto(
             flowState,
             stateLabel,
@@ -5469,6 +5471,9 @@ internal static class ActionPromptBuilder
             responsibility.ResponsiblePlayerId,
             responsibility.IsResponsiblePlayer,
             responsibility.ActionableForPromptPlayer,
+            candidates.Count,
+            enabledCandidateCount,
+            disabledCandidateCount,
             responsibility.QueueCounts,
             ServerFlowLanes(state),
             ServerFlowSteps(state, actions, candidates, view, responsibility),

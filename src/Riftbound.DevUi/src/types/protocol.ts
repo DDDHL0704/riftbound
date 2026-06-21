@@ -407,6 +407,9 @@ export type ActionPromptServerFlowDto = {
   responsiblePlayerId?: string | null;
   isResponsiblePlayer: boolean;
   actionableForPromptPlayer: boolean;
+  candidateCount: number;
+  enabledCandidateCount: number;
+  disabledCandidateCount: number;
   queueCounts: Record<string, number>;
   lanes: ActionPromptServerFlowLaneDto[];
   steps: ActionPromptServerFlowStepDto[];

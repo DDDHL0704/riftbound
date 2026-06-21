@@ -443,8 +443,11 @@ function responsibilitySubmitPlanFor({
   state: WireRuleQueueResponsibilityState;
 }): WireRuleQueueResponsibilitySubmitPlan {
   const candidates = prompt?.candidates ?? [];
-  const enabledCandidateCount = candidates.filter((candidate) => candidate.enabled).length;
-  const candidateCount = candidates.length;
+  const candidateCount = normalizedCount(prompt?.serverFlow?.candidateCount, candidates.length);
+  const enabledCandidateCount = normalizedCount(
+    prompt?.serverFlow?.enabledCandidateCount,
+    candidates.filter((candidate) => candidate.enabled).length
+  );
   const promptType = prompt?.view?.type ?? prompt?.serverFlow?.promptType ?? "无";
 
   if (state === "history" || item.lane === "resolution") {
@@ -557,6 +560,10 @@ function responsibilitySubmitStateLabel(state: WireRuleQueueResponsibilitySubmit
     case "wrong-player":
       return "非当前玩家";
   }
+}
+
+function normalizedCount(value: number | null | undefined, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : fallback;
 }
 
 function responsibilityItemState(
