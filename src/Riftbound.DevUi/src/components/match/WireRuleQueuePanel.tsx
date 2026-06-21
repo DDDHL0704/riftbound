@@ -220,18 +220,23 @@ function RuleFocusActionBridge({
             <strong>{row.actionRoleLabels.length > 0 ? row.actionRoleLabels.join(" / ") : row.stateLabel}</strong>
             <small>{row.enabledCandidateCount}/{row.candidateCount} 候选</small>
             <small>{row.semanticSummary}</small>
+            <small>{row.authorityLabel} / {row.selectionStepSummary}</small>
             <em>{row.nextStepLabel}</em>
           </>
         );
 
         return (
           <li
+            data-rule-focus-action-authority={row.authorityLabel}
+            data-rule-focus-action-boundary={row.candidateBoundaryLabel ?? ""}
             data-rule-focus-action-candidate-count={row.candidateCount}
             data-rule-focus-action-object-id={row.objectId}
             data-rule-focus-action-selected={selectedObjectId === row.objectId ? "true" : "false"}
             data-rule-focus-action-semantic={row.semanticSummary}
             data-rule-focus-action-state={row.state}
+            data-rule-focus-action-steps={row.selectionStepSummary}
             key={row.key}
+            title={row.candidateBoundaryLabel}
           >
             {canInspect ? (
               <button onClick={() => onInspectObject?.(row.objectId)} type="button">

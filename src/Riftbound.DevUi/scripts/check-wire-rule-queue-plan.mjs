@@ -462,9 +462,105 @@ const stackReadyPrompt = buildWireRuleQueuePlan({
         reason: "等待确认"
       }
     ],
+    objectContexts: [
+      {
+        candidates: [
+          {
+            action: "PLAY_CARD",
+            commandType: "PLAY_CARD",
+            enabled: true,
+            label: "打出反应",
+            presentation: { category: "play", intent: "play-card", priority: 100, uiHint: "card-action" },
+            reason: "服务端候选可用",
+            roles: ["来源"],
+            selectionSteps: [
+              { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" },
+              { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 0, required: false, role: "target" },
+              { choiceCount: 1, index: 2, label: "位置", objectChoiceCount: 0, required: false, role: "destination" }
+            ]
+          }
+        ],
+        disabledCandidateCount: 0,
+        enabledCandidateCount: 1,
+        objectId: "spell-1",
+        source: "server-action-prompt",
+        boundary: "服务端对象上下文边界"
+      },
+      {
+        candidates: [
+          {
+            action: "PLAY_CARD",
+            commandType: "PLAY_CARD",
+            enabled: true,
+            label: "打出反应",
+            presentation: { category: "play", intent: "play-card", priority: 100, uiHint: "card-action" },
+            reason: "服务端候选可用",
+            roles: ["目标"],
+            selectionSteps: [
+              { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 0, required: true, role: "source" },
+              { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 1, required: false, role: "target" },
+              { choiceCount: 1, index: 2, label: "位置", objectChoiceCount: 0, required: false, role: "destination" }
+            ]
+          },
+          {
+            action: "ACTIVATE_ABILITY",
+            commandType: "ACTIVATE_ABILITY",
+            enabled: false,
+            label: "禁用技能",
+            presentation: { category: "ability", intent: "activate-ability", priority: 300, uiHint: "ability" },
+            reason: "服务端规则阻断",
+            roles: ["目标"],
+            selectionSteps: [
+              { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 0, required: true, role: "source" },
+              { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 1, required: true, role: "target" }
+            ]
+          }
+        ],
+        disabledCandidateCount: 1,
+        enabledCandidateCount: 1,
+        objectId: "unit-1",
+        source: "server-action-prompt",
+        boundary: "服务端对象上下文边界"
+      }
+    ],
     playerId: "P1",
     reason: "P1 可以响应",
-    serverFlow: { candidateCount: 9, disabledCandidateCount: 5, enabledCandidateCount: 4, promptType: "STACK_PRIORITY" },
+    serverFlow: {
+      candidateCount: 9,
+      disabledCandidateCount: 5,
+      enabledCandidateCount: 4,
+      promptType: "STACK_PRIORITY",
+      relatedObjects: [
+        {
+          candidateBoundary: "服务端对象上下文边界",
+          candidateRoles: ["来源"],
+          candidateSource: "server-action-prompt",
+          candidateSteps: [
+            { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" },
+            { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 0, required: false, role: "target" },
+            { choiceCount: 1, index: 2, label: "位置", objectChoiceCount: 0, required: false, role: "destination" }
+          ],
+          disabledCandidateCount: 0,
+          enabledCandidateCount: 1,
+          objectId: "spell-1",
+          role: "候选来源"
+        },
+        {
+          candidateBoundary: "服务端对象上下文边界",
+          candidateRoles: ["目标"],
+          candidateSource: "server-action-prompt",
+          candidateSteps: [
+            { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 0, required: true, role: "source" },
+            { choiceCount: 1, index: 1, label: "目标", objectChoiceCount: 1, required: false, role: "target" },
+            { choiceCount: 1, index: 2, label: "位置", objectChoiceCount: 0, required: false, role: "destination" }
+          ],
+          disabledCandidateCount: 1,
+          enabledCandidateCount: 1,
+          objectId: "unit-1",
+          role: "候选目标"
+        }
+      ]
+    },
     view: { message: "响应窗口", title: "响应", type: "STACK_PRIORITY" }
   },
   snapshot: stackPrioritySnapshot
@@ -478,10 +574,11 @@ assert.equal(stackReadyPrompt.responsibility.items[0].submit.candidateCount, 9);
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.enabledCandidateCount, 4);
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.semanticSummary, "play/play-card / resource/tap-rune +1");
 assert.deepEqual(
-  stackReadyPrompt.focus.actionRows.map((row) => `${row.objectId}:${row.serverRoleLabel}:${row.state}:${row.actionRoleLabels.join("/")}:${row.semanticSummary}:${row.enabledCandidateCount}/${row.candidateCount}`),
+  stackReadyPrompt.focus.actionRows.map((row) =>
+    `${row.objectId}:${row.serverRoleLabel}:${row.state}:${row.actionRoleLabels.join("/")}:${row.authorityLabel}:${row.selectionStepSummary}:${row.semanticSummary}:${row.enabledCandidateCount}/${row.candidateCount}`),
   [
-    "spell-1:来源:ready:来源:play/play-card:1/1",
-    "unit-1:目标:ready:目标:play/play-card:1/1"
+    "spell-1:来源:ready:来源:服务端对象上下文:来源 1/1* / 目标 0/1 +1:play/play-card:1/1",
+    "unit-1:目标:ready:目标:服务端对象上下文:目标 1/1 / 来源 0/1* +1:play/play-card / ability/activate-ability:1/2"
   ]
 );
 assert.deepEqual(stackReadyPrompt.responsibility.items[0].submit.semanticRows.map((row) => `${row.category}:${row.intent}:${row.enabledCount}/${row.count}:${row.priority}:${row.uiHint}`), [

@@ -1102,12 +1102,16 @@ async function runWireClickSelectionSmoke(cdp) {
       ruleFocusDetailId: ruleFocus?.getAttribute("data-rule-focus-detail-id") ?? null,
       ruleFocusLane: ruleFocus?.getAttribute("data-rule-focus-lane") ?? null,
       ruleFocusActionCount: document.querySelectorAll("[data-rule-focus-action-object-id]").length,
+      ruleFocusActionAuthorities: Array.from(document.querySelectorAll("[data-rule-focus-action-authority]"))
+        .map((node) => node.getAttribute("data-rule-focus-action-authority")),
       ruleFocusActionObjectIds: Array.from(document.querySelectorAll("[data-rule-focus-action-object-id]"))
         .map((node) => node.getAttribute("data-rule-focus-action-object-id")),
       ruleFocusActionSelectedStates: Array.from(document.querySelectorAll("[data-rule-focus-action-selected]"))
         .map((node) => node.getAttribute("data-rule-focus-action-selected")),
       ruleFocusActionStates: Array.from(document.querySelectorAll("[data-rule-focus-action-state]"))
         .map((node) => node.getAttribute("data-rule-focus-action-state")),
+      ruleFocusActionSteps: Array.from(document.querySelectorAll("[data-rule-focus-action-steps]"))
+        .map((node) => node.getAttribute("data-rule-focus-action-steps")),
       ruleFocusActionText: document.querySelector(".wire-rule-focus-action-bridge")?.textContent ?? "",
       ruleFocusRefCount: ruleFocus?.querySelectorAll("[data-rule-object-ref]").length ?? 0,
       ruleFocusText: ruleFocus?.textContent ?? "",
@@ -1511,6 +1515,12 @@ async function runWireClickSelectionSmoke(cdp) {
     failures.push(`wire rule focus action bridge state missing: ${actionMapResult.ruleFocusActionStates.join(",")}`);
   }
   if (!actionMapResult.ruleFocusActionText.includes("候选")) failures.push("wire rule focus action bridge candidate summary missing");
+  if (!actionMapResult.ruleFocusActionAuthorities.some((authority) => authority?.includes("服务端"))) {
+    failures.push(`wire rule focus action bridge server authority missing: ${actionMapResult.ruleFocusActionAuthorities.join(",")}`);
+  }
+  if (!actionMapResult.ruleFocusActionSteps.some((steps) => typeof steps === "string" && steps.length > 0)) {
+    failures.push("wire rule focus action bridge step summary missing");
+  }
   if (!actionMapResult.ruleFlowText.includes("结算链")) failures.push("wire rule queue stack lane missing");
   if (!actionMapResult.ruleFlowText.includes("规则任务")) failures.push("wire rule queue task lane missing");
   if (!actionMapResult.ruleFlowText.includes("触发队列")) failures.push("wire rule queue trigger lane missing");

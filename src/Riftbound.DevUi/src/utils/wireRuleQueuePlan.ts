@@ -1,4 +1,10 @@
-import type { ActionPromptDto, GameEvent, SnapshotDto } from "../types/protocol";
+import type {
+  ActionPromptDto,
+  ActionPromptObjectCandidateStepDto,
+  ActionPromptObjectContextDto,
+  GameEvent,
+  SnapshotDto
+} from "../types/protocol";
 import { asArray, asNumber, asRecord, asString } from "./collections";
 import { eventDescriptionLabel, eventKindLabel } from "./eventLogPlan";
 import { matchPhaseLabel, timingStateLabel } from "./formatters";
@@ -230,6 +236,8 @@ export type WireRuleQueueFocusActionState = "blocked" | "ready" | "referenced";
 
 export type WireRuleQueueFocusActionRow = {
   actionRoleLabels: string[];
+  authorityLabel: string;
+  candidateBoundaryLabel?: string;
   candidateCount: number;
   disabledCandidateCount: number;
   enabledCandidateCount: number;
@@ -238,6 +246,7 @@ export type WireRuleQueueFocusActionRow = {
   objectId: string;
   semanticSummary: string;
   serverRoleLabel: string;
+  selectionStepSummary: string;
   state: WireRuleQueueFocusActionState;
   stateLabel: string;
 };
@@ -371,7 +380,7 @@ export function buildWireRuleQueuePlan({
     tasks,
     triggers
   });
-  const focus = focusPlanFor({ activeLaneKey, interactionModel, sections, state });
+  const focus = focusPlanFor({ activeLaneKey, interactionModel, prompt, sections, state });
   const responsibility = responsibilityPlanFor({ activeLaneKey, playerId, prompt, sequence, state });
 
   return {
@@ -841,18 +850,20 @@ function statusToneForState(state: WireRuleQueueState): WireRuleQueueStatusTone 
 function focusPlanFor({
   activeLaneKey,
   interactionModel,
+  prompt,
   sections,
   state
 }: {
   activeLaneKey: WireRuleQueueLaneKey | "none";
   interactionModel: PromptInteractionModel;
+  prompt?: ActionPromptDto;
   sections: WireRuleQueueSectionPlan[];
   state: WireRuleQueueState;
 }): WireRuleQueueFocusPlan {
   const activeSection = sections.find((section) => section.key === activeLaneKey);
   const detail = activeSection?.items[0]?.detail;
   return {
-    actionRows: ruleFocusActionRows(detail?.refs ?? [], interactionModel),
+    actionRows: ruleFocusActionRows(detail?.refs ?? [], interactionModel, prompt),
     detail,
     emptyLabel: "当前没有活动规则对象。",
     laneKey: activeLaneKey,
@@ -863,7 +874,8 @@ function focusPlanFor({
 
 function ruleFocusActionRows(
   refs: WireRuleQueueObjectRef[],
-  interactionModel: PromptInteractionModel
+  interactionModel: PromptInteractionModel,
+  prompt?: ActionPromptDto
 ): WireRuleQueueFocusActionRow[] {
   const grouped = new Map<string, Set<string>>();
   for (const ref of refs) {
@@ -878,18 +890,28 @@ function ruleFocusActionRows(
 
   return Array.from(grouped.entries()).map(([objectId, serverRoles]) => {
     const summary = interactionModel.objectById.get(objectId);
+    const serverSummary = focusServerObjectSummary(prompt, objectId);
     const candidates = candidatesForObject(interactionModel.candidates, objectId);
-    const actionRoleLabels = uniqueStrings((summary?.choices ?? [])
+    const fallbackActionRoleLabels = uniqueStrings((summary?.choices ?? [])
       .filter((choice) => choice.role !== "mode")
       .filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId))
       .map((choice) => promptChoiceRoleLabel(choice.role)));
-    const enabledCandidateCount = summary?.enabledCandidateCount ?? candidates.filter((candidate) => candidate.enabled).length;
-    const disabledCandidateCount = summary?.disabledCandidateCount ?? candidates.filter((candidate) => !candidate.enabled).length;
+    const actionRoleLabels = serverSummary?.actionRoleLabels.length
+      ? serverSummary.actionRoleLabels
+      : fallbackActionRoleLabels;
+    const enabledCandidateCount = serverSummary?.enabledCandidateCount
+      ?? summary?.enabledCandidateCount
+      ?? candidates.filter((candidate) => candidate.enabled).length;
+    const disabledCandidateCount = serverSummary?.disabledCandidateCount
+      ?? summary?.disabledCandidateCount
+      ?? candidates.filter((candidate) => !candidate.enabled).length;
     const state = focusActionState(enabledCandidateCount, disabledCandidateCount);
-    const semanticSummary = focusActionSemanticSummary(candidates);
+    const semanticSummary = serverSummary?.semanticSummary ?? focusActionSemanticSummary(candidates);
 
     return {
       actionRoleLabels,
+      authorityLabel: serverSummary?.authorityLabel ?? (candidates.length > 0 ? "候选推导" : "规则焦点"),
+      candidateBoundaryLabel: serverSummary?.candidateBoundaryLabel,
       candidateCount: enabledCandidateCount + disabledCandidateCount,
       disabledCandidateCount,
       enabledCandidateCount,
@@ -898,10 +920,72 @@ function ruleFocusActionRows(
       objectId,
       semanticSummary,
       serverRoleLabel: Array.from(serverRoles).join(" / "),
+      selectionStepSummary: serverSummary?.selectionStepSummary ?? "无选择步骤",
       state,
       stateLabel: focusActionStateLabel(state)
     };
   });
+}
+
+type FocusServerObjectSummary = {
+  actionRoleLabels: string[];
+  authorityLabel: string;
+  candidateBoundaryLabel?: string;
+  disabledCandidateCount?: number;
+  enabledCandidateCount?: number;
+  selectionStepSummary: string;
+  semanticSummary?: string;
+};
+
+function focusServerObjectSummary(prompt: ActionPromptDto | undefined, objectId: string): FocusServerObjectSummary | undefined {
+  const context = prompt?.objectContexts?.find((item) => item.objectId === objectId);
+  const relatedObjects = (prompt?.serverFlow?.relatedObjects ?? []).filter((item) => item.objectId === objectId);
+  if (!context && relatedObjects.length === 0) {
+    return undefined;
+  }
+
+  const relatedWithCandidateSummary = relatedObjects.find((item) =>
+    (item.candidateRoles?.length ?? 0) > 0
+    || typeof item.enabledCandidateCount === "number"
+    || typeof item.disabledCandidateCount === "number")
+    ?? relatedObjects[0];
+  const actionRoleLabels = uniqueStrings([
+    ...(relatedWithCandidateSummary?.candidateRoles ?? []),
+    ...(context?.candidates.flatMap((candidate) => candidate.roles) ?? [])
+  ]);
+  const candidateSteps = relatedWithCandidateSummary?.candidateSteps
+    ?? context?.candidates.flatMap((candidate) => candidate.selectionSteps ?? []);
+  const semanticSummary = context ? focusActionSemanticSummaryFromObjectContext(context) : undefined;
+  const enabledCandidateCount = finiteOptionalCount(
+    relatedWithCandidateSummary?.enabledCandidateCount,
+    context?.enabledCandidateCount);
+  const disabledCandidateCount = finiteOptionalCount(
+    relatedWithCandidateSummary?.disabledCandidateCount,
+    context?.disabledCandidateCount);
+  const hasCandidateSummary = actionRoleLabels.length > 0
+    || enabledCandidateCount !== undefined
+    || disabledCandidateCount !== undefined
+    || Boolean(semanticSummary);
+
+  return {
+    actionRoleLabels,
+    authorityLabel: hasCandidateSummary ? "服务端对象上下文" : "服务端关联对象",
+    candidateBoundaryLabel: relatedWithCandidateSummary?.candidateBoundary ?? context?.boundary ?? undefined,
+    disabledCandidateCount,
+    enabledCandidateCount,
+    selectionStepSummary: focusActionSelectionStepSummary(candidateSteps),
+    semanticSummary
+  };
+}
+
+function finiteOptionalCount(...values: Array<number | null | undefined>): number | undefined {
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return Math.max(0, Math.floor(value));
+    }
+  }
+
+  return undefined;
 }
 
 function candidatesForObject(candidates: PromptCandidateSummary[], objectId: string): PromptCandidateSummary[] {
@@ -961,6 +1045,41 @@ function focusActionSemanticSummary(candidates: PromptCandidateSummary[]): strin
 
   const visible = values.slice(0, 2);
   return values.length > 2 ? `${visible.join(" / ")} +${values.length - 2}` : visible.join(" / ");
+}
+
+function focusActionSemanticSummaryFromObjectContext(context: ActionPromptObjectContextDto): string | undefined {
+  const values = uniqueStrings(context.candidates.map((candidate) => {
+    const category = candidate.presentation?.category?.trim() || "custom";
+    const intent = candidate.presentation?.intent?.trim()
+      || candidate.action.toLowerCase().replaceAll("_", "-");
+    return `${category}/${intent}`;
+  }));
+  if (values.length === 0) {
+    return undefined;
+  }
+
+  const visible = values.slice(0, 2);
+  return values.length > 2 ? `${visible.join(" / ")} +${values.length - 2}` : visible.join(" / ");
+}
+
+function focusActionSelectionStepSummary(steps: ActionPromptObjectCandidateStepDto[] | null | undefined): string {
+  if (!steps?.length) {
+    return "无选择步骤";
+  }
+
+  const ordered = [...steps].sort((left, right) => {
+    if (left.objectChoiceCount !== right.objectChoiceCount) {
+      return right.objectChoiceCount - left.objectChoiceCount;
+    }
+
+    return left.index - right.index || left.role.localeCompare(right.role);
+  });
+  const visible = ordered.slice(0, 2).map((step) => {
+    const label = step.label?.trim() || step.role;
+    const required = step.required ? "*" : "";
+    return `${label} ${step.objectChoiceCount}/${step.choiceCount}${required}`;
+  });
+  return ordered.length > 2 ? `${visible.join(" / ")} +${ordered.length - 2}` : visible.join(" / ");
 }
 
 function uniqueStrings(values: string[]): string[] {
