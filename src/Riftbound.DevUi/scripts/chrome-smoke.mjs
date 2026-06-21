@@ -2600,6 +2600,19 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
+  const followupEventClickKind = await clickTimelineFollowupEvent(cdp, "BATTLEFIELD_CONTROL_RESOLVED", 1);
+  await delay(150);
+  const followupEventClickResult = await evaluateJson(cdp, `(() => {
+    const panel = document.querySelector(".wire-timeline-detail");
+    const selectedRow = document.querySelector(".log-row.is-detail-selected");
+    return {
+      detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
+      panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? "",
+      selectedRowKind: selectedRow?.getAttribute("data-event-log-row-kind") ?? "",
+      text: panel?.textContent ?? ""
+    };
+  })()`);
+
   await clickDetailClear(cdp);
   await delay(100);
   const detailClearResult = await evaluateJson(cdp, `(() => {
@@ -2735,7 +2748,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.timelineFollowupServerKindSources.includes("event-ref")) failures.push("rule detail followup event-ref source missing");
   if (!ruleDetailResult.timelineFollowupServerKindOrders.includes("0")) failures.push("rule detail followup stack event order missing");
   if (!ruleDetailResult.timelineFollowupServerKindOrders.includes("1")) failures.push("rule detail followup battlefield event order missing");
-  if (!ruleDetailResult.timelineFollowupServerKindStates.includes("declared")) failures.push("rule detail followup declared event kind state missing");
+  if (!ruleDetailResult.timelineFollowupServerKindStates.includes("linked")) failures.push("rule detail followup linked event kind state missing");
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
   if (!ruleDetailResult.hasTargetRef) failures.push("rule detail target ref missing");
@@ -3009,9 +3022,14 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (serverKindRestoreResult.detailId !== "event:STACK_ITEM_ADDED:0") failures.push(`receipt event kind restore detail unexpected: ${serverKindRestoreResult.detailId}`);
   if (serverKindRestoreResult.panelState !== "event") failures.push(`receipt event kind restore panel state unexpected: ${serverKindRestoreResult.panelState}`);
   if (serverKindRestoreResult.selectedRowKind !== "STACK_ITEM_ADDED") failures.push(`receipt event kind restore selected row unexpected: ${serverKindRestoreResult.selectedRowKind}`);
+  if (followupEventClickKind !== "BATTLEFIELD_CONTROL_RESOLVED") failures.push(`followup event click unexpected kind: ${followupEventClickKind}`);
+  if (followupEventClickResult.detailId !== "event:BATTLEFIELD_CONTROL_RESOLVED:1") failures.push(`followup event click detail unexpected: ${followupEventClickResult.detailId}`);
+  if (followupEventClickResult.panelState !== "event") failures.push(`followup event click panel state unexpected: ${followupEventClickResult.panelState}`);
+  if (followupEventClickResult.selectedRowKind !== "BATTLEFIELD_CONTROL_RESOLVED") failures.push(`followup event click selected row unexpected: ${followupEventClickResult.selectedRowKind}`);
+  if (!followupEventClickResult.text.includes("战场控制结算")) failures.push("followup event click detail title missing");
   if (detailClearResult.clearButton) failures.push("detail clear button remained after clearing");
   if (detailClearResult.panelState !== "object") failures.push(`detail clear did not return to selected object context: ${detailClearResult.panelState}`);
-  if (detailClearResult.activeDetailId !== "event:STACK_ITEM_ADDED:0") failures.push("detail clear did not restore focus to source detail trigger");
+  if (detailClearResult.activeDetailId !== "event:BATTLEFIELD_CONTROL_RESOLVED:1") failures.push("detail clear did not restore focus to source detail trigger");
   if (detailClearResult.selectedDetailCount !== 0) failures.push("detail clear left selected detail trigger");
   if (detailClearResult.selectedRowCount !== 0) failures.push("detail clear left selected detail row");
   if (!detailClearResult.text.includes("焦点对象")) failures.push("detail clear did not keep selected object context");
@@ -3328,6 +3346,26 @@ async function clickTimelineFollowupServerKind(cdp, kind, order) {
   const clickedKind = String(result.result?.value ?? "");
   if (!clickedKind) {
     throw new Error(`Wire timeline followup event kind button not found: ${kind}`);
+  }
+  return clickedKind;
+}
+
+async function clickTimelineFollowupEvent(cdp, kind, order) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const selector = ${JSON.stringify(
+        `.wire-timeline-command-followup [data-command-followup-event-action="${kind}"]${order == null ? "" : `[data-command-followup-event-order-action="${order}"]`}`
+      )};
+      const element = document.querySelector(selector);
+      if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
+      element.click();
+      return element.getAttribute("data-command-followup-event-action") ?? "";
+    })()`,
+    returnByValue: true
+  });
+  const clickedKind = String(result.result?.value ?? "");
+  if (!clickedKind) {
+    throw new Error(`Wire timeline followup event button not found: ${kind}`);
   }
   return clickedKind;
 }

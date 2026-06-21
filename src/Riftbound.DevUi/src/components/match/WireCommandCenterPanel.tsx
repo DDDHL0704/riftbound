@@ -2,6 +2,7 @@ import type { ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
   buildCommandSubmissionFollowupPlan,
+  type CommandSubmissionFollowupEventRow,
   type CommandSubmissionFollowupFeedback,
   type CommandSubmissionFollowupServerEventKind,
   type ObservedGameEvent
@@ -31,6 +32,7 @@ export function WireCommandCenterPanel({
   onClearFocus,
   onCommand,
   onInspectObject,
+  onSelectFollowupEvent,
   onSelectServerEventKind,
   playerId,
   prompt,
@@ -48,6 +50,7 @@ export function WireCommandCenterPanel({
   onClearFocus: () => void;
   onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
+  onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   playerId: string;
   prompt?: ActionPromptDto;
@@ -103,6 +106,7 @@ export function WireCommandCenterPanel({
         ariaLabel="指挥中心服务端后续事件"
         className="wire-command-followup wire-command-center-followup"
         onInspectObject={onInspectObject}
+        onSelectFollowupEvent={onSelectFollowupEvent}
         onSelectServerEventKind={onSelectServerEventKind}
         plan={plan.submissionFollowup}
         table={table}

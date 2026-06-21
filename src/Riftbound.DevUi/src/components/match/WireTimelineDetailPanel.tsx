@@ -4,6 +4,7 @@ import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/prot
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
   buildCommandSubmissionFollowupPlan,
+  type CommandSubmissionFollowupEventRow,
   type CommandSubmissionFollowupFeedback,
   type CommandSubmissionFollowupServerEventKind,
   type ObservedGameEvent
@@ -50,6 +51,7 @@ export function WireTimelineDetailPanel({
   onInspectObject,
   onOpenLayer,
   onOpenObjectDetail,
+  onSelectFollowupEvent,
   onSelectServerEventKind,
   prompt,
   selectionDraft,
@@ -71,6 +73,7 @@ export function WireTimelineDetailPanel({
   onInspectObject?: (objectId: string) => void;
   onOpenLayer?: () => void;
   onOpenObjectDetail?: (objectId: string) => void;
+  onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
@@ -176,6 +179,7 @@ export function WireTimelineDetailPanel({
               ariaLabel="规则详情服务端后续事件"
               className="wire-command-followup wire-timeline-command-followup"
               onInspectObject={onInspectObject}
+              onSelectFollowupEvent={onSelectFollowupEvent}
               onSelectServerEventKind={onSelectServerEventKind}
               plan={submissionFollowup}
               table={table}

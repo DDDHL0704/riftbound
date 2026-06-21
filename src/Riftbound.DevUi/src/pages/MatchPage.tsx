@@ -72,14 +72,18 @@ import { useCatalog } from "../stores/catalogStore";
 import { useSettings } from "../stores/settingsStore";
 import { useMatchController } from "../stores/useMatchController";
 import { BehaviorSpec } from "../types/catalog";
-import { CardObjectView } from "../types/protocol";
+import type { CardObjectView } from "../types/protocol";
 import { asRecord, asString } from "../utils/collections";
 import { connectionStatusLabel, matchPhaseLabel, timingStateLabel } from "../utils/formatters";
 import type { CandidateSelectionDraft } from "../utils/candidateSelectionDraft";
 import { buildPromptInteractionModel, type PromptObjectState } from "../utils/promptInteraction";
 import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
-import type { CommandSubmissionFollowupServerEventKind } from "../utils/commandSubmissionFollowupPlan";
+import type {
+  CommandSubmissionFollowupEventRow,
+  CommandSubmissionFollowupServerEventKind,
+  ObservedGameEvent
+} from "../utils/commandSubmissionFollowupPlan";
 import { buildEventLogPlan } from "../utils/eventLogPlan";
 import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
@@ -116,8 +120,15 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     () => layoutFixtureEnabled ? buildWireLayoutFixturePrompt(settings.playerId) : controller.state.prompt,
     [controller.state.prompt, layoutFixtureEnabled, settings.playerId]
   );
-  const tableEvents = useMemo(
-    () => layoutFixtureEnabled ? buildWireLayoutFixtureEvents(settings.playerId) : controller.state.events,
+  const tableEvents = useMemo<ObservedGameEvent[]>(
+    () => layoutFixtureEnabled
+      ? buildWireLayoutFixtureEvents(settings.playerId).map((event, index) => ({
+        ...event,
+        receivedBatchIndex: index,
+        receivedMessageType: "EVENTS",
+        receivedServerTick: 7
+      }))
+      : controller.state.events,
     [controller.state.events, layoutFixtureEnabled, settings.playerId]
   );
   const tableSubmissionFeedback = useMemo(
@@ -343,31 +354,37 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     timelineDetailTriggerIdRef.current = detail.id;
     setTimelineDetail(detail);
   }, []);
-  const selectServerEventKind = useCallback((eventKind: CommandSubmissionFollowupServerEventKind) => {
+  const selectTimelineEvent = useCallback((target: { kind: string; order?: number; serverTick?: number }) => {
     const eventPlan = buildEventLogPlan({
       errors: [],
       events: tableEvents,
       objectIndex: tableObjectIndex
     });
-    const exactIndex = eventKind.source === "event-ref"
+    const exactIndex = target.serverTick != null && target.order != null
       ? tableEvents.findIndex((event) => {
         const observed = event as { receivedBatchIndex?: number; receivedServerTick?: number };
-        return event.kind === eventKind.kind
-          && observed.receivedServerTick === eventKind.serverTick
-          && observed.receivedBatchIndex === eventKind.order;
+        return event.kind === target.kind
+          && observed.receivedServerTick === target.serverTick
+          && observed.receivedBatchIndex === target.order;
       })
       : -1;
     const exactRow = exactIndex >= 0 ? eventPlan.events[exactIndex] : undefined;
-    const fixtureRow = eventKind.source === "event-ref" && exactRow == null && eventKind.order != null
-      ? eventPlan.events[eventKind.order]
+    const fixtureRow = exactRow == null && target.order != null
+      ? eventPlan.events[target.order]
       : undefined;
     const row = exactRow
-      ?? (fixtureRow?.kind === eventKind.kind ? fixtureRow : undefined)
-      ?? eventPlan.events.find((event) => event.kind === eventKind.kind);
+      ?? (fixtureRow?.kind === target.kind ? fixtureRow : undefined)
+      ?? eventPlan.events.find((event) => event.kind === target.kind);
     if (row) {
       selectTimelineDetail(row.detail);
     }
   }, [selectTimelineDetail, tableEvents, tableObjectIndex]);
+  const selectServerEventKind = useCallback((eventKind: CommandSubmissionFollowupServerEventKind) => {
+    selectTimelineEvent(eventKind);
+  }, [selectTimelineEvent]);
+  const selectFollowupEvent = useCallback((event: CommandSubmissionFollowupEventRow) => {
+    selectTimelineEvent(event);
+  }, [selectTimelineEvent]);
 
   const clearTimelineDetail = useCallback(() => {
     const triggerId = timelineDetailTriggerIdRef.current ?? timelineDetail?.id;
@@ -453,6 +470,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             surface: "command-center"
           })}
           onInspectObject={inspectObjectFromTable}
+          onSelectFollowupEvent={selectFollowupEvent}
           onSelectServerEventKind={selectServerEventKind}
           playerId={settings.playerId}
           prompt={tablePrompt}
@@ -523,6 +541,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             surface: "action-map"
           })}
           onInspectObject={inspectObjectFromTable}
+          onSelectFollowupEvent={selectFollowupEvent}
           onSelectServerEventKind={selectServerEventKind}
           playerId={settings.playerId}
           prompt={tablePrompt}
@@ -591,6 +610,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           onInspectObject={inspectObjectFromTable}
           onOpenLayer={() => setTimelineLayerOpen(true)}
           onOpenObjectDetail={openObjectDetail}
+          onSelectFollowupEvent={selectFollowupEvent}
           onSelectServerEventKind={selectServerEventKind}
           prompt={tablePrompt}
           selectionDraft={selectionDraft}
@@ -740,6 +760,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         onClose={() => setTimelineLayerOpen(false)}
         onInspectObject={inspectObjectFromTable}
         onOpenObjectDetail={openObjectDetail}
+        onSelectFollowupEvent={selectFollowupEvent}
         onSelectServerEventKind={selectServerEventKind}
         open={timelineLayerOpen}
         prompt={tablePrompt}

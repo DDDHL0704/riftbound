@@ -2,7 +2,11 @@ import type { ActionPromptDto, GameCommand, GameEvent, SnapshotDto } from "../..
 import { useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { CommandSubmissionFeedback } from "../../stores/useMatchController";
-import { buildCommandSubmissionFollowupPlan, type CommandSubmissionFollowupServerEventKind } from "../../utils/commandSubmissionFollowupPlan";
+import {
+  buildCommandSubmissionFollowupPlan,
+  type CommandSubmissionFollowupEventRow,
+  type CommandSubmissionFollowupServerEventKind
+} from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildWireActionMapPlan,
@@ -29,6 +33,7 @@ type WireActionMapPanelProps = {
   onChooseObject?: (objectId: string) => void;
   onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
+  onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   playerId: string;
   prompt?: ActionPromptDto;
@@ -45,6 +50,7 @@ export function WireActionMapPanel({
   onChooseObject,
   onCommand,
   onInspectObject,
+  onSelectFollowupEvent,
   onSelectServerEventKind,
   playerId,
   prompt,
@@ -86,6 +92,7 @@ export function WireActionMapPanel({
         events={events}
         feedback={submissionFeedback}
         onInspectObject={onInspectObject}
+        onSelectFollowupEvent={onSelectFollowupEvent}
         onSelectServerEventKind={onSelectServerEventKind}
         snapshot={snapshot}
         table={table}
@@ -232,6 +239,7 @@ function CommandSubmissionFeedbackPanel({
   events,
   feedback,
   onInspectObject,
+  onSelectFollowupEvent,
   onSelectServerEventKind,
   snapshot,
   table
@@ -239,6 +247,7 @@ function CommandSubmissionFeedbackPanel({
   events?: GameEvent[];
   feedback?: CommandSubmissionFeedback;
   onInspectObject?: (objectId: string) => void;
+  onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   snapshot?: SnapshotDto;
   table: WireTableViewModel;
@@ -269,6 +278,7 @@ function CommandSubmissionFeedbackPanel({
         <WireCommandFollowupPanel
           ariaLabel="提交反馈服务端后续事件"
           onInspectObject={onInspectObject}
+          onSelectFollowupEvent={onSelectFollowupEvent}
           onSelectServerEventKind={onSelectServerEventKind}
           plan={followup}
           table={table}
@@ -339,6 +349,7 @@ function CommandSubmissionFeedbackPanel({
       <WireCommandFollowupPanel
         ariaLabel="提交反馈服务端后续事件"
         onInspectObject={onInspectObject}
+        onSelectFollowupEvent={onSelectFollowupEvent}
         onSelectServerEventKind={onSelectServerEventKind}
         plan={followup}
         table={table}
@@ -349,6 +360,7 @@ function CommandSubmissionFeedbackPanel({
           followup={followup}
           onClose={() => setLayerOpen(false)}
           onInspectObject={onInspectObject}
+          onSelectFollowupEvent={onSelectFollowupEvent}
           onSelectServerEventKind={onSelectServerEventKind}
           table={table}
         />
@@ -366,6 +378,7 @@ function CommandSubmissionFeedbackLayer({
   followup,
   onClose,
   onInspectObject,
+  onSelectFollowupEvent,
   onSelectServerEventKind,
   table
 }: {
@@ -373,6 +386,7 @@ function CommandSubmissionFeedbackLayer({
   followup: ReturnType<typeof buildCommandSubmissionFollowupPlan>;
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
+  onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   table: WireTableViewModel;
 }) {
@@ -453,6 +467,7 @@ function CommandSubmissionFeedbackLayer({
             ariaLabel="回执检查层后续事件"
             className="wire-command-submission-layer-followup"
             onInspectObject={onInspectObject}
+            onSelectFollowupEvent={onSelectFollowupEvent}
             onSelectServerEventKind={onSelectServerEventKind}
             plan={followup}
             table={table}

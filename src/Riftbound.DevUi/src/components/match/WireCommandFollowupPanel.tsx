@@ -1,4 +1,5 @@
 import type {
+  CommandSubmissionFollowupEventRow,
   CommandSubmissionFollowupMetric,
   CommandSubmissionFollowupPlan,
   CommandSubmissionFollowupServerEventKind
@@ -13,6 +14,7 @@ export function WireCommandFollowupPanel({
   ariaLabel = "服务端后续事件",
   className = "wire-command-followup",
   onInspectObject,
+  onSelectFollowupEvent,
   onSelectServerEventKind,
   plan,
   table
@@ -20,6 +22,7 @@ export function WireCommandFollowupPanel({
   ariaLabel?: string;
   className?: string;
   onInspectObject?: (objectId: string) => void;
+  onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   plan: CommandSubmissionFollowupPlan;
   table?: WireTableViewModel;
@@ -126,9 +129,24 @@ export function WireCommandFollowupPanel({
       ) : (
         <ol className="wire-command-followup-events" aria-label="同 tick 服务端事件">
           {plan.events.map((event) => (
-            <li data-command-followup-event-kind={event.kind} key={event.key}>
+            <li
+              data-command-followup-event-kind={event.kind}
+              data-command-followup-event-order={event.order ?? ""}
+              data-command-followup-event-tick={event.serverTick ?? ""}
+              key={event.key}
+            >
               <div>
-                <strong>{event.title}</strong>
+                <button
+                  className="wire-command-followup-event-open"
+                  data-command-followup-event-action={event.kind}
+                  data-command-followup-event-order-action={event.order ?? ""}
+                  data-command-followup-event-tick-action={event.serverTick ?? ""}
+                  disabled={!onSelectFollowupEvent}
+                  onClick={() => onSelectFollowupEvent?.(event)}
+                  type="button"
+                >
+                  <strong>{event.title}</strong>
+                </button>
                 <span>{event.messageType ?? "EVENTS"}</span>
               </div>
               <small>{event.description}</small>

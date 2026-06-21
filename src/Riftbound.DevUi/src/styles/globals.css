@@ -14709,6 +14709,21 @@ button.card-face:hover {
   gap: 6px;
 }
 
+.wire-command-followup-event-open {
+  min-width: 0;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 2px 4px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.wire-command-followup-event-open:disabled {
+  cursor: not-allowed;
+}
+
 .wire-command-followup-refs {
   min-width: 0;
   display: flex;

@@ -84,6 +84,10 @@ const eventPlan = buildCommandSubmissionFollowupPlan({
     cmdType: "END_TURN",
     followup: {
       eventCount: 2,
+      eventRefs: [
+        { kind: "MAIN_PHASE_BEGAN", order: 0, serverTick: 12 },
+        { kind: "CARD_DRAWN", order: 1, serverTick: 12 }
+      ],
       eventKinds: ["MAIN_PHASE_BEGAN", "CARD_DRAWN", "CARD_DRAWN"],
       promptCount: 0,
       serverTick: 12,
@@ -113,9 +117,17 @@ assert.deepEqual(
   eventPlan.serverEventKinds.map((row) => `${row.kind}:${row.label}`),
   ["MAIN_PHASE_BEGAN:label:MAIN_PHASE_BEGAN", "CARD_DRAWN:label:CARD_DRAWN"]
 );
+assert.deepEqual(
+  eventPlan.serverEventKinds.map((row) => `${row.kind}:${row.source}:${row.order}:${row.serverTick}`),
+  ["MAIN_PHASE_BEGAN:event-ref:0:12", "CARD_DRAWN:event-ref:1:12"]
+);
 assert.equal(eventPlan.events.length, 2);
 assert.equal(eventPlan.events[0].title, "label:MAIN_PHASE_BEGAN");
+assert.equal(eventPlan.events[0].serverTick, 12);
+assert.equal(eventPlan.events[0].order, 0);
 assert.equal(eventPlan.events[1].refCount, 2);
+assert.equal(eventPlan.events[1].serverTick, 12);
+assert.equal(eventPlan.events[1].order, 1);
 assert.equal(eventPlan.events[1].refs[0].objectId, "card-1");
 assert.equal(eventPlan.events[1].refs[0].label, "来源：card-1");
 assert.equal(eventPlan.events[1].refs[1].hidden, true);
