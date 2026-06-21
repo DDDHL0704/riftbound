@@ -45,6 +45,9 @@ const arrayObjectKeyRoles: Record<string, string> = {
   unitObjectIds: "单位"
 };
 
+const singularObjectIdSuffix = "ObjectId";
+const arrayObjectIdsSuffix = "ObjectIds";
+
 export function gameEventObjectRefPlan(event: GameEvent): GameEventObjectRefPlan {
   const serverRefs = compactRefs(asArray<GameEventObjectRef>(event.objectRefs));
   if (serverRefs.length > 0) {
@@ -120,6 +123,20 @@ function collectPayloadObjectRefs(payload: Record<string, unknown>, depth = 0): 
       continue;
     }
 
+    const inferredSingularRole = inferSingularObjectRefRole(key);
+    if (inferredSingularRole && typeof value === "string" && value.trim()) {
+      refs.push({ objectId: value.trim(), role: inferredSingularRole });
+      continue;
+    }
+
+    const inferredArrayRole = inferArrayObjectRefRole(key);
+    if (inferredArrayRole && Array.isArray(value)) {
+      refs.push(...value
+        .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+        .map((objectId) => ({ objectId: objectId.trim(), role: inferredArrayRole })));
+      continue;
+    }
+
     if (Array.isArray(value)) {
       for (const item of value) {
         refs.push(...collectPayloadObjectRefs(asRecord(item), depth + 1));
@@ -139,4 +156,101 @@ function collectPayloadObjectRefs(payload: Record<string, unknown>, depth = 0): 
     seen.add(key);
     return true;
   });
+}
+
+function inferSingularObjectRefRole(key: string): string | undefined {
+  if (!key.endsWith(singularObjectIdSuffix) || key.length <= singularObjectIdSuffix.length) {
+    return undefined;
+  }
+
+  return inferObjectRefRole(key.slice(0, -singularObjectIdSuffix.length));
+}
+
+function inferArrayObjectRefRole(key: string): string | undefined {
+  if (!key.endsWith(arrayObjectIdsSuffix) || key.length <= arrayObjectIdsSuffix.length) {
+    return undefined;
+  }
+
+  return inferObjectRefRole(key.slice(0, -arrayObjectIdsSuffix.length));
+}
+
+function inferObjectRefRole(rawPrefix: string): string {
+  const prefix = rawPrefix.toLowerCase();
+  if (prefix.includes("battlefield")) {
+    return "战场";
+  }
+
+  if (prefix.includes("source") || prefix.includes("triggeredby")) {
+    return "来源";
+  }
+
+  if (prefix.includes("target") || prefix.includes("chosen") || prefix.includes("selected")) {
+    return "目标";
+  }
+
+  if (prefix.includes("attacker")) {
+    return "攻击";
+  }
+
+  if (prefix.includes("defender")) {
+    return "防守";
+  }
+
+  if (prefix.includes("destroy") || prefix.includes("defeated") || prefix.includes("removed") || prefix.includes("cleared")) {
+    return "被移除";
+  }
+
+  if (prefix.includes("discard")) {
+    return "弃置";
+  }
+
+  if (prefix.includes("returned") || prefix.includes("recalled")) {
+    return "返回";
+  }
+
+  if (prefix.includes("recycled")) {
+    return "回收";
+  }
+
+  if (prefix.includes("revealed")) {
+    return "展示";
+  }
+
+  if (prefix.includes("rune")) {
+    return "符文";
+  }
+
+  if (prefix.includes("equipment") || prefix.includes("armament")) {
+    return "装备";
+  }
+
+  if (prefix.includes("token")) {
+    return "衍生";
+  }
+
+  if (prefix.includes("played")) {
+    return "打出";
+  }
+
+  if (prefix.includes("activated")) {
+    return "激活";
+  }
+
+  if (prefix.includes("ready") || prefix.includes("readied")) {
+    return "重置";
+  }
+
+  if (prefix.includes("moved") || prefix.includes("destination")) {
+    return "移动";
+  }
+
+  if (prefix.includes("unit") || prefix.includes("participant")) {
+    return "单位";
+  }
+
+  if (prefix.includes("hidden")) {
+    return "隐藏";
+  }
+
+  return "对象";
 }

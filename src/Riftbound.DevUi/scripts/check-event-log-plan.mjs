@@ -149,6 +149,40 @@ assert.equal(fallbackRefPlan.events[0].refs[0].visibility, "visible");
 assert.equal(fallbackRefPlan.events[0].detail.lines.find((line) => line.label === "对象来源").value, "事件字段");
 assert.equal(fallbackRefPlan.events[0].description, "造成伤害");
 
+const suffixFallbackRefPlan = buildEventLogPlan({
+  errors: [],
+  events: [
+    {
+      description: "",
+      kind: "RULE_EVENT_SUFFIXES",
+      payload: {
+        completedBattlefieldObjectIds: ["battlefield-1"],
+        nested: { returnedObjectIds: ["unit-1"], revealedObjectId: "HIDDEN" },
+        playedObjectId: "unit-2",
+        spellshieldTaxTargetObjectIds: ["unit-3"]
+      }
+    }
+  ],
+  objectIndex: {
+    "battlefield-1": {},
+    "unit-1": {},
+    "unit-2": {},
+    "unit-3": {}
+  }
+});
+
+assert.deepEqual(
+  suffixFallbackRefPlan.events[0].refs.map((ref) => `${ref.role}:${ref.id}:${ref.visibility}`),
+  [
+    "战场:battlefield-1:visible",
+    "返回:unit-1:visible",
+    "展示:HIDDEN:hidden",
+    "打出:unit-2:visible",
+    "目标:unit-3:visible"
+  ]
+);
+assert.equal(suffixFallbackRefPlan.events[0].detail.lines.find((line) => line.label === "对象来源").value, "事件字段");
+
 const mixedPlan = buildEventLogPlan({
   errors: [{ code: "BAD_COMMAND", message: "invalid payload" }],
   events: compactEvents.slice(0, 1)
