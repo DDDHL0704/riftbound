@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, Check, Flag, Hourglass, ListOrdered, Play, Send, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
-import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, CombatDamageAssignmentDto, ConnectionStatus, SnapshotDto } from "../../types/protocol";
 import { promptStampedCommand as withPromptStamp } from "../../utils/actionPromptCandidates";
 import {
   buildDamageAssignmentModel,
@@ -19,7 +19,7 @@ import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from ".
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
-import type { CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
+import type { CommandSubmitHandler, CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
 import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
@@ -33,7 +33,7 @@ type ActionPanelProps = {
   playerId: string;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
-  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
+  onCommand: CommandSubmitHandler;
 };
 
 export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
@@ -98,7 +98,7 @@ function ActionPanelRenderEntryView({
 }: {
   disabledByConnection: boolean;
   entry: ActionPanelRenderEntry;
-  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
+  onCommand: CommandSubmitHandler;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
   prompt?: ActionPromptDto;
@@ -281,7 +281,7 @@ function MulliganCandidate({
   submitGate
 }: {
   candidate: ActionPromptCandidateDto;
-  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
+  onCommand: CommandSubmitHandler;
   prompt?: ActionPromptDto;
   submitGate: ActionPanelSubmitGate;
 }) {
@@ -381,7 +381,7 @@ function HandChoiceCandidate({
 }: {
   canAct: boolean;
   candidate?: ActionPromptCandidateDto;
-  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
+  onCommand: CommandSubmitHandler;
   prompt?: ActionPromptDto;
   readOnly?: boolean;
   submitGate: ActionPanelSubmitGate;
@@ -482,7 +482,7 @@ function DamageAssignmentCandidate({
   submitGate
 }: {
   candidate: ActionPromptCandidateDto;
-  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
+  onCommand: CommandSubmitHandler;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
   submitGate: ActionPanelSubmitGate;
@@ -586,7 +586,7 @@ function OrderTriggersCandidate({
 }: {
   canAct: boolean;
   candidate?: ActionPromptCandidateDto;
-  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
+  onCommand: CommandSubmitHandler;
   prompt?: ActionPromptDto;
   readOnly?: boolean;
   submitGate: ActionPanelSubmitGate;
@@ -710,7 +710,7 @@ function CandidateButton({
 }: {
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
-  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
+  onCommand: CommandSubmitHandler;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
   prompt?: ActionPromptDto;

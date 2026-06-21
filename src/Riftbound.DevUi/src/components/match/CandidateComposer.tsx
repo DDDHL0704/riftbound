@@ -3,13 +3,12 @@ import { useEffect, useMemo, useState } from "react";
 import type {
   ActionPromptCandidateDto,
   ActionPromptDto,
-  GameCommand,
   SnapshotDto
 } from "../../types/protocol";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import { commandSourceCopy } from "../../utils/actionPanelCommandPlan";
-import type { CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
+import type { CommandSubmitHandler, CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildCandidateComposerModel,
@@ -34,7 +33,7 @@ type CandidateComposerProps = {
   candidate: ActionPromptCandidateDto;
   disabledByActionGate?: boolean;
   disabledByConnection: boolean;
-  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
+  onCommand: CommandSubmitHandler;
   onSubmitted?: () => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
