@@ -620,6 +620,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if ((selectedLayout?.getAttribute("data-wire-table-selected-layout-kind") ?? "") !== "none") {
       failures.push("wire table selected layout empty state should use none kind");
     }
+    if ((selectedLayout?.getAttribute("data-wire-table-selected-layout-capacity-state") ?? "") !== "") {
+      failures.push("wire table selected layout empty state should not expose capacity state");
+    }
+    if ((selectedLayout?.getAttribute("data-wire-table-selected-layout-capacity-overflow") ?? "") !== "") {
+      failures.push("wire table selected layout empty state should not expose capacity overflow");
+    }
 
     const informationBoundary = document.querySelector("[data-wire-information-boundary-state]");
     const informationBoundaryState = informationBoundary?.getAttribute("data-wire-information-boundary-state") ?? "missing";
@@ -1059,7 +1065,15 @@ async function runWireClickSelectionSmoke(cdp) {
       commandCenterFollowupMetricCount: commandCenterFollowup?.querySelectorAll("[data-command-followup-metric]").length ?? 0,
       commandCenterFollowupText: commandCenterFollowup?.textContent ?? "",
       commandCenterText: commandCenter?.textContent ?? "",
+      selectedLayoutCapacityOverflow: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-capacity-overflow") ?? null,
+      selectedLayoutCapacityOverflowCount: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-capacity-overflow-count") ?? null,
       selectedLayoutCapacityRow: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-capacity-row") ?? null,
+      selectedLayoutCapacityRows: Array.from(document.querySelectorAll("[data-wire-table-selected-layout-row]")).map((node) => ({
+        key: node.getAttribute("data-wire-table-selected-layout-row") ?? "",
+        state: node.getAttribute("data-wire-table-selected-layout-row-state") ?? "",
+        text: node.textContent ?? ""
+      })),
+      selectedLayoutCapacityState: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-capacity-state") ?? null,
       selectedLayoutKind: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-kind") ?? null,
       selectedLayoutObject: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-object") ?? null,
       selectedLayoutSource: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-source") ?? null,
@@ -1703,7 +1717,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (focusResult.selectedLayoutState !== "located") failures.push(`selected layout state unexpected: ${focusResult.selectedLayoutState}`);
   if (focusResult.selectedLayoutObject !== "p1-hand-spell") failures.push(`selected layout object mismatch: ${focusResult.selectedLayoutObject}`);
   if (focusResult.selectedLayoutKind !== "hand") failures.push(`selected layout kind mismatch: ${focusResult.selectedLayoutKind}`);
+  if (focusResult.selectedLayoutCapacityOverflow !== "none") failures.push(`selected layout capacity overflow mismatch: ${focusResult.selectedLayoutCapacityOverflow}`);
+  if (focusResult.selectedLayoutCapacityOverflowCount !== "0") failures.push(`selected layout capacity overflow count mismatch: ${focusResult.selectedLayoutCapacityOverflowCount}`);
   if (focusResult.selectedLayoutCapacityRow !== "self:hand") failures.push(`selected layout capacity row mismatch: ${focusResult.selectedLayoutCapacityRow}`);
+  if (focusResult.selectedLayoutCapacityState !== "stable") failures.push(`selected layout capacity state mismatch: ${focusResult.selectedLayoutCapacityState}`);
+  if (!focusResult.selectedLayoutCapacityRows.some((row) => row.key === "capacity" && row.state === "stable")) {
+    failures.push(`selected layout capacity row state missing: ${JSON.stringify(focusResult.selectedLayoutCapacityRows)}`);
+  }
   if (focusResult.selectedLayoutZone !== "self:hand") failures.push(`selected layout zone mismatch: ${focusResult.selectedLayoutZone}`);
   if (focusResult.selectedLayoutSource !== "player-hand-flow") failures.push(`selected layout source mismatch: ${focusResult.selectedLayoutSource}`);
   if (!focusResult.selectedLayoutText.includes("我方手牌")) failures.push("selected layout text did not locate hand zone");
@@ -2621,7 +2641,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
+      selectedLayoutCapacityOverflow: selectedLayout?.getAttribute("data-wire-table-selected-layout-capacity-overflow") ?? null,
+      selectedLayoutCapacityOverflowCount: selectedLayout?.getAttribute("data-wire-table-selected-layout-capacity-overflow-count") ?? null,
       selectedLayoutCapacityRow: selectedLayout?.getAttribute("data-wire-table-selected-layout-capacity-row") ?? null,
+      selectedLayoutCapacityState: selectedLayout?.getAttribute("data-wire-table-selected-layout-capacity-state") ?? null,
       selectedLayoutKind: selectedLayout?.getAttribute("data-wire-table-selected-layout-kind") ?? null,
       selectedLayoutState: selectedLayout?.getAttribute("data-wire-table-selected-layout-state") ?? null,
       selectedLayoutZone: selectedLayout?.getAttribute("data-wire-table-selected-layout-zone") ?? null,
@@ -3277,7 +3300,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!unitResult.selectedRef) failures.push("unit ref did not show selected state");
   if (unitResult.selectedLayoutState !== "located") failures.push(`unit ref selected layout state unexpected: ${unitResult.selectedLayoutState}`);
   if (unitResult.selectedLayoutKind !== "battlefield-unit") failures.push(`unit ref selected layout kind unexpected: ${unitResult.selectedLayoutKind}`);
+  if (unitResult.selectedLayoutCapacityOverflow !== "none") failures.push(`unit ref selected layout capacity overflow unexpected: ${unitResult.selectedLayoutCapacityOverflow}`);
+  if (unitResult.selectedLayoutCapacityOverflowCount !== "0") failures.push(`unit ref selected layout capacity overflow count unexpected: ${unitResult.selectedLayoutCapacityOverflowCount}`);
   if (unitResult.selectedLayoutCapacityRow !== "battlefield:1:opponent") failures.push(`unit ref selected layout capacity row unexpected: ${unitResult.selectedLayoutCapacityRow}`);
+  if (unitResult.selectedLayoutCapacityState !== "stable") failures.push(`unit ref selected layout capacity state unexpected: ${unitResult.selectedLayoutCapacityState}`);
   if (unitResult.selectedLayoutZone !== "battlefield:1:opponent") failures.push(`unit ref selected layout zone unexpected: ${unitResult.selectedLayoutZone}`);
   if (unitResult.detailLayerOpen) failures.push("unit ref opened detail layer");
   if (eventResult.selected !== "true") failures.push("event ref did not focus source card");
