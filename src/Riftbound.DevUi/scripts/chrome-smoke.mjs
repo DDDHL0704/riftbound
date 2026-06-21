@@ -741,7 +741,26 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
 
+    const overview = document.querySelector("[data-wire-match-overview-state]");
+    const overviewState = overview?.getAttribute("data-wire-match-overview-state") ?? "missing";
+    if (!["blocked", "disconnected", "ready", "review", "resolving", "waiting"].includes(overviewState)) {
+      failures.push(\`wire match overview state is unsupported: \${overviewState}\`);
+    }
+    const overviewRows = new Map(Array.from(overview?.querySelectorAll("[data-wire-match-overview-row]") ?? []).map((row) => [
+      row.getAttribute("data-wire-match-overview-row") ?? "",
+      row.getAttribute("data-wire-match-overview-row-state") ?? ""
+    ]));
+    for (const rowKey of ["window", "candidates", "rules", "focus", "timeline"]) {
+      if (!overviewRows.get(rowKey)) {
+        failures.push(\`wire match overview row \${rowKey} is missing\`);
+      }
+    }
+    if ((overview?.querySelectorAll("[data-wire-match-overview-metric]").length ?? 0) < 4) {
+      failures.push("wire match overview metric strip missing");
+    }
+
     const expectedSidePanelSlots = [
+      "overview",
       "turnWindow",
       "commandCenter",
       "serverFlow",

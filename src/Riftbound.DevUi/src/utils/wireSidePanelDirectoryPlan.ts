@@ -38,6 +38,7 @@ const SLOT_META: Record<WireSidePanelSlot, { group: WireSidePanelDirectoryGroup;
   informationBoundary: { group: "authority", label: "信息边界" },
   interaction: { group: "command", label: "焦点行动" },
   log: { group: "history", label: "日志" },
+  overview: { group: "window", label: "态势总览" },
   promptAuthority: { group: "authority", label: "窗口契约" },
   responseCoach: { group: "command", label: "响应导航" },
   ruleQueue: { group: "rules", label: "规则队列" },

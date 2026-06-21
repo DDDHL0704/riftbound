@@ -82,6 +82,7 @@
   },
   "sidePanel": {
     "slots": [
+      "overview",
       "turnWindow",
       "commandCenter",
       "serverFlow",

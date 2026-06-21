@@ -9,6 +9,7 @@ import { WireCommandCenterPanel } from "../components/match/WireCommandCenterPan
 import { useDelayedWireCardPreview, WireCardPreview } from "../components/match/WireCardPreview";
 import { WireInformationBoundaryPanel } from "../components/match/WireInformationBoundaryPanel";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
+import { WireMatchOverviewPanel } from "../components/match/WireMatchOverviewPanel";
 import { WireObjectCommandTray } from "../components/match/WireObjectCommandTray";
 import { WirePromptAuthorityPanel } from "../components/match/WirePromptAuthorityPanel";
 import { WireResponseCoachPanel } from "../components/match/WireResponseCoachPanel";
@@ -362,6 +363,21 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   }, [controller]);
   const sidePanelDirectory = useMemo(() => buildWireSidePanelDirectoryPlan(WIRE_TABLE_LAYOUT.sidePanel.slots), []);
   const sidePanelSections = {
+    overview: (
+      <section aria-label="当前对局态势总览区" className="wire-panel wire-match-overview-panel" data-wire-side-panel-slot="overview" id={sidePanelDirectory.bySlot.overview.anchorId} key="overview" tabIndex={0}>
+        <WireMatchOverviewPanel
+          connectionStatus={tableConnectionStatus}
+          events={tableEvents}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          selectedObjectContext={selectedObjectContext}
+          selectedObjectId={selectedObjectId}
+          snapshot={tableSnapshot}
+          submissionGate={tableSubmissionGate}
+          timelineDetail={timelineDetail}
+        />
+      </section>
+    ),
     turnWindow: (
       <section aria-label="服务端窗口总览区" className="wire-panel wire-window-plan-panel" data-wire-side-panel-slot="turnWindow" id={sidePanelDirectory.bySlot.turnWindow.anchorId} key="turnWindow" tabIndex={0}>
         <WireTurnWindowPanel

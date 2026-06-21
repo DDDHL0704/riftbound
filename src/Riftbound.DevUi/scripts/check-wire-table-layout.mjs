@@ -11,6 +11,7 @@ const handSlots = ["hand", "runeDeck", "runeTrack"];
 const homeSlots = ["base", "hero", "legend"];
 const battlefieldSlots = ["center", "leftSite", "rightSite"];
 const sidePanelSlots = [
+  "overview",
   "turnWindow",
   "commandCenter",
   "serverFlow",

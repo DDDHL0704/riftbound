@@ -16,6 +16,7 @@ export type WireSidePanelSlot =
   | "informationBoundary"
   | "interaction"
   | "log"
+  | "overview"
   | "promptAuthority"
   | "responseCoach"
   | "ruleQueue"

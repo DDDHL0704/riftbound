@@ -9,6 +9,7 @@ const layout = JSON.parse(readFileSync(resolve(scriptDir, "../src/components/mat
 const { buildWireSidePanelDirectoryPlan, wireSidePanelAnchorId } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryPlan.ts"));
 
 const expectedSlots = [
+  "overview",
   "turnWindow",
   "commandCenter",
   "serverFlow",
