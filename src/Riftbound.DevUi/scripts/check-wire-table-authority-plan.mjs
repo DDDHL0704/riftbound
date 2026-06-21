@@ -57,6 +57,42 @@ assert.deepEqual(
 assert.equal(serverCapacityRows.get("battlefield:0:self")?.cardWidth, serverCapacityRows.get("battlefield:1:opponent")?.cardWidth);
 assert.equal(serverCapacityRows.get("battlefield:0:self")?.slotCount, 3);
 assert.equal(serverCapacityRows.get("opponent:hand")?.state, "empty");
+assert.equal(serverPlan.selectedLayout.state, "empty");
+
+const selectedBasePlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"]
+}), { selectedObjectId: "p1-base" });
+assert.equal(selectedBasePlan.selectedLayout.state, "located");
+assert.equal(selectedBasePlan.selectedLayout.kind, "base");
+assert.equal(selectedBasePlan.selectedLayout.capacityRowKey, "opponent:base");
+
+const selectedUnitPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"]
+}), { selectedObjectId: "p1-unit-1" });
+assert.equal(selectedUnitPlan.selectedLayout.state, "located");
+assert.equal(selectedUnitPlan.selectedLayout.kind, "battlefield-unit");
+assert.equal(selectedUnitPlan.selectedLayout.capacityRowKey, "battlefield:0:self");
+
+const selectedStandbyPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"]
+}), { selectedObjectId: "standby-0-1" });
+assert.equal(selectedStandbyPlan.selectedLayout.state, "located");
+assert.equal(selectedStandbyPlan.selectedLayout.kind, "standby");
+assert.equal(selectedStandbyPlan.selectedLayout.capacityRowKey, "battlefield:0:standby");
+
+const selectedUnknownPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"]
+}), { selectedObjectId: "unknown-object" });
+assert.equal(selectedUnknownPlan.selectedLayout.state, "unknown");
+assert.equal(selectedUnknownPlan.selectedLayout.kind, "none");
 
 const serverLocationPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],

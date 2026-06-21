@@ -12556,6 +12556,7 @@ button.card-face:hover {
 .wire-table-authority [data-wire-table-authority-row-state="server"],
 .wire-table-authority [data-wire-table-authority-metric-state="server"],
 .wire-table-authority [data-wire-table-capacity-state="stable"],
+.wire-table-authority [data-wire-table-selected-layout-row-state="located"],
 .wire-table-authority [data-wire-table-consistency-state="consistent"] {
   border-width: 2px;
 }
@@ -12566,6 +12567,8 @@ button.card-face:hover {
 .wire-table-authority [data-wire-table-authority-metric-state="missing"],
 .wire-table-authority [data-wire-table-capacity-state="empty"],
 .wire-table-authority [data-wire-table-capacity-state="scroll"],
+.wire-table-authority [data-wire-table-selected-layout-row-state="empty"],
+.wire-table-authority [data-wire-table-selected-layout-row-state="unknown"],
 .wire-table-authority [data-wire-table-consistency-state="drift"],
 .wire-table-authority [data-wire-table-consistency-state="missing"] {
   border-style: dashed;

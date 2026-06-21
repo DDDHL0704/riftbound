@@ -2,8 +2,8 @@ import { StatusPill } from "../ui/StatusPill";
 import { buildWireTableAuthorityPlan, type WireTableAuthorityState } from "./wireTableAuthorityPlan";
 import type { WireTableViewModel } from "./wireTableViewModel";
 
-export function WireTableAuthorityPanel({ table }: { table: WireTableViewModel }) {
-  const plan = buildWireTableAuthorityPlan(table);
+export function WireTableAuthorityPanel({ selectedObjectId, table }: { selectedObjectId?: string; table: WireTableViewModel }) {
+  const plan = buildWireTableAuthorityPlan(table, { selectedObjectId });
 
   return (
     <section
@@ -99,6 +99,26 @@ export function WireTableAuthorityPanel({ table }: { table: WireTableViewModel }
               <small>{row.cardWidth}x{row.cardHeight} / 牌 {row.itemCount} / 槽 {row.slotCount} / 可见 {row.visibleSlotCount} / 溢出 {row.overflowCount}</small>
             </li>
           ))}
+        </ol>
+      </section>
+
+      <section
+        aria-label="选中对象布局定位"
+        className="wire-table-authority-group"
+        data-wire-table-selected-layout-capacity-row={plan.selectedLayout.capacityRowKey ?? ""}
+        data-wire-table-selected-layout-kind={plan.selectedLayout.kind}
+        data-wire-table-selected-layout-object={plan.selectedLayout.objectId ?? ""}
+        data-wire-table-selected-layout-source={plan.selectedLayout.source}
+        data-wire-table-selected-layout-state={plan.selectedLayout.state}
+        data-wire-table-selected-layout-zone={plan.selectedLayout.zoneKey ?? ""}
+      >
+        <strong>选中对象布局定位</strong>
+        <ol>
+          <li data-wire-table-selected-layout-row="summary" data-wire-table-selected-layout-row-state={plan.selectedLayout.state}>
+            <span>{plan.selectedLayout.zoneLabel}</span>
+            <strong>{plan.selectedLayout.stateLabel}</strong>
+            <small>{plan.selectedLayout.summary}</small>
+          </li>
         </ol>
       </section>
 

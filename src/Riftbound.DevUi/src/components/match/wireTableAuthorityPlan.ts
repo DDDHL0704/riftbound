@@ -82,6 +82,28 @@ export type WireTableCapacityRow = {
   visibleSlotCount: number;
 };
 
+export type WireTableSelectedLayoutKind =
+  | WireCardFlowKind
+  | "fixed-pile"
+  | "none"
+  | "rune-track"
+  | "signature"
+  | "site";
+
+export type WireTableSelectedLayoutState = "empty" | "located" | "unknown";
+
+export type WireTableSelectedLayoutPlan = {
+  capacityRowKey?: string;
+  kind: WireTableSelectedLayoutKind;
+  objectId?: string;
+  source: string;
+  state: WireTableSelectedLayoutState;
+  stateLabel: string;
+  summary: string;
+  zoneKey?: string;
+  zoneLabel: string;
+};
+
 export type WireTableAuthorityPlan = {
   capacityRows: WireTableCapacityRow[];
   consistencyIssueCount: number;
@@ -91,6 +113,7 @@ export type WireTableAuthorityPlan = {
   lanes: WireTableAuthorityLaneRow[];
   metrics: WireTableAuthorityMetric[];
   players: WireTableAuthorityPlayerRow[];
+  selectedLayout: WireTableSelectedLayoutPlan;
   state: WireTableAuthorityState;
   stateLabel: string;
   summary: string;
@@ -99,7 +122,10 @@ export type WireTableAuthorityPlan = {
 const REQUIRED_PLAYER_COUNT = 2;
 const REQUIRED_LANE_COUNT = 2;
 
-export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTableAuthorityPlan {
+export function buildWireTableAuthorityPlan(
+  table: WireTableViewModel,
+  options: { selectedObjectId?: string } = {}
+): WireTableAuthorityPlan {
   const players = table.players.map((entry): WireTableAuthorityPlayerRow => ({
     baseCount: entry.baseObjectIds.length,
     key: entry.id,
@@ -128,6 +154,7 @@ export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTabl
   const missingPlayerCount = Math.max(0, REQUIRED_PLAYER_COUNT - players.length);
   const missingLaneCount = Math.max(0, REQUIRED_LANE_COUNT - lanes.length);
   const capacityRows = buildCapacityRows(table);
+  const selectedLayout = buildSelectedLayoutPlan(table, capacityRows, options.selectedObjectId);
   const consistencyRows = buildConsistencyRows(table);
   const consistencyIssueCount = consistencyRows.filter((row) => row.state !== "consistent").length;
   const consistencyState = resolveConsistencyState(consistencyRows.map((row) => row.state));
@@ -182,6 +209,7 @@ export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTabl
       }
     ],
     players,
+    selectedLayout,
     state,
     stateLabel: authorityStateLabel(state),
     summary: authoritySummary(state, issueCount)
@@ -279,6 +307,202 @@ function capacityRow({
   };
 }
 
+function buildSelectedLayoutPlan(
+  table: WireTableViewModel,
+  capacityRows: WireTableCapacityRow[],
+  selectedObjectId?: string
+): WireTableSelectedLayoutPlan {
+  const objectId = selectedObjectId?.trim();
+  if (!objectId) {
+    return selectedLayoutPlan({
+      kind: "none",
+      source: "empty-selection",
+      state: "empty",
+      summary: "未选择桌面对象。",
+      zoneLabel: "无焦点"
+    });
+  }
+
+  const capacityKeys = new Set(capacityRows.map((row) => row.key));
+  for (const player of table.players) {
+    const playerLabel = player.side === "self" ? "我方" : "对手";
+    const capacityRowKey = `${player.side}:base`;
+    if (player.baseObjectIds.includes(objectId)) {
+      return selectedLayoutPlan({
+        capacityRowKey,
+        kind: "base",
+        objectId,
+        source: "player-base-flow",
+        state: "located",
+        zoneKey: `${player.side}:base`,
+        zoneLabel: `${playerLabel}基地`
+      });
+    }
+
+    if (player.runeIds.includes(objectId)) {
+      return selectedLayoutPlan({
+        kind: "rune-track",
+        objectId,
+        source: "player-rune-track",
+        state: "located",
+        zoneKey: `${player.side}:rune-track`,
+        zoneLabel: `${playerLabel}符文轨`
+      });
+    }
+
+    const handRowKey = `${player.side}:hand`;
+    if (player.handIds.includes(objectId) || player.hiddenHandIds.includes(objectId)) {
+      return selectedLayoutPlan({
+        capacityRowKey: capacityKeys.has(handRowKey) ? handRowKey : undefined,
+        kind: "hand",
+        objectId,
+        source: "player-hand-flow",
+        state: "located",
+        zoneKey: handRowKey,
+        zoneLabel: `${playerLabel}手牌`
+      });
+    }
+
+    if (player.zones.graveyard?.includes(objectId)) {
+      return selectedLayoutPlan({
+        kind: "fixed-pile",
+        objectId,
+        source: "player-graveyard-pile",
+        state: "located",
+        zoneKey: `${player.side}:graveyard`,
+        zoneLabel: `${playerLabel}已打出牌堆`
+      });
+    }
+
+    if (player.zones.banished?.includes(objectId)) {
+      return selectedLayoutPlan({
+        kind: "fixed-pile",
+        objectId,
+        source: "player-banished-pile",
+        state: "located",
+        zoneKey: `${player.side}:banished`,
+        zoneLabel: `${playerLabel}放逐区`
+      });
+    }
+
+    if (player.zones.legendZone?.includes(objectId)) {
+      return selectedLayoutPlan({
+        kind: "signature",
+        objectId,
+        source: "player-legend-slot",
+        state: "located",
+        zoneKey: `${player.side}:legend`,
+        zoneLabel: `${playerLabel}传奇`
+      });
+    }
+
+    if (player.zones.championZone?.includes(objectId)) {
+      return selectedLayoutPlan({
+        kind: "signature",
+        objectId,
+        source: "player-champion-slot",
+        state: "located",
+        zoneKey: `${player.side}:champion`,
+        zoneLabel: `${playerLabel}英雄`
+      });
+    }
+  }
+
+  for (const lane of table.battlefield.lanes) {
+    const laneLabel = lane.index === 0 ? "左战场" : "右战场";
+    if (lane.battlefieldId === objectId) {
+      return selectedLayoutPlan({
+        kind: "site",
+        objectId,
+        source: "battlefield-site-slot",
+        state: "located",
+        zoneKey: `battlefield:${lane.index}:site`,
+        zoneLabel: `${laneLabel}牌`
+      });
+    }
+
+    const opposingRowKey = `battlefield:${lane.index}:opponent`;
+    if (lane.opposingOccupants.includes(objectId)) {
+      return selectedLayoutPlan({
+        capacityRowKey: capacityKeys.has(opposingRowKey) ? opposingRowKey : undefined,
+        kind: "battlefield-unit",
+        objectId,
+        source: "battlefield-opponent-flow",
+        state: "located",
+        zoneKey: opposingRowKey,
+        zoneLabel: `${laneLabel}对方单位`
+      });
+    }
+
+    const ownRowKey = `battlefield:${lane.index}:self`;
+    if (lane.ownOccupants.includes(objectId)) {
+      return selectedLayoutPlan({
+        capacityRowKey: capacityKeys.has(ownRowKey) ? ownRowKey : undefined,
+        kind: "battlefield-unit",
+        objectId,
+        source: "battlefield-self-flow",
+        state: "located",
+        zoneKey: ownRowKey,
+        zoneLabel: `${laneLabel}我方单位`
+      });
+    }
+
+    const standbyRowKey = `battlefield:${lane.index}:standby`;
+    if (lane.standbySlots.some((slot) => slot.objectId === objectId || slot.slotId === objectId)) {
+      return selectedLayoutPlan({
+        capacityRowKey: capacityKeys.has(standbyRowKey) ? standbyRowKey : undefined,
+        kind: "standby",
+        objectId,
+        source: "battlefield-standby-flow",
+        state: "located",
+        zoneKey: standbyRowKey,
+        zoneLabel: `${laneLabel}待命槽`
+      });
+    }
+  }
+
+  return selectedLayoutPlan({
+    kind: "none",
+    objectId,
+    source: "not-in-wire-table",
+    state: "unknown",
+    summary: `${objectId} 未进入当前线框桌面区域索引。`,
+    zoneLabel: "未定位"
+  });
+}
+
+function selectedLayoutPlan({
+  capacityRowKey,
+  kind,
+  objectId,
+  source,
+  state,
+  summary,
+  zoneKey,
+  zoneLabel
+}: {
+  capacityRowKey?: string;
+  kind: WireTableSelectedLayoutKind;
+  objectId?: string;
+  source: string;
+  state: WireTableSelectedLayoutState;
+  summary?: string;
+  zoneKey?: string;
+  zoneLabel: string;
+}): WireTableSelectedLayoutPlan {
+  return {
+    capacityRowKey,
+    kind,
+    objectId,
+    source,
+    state,
+    stateLabel: selectedLayoutStateLabel(state),
+    summary: summary ?? `${objectId} 位于${zoneLabel}${capacityRowKey ? `，受 ${capacityRowKey} 容量行约束。` : "固定槽位。"}。`,
+    zoneKey,
+    zoneLabel
+  };
+}
+
 function buildConsistencyRows(table: WireTableViewModel): WireTableConsistencyRow[] {
   return [
     consistencyRow("base", "双方基地流", table.playerPlans.basePlan, "base"),
@@ -362,6 +586,17 @@ function capacityStateLabel(state: WireTableCapacityState): string {
       return "稳定";
     case "scroll":
       return "滚动";
+  }
+}
+
+function selectedLayoutStateLabel(state: WireTableSelectedLayoutState): string {
+  switch (state) {
+    case "empty":
+      return "未选择";
+    case "located":
+      return "已定位";
+    case "unknown":
+      return "未定位";
   }
 }
 

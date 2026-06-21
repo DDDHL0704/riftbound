@@ -582,6 +582,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
         failures.push(\`wire table capacity row \${rowKey} has invalid counts: \${JSON.stringify(row)}\`);
       }
     }
+    const selectedLayout = document.querySelector("[data-wire-table-selected-layout-state]");
+    const selectedLayoutState = selectedLayout?.getAttribute("data-wire-table-selected-layout-state") ?? "missing";
+    if (selectedLayoutState !== "empty") {
+      failures.push(\`wire table selected layout should start empty, got \${selectedLayoutState}\`);
+    }
+    if ((selectedLayout?.getAttribute("data-wire-table-selected-layout-kind") ?? "") !== "none") {
+      failures.push("wire table selected layout empty state should use none kind");
+    }
 
     const informationBoundary = document.querySelector("[data-wire-information-boundary-state]");
     const informationBoundaryState = informationBoundary?.getAttribute("data-wire-information-boundary-state") ?? "missing";
@@ -998,6 +1006,13 @@ async function runWireClickSelectionSmoke(cdp) {
       commandCenterFollowupMetricCount: commandCenterFollowup?.querySelectorAll("[data-command-followup-metric]").length ?? 0,
       commandCenterFollowupText: commandCenterFollowup?.textContent ?? "",
       commandCenterText: commandCenter?.textContent ?? "",
+      selectedLayoutCapacityRow: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-capacity-row") ?? null,
+      selectedLayoutKind: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-kind") ?? null,
+      selectedLayoutObject: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-object") ?? null,
+      selectedLayoutSource: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-source") ?? null,
+      selectedLayoutState: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-state") ?? null,
+      selectedLayoutText: document.querySelector("[data-wire-table-selected-layout-state]")?.textContent ?? "",
+      selectedLayoutZone: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-zone") ?? null,
       traySelectionRows: Array.from(document.querySelectorAll(".wire-object-command-tray-selection li")).map((node) => ({
         choice: node.getAttribute("data-wire-object-command-tray-selection-choice") ?? "",
         objectIds: node.getAttribute("data-wire-object-command-tray-selection-object-ids") ?? "",
@@ -1486,6 +1501,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.contextText.includes("下一步")) failures.push("object context next-step plan missing");
   if (!focusResult.contextText.includes("服务端命令")) failures.push("object context command plan missing");
   if (!focusResult.contextText.includes("组合：服务端声明")) failures.push("object context composer authority missing");
+  if (focusResult.selectedLayoutState !== "located") failures.push(`selected layout state unexpected: ${focusResult.selectedLayoutState}`);
+  if (focusResult.selectedLayoutObject !== "p1-hand-spell") failures.push(`selected layout object mismatch: ${focusResult.selectedLayoutObject}`);
+  if (focusResult.selectedLayoutKind !== "hand") failures.push(`selected layout kind mismatch: ${focusResult.selectedLayoutKind}`);
+  if (focusResult.selectedLayoutCapacityRow !== "self:hand") failures.push(`selected layout capacity row mismatch: ${focusResult.selectedLayoutCapacityRow}`);
+  if (focusResult.selectedLayoutZone !== "self:hand") failures.push(`selected layout zone mismatch: ${focusResult.selectedLayoutZone}`);
+  if (focusResult.selectedLayoutSource !== "player-hand-flow") failures.push(`selected layout source mismatch: ${focusResult.selectedLayoutSource}`);
+  if (!focusResult.selectedLayoutText.includes("我方手牌")) failures.push("selected layout text did not locate hand zone");
   if (focusResult.contextAuthority !== "server") failures.push(`object context authority unexpected: ${focusResult.contextAuthority}`);
   if (focusResult.contextSource !== "服务端对象上下文") failures.push(`object context source unexpected: ${focusResult.contextSource}`);
   if (focusResult.contextSectionCount < 8) failures.push(`object context section map incomplete: ${focusResult.contextSectionCount}`);

@@ -440,7 +440,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     ),
     tableAuthority: (
       <section aria-label="服务端桌面布局契约区" className="wire-panel wire-table-authority-panel" data-wire-side-panel-slot="tableAuthority" id={sidePanelDirectory.bySlot.tableAuthority.anchorId} key="tableAuthority" tabIndex={0}>
-        <WireTableAuthorityPanel table={tableView} />
+        <WireTableAuthorityPanel selectedObjectId={selectedObjectId} table={tableView} />
       </section>
     ),
     informationBoundary: (
