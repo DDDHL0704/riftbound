@@ -595,7 +595,8 @@ function formatLocation(location?: Record<string, unknown> | null): string {
 
   const playerId = typeof location.playerId === "string" ? location.playerId : "";
   const zone = typeof location.zone === "string" ? location.zone : "";
-  return [playerId, zoneLabel(zone)].filter(Boolean).join(" / ") || "服务端未公开";
+  const serverZoneLabel = typeof location.zoneLabel === "string" ? location.zoneLabel.trim() : "";
+  return [playerId, serverZoneLabel || zoneLabel(zone)].filter(Boolean).join(" / ") || "服务端未公开";
 }
 
 function serverInspectionSourceLabel(source: string | undefined): string {
@@ -614,7 +615,7 @@ function zoneLabel(zone: string): string {
     case "CHAMPION":
       return "英雄区";
     case "MAIN_DECK":
-      return "主牌堆";
+      return "主牌库";
     case "RUNE_DECK":
       return "符文牌堆";
     case "HAND":
@@ -624,7 +625,7 @@ function zoneLabel(zone: string): string {
     case "BATTLEFIELD":
       return "战场";
     case "GRAVEYARD":
-      return "废牌堆";
+      return "已打出牌堆";
     case "BANISHED":
       return "放逐区";
     case "STACK":

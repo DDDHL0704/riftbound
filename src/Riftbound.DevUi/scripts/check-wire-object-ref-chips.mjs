@@ -62,7 +62,7 @@ assert.deepEqual(wireObjectRef("来源", " object-1 "), { id: "object-1", role: 
 assert.deepEqual(wireObjectRefs("目标", ["a", "b"]), [{ id: "a", role: "目标" }, { id: "b", role: "目标" }]);
 
 const visiblePlan = wireObjectRefRenderPlan({
-  objects: { known: { cardNo: "OGN-001/298", location: { battlefieldObjectId: "battlefield-1", zone: "BATTLEFIELD" } } },
+  objects: { known: { cardNo: "OGN-001/298", location: { battlefieldObjectId: "battlefield-1", zone: "BATTLEFIELD", zoneLabel: "战场牌" } } },
   onInspectObject: () => {},
   ref: { id: "known", role: "目标" },
   selectedObjectId: "known"
@@ -77,7 +77,7 @@ assert.deepEqual(
     selected: true,
     visibility: "visible",
     zone: "BATTLEFIELD",
-    zoneLabel: "战场 / battlefield-1"
+    zoneLabel: "战场牌 / battlefield-1"
   },
   "visible refs must remain inspectable and selected when the object exists"
 );
@@ -119,11 +119,11 @@ assert.equal(missingPlan.zoneLabel, "");
 const serverZonePlan = wireObjectRefRenderPlan({
   objects: {},
   onInspectObject: () => {},
-  ref: { battlefieldObjectId: "battlefield-2", id: "public-missing", role: "战场", visibility: "missing", zone: "BATTLEFIELD" },
+  ref: { battlefieldObjectId: "battlefield-2", id: "public-missing", role: "战场", visibility: "missing", zone: "BATTLEFIELD", zoneLabel: "右战场牌" },
   selectedObjectId: ""
 });
 assert.equal(serverZonePlan.battlefieldObjectId, "battlefield-2");
 assert.equal(serverZonePlan.zone, "BATTLEFIELD");
-assert.equal(serverZonePlan.zoneLabel, "战场 / battlefield-2");
+assert.equal(serverZonePlan.zoneLabel, "右战场牌 / battlefield-2");
 
 console.log("Wire object ref chips check passed.");

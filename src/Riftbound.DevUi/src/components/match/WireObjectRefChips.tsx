@@ -8,6 +8,7 @@ export type WireObjectRef = {
   role: string;
   visibility?: WireObjectRefVisibility;
   zone?: string | null;
+  zoneLabel?: string | null;
 };
 
 export type WireObjectRefVisibility = "hidden" | "missing" | "visible";
@@ -113,10 +114,11 @@ export function wireObjectRefRenderPlan({
   const selected = !hidden && selectedObjectId === ref.id;
   const objectLabel = hidden ? "隐藏对象" : ref.label ?? wireObjectLabel(ref.id, objects);
   const zone = hidden ? undefined : normalizeText(ref.zone) ?? normalizeText(object?.location?.zone);
+  const serverZoneLabel = hidden ? undefined : normalizeText(ref.zoneLabel) ?? normalizeText(object?.location?.zoneLabel);
   const battlefieldObjectId = hidden
     ? undefined
     : normalizeText(ref.battlefieldObjectId) ?? normalizeText(object?.location?.battlefieldObjectId);
-  const zoneLabel = hidden ? "" : wireObjectZoneLabel(zone, battlefieldObjectId);
+  const zoneLabel = hidden ? "" : wireObjectZoneLabel(zone, battlefieldObjectId, serverZoneLabel);
 
   return {
     battlefieldObjectId,
@@ -168,12 +170,12 @@ function objectRefVisibility(objectId: string, object: CardObjectView | undefine
   return object ? "visible" : "missing";
 }
 
-function wireObjectZoneLabel(zone: string | undefined, battlefieldObjectId: string | undefined): string {
-  if (!zone && !battlefieldObjectId) {
+function wireObjectZoneLabel(zone: string | undefined, battlefieldObjectId: string | undefined, serverZoneLabel: string | undefined): string {
+  if (!zone && !battlefieldObjectId && !serverZoneLabel) {
     return "";
   }
 
-  const zoneLabel = zone ? zoneLabelFor(zone) : "未知区域";
+  const zoneLabel = serverZoneLabel ?? (zone ? zoneLabelFor(zone) : "未知区域");
   return battlefieldObjectId ? `${zoneLabel} / ${battlefieldObjectId}` : zoneLabel;
 }
 

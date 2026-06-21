@@ -254,6 +254,19 @@ assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "safe-bound
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "stack")?.rows.some((row) => row.value === "结算链来源"));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "events")?.rows.some((row) => row.value.includes("STACK_ITEM_ADDED")));
 
+const serverLocationPlan = buildCardDetailPlan({
+  card: {
+    object: {
+      cardNo: "OGN-RUNE/298",
+      location: { playerId: "P1", zone: "BASE", zoneLabel: "已抽出符文" },
+      objectId: "p1-rune-1"
+    },
+    objectId: "p1-rune-1"
+  }
+});
+assert.equal(serverLocationPlan.detailRows.find((row) => row.key === "zone")?.value, "P1 / 已抽出符文");
+assert.equal(serverLocationPlan.inspector.summaryRows.find((row) => row.key === "zone")?.value, "P1 / 已抽出符文");
+
 console.log("Card detail plan check passed.");
 
 function sourceCandidatesForPrompt(prompt, sourceObjectId, options = {}) {
