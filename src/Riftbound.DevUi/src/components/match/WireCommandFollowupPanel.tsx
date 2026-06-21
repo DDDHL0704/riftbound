@@ -12,12 +12,14 @@ export function WireCommandFollowupPanel({
   ariaLabel = "服务端后续事件",
   className = "wire-command-followup",
   onInspectObject,
+  onSelectServerEventKind,
   plan,
   table
 }: {
   ariaLabel?: string;
   className?: string;
   onInspectObject?: (objectId: string) => void;
+  onSelectServerEventKind?: (kind: string) => void;
   plan: CommandSubmissionFollowupPlan;
   table?: WireTableViewModel;
 }) {
@@ -79,9 +81,20 @@ export function WireCommandFollowupPanel({
       {plan.serverEventKinds.length > 0 && (
         <ol className="wire-command-followup-server-kinds" aria-label="服务端回执事件种类">
           {plan.serverEventKinds.map((eventKind) => (
-            <li data-command-followup-server-event-kind={eventKind.kind} key={eventKind.key}>
-              <span>{eventKind.label}</span>
-              <small>{eventKind.kind}</small>
+            <li
+              data-command-followup-server-event-kind={eventKind.kind}
+              data-command-followup-server-event-kind-state={plan.events.some((event) => event.kind === eventKind.kind) ? "linked" : "declared"}
+              key={eventKind.key}
+            >
+              <button
+                data-command-followup-server-event-kind-action={eventKind.kind}
+                disabled={!onSelectServerEventKind}
+                onClick={() => onSelectServerEventKind?.(eventKind.kind)}
+                type="button"
+              >
+                <span>{eventKind.label}</span>
+                <small>{eventKind.kind}</small>
+              </button>
             </li>
           ))}
         </ol>

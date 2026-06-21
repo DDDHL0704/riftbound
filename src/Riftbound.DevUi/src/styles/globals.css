@@ -14647,9 +14647,24 @@ button.card-face:hover {
 .wire-command-followup-server-kinds li {
   min-width: 0;
   display: grid;
-  gap: 1px;
   border: 1px solid #000;
+}
+
+.wire-command-followup-server-kinds button {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  border: 0;
+  background: #fff;
+  color: #000;
   padding: 3px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.wire-command-followup-server-kinds button:disabled {
+  cursor: not-allowed;
 }
 
 .wire-command-followup-metrics {

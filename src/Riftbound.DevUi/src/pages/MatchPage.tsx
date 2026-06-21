@@ -59,7 +59,15 @@ import {
 } from "../components/match/wireTableInteractionModel";
 import { Button } from "../components/ui/Button";
 import { ScrollArea } from "../components/ui/ScrollArea";
-import { buildWireLayoutFixtureEvents, buildWireLayoutFixturePrompt, buildWireLayoutFixtureSnapshot, isWireLayoutFixtureEnabled, wireLayoutFixtureSpecByNo } from "../fixtures/wireLayoutFixture";
+import {
+  buildWireLayoutFixtureCommandSubmission,
+  buildWireLayoutFixtureEvents,
+  buildWireLayoutFixturePrompt,
+  buildWireLayoutFixtureSnapshot,
+  isWireLayoutFixtureCommandSubmissionEnabled,
+  isWireLayoutFixtureEnabled,
+  wireLayoutFixtureSpecByNo
+} from "../fixtures/wireLayoutFixture";
 import { useCatalog } from "../stores/catalogStore";
 import { useSettings } from "../stores/settingsStore";
 import { useMatchController } from "../stores/useMatchController";
@@ -71,6 +79,7 @@ import type { CandidateSelectionDraft } from "../utils/candidateSelectionDraft";
 import { buildPromptInteractionModel, type PromptObjectState } from "../utils/promptInteraction";
 import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
+import { buildEventLogPlan } from "../utils/eventLogPlan";
 import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
@@ -97,6 +106,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const timelineDetailTriggerIdRef = useRef<string | undefined>(undefined);
   const { previewCard, queuePreviewCard } = useDelayedWireCardPreview();
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
+  const layoutFixtureCommandSubmissionEnabled = useMemo(() => isWireLayoutFixtureCommandSubmissionEnabled(), []);
   const tableSnapshot = useMemo(
     () => layoutFixtureEnabled ? buildWireLayoutFixtureSnapshot(settings.playerId) : snapshot,
     [layoutFixtureEnabled, settings.playerId, snapshot]
@@ -108,6 +118,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const tableEvents = useMemo(
     () => layoutFixtureEnabled ? buildWireLayoutFixtureEvents(settings.playerId) : controller.state.events,
     [controller.state.events, layoutFixtureEnabled, settings.playerId]
+  );
+  const tableSubmissionFeedback = useMemo(
+    () => layoutFixtureCommandSubmissionEnabled ? buildWireLayoutFixtureCommandSubmission() : controller.state.lastCommandSubmission,
+    [controller.state.lastCommandSubmission, layoutFixtureCommandSubmissionEnabled]
   );
   const tableSpecByNo = useMemo(
     () => layoutFixtureEnabled ? { ...wireLayoutFixtureSpecByNo, ...specByNo } : specByNo,
@@ -328,6 +342,17 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     timelineDetailTriggerIdRef.current = detail.id;
     setTimelineDetail(detail);
   }, []);
+  const selectServerEventKind = useCallback((kind: string) => {
+    const eventPlan = buildEventLogPlan({
+      errors: [],
+      events: tableEvents,
+      objectIndex: tableObjectIndex
+    });
+    const row = eventPlan.events.find((event) => event.kind === kind);
+    if (row) {
+      selectTimelineDetail(row.detail);
+    }
+  }, [selectTimelineDetail, tableEvents, tableObjectIndex]);
 
   const clearTimelineDetail = useCallback(() => {
     const triggerId = timelineDetailTriggerIdRef.current ?? timelineDetail?.id;
@@ -413,11 +438,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             surface: "command-center"
           })}
           onInspectObject={inspectObjectFromTable}
+          onSelectServerEventKind={selectServerEventKind}
           playerId={settings.playerId}
           prompt={tablePrompt}
           selectionDraft={selectionDraft}
           snapshot={tableSnapshot}
-          submissionFeedback={controller.state.lastCommandSubmission}
+          submissionFeedback={tableSubmissionFeedback}
           submissionGate={tableSubmissionGate}
           table={tableView}
         />
@@ -482,12 +508,13 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             surface: "action-map"
           })}
           onInspectObject={inspectObjectFromTable}
+          onSelectServerEventKind={selectServerEventKind}
           playerId={settings.playerId}
           prompt={tablePrompt}
           selectedObjectId={selectedObjectId}
           selectionDraft={selectionDraft}
           snapshot={tableSnapshot}
-          submissionFeedback={controller.state.lastCommandSubmission}
+          submissionFeedback={tableSubmissionFeedback}
           submissionGate={tableSubmissionGate}
           table={tableView}
         />
@@ -549,12 +576,13 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           onInspectObject={inspectObjectFromTable}
           onOpenLayer={() => setTimelineLayerOpen(true)}
           onOpenObjectDetail={openObjectDetail}
+          onSelectServerEventKind={selectServerEventKind}
           prompt={tablePrompt}
           selectionDraft={selectionDraft}
           selectedObjectContext={selectedObjectContext}
           selectedObjectId={selectedObjectId}
           snapshot={tableSnapshot}
-          submissionFeedback={controller.state.lastCommandSubmission}
+          submissionFeedback={tableSubmissionFeedback}
           table={tableView}
         />
       </section>
@@ -697,13 +725,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         onClose={() => setTimelineLayerOpen(false)}
         onInspectObject={inspectObjectFromTable}
         onOpenObjectDetail={openObjectDetail}
+        onSelectServerEventKind={selectServerEventKind}
         open={timelineLayerOpen}
         prompt={tablePrompt}
         selectionDraft={selectionDraft}
         selectedObjectContext={selectedObjectContext}
         selectedObjectId={selectedObjectId}
         snapshot={tableSnapshot}
-        submissionFeedback={controller.state.lastCommandSubmission}
+        submissionFeedback={tableSubmissionFeedback}
         table={tableView}
       />
       <WireCardPreview card={previewCard} />

@@ -30,6 +30,7 @@ export function WireCommandCenterPanel({
   onClearFocus,
   onCommand,
   onInspectObject,
+  onSelectServerEventKind,
   playerId,
   prompt,
   selectionDraft,
@@ -46,6 +47,7 @@ export function WireCommandCenterPanel({
   onClearFocus: () => void;
   onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
+  onSelectServerEventKind?: (kind: string) => void;
   playerId: string;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
@@ -100,6 +102,7 @@ export function WireCommandCenterPanel({
         ariaLabel="指挥中心服务端后续事件"
         className="wire-command-followup wire-command-center-followup"
         onInspectObject={onInspectObject}
+        onSelectServerEventKind={onSelectServerEventKind}
         plan={plan.submissionFollowup}
         table={table}
       />

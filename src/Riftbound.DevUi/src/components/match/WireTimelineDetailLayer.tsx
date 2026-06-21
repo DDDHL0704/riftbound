@@ -23,6 +23,7 @@ type WireTimelineDetailLayerProps = {
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
   onOpenObjectDetail?: (objectId: string) => void;
+  onSelectServerEventKind?: (kind: string) => void;
   open: boolean;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
@@ -45,6 +46,7 @@ export function WireTimelineDetailLayer({
   onClose,
   onInspectObject,
   onOpenObjectDetail,
+  onSelectServerEventKind,
   open,
   prompt,
   selectionDraft,
@@ -94,6 +96,7 @@ export function WireTimelineDetailLayer({
           onClear={onClear}
           onInspectObject={onInspectObject}
           onOpenObjectDetail={onOpenObjectDetail}
+          onSelectServerEventKind={onSelectServerEventKind}
           prompt={prompt}
           selectionDraft={selectionDraft}
           selectedObjectContext={selectedObjectContext}

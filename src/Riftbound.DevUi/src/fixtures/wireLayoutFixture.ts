@@ -1,4 +1,5 @@
 import { BehaviorSpec } from "../types/catalog";
+import type { CommandSubmissionFeedback } from "../stores/useMatchController";
 import {
   ActionPromptDto,
   BattlefieldSnapshotView,
@@ -93,6 +94,11 @@ const fixtureBlockedAbilityComposer = {
 export function isWireLayoutFixtureEnabled(search = window.location.search): boolean {
   const params = new URLSearchParams(search);
   return params.get("fixture") === "layout" || params.get("layoutFixture") === "cards";
+}
+
+export function isWireLayoutFixtureCommandSubmissionEnabled(search = window.location.search): boolean {
+  const params = new URLSearchParams(search);
+  return isWireLayoutFixtureEnabled(search) && params.get("fixtureSubmission") === "timeline";
 }
 
 export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): ActionPromptDto {
@@ -645,6 +651,36 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
       }
     }
   ];
+}
+
+export function buildWireLayoutFixtureCommandSubmission(): CommandSubmissionFeedback {
+  return {
+    clientIntentId: "fixture-play-card-timeline-detail",
+    cmdType: "PLAY_CARD",
+    followup: {
+      eventCount: 2,
+      eventKinds: ["STACK_ITEM_ADDED", "BATTLEFIELD_CONTROL_RESOLVED"],
+      promptCount: 1,
+      serverTick: 7,
+      snapshotCount: 1,
+      state: "events",
+      summary: "fixture tick 7 已生成 2 条公开事件、1 个快照、1 个提示。"
+    },
+    message: "服务端已接受 fixture 命令，后续以快照和规则事件为准。",
+    promptId: "fixture-main-action",
+    receiptState: "ACCEPTED",
+    serverTick: 7,
+    snapshotTick: 7,
+    state: "sent",
+    stateLabel: "服务端已接受",
+    submittedAt: 0,
+    uiSource: {
+      detailId: "rule:stack:fixture-stack-1",
+      label: "规则与事件详情",
+      objectId: "p1-hand-spell",
+      surface: "timeline-detail"
+    }
+  };
 }
 
 function fixtureEventObjectRefs(objectIndex: SnapshotObjectIndex, refs: GameEventObjectRef[]): GameEventObjectRef[] {

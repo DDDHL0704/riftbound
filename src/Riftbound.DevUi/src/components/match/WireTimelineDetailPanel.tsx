@@ -49,6 +49,7 @@ export function WireTimelineDetailPanel({
   onInspectObject,
   onOpenLayer,
   onOpenObjectDetail,
+  onSelectServerEventKind,
   prompt,
   selectionDraft,
   selectedObjectContext,
@@ -69,6 +70,7 @@ export function WireTimelineDetailPanel({
   onInspectObject?: (objectId: string) => void;
   onOpenLayer?: () => void;
   onOpenObjectDetail?: (objectId: string) => void;
+  onSelectServerEventKind?: (kind: string) => void;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
   selectedObjectContext?: TableObjectContext;
@@ -173,6 +175,7 @@ export function WireTimelineDetailPanel({
               ariaLabel="规则详情服务端后续事件"
               className="wire-command-followup wire-timeline-command-followup"
               onInspectObject={onInspectObject}
+              onSelectServerEventKind={onSelectServerEventKind}
               plan={submissionFollowup}
               table={table}
             />

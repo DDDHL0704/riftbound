@@ -29,6 +29,7 @@ type WireActionMapPanelProps = {
   onChooseObject?: (objectId: string) => void;
   onCommand?: (command: GameCommand) => void;
   onInspectObject?: (objectId: string) => void;
+  onSelectServerEventKind?: (kind: string) => void;
   playerId: string;
   prompt?: ActionPromptDto;
   selectedObjectId?: string;
@@ -44,6 +45,7 @@ export function WireActionMapPanel({
   onChooseObject,
   onCommand,
   onInspectObject,
+  onSelectServerEventKind,
   playerId,
   prompt,
   selectedObjectId,
@@ -80,7 +82,14 @@ export function WireActionMapPanel({
       <ActionLayoutProjectionPanel plan={layoutProjection} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
-      <CommandSubmissionFeedbackPanel events={events} feedback={submissionFeedback} onInspectObject={onInspectObject} snapshot={snapshot} table={table} />
+      <CommandSubmissionFeedbackPanel
+        events={events}
+        feedback={submissionFeedback}
+        onInspectObject={onInspectObject}
+        onSelectServerEventKind={onSelectServerEventKind}
+        snapshot={snapshot}
+        table={table}
+      />
       <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
@@ -223,12 +232,14 @@ function CommandSubmissionFeedbackPanel({
   events,
   feedback,
   onInspectObject,
+  onSelectServerEventKind,
   snapshot,
   table
 }: {
   events?: GameEvent[];
   feedback?: CommandSubmissionFeedback;
   onInspectObject?: (objectId: string) => void;
+  onSelectServerEventKind?: (kind: string) => void;
   snapshot?: SnapshotDto;
   table: WireTableViewModel;
 }) {
@@ -258,6 +269,7 @@ function CommandSubmissionFeedbackPanel({
         <WireCommandFollowupPanel
           ariaLabel="提交反馈服务端后续事件"
           onInspectObject={onInspectObject}
+          onSelectServerEventKind={onSelectServerEventKind}
           plan={followup}
           table={table}
         />
@@ -327,6 +339,7 @@ function CommandSubmissionFeedbackPanel({
       <WireCommandFollowupPanel
         ariaLabel="提交反馈服务端后续事件"
         onInspectObject={onInspectObject}
+        onSelectServerEventKind={onSelectServerEventKind}
         plan={followup}
         table={table}
       />
@@ -336,6 +349,7 @@ function CommandSubmissionFeedbackPanel({
           followup={followup}
           onClose={() => setLayerOpen(false)}
           onInspectObject={onInspectObject}
+          onSelectServerEventKind={onSelectServerEventKind}
           table={table}
         />
       )}
@@ -352,12 +366,14 @@ function CommandSubmissionFeedbackLayer({
   followup,
   onClose,
   onInspectObject,
+  onSelectServerEventKind,
   table
 }: {
   feedback: CommandSubmissionFeedback;
   followup: ReturnType<typeof buildCommandSubmissionFollowupPlan>;
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
+  onSelectServerEventKind?: (kind: string) => void;
   table: WireTableViewModel;
 }) {
   const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);
@@ -437,6 +453,7 @@ function CommandSubmissionFeedbackLayer({
             ariaLabel="回执检查层后续事件"
             className="wire-command-submission-layer-followup"
             onInspectObject={onInspectObject}
+            onSelectServerEventKind={onSelectServerEventKind}
             plan={followup}
             table={table}
           />
