@@ -93,6 +93,63 @@ assert.equal(selectedStandbyPlan.selectedLayout.kind, "standby");
 assert.equal(selectedStandbyPlan.selectedLayout.capacityRowKey, "battlefield:0:standby");
 assert.equal(selectedStandbyPlan.selectedLayout.capacity?.state, "stable");
 
+const serverLocationUnitPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  objects: {
+    "late-self-unit": object("late-self-unit", ["CARD_TYPE:UNIT"], {
+      battlefieldObjectId: "battlefield-0",
+      playerId: "P2",
+      zone: "BATTLEFIELD",
+      zoneKind: "battlefield",
+      zoneLabel: "战场"
+    })
+  },
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"]
+}), { selectedObjectId: "late-self-unit" });
+assert.equal(serverLocationUnitPlan.selectedLayout.state, "located");
+assert.equal(serverLocationUnitPlan.selectedLayout.kind, "battlefield-unit");
+assert.equal(serverLocationUnitPlan.selectedLayout.source, "server-location-battlefield-unit");
+assert.equal(serverLocationUnitPlan.selectedLayout.capacityRowKey, "battlefield:0:self");
+assert.equal(serverLocationUnitPlan.selectedLayout.capacity?.state, "stable");
+
+const serverLocationStandbyPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  objects: {
+    "late-standby": object("late-standby", ["CARD_TYPE:UNIT", "待命"], {
+      battlefieldObjectId: "battlefield-0",
+      playerId: "P2",
+      zone: "BATTLEFIELD",
+      zoneKind: "battlefield",
+      zoneLabel: "战场"
+    })
+  },
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"]
+}), { selectedObjectId: "late-standby" });
+assert.equal(serverLocationStandbyPlan.selectedLayout.state, "located");
+assert.equal(serverLocationStandbyPlan.selectedLayout.kind, "standby");
+assert.equal(serverLocationStandbyPlan.selectedLayout.source, "server-location-battlefield-standby");
+assert.equal(serverLocationStandbyPlan.selectedLayout.capacityRowKey, "battlefield:0:standby");
+
+const serverLocationRunePlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  objects: {
+    "late-rune": object("late-rune", ["CARD_TYPE:RUNE"], {
+      playerId: "P2",
+      zone: "BASE",
+      zoneKind: "rune",
+      zoneLabel: "已抽出符文"
+    })
+  },
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"]
+}), { selectedObjectId: "late-rune" });
+assert.equal(serverLocationRunePlan.selectedLayout.state, "located");
+assert.equal(serverLocationRunePlan.selectedLayout.kind, "rune-track");
+assert.equal(serverLocationRunePlan.selectedLayout.source, "server-location-rune-track");
+assert.equal(serverLocationRunePlan.selectedLayout.zoneKey, "self:rune-track");
+
 const selectedUnknownPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],
   playerSources: ["server", "server"],
@@ -219,7 +276,7 @@ assert.match(selectedScrollPlan.selectedLayout.capacity?.summary ?? "", /溢出 
 
 console.log("Wire table authority plan check passed.");
 
-function table({ laneObjects = {}, laneSources, playerSources, standbySources, plans = {} }) {
+function table({ laneObjects = {}, laneSources, objects = {}, playerSources, standbySources, plans = {} }) {
   return {
     battlefield: {
       lanes: laneSources.map((source, index) => ({
@@ -237,7 +294,7 @@ function table({ laneObjects = {}, laneSources, playerSources, standbySources, p
         standbySlots: (laneObjects[index]?.standby ?? [`standby-${index}-1`, `standby-${index}-2`]).map((slotId) => ({ slotId })),
         zonePlayerId: index === 0 ? "P1" : "P2"
       })),
-      objects: {},
+      objects,
       standbyPlan: plans.standbyPlan ?? plan("standby", 2),
       unitPlan: plans.unitPlan ?? plan("battlefield-unit", 3)
     },
@@ -248,7 +305,7 @@ function table({ laneObjects = {}, laneSources, playerSources, standbySources, p
       hiddenHandIds: [],
       id: `P${index + 1}`,
       label: `P${index + 1}`,
-      objects: {},
+      objects,
       player: {},
       runeIds: [`p${index + 1}-rune-a`, `p${index + 1}-rune-b`],
       side: index === 0 ? "opponent" : "self",
@@ -258,6 +315,16 @@ function table({ laneObjects = {}, laneSources, playerSources, standbySources, p
       basePlan: plans.basePlan ?? plan("base", 1, 1, 1, 86),
       handPlan: plans.handPlan ?? plan("hand", 2)
     }
+  };
+}
+
+function object(objectId, tags, location) {
+  return {
+    controllerId: location.playerId,
+    location,
+    objectId,
+    ownerId: location.playerId,
+    tags
   };
 }
 

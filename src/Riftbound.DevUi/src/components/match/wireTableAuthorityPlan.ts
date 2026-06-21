@@ -488,6 +488,11 @@ function buildSelectedLayoutPlan(
     }
   }
 
+  const serverLocationPlan = selectedLayoutFromServerLocation(table, capacityKeys, objectId);
+  if (serverLocationPlan) {
+    return serverLocationPlan;
+  }
+
   return selectedLayoutPlan({
     kind: "none",
     objectId,
@@ -496,6 +501,232 @@ function buildSelectedLayoutPlan(
     summary: `${objectId} 未进入当前线框桌面区域索引。`,
     zoneLabel: "未定位"
   });
+}
+
+function selectedLayoutFromServerLocation(
+  table: WireTableViewModel,
+  capacityKeys: Set<string>,
+  objectId: string
+): WireTableSelectedLayoutPlan | undefined {
+  const object = objectFromTable(table, objectId);
+  const location = object?.location;
+  if (!location) {
+    return undefined;
+  }
+
+  const zone = normalizeLocationText(location.zone).toUpperCase();
+  const zoneKind = normalizeLocationText(location.zoneKind);
+  const player = playerFromLocation(table, location.playerId, object?.controllerId, object?.ownerId);
+  const playerLabel = player?.side === "self" ? "我方" : player?.side === "opponent" ? "对手" : "未知玩家";
+  const zoneLabel = normalizeLocationText(location.zoneLabel);
+  const capacityKeyForPlayer = (suffix: string) => player ? `${player.side}:${suffix}` : undefined;
+  const capacityKeyForLane = (laneIndex: number, suffix: string) => {
+    const key = `battlefield:${laneIndex}:${suffix}`;
+    return capacityKeys.has(key) ? key : undefined;
+  };
+
+  if (zoneKind === "rune" || (zone === "BASE" && isRuneObject(object))) {
+    return selectedLayoutPlan({
+      kind: "rune-track",
+      objectId,
+      source: "server-location-rune-track",
+      state: "located",
+      zoneKey: player ? `${player.side}:rune-track` : undefined,
+      zoneLabel: `${playerLabel}${zoneLabel || "符文轨"}`
+    });
+  }
+
+  switch (zoneKind || zone) {
+    case "base":
+    case "BASE": {
+      const capacityRowKey = capacityKeyForPlayer("base");
+      return selectedLayoutPlan({
+        capacityRowKey: capacityRowKey && capacityKeys.has(capacityRowKey) ? capacityRowKey : undefined,
+        kind: "base",
+        objectId,
+        source: "server-location-base",
+        state: "located",
+        zoneKey: player ? `${player.side}:base` : undefined,
+        zoneLabel: `${playerLabel}${zoneLabel || "基地"}`
+      });
+    }
+    case "banished":
+    case "BANISHED":
+      return selectedLayoutPlan({
+        kind: "fixed-pile",
+        objectId,
+        source: "server-location-banished",
+        state: "located",
+        zoneKey: player ? `${player.side}:banished` : undefined,
+        zoneLabel: `${playerLabel}${zoneLabel || "放逐区"}`
+      });
+    case "champion":
+    case "CHAMPION":
+      return selectedLayoutPlan({
+        kind: "signature",
+        objectId,
+        source: "server-location-champion",
+        state: "located",
+        zoneKey: player ? `${player.side}:champion` : undefined,
+        zoneLabel: `${playerLabel}${zoneLabel || "英雄"}`
+      });
+    case "graveyard":
+    case "GRAVEYARD":
+      return selectedLayoutPlan({
+        kind: "fixed-pile",
+        objectId,
+        source: "server-location-graveyard",
+        state: "located",
+        zoneKey: player ? `${player.side}:graveyard` : undefined,
+        zoneLabel: `${playerLabel}${zoneLabel || "已打出牌堆"}`
+      });
+    case "hand":
+    case "HAND": {
+      const capacityRowKey = capacityKeyForPlayer("hand");
+      return selectedLayoutPlan({
+        capacityRowKey: capacityRowKey && capacityKeys.has(capacityRowKey) ? capacityRowKey : undefined,
+        kind: "hand",
+        objectId,
+        source: "server-location-hand",
+        state: "located",
+        zoneKey: player ? `${player.side}:hand` : undefined,
+        zoneLabel: `${playerLabel}${zoneLabel || "手牌"}`
+      });
+    }
+    case "legend":
+    case "LEGEND":
+      return selectedLayoutPlan({
+        kind: "signature",
+        objectId,
+        source: "server-location-legend",
+        state: "located",
+        zoneKey: player ? `${player.side}:legend` : undefined,
+        zoneLabel: `${playerLabel}${zoneLabel || "传奇"}`
+      });
+    case "main-deck":
+    case "MAIN_DECK":
+      return selectedLayoutPlan({
+        kind: "fixed-pile",
+        objectId,
+        source: "server-location-main-deck",
+        state: "located",
+        zoneKey: player ? `${player.side}:main-deck` : undefined,
+        zoneLabel: `${playerLabel}${zoneLabel || "主牌库"}`
+      });
+    case "rune-deck":
+    case "RUNE_DECK":
+      return selectedLayoutPlan({
+        kind: "fixed-pile",
+        objectId,
+        source: "server-location-rune-deck",
+        state: "located",
+        zoneKey: player ? `${player.side}:rune-deck` : undefined,
+        zoneLabel: `${playerLabel}${zoneLabel || "符文牌堆"}`
+      });
+    case "battlefield-site":
+    case "battlefield":
+    case "BATTLEFIELD":
+      return selectedBattlefieldLayoutFromServerLocation(table, capacityKeyForLane, objectId, object, location, player?.side);
+    default:
+      return undefined;
+  }
+}
+
+function selectedBattlefieldLayoutFromServerLocation(
+  table: WireTableViewModel,
+  capacityKeyForLane: (laneIndex: number, suffix: string) => string | undefined,
+  objectId: string,
+  object: ReturnType<typeof objectFromTable>,
+  location: NonNullable<ReturnType<typeof objectFromTable>>["location"],
+  playerSide?: "self" | "opponent"
+): WireTableSelectedLayoutPlan | undefined {
+  const battlefieldObjectId = normalizeLocationText(location?.battlefieldObjectId);
+  const lane = table.battlefield.lanes.find((entry) =>
+    entry.battlefieldId === objectId || entry.battlefieldId === battlefieldObjectId);
+  if (!lane) {
+    return undefined;
+  }
+
+  const laneLabel = lane.index === 0 ? "左战场" : "右战场";
+  if (objectId === lane.battlefieldId || isBattlefieldObject(object)) {
+    return selectedLayoutPlan({
+      kind: "site",
+      objectId,
+      source: "server-location-battlefield-site",
+      state: "located",
+      zoneKey: `battlefield:${lane.index}:site`,
+      zoneLabel: `${laneLabel}牌`
+    });
+  }
+
+  if (isStandbyObject(object)) {
+    const capacityRowKey = capacityKeyForLane(lane.index, "standby");
+    return selectedLayoutPlan({
+      capacityRowKey,
+      kind: "standby",
+      objectId,
+      source: "server-location-battlefield-standby",
+      state: "located",
+      zoneKey: `battlefield:${lane.index}:standby`,
+      zoneLabel: `${laneLabel}待命槽`
+    });
+  }
+
+  if (!playerSide) {
+    return undefined;
+  }
+
+  const side = playerSide;
+  const capacityRowKey = capacityKeyForLane(lane.index, side);
+  return selectedLayoutPlan({
+    capacityRowKey,
+    kind: "battlefield-unit",
+    objectId,
+    source: "server-location-battlefield-unit",
+    state: "located",
+    zoneKey: `battlefield:${lane.index}:${side}`,
+    zoneLabel: `${laneLabel}${side === "self" ? "我方" : "对方"}单位`
+  });
+}
+
+function objectFromTable(table: WireTableViewModel, objectId: string) {
+  const battlefieldObject = table.battlefield.objects[objectId];
+  if (battlefieldObject) {
+    return battlefieldObject;
+  }
+
+  for (const player of table.players) {
+    const object = player.objects[objectId];
+    if (object) {
+      return object;
+    }
+  }
+
+  return undefined;
+}
+
+function playerFromLocation(
+  table: WireTableViewModel,
+  ...playerIds: Array<string | null | undefined>
+) {
+  const playerIdSet = new Set(playerIds.map((value) => normalizeLocationText(value)).filter(Boolean));
+  return table.players.find((player) => playerIdSet.has(player.id));
+}
+
+function normalizeLocationText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function isBattlefieldObject(object: ReturnType<typeof objectFromTable>): boolean {
+  return Boolean(object?.tags?.includes("CARD_TYPE:BATTLEFIELD"));
+}
+
+function isRuneObject(object: ReturnType<typeof objectFromTable>): boolean {
+  return Boolean(object?.tags?.includes("CARD_TYPE:RUNE"));
+}
+
+function isStandbyObject(object: ReturnType<typeof objectFromTable>): boolean {
+  return Boolean(object?.tags?.includes("待命") || object?.isFaceDown);
 }
 
 function selectedLayoutPlan({
