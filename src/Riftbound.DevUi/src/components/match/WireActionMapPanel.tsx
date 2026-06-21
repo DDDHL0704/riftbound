@@ -72,7 +72,7 @@ export function WireActionMapPanel({
       <ActionCoveragePanel coverage={plan.coverage} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
-      <CommandSubmissionFeedbackPanel events={events} feedback={submissionFeedback} snapshot={snapshot} />
+      <CommandSubmissionFeedbackPanel events={events} feedback={submissionFeedback} onInspectObject={onInspectObject} snapshot={snapshot} />
       <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
@@ -162,10 +162,12 @@ export function WireActionMapPanel({
 function CommandSubmissionFeedbackPanel({
   events,
   feedback,
+  onInspectObject,
   snapshot
 }: {
   events?: GameEvent[];
   feedback?: CommandSubmissionFeedback;
+  onInspectObject?: (objectId: string) => void;
   snapshot?: SnapshotDto;
 }) {
   const followup = buildCommandSubmissionFollowupPlan({ events, feedback, snapshot });
@@ -179,10 +181,10 @@ function CommandSubmissionFeedbackPanel({
       >
         <div className="wire-command-submission-heading">
           <strong>提交反馈</strong>
-          <span>尚未提交</span>
-        </div>
-        <span>等待右侧路线或候选操作提交给服务端。</span>
-        <CommandSubmissionFollowupPanel plan={followup} />
+        <span>尚未提交</span>
+      </div>
+      <span>等待右侧路线或候选操作提交给服务端。</span>
+        <CommandSubmissionFollowupPanel onInspectObject={onInspectObject} plan={followup} />
       </section>
     );
   }
@@ -236,12 +238,18 @@ function CommandSubmissionFeedbackPanel({
           <strong>{shortIntentId(feedback.clientIntentId)}</strong>
         </span>
       </div>
-      <CommandSubmissionFollowupPanel plan={followup} />
+      <CommandSubmissionFollowupPanel onInspectObject={onInspectObject} plan={followup} />
     </section>
   );
 }
 
-function CommandSubmissionFollowupPanel({ plan }: { plan: CommandSubmissionFollowupPlan }) {
+function CommandSubmissionFollowupPanel({
+  onInspectObject,
+  plan
+}: {
+  onInspectObject?: (objectId: string) => void;
+  plan: CommandSubmissionFollowupPlan;
+}) {
   return (
     <section
       aria-label="服务端后续事件"
@@ -269,6 +277,26 @@ function CommandSubmissionFollowupPanel({ plan }: { plan: CommandSubmissionFollo
               </div>
               <small>{event.description}</small>
               <em>{event.refCount} 引用</em>
+              {event.refs.length > 0 ? (
+                <div className="wire-command-followup-refs" aria-label={`${event.title} 对象引用`}>
+                  {event.refs.map((ref) => (
+                    <button
+                      data-command-followup-ref-state={ref.hidden ? "hidden" : "public"}
+                      disabled={ref.hidden || !ref.objectId || !onInspectObject}
+                      key={ref.key}
+                      onClick={() => {
+                        if (ref.objectId) {
+                          onInspectObject?.(ref.objectId);
+                        }
+                      }}
+                      title={ref.hidden ? "隐藏对象不会暴露身份" : `检查 ${ref.objectId}`}
+                      type="button"
+                    >
+                      {ref.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </li>
           ))}
         </ol>

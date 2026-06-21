@@ -52,7 +52,17 @@ assert.equal(pendingPlan.metrics.find((metric) => metric.key === "events").state
 const eventPlan = buildCommandSubmissionFollowupPlan({
   events: [
     { description: "进入主阶段", kind: "MAIN_PHASE_BEGAN", receivedBatchIndex: 0, receivedMessageType: "EVENTS", receivedServerTick: 12 },
-    { description: "抽牌", kind: "CARD_DRAWN", objectRefs: [{ objectId: "card-1", role: "来源" }], receivedBatchIndex: 1, receivedMessageType: "EVENTS", receivedServerTick: 12 },
+    {
+      description: "抽牌",
+      kind: "CARD_DRAWN",
+      objectRefs: [
+        { objectId: "card-1", role: "来源" },
+        { isHidden: true, objectId: "secret-1", role: "隐藏" }
+      ],
+      receivedBatchIndex: 1,
+      receivedMessageType: "EVENTS",
+      receivedServerTick: 12
+    },
     { description: "其他 tick", kind: "TURN_ENDED", receivedBatchIndex: 2, receivedMessageType: "EVENTS", receivedServerTick: 13 }
   ],
   feedback: {
@@ -69,7 +79,12 @@ const eventPlan = buildCommandSubmissionFollowupPlan({
 assert.equal(eventPlan.state, "accepted-events");
 assert.equal(eventPlan.events.length, 2);
 assert.equal(eventPlan.events[0].title, "label:MAIN_PHASE_BEGAN");
-assert.equal(eventPlan.events[1].refCount, 1);
+assert.equal(eventPlan.events[1].refCount, 2);
+assert.equal(eventPlan.events[1].refs[0].objectId, "card-1");
+assert.equal(eventPlan.events[1].refs[0].label, "来源：card-1");
+assert.equal(eventPlan.events[1].refs[1].hidden, true);
+assert.equal(eventPlan.events[1].refs[1].objectId, undefined);
+assert.equal(eventPlan.events[1].refs[1].label, "隐藏：隐藏对象");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "events").value, "2");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "snapshot").state, "ready");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "prompt").value, "0");

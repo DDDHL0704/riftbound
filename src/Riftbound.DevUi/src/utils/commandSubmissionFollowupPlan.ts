@@ -1,4 +1,4 @@
-import type { CommandReceiptFollowupDto, GameEvent, SnapshotDto } from "../types/protocol";
+import type { CommandReceiptFollowupDto, GameEvent, GameEventObjectRef, SnapshotDto } from "../types/protocol";
 import { eventDescriptionLabel, eventKindLabel } from "./eventLogPlan";
 
 export type ObservedGameEvent = GameEvent & {
@@ -36,7 +36,16 @@ export type CommandSubmissionFollowupEventRow = {
   key: string;
   messageType?: string;
   refCount: number;
+  refs: CommandSubmissionFollowupEventRef[];
   title: string;
+};
+
+export type CommandSubmissionFollowupEventRef = {
+  hidden: boolean;
+  key: string;
+  label: string;
+  objectId?: string;
+  role: string;
 };
 
 export type CommandSubmissionFollowupPlan = {
@@ -87,6 +96,7 @@ export function buildCommandSubmissionFollowupPlan({
     key: `${serverTick}:${event.kind}:${event.receivedBatchIndex ?? index}`,
     messageType: event.receivedMessageType,
     refCount: event.objectRefs?.length ?? 0,
+    refs: followupEventRefs(event.objectRefs),
     title: eventKindLabel(event.kind)
   }));
   const snapshotTick = numberOrUndefined(snapshot?.tick);
@@ -240,4 +250,17 @@ function numberOrUndefined(value: unknown): number | undefined {
 
 function nonNegativeIntegerOrUndefined(value: unknown): number | undefined {
   return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : undefined;
+}
+
+function followupEventRefs(refs: readonly GameEventObjectRef[] | null | undefined): CommandSubmissionFollowupEventRef[] {
+  return (refs ?? []).map((ref, index) => {
+    const hidden = ref.isHidden === true || ref.isFaceDown === true || ref.objectId === "HIDDEN";
+    return {
+      hidden,
+      key: `${index}:${ref.role}:${hidden ? "hidden" : ref.objectId}`,
+      label: hidden ? `${ref.role}：隐藏对象` : `${ref.role}：${ref.objectId}`,
+      objectId: hidden ? undefined : ref.objectId,
+      role: ref.role
+    };
+  });
 }
