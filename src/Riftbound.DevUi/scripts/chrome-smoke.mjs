@@ -14,6 +14,8 @@ const debugPort = Number(process.env.RIFTBOUND_SMOKE_CHROME_DEBUG_PORT ?? 9338);
 const serverUrl = process.env.RIFTBOUND_SERVER_URL ?? "http://127.0.0.1:5088";
 const frontendUrl = `http://127.0.0.1:${frontendPort}`;
 const startApi = process.argv.includes("--start-api");
+const acceptedCommandFollowupStates = ["accepted-events", "accepted-silent", "accepted-snapshot"];
+const validCommandFollowupStates = ["accepted-awaiting", ...acceptedCommandFollowupStates, "empty", "failed", "pending", "unknown-tick"];
 
 const routes = [
   { path: "/", texts: ["符文战场", "进入大厅"] },
@@ -115,6 +117,11 @@ try {
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=snapshot");
   await runWireSnapshotSubmissionSmoke(cdp);
   console.log("Chrome smoke OK: wire snapshot submission");
+  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=silent`);
+  await waitForText(cdp, ["符文战场对战线框", "服务端已接受", "静默接受"]);
+  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=silent");
+  await runWireSilentSubmissionSmoke(cdp);
+  console.log("Chrome smoke OK: wire silent submission");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=rejected`);
   await waitForText(cdp, ["符文战场对战线框", "服务端拒绝", "提交反馈"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=rejected");
@@ -367,6 +374,7 @@ async function runRoomLifecycleSmoke(cdp) {
 async function runWireLayoutGeometrySmoke(cdp) {
   const result = await evaluateJson(cdp, `(() => {
     const failures = [];
+    const validFollowupStates = ${JSON.stringify(validCommandFollowupStates)};
     const round = (value) => Math.round(value * 10) / 10;
     const rectOf = (element) => {
       const rect = element.getBoundingClientRect();
@@ -776,7 +784,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
     const commandCenterFollowupBridgeState = commandCenterFollowupBridge?.getAttribute("data-command-followup-bridge-state") ?? "missing";
     const commandCenterFollowupLayout = commandCenterFollowup?.querySelector("[data-command-followup-layout-state]");
     const commandCenterFollowupLayoutState = commandCenterFollowupLayout?.getAttribute("data-command-followup-layout-state") ?? "missing";
-    if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(commandCenterFollowupState)) {
+    if (!validFollowupStates.includes(commandCenterFollowupState)) {
       failures.push(\`wire command center followup state is unsupported: \${commandCenterFollowupState}\`);
     }
     if (commandCenterFollowupServerState === "missing" || commandCenterFollowupServerState.length === 0) {
@@ -942,7 +950,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
   if (!["blocked", "no-focus", "observe", "ready", "selecting"].includes(result.commandCenterState)) {
     throw new Error(`Wire layout geometry smoke did not find command center: ${result.commandCenterState}`);
   }
-  if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(result.commandCenterFollowupState)) {
+  if (!validCommandFollowupStates.includes(result.commandCenterFollowupState)) {
     throw new Error(`Wire layout geometry smoke did not find command center followup: ${result.commandCenterFollowupState}`);
   }
   if (!result.commandCenterFollowupServerState || result.commandCenterFollowupServerState === "missing") {
@@ -2264,6 +2272,59 @@ async function runWireSnapshotSubmissionSmoke(cdp) {
   }
 }
 
+async function runWireSilentSubmissionSmoke(cdp) {
+  const result = await evaluateJson(cdp, `(() => {
+    const feedback = document.querySelector(".wire-command-submission-feedback");
+    const followup = feedback?.querySelector("[data-command-followup-state]");
+    const bridge = followup?.querySelector("[data-command-followup-bridge-state]");
+    const layoutProjection = followup?.querySelector("[data-command-followup-layout-state]");
+    return {
+      command: feedback?.querySelector('[data-command-submission-metric="command"] strong')?.textContent?.trim() ?? "",
+      eventButtonCount: followup?.querySelectorAll("[data-command-followup-event-action]").length ?? 0,
+      followupEventCount: Number(followup?.getAttribute("data-command-followup-event-count") ?? "-1"),
+      followupHiddenCount: Number(followup?.getAttribute("data-command-followup-hidden-count") ?? "-1"),
+      followupServerState: followup?.getAttribute("data-command-followup-server-state") ?? "",
+      followupState: followup?.getAttribute("data-command-followup-state") ?? "",
+      layoutProjectionState: layoutProjection?.getAttribute("data-command-followup-layout-state") ?? "",
+      receipt: feedback?.querySelector('[data-command-submission-metric="receipt"] strong')?.textContent?.trim() ?? "",
+      state: feedback?.getAttribute("data-command-submission-state") ?? "",
+      text: feedback?.textContent ?? "",
+      bridgeState: bridge?.getAttribute("data-command-followup-bridge-state") ?? ""
+    };
+  })()`);
+  const failures = [];
+  if (result.state !== "sent") failures.push(`feedback state ${result.state}`);
+  if (result.command !== "PLAY_CARD") failures.push(`command ${result.command}`);
+  if (result.receipt !== "ACCEPTED") failures.push(`receipt ${result.receipt}`);
+  if (result.followupState !== "accepted-silent") failures.push(`followup state ${result.followupState}`);
+  if (result.followupServerState !== "silent") failures.push(`followup server state ${result.followupServerState}`);
+  if (result.bridgeState !== "ready") failures.push(`bridge state ${result.bridgeState}`);
+  if (result.layoutProjectionState !== "empty") failures.push(`layout projection state ${result.layoutProjectionState}`);
+  if (result.followupEventCount !== 0) failures.push(`event count ${result.followupEventCount}`);
+  if (result.followupHiddenCount !== 0) failures.push(`hidden event count ${result.followupHiddenCount}`);
+  if (result.eventButtonCount !== 0) failures.push(`event button count ${result.eventButtonCount}`);
+  if (!result.text.includes("静默接受")) failures.push("silent bridge headline missing");
+  if (!result.text.includes("未生成公开事件或广播视图")) failures.push("silent summary missing");
+
+  const layer = await openCommandSubmissionLayer(cdp);
+  if (layer.state !== "open") failures.push(`layer state ${layer.state}`);
+  if (layer.cmdType !== "PLAY_CARD") failures.push(`layer command ${layer.cmdType}`);
+  if (layer.receiptState !== "ACCEPTED") failures.push(`layer receipt ${layer.receiptState}`);
+  if (layer.followupState !== "accepted-silent") failures.push(`layer followup state ${layer.followupState}`);
+  if (layer.serverState !== "silent") failures.push(`layer server state ${layer.serverState}`);
+  if (layer.eventCount !== 0) failures.push(`layer event count ${layer.eventCount}`);
+  if (layer.hiddenCount !== 0) failures.push(`layer hidden count ${layer.hiddenCount}`);
+  if (layer.eventKinds.length !== 0) failures.push(`layer event kinds ${layer.eventKinds.join(",")}`);
+  if (layer.layoutObjects.length !== 0) failures.push(`layer layout objects ${layer.layoutObjects.join(",")}`);
+  if (layer.sourceSurface !== "timeline-detail") failures.push(`layer source surface ${layer.sourceSurface}`);
+  if (!layer.text.includes("静默接受")) failures.push("layer silent bridge headline missing");
+  if (!layer.text.includes("未生成公开事件或广播视图")) failures.push("layer silent summary missing");
+
+  if (failures.length > 0) {
+    throw new Error(`Silent submission smoke failed:\n${failures.join("\n")}\n${JSON.stringify({ result, layer }, null, 2)}`);
+  }
+}
+
 async function runWireRuleObjectRefSmoke(cdp) {
   const initial = await evaluateJson(cdp, `(() => ({
     battlefieldRefs: document.querySelectorAll('[data-rule-object-ref="fixture-left-battlefield"]').length,
@@ -3097,7 +3158,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.routeSummaryCountKeys.includes("draft")) failures.push("rule detail route summary draft count missing");
   if (!ruleDetailResult.routeSummaryText.includes("路径")) failures.push("rule detail route summary total path text missing");
   if (!ruleDetailResult.routeSummaryText.includes("PLAY_CARD")) failures.push("rule detail route summary command type missing");
-  if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(ruleDetailResult.timelineFollowupState)) failures.push(`rule detail timeline followup state unexpected: ${ruleDetailResult.timelineFollowupState}`);
+  if (!validCommandFollowupStates.includes(ruleDetailResult.timelineFollowupState)) failures.push(`rule detail timeline followup state unexpected: ${ruleDetailResult.timelineFollowupState}`);
   if (!["empty", "failed", "ready", "unknown", "waiting"].includes(ruleDetailResult.timelineFollowupBridgeState)) failures.push(`rule detail timeline followup bridge state unexpected: ${ruleDetailResult.timelineFollowupBridgeState}`);
   if (!["empty", "hidden-only", "linked", "unknown"].includes(ruleDetailResult.timelineFollowupLayoutState)) failures.push(`rule detail timeline followup layout state unexpected: ${ruleDetailResult.timelineFollowupLayoutState}`);
   if (!ruleDetailResult.timelineFollowupText.includes("后续事件")) failures.push("rule detail timeline followup title missing");
@@ -3223,7 +3284,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!timelineLayerResult.text.includes("规则事件检查层")) failures.push("timeline detail layer heading missing");
   if (timelineLayerResult.routeSummaryLabel !== "候选提交路线摘要") failures.push("timeline detail layer route summary label missing");
   if (!["ready", "selecting", "inactive"].includes(timelineLayerResult.routeSummaryState)) failures.push(`timeline detail layer route summary state unexpected: ${timelineLayerResult.routeSummaryState}`);
-  if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(timelineLayerResult.timelineFollowupState)) failures.push(`timeline detail layer followup state unexpected: ${timelineLayerResult.timelineFollowupState}`);
+  if (!validCommandFollowupStates.includes(timelineLayerResult.timelineFollowupState)) failures.push(`timeline detail layer followup state unexpected: ${timelineLayerResult.timelineFollowupState}`);
   if (!["empty", "failed", "ready", "unknown", "waiting"].includes(timelineLayerResult.timelineFollowupBridgeState)) failures.push(`timeline detail layer followup bridge state unexpected: ${timelineLayerResult.timelineFollowupBridgeState}`);
   if (!timelineLayerResult.timelineFollowupText.includes("后续事件")) failures.push("timeline detail layer followup title missing");
   if (!timelineLayerResult.text.includes("服务端规则")) failures.push("timeline detail layer server rule source missing");
@@ -3326,7 +3387,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.routeSummaryCountKeys.includes("draft")) failures.push("event detail route summary draft count missing");
   if (!eventDetailResult.routeSummaryText.includes("路径")) failures.push("event detail route summary total path text missing");
   if (!eventDetailResult.routeSummaryText.includes("PLAY_CARD")) failures.push("event detail route summary command type missing");
-  if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(eventDetailResult.timelineFollowupState)) failures.push(`event detail timeline followup state unexpected: ${eventDetailResult.timelineFollowupState}`);
+  if (!validCommandFollowupStates.includes(eventDetailResult.timelineFollowupState)) failures.push(`event detail timeline followup state unexpected: ${eventDetailResult.timelineFollowupState}`);
   if (!["empty", "failed", "ready", "unknown", "waiting"].includes(eventDetailResult.timelineFollowupBridgeState)) failures.push(`event detail timeline followup bridge state unexpected: ${eventDetailResult.timelineFollowupBridgeState}`);
   if (!["empty", "hidden-only", "linked", "unknown"].includes(eventDetailResult.timelineFollowupLayoutState)) failures.push(`event detail timeline followup layout state unexpected: ${eventDetailResult.timelineFollowupLayoutState}`);
   if (!eventDetailResult.timelineFollowupText.includes("后续事件")) failures.push("event detail timeline followup title missing");
@@ -3826,7 +3887,7 @@ async function waitForTimelineCommandFollowup(cdp) {
     })()`);
     if (
       last.commandSubmissionState === "sent"
-      && (last.timelineFollowupState === "accepted-events" || last.timelineFollowupState === "accepted-snapshot")
+      && acceptedCommandFollowupStates.includes(last.timelineFollowupState)
     ) {
       return last;
     }
@@ -3992,6 +4053,12 @@ async function evaluateJson(cdp, expression) {
     expression,
     returnByValue: true
   });
+  if (result.exceptionDetails) {
+    const description = result.exceptionDetails.exception?.description
+      ?? result.exceptionDetails.text
+      ?? "unknown Runtime.evaluate error";
+    throw new Error(`Chrome Runtime.evaluate failed: ${description}`);
+  }
   return result.result?.value ?? {};
 }
 

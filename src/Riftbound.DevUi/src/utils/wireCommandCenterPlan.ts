@@ -129,6 +129,8 @@ function submissionFollowupStateLabel(state: CommandSubmissionFollowupState | un
       return "等待事件/快照";
     case "accepted-events":
       return "已有后续事件";
+    case "accepted-silent":
+      return "静默接受";
     case "accepted-snapshot":
       return "快照已追上";
     case "failed":
@@ -146,6 +148,7 @@ function submissionFollowupStateLabel(state: CommandSubmissionFollowupState | un
 function submissionFollowupRowState(state: CommandSubmissionFollowupState | undefined): WireCommandCenterRowState {
   switch (state) {
     case "accepted-events":
+    case "accepted-silent":
     case "accepted-snapshot":
       return "ready";
     case "failed":

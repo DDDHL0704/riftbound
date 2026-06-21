@@ -11,6 +11,7 @@ export type ObservedGameEvent = GameEvent & {
 export type CommandSubmissionFollowupState =
   | "accepted-awaiting"
   | "accepted-events"
+  | "accepted-silent"
   | "accepted-snapshot"
   | "empty"
   | "failed"
@@ -124,6 +125,7 @@ export function buildCommandSubmissionFollowupPlan({
   }
 
   const receiptFollowup = feedback.followup;
+  const serverFollowupState = receiptFollowup?.state;
   const serverTick = numberOrUndefined(feedback.serverTick) ?? numberOrUndefined(receiptFollowup?.serverTick);
   if (serverTick == null) {
     return emptyPlan("unknown-tick", "回执未携带服务端 tick，无法关联后续事件。", feedback, snapshot);
@@ -132,14 +134,17 @@ export function buildCommandSubmissionFollowupPlan({
   const reportedEventCount = nonNegativeIntegerOrUndefined(receiptFollowup?.eventCount);
   const reportedSnapshotCount = nonNegativeIntegerOrUndefined(receiptFollowup?.snapshotCount);
   const reportedPromptCount = nonNegativeIntegerOrUndefined(receiptFollowup?.promptCount);
+  const effectiveReportedEventCount = serverFollowupState === "silent" ? 0 : reportedEventCount;
+  const effectiveReportedSnapshotCount = serverFollowupState === "silent" ? 0 : reportedSnapshotCount;
+  const effectiveReportedPromptCount = serverFollowupState === "silent" ? 0 : reportedPromptCount;
   const reportedEventRefs = receiptEventRefs(receiptFollowup?.eventRefs);
   const allMatchingEvents = matchingReceiptEvents({
     eventRefs: reportedEventRefs,
     events: events ?? [],
-    reportedEventCount,
+    reportedEventCount: effectiveReportedEventCount,
     serverTick
   });
-  const authoritativeEventCount = Math.max(allMatchingEvents.length, reportedEventCount ?? 0);
+  const authoritativeEventCount = Math.max(allMatchingEvents.length, effectiveReportedEventCount ?? 0);
   const visibleEvents = allMatchingEvents.slice(0, limit).map((event, index) => ({
     description: eventDescriptionLabel(event),
     kind: event.kind,
@@ -153,6 +158,10 @@ export function buildCommandSubmissionFollowupPlan({
   }));
   const snapshotTick = numberOrUndefined(snapshot?.tick);
   const snapshotCaughtUp = snapshotTick != null && snapshotTick >= serverTick;
+  const isSilentReceipt = serverFollowupState === "silent"
+    && (effectiveReportedEventCount ?? 0) === 0
+    && (effectiveReportedSnapshotCount ?? 0) === 0
+    && (effectiveReportedPromptCount ?? 0) === 0;
 
   if (visibleEvents.length > 0) {
     return attachBridge({
@@ -189,6 +198,25 @@ export function buildCommandSubmissionFollowupPlan({
       uiSource: feedback.uiSource,
       state: "accepted-awaiting",
       summary: `服务端回执声明 tick ${serverTick} 有 ${reportedEventCount} 条公开事件，等待事件流抵达。`
+    });
+  }
+
+  if (isSilentReceipt) {
+    return attachBridge({
+      events: [],
+      hiddenEventCount: 0,
+      metrics: followupMetrics({
+        eventCount: 0,
+        feedback,
+        promptCount: effectiveReportedPromptCount,
+        snapshot,
+        snapshotBroadcastCount: effectiveReportedSnapshotCount,
+        serverTick
+      }),
+      ...serverFollowupFields(feedback),
+      uiSource: feedback.uiSource,
+      state: "accepted-silent",
+      summary: receiptFollowup?.summary ?? `服务端 tick ${serverTick} 已接受命令，未生成公开事件或广播视图。`
     });
   }
 
@@ -286,6 +314,7 @@ function bridgePlanFor(plan: Omit<CommandSubmissionFollowupPlan, "bridge">): Com
 function bridgeStateFor(state: CommandSubmissionFollowupState): CommandSubmissionFollowupBridgeState {
   switch (state) {
     case "accepted-events":
+    case "accepted-silent":
     case "accepted-snapshot":
       return "ready";
     case "accepted-awaiting":
@@ -306,6 +335,8 @@ function bridgeHeadlineFor(state: CommandSubmissionFollowupState): string {
       return "等待同 tick 广播";
     case "accepted-events":
       return "已收到同 tick 事件";
+    case "accepted-silent":
+      return "静默接受";
     case "accepted-snapshot":
       return "快照/提示已同步";
     case "empty":
@@ -325,6 +356,8 @@ function bridgeNextStepFor(state: CommandSubmissionFollowupState): string {
       return "等待事件流、快照或提示广播。";
     case "accepted-events":
       return "查看事件引用，必要时选择对象检查规则上下文。";
+    case "accepted-silent":
+      return "没有公开事件或广播视图；保持当前快照，等待下一次服务端提示。";
     case "accepted-snapshot":
       return "查看当前快照和提示；无公开事件时以服务端快照为准。";
     case "empty":

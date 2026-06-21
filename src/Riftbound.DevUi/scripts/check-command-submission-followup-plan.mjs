@@ -245,6 +245,40 @@ assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "server
 assert.equal(receiptSnapshotPlan.bridge.state, "ready");
 assert.equal(receiptSnapshotPlan.bridge.headline, "快照/提示已同步");
 
+const silentPlan = buildCommandSubmissionFollowupPlan({
+  events: [
+    { description: "same tick but not receipt-scoped", kind: "UNRELATED_EVENT", receivedBatchIndex: 0, receivedServerTick: 23 }
+  ],
+  feedback: {
+    clientIntentId: "client-4c",
+    cmdType: "PASS_PRIORITY",
+    followup: {
+      eventCount: 0,
+      promptCount: 0,
+      serverTick: 23,
+      snapshotCount: 0,
+      state: "silent",
+      summary: "tick 23 命令已接受，未生成公开事件或广播视图。"
+    },
+    message: "服务端已接受",
+    receiptState: "ACCEPTED",
+    state: "sent",
+    stateLabel: "服务端已接受"
+  },
+  snapshot: { tick: 23 }
+});
+assert.equal(silentPlan.state, "accepted-silent");
+assert.equal(silentPlan.events.length, 0);
+assert.equal(silentPlan.hiddenEventCount, 0);
+assert.equal(silentPlan.summary, "tick 23 命令已接受，未生成公开事件或广播视图。");
+assert.equal(silentPlan.metrics.find((metric) => metric.key === "events").state, "empty");
+assert.equal(silentPlan.metrics.find((metric) => metric.key === "prompt").value, "0");
+assert.equal(silentPlan.serverFollowupState, "silent");
+assert.equal(silentPlan.metrics.find((metric) => metric.key === "serverState").value, "静默");
+assert.equal(silentPlan.bridge.state, "ready");
+assert.equal(silentPlan.bridge.headline, "静默接受");
+assert.equal(silentPlan.bridge.nextStepLabel, "没有公开事件或广播视图；保持当前快照，等待下一次服务端提示。");
+
 const awaitingPlan = buildCommandSubmissionFollowupPlan({
   events: [],
   feedback: {

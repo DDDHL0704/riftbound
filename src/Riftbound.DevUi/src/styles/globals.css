@@ -14546,6 +14546,7 @@ button.card-face:hover {
 }
 
 .wire-command-followup[data-command-followup-state="accepted-events"],
+.wire-command-followup[data-command-followup-state="accepted-silent"],
 .wire-command-followup[data-command-followup-state="accepted-snapshot"] {
   border-width: 2px;
 }

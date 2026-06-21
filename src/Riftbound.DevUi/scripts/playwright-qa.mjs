@@ -575,8 +575,8 @@ async function waitForAcceptedSubmissionFeedback(page, cmdType) {
     const commandCenterFollowupState = commandCenterFollowup?.getAttribute("data-command-followup-state") ?? "";
     const commandCenterServerState = commandCenterFollowup?.getAttribute("data-command-followup-server-state") ?? "";
     const text = feedback?.textContent ?? "";
-    const acceptedFollowupStates = ["accepted-events", "accepted-snapshot"];
-    const acceptedServerStates = ["events", "snapshot-prompt"];
+    const acceptedFollowupStates = ["accepted-events", "accepted-silent", "accepted-snapshot"];
+    const acceptedServerStates = ["events", "silent", "snapshot-prompt"];
     return feedback?.getAttribute("data-command-submission-state") === "sent"
       && text.includes("服务端已接受")
       && text.includes("ACCEPTED")
@@ -641,8 +641,8 @@ async function openCommandReceiptLayer(page, cmdType) {
   if (layerResult.cmdType !== cmdType) failures.push(`cmdType=${layerResult.cmdType}`);
   if (layerResult.title !== cmdType) failures.push(`title=${layerResult.title}`);
   if (layerResult.receiptState !== "ACCEPTED") failures.push(`receipt=${layerResult.receiptState}`);
-  if (!["accepted-events", "accepted-snapshot"].includes(layerResult.followupState)) failures.push(`followup=${layerResult.followupState}`);
-  if (!["events", "snapshot-prompt"].includes(layerResult.serverState)) failures.push(`server=${layerResult.serverState}`);
+  if (!["accepted-events", "accepted-silent", "accepted-snapshot"].includes(layerResult.followupState)) failures.push(`followup=${layerResult.followupState}`);
+  if (!["events", "silent", "snapshot-prompt"].includes(layerResult.serverState)) failures.push(`server=${layerResult.serverState}`);
   if (layerResult.authority !== "server") failures.push(`authority=${layerResult.authority}`);
   if (!layerResult.activeText.includes("关闭")) failures.push("close button not focused");
   for (const section of ["receipt", "identity", "authority"]) {
