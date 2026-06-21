@@ -1545,6 +1545,8 @@ async function runWireClickSelectionSmoke(cdp) {
         .map((node) => node.getAttribute("data-wire-object-syntax-state")),
       objectSyntaxSummary: objectContext?.querySelector("[data-wire-object-syntax-summary]")?.textContent ?? "",
       objectSyntaxUsableCount: Number(objectContext?.querySelector("[data-wire-object-syntax-usable-count]")?.getAttribute("data-wire-object-syntax-usable-count") ?? 0),
+      objectEventDetailIds: Array.from(objectContext?.querySelectorAll("[data-wire-object-event-detail]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-event-detail") ?? ""),
       projectionRelationCount: Number(selectedProjection?.getAttribute("data-rule-selected-object-relation-count") ?? 0),
       projectionRelationActions: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-relation-actions]") ?? [])
         .map((node) => node.getAttribute("data-rule-selected-object-relation-actions") ?? ""),
@@ -1561,6 +1563,25 @@ async function runWireClickSelectionSmoke(cdp) {
       syntaxSummary: selectedProjection?.querySelector("[data-rule-selected-object-syntax-summary]")?.textContent ?? "",
       syntaxUsableCount: Number(selectedProjection?.querySelector("[data-rule-selected-object-syntax-usable-count]")?.getAttribute("data-rule-selected-object-syntax-usable-count") ?? 0),
       projectionText: selectedProjection?.textContent ?? ""
+    };
+  })()`);
+  const objectEventDetailTriggerResult = await evaluateJson(cdp, `(() => {
+    const row = document.querySelector('.wire-object-context [data-wire-object-event-detail^="object-event:"]');
+    const trigger = row?.querySelector('[data-wire-detail-id^="object-event:"]');
+    trigger?.click();
+    return {
+      clicked: Boolean(trigger),
+      detailId: trigger?.getAttribute("data-wire-detail-id") ?? "",
+      rowDetailId: row?.getAttribute("data-wire-object-event-detail") ?? ""
+    };
+  })()`);
+  await delay(150);
+  const objectEventDetailPanelResult = await evaluateJson(cdp, `(() => {
+    const panel = document.querySelector(".wire-timeline-detail");
+    return {
+      detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
+      source: panel?.getAttribute("data-wire-timeline-source") ?? "",
+      text: panel?.textContent ?? ""
     };
   })()`);
 
@@ -2058,6 +2079,18 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.detailContextText.includes("服务端字段")) failures.push("timeline selected object context command metadata summary missing");
   if (candidateRefResult.detailContextText.includes("服务端:cardNo*")) failures.push("timeline selected object context leaked raw metadata command field");
   if (!candidateRefResult.detailContextText.includes("近期事件")) failures.push("timeline selected object context event section missing");
+  if (!candidateRefResult.objectEventDetailIds.some((id) => id.startsWith("object-event:"))) {
+    failures.push(`focused object event detail id missing: ${candidateRefResult.objectEventDetailIds.join(",")}`);
+  }
+  if (!objectEventDetailTriggerResult.clicked) failures.push("focused object event detail trigger missing");
+  if (objectEventDetailTriggerResult.detailId !== objectEventDetailTriggerResult.rowDetailId) {
+    failures.push(`focused object event detail trigger mismatch: ${JSON.stringify(objectEventDetailTriggerResult)}`);
+  }
+  if (objectEventDetailPanelResult.detailId !== objectEventDetailTriggerResult.detailId) {
+    failures.push(`focused object event detail did not select timeline detail: ${JSON.stringify(objectEventDetailPanelResult)}`);
+  }
+  if (objectEventDetailPanelResult.source !== "event") failures.push(`focused object event detail source unexpected: ${objectEventDetailPanelResult.source}`);
+  if (!objectEventDetailPanelResult.text.includes("对象来源")) failures.push("focused object event detail did not expose object ref source");
   if (!candidateRefResult.objectSyntaxSources.includes("object-context")) failures.push("focused object syntax object-context source missing");
   if (!candidateRefResult.objectSyntaxStates.includes("usable-optional")) failures.push("focused object syntax usable optional state missing");
   if (!candidateRefResult.objectSyntaxStates.includes("missing-required")) failures.push("focused object syntax missing required state missing");

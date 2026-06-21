@@ -1,4 +1,5 @@
 import type { ActionPromptContractDto } from "../types/protocol";
+import type { WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
 import type { FocusedActionModel } from "./focusedActionModel";
 import { commandFieldLabelsForCandidate } from "./promptCandidateSemantics";
 import {
@@ -58,6 +59,7 @@ export type FocusedObjectAuthorityState = "derived" | "none" | "server" | "snaps
 
 export type FocusedObjectEventRow = {
   description: string;
+  detail?: WireTimelineDetail;
   kind: string;
   role: string;
 };
@@ -401,6 +403,7 @@ function contractSummary(contract?: ActionPromptContractDto | null): FocusedObje
 function eventRowFromContext(event: TableObjectEventContext): FocusedObjectEventRow {
   return {
     description: event.description,
+    detail: event.detail,
     kind: event.kind,
     role: event.role
   };

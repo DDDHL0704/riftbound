@@ -120,8 +120,30 @@ const plan = buildFocusedObjectCommandPlan({
     contextBoundary: "服务端对象上下文只公开当前行动提示中的对象候选、选择角色和命令字段；隐藏 metadata 不进入对象上下文。",
     contextSource: "server-action-prompt",
     eventLinks: [
-      { description: "进场", kind: "UNIT_ENTERED", role: "对象" },
-      { description: "横置", kind: "OBJECT_EXHAUSTED", role: "对象" }
+      {
+        description: "进场",
+        detail: {
+          id: "object-event:UNIT_ENTERED:0",
+          lines: [{ label: "类型", value: "UNIT_ENTERED" }],
+          refs: [{ id: "P1-HAND-001", role: "对象", visibility: "visible" }],
+          source: "event",
+          title: "UNIT_ENTERED"
+        },
+        kind: "UNIT_ENTERED",
+        role: "对象"
+      },
+      {
+        description: "横置",
+        detail: {
+          id: "object-event:OBJECT_EXHAUSTED:1",
+          lines: [{ label: "类型", value: "OBJECT_EXHAUSTED" }],
+          refs: [{ id: "P1-HAND-001", role: "对象", visibility: "visible" }],
+          source: "event",
+          title: "OBJECT_EXHAUSTED"
+        },
+        kind: "OBJECT_EXHAUSTED",
+        role: "对象"
+      }
     ],
     objectId: "P1-HAND-001",
     ownerId: "P1",
@@ -228,6 +250,7 @@ assert.equal(plan.commandRows[1].enabled, false);
 assert.equal(plan.commandRows[1].category, "ability");
 assert.equal(plan.nextStepRows[0].nextStepLabel, "目标");
 assert.equal(plan.eventRows[0].kind, "OBJECT_EXHAUSTED");
+assert.equal(plan.eventRows[0].detail.id, "object-event:OBJECT_EXHAUSTED:1");
 assert.equal(plan.contract.hiddenMetadataCount, 1);
 assert.equal(plan.contract.requiredPayloadCount, 2);
 assert.equal(plan.syntax.rows.length, 3);

@@ -14,6 +14,7 @@ import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import type { WireObjectIndex } from "./WireObjectRefChips";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
+import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 import { WireEmpty } from "./wireCardFlow";
 import { WireFocusedActionSummary } from "./WireFocusedActionSummary";
 import { WireFocusedActionEntryList } from "./WireFocusedActionEntryList";
@@ -31,11 +32,13 @@ export function WireInteractionPanel({
   onCommand,
   onClearInspectedCard,
   onOpenDetail,
+  onSelectDetail,
   onInspectObject,
   objectContext,
   playerId,
   prompt,
   selectionDraft,
+  selectedDetailId,
   snapshot,
   submissionGate
 }: {
@@ -50,6 +53,8 @@ export function WireInteractionPanel({
   playerId: string;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
   snapshot?: SnapshotDto;
   submissionGate?: ServerSubmissionGatePlan;
 }) {
@@ -84,7 +89,13 @@ export function WireInteractionPanel({
                 <span>对象：{plan.sourceObject.objectIdLabel}</span>
                 <span>控制：{plan.sourceObject.controllerLabel}</span>
                 <span>服务端关联：{plan.sourceObject.serverCandidateLabel}</span>
-                <WireObjectContextSummary context={objectContext} contract={prompt?.contract} focusModel={plan.focusModel} />
+                <WireObjectContextSummary
+                  context={objectContext}
+                  contract={prompt?.contract}
+                  focusModel={plan.focusModel}
+                  onSelectDetail={onSelectDetail}
+                  selectedDetailId={selectedDetailId}
+                />
                 <div className="wire-focus-actions">
                   <Button icon={<Maximize2 size={16} />} onClick={() => onOpenDetail(inspectedCard)} variant="secondary">查看详情</Button>
                   <Button onClick={onClearInspectedCard} variant="ghost">清除焦点</Button>

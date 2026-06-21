@@ -49,6 +49,13 @@ new Function(
 const { buildTableObjectContextModel } = moduleShim.exports;
 
 const model = buildTableObjectContextModel({
+  events: [
+    {
+      description: "符文横置支付费用。",
+      kind: "RUNE_EXHAUSTED",
+      objectRefs: [{ objectId: "p1-base-rune", role: "费用" }]
+    }
+  ],
   perspectivePlayerId: "P1",
   prompt: {
     actionable: true,
@@ -155,6 +162,9 @@ assert.equal(model.byId["p1-base-rune"].zone.kind, "rune");
 assert.equal(model.byId["p1-base-rune"].zone.label, "我方已抽出符文");
 assert.equal(model.byId["p1-base-rune"].promptEnabledCount, 2);
 assert.equal(model.byId["p1-base-rune"].promptDisabledCount, 1);
+assert.equal(model.byId["p1-base-rune"].eventLinks[0].detail?.id, "object-event:RUNE_EXHAUSTED:0");
+assert.equal(model.byId["p1-base-rune"].eventLinks[0].detail?.lines.find((line) => line.label === "对象来源").value, "服务端摘要");
+assert.equal(model.byId["p1-base-rune"].eventLinks[0].detail?.refs[0].id, "p1-base-rune");
 assert.deepEqual(
   model.byId["p1-base-rune"].serverRelations.map((relation) => `${relation.roles.join("/")}:${relation.stepSummary}`),
   ["费用资源/费用:费用 1/2"]

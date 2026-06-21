@@ -584,10 +584,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           onClearInspectedCard={clearInspectedCard}
           onInspectObject={inspectObjectFromTable}
           onOpenDetail={openDetailCard}
+          onSelectDetail={selectTimelineDetail}
           objectContext={selectedObjectContext}
           playerId={settings.playerId}
           prompt={tablePrompt}
           selectionDraft={selectionDraft}
+          selectedDetailId={timelineDetail?.id}
           snapshot={tableSnapshot}
           submissionGate={tableSubmissionGate}
         />
@@ -626,6 +628,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           onInspectObject={inspectObjectFromTable}
           onOpenLayer={() => setTimelineLayerOpen(true)}
           onOpenObjectDetail={openObjectDetail}
+          onSelectDetail={selectTimelineDetail}
           onSelectFollowupEvent={selectFollowupEvent}
           onSelectServerEventKind={selectServerEventKind}
           prompt={tablePrompt}
@@ -776,6 +779,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         onClose={() => setTimelineLayerOpen(false)}
         onInspectObject={inspectObjectFromTable}
         onOpenObjectDetail={openObjectDetail}
+        onSelectDetail={selectTimelineDetail}
         onSelectFollowupEvent={selectFollowupEvent}
         onSelectServerEventKind={selectServerEventKind}
         open={timelineLayerOpen}

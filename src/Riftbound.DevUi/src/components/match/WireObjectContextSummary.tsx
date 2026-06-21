@@ -2,15 +2,21 @@ import type { ActionPromptContractDto } from "../../types/protocol";
 import type { FocusedActionModel } from "../../utils/focusedActionModel";
 import { buildFocusedObjectCommandPlan } from "../../utils/focusedObjectCommandPlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
+import { WireDetailTrigger } from "./WireDetailTrigger";
+import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 
 export function WireObjectContextSummary({
   context,
   contract,
-  focusModel
+  focusModel,
+  onSelectDetail,
+  selectedDetailId
 }: {
   context?: TableObjectContext;
   contract?: ActionPromptContractDto | null;
   focusModel?: FocusedActionModel;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
 }) {
   const plan = buildFocusedObjectCommandPlan({ context, contract, focusModel });
   if (!plan) {
@@ -160,12 +166,21 @@ export function WireObjectContextSummary({
           <ol className="wire-object-event-list" aria-label="焦点对象近期事件">
             {plan.eventRows.map((event, index) => (
               <li
+                data-wire-object-event-detail={event.detail?.id ?? ""}
                 data-wire-object-event-kind={event.kind}
                 data-wire-object-event-role={event.role}
                 key={`${event.kind}-${event.role}-${index}`}
               >
                 <span>{event.role}</span>
                 <strong>{event.description}</strong>
+                {event.detail && (
+                  <WireDetailTrigger
+                    detail={event.detail}
+                    label="事件详情"
+                    onSelectDetail={onSelectDetail}
+                    selectedDetailId={selectedDetailId}
+                  />
+                )}
               </li>
             ))}
           </ol>

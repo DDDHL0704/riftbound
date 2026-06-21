@@ -11,6 +11,7 @@ import type {
   SnapshotDto,
   StackItemView
 } from "../types/protocol";
+import type { WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
 import { asArray, asRecord, asString } from "./collections";
 import { promptReasonLabel } from "./formatters";
 import { gameEventObjectRefPlan } from "./gameEventObjectRefs";
@@ -50,6 +51,7 @@ export type TableObjectZoneContext = {
 
 export type TableObjectEventContext = {
   description: string;
+  detail?: WireTimelineDetail;
   kind: string;
   role: string;
 };
@@ -145,7 +147,7 @@ export function buildTableObjectContextModel({
   const promptModel = buildPromptInteractionModel(prompt);
   const serverObjectContextById = buildServerObjectContextIndex(prompt?.objectContexts);
   const serverRelationsById = buildServerRelationIndex(prompt?.serverFlow?.relatedObjects);
-  const eventLinksById = buildEventLinks(events);
+  const eventLinksById = buildEventLinks(events, objects);
   const stackRolesById = buildStackRoles(snapshot?.stack ?? []);
   const objectIds = new Set<string>([
     ...Object.keys(objects),
@@ -619,10 +621,12 @@ function buildStackRoles(stack: StackItemView[]): Record<string, string[]> {
   return roles;
 }
 
-function buildEventLinks(events: GameEvent[]): Record<string, TableObjectEventContext[]> {
+function buildEventLinks(events: GameEvent[], objects: Record<string, CardObjectView>): Record<string, TableObjectEventContext[]> {
   const links: Record<string, TableObjectEventContext[]> = {};
-  for (const event of events) {
-    for (const ref of gameEventObjectRefPlan(event).refs) {
+  for (const [index, event] of events.entries()) {
+    const refPlan = gameEventObjectRefPlan(event);
+    const detail = objectEventDetail(event, index, refPlan.source, refPlan.refs, objects);
+    for (const ref of refPlan.refs) {
       if (!ref.objectId || ref.isHidden) {
         continue;
       }
@@ -630,6 +634,7 @@ function buildEventLinks(events: GameEvent[]): Record<string, TableObjectEventCo
       const existing = links[ref.objectId] ?? [];
       existing.push({
         description: event.description?.trim() || event.kind,
+        detail,
         kind: event.kind,
         role: ref.role || "对象"
       });
@@ -637,6 +642,78 @@ function buildEventLinks(events: GameEvent[]): Record<string, TableObjectEventCo
     }
   }
   return links;
+}
+
+function objectEventDetail(
+  event: GameEvent,
+  index: number,
+  source: ReturnType<typeof gameEventObjectRefPlan>["source"],
+  refs: NonNullable<GameEvent["objectRefs"]>,
+  objects: Record<string, CardObjectView>
+): WireTimelineDetail {
+  const detailRefs = refs
+    .map((ref) => objectEventDetailRef(ref, objects))
+    .filter((ref): ref is WireTimelineDetail["refs"][number] => Boolean(ref));
+  const description = event.description?.trim() || event.kind;
+
+  return {
+    id: `object-event:${event.kind}:${index}`,
+    lines: [
+      { label: "类型", value: event.kind },
+      { label: "描述", value: description },
+      { label: "对象", value: detailRefs.length > 0 ? `${detailRefs.length} 项` : "无" },
+      { label: "对象来源", value: objectEventRefSourceLabel(source) },
+      { label: "引用边界", value: objectEventRefBoundaryLabel(detailRefs) }
+    ],
+    refs: detailRefs,
+    source: "event",
+    subtitle: description,
+    title: event.kind
+  };
+}
+
+function objectEventDetailRef(
+  ref: NonNullable<GameEvent["objectRefs"]>[number],
+  objects: Record<string, CardObjectView>
+): WireTimelineDetail["refs"][number] | undefined {
+  const objectId = ref.objectId?.trim();
+  if (!objectId) {
+    return undefined;
+  }
+
+  const object = ref.isHidden ? undefined : objects[objectId];
+  const visibility = ref.isHidden ? "hidden" : object ? "visible" : "missing";
+  return {
+    battlefieldObjectId: visibility === "hidden" ? undefined : ref.battlefieldObjectId ?? object?.location?.battlefieldObjectId,
+    id: objectId,
+    label: visibility === "hidden" ? "隐藏对象" : ref.cardNo?.trim() || object?.cardNo || undefined,
+    role: ref.role?.trim() || "对象",
+    visibility,
+    zone: visibility === "hidden" ? undefined : ref.zone ?? object?.location?.zone
+  };
+}
+
+function objectEventRefSourceLabel(source: ReturnType<typeof gameEventObjectRefPlan>["source"]): string {
+  switch (source) {
+    case "server":
+      return "服务端摘要";
+    case "payload":
+      return "事件字段";
+    case "none":
+      return "无对象引用";
+  }
+}
+
+function objectEventRefBoundaryLabel(refs: WireTimelineDetail["refs"]): string {
+  if (refs.some((ref) => ref.visibility === "hidden")) {
+    return "包含隐藏对象引用，仅显示服务端允许的占位。";
+  }
+
+  if (refs.some((ref) => ref.visibility === "missing")) {
+    return "存在当前公开快照未定位对象。";
+  }
+
+  return "全部引用可由当前公开快照定位。";
 }
 
 function objectStateLabels(object?: CardObjectView): string[] {

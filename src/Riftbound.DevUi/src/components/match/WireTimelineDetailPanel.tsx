@@ -51,6 +51,7 @@ export function WireTimelineDetailPanel({
   onInspectObject,
   onOpenLayer,
   onOpenObjectDetail,
+  onSelectDetail,
   onSelectFollowupEvent,
   onSelectServerEventKind,
   prompt,
@@ -73,6 +74,7 @@ export function WireTimelineDetailPanel({
   onInspectObject?: (objectId: string) => void;
   onOpenLayer?: () => void;
   onOpenObjectDetail?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
   onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   prompt?: ActionPromptDto;
@@ -223,7 +225,9 @@ export function WireTimelineDetailPanel({
                 context={selectedObjectContext}
                 objectIndex={objectIndex}
                 onInspectObject={onInspectObject}
+                onSelectDetail={onSelectDetail}
                 selectedObjectId={selectedObjectId}
+                selectedDetailId={detail?.id}
                 title="当前桌面焦点"
               />
             )}
@@ -233,6 +237,7 @@ export function WireTimelineDetailPanel({
             context={selectedObjectContext}
             objectIndex={objectIndex}
             onInspectObject={onInspectObject}
+            onSelectDetail={onSelectDetail}
             selectedObjectId={selectedObjectId}
             title="焦点对象"
           />
@@ -757,13 +762,17 @@ function ObjectContextDetail({
   context,
   objectIndex,
   onInspectObject,
+  onSelectDetail,
   selectedObjectId,
+  selectedDetailId,
   title
 }: {
   context: TableObjectContext;
   objectIndex: WireObjectIndex;
   onInspectObject?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
   selectedObjectId?: string;
+  selectedDetailId?: string;
   title: string;
 }) {
   return (
@@ -776,7 +785,7 @@ function ObjectContextDetail({
         selectedObjectId={selectedObjectId}
         source="rule"
       />
-      <WireObjectContextSummary context={context} />
+      <WireObjectContextSummary context={context} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
     </div>
   );
 }
