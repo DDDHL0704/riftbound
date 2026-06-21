@@ -12880,6 +12880,119 @@ button.card-face:hover {
   font-size: 10px;
 }
 
+.wire-command-center {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.wire-command-center-header,
+.wire-command-center-next,
+.wire-command-center-rows div,
+.wire-command-center-candidates li,
+.wire-command-center-empty,
+.wire-command-center-actions,
+.wire-command-center-buttons {
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+.wire-command-center-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px;
+}
+
+.wire-command-center-header > div,
+.wire-command-center-next,
+.wire-command-center-rows dd,
+.wire-command-center-candidates li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-command-center-header strong,
+.wire-command-center-header span,
+.wire-command-center-next strong,
+.wire-command-center-next span,
+.wire-command-center-rows strong,
+.wire-command-center-rows span,
+.wire-command-center-candidates span,
+.wire-command-center-candidates strong,
+.wire-command-center-candidates small,
+.wire-command-center-candidates em,
+.wire-command-center-empty {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-command-center-next,
+.wire-command-center-empty {
+  padding: 5px;
+}
+
+.wire-command-center-rows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+}
+
+.wire-command-center-rows div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-command-center-rows div[data-wire-command-center-row-state="blocked"],
+.wire-command-center-rows div[data-wire-command-center-row-state="selecting"],
+.wire-command-center-candidates li[data-wire-command-center-candidate-state="blocked"],
+.wire-command-center-candidates li[data-wire-command-center-candidate-state="needs-selection"] {
+  border-width: 2px;
+}
+
+.wire-command-center-rows dt,
+.wire-command-center-rows dd {
+  margin: 0;
+}
+
+.wire-command-center-rows dt,
+.wire-command-center-next small,
+.wire-command-center-candidates small,
+.wire-command-center-candidates em {
+  font-size: 10px;
+}
+
+.wire-command-center-candidates {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-command-center-candidates li {
+  padding: 4px;
+}
+
+.wire-command-center-actions {
+  padding: 4px;
+}
+
+.wire-command-center-buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px;
+}
+
 .wire-interaction-heading {
   display: flex;
   align-items: center;

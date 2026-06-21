@@ -12,6 +12,7 @@ export type WireBattlefieldUnitSide = "opponent" | "self";
 export type WireSidePanelSlot =
   | "actionMap"
   | "actionPrompt"
+  | "commandCenter"
   | "informationBoundary"
   | "interaction"
   | "log"

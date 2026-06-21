@@ -83,6 +83,7 @@
   "sidePanel": {
     "slots": [
       "turnWindow",
+      "commandCenter",
       "serverFlow",
       "responseCoach",
       "tableAuthority",

@@ -5,6 +5,7 @@ import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
 import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
+import { WireCommandCenterPanel } from "../components/match/WireCommandCenterPanel";
 import { useDelayedWireCardPreview, WireCardPreview } from "../components/match/WireCardPreview";
 import { WireInformationBoundaryPanel } from "../components/match/WireInformationBoundaryPanel";
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
@@ -358,6 +359,23 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           playerId={settings.playerId}
           prompt={tablePrompt}
           snapshot={tableSnapshot}
+        />
+      </section>
+    ),
+    commandCenter: (
+      <section aria-label="当前行动指挥中心区" className="wire-panel wire-command-center-panel" data-wire-side-panel-slot="commandCenter" key="commandCenter" tabIndex={0}>
+        <WireCommandCenterPanel
+          connectionStatus={tableConnectionStatus}
+          disabledByConnection={!tableSubmissionGate.canSubmit}
+          focusedPlan={selectedFocusPlan}
+          objectContext={selectedObjectContext}
+          onClearFocus={clearInspectedCard}
+          onCommand={(command) => void controller.submitCommand(command)}
+          playerId={settings.playerId}
+          prompt={tablePrompt}
+          selectionDraft={selectionDraft}
+          snapshot={tableSnapshot}
+          submissionGate={tableSubmissionGate}
         />
       </section>
     ),

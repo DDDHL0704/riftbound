@@ -12,6 +12,7 @@ const homeSlots = ["base", "hero", "legend"];
 const battlefieldSlots = ["center", "leftSite", "rightSite"];
 const sidePanelSlots = [
   "turnWindow",
+  "commandCenter",
   "serverFlow",
   "responseCoach",
   "tableAuthority",

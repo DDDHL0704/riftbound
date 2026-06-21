@@ -23,7 +23,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "窗口总览", "优先权轨道", "合法操作地图", "候选覆盖审计", "提交审阅", "提交反馈", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "响应责任时间线", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "窗口总览", "指挥中心", "优先权轨道", "合法操作地图", "候选覆盖审计", "提交审阅", "提交反馈", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "响应责任时间线", "服务端行动提示", "结算链 / 规则事件", "日志"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -100,7 +100,7 @@ try {
   }
 
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "合法操作地图", "候选覆盖审计", "提交审阅", "提交反馈", "响应责任时间线", "责任来源：服务端", "焦点 / 候选 / 规则队列"]);
+  await waitForText(cdp, ["符文战场对战线框", "指挥中心", "合法操作地图", "候选覆盖审计", "提交审阅", "提交反馈", "响应责任时间线", "责任来源：服务端", "焦点 / 候选 / 规则队列"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
   await runWireLayoutGeometrySmoke(cdp);
   console.log("Chrome smoke OK: wire layout geometry");
@@ -683,6 +683,25 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures.push("wire response coach did not expose the expected metric strip");
     }
 
+    const commandCenter = document.querySelector("[data-wire-command-center-state]");
+    const commandCenterState = commandCenter?.getAttribute("data-wire-command-center-state") ?? "missing";
+    const commandCenterStepRole = commandCenter?.getAttribute("data-wire-command-center-step-role") ?? "missing";
+    if (!["blocked", "no-focus", "observe", "ready", "selecting"].includes(commandCenterState)) {
+      failures.push(\`wire command center state is unsupported: \${commandCenterState}\`);
+    }
+    if (!["destination", "mode", "optionalCost", "source", "submit", "sync", "target", "wait", "window"].includes(commandCenterStepRole)) {
+      failures.push(\`wire command center step role is unsupported: \${commandCenterStepRole}\`);
+    }
+    const commandCenterRows = new Map(Array.from(document.querySelectorAll("[data-wire-command-center-row]")).map((row) => [
+      row.getAttribute("data-wire-command-center-row") ?? "",
+      row.getAttribute("data-wire-command-center-row-state") ?? ""
+    ]));
+    for (const rowKey of ["window", "focus", "candidate", "command", "submit"]) {
+      if (!commandCenterRows.get(rowKey)) {
+        failures.push(\`wire command center row \${rowKey} is missing\`);
+      }
+    }
+
     const responsibilitySource = document.querySelector("[data-wire-window-responsibility-source]")?.getAttribute("data-wire-window-responsibility-source") ?? "missing";
     if (responsibilitySource !== "server") {
       failures.push(\`wire turn window did not use server responsibility metadata: \${responsibilitySource}\`);
@@ -705,6 +724,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
 
     const expectedSidePanelSlots = [
       "turnWindow",
+      "commandCenter",
       "serverFlow",
       "responseCoach",
       "tableAuthority",
@@ -729,6 +749,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       flowCount: document.querySelectorAll(".wire-card-flow").length,
       commandReviewState,
       commandSubmissionState,
+      commandCenterState,
       informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
@@ -777,6 +798,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if (!["blocked", "opponent", "ready", "resolving", "selecting", "waiting"].includes(result.responseCoachState)) {
     throw new Error(`Wire layout geometry smoke did not find response coach: ${result.responseCoachState}`);
+  }
+  if (!["blocked", "no-focus", "observe", "ready", "selecting"].includes(result.commandCenterState)) {
+    throw new Error(`Wire layout geometry smoke did not find command center: ${result.commandCenterState}`);
   }
   if (result.ruleAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server rule authority: ${result.ruleAuthorityState}`);
