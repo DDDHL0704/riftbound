@@ -12308,14 +12308,17 @@ button.card-face:hover {
 }
 
 .wire-table-authority [data-wire-table-authority-row-state="server"],
-.wire-table-authority [data-wire-table-authority-metric-state="server"] {
+.wire-table-authority [data-wire-table-authority-metric-state="server"],
+.wire-table-authority [data-wire-table-consistency-state="consistent"] {
   border-width: 2px;
 }
 
 .wire-table-authority [data-wire-table-authority-row-state="fallback"],
 .wire-table-authority [data-wire-table-authority-row-state="missing"],
 .wire-table-authority [data-wire-table-authority-metric-state="fallback"],
-.wire-table-authority [data-wire-table-authority-metric-state="missing"] {
+.wire-table-authority [data-wire-table-authority-metric-state="missing"],
+.wire-table-authority [data-wire-table-consistency-state="drift"],
+.wire-table-authority [data-wire-table-consistency-state="missing"] {
   border-style: dashed;
 }
 

@@ -15,7 +15,18 @@ const serverPlan = buildWireTableAuthorityPlan(table({
 }));
 assert.equal(serverPlan.state, "server");
 assert.equal(serverPlan.issueCount, 0);
-assert.deepEqual(serverPlan.metrics.map((metric) => metric.value), ["2/2", "2/2", "2/2", "0"]);
+assert.equal(serverPlan.consistencyState, "consistent");
+assert.equal(serverPlan.consistencyIssueCount, 0);
+assert.deepEqual(serverPlan.metrics.map((metric) => metric.value), ["2/2", "2/2", "2/2", "4/4", "0"]);
+assert.deepEqual(
+  serverPlan.consistencyRows.map((row) => [row.key, row.expectedKind, row.state, row.cardWidth]),
+  [
+    ["base", "base", "consistent", 86],
+    ["hand", "hand", "consistent", 74],
+    ["battlefieldUnit", "battlefield-unit", "consistent", 68],
+    ["standby", "standby", "consistent", 52]
+  ]
+);
 
 const serverLocationPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],
@@ -57,9 +68,30 @@ assert.equal(missingPlan.metrics[0].state, "missing");
 assert.equal(missingPlan.metrics[1].state, "missing");
 assert.equal(missingPlan.metrics[2].state, "missing");
 
+const driftPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"],
+  plans: {
+    basePlan: plan("base", 1, 1, 1, 0),
+    handPlan: plan("hand", 2),
+    standbyPlan: plan("standby", 2),
+    unitPlan: plan("hand", 3)
+  }
+}));
+assert.equal(driftPlan.state, "server", "layout drift must not masquerade as missing backend authority fields");
+assert.equal(driftPlan.issueCount, 0);
+assert.equal(driftPlan.consistencyState, "drift");
+assert.equal(driftPlan.consistencyIssueCount, 2);
+assert.equal(driftPlan.metrics.find((metric) => metric.key === "layoutPlans").state, "mixed");
+assert.deepEqual(
+  driftPlan.consistencyRows.filter((row) => row.state !== "consistent").map((row) => [row.key, row.state]),
+  [["base", "drift"], ["battlefieldUnit", "drift"]]
+);
+
 console.log("Wire table authority plan check passed.");
 
-function table({ laneSources, playerSources, standbySources }) {
+function table({ laneSources, playerSources, standbySources, plans = {} }) {
   return {
     battlefield: {
       lanes: laneSources.map((source, index) => ({
@@ -78,8 +110,8 @@ function table({ laneSources, playerSources, standbySources }) {
         zonePlayerId: index === 0 ? "P1" : "P2"
       })),
       objects: {},
-      standbyPlan: {},
-      unitPlan: {}
+      standbyPlan: plans.standbyPlan ?? plan("standby", 2),
+      unitPlan: plans.unitPlan ?? plan("battlefield-unit", 3)
     },
     players: playerSources.map((source, index) => ({
       baseObjectIds: [`p${index + 1}-base`],
@@ -93,7 +125,38 @@ function table({ laneSources, playerSources, standbySources }) {
       runeIds: [`p${index + 1}-rune-a`, `p${index + 1}-rune-b`],
       side: index === 0 ? "opponent" : "self",
       zones: {}
-    }))
+    })),
+    playerPlans: {
+      basePlan: plans.basePlan ?? plan("base", 1, 1, 1, 86),
+      handPlan: plans.handPlan ?? plan("hand", 2)
+    }
+  };
+}
+
+function plan(kind, itemCount, slotCount = itemCount, visibleSlotCount = Math.min(slotCount, 12), cardWidth) {
+  const widths = {
+    base: 86,
+    "battlefield-unit": 68,
+    hand: 74,
+    standby: 52
+  };
+  const width = cardWidth ?? widths[kind] ?? 0;
+  return {
+    capacity: "unbounded",
+    cardHeight: Math.round(width / (744 / 1039)),
+    cardWidth: width,
+    density: itemCount <= 3 ? "sparse" : "normal",
+    fit: "elastic-rail",
+    gap: 4,
+    itemCount,
+    kind,
+    layout: "rail",
+    minSlots: 0,
+    overflow: "none",
+    overflowCount: 0,
+    scrollAfter: 12,
+    slotCount,
+    visibleSlotCount
   };
 }
 

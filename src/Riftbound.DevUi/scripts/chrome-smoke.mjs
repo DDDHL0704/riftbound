@@ -511,6 +511,34 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (document.querySelectorAll("[data-wire-table-authority-lane-source='server-unitsBySide']").length < 2) {
       failures.push("wire table authority did not expose two server-authored battlefield lane splits");
     }
+    const tableConsistency = document.querySelector("[data-wire-table-consistency-state]");
+    const tableConsistencyState = tableConsistency?.getAttribute("data-wire-table-consistency-state") ?? "missing";
+    if (tableConsistencyState !== "consistent") {
+      failures.push(\`wire table consistency should use shared layout plans, got \${tableConsistencyState}\`);
+    }
+    const tableConsistencyRows = new Map(Array.from(document.querySelectorAll("[data-wire-table-consistency-row]")).map((row) => [
+      row.getAttribute("data-wire-table-consistency-row") ?? "",
+      {
+        kind: row.getAttribute("data-wire-table-consistency-kind") ?? "",
+        state: row.getAttribute("data-wire-table-consistency-state") ?? ""
+      }
+    ]));
+    const expectedConsistencyRows = new Map([
+      ["base", "base"],
+      ["hand", "hand"],
+      ["battlefieldUnit", "battlefield-unit"],
+      ["standby", "standby"]
+    ]);
+    for (const [rowKey, expectedKind] of expectedConsistencyRows.entries()) {
+      const row = tableConsistencyRows.get(rowKey);
+      if (!row) {
+        failures.push(\`wire table consistency row \${rowKey} is missing\`);
+        continue;
+      }
+      if (row.state !== "consistent" || row.kind !== expectedKind) {
+        failures.push(\`wire table consistency row \${rowKey} drifted: \${JSON.stringify(row)}\`);
+      }
+    }
 
     const informationBoundary = document.querySelector("[data-wire-information-boundary-state]");
     const informationBoundaryState = informationBoundary?.getAttribute("data-wire-information-boundary-state") ?? "missing";

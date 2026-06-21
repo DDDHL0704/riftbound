@@ -78,6 +78,28 @@ export function WireTableAuthorityPanel({ table }: { table: WireTableViewModel }
           ))}
         </ol>
       </section>
+
+      <section
+        aria-label="共享布局计划一致性"
+        className="wire-table-authority-group"
+        data-wire-table-consistency-state={plan.consistencyState}
+      >
+        <strong>共享布局计划</strong>
+        <ol>
+          {plan.consistencyRows.map((row) => (
+            <li
+              data-wire-table-consistency-kind={row.expectedKind}
+              data-wire-table-consistency-row={row.key}
+              data-wire-table-consistency-state={row.state}
+              key={row.key}
+            >
+              <span>{row.label}</span>
+              <strong>{row.stateLabel}</strong>
+              <small>{row.cardWidth}x{row.cardHeight} / 槽 {row.slotCount} / 可见 {row.visibleSlotCount}</small>
+            </li>
+          ))}
+        </ol>
+      </section>
     </section>
   );
 }
