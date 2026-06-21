@@ -704,11 +704,21 @@ async function runWireLayoutGeometrySmoke(cdp) {
     const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
     const commandCenterFollowupState = commandCenterFollowup?.getAttribute("data-command-followup-state") ?? "missing";
     const commandCenterFollowupServerState = commandCenterFollowup?.getAttribute("data-command-followup-server-state") ?? "missing";
+    const commandCenterFollowupBridge = commandCenterFollowup?.querySelector("[data-command-followup-bridge-state]");
+    const commandCenterFollowupBridgeState = commandCenterFollowupBridge?.getAttribute("data-command-followup-bridge-state") ?? "missing";
     if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(commandCenterFollowupState)) {
       failures.push(\`wire command center followup state is unsupported: \${commandCenterFollowupState}\`);
     }
     if (commandCenterFollowupServerState === "missing" || commandCenterFollowupServerState.length === 0) {
       failures.push("wire command center followup server state is missing");
+    }
+    if (!["empty", "failed", "ready", "unknown", "waiting"].includes(commandCenterFollowupBridgeState)) {
+      failures.push(\`wire command center followup bridge state is unsupported: \${commandCenterFollowupBridgeState}\`);
+    }
+    for (const rowKey of ["serverState", "tick", "events", "snapshot", "prompt"]) {
+      if (!commandCenterFollowupBridge?.querySelector(\`[data-command-followup-bridge-row="\${rowKey}"]\`)) {
+        failures.push(\`wire command center followup bridge row \${rowKey} is missing\`);
+      }
     }
 
     const responsibilitySource = document.querySelector("[data-wire-window-responsibility-source]")?.getAttribute("data-wire-window-responsibility-source") ?? "missing";
@@ -782,6 +792,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       commandCenterState,
       commandCenterFollowupState,
       commandCenterFollowupServerState,
+      commandCenterFollowupBridgeState,
       informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
@@ -919,6 +930,9 @@ async function runWireClickSelectionSmoke(cdp) {
       commandCenterStepRole: document.querySelector("[data-wire-command-center-step-role]")?.getAttribute("data-wire-command-center-step-role") ?? null,
       commandCenterFollowupState: commandCenterFollowup?.getAttribute("data-command-followup-state") ?? null,
       commandCenterFollowupServerState: commandCenterFollowup?.getAttribute("data-command-followup-server-state") ?? null,
+      commandCenterFollowupBridgeState: commandCenterFollowup?.querySelector("[data-command-followup-bridge-state]")?.getAttribute("data-command-followup-bridge-state") ?? null,
+      commandCenterFollowupBridgeRows: Array.from(commandCenterFollowup?.querySelectorAll("[data-command-followup-bridge-row]") ?? [])
+        .map((node) => (node.getAttribute("data-command-followup-bridge-row") ?? "") + ":" + (node.getAttribute("data-command-followup-bridge-row-state") ?? "")),
       commandCenterFollowupMetricCount: commandCenterFollowup?.querySelectorAll("[data-command-followup-metric]").length ?? 0,
       commandCenterFollowupText: commandCenterFollowup?.textContent ?? "",
       commandCenterText: commandCenter?.textContent ?? "",
@@ -1384,8 +1398,15 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.commandCenterText.includes("PLAY_CARD")) failures.push("command center did not expose command type");
   if (focusResult.commandCenterFollowupState !== "empty") failures.push(`command center followup state unexpected before submit: ${focusResult.commandCenterFollowupState}`);
   if (focusResult.commandCenterFollowupServerState !== "none") failures.push(`command center followup server state unexpected before submit: ${focusResult.commandCenterFollowupServerState}`);
+  if (focusResult.commandCenterFollowupBridgeState !== "empty") failures.push(`command center followup bridge state unexpected before submit: ${focusResult.commandCenterFollowupBridgeState}`);
+  for (const rowKey of ["serverState", "tick", "events", "snapshot", "prompt"]) {
+    if (!focusResult.commandCenterFollowupBridgeRows.some((row) => row.startsWith(`${rowKey}:`))) {
+      failures.push(`command center followup bridge row missing before submit: ${rowKey}`);
+    }
+  }
   if (focusResult.commandCenterFollowupMetricCount < 4) failures.push("command center followup metric strip missing");
   if (!focusResult.commandCenterFollowupText.includes("后续事件")) failures.push("command center followup heading missing");
+  if (!focusResult.commandCenterFollowupText.includes("等待提交")) failures.push("command center followup bridge headline missing");
   if (!focusResult.commandCenterFollowupText.includes("尚未提交")) failures.push("command center followup empty summary missing");
   if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
   if (!focusResult.text.includes("可提交")) failures.push("focused action summary enabled count missing");

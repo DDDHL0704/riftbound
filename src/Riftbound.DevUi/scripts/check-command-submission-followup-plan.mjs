@@ -37,6 +37,13 @@ assert.deepEqual(
 );
 assert.equal(buildCommandSubmissionFollowupPlan({}).serverFollowupState, "none");
 assert.equal(buildCommandSubmissionFollowupPlan({}).metrics.find((metric) => metric.key === "serverState").value, "无");
+assert.equal(buildCommandSubmissionFollowupPlan({}).bridge.state, "empty");
+assert.equal(buildCommandSubmissionFollowupPlan({}).bridge.headline, "等待提交");
+assert.equal(buildCommandSubmissionFollowupPlan({}).bridge.nextStepLabel, "先提交服务端候选路线。");
+assert.deepEqual(
+  buildCommandSubmissionFollowupPlan({}).bridge.rows.map((row) => `${row.key}:${row.state}:${row.value}`),
+  ["serverState:empty:无", "tick:waiting:无", "events:empty:0", "snapshot:empty:0", "prompt:empty:0"]
+);
 
 const pendingPlan = buildCommandSubmissionFollowupPlan({
   feedback: {
@@ -52,6 +59,9 @@ assert.equal(pendingPlan.state, "pending");
 assert.equal(pendingPlan.metrics.find((metric) => metric.key === "events").state, "empty");
 assert.equal(pendingPlan.serverFollowupState, "pending");
 assert.equal(pendingPlan.metrics.find((metric) => metric.key === "serverState").state, "waiting");
+assert.equal(pendingPlan.bridge.state, "waiting");
+assert.equal(pendingPlan.bridge.headline, "等待服务端回执");
+assert.equal(pendingPlan.bridge.rows.find((row) => row.key === "serverState").state, "waiting");
 
 const eventPlan = buildCommandSubmissionFollowupPlan({
   events: [
@@ -94,6 +104,10 @@ assert.equal(eventPlan.metrics.find((metric) => metric.key === "snapshot").state
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "prompt").value, "0");
 assert.equal(eventPlan.serverFollowupState, "receipt-only");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "serverState").value, "仅回执");
+assert.equal(eventPlan.bridge.state, "ready");
+assert.equal(eventPlan.bridge.headline, "已收到同 tick 事件");
+assert.equal(eventPlan.bridge.nextStepLabel, "查看事件引用，必要时选择对象检查规则上下文。");
+assert.equal(eventPlan.bridge.rows.find((row) => row.key === "events").state, "ready");
 
 const receiptAwaitingPlan = buildCommandSubmissionFollowupPlan({
   events: [],
@@ -123,6 +137,9 @@ assert.equal(receiptAwaitingPlan.metrics.find((metric) => metric.key === "prompt
 assert.equal(receiptAwaitingPlan.serverFollowupState, "events");
 assert.equal(receiptAwaitingPlan.serverFollowupStateLabel, "事件");
 assert.equal(receiptAwaitingPlan.metrics.find((metric) => metric.key === "serverState").value, "事件");
+assert.equal(receiptAwaitingPlan.bridge.state, "waiting");
+assert.equal(receiptAwaitingPlan.bridge.headline, "等待同 tick 广播");
+assert.equal(receiptAwaitingPlan.bridge.rows.find((row) => row.key === "snapshot").state, "ready");
 
 const hiddenPlan = buildCommandSubmissionFollowupPlan({
   events: [
@@ -188,6 +205,8 @@ assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "events
 assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "prompt").value, "2");
 assert.equal(receiptSnapshotPlan.serverFollowupState, "snapshot-prompt");
 assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "serverState").value, "快照/提示");
+assert.equal(receiptSnapshotPlan.bridge.state, "ready");
+assert.equal(receiptSnapshotPlan.bridge.headline, "快照/提示已同步");
 
 const awaitingPlan = buildCommandSubmissionFollowupPlan({
   events: [],
@@ -204,6 +223,7 @@ const awaitingPlan = buildCommandSubmissionFollowupPlan({
 });
 assert.equal(awaitingPlan.state, "accepted-awaiting");
 assert.equal(awaitingPlan.metrics.find((metric) => metric.key === "snapshot").state, "waiting");
+assert.equal(awaitingPlan.bridge.state, "waiting");
 
 const unknownTickPlan = buildCommandSubmissionFollowupPlan({
   feedback: {
@@ -217,6 +237,8 @@ const unknownTickPlan = buildCommandSubmissionFollowupPlan({
   snapshot: { tick: 1 }
 });
 assert.equal(unknownTickPlan.state, "unknown-tick");
+assert.equal(unknownTickPlan.bridge.state, "unknown");
+assert.equal(unknownTickPlan.bridge.headline, "缺少回执 tick");
 
 const failedPlan = buildCommandSubmissionFollowupPlan({
   feedback: {
@@ -231,5 +253,7 @@ const failedPlan = buildCommandSubmissionFollowupPlan({
 assert.equal(failedPlan.state, "failed");
 assert.equal(failedPlan.serverFollowupState, "client-failed");
 assert.equal(failedPlan.metrics.find((metric) => metric.key === "serverState").value, "本地失败");
+assert.equal(failedPlan.bridge.state, "failed");
+assert.equal(failedPlan.bridge.rows.find((row) => row.key === "serverState").state, "blocked");
 
 console.log("Command submission followup plan check passed.");

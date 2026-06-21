@@ -23,6 +23,32 @@ export function WireCommandFollowupPanel({
       data-command-followup-server-state={plan.serverFollowupState}
       data-command-followup-state={plan.state}
     >
+      <div
+        className="wire-command-followup-bridge"
+        data-command-followup-bridge-server-state={plan.serverFollowupState}
+        data-command-followup-bridge-state={plan.bridge.state}
+      >
+        <div className="wire-command-followup-bridge-heading">
+          <strong>{plan.bridge.headline}</strong>
+          <span>{plan.bridge.stateLabel}</span>
+          <small>{plan.bridge.serverStateLabel}</small>
+        </div>
+        <p>{plan.bridge.summary}</p>
+        <strong className="wire-command-followup-bridge-next">下一步：{plan.bridge.nextStepLabel}</strong>
+        <ol className="wire-command-followup-bridge-rows" aria-label="提交后续桥接状态">
+          {plan.bridge.rows.map((row) => (
+            <li
+              data-command-followup-bridge-row={row.key}
+              data-command-followup-bridge-row-state={row.state}
+              key={row.key}
+            >
+              <span>{row.label}</span>
+              <strong>{row.value}</strong>
+              <small>{row.stateLabel}</small>
+            </li>
+          ))}
+        </ol>
+      </div>
       <div className="wire-command-followup-heading">
         <strong>后续事件</strong>
         <span>{plan.summary}</span>

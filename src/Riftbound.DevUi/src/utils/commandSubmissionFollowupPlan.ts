@@ -24,6 +24,26 @@ export type CommandSubmissionFollowupMetric = {
   value: string;
 };
 
+export type CommandSubmissionFollowupBridgeState = "empty" | "failed" | "ready" | "unknown" | "waiting";
+
+export type CommandSubmissionFollowupBridgeRow = {
+  key: CommandSubmissionFollowupMetric["key"];
+  label: string;
+  state: "blocked" | "empty" | "ready" | "waiting";
+  stateLabel: string;
+  value: string;
+};
+
+export type CommandSubmissionFollowupBridgePlan = {
+  headline: string;
+  nextStepLabel: string;
+  rows: CommandSubmissionFollowupBridgeRow[];
+  serverStateLabel: string;
+  state: CommandSubmissionFollowupBridgeState;
+  stateLabel: string;
+  summary: string;
+};
+
 export type CommandSubmissionFollowupFeedback = {
   followup?: CommandReceiptFollowupDto | null;
   serverTick?: number | null;
@@ -49,6 +69,7 @@ export type CommandSubmissionFollowupEventRef = {
 };
 
 export type CommandSubmissionFollowupPlan = {
+  bridge: CommandSubmissionFollowupBridgePlan;
   events: CommandSubmissionFollowupEventRow[];
   hiddenEventCount: number;
   metrics: CommandSubmissionFollowupMetric[];
@@ -105,7 +126,7 @@ export function buildCommandSubmissionFollowupPlan({
   const snapshotCaughtUp = snapshotTick != null && snapshotTick >= serverTick;
 
   if (visibleEvents.length > 0) {
-    return {
+    return attachBridge({
       events: visibleEvents,
       hiddenEventCount: Math.max(0, authoritativeEventCount - visibleEvents.length),
       metrics: followupMetrics({
@@ -119,11 +140,11 @@ export function buildCommandSubmissionFollowupPlan({
       ...serverFollowupFields(feedback),
       state: "accepted-events",
       summary: receiptFollowup?.summary ?? `服务端 tick ${serverTick} 广播 ${authoritativeEventCount} 条后续事件。`
-    };
+    });
   }
 
   if (reportedEventCount != null && reportedEventCount > 0) {
-    return {
+    return attachBridge({
       events: [],
       hiddenEventCount: reportedEventCount,
       metrics: followupMetrics({
@@ -137,11 +158,11 @@ export function buildCommandSubmissionFollowupPlan({
       ...serverFollowupFields(feedback),
       state: "accepted-awaiting",
       summary: `服务端回执声明 tick ${serverTick} 有 ${reportedEventCount} 条公开事件，等待事件流抵达。`
-    };
+    });
   }
 
   if (snapshotCaughtUp || (reportedSnapshotCount ?? 0) > 0 || (reportedPromptCount ?? 0) > 0) {
-    return {
+    return attachBridge({
       events: [],
       hiddenEventCount: 0,
       metrics: followupMetrics({
@@ -155,10 +176,10 @@ export function buildCommandSubmissionFollowupPlan({
       ...serverFollowupFields(feedback),
       state: "accepted-snapshot",
       summary: receiptFollowup?.summary ?? `当前快照已追上 tick ${serverTick}；该命令没有公开事件，后续以当前快照/提示为准。`
-    };
+    });
   }
 
-  return {
+  return attachBridge({
     events: [],
     hiddenEventCount: 0,
     metrics: followupMetrics({
@@ -172,7 +193,7 @@ export function buildCommandSubmissionFollowupPlan({
     ...serverFollowupFields(feedback),
     state: "accepted-awaiting",
     summary: `等待 tick ${serverTick} 的事件或快照广播。`
-  };
+  });
 }
 
 function emptyPlan(
@@ -182,7 +203,7 @@ function emptyPlan(
   snapshot?: SnapshotDto
 ): CommandSubmissionFollowupPlan {
   const serverTick = numberOrUndefined(feedback?.serverTick);
-  return {
+  return attachBridge({
     events: [],
     hiddenEventCount: 0,
     metrics: followupMetrics({
@@ -196,7 +217,130 @@ function emptyPlan(
     ...serverFollowupFields(feedback),
     state,
     summary
+  });
+}
+
+function attachBridge(plan: Omit<CommandSubmissionFollowupPlan, "bridge">): CommandSubmissionFollowupPlan {
+  return {
+    ...plan,
+    bridge: bridgePlanFor(plan)
   };
+}
+
+function bridgePlanFor(plan: Omit<CommandSubmissionFollowupPlan, "bridge">): CommandSubmissionFollowupBridgePlan {
+  const state = bridgeStateFor(plan.state);
+  return {
+    headline: bridgeHeadlineFor(plan.state),
+    nextStepLabel: bridgeNextStepFor(plan.state),
+    rows: plan.metrics.map((metric) => {
+      const rowState = bridgeRowStateFor(metric, plan.state);
+      return {
+        key: metric.key,
+        label: metric.label,
+        state: rowState,
+        stateLabel: bridgeRowStateLabel(rowState),
+        value: metric.value
+      };
+    }),
+    serverStateLabel: plan.serverFollowupStateLabel,
+    state,
+    stateLabel: bridgeStateLabel(state),
+    summary: plan.summary
+  };
+}
+
+function bridgeStateFor(state: CommandSubmissionFollowupState): CommandSubmissionFollowupBridgeState {
+  switch (state) {
+    case "accepted-events":
+    case "accepted-snapshot":
+      return "ready";
+    case "accepted-awaiting":
+    case "pending":
+      return "waiting";
+    case "failed":
+      return "failed";
+    case "unknown-tick":
+      return "unknown";
+    case "empty":
+      return "empty";
+  }
+}
+
+function bridgeHeadlineFor(state: CommandSubmissionFollowupState): string {
+  switch (state) {
+    case "accepted-awaiting":
+      return "等待同 tick 广播";
+    case "accepted-events":
+      return "已收到同 tick 事件";
+    case "accepted-snapshot":
+      return "快照/提示已同步";
+    case "empty":
+      return "等待提交";
+    case "failed":
+      return "提交未成立";
+    case "pending":
+      return "等待服务端回执";
+    case "unknown-tick":
+      return "缺少回执 tick";
+  }
+}
+
+function bridgeNextStepFor(state: CommandSubmissionFollowupState): string {
+  switch (state) {
+    case "accepted-awaiting":
+      return "等待事件流、快照或提示广播。";
+    case "accepted-events":
+      return "查看事件引用，必要时选择对象检查规则上下文。";
+    case "accepted-snapshot":
+      return "查看当前快照和提示；无公开事件时以服务端快照为准。";
+    case "empty":
+      return "先提交服务端候选路线。";
+    case "failed":
+      return "查看错误和服务端回执，重新选择合法候选。";
+    case "pending":
+      return "保持当前路线，不重复提交同一意图。";
+    case "unknown-tick":
+      return "等待携带 tick 的回执或重新同步快照。";
+  }
+}
+
+function bridgeStateLabel(state: CommandSubmissionFollowupBridgeState): string {
+  switch (state) {
+    case "empty":
+      return "未提交";
+    case "failed":
+      return "失败";
+    case "ready":
+      return "已同步";
+    case "unknown":
+      return "未知";
+    case "waiting":
+      return "等待";
+  }
+}
+
+function bridgeRowStateFor(
+  metric: CommandSubmissionFollowupMetric,
+  state: CommandSubmissionFollowupState
+): CommandSubmissionFollowupBridgeRow["state"] {
+  if (state === "failed" && metric.key === "serverState") {
+    return "blocked";
+  }
+
+  return metric.state;
+}
+
+function bridgeRowStateLabel(state: CommandSubmissionFollowupBridgeRow["state"]): string {
+  switch (state) {
+    case "blocked":
+      return "阻断";
+    case "empty":
+      return "无";
+    case "ready":
+      return "就绪";
+    case "waiting":
+      return "等待";
+  }
 }
 
 function followupMetrics({

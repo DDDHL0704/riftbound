@@ -12116,6 +12116,10 @@ button.card-face:hover {
 .wire-command-submission-heading,
 .wire-command-submission-metrics span,
 .wire-command-followup,
+.wire-command-followup-bridge,
+.wire-command-followup-bridge-heading,
+.wire-command-followup-bridge-next,
+.wire-command-followup-bridge-rows li,
 .wire-command-followup-heading,
 .wire-command-followup-metrics span,
 .wire-command-followup-events li,
@@ -14095,6 +14099,7 @@ button.card-face:hover {
 .wire-command-followup small,
 .wire-command-followup strong,
 .wire-command-followup b,
+.wire-command-followup p,
 .wire-command-followup em,
 .wire-action-route-strip span,
 .wire-action-route-strip small,
@@ -14362,6 +14367,68 @@ button.card-face:hover {
 
 .wire-command-followup[data-command-followup-state="accepted-awaiting"],
 .wire-command-followup[data-command-followup-state="pending"] {
+  border-style: dashed;
+}
+
+.wire-command-followup-bridge {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 4px;
+}
+
+.wire-command-followup-bridge[data-command-followup-bridge-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-command-followup-bridge[data-command-followup-bridge-state="failed"],
+.wire-command-followup-bridge[data-command-followup-bridge-state="unknown"],
+.wire-command-followup-bridge[data-command-followup-bridge-state="waiting"] {
+  border-style: dashed;
+}
+
+.wire-command-followup-bridge-heading {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 4px;
+  align-items: center;
+  padding: 3px;
+}
+
+.wire-command-followup-bridge p {
+  min-width: 0;
+  margin: 0;
+}
+
+.wire-command-followup-bridge-next {
+  min-width: 0;
+  padding: 3px;
+}
+
+.wire-command-followup-bridge-rows {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-command-followup-bridge-rows li {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 3px;
+}
+
+.wire-command-followup-bridge-rows li[data-command-followup-bridge-row-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-command-followup-bridge-rows li[data-command-followup-bridge-row-state="blocked"],
+.wire-command-followup-bridge-rows li[data-command-followup-bridge-row-state="waiting"] {
   border-style: dashed;
 }
 
@@ -16834,6 +16901,10 @@ button.wire-object-ref {
 .wire-match-page .wire-command-submission-feedback,
 .wire-match-page .wire-command-submission-heading,
 .wire-match-page .wire-command-submission-metrics span,
+.wire-match-page .wire-command-followup-bridge,
+.wire-match-page .wire-command-followup-bridge-heading,
+.wire-match-page .wire-command-followup-bridge-next,
+.wire-match-page .wire-command-followup-bridge-rows li,
 .wire-match-page .wire-command-submission-open-layer,
 .wire-match-page .wire-command-submission-layer,
 .wire-match-page .wire-command-submission-dialog,

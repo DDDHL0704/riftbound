@@ -103,6 +103,15 @@ export function buildWireCommandCenterPlan({
 
 function emptySubmissionFollowupPlan(): CommandSubmissionFollowupPlan {
   return {
+    bridge: {
+      headline: "等待提交",
+      nextStepLabel: "先提交服务端候选路线。",
+      rows: [],
+      serverStateLabel: "无",
+      state: "empty",
+      stateLabel: "未提交",
+      summary: "尚未提交命令。"
+    },
     events: [],
     hiddenEventCount: 0,
     metrics: [],
