@@ -539,6 +539,49 @@ async function runWireLayoutGeometrySmoke(cdp) {
         failures.push(\`wire table consistency row \${rowKey} drifted: \${JSON.stringify(row)}\`);
       }
     }
+    const tableCapacityRows = new Map(Array.from(document.querySelectorAll("[data-wire-table-capacity-row]")).map((row) => [
+      row.getAttribute("data-wire-table-capacity-row") ?? "",
+      {
+        count: Number(row.getAttribute("data-wire-table-capacity-count") ?? "-1"),
+        kind: row.getAttribute("data-wire-table-capacity-kind") ?? "",
+        overflow: row.getAttribute("data-wire-table-capacity-overflow") ?? "",
+        overflowCount: Number(row.getAttribute("data-wire-table-capacity-overflow-count") ?? "-1"),
+        slots: Number(row.getAttribute("data-wire-table-capacity-slots") ?? "-1"),
+        state: row.getAttribute("data-wire-table-capacity-state") ?? "",
+        visibleSlots: Number(row.getAttribute("data-wire-table-capacity-visible-slots") ?? "-1")
+      }
+    ]));
+    const expectedCapacityRows = new Map([
+      ["opponent:base", "base"],
+      ["opponent:hand", "hand"],
+      ["self:base", "base"],
+      ["self:hand", "hand"],
+      ["battlefield:0:opponent", "battlefield-unit"],
+      ["battlefield:0:self", "battlefield-unit"],
+      ["battlefield:0:standby", "standby"],
+      ["battlefield:1:opponent", "battlefield-unit"],
+      ["battlefield:1:self", "battlefield-unit"],
+      ["battlefield:1:standby", "standby"]
+    ]);
+    for (const [rowKey, expectedKind] of expectedCapacityRows.entries()) {
+      const row = tableCapacityRows.get(rowKey);
+      if (!row) {
+        failures.push(\`wire table capacity row \${rowKey} is missing\`);
+        continue;
+      }
+      if (row.kind !== expectedKind) {
+        failures.push(\`wire table capacity row \${rowKey} has wrong kind: \${row.kind}\`);
+      }
+      if (!["empty", "stable", "scroll"].includes(row.state)) {
+        failures.push(\`wire table capacity row \${rowKey} has wrong state: \${row.state}\`);
+      }
+      if (!["none", "scroll"].includes(row.overflow)) {
+        failures.push(\`wire table capacity row \${rowKey} has wrong overflow: \${row.overflow}\`);
+      }
+      if (row.count < 0 || row.slots < row.count || row.visibleSlots > row.slots || row.overflowCount !== Math.max(0, row.slots - row.visibleSlots)) {
+        failures.push(\`wire table capacity row \${rowKey} has invalid counts: \${JSON.stringify(row)}\`);
+      }
+    }
 
     const informationBoundary = document.querySelector("[data-wire-information-boundary-state]");
     const informationBoundaryState = informationBoundary?.getAttribute("data-wire-information-boundary-state") ?? "missing";

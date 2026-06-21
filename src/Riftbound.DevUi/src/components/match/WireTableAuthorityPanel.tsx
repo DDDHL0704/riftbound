@@ -79,6 +79,29 @@ export function WireTableAuthorityPanel({ table }: { table: WireTableViewModel }
         </ol>
       </section>
 
+      <section className="wire-table-authority-group" aria-label="区域容量与溢出策略">
+        <strong>区域容量矩阵</strong>
+        <ol>
+          {plan.capacityRows.map((row) => (
+            <li
+              data-wire-table-capacity-count={row.itemCount}
+              data-wire-table-capacity-kind={row.kind}
+              data-wire-table-capacity-overflow={row.overflow}
+              data-wire-table-capacity-overflow-count={row.overflowCount}
+              data-wire-table-capacity-row={row.key}
+              data-wire-table-capacity-slots={row.slotCount}
+              data-wire-table-capacity-state={row.state}
+              data-wire-table-capacity-visible-slots={row.visibleSlotCount}
+              key={row.key}
+            >
+              <span>{row.label}</span>
+              <strong>{row.stateLabel}</strong>
+              <small>{row.cardWidth}x{row.cardHeight} / 牌 {row.itemCount} / 槽 {row.slotCount} / 可见 {row.visibleSlotCount} / 溢出 {row.overflowCount}</small>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       <section
         aria-label="共享布局计划一致性"
         className="wire-table-authority-group"

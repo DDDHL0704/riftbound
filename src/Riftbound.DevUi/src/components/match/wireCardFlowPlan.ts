@@ -93,6 +93,32 @@ export function buildWireCardFlowPlan({
   return railPlan(kind, itemCount, minSlots, slotCount, strategy);
 }
 
+export function resolveWireCardFlowRenderPlan({
+  itemCount,
+  minSlots = 0,
+  sizingPlan,
+  slotCount = Math.max(itemCount, minSlots)
+}: {
+  itemCount: number;
+  minSlots?: number;
+  sizingPlan: WireCardFlowPlan;
+  slotCount?: number;
+}): WireCardFlowPlan {
+  const visibleSlotCount = Math.min(slotCount, sizingPlan.scrollAfter);
+  const overflowCount = Math.max(0, slotCount - visibleSlotCount);
+  const overflow: WireCardFlowOverflow = overflowCount > 0 ? "scroll" : "none";
+  return {
+    ...sizingPlan,
+    fit: overflow === "scroll" ? "overflow-rail" : sizingPlan.layout === "rail" ? "elastic-rail" : "fixed-slot",
+    itemCount,
+    minSlots,
+    overflow,
+    overflowCount,
+    slotCount,
+    visibleSlotCount
+  };
+}
+
 function railPlan(
   kind: RailFlowKind,
   itemCount: number,

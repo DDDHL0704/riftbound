@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const authorityExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableAuthorityPlan.ts"));
+const flowPlanExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts"));
+const authorityExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableAuthorityPlan.ts"), flowPlanExports);
 const { buildWireTableAuthorityPlan } = authorityExports;
 
 const serverPlan = buildWireTableAuthorityPlan(table({
@@ -27,6 +28,35 @@ assert.deepEqual(
     ["standby", "standby", "consistent", 52]
   ]
 );
+assert.equal(serverPlan.capacityRows.length, 10);
+const serverCapacityRows = new Map(serverPlan.capacityRows.map((row) => [row.key, row]));
+assert.deepEqual(
+  Array.from(serverCapacityRows.keys()),
+  [
+    "opponent:base",
+    "opponent:hand",
+    "self:base",
+    "self:hand",
+    "battlefield:0:opponent",
+    "battlefield:0:self",
+    "battlefield:0:standby",
+    "battlefield:1:opponent",
+    "battlefield:1:self",
+    "battlefield:1:standby"
+  ]
+);
+assert.deepEqual(
+  [
+    serverCapacityRows.get("battlefield:0:opponent")?.itemCount,
+    serverCapacityRows.get("battlefield:0:self")?.itemCount,
+    serverCapacityRows.get("battlefield:1:opponent")?.itemCount,
+    serverCapacityRows.get("battlefield:1:self")?.itemCount
+  ],
+  [1, 2, 2, 1]
+);
+assert.equal(serverCapacityRows.get("battlefield:0:self")?.cardWidth, serverCapacityRows.get("battlefield:1:opponent")?.cardWidth);
+assert.equal(serverCapacityRows.get("battlefield:0:self")?.slotCount, 3);
+assert.equal(serverCapacityRows.get("opponent:hand")?.state, "empty");
 
 const serverLocationPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],
@@ -89,9 +119,37 @@ assert.deepEqual(
   [["base", "drift"], ["battlefieldUnit", "drift"]]
 );
 
+const scrollPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"],
+  laneObjects: {
+    0: {
+      own: range("p1-left", 14),
+      opposing: range("p2-left", 14),
+      standby: range("left-standby", 9)
+    },
+    1: {
+      own: range("p1-right", 2),
+      opposing: range("p2-right", 2),
+      standby: range("right-standby", 2)
+    }
+  },
+  plans: {
+    standbyPlan: plan("standby", 9, 9, 8, 40),
+    unitPlan: plan("battlefield-unit", 14, 14, 12, 42)
+  }
+}));
+const scrollCapacityRows = new Map(scrollPlan.capacityRows.map((row) => [row.key, row]));
+assert.equal(scrollCapacityRows.get("battlefield:0:self")?.state, "scroll");
+assert.equal(scrollCapacityRows.get("battlefield:0:self")?.overflowCount, 2);
+assert.equal(scrollCapacityRows.get("battlefield:0:standby")?.state, "scroll");
+assert.equal(scrollCapacityRows.get("battlefield:0:standby")?.overflowCount, 1);
+assert.equal(scrollCapacityRows.get("battlefield:1:self")?.state, "stable");
+
 console.log("Wire table authority plan check passed.");
 
-function table({ laneSources, playerSources, standbySources, plans = {} }) {
+function table({ laneObjects = {}, laneSources, playerSources, standbySources, plans = {} }) {
   return {
     battlefield: {
       lanes: laneSources.map((source, index) => ({
@@ -101,12 +159,12 @@ function table({ laneSources, playerSources, standbySources, plans = {} }) {
         hiddenStandbyCount: index,
         index,
         occupantSplitSource: source,
-        opposingOccupants: index === 0 ? ["p2-unit-1"] : ["p2-unit-2", "p2-unit-3"],
-        ownOccupants: index === 0 ? ["p1-unit-1", "p1-unit-2"] : ["p1-unit-3"],
+        opposingOccupants: laneObjects[index]?.opposing ?? (index === 0 ? ["p2-unit-1"] : ["p2-unit-2", "p2-unit-3"]),
+        ownOccupants: laneObjects[index]?.own ?? (index === 0 ? ["p1-unit-1", "p1-unit-2"] : ["p1-unit-3"]),
         scoredThisTurnPlayerIds: [],
         standbySlotCount: 2,
         standbySlotSource: standbySources[index],
-        standbySlots: [{ slotId: `standby-${index}-1` }, { slotId: `standby-${index}-2` }],
+        standbySlots: (laneObjects[index]?.standby ?? [`standby-${index}-1`, `standby-${index}-2`]).map((slotId) => ({ slotId })),
         zonePlayerId: index === 0 ? "P1" : "P2"
       })),
       objects: {},
@@ -140,27 +198,40 @@ function plan(kind, itemCount, slotCount = itemCount, visibleSlotCount = Math.mi
     hand: 74,
     standby: 52
   };
+  const scrollAfterByKind = {
+    base: 10,
+    "battlefield-unit": 12,
+    hand: 12,
+    standby: 8
+  };
   const width = cardWidth ?? widths[kind] ?? 0;
+  const scrollAfter = scrollAfterByKind[kind] ?? 12;
+  const visibleSlots = Math.min(slotCount, visibleSlotCount, scrollAfter);
+  const overflowCount = Math.max(0, slotCount - visibleSlots);
   return {
     capacity: "unbounded",
     cardHeight: Math.round(width / (744 / 1039)),
     cardWidth: width,
     density: itemCount <= 3 ? "sparse" : "normal",
-    fit: "elastic-rail",
+    fit: overflowCount > 0 ? "overflow-rail" : "elastic-rail",
     gap: 4,
     itemCount,
     kind,
     layout: "rail",
     minSlots: 0,
-    overflow: "none",
-    overflowCount: 0,
-    scrollAfter: 12,
+    overflow: overflowCount > 0 ? "scroll" : "none",
+    overflowCount,
+    scrollAfter,
     slotCount,
-    visibleSlotCount
+    visibleSlotCount: visibleSlots
   };
 }
 
-function loadTsModule(sourcePath) {
+function range(prefix, count) {
+  return Array.from({ length: count }, (_, index) => `${prefix}-${index + 1}`);
+}
+
+function loadTsModule(sourcePath, globals = {}) {
   const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
   const output = ts.transpileModule(source, {
     compilerOptions: {
@@ -169,6 +240,7 @@ function loadTsModule(sourcePath) {
     }
   }).outputText;
   const moduleShim = { exports: {} };
-  new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+  const globalNames = Object.keys(globals);
+  new Function("exports", "module", ...globalNames, output)(moduleShim.exports, moduleShim, ...Object.values(globals));
   return moduleShim.exports;
 }

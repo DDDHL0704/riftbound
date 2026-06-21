@@ -25,7 +25,8 @@ import {
   type WireTimelineObjectState,
   WireCardSlot,
   WirePublicPile,
-  WireStackCount
+  WireStackCount,
+  resolveWireCardFlowRenderPlan
 } from "../components/match/wireCardFlow";
 import {
   buildWireTableViewModel,
@@ -903,7 +904,14 @@ function WireBattlefieldStandbyZone({
   specs: Record<string, BehaviorSpec>;
 }) {
   const slots = lane.standbySlots;
-  const emptySlotCount = slots.length > 0 ? 0 : Math.max(1, plan.minSlots);
+  const slotCount = Math.max(slots.length, plan.minSlots);
+  const flowPlan = resolveWireCardFlowRenderPlan({
+    itemCount: slots.length,
+    minSlots: plan.minSlots,
+    sizingPlan: plan,
+    slotCount
+  });
+  const emptySlotCount = slots.length > 0 ? 0 : Math.max(1, flowPlan.minSlots);
 
   return (
     <section
@@ -914,22 +922,22 @@ function WireBattlefieldStandbyZone({
       data-wire-battlefield-standby-source={lane.standbySlotSource}
     >
       <div
-        className={`wire-card-flow wire-card-flow-standby wire-card-flow-rail wire-flow-${plan.density}`}
-        data-flow-capacity={String(plan.capacity)}
-        data-flow-card-height={plan.cardHeight}
-        data-flow-card-width={plan.cardWidth}
+        className={`wire-card-flow wire-card-flow-standby wire-card-flow-rail wire-flow-${flowPlan.density}`}
+        data-flow-capacity={String(flowPlan.capacity)}
+        data-flow-card-height={flowPlan.cardHeight}
+        data-flow-card-width={flowPlan.cardWidth}
         data-flow-count={slots.length}
-        data-flow-density={plan.density}
-        data-flow-fit={plan.fit}
-        data-flow-kind={plan.kind}
-        data-flow-layout={plan.layout}
-        data-flow-min-slots={plan.minSlots}
-        data-flow-overflow={plan.overflow}
-        data-flow-overflow-count={plan.overflowCount}
-        data-flow-scroll-after={plan.scrollAfter}
-        data-flow-slots={Math.max(slots.length, plan.minSlots)}
-        data-flow-visible-slots={plan.visibleSlotCount}
-        style={wirePlanStyle(plan)}
+        data-flow-density={flowPlan.density}
+        data-flow-fit={flowPlan.fit}
+        data-flow-kind={flowPlan.kind}
+        data-flow-layout={flowPlan.layout}
+        data-flow-min-slots={flowPlan.minSlots}
+        data-flow-overflow={flowPlan.overflow}
+        data-flow-overflow-count={flowPlan.overflowCount}
+        data-flow-scroll-after={flowPlan.scrollAfter}
+        data-flow-slots={slotCount}
+        data-flow-visible-slots={flowPlan.visibleSlotCount}
+        style={wirePlanStyle(flowPlan)}
       >
         {slots.map((slot) => (
           <WireStandbySlotCard

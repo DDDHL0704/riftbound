@@ -4,9 +4,15 @@ import type {
   WireBattlefieldStandbySlotSource,
   WireTableViewModel
 } from "./wireTableViewModel";
-import type { WireCardFlowKind, WireCardFlowPlan } from "./wireCardFlowPlan";
+import {
+  buildWireCardFlowPlan,
+  resolveWireCardFlowRenderPlan,
+  type WireCardFlowKind,
+  type WireCardFlowPlan
+} from "./wireCardFlowPlan";
 
 export type WireTableAuthorityState = "fallback" | "missing" | "mixed" | "server";
+export type WireTableCapacityState = "empty" | "stable" | "scroll";
 export type WireTableConsistencyState = "consistent" | "drift" | "missing";
 
 export type WireTableAuthorityMetric = {
@@ -59,7 +65,25 @@ export type WireTableConsistencyRow = {
   visibleSlotCount: number;
 };
 
+export type WireTableCapacityRow = {
+  cardHeight: number;
+  cardWidth: number;
+  density: string;
+  fit: string;
+  itemCount: number;
+  key: string;
+  kind: WireCardFlowKind;
+  label: string;
+  overflow: string;
+  overflowCount: number;
+  slotCount: number;
+  state: WireTableCapacityState;
+  stateLabel: string;
+  visibleSlotCount: number;
+};
+
 export type WireTableAuthorityPlan = {
+  capacityRows: WireTableCapacityRow[];
   consistencyIssueCount: number;
   consistencyRows: WireTableConsistencyRow[];
   consistencyState: WireTableConsistencyState;
@@ -103,6 +127,7 @@ export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTabl
 
   const missingPlayerCount = Math.max(0, REQUIRED_PLAYER_COUNT - players.length);
   const missingLaneCount = Math.max(0, REQUIRED_LANE_COUNT - lanes.length);
+  const capacityRows = buildCapacityRows(table);
   const consistencyRows = buildConsistencyRows(table);
   const consistencyIssueCount = consistencyRows.filter((row) => row.state !== "consistent").length;
   const consistencyState = resolveConsistencyState(consistencyRows.map((row) => row.state));
@@ -118,6 +143,7 @@ export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTabl
   const state = resolveAuthorityState(rows.map((row) => row.state));
 
   return {
+    capacityRows,
     consistencyIssueCount,
     consistencyRows,
     consistencyState,
@@ -159,6 +185,97 @@ export function buildWireTableAuthorityPlan(table: WireTableViewModel): WireTabl
     state,
     stateLabel: authorityStateLabel(state),
     summary: authoritySummary(state, issueCount)
+  };
+}
+
+function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
+  return [
+    ...table.players.flatMap((player) => [
+      capacityRow({
+        itemCount: player.baseObjectIds.length,
+        key: `${player.side}:base`,
+        kind: "base",
+        label: `${player.label} 基地流`,
+        minSlots: 1,
+        sizingPlan: table.playerPlans.basePlan
+      }),
+      capacityRow({
+        itemCount: player.side === "opponent" ? player.hiddenHandIds.length : player.handIds.length,
+        key: `${player.side}:hand`,
+        kind: "hand",
+        label: `${player.label} 手牌流`,
+        sizingPlan: table.playerPlans.handPlan
+      })
+    ]),
+    ...table.battlefield.lanes.flatMap((lane) => [
+      capacityRow({
+        itemCount: lane.opposingOccupants.length,
+        key: `battlefield:${lane.index}:opponent`,
+        kind: "battlefield-unit",
+        label: `${lane.index === 0 ? "左战场" : "右战场"} 对方单位`,
+        minSlots: 3,
+        sizingPlan: table.battlefield.unitPlan
+      }),
+      capacityRow({
+        itemCount: lane.ownOccupants.length,
+        key: `battlefield:${lane.index}:self`,
+        kind: "battlefield-unit",
+        label: `${lane.index === 0 ? "左战场" : "右战场"} 我方单位`,
+        minSlots: 3,
+        sizingPlan: table.battlefield.unitPlan
+      }),
+      capacityRow({
+        itemCount: lane.standbySlots.length,
+        key: `battlefield:${lane.index}:standby`,
+        kind: "standby",
+        label: `${lane.index === 0 ? "左战场" : "右战场"} 待命槽`,
+        minSlots: 1,
+        sizingPlan: table.battlefield.standbyPlan
+      })
+    ])
+  ];
+}
+
+function capacityRow({
+  itemCount,
+  key,
+  kind,
+  label,
+  minSlots = 0,
+  sizingPlan
+}: {
+  itemCount: number;
+  key: string;
+  kind: WireCardFlowKind;
+  label: string;
+  minSlots?: number;
+  sizingPlan?: WireCardFlowPlan;
+}): WireTableCapacityRow {
+  const safeItemCount = Math.max(0, itemCount);
+  const safeMinSlots = Math.max(0, minSlots);
+  const slotCount = Math.max(safeItemCount, safeMinSlots);
+  const plan = resolveWireCardFlowRenderPlan({
+    itemCount: safeItemCount,
+    minSlots: safeMinSlots,
+    sizingPlan: sizingPlan ?? buildWireCardFlowPlan({ itemCount: safeItemCount, kind, minSlots: safeMinSlots }),
+    slotCount
+  });
+  const state = capacityState(plan);
+  return {
+    cardHeight: plan.cardHeight,
+    cardWidth: plan.cardWidth,
+    density: plan.density,
+    fit: plan.fit,
+    itemCount: plan.itemCount,
+    key,
+    kind,
+    label,
+    overflow: plan.overflow,
+    overflowCount: plan.overflowCount,
+    slotCount: plan.slotCount,
+    state,
+    stateLabel: capacityStateLabel(state),
+    visibleSlotCount: plan.visibleSlotCount
   };
 }
 
@@ -223,6 +340,29 @@ function consistencyRowState(
   }
 
   return "consistent";
+}
+
+function capacityState(plan: WireCardFlowPlan): WireTableCapacityState {
+  if (plan.overflow === "scroll") {
+    return "scroll";
+  }
+
+  if (plan.itemCount === 0) {
+    return "empty";
+  }
+
+  return "stable";
+}
+
+function capacityStateLabel(state: WireTableCapacityState): string {
+  switch (state) {
+    case "empty":
+      return "空槽";
+    case "stable":
+      return "稳定";
+    case "scroll":
+      return "滚动";
+  }
 }
 
 function resolveConsistencyState(states: WireTableConsistencyState[]): WireTableConsistencyState {

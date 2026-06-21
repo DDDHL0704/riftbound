@@ -6,12 +6,13 @@ import type { PromptObjectState } from "../../utils/promptInteraction";
 import type { WireTableObjectHint } from "./wireTableInteractionModel";
 import {
   buildWireCardFlowPlan,
+  resolveWireCardFlowRenderPlan,
   type WireCardFlowKind,
   type WireCardFlowPlan
 } from "./wireCardFlowPlan";
 import { buildWirePilePlan, type WirePileKind, type WirePilePlan } from "./wirePilePlan";
 
-export { buildWireCardFlowPlan, type WireCardFlowKind, type WireCardFlowPlan } from "./wireCardFlowPlan";
+export { buildWireCardFlowPlan, resolveWireCardFlowRenderPlan, type WireCardFlowKind, type WireCardFlowPlan } from "./wireCardFlowPlan";
 export { buildWirePilePlan, type WirePileKind, type WirePilePlan } from "./wirePilePlan";
 
 export type WireTimelineObjectState = "event" | "rule";
@@ -55,7 +56,12 @@ export function WireCardFlow({
 }: WireCardFlowProps) {
   const sizingPlan = providedPlan ?? buildWireCardFlowPlan({ itemCount: ids.length, kind, minSlots });
   const slotCount = renderEmptySlots ? Math.max(sizingPlan.slotCount, ids.length, minSlots) : ids.length;
-  const flowPlan = renderedFlowPlan(sizingPlan, ids.length, minSlots, slotCount);
+  const flowPlan = resolveWireCardFlowRenderPlan({
+    itemCount: ids.length,
+    minSlots,
+    sizingPlan,
+    slotCount
+  });
   const slots = renderEmptySlots ? Array.from({ length: slotCount }, (_, index) => ids[index]) : ids;
 
   return (
@@ -178,27 +184,6 @@ function wireCardFlowStyle(flowPlan: WireCardFlowPlan): WireCssProperties {
     "--wire-card-w": `${flowPlan.cardWidth}px`,
     "--wire-flow-gap": `${flowPlan.gap}px`,
     "--wire-flow-visible-slots": flowPlan.visibleSlotCount
-  };
-}
-
-function renderedFlowPlan(
-  sizingPlan: WireCardFlowPlan,
-  itemCount: number,
-  minSlots: number,
-  slotCount: number
-): WireCardFlowPlan {
-  const visibleSlotCount = Math.min(slotCount, sizingPlan.scrollAfter);
-  const overflowCount = Math.max(0, slotCount - visibleSlotCount);
-  const overflow = overflowCount > 0 ? "scroll" : "none";
-  return {
-    ...sizingPlan,
-    fit: overflow === "scroll" ? "overflow-rail" : sizingPlan.layout === "rail" ? "elastic-rail" : "fixed-slot",
-    itemCount,
-    minSlots,
-    overflow,
-    overflowCount,
-    slotCount,
-    visibleSlotCount
   };
 }
 
