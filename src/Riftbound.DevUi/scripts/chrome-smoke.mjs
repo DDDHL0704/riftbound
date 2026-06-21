@@ -2006,12 +2006,16 @@ async function runWireRuleObjectRefSmoke(cdp) {
     const tableObject = document.querySelector('[data-object-id="fixture-left-battlefield"]');
     const selectedRef = document.querySelector('[data-rule-object-ref="fixture-left-battlefield"][data-selected="true"]');
     const selectedObjectContext = document.querySelector('[data-wire-selected-object-context="fixture-left-battlefield"]');
+    const selectedLayout = document.querySelector("[data-wire-table-selected-layout-state]");
     return {
       contextAuthority: selectedObjectContext?.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-authority") ?? null,
       contextSource: selectedObjectContext?.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-source") ?? null,
       contextText: selectedObjectContext?.textContent ?? "",
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
+      selectedLayoutKind: selectedLayout?.getAttribute("data-wire-table-selected-layout-kind") ?? null,
+      selectedLayoutState: selectedLayout?.getAttribute("data-wire-table-selected-layout-state") ?? null,
+      selectedLayoutZone: selectedLayout?.getAttribute("data-wire-table-selected-layout-zone") ?? null,
       hasSelectedObjectContext: Boolean(selectedObjectContext),
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
@@ -2022,9 +2026,14 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const unitResult = await evaluateJson(cdp, `(() => {
     const tableObject = document.querySelector('[data-object-id="p2-right-1"]');
     const selectedRef = document.querySelector('[data-rule-object-ref="p2-right-1"][data-selected="true"]');
+    const selectedLayout = document.querySelector("[data-wire-table-selected-layout-state]");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
+      selectedLayoutCapacityRow: selectedLayout?.getAttribute("data-wire-table-selected-layout-capacity-row") ?? null,
+      selectedLayoutKind: selectedLayout?.getAttribute("data-wire-table-selected-layout-kind") ?? null,
+      selectedLayoutState: selectedLayout?.getAttribute("data-wire-table-selected-layout-state") ?? null,
+      selectedLayoutZone: selectedLayout?.getAttribute("data-wire-table-selected-layout-zone") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
@@ -2534,9 +2543,16 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (battlefieldResult.contextSource !== "服务端关联对象") failures.push(`battlefield ref context source unexpected: ${battlefieldResult.contextSource}`);
   if (!battlefieldResult.contextText.includes("服务端关联对象")) failures.push("battlefield ref context server relation section missing");
   if (!battlefieldResult.contextText.includes("相关战场")) failures.push("battlefield ref context relation role missing");
+  if (battlefieldResult.selectedLayoutState !== "located") failures.push(`battlefield ref selected layout state unexpected: ${battlefieldResult.selectedLayoutState}`);
+  if (battlefieldResult.selectedLayoutKind !== "site") failures.push(`battlefield ref selected layout kind unexpected: ${battlefieldResult.selectedLayoutKind}`);
+  if (battlefieldResult.selectedLayoutZone !== "battlefield:0:site") failures.push(`battlefield ref selected layout zone unexpected: ${battlefieldResult.selectedLayoutZone}`);
   if (battlefieldResult.detailLayerOpen) failures.push("battlefield ref opened detail layer");
   if (unitResult.selected !== "true") failures.push("unit ref did not focus unit card");
   if (!unitResult.selectedRef) failures.push("unit ref did not show selected state");
+  if (unitResult.selectedLayoutState !== "located") failures.push(`unit ref selected layout state unexpected: ${unitResult.selectedLayoutState}`);
+  if (unitResult.selectedLayoutKind !== "battlefield-unit") failures.push(`unit ref selected layout kind unexpected: ${unitResult.selectedLayoutKind}`);
+  if (unitResult.selectedLayoutCapacityRow !== "battlefield:1:opponent") failures.push(`unit ref selected layout capacity row unexpected: ${unitResult.selectedLayoutCapacityRow}`);
+  if (unitResult.selectedLayoutZone !== "battlefield:1:opponent") failures.push(`unit ref selected layout zone unexpected: ${unitResult.selectedLayoutZone}`);
   if (unitResult.detailLayerOpen) failures.push("unit ref opened detail layer");
   if (eventResult.selected !== "true") failures.push("event ref did not focus source card");
   if (!eventResult.selectedRef) failures.push("event ref did not show selected state");
