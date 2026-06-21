@@ -1270,6 +1270,10 @@ async function runWireClickSelectionSmoke(cdp) {
       routeText: route?.textContent ?? "",
       ruleQueueState: ruleQueue?.getAttribute("data-wire-rule-queue-state") ?? null,
       ruleSequenceCount: document.querySelectorAll("[data-rule-sequence-lane]").length,
+      ruleSequenceDetailIds: Array.from(document.querySelectorAll("[data-rule-sequence-detail-id]"))
+        .map((node) => node.getAttribute("data-rule-sequence-detail-id") ?? ""),
+      ruleResponsibilityDetailIds: Array.from(document.querySelectorAll("[data-rule-responsibility-detail-id]"))
+        .map((node) => node.getAttribute("data-rule-responsibility-detail-id") ?? ""),
       ruleSequenceRefCount: document.querySelectorAll(".wire-rule-sequence [data-rule-object-ref]").length
     };
   })()`);
@@ -1281,12 +1285,27 @@ async function runWireClickSelectionSmoke(cdp) {
     return {
       hidden: inspector?.hasAttribute("hidden") ?? true,
       laneCount: inspector?.querySelectorAll("[data-rule-inspector-lane]").length ?? 0,
+      sequenceDetailIds: Array.from(inspector?.querySelectorAll("[data-rule-inspector-sequence-detail-id]") ?? [])
+        .map((node) => node.getAttribute("data-rule-inspector-sequence-detail-id") ?? ""),
       sequenceRefCount: inspector?.querySelectorAll(".wire-rule-inspector-sequence [data-rule-object-ref]").length ?? 0,
       sequenceCount: inspector?.querySelectorAll("[data-rule-inspector-sequence-lane]").length ?? 0,
       text: inspector?.textContent ?? "",
       toggleExpanded: document.querySelector("[data-rule-inspector-toggle]")?.getAttribute("aria-expanded") ?? null
     };
   })()`);
+
+  const ruleSequenceDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-sequence");
+  const ruleSequenceDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-sequence", ruleSequenceDetailTarget);
+  await delay(150);
+  const ruleSequenceDetailResult = await timelineDetailSummary(cdp);
+  const ruleResponsibilityDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-responsibility");
+  const ruleResponsibilityDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-responsibility", ruleResponsibilityDetailTarget);
+  await delay(150);
+  const ruleResponsibilityDetailResult = await timelineDetailSummary(cdp);
+  const ruleInspectorSequenceDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-inspector");
+  const ruleInspectorSequenceDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-inspector", ruleInspectorSequenceDetailTarget);
+  await delay(150);
+  const ruleInspectorSequenceDetailResult = await timelineDetailSummary(cdp);
 
   await clickActionCandidateStepObject(cdp, "p1-hand-spell");
   await delay(150);
@@ -1774,6 +1793,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.ruleFlowText.includes("近期事件")) failures.push("wire rule queue resolution lane missing");
   if (!actionMapResult.ruleFlowText.includes("下一步")) failures.push("wire rule queue next step missing");
   if (actionMapResult.ruleSequenceCount < 1) failures.push("wire rule queue sequence items missing");
+  if (!actionMapResult.ruleSequenceDetailIds.some(Boolean)) {
+    failures.push(`wire rule queue sequence detail id missing: ${actionMapResult.ruleSequenceDetailIds.join(",")}`);
+  }
+  if (!actionMapResult.ruleResponsibilityDetailIds.some(Boolean)) {
+    failures.push(`wire rule queue responsibility detail id missing: ${actionMapResult.ruleResponsibilityDetailIds.join(",")}`);
+  }
   if (actionMapResult.ruleSequenceRefCount < 1) failures.push("wire rule queue sequence object refs missing");
   for (const sectionKey of ["stack", "task", "trigger", "resolution"]) {
     if (!actionMapResult.ruleSectionKeys.includes(sectionKey)) failures.push(`wire rule queue section missing: ${sectionKey}`);
@@ -1792,7 +1817,22 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!ruleInspectorResult.text.includes("下一步")) failures.push("wire rule inspector next step missing");
   if (ruleInspectorResult.laneCount !== 4) failures.push(`wire rule inspector lane count mismatch: ${ruleInspectorResult.laneCount}`);
   if (ruleInspectorResult.sequenceCount < 1) failures.push("wire rule inspector sequence items missing");
+  if (!ruleInspectorResult.sequenceDetailIds.some(Boolean)) {
+    failures.push(`wire rule inspector sequence detail id missing: ${ruleInspectorResult.sequenceDetailIds.join(",")}`);
+  }
   if (ruleInspectorResult.sequenceRefCount < 1) failures.push("wire rule inspector sequence object refs missing");
+  if (ruleSequenceDetailClickId !== ruleSequenceDetailTarget) failures.push(`rule sequence detail click unexpected: ${ruleSequenceDetailClickId}`);
+  if (ruleSequenceDetailResult.detailId !== ruleSequenceDetailTarget) failures.push(`rule sequence detail panel unexpected: ${ruleSequenceDetailResult.detailId}`);
+  if (ruleSequenceDetailResult.panelState !== "rule") failures.push(`rule sequence detail panel state unexpected: ${ruleSequenceDetailResult.panelState}`);
+  if (!ruleSequenceDetailResult.text.includes("服务端")) failures.push("rule sequence detail authority text missing");
+  if (ruleResponsibilityDetailClickId !== ruleResponsibilityDetailTarget) failures.push(`rule responsibility detail click unexpected: ${ruleResponsibilityDetailClickId}`);
+  if (ruleResponsibilityDetailResult.detailId !== ruleResponsibilityDetailTarget) failures.push(`rule responsibility detail panel unexpected: ${ruleResponsibilityDetailResult.detailId}`);
+  if (ruleResponsibilityDetailResult.panelState !== "rule") failures.push(`rule responsibility detail panel state unexpected: ${ruleResponsibilityDetailResult.panelState}`);
+  if (!ruleResponsibilityDetailResult.text.includes("服务端")) failures.push("rule responsibility detail authority text missing");
+  if (ruleInspectorSequenceDetailClickId !== ruleInspectorSequenceDetailTarget) failures.push(`rule inspector sequence detail click unexpected: ${ruleInspectorSequenceDetailClickId}`);
+  if (ruleInspectorSequenceDetailResult.detailId !== ruleInspectorSequenceDetailTarget) failures.push(`rule inspector sequence detail panel unexpected: ${ruleInspectorSequenceDetailResult.detailId}`);
+  if (ruleInspectorSequenceDetailResult.panelState !== "rule") failures.push(`rule inspector sequence detail panel state unexpected: ${ruleInspectorSequenceDetailResult.panelState}`);
+  if (!ruleInspectorSequenceDetailResult.text.includes("服务端")) failures.push("rule inspector sequence detail authority text missing");
   if (actionMapResult.candidatePlanCount < 1) failures.push("action map candidate plan cards missing");
   if (actionMapResult.candidatePlanEnabled !== "true") failures.push("PLAY_CARD candidate plan did not preserve enabled state");
   if (!actionMapResult.candidatePlanText.includes("命令字段 5")) failures.push("PLAY_CARD candidate plan command field count missing");
@@ -3250,6 +3290,53 @@ async function clickWireDetail(cdp, detailId) {
   if (!result.result?.value) {
     throw new Error(`Wire detail trigger not found: ${detailId}`);
   }
+}
+
+async function clickScopedWireDetail(cdp, scopeSelector, detailId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const scope = document.querySelector(${JSON.stringify(scopeSelector)});
+      const element = scope?.querySelector(${JSON.stringify(`[data-wire-detail-id="${detailId}"]`)});
+      if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
+      element.click();
+      return element.getAttribute("data-wire-detail-id") ?? "";
+    })()`,
+    returnByValue: true
+  });
+  const clickedDetailId = String(result.result?.value ?? "");
+  if (!clickedDetailId) {
+    throw new Error(`Scoped wire detail trigger not found: ${scopeSelector} -> ${detailId}`);
+  }
+  return clickedDetailId;
+}
+
+async function firstScopedWireDetailId(cdp, scopeSelector) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const scope = document.querySelector(${JSON.stringify(scopeSelector)});
+      const element = scope?.querySelector("[data-wire-detail-id]");
+      return element?.getAttribute("data-wire-detail-id") ?? "";
+    })()`,
+    returnByValue: true
+  });
+  const detailId = String(result.result?.value ?? "");
+  if (!detailId) {
+    throw new Error(`Scoped wire detail target not found: ${scopeSelector}`);
+  }
+  return detailId;
+}
+
+async function timelineDetailSummary(cdp) {
+  return evaluateJson(cdp, `(() => {
+    const panel = document.querySelector(".wire-timeline-detail");
+    const trigger = document.querySelector('[data-detail-selected="true"][data-wire-detail-id]');
+    return {
+      detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
+      panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? "",
+      text: panel?.textContent ?? "",
+      triggerId: trigger?.getAttribute("data-wire-detail-id") ?? ""
+    };
+  })()`);
 }
 
 async function clickSelectedProjectionDetail(cdp, detailId) {

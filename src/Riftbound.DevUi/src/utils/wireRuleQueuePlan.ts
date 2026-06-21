@@ -56,6 +56,7 @@ export type WireRuleQueueLane = {
 };
 
 export type WireRuleQueueSequenceItem = {
+  detail?: WireRuleQueueDetailPlan;
   detailLabel: string;
   key: string;
   lane: WireRuleQueueLaneKey;
@@ -107,6 +108,7 @@ export type WireRuleQueueResponsibilitySubmitPlan = {
 export type WireRuleQueueResponsibilityItem = {
   actorLabel: string;
   actionLabel: string;
+  detail?: WireRuleQueueDetailPlan;
   detailLabel: string;
   key: string;
   label: string;
@@ -138,6 +140,7 @@ export type WireRuleQueueInspectorLane = {
 };
 
 export type WireRuleQueueInspectorSequence = {
+  detail?: WireRuleQueueDetailPlan;
   detailLabel: string;
   key: string;
   laneLabel: string;
@@ -430,7 +433,6 @@ export function buildWireRuleQueuePlan({
     { key: "resolution", label: "近期事件", value: `${resolutionCount} 项` },
     { key: "coverage", label: "事件覆盖", value: `${coverage.filter((row) => row.state !== "empty").length} 类` }
   ];
-  const sequence = queueSequence({ battleResolutions, battlefieldResolutions, ruleEvents, stack, tasks, triggers });
   const nextStep = nextStepLabel(state);
   const objectIndex = buildCardObjectIndex(snapshot);
   const interactionModel = buildPromptInteractionModel(prompt);
@@ -445,6 +447,7 @@ export function buildWireRuleQueuePlan({
     tasks,
     triggers
   });
+  const sequence = queueSequence({ battleResolutions, battlefieldResolutions, ruleEvents, sections, stack, tasks, triggers });
   const focus = focusPlanFor({ activeLaneKey, interactionModel, prompt, sections, state });
   const responsibility = responsibilityPlanFor({ activeLaneKey, playerId, prompt, sequence, state });
   const selectedObject = selectedObjectPlanFor({
@@ -567,6 +570,8 @@ function selectedObjectSequenceRelations(
 
     return [{
       detailLabel: item.detailLabel,
+      detailId: item.detail?.id,
+      detail: item.detail,
       key: `selected:sequence:${item.key}:${roleLabel}`,
       laneKey: item.lane,
       laneLabel: laneLabel(item.lane),
@@ -592,6 +597,8 @@ function selectedObjectResponsibilityRelations(
     const state = selectedObjectRelationStateFromResponsibility(item.state);
     return [{
       detailLabel: item.detailLabel,
+      detailId: item.detail?.id,
+      detail: item.detail,
       key: `selected:responsibility:${item.key}:${roleLabel}`,
       laneKey: item.lane,
       laneLabel: laneLabel(item.lane),
@@ -776,6 +783,7 @@ function responsibilityItemFor({
   return {
     actorLabel: responsibilityActorLabel(item),
     actionLabel: responsibilityActionLabel(item.lane, responsibilityState),
+    detail: item.detail,
     detailLabel: item.detailLabel,
     key: `responsibility:${item.key}`,
     label: item.label,
@@ -1686,6 +1694,7 @@ function inspectorPlan({
     nextStepLabel,
     sequence: sequence.map((item) => ({
       detailLabel: item.detailLabel,
+      detail: item.detail,
       key: item.key,
       label: item.label,
       laneLabel: laneLabel(item.lane),
@@ -1956,6 +1965,7 @@ function queueSequence({
   battleResolutions,
   battlefieldResolutions,
   ruleEvents,
+  sections,
   stack,
   tasks,
   triggers
@@ -1963,12 +1973,18 @@ function queueSequence({
   battleResolutions: Array<Record<string, unknown>>;
   battlefieldResolutions: Array<Record<string, unknown>>;
   ruleEvents: GameEvent[];
+  sections: WireRuleQueueSectionPlan[];
   stack: Array<Record<string, unknown>>;
   tasks: Array<Record<string, unknown>>;
   triggers: Array<Record<string, unknown>>;
 }): WireRuleQueueSequenceItem[] {
+  const stackSection = sectionItems(sections, "stack");
+  const taskSection = sectionItems(sections, "task");
+  const triggerSection = sectionItems(sections, "trigger");
+  const resolutionSection = sectionItems(sections, "resolution");
   return [
     ...stack.map((item, index) => ({
+      detail: stackSection[index]?.detail,
       detailLabel: stackEffectLabel(asString(item.effectKind, "")),
       key: `stack:${asString(item.stackItemId, String(index))}`,
       label: `结算链 ${stack.length - index}`,
@@ -1981,6 +1997,7 @@ function queueSequence({
       stateLabel: asString(item.controllerId, "未知控制者")
     })),
     ...tasks.map((task, index) => ({
+      detail: taskSection[index]?.detail,
       detailLabel: taskKindLabel(asString(task.kind, "")),
       key: `task:${asString(task.taskId, String(index))}`,
       label: `任务 ${index + 1}`,
@@ -1993,6 +2010,7 @@ function queueSequence({
       stateLabel: asString(task.status, "状态未提供")
     })),
     ...triggers.map((trigger, index) => ({
+      detail: triggerSection[index]?.detail,
       detailLabel: stackEffectLabel(asString(trigger.effectKind, "")),
       key: `trigger:${asString(trigger.triggerId, String(index))}`,
       label: `触发 ${index + 1}`,
@@ -2004,6 +2022,7 @@ function queueSequence({
       stateLabel: asString(trigger.controllerId, "无控制者")
     })),
     ...battlefieldResolutions.map((resolution, index) => ({
+      detail: resolutionSection[index]?.detail,
       detailLabel: battlefieldResolutionLabel(asString(resolution.kind, "")),
       key: `battlefield-resolution:${asString(resolution.resolutionId, String(index))}`,
       label: `战场事件 ${index + 1}`,
@@ -2018,6 +2037,7 @@ function queueSequence({
       tickLabel: tickLabel(resolution.tick)
     })),
     ...battleResolutions.map((resolution, index) => ({
+      detail: resolutionSection[battlefieldResolutions.length + index]?.detail,
       detailLabel: battleResolutionLabel(asString(resolution.kind, "")),
       key: `battle-resolution:${asString(resolution.resolutionId, String(index))}`,
       label: `战斗事件 ${index + 1}`,
@@ -2040,6 +2060,7 @@ function queueSequence({
     ...ruleEvents.map((event, index) => {
       const refs = ruleEventObjectRefs(event);
       return {
+        detail: resolutionSection[battlefieldResolutions.length + battleResolutions.length + index]?.detail,
         detailLabel: eventKindLabel(event.kind),
         key: `rule-event:${event.kind}:${index}`,
         label: `服务端事件 ${index + 1}`,
@@ -2050,6 +2071,13 @@ function queueSequence({
       };
     })
   ].slice(0, 8);
+}
+
+function sectionItems(
+  sections: WireRuleQueueSectionPlan[],
+  key: WireRuleQueueLaneKey
+): WireRuleQueueItemPlan[] {
+  return sections.find((section) => section.key === key)?.items ?? [];
 }
 
 function ruleQueueSections({

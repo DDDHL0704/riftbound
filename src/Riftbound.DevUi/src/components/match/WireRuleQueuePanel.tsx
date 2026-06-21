@@ -58,7 +58,9 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
           objects={objects}
           onInspectObject={onInspectObject}
           onOpenLayer={() => setResponsibilityLayerOpen(true)}
+          onSelectDetail={onSelectDetail}
           plan={plan.responsibility}
+          selectedDetailId={selectedDetailId}
           selectedObjectId={selectedObjectId}
         />
         {responsibilityLayerOpen && (
@@ -66,7 +68,9 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
             objects={objects}
             onClose={() => setResponsibilityLayerOpen(false)}
             onInspectObject={onInspectObject}
+            onSelectDetail={onSelectDetail}
             plan={plan.responsibility}
+            selectedDetailId={selectedDetailId}
             selectedObjectId={selectedObjectId}
           />
         )}
@@ -79,6 +83,8 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
                 key={item.key}
                 objects={objects}
                 onInspectObject={onInspectObject}
+                onSelectDetail={onSelectDetail}
+                selectedDetailId={selectedDetailId}
                 selectedObjectId={selectedObjectId}
               />
             ))}
@@ -96,8 +102,10 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
         <RuleQueueInspector
           objects={objects}
           onInspectObject={onInspectObject}
+          onSelectDetail={onSelectDetail}
           open={inspectorOpen}
           plan={plan.inspector}
+          selectedDetailId={selectedDetailId}
           selectedObjectId={selectedObjectId}
         />
       </section>
@@ -345,14 +353,18 @@ function RuleFocusActionBridge({
 function RuleQueueInspector({
   objects,
   onInspectObject,
+  onSelectDetail,
   open,
   plan,
+  selectedDetailId,
   selectedObjectId
 }: {
   objects: ObjectIndex;
   onInspectObject?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
   open: boolean;
   plan: WireRuleQueueInspectorPlan;
+  selectedDetailId?: string;
   selectedObjectId?: string;
 }) {
   return (
@@ -392,10 +404,21 @@ function RuleQueueInspector({
         {plan.sequence.length > 0 ? (
           <ol className="wire-rule-inspector-sequence">
             {plan.sequence.map((item) => (
-              <li data-rule-inspector-sequence-lane={item.laneLabel} key={item.key}>
+              <li
+                data-rule-inspector-sequence-detail-id={item.detail?.id ?? ""}
+                data-rule-inspector-sequence-lane={item.laneLabel}
+                key={item.key}
+              >
                 <span>{item.label}</span>
                 <strong>{item.laneLabel} / {item.detailLabel}</strong>
                 <small>{item.stateLabel} / {item.tickLabel ?? `${item.objectCount} 对象`}</small>
+                {item.detail ? (
+                  <RuleDetailButton
+                    detail={item.detail}
+                    onSelectDetail={onSelectDetail}
+                    selectedDetailId={selectedDetailId}
+                  />
+                ) : null}
                 <WireObjectRefChips
                   className="wire-rule-inspector-object-refs"
                   objects={objects}
@@ -457,14 +480,18 @@ function RuleResponsibilityTimeline({
   objects,
   onInspectObject,
   onOpenLayer,
+  onSelectDetail,
   plan,
+  selectedDetailId,
   selectedObjectId
 }: {
   layerOpen: boolean;
   objects: ObjectIndex;
   onInspectObject?: (objectId: string) => void;
   onOpenLayer: () => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
   plan: WireRuleQueueResponsibilityPlan;
+  selectedDetailId?: string;
   selectedObjectId?: string;
 }) {
   return (
@@ -500,6 +527,8 @@ function RuleResponsibilityTimeline({
               key={item.key}
               objects={objects}
               onInspectObject={onInspectObject}
+              onSelectDetail={onSelectDetail}
+              selectedDetailId={selectedDetailId}
               selectedObjectId={selectedObjectId}
             />
           ))}
@@ -513,13 +542,17 @@ function RuleResponsibilityLayer({
   objects,
   onClose,
   onInspectObject,
+  onSelectDetail,
   plan,
+  selectedDetailId,
   selectedObjectId
 }: {
   objects: ObjectIndex;
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
   plan: WireRuleQueueResponsibilityPlan;
+  selectedDetailId?: string;
   selectedObjectId?: string;
 }) {
   const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);
@@ -603,6 +636,8 @@ function RuleResponsibilityLayer({
                     key={item.key}
                     objects={objects}
                     onInspectObject={onInspectObject}
+                    onSelectDetail={onSelectDetail}
+                    selectedDetailId={selectedDetailId}
                     selectedObjectId={selectedObjectId}
                   />
                 ))}
@@ -623,15 +658,20 @@ function RuleResponsibilityLayerItem({
   item,
   objects,
   onInspectObject,
+  onSelectDetail,
+  selectedDetailId,
   selectedObjectId
 }: {
   item: WireRuleQueueResponsibilityItem;
   objects: ObjectIndex;
   onInspectObject?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
   selectedObjectId?: string;
 }) {
   return (
     <li
+      data-rule-responsibility-layer-detail-id={item.detail?.id ?? ""}
       data-rule-responsibility-layer-item={item.key}
       data-rule-responsibility-layer-lane={item.lane}
       data-rule-responsibility-layer-state={item.state}
@@ -642,6 +682,13 @@ function RuleResponsibilityLayerItem({
       </div>
       <span>{item.actionLabel} / {item.detailLabel}</span>
       <em>{item.actorLabel} / {item.objectCount} 对象</em>
+      {item.detail ? (
+        <RuleDetailButton
+          detail={item.detail}
+          onSelectDetail={onSelectDetail}
+          selectedDetailId={selectedDetailId}
+        />
+      ) : null}
       <small>{item.reason}</small>
       <WireObjectRefChips
         className="wire-rule-responsibility-layer-object-refs"
@@ -659,15 +706,20 @@ function RuleResponsibilityItem({
   item,
   objects,
   onInspectObject,
+  onSelectDetail,
+  selectedDetailId,
   selectedObjectId
 }: {
   item: WireRuleQueueResponsibilityItem;
   objects: ObjectIndex;
   onInspectObject?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
   selectedObjectId?: string;
 }) {
   return (
     <li
+      data-rule-responsibility-detail-id={item.detail?.id ?? ""}
       data-rule-responsibility-lane={item.lane}
       data-rule-responsibility-state={item.state}
       data-rule-responsibility-submit-ready={item.submit.canSubmit ? "true" : "false"}
@@ -680,6 +732,13 @@ function RuleResponsibilityItem({
       </div>
       <span>{item.actionLabel} / {item.detailLabel}</span>
       <em>{item.actorLabel} / {item.objectCount} 对象</em>
+      {item.detail ? (
+        <RuleDetailButton
+          detail={item.detail}
+          onSelectDetail={onSelectDetail}
+          selectedDetailId={selectedDetailId}
+        />
+      ) : null}
       <span
         className="wire-rule-responsibility-submit"
         data-rule-responsibility-submit={item.submit.state}
@@ -739,19 +798,30 @@ function RuleSequenceItem({
   item,
   objects,
   onInspectObject,
+  onSelectDetail,
+  selectedDetailId,
   selectedObjectId
 }: {
   item: WireRuleQueueSequenceItem;
   objects: ObjectIndex;
   onInspectObject?: (objectId: string) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
   selectedObjectId?: string;
 }) {
   return (
-    <li data-rule-sequence-lane={item.lane}>
+    <li data-rule-sequence-detail-id={item.detail?.id ?? ""} data-rule-sequence-lane={item.lane}>
       <small>{item.label}</small>
       <strong>{item.detailLabel}</strong>
       <span>{item.stateLabel}</span>
       <em>{item.tickLabel ?? `${item.objectCount} 对象`}</em>
+      {item.detail ? (
+        <RuleDetailButton
+          detail={item.detail}
+          onSelectDetail={onSelectDetail}
+          selectedDetailId={selectedDetailId}
+        />
+      ) : null}
       <WireObjectRefChips
         className="wire-rule-sequence-object-refs"
         objects={objects}
