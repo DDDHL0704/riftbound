@@ -46,6 +46,9 @@ const ready = plan({
 });
 assert.equal(ready.directAction, "ready");
 assert.equal(ready.command, undefined);
+assert.equal(ready.commandSource, "direct-action");
+assert.equal(ready.commandSourceLabel, "本地入口");
+assert.ok(ready.commandSourceDetail.includes("不伪装成规则命令"));
 assert.equal(ready.disabled, false);
 assert.equal(ready.icon, "check");
 assert.equal(ready.variant, "primary");
@@ -67,6 +70,8 @@ const endTurn = plan({
   reason: "可结束"
 });
 assert.deepEqual(endTurn.command, { cmdType: "END_TURN" });
+assert.equal(endTurn.commandSource, "client-fallback");
+assert.equal(endTurn.commandSourceLabel, "前端内置");
 assert.equal(endTurn.needsComposer, false);
 assert.equal(endTurn.icon, "play");
 
@@ -88,6 +93,8 @@ const templatedEndTurn = plan({
   reason: "可结束"
 });
 assert.deepEqual(templatedEndTurn.command, { cmdType: "END_TURN" });
+assert.equal(templatedEndTurn.commandSource, "server-template");
+assert.equal(templatedEndTurn.commandSourceLabel, "服务端模板");
 assert.equal(templatedEndTurn.needsComposer, false);
 
 const surrender = plan({
@@ -125,6 +132,7 @@ assert.deepEqual(payCost.command, {
   paymentId: "payment-1",
   paymentWindow: "main"
 });
+assert.equal(payCost.commandSource, "server-template");
 assert.equal(payCost.disabled, false);
 
 const missingPayCost = plan({
@@ -175,6 +183,8 @@ const targetRequiredPlay = plan({
 });
 assert.equal(targetRequiredPlay.command, undefined);
 assert.equal(targetRequiredPlay.needsComposer, true);
+assert.equal(targetRequiredPlay.commandSource, "composer");
+assert.equal(targetRequiredPlay.commandSourceLabel, "服务端组合");
 assert.equal(targetRequiredPlay.disabled, false);
 assert.equal(targetRequiredPlay.labelSuffix, "");
 
@@ -187,6 +197,8 @@ const legacyPlayWithoutTemplate = plan({
 });
 assert.equal(legacyPlayWithoutTemplate.command, undefined);
 assert.equal(legacyPlayWithoutTemplate.needsComposer, false);
+assert.equal(legacyPlayWithoutTemplate.commandSource, "unavailable");
+assert.equal(legacyPlayWithoutTemplate.commandSourceLabel, "等待服务端");
 assert.equal(legacyPlayWithoutTemplate.disabled, true);
 assert.equal(legacyPlayWithoutTemplate.labelSuffix, "（需选择）");
 

@@ -9,7 +9,12 @@ import {
   clampDamageInput,
   type TriggerOrderItem
 } from "../../utils/actionPanelChoiceModels";
-import { buildActionPanelCandidateCommandPlan, type ActionPanelCandidateButtonIcon, type ActionPanelDirectActionKind } from "../../utils/actionPanelCommandPlan";
+import {
+  buildActionPanelCandidateCommandPlan,
+  type ActionPanelCandidateButtonIcon,
+  type ActionPanelCandidateCommandPlan,
+  type ActionPanelDirectActionKind
+} from "../../utils/actionPanelCommandPlan";
 import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
@@ -724,72 +729,96 @@ function CandidateButton({
   if (candidate.action === "SURRENDER" && plan.command) {
     if (confirmingSurrender) {
       return (
-        <div className="surrender-confirm">
-          <span>对手将获得本局胜利。</span>
-          <div className="surrender-confirm-actions">
-            <Button
-              disabled={plan.disabled}
-              icon={<Flag size={16} />}
-              onClick={() => onCommand(withPromptStamp(plan.command!, prompt))}
-              title={buttonTitle}
-              variant="danger"
-            >
-              确认投降
-            </Button>
-            <Button icon={<X size={16} />} onClick={() => setConfirmingSurrender(false)} variant="ghost">
-              取消
-            </Button>
+        <CandidateCommandPlanShell plan={plan}>
+          <div className="surrender-confirm">
+            <span>对手将获得本局胜利。</span>
+            <div className="surrender-confirm-actions">
+              <Button
+                disabled={plan.disabled}
+                icon={<Flag size={16} />}
+                onClick={() => onCommand(withPromptStamp(plan.command!, prompt))}
+                title={buttonTitle}
+                variant="danger"
+              >
+                确认投降
+              </Button>
+              <Button icon={<X size={16} />} onClick={() => setConfirmingSurrender(false)} variant="ghost">
+                取消
+              </Button>
+            </div>
           </div>
-        </div>
+        </CandidateCommandPlanShell>
       );
     }
 
     return (
-      <Button
-        disabled={plan.disabled}
-        icon={<Flag size={16} />}
-        onClick={() => setConfirmingSurrender(true)}
-        title={buttonTitle}
-        variant="danger"
-      >
-        {promptActionLabel(candidate)}
-      </Button>
+      <CandidateCommandPlanShell plan={plan}>
+        <Button
+          disabled={plan.disabled}
+          icon={<Flag size={16} />}
+          onClick={() => setConfirmingSurrender(true)}
+          title={buttonTitle}
+          variant="danger"
+        >
+          {promptActionLabel(candidate)}
+        </Button>
+      </CandidateCommandPlanShell>
     );
   }
 
   if (plan.needsComposer) {
     return (
-      <CandidateComposer
-        actionGateReason={disabledByActionGate ? submitGate.reason : undefined}
-        actionGateStateLabel={disabledByActionGate ? submitGate.stateLabel : undefined}
-        candidate={candidate}
-        disabledByActionGate={disabledByActionGate}
-        disabledByConnection={disabledByConnection}
-        onCommand={onCommand}
-        prompt={prompt}
-        snapshot={snapshot}
-        submissionGate={submissionGate}
-      />
+      <CandidateCommandPlanShell plan={plan}>
+        <CandidateComposer
+          actionGateReason={disabledByActionGate ? submitGate.reason : undefined}
+          actionGateStateLabel={disabledByActionGate ? submitGate.stateLabel : undefined}
+          candidate={candidate}
+          disabledByActionGate={disabledByActionGate}
+          disabledByConnection={disabledByConnection}
+          onCommand={onCommand}
+          prompt={prompt}
+          snapshot={snapshot}
+          submissionGate={submissionGate}
+        />
+      </CandidateCommandPlanShell>
     );
   }
 
   return (
-    <Button
-      disabled={plan.disabled}
-      icon={candidateIcon(plan.icon)}
-      onClick={() => {
-        if (plan.directAction) {
-          runDirectAction(plan.directAction, onReady, onSubmitStarterDeck);
-        } else if (plan.command) {
-          onCommand(withPromptStamp(plan.command, prompt));
-        }
-      }}
-      title={buttonTitle}
-      variant={plan.variant}
+    <CandidateCommandPlanShell plan={plan}>
+      <Button
+        disabled={plan.disabled}
+        icon={candidateIcon(plan.icon)}
+        onClick={() => {
+          if (plan.directAction) {
+            runDirectAction(plan.directAction, onReady, onSubmitStarterDeck);
+          } else if (plan.command) {
+            onCommand(withPromptStamp(plan.command, prompt));
+          }
+        }}
+        title={buttonTitle}
+        variant={plan.variant}
+      >
+        {promptActionLabel(candidate)}
+        {plan.labelSuffix}
+      </Button>
+    </CandidateCommandPlanShell>
+  );
+}
+
+function CandidateCommandPlanShell({ children, plan }: { children: ReactNode; plan: ActionPanelCandidateCommandPlan }) {
+  return (
+    <div
+      className="action-command-plan"
+      data-action-command-disabled={plan.disabled ? "true" : "false"}
+      data-action-command-source={plan.commandSource}
     >
-      {promptActionLabel(candidate)}
-      {plan.labelSuffix}
-    </Button>
+      {children}
+      <small className="action-command-plan-source">
+        <strong>{plan.commandSourceLabel}</strong>
+        <span>{plan.commandSourceDetail}</span>
+      </small>
+    </div>
   );
 }
 

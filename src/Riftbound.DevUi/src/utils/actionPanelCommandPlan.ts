@@ -8,10 +8,20 @@ export type ActionPanelDirectActionKind = "ready" | "submitDeck";
 
 export type ActionPanelCandidateButtonIcon = "check" | "flag" | "hourglass" | "play" | "send";
 
+export type ActionPanelCandidateCommandSource =
+  | "client-fallback"
+  | "composer"
+  | "direct-action"
+  | "server-template"
+  | "unavailable";
+
 export type ActionPanelCandidateButtonVariant = "danger" | "ghost" | "primary";
 
 export type ActionPanelCandidateCommandPlan = {
   command?: GameCommand;
+  commandSource: ActionPanelCandidateCommandSource;
+  commandSourceDetail: string;
+  commandSourceLabel: string;
   directAction?: ActionPanelDirectActionKind;
   disabled: boolean;
   icon: ActionPanelCandidateButtonIcon;
@@ -31,14 +41,26 @@ export function buildActionPanelCandidateCommandPlan({
   disabledByActionGate = false,
   disabledByConnection
 }: BuildActionPanelCandidateCommandPlanOptions): ActionPanelCandidateCommandPlan {
-  const command = simpleCommand(candidate);
+  const simple = simpleCommand(candidate);
+  const command = simple.command;
   const directAction = directCandidateAction(candidate);
   const needsComposer = !command && !directAction && canComposeActionCandidate(candidate);
   const executable = command || directAction;
   const disabled = disabledByConnection || disabledByActionGate || !candidate.enabled || (!executable && !needsComposer);
+  const commandSource = directAction
+    ? "direct-action"
+    : command
+      ? simple.source
+      : needsComposer
+        ? "composer"
+        : "unavailable";
+  const sourceCopy = commandSourceCopy(commandSource);
 
   return {
     command,
+    commandSource,
+    commandSourceDetail: sourceCopy.detail,
+    commandSourceLabel: sourceCopy.label,
     directAction,
     disabled,
     icon: candidateIcon(candidate, executable),
@@ -91,7 +113,7 @@ function candidateVariant(candidate: ActionPromptCandidateDto): ActionPanelCandi
   }
 }
 
-function simpleCommand(candidate: ActionPromptCandidateDto): GameCommand | undefined {
+function simpleCommand(candidate: ActionPromptCandidateDto): { command?: GameCommand; source: ActionPanelCandidateCommandSource } {
   if (candidate.commandTemplate && !candidateRequiresFurtherChoice(candidate)) {
     const source = singlePromptChoiceId(candidate.sources);
     const templatedCommand = commandFromActionPromptTemplate(
@@ -100,27 +122,58 @@ function simpleCommand(candidate: ActionPromptCandidateDto): GameCommand | undef
       { candidateMetadata: candidate.metadata, requirement: sourceRequirementFor(candidate, source) }
     );
     if (templatedCommand) {
-      return templatedCommand;
+      return { command: templatedCommand, source: "server-template" };
     }
   }
 
+  const fallback = (command: GameCommand | undefined) => ({ command, source: "client-fallback" as const });
   switch (candidate.action) {
     case "PASS_PRIORITY":
-      return { cmdType: "PASS_PRIORITY" };
+      return fallback({ cmdType: "PASS_PRIORITY" });
     case "PASS_FOCUS":
-      return { cmdType: "PASS_FOCUS" };
+      return fallback({ cmdType: "PASS_FOCUS" });
     case "PASS":
-      return { cmdType: "PASS" };
+      return fallback({ cmdType: "PASS" });
     case "END_TURN":
-      return { cmdType: "END_TURN" };
+      return fallback({ cmdType: "END_TURN" });
     case "SURRENDER":
-      return { cmdType: "SURRENDER" };
+      return fallback({ cmdType: "SURRENDER" });
     case "PAY_COST":
-      return payCostCommand(candidate);
+      return fallback(payCostCommand(candidate));
     case "WAIT":
-      return undefined;
+      return { source: "unavailable" };
     default:
-      return undefined;
+      return { source: "unavailable" };
+  }
+}
+
+function commandSourceCopy(source: ActionPanelCandidateCommandSource): { detail: string; label: string } {
+  switch (source) {
+    case "server-template":
+      return {
+        detail: "按服务端 commandTemplate 生成，提交后仍由规则引擎校验。",
+        label: "服务端模板"
+      };
+    case "client-fallback":
+      return {
+        detail: "兼容旧候选的内置命令，提交后仍由规则引擎校验。",
+        label: "前端内置"
+      };
+    case "direct-action":
+      return {
+        detail: "房间或准备类入口，不伪装成规则命令。",
+        label: "本地入口"
+      };
+    case "composer":
+      return {
+        detail: "先选择来源、目标或模式，再按服务端模板提交。",
+        label: "服务端组合"
+      };
+    case "unavailable":
+      return {
+        detail: "当前候选没有可提交命令或完整组合计划。",
+        label: "等待服务端"
+      };
   }
 }
 

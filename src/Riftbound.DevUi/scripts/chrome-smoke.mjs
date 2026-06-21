@@ -1259,6 +1259,9 @@ async function runWireClickSelectionSmoke(cdp) {
       actionLayoutProjectionState: layoutProjection?.getAttribute("data-action-layout-projection-state") ?? null,
       actionLayoutProjectionText: layoutProjection?.textContent ?? "",
       actionLayoutProjectionTotalCount: Number(layoutProjection?.getAttribute("data-action-layout-projection-total-count") ?? "0"),
+      actionCommandSources: Array.from(document.querySelectorAll("[data-action-command-source]"))
+        .map((node) => node.getAttribute("data-action-command-source") ?? ""),
+      actionCommandSourceText: document.querySelector(".action-command-plan")?.textContent ?? "",
       actionRenderCount: Number(actionButtons?.getAttribute("data-action-render-count") ?? "0"),
       actionRenderKinds: Array.from(actionButtons?.querySelectorAll("[data-action-render-kind]") ?? [])
         .map((node) => node.getAttribute("data-action-render-kind")),
@@ -1519,9 +1522,12 @@ async function runWireClickSelectionSmoke(cdp) {
     const actionChip = document.querySelector('[data-action-object-id="p1-rune-3"]');
     const actionButton = Array.from(document.querySelectorAll(".wire-action-panel button"))
       .find((button) => button.textContent?.includes("横置符文样例"));
+    const actionCommandPlan = actionButton?.closest("[data-action-command-source]");
     const selectedObjectContext = document.querySelector('[data-wire-selected-object-context="p1-rune-3"]');
     return {
       actionButtonText: actionButton?.textContent ?? "",
+      actionButtonSource: actionCommandPlan?.getAttribute("data-action-command-source") ?? null,
+      actionButtonSourceText: actionCommandPlan?.textContent ?? "",
       selected: tableObject?.getAttribute("data-selected") ?? null,
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
       detailContextText: selectedObjectContext?.textContent ?? "",
@@ -1823,6 +1829,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.actionRenderPromptType !== "MAIN_ACTION") failures.push(`action panel render prompt type unexpected: ${actionMapResult.actionRenderPromptType}`);
   if (actionMapResult.actionRenderCount < 1) failures.push("action panel render entries missing");
   if (!actionMapResult.actionRenderKinds.includes("candidate-button")) failures.push("action panel render candidate button entry missing");
+  if (!actionMapResult.actionCommandSources.includes("composer")) failures.push("action panel command source did not expose composer route");
+  if (!actionMapResult.actionCommandSourceText.includes("服务端组合")) failures.push("action panel command source label missing");
   if (!actionMapResult.actionMapText.includes("命令字段")) failures.push("action map command field list missing");
   if (!actionMapResult.actionMapText.includes("候选步骤")) failures.push("action map candidate step plan missing");
   if (!actionMapResult.actionMapText.includes("下一步")) failures.push("action map candidate next-step text missing");
@@ -2094,6 +2102,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!runeActionMapResult.detailContextText.includes("来源:sourceObjectId*")) failures.push("rune object context did not expose required source binding");
   if (!runeActionMapResult.actionButtonText.includes("横置符文样例")) failures.push("rune action panel template button missing");
   if (runeActionMapResult.actionButtonText.includes("需选择")) failures.push("rune action panel did not build direct command from server template");
+  if (runeActionMapResult.actionButtonSource !== "server-template") failures.push(`rune action command source unexpected: ${runeActionMapResult.actionButtonSource}`);
+  if (!runeActionMapResult.actionButtonSourceText.includes("服务端模板")) failures.push("rune action command source label missing");
   if (!runeActionMapResult.focusText.includes("服务端状态")) failures.push("rune action map focus did not refresh focused action summary");
   if (candidateRefResult.hasCandidateRefs < 1) failures.push("candidate object refs missing");
   if (candidateRefResult.selected !== "true") failures.push("candidate object ref did not focus table object");

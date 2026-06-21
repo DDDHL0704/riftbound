@@ -1889,6 +1889,30 @@ button.card-face:hover {
   min-width: 0;
 }
 
+.action-command-plan {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.action-command-plan > .button {
+  width: 100%;
+}
+
+.action-command-plan-source {
+  display: grid;
+  gap: 2px;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.action-command-plan-source strong,
+.action-command-plan-source span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .match-diagnostics {
   display: grid;
   border: 1px solid var(--border-subtle);
@@ -17170,6 +17194,8 @@ button.wire-object-ref {
 .wire-match-page .hand-choice-panel,
 .wire-match-page .damage-assignment-panel,
 .wire-match-page .trigger-order-panel,
+.wire-match-page .action-command-plan,
+.wire-match-page .action-command-plan-source,
 .wire-match-page .generic-prompt-details,
 .wire-match-page .generic-prompt-contract,
 .wire-match-page .action-prompt-inspection,
@@ -17491,6 +17517,8 @@ button.wire-object-ref {
 .wire-match-page .candidate-composer-checks *,
 .wire-match-page .candidate-composer-note,
 .wire-match-page .candidate-composer-check,
+.wire-match-page .action-command-plan-source,
+.wire-match-page .action-command-plan-source *,
 .wire-match-page .detail-drawer,
 .wire-match-page .detail-drawer *,
 .wire-match-page .detail-muted,
