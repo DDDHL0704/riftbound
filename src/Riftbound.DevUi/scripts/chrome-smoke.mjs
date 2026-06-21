@@ -2112,6 +2112,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const ruleDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
     const routeSummary = panel?.querySelector(".wire-timeline-route-summary");
+    const timelineFollowup = panel?.querySelector(".wire-timeline-command-followup");
     const trigger = document.querySelector('[data-wire-detail-id="rule:stack:fixture-stack-1"]');
     const selectedRow = document.querySelector(".wire-rule-item.is-detail-selected");
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
@@ -2148,6 +2149,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
       routeSummaryCountStates: Array.from(routeSummary?.querySelectorAll("[data-timeline-route-count-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-route-count-state")),
       routeSummaryText: routeSummary?.textContent ?? "",
+      timelineFollowupBridgeState: timelineFollowup?.querySelector(".wire-command-followup-bridge")?.getAttribute("data-command-followup-bridge-state") ?? "",
+      timelineFollowupLayoutState: timelineFollowup?.querySelector("[data-command-followup-layout-state]")?.getAttribute("data-command-followup-layout-state") ?? "",
+      timelineFollowupServerState: timelineFollowup?.getAttribute("data-command-followup-server-state") ?? "",
+      timelineFollowupState: timelineFollowup?.getAttribute("data-command-followup-state") ?? "",
+      timelineFollowupText: timelineFollowup?.textContent ?? "",
       navigationActionStates: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
         .map((item) => item.getAttribute("data-timeline-navigation-action-state")),
       navigationButtonCount: panel?.querySelectorAll(".wire-timeline-navigation-button").length ?? 0,
@@ -2233,6 +2239,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const timelineLayerResult = await evaluateJson(cdp, `(() => {
     const layer = document.querySelector(".wire-timeline-detail-layer");
     const panel = layer?.querySelector(".wire-timeline-detail");
+    const timelineFollowup = panel?.querySelector(".wire-timeline-command-followup");
     return {
       activeText: document.activeElement?.textContent ?? "",
       bodyId: layer?.querySelector("#wire-timeline-detail-layer-body")?.id ?? "",
@@ -2247,6 +2254,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
       routeSummaryState: panel?.querySelector(".wire-timeline-route-summary")?.getAttribute("data-timeline-route-summary-state") ?? "",
       source: layer?.getAttribute("data-wire-timeline-detail-layer-source") ?? "",
       state: layer?.getAttribute("data-wire-timeline-detail-layer-state") ?? "",
+      timelineFollowupBridgeState: timelineFollowup?.querySelector(".wire-command-followup-bridge")?.getAttribute("data-command-followup-bridge-state") ?? "",
+      timelineFollowupState: timelineFollowup?.getAttribute("data-command-followup-state") ?? "",
+      timelineFollowupText: timelineFollowup?.textContent ?? "",
       text: layer?.textContent ?? "",
       title: layer?.querySelector("#wire-timeline-detail-layer-title")?.textContent ?? ""
     };
@@ -2414,6 +2424,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const eventDetailResult = await evaluateJson(cdp, `(() => {
     const panel = document.querySelector(".wire-timeline-detail");
     const routeSummary = panel?.querySelector(".wire-timeline-route-summary");
+    const timelineFollowup = panel?.querySelector(".wire-timeline-command-followup");
     const trigger = document.querySelector('[data-wire-detail-id="event:STACK_ITEM_ADDED:0"]');
     const log = document.querySelector(".event-log");
     const selectedRow = document.querySelector(".log-row.is-detail-selected");
@@ -2453,6 +2464,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
       routeSummaryCountStates: Array.from(routeSummary?.querySelectorAll("[data-timeline-route-count-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-route-count-state")),
       routeSummaryText: routeSummary?.textContent ?? "",
+      timelineFollowupBridgeState: timelineFollowup?.querySelector(".wire-command-followup-bridge")?.getAttribute("data-command-followup-bridge-state") ?? "",
+      timelineFollowupLayoutState: timelineFollowup?.querySelector("[data-command-followup-layout-state]")?.getAttribute("data-command-followup-layout-state") ?? "",
+      timelineFollowupServerState: timelineFollowup?.getAttribute("data-command-followup-server-state") ?? "",
+      timelineFollowupState: timelineFollowup?.getAttribute("data-command-followup-state") ?? "",
+      timelineFollowupText: timelineFollowup?.textContent ?? "",
       navigationActionStates: Array.from(panel?.querySelectorAll(".wire-timeline-navigation-list li") ?? [])
         .map((item) => item.getAttribute("data-timeline-navigation-action-state")),
       navigationButtonCount: panel?.querySelectorAll(".wire-timeline-navigation-button").length ?? 0,
@@ -2653,6 +2669,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.routeSummaryCountKeys.includes("draft")) failures.push("rule detail route summary draft count missing");
   if (!ruleDetailResult.routeSummaryText.includes("路径")) failures.push("rule detail route summary total path text missing");
   if (!ruleDetailResult.routeSummaryText.includes("PLAY_CARD")) failures.push("rule detail route summary command type missing");
+  if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(ruleDetailResult.timelineFollowupState)) failures.push(`rule detail timeline followup state unexpected: ${ruleDetailResult.timelineFollowupState}`);
+  if (!["empty", "failed", "ready", "unknown", "waiting"].includes(ruleDetailResult.timelineFollowupBridgeState)) failures.push(`rule detail timeline followup bridge state unexpected: ${ruleDetailResult.timelineFollowupBridgeState}`);
+  if (!["empty", "hidden-only", "linked", "unknown"].includes(ruleDetailResult.timelineFollowupLayoutState)) failures.push(`rule detail timeline followup layout state unexpected: ${ruleDetailResult.timelineFollowupLayoutState}`);
+  if (!ruleDetailResult.timelineFollowupText.includes("后续事件")) failures.push("rule detail timeline followup title missing");
+  if (!ruleDetailResult.timelineFollowupText.includes("服务端")) failures.push("rule detail timeline followup server wording missing");
   if (!ruleDetailResult.text.includes("来源")) failures.push("rule detail source line missing");
   if (!ruleDetailResult.hasSourceRef) failures.push("rule detail source ref missing");
   if (!ruleDetailResult.hasTargetRef) failures.push("rule detail target ref missing");
@@ -2755,6 +2776,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!timelineLayerResult.text.includes("规则事件检查层")) failures.push("timeline detail layer heading missing");
   if (timelineLayerResult.routeSummaryLabel !== "候选提交路线摘要") failures.push("timeline detail layer route summary label missing");
   if (!["ready", "selecting", "inactive"].includes(timelineLayerResult.routeSummaryState)) failures.push(`timeline detail layer route summary state unexpected: ${timelineLayerResult.routeSummaryState}`);
+  if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(timelineLayerResult.timelineFollowupState)) failures.push(`timeline detail layer followup state unexpected: ${timelineLayerResult.timelineFollowupState}`);
+  if (!["empty", "failed", "ready", "unknown", "waiting"].includes(timelineLayerResult.timelineFollowupBridgeState)) failures.push(`timeline detail layer followup bridge state unexpected: ${timelineLayerResult.timelineFollowupBridgeState}`);
+  if (!timelineLayerResult.timelineFollowupText.includes("后续事件")) failures.push("timeline detail layer followup title missing");
   if (!timelineLayerResult.text.includes("服务端规则")) failures.push("timeline detail layer server rule source missing");
   if (!timelineLayerResult.activeText.includes("关闭检查层")) failures.push("timeline detail layer close button was not focused");
   if (timelineLayerResult.cardDetailOpen) failures.push("timeline detail layer opened card detail layer");
@@ -2844,6 +2868,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.routeSummaryCountKeys.includes("draft")) failures.push("event detail route summary draft count missing");
   if (!eventDetailResult.routeSummaryText.includes("路径")) failures.push("event detail route summary total path text missing");
   if (!eventDetailResult.routeSummaryText.includes("PLAY_CARD")) failures.push("event detail route summary command type missing");
+  if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(eventDetailResult.timelineFollowupState)) failures.push(`event detail timeline followup state unexpected: ${eventDetailResult.timelineFollowupState}`);
+  if (!["empty", "failed", "ready", "unknown", "waiting"].includes(eventDetailResult.timelineFollowupBridgeState)) failures.push(`event detail timeline followup bridge state unexpected: ${eventDetailResult.timelineFollowupBridgeState}`);
+  if (!["empty", "hidden-only", "linked", "unknown"].includes(eventDetailResult.timelineFollowupLayoutState)) failures.push(`event detail timeline followup layout state unexpected: ${eventDetailResult.timelineFollowupLayoutState}`);
+  if (!eventDetailResult.timelineFollowupText.includes("后续事件")) failures.push("event detail timeline followup title missing");
+  if (!eventDetailResult.timelineFollowupText.includes("服务端")) failures.push("event detail timeline followup server wording missing");
   if (!eventDetailResult.evidenceKeys.includes("source")) failures.push("event detail evidence source row missing");
   if (!eventDetailResult.evidenceKeys.includes("path")) failures.push("event detail evidence path row missing");
   if (!eventDetailResult.evidenceText.includes("服务端日志")) failures.push("event detail evidence source authority missing");

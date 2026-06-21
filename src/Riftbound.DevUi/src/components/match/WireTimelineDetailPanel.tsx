@@ -1,7 +1,12 @@
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { useState } from "react";
-import type { ActionPromptDto, GameCommand } from "../../types/protocol";
+import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import {
+  buildCommandSubmissionFollowupPlan,
+  type CommandSubmissionFollowupFeedback,
+  type ObservedGameEvent
+} from "../../utils/commandSubmissionFollowupPlan";
 import {
   buildWireTimelineDetailPlan,
   type WireTimelineCommandBridgeRow,
@@ -11,8 +16,10 @@ import {
   type WireTimelineNextStepPlan,
   type WireTimelineRouteSummaryPlan
 } from "../../utils/wireTimelineDetailPlan";
+import { WireCommandFollowupPanel } from "./WireCommandFollowupPanel";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
+import type { WireTableViewModel } from "./wireTableViewModel";
 
 export type WireTimelineDetailLine = {
   label: string;
@@ -33,6 +40,7 @@ export function WireTimelineDetailPanel({
   bodyId = "wire-timeline-detail-body",
   detail,
   disabledByConnection = false,
+  events,
   objectContextById,
   objectIndex,
   onChooseObject,
@@ -44,11 +52,15 @@ export function WireTimelineDetailPanel({
   prompt,
   selectionDraft,
   selectedObjectContext,
-  selectedObjectId
+  selectedObjectId,
+  snapshot,
+  submissionFeedback,
+  table
 }: {
   bodyId?: string;
   detail?: WireTimelineDetail;
   disabledByConnection?: boolean;
+  events?: readonly ObservedGameEvent[];
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
   onChooseObject?: (objectId: string) => void;
@@ -61,6 +73,9 @@ export function WireTimelineDetailPanel({
   selectionDraft?: CandidateSelectionDraft;
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
+  snapshot?: SnapshotDto;
+  submissionFeedback?: CommandSubmissionFollowupFeedback;
+  table?: WireTableViewModel;
 }) {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const plan = buildWireTimelineDetailPlan({
@@ -72,6 +87,11 @@ export function WireTimelineDetailPanel({
     selectionDraft,
     selectedObjectContext,
     selectedObjectId
+  });
+  const submissionFollowup = buildCommandSubmissionFollowupPlan({
+    events,
+    feedback: submissionFeedback,
+    snapshot
   });
 
   const detailState = detail?.source ?? (selectedObjectContext ? "object" : "empty");
@@ -148,6 +168,13 @@ export function WireTimelineDetailPanel({
               onChooseObject={onChooseObject ?? onInspectObject}
               onOpenObjectDetail={onOpenObjectDetail}
               rows={plan.commandBridgeRows}
+            />
+            <WireCommandFollowupPanel
+              ariaLabel="规则详情服务端后续事件"
+              className="wire-command-followup wire-timeline-command-followup"
+              onInspectObject={onInspectObject}
+              plan={submissionFollowup}
+              table={table}
             />
             <TimelineInspector open={inspectorOpen} plan={plan.inspector} />
             <div className="wire-timeline-detail-lines">

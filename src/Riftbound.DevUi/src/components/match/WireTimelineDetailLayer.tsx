@@ -1,14 +1,20 @@
-import type { ActionPromptDto, GameCommand } from "../../types/protocol";
+import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import type {
+  CommandSubmissionFollowupFeedback,
+  ObservedGameEvent
+} from "../../utils/commandSubmissionFollowupPlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { Button } from "../ui/Button";
 import { useWireDialogFocus } from "./useWireDialogFocus";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "./WireTimelineDetailPanel";
 import type { WireObjectIndex } from "./WireObjectRefChips";
+import type { WireTableViewModel } from "./wireTableViewModel";
 
 type WireTimelineDetailLayerProps = {
   detail?: WireTimelineDetail;
   disabledByConnection?: boolean;
+  events?: readonly ObservedGameEvent[];
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
   onChooseObject?: (objectId: string) => void;
@@ -22,11 +28,15 @@ type WireTimelineDetailLayerProps = {
   selectionDraft?: CandidateSelectionDraft;
   selectedObjectContext?: TableObjectContext;
   selectedObjectId?: string;
+  snapshot?: SnapshotDto;
+  submissionFeedback?: CommandSubmissionFollowupFeedback;
+  table?: WireTableViewModel;
 };
 
 export function WireTimelineDetailLayer({
   detail,
   disabledByConnection = false,
+  events,
   objectContextById,
   objectIndex,
   onChooseObject,
@@ -39,7 +49,10 @@ export function WireTimelineDetailLayer({
   prompt,
   selectionDraft,
   selectedObjectContext,
-  selectedObjectId
+  selectedObjectId,
+  snapshot,
+  submissionFeedback,
+  table
 }: WireTimelineDetailLayerProps) {
   const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose, open);
 
@@ -73,6 +86,7 @@ export function WireTimelineDetailLayer({
           bodyId="wire-timeline-detail-layer-body"
           detail={detail}
           disabledByConnection={disabledByConnection}
+          events={events}
           objectContextById={objectContextById}
           objectIndex={objectIndex}
           onChooseObject={onChooseObject}
@@ -84,6 +98,9 @@ export function WireTimelineDetailLayer({
           selectionDraft={selectionDraft}
           selectedObjectContext={selectedObjectContext}
           selectedObjectId={selectedObjectId}
+          snapshot={snapshot}
+          submissionFeedback={submissionFeedback}
+          table={table}
         />
       </aside>
     </div>

@@ -514,6 +514,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         <WireTimelineDetailPanel
           detail={timelineDetail}
           disabledByConnection={!tableSubmissionGate.canSubmit}
+          events={tableEvents}
           objectContextById={tableObjectContextModel.byId}
           objectIndex={tableObjectIndex}
           onChooseObject={chooseObjectFromActionMap}
@@ -526,6 +527,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           selectionDraft={selectionDraft}
           selectedObjectContext={selectedObjectContext}
           selectedObjectId={selectedObjectId}
+          snapshot={tableSnapshot}
+          submissionFeedback={controller.state.lastCommandSubmission}
+          table={tableView}
         />
       </section>
     ),
@@ -636,6 +640,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <WireTimelineDetailLayer
         detail={timelineDetail}
         disabledByConnection={!tableSubmissionGate.canSubmit}
+        events={tableEvents}
         objectContextById={tableObjectContextModel.byId}
         objectIndex={tableObjectIndex}
         onChooseObject={chooseObjectFromActionMap}
@@ -649,6 +654,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         selectionDraft={selectionDraft}
         selectedObjectContext={selectedObjectContext}
         selectedObjectId={selectedObjectId}
+        snapshot={tableSnapshot}
+        submissionFeedback={controller.state.lastCommandSubmission}
+        table={tableView}
       />
       <WireCardPreview card={previewCard} />
     </div>
