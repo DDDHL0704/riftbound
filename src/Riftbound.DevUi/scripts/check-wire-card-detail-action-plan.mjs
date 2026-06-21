@@ -59,9 +59,13 @@ assert.deepEqual(readyPlan.routeRows.map((row) => `${row.action}:${row.state}:${
   "TAP_RUNE:direct:直接"
 ]);
 assert.equal(readyPlan.routeRows[0].commandType, "PLAY_CARD");
+assert.equal(readyPlan.routeRows[0].commandSource, "composer");
+assert.equal(readyPlan.routeRows[0].commandSourceLabel, "服务端组合");
 assert.equal(readyPlan.routeRows[0].fieldSummary, "2 字段 / 1 必需 / 2 玩家 / 0 服务端");
 assert.equal(readyPlan.routeRows[0].nextStepLabel, "打开组合入口补齐服务端要求的选择。");
 assert.equal(readyPlan.routeRows[1].commandType, "TAP_RUNE");
+assert.equal(readyPlan.routeRows[1].commandSource, "client-fallback");
+assert.equal(readyPlan.routeRows[1].commandSourceLabel, "前端内置");
 assert.equal(readyPlan.routeRows[1].fieldSummary, "命令字段未公开");
 assert.equal(readyPlan.routeRows[1].nextStepLabel, "可直接提交服务端候选。");
 assert.deepEqual(readyPlan.summaryRows.map((row) => `${row.key}:${row.value}`), [
@@ -138,6 +142,8 @@ assert.equal(blockedPlan.entries[0].actionPlan.disabled, true);
 assert.equal(blockedPlan.entries[0].actionPlan.title, "等待优先权");
 assert.equal(blockedPlan.routeRows[0].state, "blocked");
 assert.equal(blockedPlan.routeRows[0].stateLabel, "服务端阻断");
+assert.equal(blockedPlan.routeRows[0].commandSource, "composer");
+assert.equal(blockedPlan.routeRows[0].commandSourceLabel, "服务端组合");
 assert.equal(blockedPlan.routeRows[0].fieldSummary, "2 字段 / 2 必需 / 1 玩家 / 1 服务端");
 assert.equal(blockedPlan.routeRows[0].nextStepLabel, "等待优先权");
 assert.equal(blockedPlan.summaryRows.find((row) => row.key === "candidate")?.value, "0 可用 / 1 阻断");

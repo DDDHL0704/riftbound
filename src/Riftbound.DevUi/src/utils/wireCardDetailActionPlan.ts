@@ -21,6 +21,9 @@ export type WireCardDetailActionSummaryRow = {
 
 export type WireCardDetailActionRouteRow = {
   action: string;
+  commandSource: SourceCandidateActionPlan["commandSource"];
+  commandSourceDetail: string;
+  commandSourceLabel: string;
   commandType: string;
   entryKey: string;
   fieldSummary: string;
@@ -92,6 +95,9 @@ function routeRowsFor(
     const state = routeStateFor(entry, canSubmitCommands, disabledByConnection);
     return {
       action: entry.candidate.action,
+      commandSource: entry.actionPlan.commandSource,
+      commandSourceDetail: entry.actionPlan.commandSourceDetail,
+      commandSourceLabel: entry.actionPlan.commandSourceLabel,
       commandType: entry.candidate.commandTemplate?.cmdType?.trim() || entry.candidate.action,
       entryKey: entry.key,
       fieldSummary: routeFieldSummary(entry.candidate),

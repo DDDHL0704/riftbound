@@ -304,6 +304,8 @@ function DetailActionRoutes({
         {plan.routeRows.map((row) => (
           <li
             data-card-detail-action-route={row.key}
+            data-card-detail-action-route-command-source={row.commandSource}
+            data-card-detail-action-route-command-source-label={row.commandSourceLabel}
             data-card-detail-action-route-entry={row.entryKey}
             data-card-detail-action-route-selected={row.entryKey === selectedEntryKey ? "true" : "false"}
             data-card-detail-action-route-state={row.state}
@@ -312,6 +314,7 @@ function DetailActionRoutes({
             <span>{row.modeLabel}</span>
             <strong>{row.label}</strong>
             <small>{row.commandType} / {row.stateLabel}</small>
+            <small>{row.commandSourceLabel}</small>
             <small>{row.fieldSummary}</small>
             <em>{row.nextStepLabel}</em>
             <Button
@@ -376,6 +379,10 @@ function DetailActionReview({
         <div data-card-detail-action-review-row="command">
           <dt>命令</dt>
           <dd>{commandType}</dd>
+        </div>
+        <div data-card-detail-action-review-row="command-source">
+          <dt>路线</dt>
+          <dd>{route.commandSourceLabel}</dd>
         </div>
         <div data-card-detail-action-review-row="source">
           <dt>来源</dt>
