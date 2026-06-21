@@ -857,6 +857,12 @@ async function runWireClickSelectionSmoke(cdp) {
       composerCheckStates: Array.from(document.querySelectorAll(".wire-focused-actions [data-candidate-composer-check-state]"))
         .map((node) => node.getAttribute("data-candidate-composer-check-state")),
       composerGateText: document.querySelector(".wire-focused-actions .candidate-composer")?.textContent ?? "",
+      commandCenterActionCount: Number(document.querySelector("[data-wire-command-center-action-count]")?.getAttribute("data-wire-command-center-action-count") ?? "0"),
+      commandCenterRows: Array.from(document.querySelectorAll("[data-wire-command-center-row]")).map((node) =>
+        (node.getAttribute("data-wire-command-center-row") ?? "") + ":" + (node.getAttribute("data-wire-command-center-row-state") ?? "")),
+      commandCenterState: document.querySelector("[data-wire-command-center-state]")?.getAttribute("data-wire-command-center-state") ?? null,
+      commandCenterStepRole: document.querySelector("[data-wire-command-center-step-role]")?.getAttribute("data-wire-command-center-step-role") ?? null,
+      commandCenterText: document.querySelector(".wire-command-center")?.textContent ?? "",
       focusedActionButtonCount: document.querySelectorAll(".wire-focused-actions button").length,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
@@ -918,6 +924,7 @@ async function runWireClickSelectionSmoke(cdp) {
       grammarComposerState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-composer-state") ?? null,
       grammarState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-state") ?? null,
       grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
+      commandCenterState: document.querySelector("[data-wire-command-center-state]")?.getAttribute("data-wire-command-center-state") ?? null,
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
       targetSelectValue: targetSelect?.value ?? null
     };
@@ -1188,6 +1195,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (focusResult.readinessEnabledCount !== "1") failures.push(`focused readiness enabled count unexpected: ${focusResult.readinessEnabledCount}`);
   if (focusResult.readinessMissingRequiredCount !== "0") failures.push(`focused readiness missing count unexpected: ${focusResult.readinessMissingRequiredCount}`);
   if (!focusResult.readinessText.includes("行动状态")) failures.push("focused readiness text missing heading");
+  if (focusResult.commandCenterState !== "ready") failures.push(`command center did not follow focused source: ${focusResult.commandCenterState}`);
+  if (!focusResult.commandCenterRows.some((row) => row.startsWith("window:"))) failures.push(`command center window row missing: ${focusResult.commandCenterRows.join(",")}`);
+  if (!focusResult.commandCenterRows.includes("focus:server")) failures.push(`command center focus row missing server state: ${focusResult.commandCenterRows.join(",")}`);
+  if (!focusResult.commandCenterRows.includes("candidate:ready")) failures.push(`command center candidate row missing ready state: ${focusResult.commandCenterRows.join(",")}`);
+  if (focusResult.commandCenterActionCount < 1) failures.push("command center focused action entry missing");
+  if (!focusResult.commandCenterText.includes("PLAY_CARD")) failures.push("command center did not expose command type");
   if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
   if (!focusResult.text.includes("可提交")) failures.push("focused action summary enabled count missing");
   if (!focusResult.contextText.includes("位置")) failures.push("object context position missing");
@@ -1270,6 +1283,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (targetResult.sourceState !== "source") failures.push("source state missing after target click");
   if (targetResult.chosenTargetState !== "chosen") failures.push("clicked target not chosen");
   if (targetResult.otherTargetState !== "target") failures.push("other target no longer legal target");
+  if (targetResult.commandCenterState !== "ready") failures.push(`command center state unexpected after target click: ${targetResult.commandCenterState}`);
   if (targetResult.detailLayerOpen) failures.push("target click opened detail");
   if (!targetResult.draftText.includes("目标 1")) failures.push("draft target count missing");
   if (targetResult.grammarComposerState !== "server") failures.push(`target interaction grammar composer state unexpected: ${targetResult.grammarComposerState}`);
