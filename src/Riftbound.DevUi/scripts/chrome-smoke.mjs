@@ -2103,6 +2103,46 @@ async function runWireTimelineCommandSubmitSmoke(cdp) {
   if (!followup.timelineFollowupText.includes("后续事件")) failures.push("missing followup heading");
   if (!followup.commandSubmissionText.includes("服务端已接受")) failures.push("missing accepted feedback copy");
 
+  const layer = await openCommandSubmissionLayer(cdp);
+  if (layer.state !== "open") failures.push(`submission layer state ${layer.state}`);
+  if (layer.cmdType !== "PLAY_CARD") failures.push(`submission layer command ${layer.cmdType}`);
+  if (layer.followupState !== "accepted-events") failures.push(`submission layer followup state ${layer.followupState}`);
+  if (layer.serverState !== "events") failures.push(`submission layer server state ${layer.serverState}`);
+  if (layer.sourceSurface !== "timeline-detail") failures.push(`submission layer source surface ${layer.sourceSurface}`);
+  if (layer.sourceDetail !== "rule:stack:fixture-stack-1") failures.push(`submission layer source detail ${layer.sourceDetail}`);
+  if (layer.eventCount < 2) failures.push(`submission layer event count ${layer.eventCount}`);
+  if (!layer.eventKinds.includes("BATTLEFIELD_CONTROL_RESOLVED")) failures.push("submission layer missing battlefield event button");
+  if (!layer.layoutObjects.includes("p1-hand-spell") || !layer.layoutObjects.includes("p2-right-1")) {
+    failures.push(`submission layer layout projection objects incomplete: ${layer.layoutObjects.join(",")}`);
+  }
+
+  const layerEventKind = await clickCommandSubmissionLayerFollowupEvent(cdp, "BATTLEFIELD_CONTROL_RESOLVED", 1);
+  if (layerEventKind !== "BATTLEFIELD_CONTROL_RESOLVED") failures.push(`submission layer event click kind ${layerEventKind}`);
+  await delay(150);
+  const eventDetail = await timelineDetailSummary(cdp);
+  if (eventDetail.detailId !== "event:BATTLEFIELD_CONTROL_RESOLVED:1") {
+    failures.push(`submission layer event did not open timeline detail: ${eventDetail.detailId}`);
+  }
+  if (eventDetail.panelState !== "event") failures.push(`submission layer event panel state ${eventDetail.panelState}`);
+
+  const layerObjectId = await clickCommandSubmissionLayerLayoutObject(cdp, "p2-right-1");
+  if (layerObjectId !== "p2-right-1") failures.push(`submission layer object click ${layerObjectId}`);
+  await delay(150);
+  const layerObjectSelection = await evaluateJson(cdp, `(() => {
+    const tableObject = document.querySelector('[data-object-id="p2-right-1"]');
+    const selectedContext = document.querySelector('[data-wire-selected-object-context="p2-right-1"]');
+    return {
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      hasSelectedContext: Boolean(selectedContext),
+      selected: tableObject?.getAttribute("data-selected") ?? "",
+      selectedContextText: selectedContext?.textContent ?? ""
+    };
+  })()`);
+  if (layerObjectSelection.selected !== "true") failures.push(`submission layer object did not select table object: ${layerObjectSelection.selected}`);
+  if (!layerObjectSelection.hasSelectedContext) failures.push("submission layer object did not expose selected object context");
+  if (!layerObjectSelection.selectedContextText.includes("对方单位")) failures.push("submission layer selected context missing unit zone");
+  if (layerObjectSelection.detailLayerOpen) failures.push("submission layer object projection opened card detail unexpectedly");
+
   if (failures.length > 0) {
     throw new Error(`Timeline submit smoke failed:\n${failures.join("\n")}\n${JSON.stringify(followup, null, 2)}`);
   }
@@ -3678,6 +3718,85 @@ async function waitForTimelineCommandFollowup(cdp) {
   }
 
   throw new Error(`Timed out waiting for timeline command followup: ${JSON.stringify(last, null, 2)}`);
+}
+
+async function openCommandSubmissionLayer(cdp) {
+  const opened = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(".wire-command-submission-feedback .wire-command-submission-open-layer:not([disabled])");
+      if (!(element instanceof HTMLButtonElement)) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!opened.result?.value) {
+    throw new Error("Command submission layer open button not found");
+  }
+  await delay(150);
+  return commandSubmissionLayerSummary(cdp);
+}
+
+async function commandSubmissionLayerSummary(cdp) {
+  return evaluateJson(cdp, `(() => {
+    const layer = document.querySelector(".wire-command-submission-layer");
+    return {
+      cmdType: layer?.getAttribute("data-command-submission-layer-cmd-type") ?? "",
+      eventCount: Number(layer?.getAttribute("data-command-submission-layer-event-count") ?? "0"),
+      eventKinds: Array.from(layer?.querySelectorAll("[data-command-followup-event-action]") ?? [])
+        .map((item) => item.getAttribute("data-command-followup-event-action") ?? ""),
+      followupState: layer?.getAttribute("data-command-submission-layer-followup-state") ?? "",
+      hiddenCount: Number(layer?.getAttribute("data-command-submission-layer-hidden-count") ?? "0"),
+      layoutObjects: Array.from(layer?.querySelectorAll("[data-command-followup-layout-object]") ?? [])
+        .map((item) => item.getAttribute("data-command-followup-layout-object") ?? ""),
+      open: Boolean(layer),
+      receiptState: layer?.getAttribute("data-command-submission-layer-receipt-state") ?? "",
+      serverState: layer?.getAttribute("data-command-submission-layer-server-state") ?? "",
+      sourceDetail: layer?.getAttribute("data-command-submission-layer-source-detail") ?? "",
+      sourceObject: layer?.getAttribute("data-command-submission-layer-source-object") ?? "",
+      sourceSurface: layer?.getAttribute("data-command-submission-layer-source-surface") ?? "",
+      state: layer?.getAttribute("data-command-submission-layer-state") ?? "",
+      text: layer?.textContent ?? ""
+    };
+  })()`);
+}
+
+async function clickCommandSubmissionLayerFollowupEvent(cdp, kind, order) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const selector = ${JSON.stringify(
+        `.wire-command-submission-layer [data-command-followup-event-action="${kind}"]${order == null ? "" : `[data-command-followup-event-order-action="${order}"]`}`
+      )};
+      const element = document.querySelector(selector);
+      if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
+      element.click();
+      return element.getAttribute("data-command-followup-event-action") ?? "";
+    })()`,
+    returnByValue: true
+  });
+  const clickedKind = String(result.result?.value ?? "");
+  if (!clickedKind) {
+    throw new Error(`Command submission layer followup event button not found: ${kind}`);
+  }
+  return clickedKind;
+}
+
+async function clickCommandSubmissionLayerLayoutObject(cdp, objectId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const row = document.querySelector(${JSON.stringify(`.wire-command-submission-layer [data-command-followup-layout-object="${objectId}"]`)});
+      const element = row?.querySelector("button");
+      if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
+      element.click();
+      return row?.getAttribute("data-command-followup-layout-object") ?? "";
+    })()`,
+    returnByValue: true
+  });
+  const clickedObjectId = String(result.result?.value ?? "");
+  if (!clickedObjectId) {
+    throw new Error(`Command submission layer layout object not found: ${objectId}`);
+  }
+  return clickedObjectId;
 }
 
 async function clickTimelineCommandBridgeDetail(cdp, objectId) {

@@ -398,9 +398,14 @@ function CommandSubmissionFeedbackLayer({
       aria-modal="true"
       className="wire-command-submission-layer"
       data-command-submission-layer-cmd-type={feedback.cmdType}
+      data-command-submission-layer-event-count={followup.events.length}
       data-command-submission-layer-followup-state={followup.state}
+      data-command-submission-layer-hidden-count={followup.hiddenEventCount}
       data-command-submission-layer-receipt-state={feedback.receiptState ?? feedback.state}
       data-command-submission-layer-server-state={followup.serverFollowupState}
+      data-command-submission-layer-source-detail={followup.uiSource?.detailId ?? ""}
+      data-command-submission-layer-source-object={followup.uiSource?.objectId ?? ""}
+      data-command-submission-layer-source-surface={followup.uiSource?.surface ?? ""}
       data-command-submission-layer-state="open"
       id="wire-command-submission-layer"
       role="dialog"
