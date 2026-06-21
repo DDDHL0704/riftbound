@@ -49,6 +49,24 @@ export function WireObjectContextSummary({
       {plan.stackRoles.length > 0 && (
         <span className="wire-object-context-line">结算链：{plan.stackRoles.join(" / ")}</span>
       )}
+      {plan.serverRelationRows.length > 0 && (
+        <div className="wire-object-server-relation-block">
+          <span className="wire-object-context-line">服务端关联对象</span>
+          <ol className="wire-object-server-relation-list" aria-label="焦点对象服务端关联角色">
+            {plan.serverRelationRows.slice(0, 4).map((row) => (
+              <li
+                data-wire-object-server-relation={row.key}
+                data-wire-object-server-relation-source={row.sourceLabel}
+                key={row.key}
+              >
+                <span>{row.roles.length > 0 ? row.roles.join(" / ") : "服务端关联"}</span>
+                <strong>{row.candidateSummary}</strong>
+                <small>{row.stepSummary}</small>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
       {plan.nextStepRows.length > 0 && (
         <ol className="wire-object-next-step-list" aria-label="焦点对象候选步骤">
           {plan.nextStepRows.slice(0, 3).map((row) => (

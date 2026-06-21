@@ -13625,6 +13625,7 @@ button.card-face:hover {
 .wire-object-context-grid span,
 .wire-object-contract-block,
 .wire-object-next-step-list li,
+.wire-object-server-relation-list li,
 .wire-object-command-list li,
 .wire-object-event-list li {
   min-width: 0;
@@ -13637,6 +13638,8 @@ button.card-face:hover {
 .wire-object-context-line,
 .wire-object-contract-block small,
 .wire-object-next-step-list span,
+.wire-object-server-relation-list span,
+.wire-object-server-relation-list small,
 .wire-object-command-list span,
 .wire-object-command-list small,
 .wire-object-event-list span {
@@ -13646,6 +13649,8 @@ button.card-face:hover {
 .wire-object-context-grid strong,
 .wire-object-context-line,
 .wire-object-next-step-list strong,
+.wire-object-server-relation-list strong,
+.wire-object-server-relation-list small,
 .wire-object-command-list strong,
 .wire-object-command-list small,
 .wire-object-event-list strong {
@@ -13657,6 +13662,7 @@ button.card-face:hover {
 
 .wire-object-command-list,
 .wire-object-next-step-list,
+.wire-object-server-relation-list,
 .wire-object-event-list {
   display: grid;
   gap: 3px;
@@ -13667,6 +13673,7 @@ button.card-face:hover {
 
 .wire-object-command-block,
 .wire-object-contract-block,
+.wire-object-server-relation-block,
 .wire-object-event-block {
   display: grid;
   gap: 3px;

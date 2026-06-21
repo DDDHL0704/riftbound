@@ -67,8 +67,17 @@ export type FocusedObjectCommandPlan = {
   contextSourceLabel: string;
   eventRows: FocusedObjectEventRow[];
   nextStepRows: FocusedObjectNextStepRow[];
+  serverRelationRows: FocusedObjectServerRelationRow[];
   stackRoles: string[];
   statusCards: FocusedObjectStatusCard[];
+};
+
+export type FocusedObjectServerRelationRow = {
+  candidateSummary: string;
+  key: string;
+  roles: string[];
+  sourceLabel: string;
+  stepSummary: string;
 };
 
 export function buildFocusedObjectCommandPlan({
@@ -109,6 +118,7 @@ export function buildFocusedObjectCommandPlan({
     contextSourceLabel: authority.sourceLabel,
     eventRows: context.eventLinks.slice(-3).reverse().map(eventRowFromContext),
     nextStepRows,
+    serverRelationRows: (context.serverRelations ?? []).map(serverRelationRowFromContext),
     stackRoles: context.stackRoles,
     statusCards: [
       { label: "位置", value: context.zone.label },
@@ -129,6 +139,10 @@ function focusedObjectAuthorityFor(context: TableObjectContext): {
 
   if (context.candidateSource === "server" || context.contextSource === "server-action-prompt") {
     return { label: "服务端对象上下文", sourceLabel, state: "server" };
+  }
+
+  if ((context.serverRelations ?? []).length > 0 || context.contextSource === "server-flow-related-object") {
+    return { label: "服务端关联对象", sourceLabel, state: "server" };
   }
 
   if (context.candidateSource === "derived" || context.contextSource === "prompt-public-derived") {
@@ -163,6 +177,24 @@ function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: 
     secondaryFields,
     stepSummary: objectCandidateStepSummary(candidate),
     uiHint: candidate.uiHint
+  };
+}
+
+function serverRelationRowFromContext(
+  relation: TableObjectContext["serverRelations"][number],
+  index: number
+): FocusedObjectServerRelationRow {
+  const enabled = relation.enabledCandidateCount ?? 0;
+  const disabled = relation.disabledCandidateCount ?? 0;
+
+  return {
+    candidateSummary: relation.enabledCandidateCount == null && relation.disabledCandidateCount == null
+      ? "无候选计数"
+      : `${enabled} 可用 / ${disabled} 阻断`,
+    key: `${relation.roles.join("/") || "relation"}:${index}`,
+    roles: relation.roles,
+    sourceLabel: relation.source || "server-flow-related-object",
+    stepSummary: relation.stepSummary
   };
 }
 

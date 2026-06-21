@@ -50,6 +50,31 @@ const { buildTableObjectContextModel } = moduleShim.exports;
 
 const model = buildTableObjectContextModel({
   perspectivePlayerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["WAIT"],
+    playerId: "P1",
+    reason: "fixture",
+    serverFlow: {
+      relatedObjects: [
+        {
+          candidateBoundary: "服务端关联对象边界",
+          objectId: "battlefield-left",
+          role: "任务战场"
+        },
+        {
+          candidateRoles: ["费用"],
+          candidateSteps: [
+            { choiceCount: 2, index: 0, label: "费用", objectChoiceCount: 1, required: false, role: "optionalCost" }
+          ],
+          disabledCandidateCount: 1,
+          enabledCandidateCount: 2,
+          objectId: "p1-base-rune",
+          role: "费用资源"
+        }
+      ]
+    }
+  },
   snapshot: {
     activePlayerId: "P1",
     lanes: {
@@ -119,11 +144,20 @@ assert.equal(model.byId["conflicting-hand-card"].zone.kind, "graveyard");
 assert.equal(model.byId["conflicting-hand-card"].zone.label, "对方已打出牌堆");
 assert.equal(model.byId["battlefield-left"].zone.kind, "battlefield-site");
 assert.equal(model.byId["battlefield-left"].zone.label, "左战场牌");
+assert.equal(model.byId["battlefield-left"].contextSource, "server-flow-related-object");
+assert.equal(model.byId["battlefield-left"].contextBoundary, "服务端关联对象边界");
+assert.deepEqual(model.byId["battlefield-left"].serverRelations.map((relation) => relation.roles.join("/")), ["任务战场"]);
 assert.equal(model.byId["p1-left-unit"].zone.kind, "battlefield");
 assert.equal(model.byId["p1-left-unit"].zone.battlefieldObjectId, "battlefield-left");
 assert.equal(model.byId["p1-left-unit"].zone.label, "左战场 / 我方单位");
 assert.equal(model.byId["p1-base-rune"].zone.kind, "rune");
 assert.equal(model.byId["p1-base-rune"].zone.label, "我方已抽出符文");
+assert.equal(model.byId["p1-base-rune"].promptEnabledCount, 2);
+assert.equal(model.byId["p1-base-rune"].promptDisabledCount, 1);
+assert.deepEqual(
+  model.byId["p1-base-rune"].serverRelations.map((relation) => `${relation.roles.join("/")}:${relation.stepSummary}`),
+  ["费用资源/费用:费用 1/2"]
+);
 
 console.log("Table object context check passed.");
 

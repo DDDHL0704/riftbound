@@ -1767,9 +1767,14 @@ async function runWireRuleObjectRefSmoke(cdp) {
   const battlefieldResult = await evaluateJson(cdp, `(() => {
     const tableObject = document.querySelector('[data-object-id="fixture-left-battlefield"]');
     const selectedRef = document.querySelector('[data-rule-object-ref="fixture-left-battlefield"][data-selected="true"]');
+    const selectedObjectContext = document.querySelector('[data-wire-selected-object-context="fixture-left-battlefield"]');
     return {
+      contextAuthority: selectedObjectContext?.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-authority") ?? null,
+      contextSource: selectedObjectContext?.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-source") ?? null,
+      contextText: selectedObjectContext?.textContent ?? "",
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
+      hasSelectedObjectContext: Boolean(selectedObjectContext),
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
@@ -2286,6 +2291,11 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!serverFlowLayerClosed) failures.push("server flow layer did not close on Escape");
   if (battlefieldResult.selected !== "true") failures.push("battlefield ref did not focus battlefield card");
   if (!battlefieldResult.selectedRef) failures.push("battlefield ref did not show selected state");
+  if (!battlefieldResult.hasSelectedObjectContext) failures.push("battlefield ref did not expose selected object context");
+  if (battlefieldResult.contextAuthority !== "server") failures.push(`battlefield ref context authority unexpected: ${battlefieldResult.contextAuthority}`);
+  if (battlefieldResult.contextSource !== "服务端关联对象") failures.push(`battlefield ref context source unexpected: ${battlefieldResult.contextSource}`);
+  if (!battlefieldResult.contextText.includes("服务端关联对象")) failures.push("battlefield ref context server relation section missing");
+  if (!battlefieldResult.contextText.includes("相关战场")) failures.push("battlefield ref context relation role missing");
   if (battlefieldResult.detailLayerOpen) failures.push("battlefield ref opened detail layer");
   if (unitResult.selected !== "true") failures.push("unit ref did not focus unit card");
   if (!unitResult.selectedRef) failures.push("unit ref did not show selected state");

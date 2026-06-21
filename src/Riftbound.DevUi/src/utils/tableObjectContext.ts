@@ -4,6 +4,7 @@ import type {
   ActionPromptObjectCandidateStepDto,
   ActionPromptObjectContextDto,
   ActionPromptObjectInspectionDto,
+  ActionPromptServerFlowObjectRefDto,
   BattlefieldSnapshotView,
   CardObjectView,
   GameEvent,
@@ -53,6 +54,15 @@ export type TableObjectEventContext = {
   role: string;
 };
 
+export type TableObjectServerRelationContext = {
+  boundary?: string;
+  disabledCandidateCount?: number;
+  enabledCandidateCount?: number;
+  roles: string[];
+  source?: string;
+  stepSummary: string;
+};
+
 export type TableObjectCandidateContext = {
   category: string;
   commandFields: string[];
@@ -96,6 +106,7 @@ export type TableObjectContext = {
   promptDisabledCount: number;
   promptEnabledCount: number;
   serverInspection?: ActionPromptObjectInspectionDto | null;
+  serverRelations: TableObjectServerRelationContext[];
   stackRoles: string[];
   stateLabels: string[];
   zone: TableObjectZoneContext;
@@ -132,6 +143,7 @@ export function buildTableObjectContextModel({
   const zoneById = buildZoneIndex(snapshot, objects, perspectivePlayerId);
   const promptModel = buildPromptInteractionModel(prompt);
   const serverObjectContextById = buildServerObjectContextIndex(prompt?.objectContexts);
+  const serverRelationsById = buildServerRelationIndex(prompt?.serverFlow?.relatedObjects);
   const eventLinksById = buildEventLinks(events);
   const stackRolesById = buildStackRoles(snapshot?.stack ?? []);
   const objectIds = new Set<string>([
@@ -139,6 +151,7 @@ export function buildTableObjectContextModel({
     ...Object.keys(zoneById),
     ...promptModel.objectById.keys(),
     ...serverObjectContextById.keys(),
+    ...serverRelationsById.keys(),
     ...Object.keys(eventLinksById),
     ...Object.keys(stackRolesById)
   ]);
@@ -148,6 +161,7 @@ export function buildTableObjectContextModel({
     const object = objects[objectId];
     const promptSummary = promptModel.objectById.get(objectId);
     const serverContext = serverObjectContextById.get(objectId);
+    const serverRelations = serverRelationsById.get(objectId) ?? [];
     const derivedCandidateLinks = promptModel.candidates
       .filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId)))
       .map((candidate) => candidateContextForObject(candidate, objectId));
@@ -162,14 +176,21 @@ export function buildTableObjectContextModel({
       candidateSource,
       cardNo: object?.cardNo,
       controllerId: object?.controllerId,
-      contextBoundary: objectContextBoundary(serverContext, candidateSource),
-      contextSource: objectContextSource(serverContext, candidateSource),
+      contextBoundary: objectContextBoundary(serverContext, candidateSource, serverRelations),
+      contextSource: objectContextSource(serverContext, candidateSource, serverRelations),
       eventLinks: eventLinksById[objectId] ?? [],
       object,
       objectId,
       ownerId: object?.ownerId,
-      promptDisabledCount: serverContext?.disabledCandidateCount ?? promptSummary?.disabledCandidateCount ?? 0,
-      promptEnabledCount: serverContext?.enabledCandidateCount ?? promptSummary?.enabledCandidateCount ?? 0,
+      promptDisabledCount: serverContext?.disabledCandidateCount
+        ?? relationCandidateCount(serverRelations, "disabled")
+        ?? promptSummary?.disabledCandidateCount
+        ?? 0,
+      promptEnabledCount: serverContext?.enabledCandidateCount
+        ?? relationCandidateCount(serverRelations, "enabled")
+        ?? promptSummary?.enabledCandidateCount
+        ?? 0,
+      serverRelations,
       serverInspection: serverContext?.inspection,
       stackRoles: stackRolesById[objectId] ?? [],
       stateLabels: objectStateLabels(object),
@@ -200,6 +221,8 @@ export function tableObjectContextSourceLabel(context: Pick<TableObjectContext, 
   }
 
   switch (source) {
+    case "server-flow-related-object":
+      return "服务端关联对象";
     case "server-action-prompt":
       return "服务端对象上下文";
     case "prompt-public-derived":
@@ -224,13 +247,46 @@ function buildServerObjectContextIndex(
   return byId;
 }
 
+function buildServerRelationIndex(
+  relatedObjects: ActionPromptServerFlowObjectRefDto[] | null | undefined
+): Map<string, TableObjectServerRelationContext[]> {
+  const byId = new Map<string, TableObjectServerRelationContext[]>();
+  for (const ref of relatedObjects ?? []) {
+    const objectId = ref.objectId?.trim();
+    if (!objectId) {
+      continue;
+    }
+
+    const relation: TableObjectServerRelationContext = {
+      boundary: ref.candidateBoundary?.trim() || undefined,
+      disabledCandidateCount: numberOrUndefined(ref.disabledCandidateCount),
+      enabledCandidateCount: numberOrUndefined(ref.enabledCandidateCount),
+      roles: uniqueStrings([
+        ref.role,
+        ...(ref.candidateRoles ?? [])
+      ]),
+      source: ref.candidateSource?.trim() || "server-flow-related-object",
+      stepSummary: serverRelationStepSummary(ref.candidateSteps)
+    };
+    byId.set(objectId, [...(byId.get(objectId) ?? []), relation]);
+  }
+
+  return byId;
+}
+
 function objectContextSource(
   context: ActionPromptObjectContextDto | undefined,
-  candidateSource: TableObjectCandidateSource
+  candidateSource: TableObjectCandidateSource,
+  serverRelations: TableObjectServerRelationContext[]
 ): string {
   const serverSource = context?.source?.trim() || context?.inspection?.source?.trim();
   if (serverSource) {
     return serverSource;
+  }
+
+  const relationSource = serverRelations.find((relation) => relation.source)?.source?.trim();
+  if (relationSource) {
+    return relationSource;
   }
 
   switch (candidateSource) {
@@ -245,11 +301,21 @@ function objectContextSource(
 
 function objectContextBoundary(
   context: ActionPromptObjectContextDto | undefined,
-  candidateSource: TableObjectCandidateSource
+  candidateSource: TableObjectCandidateSource,
+  serverRelations: TableObjectServerRelationContext[]
 ): string {
   const serverBoundary = context?.boundary?.trim() || context?.inspection?.boundary?.trim();
   if (serverBoundary) {
     return serverBoundary;
+  }
+
+  const relationBoundary = serverRelations.find((relation) => relation.boundary)?.boundary?.trim();
+  if (relationBoundary) {
+    return relationBoundary;
+  }
+
+  if (serverRelations.length > 0) {
+    return "服务端流程只公开该对象与当前规则队列、结算链、费用或提示窗口的关联角色；没有候选命令时前端只做定位和检查，不推断可提交操作。";
   }
 
   switch (candidateSource) {
@@ -350,6 +416,25 @@ function objectCandidateStepsFromServer(
       role: step.role || step.label || "step"
     }))
     .sort((left, right) => left.index - right.index || left.role.localeCompare(right.role));
+}
+
+function serverRelationStepSummary(steps: ActionPromptObjectCandidateStepDto[] | null | undefined): string {
+  const publicSteps = objectCandidateStepsFromServer(steps)
+    .filter((step) => step.required || step.objectChoiceCount > 0)
+    .sort((left, right) => {
+      if (left.objectChoiceCount !== right.objectChoiceCount) {
+        return right.objectChoiceCount - left.objectChoiceCount;
+      }
+
+      return left.index - right.index || left.role.localeCompare(right.role);
+    });
+  if (publicSteps.length === 0) {
+    return "无候选步骤";
+  }
+
+  const visible = publicSteps.slice(0, 3).map((step) =>
+    `${step.label}${step.required ? "*" : ""} ${step.objectChoiceCount}/${step.choiceCount}`);
+  return publicSteps.length > 3 ? `${visible.join(" / ")} +${publicSteps.length - 3}` : visible.join(" / ");
 }
 
 function composerContextFromServerObjectCandidate(candidate: ActionPromptObjectCandidateDto): PromptCandidateComposerSummary {
@@ -590,6 +675,24 @@ function playerSideLabel(playerId: string | null | undefined, perspectivePlayerI
 
 function numberOrZero(value: number | null | undefined): number {
   return Number.isFinite(value) ? Number(value) : 0;
+}
+
+function numberOrUndefined(value: number | null | undefined): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : undefined;
+}
+
+function relationCandidateCount(
+  relations: TableObjectServerRelationContext[],
+  kind: "disabled" | "enabled"
+): number | undefined {
+  const values = relations
+    .map((relation) => kind === "enabled" ? relation.enabledCandidateCount : relation.disabledCandidateCount)
+    .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  if (values.length === 0) {
+    return undefined;
+  }
+
+  return values.reduce((total, value) => total + value, 0);
 }
 
 function uniqueStrings(values: string[]): string[] {
