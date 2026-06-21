@@ -882,6 +882,13 @@ async function runWireClickSelectionSmoke(cdp) {
       contextAuthority: document.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-authority") ?? null,
       contextSource: document.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-source") ?? null,
       contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
+      contextSectionCount: document.querySelectorAll(".wire-object-context [data-wire-object-section]").length,
+      contextSections: Array.from(document.querySelectorAll(".wire-object-context [data-wire-object-section]"))
+        .map((node) => [
+          node.getAttribute("data-wire-object-section") ?? "",
+          node.getAttribute("data-wire-object-section-state") ?? "",
+          node.getAttribute("data-wire-object-section-count") ?? ""
+        ].join(":")),
       objectCommandComposerStates: Array.from(document.querySelectorAll(".wire-object-context [data-wire-object-command-composer-state]"))
         .map((node) => node.getAttribute("data-wire-object-command-composer-state")),
       grammarComposerState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-composer-state") ?? null,
@@ -1389,6 +1396,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.contextText.includes("组合：服务端声明")) failures.push("object context composer authority missing");
   if (focusResult.contextAuthority !== "server") failures.push(`object context authority unexpected: ${focusResult.contextAuthority}`);
   if (focusResult.contextSource !== "服务端对象上下文") failures.push(`object context source unexpected: ${focusResult.contextSource}`);
+  if (focusResult.contextSectionCount < 8) failures.push(`object context section map incomplete: ${focusResult.contextSectionCount}`);
+  if (!focusResult.contextSections.some((row) => row.startsWith("identity:ready:"))) failures.push(`object context identity section missing: ${focusResult.contextSections.join(",")}`);
+  if (!focusResult.contextSections.some((row) => row.startsWith("authority:server:"))) failures.push(`object context authority section missing server state: ${focusResult.contextSections.join(",")}`);
+  if (!focusResult.contextSections.some((row) => row.startsWith("syntax:warning:") || row.startsWith("syntax:ready:"))) failures.push(`object context syntax section missing: ${focusResult.contextSections.join(",")}`);
+  if (!focusResult.contextSections.some((row) => row.startsWith("commands:ready:"))) failures.push(`object context command section missing ready state: ${focusResult.contextSections.join(",")}`);
+  if (!focusResult.contextSections.some((row) => row.startsWith("events:"))) failures.push(`object context event section missing state row: ${focusResult.contextSections.join(",")}`);
+  if (!focusResult.contextSections.some((row) => row.startsWith("contract:server:"))) failures.push(`object context contract section missing server state: ${focusResult.contextSections.join(",")}`);
   if (!focusResult.contextText.includes("权威：服务端对象上下文")) failures.push("object context authority label missing");
   if (!focusResult.contextText.includes("服务端对象上下文")) failures.push("object context did not use server object candidate index");
   if (!focusResult.objectCommandComposerStates.includes("server")) failures.push("object context composer state missing");

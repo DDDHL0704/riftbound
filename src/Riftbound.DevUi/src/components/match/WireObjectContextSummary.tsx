@@ -26,17 +26,37 @@ export function WireObjectContextSummary({
       data-wire-object-context-source={plan.contextSourceLabel}
     >
       <div className="wire-object-context-grid">
-        {plan.statusCards.map((card) => (
-          <span key={card.label}>
+        {plan.statusCards.map((card, index) => (
+          <span data-wire-object-status-card={index} key={card.label}>
             <small>{card.label}</small>
             <strong>{card.value}</strong>
           </span>
         ))}
       </div>
+      <ol className="wire-object-section-map" aria-label="焦点对象结构分区">
+        {plan.sectionRows.map((section) => (
+          <li
+            data-wire-object-section={section.key}
+            data-wire-object-section-count={section.count}
+            data-wire-object-section-source={section.sourceLabel}
+            data-wire-object-section-state={section.state}
+            key={section.key}
+          >
+            <span>{section.label}</span>
+            <strong>{section.stateLabel}</strong>
+            <small>{section.summary}</small>
+          </li>
+        ))}
+      </ol>
       <span className="wire-object-context-line" data-wire-object-context-authority-label>权威：{plan.authorityLabel}</span>
       <span className="wire-object-context-line" data-wire-object-context-boundary>{plan.boundaryLabel}</span>
       {plan.contract && (
-        <div className="wire-object-contract-block" aria-label="焦点对象提示契约">
+        <div
+          className="wire-object-contract-block"
+          aria-label="焦点对象提示契约"
+          data-wire-object-contract="true"
+          data-wire-object-contract-kind={plan.contract.promptKind}
+        >
           <span className="wire-object-context-line">提示契约：{plan.contract.promptKind} / {plan.contract.candidateAction}</span>
           <div>
             <small>提交 {plan.contract.requiredPayloadCount}</small>
@@ -95,7 +115,11 @@ export function WireObjectContextSummary({
       {plan.nextStepRows.length > 0 && (
         <ol className="wire-object-next-step-list" aria-label="焦点对象候选步骤">
           {plan.nextStepRows.slice(0, 3).map((row) => (
-            <li className={row.enabled ? "is-enabled" : "is-disabled"} key={`${row.candidateLabel}-${row.nextStepLabel ?? row.stateLabel}`}>
+            <li
+              className={row.enabled ? "is-enabled" : "is-disabled"}
+              data-wire-object-next-step-enabled={row.enabled ? "true" : "false"}
+              key={`${row.candidateLabel}-${row.nextStepLabel ?? row.stateLabel}`}
+            >
               <span>{row.candidateLabel}</span>
               <strong>{row.stateLabel}{row.nextStepLabel ? `；下一步 ${row.nextStepLabel}` : ""}</strong>
             </li>
@@ -133,7 +157,11 @@ export function WireObjectContextSummary({
           <span className="wire-object-context-line">近期事件</span>
           <ol className="wire-object-event-list" aria-label="焦点对象近期事件">
             {plan.eventRows.map((event, index) => (
-              <li key={`${event.kind}-${event.role}-${index}`}>
+              <li
+                data-wire-object-event-kind={event.kind}
+                data-wire-object-event-role={event.role}
+                key={`${event.kind}-${event.role}-${index}`}
+              >
                 <span>{event.role}</span>
                 <strong>{event.description}</strong>
               </li>

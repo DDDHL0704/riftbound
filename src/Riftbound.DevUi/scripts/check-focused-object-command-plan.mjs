@@ -183,6 +183,22 @@ assert.equal(plan.contextSourceLabel, "服务端对象上下文");
 assert.equal(plan.statusCards.length, 5);
 assert.equal(plan.statusCards[0].value, "我方手牌");
 assert.equal(plan.statusCards[3].value, "服务端对象上下文");
+assert.deepEqual(
+  plan.sectionRows.map((row) => `${row.key}:${row.state}:${row.count}:${row.stateLabel}`),
+  [
+    "identity:ready:1:已定位",
+    "authority:server:2:服务端对象上下文",
+    "syntax:warning:3:缺少 1",
+    "commands:ready:2:有可提交",
+    "relations:empty:0:无关联",
+    "stack:ready:1:有关联",
+    "events:ready:2:有记录",
+    "contract:server:1:服务端契约"
+  ]
+);
+assert.ok(plan.sectionRows.find((row) => row.key === "authority")?.summary.includes("服务端对象上下文"));
+assert.ok(plan.sectionRows.find((row) => row.key === "commands")?.summary.includes("1 可用 / 1 阻断"));
+assert.ok(plan.sectionRows.find((row) => row.key === "syntax")?.summary.includes("还需 目标"));
 assert.ok(plan.boundaryLabel.includes("服务端对象上下文"));
 assert.equal(plan.commandRows.length, 2);
 assert.equal(plan.commandRows[0].commandType, "PLAY_CARD");

@@ -62,6 +62,28 @@ export type FocusedObjectEventRow = {
   role: string;
 };
 
+export type FocusedObjectSectionKey =
+  | "authority"
+  | "commands"
+  | "contract"
+  | "events"
+  | "identity"
+  | "relations"
+  | "stack"
+  | "syntax";
+
+export type FocusedObjectSectionState = "derived" | "empty" | "ready" | "server" | "snapshot" | "warning";
+
+export type FocusedObjectSectionRow = {
+  count: number;
+  key: FocusedObjectSectionKey;
+  label: string;
+  sourceLabel: string;
+  state: FocusedObjectSectionState;
+  stateLabel: string;
+  summary: string;
+};
+
 export type FocusedObjectCommandPlan = {
   authorityLabel: string;
   authorityState: FocusedObjectAuthorityState;
@@ -71,6 +93,7 @@ export type FocusedObjectCommandPlan = {
   contextSourceLabel: string;
   eventRows: FocusedObjectEventRow[];
   nextStepRows: FocusedObjectNextStepRow[];
+  sectionRows: FocusedObjectSectionRow[];
   serverRelationRows: FocusedObjectServerRelationRow[];
   stackRoles: string[];
   statusCards: FocusedObjectStatusCard[];
@@ -101,6 +124,7 @@ export function buildFocusedObjectCommandPlan({
   const commandRows = context.candidateLinks
     .map(commandRowFromCandidate)
     .sort(commandRowSort);
+  const syntax = buildWireActionSyntaxPlanFromTableContext(context);
   const nextStepRows = (focusModel?.candidates ?? [])
     .map(({ candidate, nextStep, stateLabel }) => ({
       candidateLabel: candidate.label,
@@ -113,19 +137,31 @@ export function buildFocusedObjectCommandPlan({
     : "无公开状态";
   const candidateValue = `${context.promptEnabledCount} 可用 / ${context.promptDisabledCount} 阻断`;
   const authority = focusedObjectAuthorityFor(context);
+  const contractPlan = contractSummary(contract);
+  const serverRelationRows = (context.serverRelations ?? []).map(serverRelationRowFromContext);
+  const eventRows = context.eventLinks.slice(-3).reverse().map(eventRowFromContext);
 
   return {
     authorityLabel: authority.label,
     authorityState: authority.state,
     boundaryLabel: context.contextBoundary,
     commandRows,
-    contract: contractSummary(contract),
+    contract: contractPlan,
     contextSourceLabel: authority.sourceLabel,
-    eventRows: context.eventLinks.slice(-3).reverse().map(eventRowFromContext),
+    eventRows,
     nextStepRows,
-    serverRelationRows: (context.serverRelations ?? []).map(serverRelationRowFromContext),
+    sectionRows: sectionRowsFor({
+      authority,
+      commandRows,
+      context,
+      contract: contractPlan,
+      eventRows,
+      serverRelationRows,
+      syntax
+    }),
+    serverRelationRows,
     stackRoles: context.stackRoles,
-    syntax: buildWireActionSyntaxPlanFromTableContext(context),
+    syntax,
     statusCards: [
       { label: "位置", value: context.zone.label },
       { label: "状态", value: stateValue },
@@ -134,6 +170,114 @@ export function buildFocusedObjectCommandPlan({
       { label: "下一步", value: focusModel?.nextStepLabel ?? "点击桌面对象查看服务端候选" }
     ]
   };
+}
+
+function sectionRowsFor({
+  authority,
+  commandRows,
+  context,
+  contract,
+  eventRows,
+  serverRelationRows,
+  syntax
+}: {
+  authority: ReturnType<typeof focusedObjectAuthorityFor>;
+  commandRows: FocusedObjectCommandRow[];
+  context: TableObjectContext;
+  contract?: FocusedObjectContractSummary;
+  eventRows: FocusedObjectEventRow[];
+  serverRelationRows: FocusedObjectServerRelationRow[];
+  syntax: WireActionSyntaxPlan;
+}): FocusedObjectSectionRow[] {
+  return [
+    {
+      count: 1,
+      key: "identity",
+      label: "对象身份",
+      sourceLabel: context.zone.label,
+      state: "ready",
+      stateLabel: "已定位",
+      summary: `${context.objectId} / ${context.cardNo ?? context.object?.cardNo ?? "未知卡号"}`
+    },
+    {
+      count: context.promptEnabledCount + context.promptDisabledCount,
+      key: "authority",
+      label: "服务边界",
+      sourceLabel: authority.sourceLabel,
+      state: sectionAuthorityState(authority.state),
+      stateLabel: authority.label,
+      summary: context.contextBoundary
+    },
+    {
+      count: syntax.rows.length,
+      key: "syntax",
+      label: "候选语法",
+      sourceLabel: syntax.rows.length > 0 ? "对象候选" : "无候选",
+      state: syntax.missingRequiredCount > 0 ? "warning" : syntax.rows.length > 0 ? "ready" : "empty",
+      stateLabel: syntax.missingRequiredCount > 0 ? `缺少 ${syntax.missingRequiredCount}` : syntax.rows.length > 0 ? "已映射" : "无语法",
+      summary: syntax.summary
+    },
+    {
+      count: commandRows.length,
+      key: "commands",
+      label: "服务端命令",
+      sourceLabel: commandRows.length > 0 ? "prompt.commandTemplate" : "无命令",
+      state: commandRows.some((row) => row.enabled) ? "ready" : commandRows.length > 0 ? "warning" : "empty",
+      stateLabel: commandRows.some((row) => row.enabled) ? "有可提交" : commandRows.length > 0 ? "全部阻断" : "无命令",
+      summary: `${commandRows.filter((row) => row.enabled).length} 可用 / ${commandRows.filter((row) => !row.enabled).length} 阻断`
+    },
+    {
+      count: serverRelationRows.length,
+      key: "relations",
+      label: "服务端关联",
+      sourceLabel: serverRelationRows.length > 0 ? "serverFlow.relatedObjects" : "无关联",
+      state: serverRelationRows.length > 0 ? "server" : "empty",
+      stateLabel: serverRelationRows.length > 0 ? "已关联" : "无关联",
+      summary: serverRelationRows.length > 0 ? serverRelationRows.map((row) => row.roles.join("/") || "关联").join(" / ") : "无服务端关联对象。"
+    },
+    {
+      count: context.stackRoles.length,
+      key: "stack",
+      label: "结算链角色",
+      sourceLabel: context.stackRoles.length > 0 ? "snapshot.stack" : "无结算链",
+      state: context.stackRoles.length > 0 ? "ready" : "empty",
+      stateLabel: context.stackRoles.length > 0 ? "有关联" : "无角色",
+      summary: context.stackRoles.length > 0 ? context.stackRoles.join(" / ") : "当前对象不在公开结算链中。"
+    },
+    {
+      count: eventRows.length,
+      key: "events",
+      label: "近期事件",
+      sourceLabel: eventRows.length > 0 ? "event log" : "无事件",
+      state: eventRows.length > 0 ? "ready" : "empty",
+      stateLabel: eventRows.length > 0 ? "有记录" : "无记录",
+      summary: eventRows.length > 0 ? eventRows.map((event) => `${event.role}:${event.kind}`).join(" / ") : "无公开关联事件。"
+    },
+    {
+      count: contract ? 1 : 0,
+      key: "contract",
+      label: "提示契约",
+      sourceLabel: contract ? contract.promptKind : "无契约",
+      state: contract ? "server" : "empty",
+      stateLabel: contract ? "服务端契约" : "无契约",
+      summary: contract
+        ? `${contract.candidateAction} / 提交 ${contract.requiredPayloadCount} / 合法 ${contract.legalChoicesCount}`
+        : "当前提示未公开契约。"
+    }
+  ];
+}
+
+function sectionAuthorityState(state: FocusedObjectAuthorityState): FocusedObjectSectionState {
+  switch (state) {
+    case "derived":
+      return "derived";
+    case "server":
+      return "server";
+    case "snapshot":
+      return "snapshot";
+    case "none":
+      return "empty";
+  }
 }
 
 function focusedObjectAuthorityFor(context: TableObjectContext): {

@@ -12086,6 +12086,7 @@ button.card-face:hover {
 .wire-object-route-review-submit,
 .wire-object-context,
 .wire-object-context-grid span,
+.wire-object-section-map li,
 .wire-object-contract-block,
 .wire-object-contract-block small,
 .wire-object-syntax-block,
@@ -13633,6 +13634,7 @@ button.card-face:hover {
 }
 
 .wire-object-context-grid span,
+.wire-object-section-map li,
 .wire-object-contract-block,
 .wire-object-syntax-list li,
 .wire-object-next-step-list li,
@@ -13647,6 +13649,8 @@ button.card-face:hover {
 
 .wire-object-context-grid small,
 .wire-object-context-line,
+.wire-object-section-map span,
+.wire-object-section-map small,
 .wire-object-contract-block small,
 .wire-object-syntax-list span,
 .wire-object-syntax-list small,
@@ -13661,6 +13665,8 @@ button.card-face:hover {
 
 .wire-object-context-grid strong,
 .wire-object-context-line,
+.wire-object-section-map strong,
+.wire-object-section-map small,
 .wire-object-syntax-list span,
 .wire-object-syntax-list strong,
 .wire-object-syntax-list small,
@@ -13678,6 +13684,7 @@ button.card-face:hover {
 
 .wire-object-command-list,
 .wire-object-next-step-list,
+.wire-object-section-map,
 .wire-object-syntax-list,
 .wire-object-server-relation-list,
 .wire-object-event-list {
@@ -13686,6 +13693,21 @@ button.card-face:hover {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.wire-object-section-map {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wire-object-section-map li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-object-section-map li[data-wire-object-section-state="warning"] {
+  border-style: dashed;
 }
 
 .wire-object-command-block,
@@ -16774,6 +16796,17 @@ button.wire-object-ref {
 .wire-match-page .wire-object-route-review-fields span,
 .wire-match-page .wire-object-route-review-checks li,
 .wire-match-page .wire-object-route-review-submit,
+.wire-match-page .wire-object-context,
+.wire-match-page .wire-object-context-grid span,
+.wire-match-page .wire-object-section-map li,
+.wire-match-page .wire-object-contract-block,
+.wire-match-page .wire-object-contract-block small,
+.wire-match-page .wire-object-syntax-block,
+.wire-match-page .wire-object-syntax-list li,
+.wire-match-page .wire-object-next-step-list li,
+.wire-match-page .wire-object-server-relation-list li,
+.wire-match-page .wire-object-command-list li,
+.wire-match-page .wire-object-event-list li,
 .wire-match-page .wire-prompt-candidates,
 .wire-match-page .wire-prompt-contract,
 .wire-match-page .wire-candidate-row,
