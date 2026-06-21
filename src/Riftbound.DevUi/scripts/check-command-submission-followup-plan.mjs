@@ -86,11 +86,20 @@ const eventPlan = buildCommandSubmissionFollowupPlan({
     receiptState: "ACCEPTED",
     serverTick: 12,
     state: "sent",
-    stateLabel: "服务端已接受"
+    stateLabel: "服务端已接受",
+    uiSource: {
+      detailId: "rule:stack:1",
+      label: "规则与事件详情",
+      objectId: "card-1",
+      surface: "timeline-detail"
+    }
   },
   snapshot: { tick: 12 }
 });
 assert.equal(eventPlan.state, "accepted-events");
+assert.equal(eventPlan.uiSource?.surface, "timeline-detail");
+assert.equal(eventPlan.uiSource?.detailId, "rule:stack:1");
+assert.equal(eventPlan.uiSource?.objectId, "card-1");
 assert.equal(eventPlan.events.length, 2);
 assert.equal(eventPlan.events[0].title, "label:MAIN_PHASE_BEGAN");
 assert.equal(eventPlan.events[1].refCount, 2);

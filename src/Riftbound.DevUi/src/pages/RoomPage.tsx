@@ -38,17 +38,26 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
     }
 
     if (entry.command) {
-      void controller.submitCommand(entry.command);
+      void controller.submitCommand(entry.command, {
+        label: `房间快捷：${entry.label}`,
+        surface: "room"
+      });
       return;
     }
 
     if (entry.directAction === "submitDeck") {
-      void controller.submitStarterDeck();
+      void controller.submitStarterDeck({
+        label: `房间快捷：${entry.label}`,
+        surface: "room"
+      });
       return;
     }
 
     if (entry.directAction === "ready") {
-      void controller.ready();
+      void controller.ready({
+        label: `房间快捷：${entry.label}`,
+        surface: "room"
+      });
     }
   }, [controller]);
 

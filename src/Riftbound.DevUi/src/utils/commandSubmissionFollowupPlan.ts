@@ -48,6 +48,14 @@ export type CommandSubmissionFollowupFeedback = {
   followup?: CommandReceiptFollowupDto | null;
   serverTick?: number | null;
   state?: string;
+  uiSource?: CommandSubmissionUiSource;
+};
+
+export type CommandSubmissionUiSource = {
+  detailId?: string;
+  label: string;
+  objectId?: string;
+  surface: string;
 };
 
 export type CommandSubmissionFollowupEventRow = {
@@ -77,6 +85,7 @@ export type CommandSubmissionFollowupPlan = {
   serverFollowupStateLabel: string;
   state: CommandSubmissionFollowupState;
   summary: string;
+  uiSource?: CommandSubmissionUiSource;
 };
 
 export function buildCommandSubmissionFollowupPlan({
@@ -138,6 +147,7 @@ export function buildCommandSubmissionFollowupPlan({
         serverTick
       }),
       ...serverFollowupFields(feedback),
+      uiSource: feedback.uiSource,
       state: "accepted-events",
       summary: receiptFollowup?.summary ?? `服务端 tick ${serverTick} 广播 ${authoritativeEventCount} 条后续事件。`
     });
@@ -156,6 +166,7 @@ export function buildCommandSubmissionFollowupPlan({
         serverTick
       }),
       ...serverFollowupFields(feedback),
+      uiSource: feedback.uiSource,
       state: "accepted-awaiting",
       summary: `服务端回执声明 tick ${serverTick} 有 ${reportedEventCount} 条公开事件，等待事件流抵达。`
     });
@@ -174,6 +185,7 @@ export function buildCommandSubmissionFollowupPlan({
         serverTick
       }),
       ...serverFollowupFields(feedback),
+      uiSource: feedback.uiSource,
       state: "accepted-snapshot",
       summary: receiptFollowup?.summary ?? `当前快照已追上 tick ${serverTick}；该命令没有公开事件，后续以当前快照/提示为准。`
     });
@@ -191,6 +203,7 @@ export function buildCommandSubmissionFollowupPlan({
       serverTick
     }),
     ...serverFollowupFields(feedback),
+    uiSource: feedback.uiSource,
     state: "accepted-awaiting",
     summary: `等待 tick ${serverTick} 的事件或快照广播。`
   });
@@ -215,6 +228,7 @@ function emptyPlan(
       serverTick: serverTick ?? numberOrUndefined(feedback?.followup?.serverTick)
     }),
     ...serverFollowupFields(feedback),
+    uiSource: feedback?.uiSource,
     state,
     summary
   });

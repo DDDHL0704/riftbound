@@ -349,17 +349,26 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     }
 
     if (entry.command) {
-      void controller.submitCommand(entry.command);
+      void controller.submitCommand(entry.command, {
+        label: `顶部快捷：${entry.label}`,
+        surface: "topbar"
+      });
       return;
     }
 
     if (entry.directAction === "ready") {
-      void controller.ready();
+      void controller.ready({
+        label: `顶部快捷：${entry.label}`,
+        surface: "topbar"
+      });
       return;
     }
 
     if (entry.directAction === "submitDeck") {
-      void controller.submitStarterDeck();
+      void controller.submitStarterDeck({
+        label: `顶部快捷：${entry.label}`,
+        surface: "topbar"
+      });
     }
   }, [controller]);
   const sidePanelDirectory = useMemo(() => buildWireSidePanelDirectoryPlan(WIRE_TABLE_LAYOUT.sidePanel.slots), []);
@@ -398,7 +407,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           focusedPlan={selectedFocusPlan}
           objectContext={selectedObjectContext}
           onClearFocus={clearInspectedCard}
-          onCommand={(command) => void controller.submitCommand(command)}
+          onCommand={(command) => void controller.submitCommand(command, {
+            label: "指挥中心",
+            objectId: selectedObjectId,
+            surface: "command-center"
+          })}
           onInspectObject={inspectObjectFromTable}
           playerId={settings.playerId}
           prompt={tablePrompt}
@@ -463,7 +476,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         <WireActionMapPanel
           events={tableEvents}
           onChooseObject={chooseObjectFromActionMap}
-          onCommand={(command) => void controller.submitCommand(command)}
+          onCommand={(command) => void controller.submitCommand(command, {
+            label: "右侧合法操作",
+            objectId: selectedObjectId,
+            surface: "action-map"
+          })}
           onInspectObject={inspectObjectFromTable}
           playerId={settings.playerId}
           prompt={tablePrompt}
@@ -482,7 +499,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           disabledByConnection={!tableSubmissionGate.canSubmit}
           focusedPlan={selectedFocusPlan}
           inspectedCard={inspectedCard}
-          onCommand={(command) => void controller.submitCommand(command)}
+          onCommand={(command) => void controller.submitCommand(command, {
+            label: "焦点卡牌和候选行动",
+            objectId: selectedObjectId,
+            surface: "interaction-panel"
+          })}
           onClearInspectedCard={clearInspectedCard}
           onInspectObject={inspectObjectFromTable}
           onOpenDetail={openDetailCard}
@@ -518,7 +539,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           objectContextById={tableObjectContextModel.byId}
           objectIndex={tableObjectIndex}
           onChooseObject={chooseObjectFromActionMap}
-          onCommand={(command) => void controller.submitCommand(command)}
+          onCommand={(command) => void controller.submitCommand(command, {
+            detailId: timelineDetail?.id,
+            label: "规则与事件详情",
+            objectId: selectedObjectId,
+            surface: "timeline-detail"
+          })}
           onClear={clearTimelineDetail}
           onInspectObject={inspectObjectFromTable}
           onOpenLayer={() => setTimelineLayerOpen(true)}
@@ -537,9 +563,18 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" data-wire-side-panel-slot="actionPrompt" id={sidePanelDirectory.bySlot.actionPrompt.anchorId} key="actionPrompt" tabIndex={0}>
         <ActionPanel
           connectionStatus={tableConnectionStatus}
-          onCommand={(command) => void controller.submitCommand(command)}
-          onReady={() => void controller.ready()}
-          onSubmitStarterDeck={() => void controller.submitStarterDeck()}
+          onCommand={(command) => void controller.submitCommand(command, {
+            label: "服务端行动提示",
+            surface: "action-prompt"
+          })}
+          onReady={() => void controller.ready({
+            label: "服务端行动提示：准备",
+            surface: "action-prompt"
+          })}
+          onSubmitStarterDeck={() => void controller.submitStarterDeck({
+            label: "服务端行动提示：提交构筑",
+            surface: "action-prompt"
+          })}
           playerId={settings.playerId}
           prompt={tablePrompt}
           snapshot={tableSnapshot}
@@ -611,7 +646,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             inspectedCard={inspectedCard}
             objectContext={selectedObjectContext}
             onClear={clearInspectedCard}
-            onCommand={(command) => void controller.submitCommand(command)}
+            onCommand={(command) => void controller.submitCommand(command, {
+              label: "桌面对象命令托盘",
+              objectId: selectedObjectId,
+              surface: "object-command-tray"
+            })}
             onOpenDetail={openDetailCard}
             prompt={tablePrompt}
             snapshot={tableSnapshot}
@@ -629,7 +668,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         disabledByConnection={!tableSubmissionGate.canSubmit}
         objectContext={detailObjectContext}
         onClose={() => setDetailCard(undefined)}
-        onCommand={(command) => void controller.submitCommand(command)}
+        onCommand={(command) => void controller.submitCommand(command, {
+          label: "卡牌详情抽屉",
+          objectId: detailObjectId,
+          surface: "card-detail"
+        })}
         onInspectObject={inspectObjectFromDetail}
         playerId={settings.playerId}
         prompt={tablePrompt}
@@ -644,7 +687,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         objectContextById={tableObjectContextModel.byId}
         objectIndex={tableObjectIndex}
         onChooseObject={chooseObjectFromActionMap}
-        onCommand={(command) => void controller.submitCommand(command)}
+        onCommand={(command) => void controller.submitCommand(command, {
+          detailId: timelineDetail?.id,
+          label: "规则事件检查层",
+          objectId: selectedObjectId,
+          surface: "timeline-detail-layer"
+        })}
         onClear={clearTimelineDetail}
         onClose={() => setTimelineLayerOpen(false)}
         onInspectObject={inspectObjectFromTable}

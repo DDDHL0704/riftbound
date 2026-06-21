@@ -64,6 +64,18 @@ export function WireCommandFollowupPanel({
         <strong>后续事件</strong>
         <span>{plan.summary}</span>
       </div>
+      {plan.uiSource && (
+        <div
+          aria-label="提交界面来源"
+          className="wire-command-followup-source"
+          data-command-followup-source-detail={plan.uiSource.detailId ?? ""}
+          data-command-followup-source-object={plan.uiSource.objectId ?? ""}
+          data-command-followup-source-surface={plan.uiSource.surface}
+        >
+          <small>提交入口</small>
+          <strong>{plan.uiSource.label}</strong>
+        </div>
+      )}
       {layoutProjection && (
         <CommandFollowupLayoutProjectionPanel onInspectObject={onInspectObject} plan={layoutProjection} />
       )}

@@ -14,7 +14,7 @@ import {
   WsServerMessage
 } from "../types/protocol";
 import { errorMessageLabel } from "../utils/errors";
-import type { ObservedGameEvent } from "../utils/commandSubmissionFollowupPlan";
+import type { CommandSubmissionUiSource, ObservedGameEvent } from "../utils/commandSubmissionFollowupPlan";
 
 export type MatchControllerState = {
   status: ConnectionStatus;
@@ -42,6 +42,7 @@ export type CommandSubmissionFeedback = {
   state: CommandSubmissionState;
   stateLabel: string;
   submittedAt: number;
+  uiSource?: CommandSubmissionUiSource;
 };
 
 export function useMatchController(serverUrl: string, roomId: string, playerId: string) {
@@ -152,7 +153,8 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
   const submitReceiptBackedCommand = useCallback(
     async (
       command: GameCommand,
-      submit: (clientIntentId: string, stampedCommand: GameCommand) => Promise<CommandReceiptDto>
+      submit: (clientIntentId: string, stampedCommand: GameCommand) => Promise<CommandReceiptDto>,
+      uiSource?: CommandSubmissionUiSource
     ) => {
       const stampedCommand = withCurrentPromptStamp(command, state.prompt);
       const clientIntentId = intentId(playerId, command.cmdType);
@@ -161,7 +163,8 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
         command: stampedCommand,
         message: "命令已从前端发出，等待服务端入口确认。",
         state: "submitting",
-        stateLabel: "提交中"
+        stateLabel: "提交中",
+        uiSource
       });
       setState((current) => ({
         ...current,
@@ -176,13 +179,15 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
             command: stampedCommand,
             receipt,
             state: "sent",
-            stateLabel: "服务端已接受"
+            stateLabel: "服务端已接受",
+            uiSource
           })
           : commandSubmissionFeedbackFromReceipt({
             command: stampedCommand,
             receipt,
             state: "failed",
-            stateLabel: "服务端拒绝"
+            stateLabel: "服务端拒绝",
+            uiSource
           });
         setState((current) => ({
           ...current,
@@ -196,7 +201,8 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
           command: stampedCommand,
           message,
           state: "failed",
-          stateLabel: "提交失败"
+          stateLabel: "提交失败",
+          uiSource
         });
         setState((current) => ({
           ...current,
@@ -209,25 +215,27 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
     [playerId, state.prompt]
   );
 
-  const ready = useCallback(async () => {
+  const ready = useCallback(async (uiSource?: CommandSubmissionUiSource) => {
     await submitReceiptBackedCommand(
       { cmdType: "READY" },
-      (clientIntentId) => socket.ready(roomId, playerId, clientIntentId)
+      (clientIntentId) => socket.ready(roomId, playerId, clientIntentId),
+      uiSource ?? { label: "准备按钮", surface: "ready" }
     );
   }, [playerId, roomId, socket, submitReceiptBackedCommand]);
 
   const submitCommand = useCallback(
-    async (command: GameCommand) => {
+    async (command: GameCommand, uiSource?: CommandSubmissionUiSource) => {
       await submitReceiptBackedCommand(
         command,
-        (clientIntentId, stampedCommand) => socket.submitIntent(roomId, playerId, clientIntentId, stampedCommand)
+        (clientIntentId, stampedCommand) => socket.submitIntent(roomId, playerId, clientIntentId, stampedCommand),
+        uiSource
       );
     },
     [playerId, roomId, socket, submitReceiptBackedCommand]
   );
 
-  const submitStarterDeck = useCallback(async () => {
-    await submitCommand(buildStarterDeck());
+  const submitStarterDeck = useCallback(async (uiSource?: CommandSubmissionUiSource) => {
+    await submitCommand(buildStarterDeck(), uiSource ?? { label: "提交构筑按钮", surface: "starter-deck" });
   }, [submitCommand]);
 
   const disconnect = useCallback(async () => {
@@ -267,13 +275,15 @@ function commandSubmissionFeedback({
   command,
   message,
   state,
-  stateLabel
+  stateLabel,
+  uiSource
 }: {
   clientIntentId: string;
   command: GameCommand;
   message: string;
   state: CommandSubmissionState;
   stateLabel: string;
+  uiSource?: CommandSubmissionUiSource;
 }): CommandSubmissionFeedback {
   return {
     clientIntentId,
@@ -286,7 +296,8 @@ function commandSubmissionFeedback({
     snapshotTick: typeof command.snapshotTick === "number" ? command.snapshotTick : command.snapshotTick ?? undefined,
     state,
     stateLabel,
-    submittedAt: Date.now()
+    submittedAt: Date.now(),
+    uiSource
   };
 }
 
@@ -294,12 +305,14 @@ function commandSubmissionFeedbackFromReceipt({
   command,
   receipt,
   state,
-  stateLabel
+  stateLabel,
+  uiSource
 }: {
   command: GameCommand;
   receipt: CommandReceiptDto;
   state: CommandSubmissionState;
   stateLabel: string;
+  uiSource?: CommandSubmissionUiSource;
 }): CommandSubmissionFeedback {
   return {
     clientIntentId: receipt.clientIntentId,
@@ -317,7 +330,8 @@ function commandSubmissionFeedbackFromReceipt({
         : command.snapshotTick ?? undefined,
     state,
     stateLabel,
-    submittedAt: Date.now()
+    submittedAt: Date.now(),
+    uiSource
   };
 }
 
