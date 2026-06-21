@@ -604,6 +604,12 @@ public sealed class GameHubJoinTests
         Assert.Equal("intent-pass", receipt.ClientIntentId);
         Assert.Equal("PASS_PRIORITY", receipt.CmdType);
         Assert.Equal(ErrorCodes.PlayerNotInRoom, receipt.ErrorCode);
+        Assert.NotNull(receipt.Followup);
+        Assert.Equal(0, receipt.Followup.ServerTick);
+        Assert.Equal("failed", receipt.Followup.State);
+        Assert.Equal(0, receipt.Followup.EventCount);
+        Assert.Equal(0, receipt.Followup.SnapshotCount);
+        Assert.Equal(0, receipt.Followup.PromptCount);
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.PlayerNotInRoom, payload.Code);
@@ -892,6 +898,13 @@ public sealed class GameHubJoinTests
         Assert.True(receipt.ServerTick > 0);
         Assert.Empty(clients.CallerClient.Errors);
         var eventsMessage = Assert.Single(clients.GroupClient.EventMessages);
+        var events = Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(eventsMessage.Payload);
+        Assert.NotNull(receipt.Followup);
+        Assert.Equal(receipt.ServerTick, receipt.Followup.ServerTick);
+        Assert.Equal("events", receipt.Followup.State);
+        Assert.Equal(events.Count, receipt.Followup.EventCount);
+        Assert.Equal(clients.GroupClient.Snapshots.Count, receipt.Followup.SnapshotCount);
+        Assert.Equal(clients.GroupClient.Prompts.Count, receipt.Followup.PromptCount);
         Assert.Equal(MessageType.EVENTS, eventsMessage.Type);
         Assert.Equal("alice", eventsMessage.PlayerId);
         AssertProtocolDefaults(eventsMessage);

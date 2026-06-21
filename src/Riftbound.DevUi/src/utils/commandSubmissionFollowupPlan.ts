@@ -1,4 +1,4 @@
-import type { GameEvent, SnapshotDto } from "../types/protocol";
+import type { CommandReceiptFollowupDto, GameEvent, SnapshotDto } from "../types/protocol";
 import { eventDescriptionLabel, eventKindLabel } from "./eventLogPlan";
 
 export type ObservedGameEvent = GameEvent & {
@@ -18,13 +18,14 @@ export type CommandSubmissionFollowupState =
   | "unknown-tick";
 
 export type CommandSubmissionFollowupMetric = {
-  key: "events" | "snapshot" | "tick";
+  key: "events" | "prompt" | "snapshot" | "tick";
   label: string;
   state: "empty" | "ready" | "waiting";
   value: string;
 };
 
 export type CommandSubmissionFollowupFeedback = {
+  followup?: CommandReceiptFollowupDto | null;
   serverTick?: number | null;
   state?: string;
 };
@@ -66,15 +67,20 @@ export function buildCommandSubmissionFollowupPlan({
   }
 
   if (feedback.state === "failed") {
-    return emptyPlan("failed", "命令未被服务端接受，不展示后续事件。", feedback, snapshot);
+    return emptyPlan("failed", feedback.followup?.summary ?? "命令未被服务端接受，不展示后续事件。", feedback, snapshot);
   }
 
-  const serverTick = numberOrUndefined(feedback.serverTick);
+  const receiptFollowup = feedback.followup;
+  const serverTick = numberOrUndefined(feedback.serverTick) ?? numberOrUndefined(receiptFollowup?.serverTick);
   if (serverTick == null) {
     return emptyPlan("unknown-tick", "回执未携带服务端 tick，无法关联后续事件。", feedback, snapshot);
   }
 
   const allMatchingEvents = (events ?? []).filter((event) => event.receivedServerTick === serverTick);
+  const reportedEventCount = nonNegativeIntegerOrUndefined(receiptFollowup?.eventCount);
+  const reportedSnapshotCount = nonNegativeIntegerOrUndefined(receiptFollowup?.snapshotCount);
+  const reportedPromptCount = nonNegativeIntegerOrUndefined(receiptFollowup?.promptCount);
+  const authoritativeEventCount = Math.max(allMatchingEvents.length, reportedEventCount ?? 0);
   const visibleEvents = allMatchingEvents.slice(0, limit).map((event, index) => ({
     description: eventDescriptionLabel(event),
     kind: event.kind,
@@ -89,27 +95,65 @@ export function buildCommandSubmissionFollowupPlan({
   if (visibleEvents.length > 0) {
     return {
       events: visibleEvents,
-      hiddenEventCount: Math.max(0, allMatchingEvents.length - visibleEvents.length),
-      metrics: followupMetrics({ eventCount: allMatchingEvents.length, feedback, snapshot, serverTick }),
+      hiddenEventCount: Math.max(0, authoritativeEventCount - visibleEvents.length),
+      metrics: followupMetrics({
+        eventCount: authoritativeEventCount,
+        feedback,
+        promptCount: reportedPromptCount,
+        snapshot,
+        snapshotBroadcastCount: reportedSnapshotCount,
+        serverTick
+      }),
       state: "accepted-events",
-      summary: `服务端 tick ${serverTick} 广播 ${allMatchingEvents.length} 条后续事件。`
+      summary: receiptFollowup?.summary ?? `服务端 tick ${serverTick} 广播 ${authoritativeEventCount} 条后续事件。`
     };
   }
 
-  if (snapshotCaughtUp) {
+  if (reportedEventCount != null && reportedEventCount > 0) {
+    return {
+      events: [],
+      hiddenEventCount: reportedEventCount,
+      metrics: followupMetrics({
+        eventCount: reportedEventCount,
+        feedback,
+        promptCount: reportedPromptCount,
+        snapshot,
+        snapshotBroadcastCount: reportedSnapshotCount,
+        serverTick
+      }),
+      state: "accepted-awaiting",
+      summary: `服务端回执声明 tick ${serverTick} 有 ${reportedEventCount} 条公开事件，等待事件流抵达。`
+    };
+  }
+
+  if (snapshotCaughtUp || (reportedSnapshotCount ?? 0) > 0 || (reportedPromptCount ?? 0) > 0) {
     return {
       events: [],
       hiddenEventCount: 0,
-      metrics: followupMetrics({ eventCount: 0, feedback, snapshot, serverTick }),
+      metrics: followupMetrics({
+        eventCount: 0,
+        feedback,
+        promptCount: reportedPromptCount,
+        snapshot,
+        snapshotBroadcastCount: reportedSnapshotCount,
+        serverTick
+      }),
       state: "accepted-snapshot",
-      summary: `当前快照已追上 tick ${serverTick}；该命令没有公开事件，后续以当前快照/提示为准。`
+      summary: receiptFollowup?.summary ?? `当前快照已追上 tick ${serverTick}；该命令没有公开事件，后续以当前快照/提示为准。`
     };
   }
 
   return {
     events: [],
     hiddenEventCount: 0,
-    metrics: followupMetrics({ eventCount: 0, feedback, snapshot, serverTick }),
+    metrics: followupMetrics({
+      eventCount: 0,
+      feedback,
+      promptCount: reportedPromptCount,
+      snapshot,
+      snapshotBroadcastCount: reportedSnapshotCount,
+      serverTick
+    }),
     state: "accepted-awaiting",
     summary: `等待 tick ${serverTick} 的事件或快照广播。`
   };
@@ -125,7 +169,14 @@ function emptyPlan(
   return {
     events: [],
     hiddenEventCount: 0,
-    metrics: followupMetrics({ eventCount: 0, feedback, snapshot, serverTick }),
+    metrics: followupMetrics({
+      eventCount: 0,
+      feedback,
+      promptCount: nonNegativeIntegerOrUndefined(feedback?.followup?.promptCount),
+      snapshot,
+      snapshotBroadcastCount: nonNegativeIntegerOrUndefined(feedback?.followup?.snapshotCount),
+      serverTick: serverTick ?? numberOrUndefined(feedback?.followup?.serverTick)
+    }),
     state,
     summary
   };
@@ -134,16 +185,22 @@ function emptyPlan(
 function followupMetrics({
   eventCount,
   feedback,
+  promptCount,
   serverTick,
-  snapshot
+  snapshot,
+  snapshotBroadcastCount
 }: {
   eventCount: number;
   feedback?: CommandSubmissionFollowupFeedback;
+  promptCount?: number;
   serverTick?: number;
   snapshot?: SnapshotDto;
+  snapshotBroadcastCount?: number;
 }): CommandSubmissionFollowupMetric[] {
   const snapshotTick = numberOrUndefined(snapshot?.tick);
   const snapshotCaughtUp = serverTick != null && snapshotTick != null && snapshotTick >= serverTick;
+  const effectiveSnapshotCount = snapshotBroadcastCount ?? 0;
+  const effectivePromptCount = promptCount ?? 0;
 
   return [
     {
@@ -155,18 +212,32 @@ function followupMetrics({
     {
       key: "events",
       label: "后续事件",
-      state: eventCount > 0 ? "ready" : feedback?.state === "sent" ? "waiting" : "empty",
+      state: eventCount > 0 ? "ready" : feedback?.followup ? "empty" : feedback?.state === "sent" ? "waiting" : "empty",
       value: String(eventCount)
     },
     {
       key: "snapshot",
       label: "当前快照",
-      state: snapshotCaughtUp ? "ready" : snapshotTick == null ? "empty" : "waiting",
-      value: snapshotTick == null ? "无" : String(snapshotTick)
+      state: snapshotCaughtUp || effectiveSnapshotCount > 0 ? "ready" : snapshotTick == null ? "empty" : "waiting",
+      value: effectiveSnapshotCount > 0 && snapshotTick != null
+        ? `${snapshotTick} / ${effectiveSnapshotCount}`
+        : snapshotTick == null
+          ? String(effectiveSnapshotCount)
+          : String(snapshotTick)
+    },
+    {
+      key: "prompt",
+      label: "提示广播",
+      state: effectivePromptCount > 0 ? "ready" : feedback?.followup ? "empty" : feedback?.state === "sent" ? "waiting" : "empty",
+      value: String(effectivePromptCount)
     }
   ];
 }
 
 function numberOrUndefined(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function nonNegativeIntegerOrUndefined(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : undefined;
 }

@@ -21,11 +21,21 @@ export type ErrorDto = {
   message: string;
 };
 
+export type CommandReceiptFollowupDto = {
+  eventCount: number;
+  promptCount: number;
+  serverTick: number;
+  snapshotCount: number;
+  state: "events" | "failed" | "rejected" | "silent" | "snapshot-prompt" | (string & {});
+  summary: string;
+};
+
 export type CommandReceiptDto = {
   accepted: boolean;
   clientIntentId: string;
   cmdType: string;
   errorCode?: string | null;
+  followup?: CommandReceiptFollowupDto | null;
   message: string;
   playerId: string;
   promptId?: string | null;

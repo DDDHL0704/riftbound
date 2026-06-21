@@ -207,6 +207,12 @@ function CommandSubmissionFeedbackPanel({
           <b>回执</b>
           <strong>{feedback.receiptState ?? feedback.state}</strong>
         </span>
+        {feedback.followup ? (
+          <span data-command-submission-metric="followup">
+            <b>后续</b>
+            <strong>{feedback.followup.state}</strong>
+          </span>
+        ) : null}
         <span data-command-submission-metric="prompt">
           <b>提示</b>
           <strong>{feedback.promptId ?? "无"}</strong>

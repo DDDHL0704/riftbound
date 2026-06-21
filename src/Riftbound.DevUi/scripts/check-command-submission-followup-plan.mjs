@@ -72,6 +72,33 @@ assert.equal(eventPlan.events[0].title, "label:MAIN_PHASE_BEGAN");
 assert.equal(eventPlan.events[1].refCount, 1);
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "events").value, "2");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "snapshot").state, "ready");
+assert.equal(eventPlan.metrics.find((metric) => metric.key === "prompt").value, "0");
+
+const receiptAwaitingPlan = buildCommandSubmissionFollowupPlan({
+  events: [],
+  feedback: {
+    clientIntentId: "client-2b",
+    cmdType: "END_TURN",
+    followup: {
+      eventCount: 2,
+      promptCount: 2,
+      serverTick: 15,
+      snapshotCount: 2,
+      state: "events",
+      summary: "tick 15 已生成 2 条公开事件、2 个快照、2 个提示。"
+    },
+    message: "服务端已接受",
+    receiptState: "ACCEPTED",
+    serverTick: 15,
+    state: "sent",
+    stateLabel: "服务端已接受"
+  },
+  snapshot: { tick: 14 }
+});
+assert.equal(receiptAwaitingPlan.state, "accepted-awaiting");
+assert.equal(receiptAwaitingPlan.hiddenEventCount, 2);
+assert.equal(receiptAwaitingPlan.metrics.find((metric) => metric.key === "events").value, "2");
+assert.equal(receiptAwaitingPlan.metrics.find((metric) => metric.key === "prompt").state, "ready");
 
 const hiddenPlan = buildCommandSubmissionFollowupPlan({
   events: [
@@ -110,6 +137,31 @@ const snapshotPlan = buildCommandSubmissionFollowupPlan({
 });
 assert.equal(snapshotPlan.state, "accepted-snapshot");
 assert.equal(snapshotPlan.metrics.find((metric) => metric.key === "snapshot").state, "ready");
+
+const receiptSnapshotPlan = buildCommandSubmissionFollowupPlan({
+  events: [],
+  feedback: {
+    clientIntentId: "client-4b",
+    cmdType: "PASS_PRIORITY",
+    followup: {
+      eventCount: 0,
+      promptCount: 2,
+      serverTick: 22,
+      snapshotCount: 2,
+      state: "snapshot-prompt",
+      summary: "tick 22 无公开事件，但已生成 2 个快照、2 个提示。"
+    },
+    message: "服务端已接受",
+    receiptState: "ACCEPTED",
+    state: "sent",
+    stateLabel: "服务端已接受"
+  },
+  snapshot: { tick: 21 }
+});
+assert.equal(receiptSnapshotPlan.state, "accepted-snapshot");
+assert.equal(receiptSnapshotPlan.summary, "tick 22 无公开事件，但已生成 2 个快照、2 个提示。");
+assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "events").state, "empty");
+assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "prompt").value, "2");
 
 const awaitingPlan = buildCommandSubmissionFollowupPlan({
   events: [],

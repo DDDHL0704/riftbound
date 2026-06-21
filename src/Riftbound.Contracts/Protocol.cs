@@ -532,6 +532,14 @@ public sealed record ClientIntentDto(
     string ClientIntentId,
     JsonElement Cmd);
 
+public sealed record CommandReceiptFollowupDto(
+    long ServerTick,
+    int EventCount,
+    int SnapshotCount,
+    int PromptCount,
+    string State,
+    string Summary);
+
 public sealed record CommandReceiptDto(
     string RoomId,
     string PlayerId,
@@ -543,4 +551,5 @@ public sealed record CommandReceiptDto(
     string Message,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ErrorCode = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? PromptId = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? SnapshotTick = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? SnapshotTick = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] CommandReceiptFollowupDto? Followup = null);

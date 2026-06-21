@@ -4,6 +4,7 @@ import { buildStarterDeck } from "../services/starterDeck";
 import {
   ActionPromptDto,
   CommandReceiptDto,
+  CommandReceiptFollowupDto,
   ConnectionStatus,
   ErrorDto,
   GameCommand,
@@ -33,6 +34,7 @@ export type CommandSubmissionFeedback = {
   cmdType: string;
   message: string;
   errorCode?: string | null;
+  followup?: CommandReceiptFollowupDto | null;
   promptId?: string | null;
   receiptState?: string | null;
   serverTick?: number | null;
@@ -276,6 +278,7 @@ function commandSubmissionFeedback({
   return {
     clientIntentId,
     cmdType: command.cmdType,
+    followup: undefined,
     message,
     promptId: typeof command.promptId === "string" ? command.promptId : command.promptId ?? undefined,
     receiptState: undefined,
@@ -302,6 +305,7 @@ function commandSubmissionFeedbackFromReceipt({
     clientIntentId: receipt.clientIntentId,
     cmdType: receipt.cmdType || command.cmdType,
     errorCode: receipt.errorCode ?? undefined,
+    followup: receipt.followup ?? undefined,
     message: receipt.message,
     promptId: receipt.promptId ?? (typeof command.promptId === "string" ? command.promptId : command.promptId ?? undefined),
     receiptState: receipt.state,
