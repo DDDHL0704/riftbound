@@ -70,26 +70,32 @@ export function WireCommandFollowupPanel({
         <strong>后续事件</strong>
         <span>{plan.summary}</span>
       </div>
-      {plan.uiSource && (
+      {plan.sourceRows.length > 0 && (
         <div
           aria-label="提交界面来源"
           className="wire-command-followup-source"
-          data-command-followup-source-candidate-action={plan.uiSource.candidateAction ?? ""}
-          data-command-followup-source-candidate-label={plan.uiSource.candidateLabel ?? ""}
-          data-command-followup-source-command-source={plan.uiSource.commandSource ?? ""}
-          data-command-followup-source-command-source-label={plan.uiSource.commandSourceLabel ?? ""}
-          data-command-followup-source-detail={plan.uiSource.detailId ?? ""}
-          data-command-followup-source-object={plan.uiSource.objectId ?? ""}
-          data-command-followup-source-surface={plan.uiSource.surface}
+          data-command-followup-source-candidate-action={plan.uiSource?.candidateAction ?? ""}
+          data-command-followup-source-candidate-label={plan.uiSource?.candidateLabel ?? ""}
+          data-command-followup-source-command-source={plan.uiSource?.commandSource ?? ""}
+          data-command-followup-source-command-source-label={plan.uiSource?.commandSourceLabel ?? ""}
+          data-command-followup-source-detail={plan.uiSource?.detailId ?? ""}
+          data-command-followup-source-object={plan.uiSource?.objectId ?? ""}
+          data-command-followup-source-surface={plan.uiSource?.surface ?? ""}
         >
           <small>提交入口</small>
-          <strong>{plan.uiSource.label}</strong>
-          {plan.uiSource.commandSourceLabel && (
-            <span>
-              路线：{plan.uiSource.commandSourceLabel}
-              {plan.uiSource.candidateLabel ? ` / ${plan.uiSource.candidateLabel}` : ""}
-            </span>
-          )}
+          <ol aria-label="提交来源字段">
+            {plan.sourceRows.map((row) => (
+              <li
+                data-command-followup-source-row={row.key}
+                data-command-followup-source-row-state={row.state}
+                key={row.key}
+              >
+                <span>{row.label}</span>
+                <strong>{row.value}</strong>
+                {row.detail && <small>{row.detail}</small>}
+              </li>
+            ))}
+          </ol>
         </div>
       )}
       {plan.serverEventKinds.length > 0 && (

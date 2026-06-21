@@ -25,6 +25,14 @@ export type CommandSubmissionFollowupMetric = {
   value: string;
 };
 
+export type CommandSubmissionFollowupSourceRow = {
+  detail?: string;
+  key: "candidate" | "detail" | "object" | "route" | "surface";
+  label: string;
+  state: "ready";
+  value: string;
+};
+
 export type CommandSubmissionFollowupBridgeState = "empty" | "failed" | "ready" | "unknown" | "waiting";
 
 export type CommandSubmissionFollowupBridgeRow = {
@@ -103,6 +111,7 @@ export type CommandSubmissionFollowupPlan = {
   serverEventKinds: CommandSubmissionFollowupServerEventKind[];
   serverFollowupState: string;
   serverFollowupStateLabel: string;
+  sourceRows: CommandSubmissionFollowupSourceRow[];
   state: CommandSubmissionFollowupState;
   summary: string;
   uiSource?: CommandSubmissionUiSource;
@@ -289,10 +298,14 @@ function emptyPlan(
   });
 }
 
-function attachBridge(plan: Omit<CommandSubmissionFollowupPlan, "bridge">): CommandSubmissionFollowupPlan {
-  return {
+function attachBridge(plan: Omit<CommandSubmissionFollowupPlan, "bridge" | "sourceRows">): CommandSubmissionFollowupPlan {
+  const planWithSourceRows: Omit<CommandSubmissionFollowupPlan, "bridge"> = {
     ...plan,
-    bridge: bridgePlanFor(plan)
+    sourceRows: sourceRowsFor(plan.uiSource)
+  };
+  return {
+    ...planWithSourceRows,
+    bridge: bridgePlanFor(planWithSourceRows)
   };
 }
 
@@ -316,6 +329,62 @@ function bridgePlanFor(plan: Omit<CommandSubmissionFollowupPlan, "bridge">): Com
     stateLabel: bridgeStateLabel(state),
     summary: plan.summary
   };
+}
+
+function sourceRowsFor(uiSource?: CommandSubmissionUiSource): CommandSubmissionFollowupSourceRow[] {
+  if (!uiSource) {
+    return [];
+  }
+
+  const rows: CommandSubmissionFollowupSourceRow[] = [
+    {
+      detail: uiSource.surface,
+      key: "surface",
+      label: "入口",
+      state: "ready",
+      value: uiSource.label
+    }
+  ];
+
+  if (uiSource.commandSourceLabel) {
+    rows.push({
+      detail: uiSource.commandSourceDetail ?? uiSource.commandSource,
+      key: "route",
+      label: "路线",
+      state: "ready",
+      value: uiSource.commandSourceLabel
+    });
+  }
+
+  if (uiSource.candidateLabel || uiSource.candidateAction) {
+    rows.push({
+      detail: uiSource.candidateAction,
+      key: "candidate",
+      label: "候选",
+      state: "ready",
+      value: uiSource.candidateLabel ?? uiSource.candidateAction ?? "未命名候选"
+    });
+  }
+
+  if (uiSource.objectId) {
+    rows.push({
+      key: "object",
+      label: "对象",
+      state: "ready",
+      value: uiSource.objectId
+    });
+  }
+
+  if (uiSource.detailId) {
+    rows.push({
+      key: "detail",
+      label: "详情",
+      state: "ready",
+      value: uiSource.detailId
+    });
+  }
+
+  return rows;
 }
 
 function bridgeStateFor(state: CommandSubmissionFollowupState): CommandSubmissionFollowupBridgeState {

@@ -36,6 +36,7 @@ assert.deepEqual(
   "empty"
 );
 assert.equal(buildCommandSubmissionFollowupPlan({}).serverFollowupState, "none");
+assert.deepEqual(buildCommandSubmissionFollowupPlan({}).sourceRows, []);
 assert.equal(buildCommandSubmissionFollowupPlan({}).metrics.find((metric) => metric.key === "serverState").value, "无");
 assert.equal(buildCommandSubmissionFollowupPlan({}).bridge.state, "empty");
 assert.equal(buildCommandSubmissionFollowupPlan({}).bridge.headline, "等待提交");
@@ -121,6 +122,16 @@ assert.equal(eventPlan.uiSource?.objectId, "card-1");
 assert.equal(eventPlan.uiSource?.commandSource, "composer");
 assert.equal(eventPlan.uiSource?.commandSourceLabel, "服务端组合");
 assert.equal(eventPlan.uiSource?.candidateAction, "PLAY_CARD");
+assert.deepEqual(
+  eventPlan.sourceRows.map((row) => `${row.key}:${row.label}:${row.value}:${row.detail ?? ""}`),
+  [
+    "surface:入口:规则与事件详情:timeline-detail",
+    "route:路线:服务端组合:先选择来源、目标或模式，再按服务端模板提交。",
+    "candidate:候选:打出手牌样例:PLAY_CARD",
+    "object:对象:card-1:",
+    "detail:详情:rule:stack:1:"
+  ]
+);
 assert.deepEqual(
   eventPlan.serverEventKinds.map((row) => `${row.kind}:${row.label}`),
   ["MAIN_PHASE_BEGAN:label:MAIN_PHASE_BEGAN", "CARD_DRAWN:label:CARD_DRAWN"]

@@ -14733,6 +14733,24 @@ button.card-face:hover {
   padding: 3px;
 }
 
+.wire-command-followup-source ol {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-command-followup-source li {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  border: 1px solid #000;
+  padding: 2px;
+}
+
 .wire-command-followup-server-kinds {
   min-width: 0;
   display: grid;
