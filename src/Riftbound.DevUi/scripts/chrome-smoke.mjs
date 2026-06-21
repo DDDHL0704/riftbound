@@ -1502,7 +1502,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
     eventRefVisibilityStates: Array.from(document.querySelectorAll('[data-event-object-ref="p1-hand-spell"]'))
       .map((item) => item.getAttribute("data-object-ref-visibility")),
     unitRefs: document.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length,
-    hiddenRefs: document.querySelectorAll('[data-rule-object-ref="HIDDEN"]').length
+    hiddenRefs: document.querySelectorAll('[data-rule-object-ref="HIDDEN"]').length,
+    responsibilitySubmitReadyStates: Array.from(document.querySelectorAll("[data-rule-responsibility-submit-ready]"))
+      .map((item) => item.getAttribute("data-rule-responsibility-submit-ready") ?? ""),
+    responsibilitySubmitStates: Array.from(document.querySelectorAll("[data-rule-responsibility-submit-state]"))
+      .map((item) => item.getAttribute("data-rule-responsibility-submit-state") ?? ""),
+    responsibilitySubmitText: document.querySelector(".wire-rule-responsibility")?.textContent ?? ""
   }))()`);
 
   await clickRuleObjectRef(cdp, "fixture-left-battlefield");
@@ -1911,6 +1916,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!initial.eventRefInspectableStates.includes("true")) failures.push("event object ref inspectable state missing");
   if (initial.unitRefs < 1) failures.push("unit rule object ref missing");
   if (initial.hiddenRefs < 1) failures.push("hidden rule object ref missing");
+  if (initial.responsibilitySubmitStates.length < 1) failures.push("rule responsibility submit state missing");
+  if (!initial.responsibilitySubmitStates.includes("ready")) failures.push("rule responsibility ready submit state missing");
+  if (!initial.responsibilitySubmitReadyStates.includes("true")) failures.push("rule responsibility ready data attr missing");
+  if (!initial.responsibilitySubmitText.includes("候选")) failures.push("rule responsibility submit candidate text missing");
   if (battlefieldResult.selected !== "true") failures.push("battlefield ref did not focus battlefield card");
   if (!battlefieldResult.selectedRef) failures.push("battlefield ref did not show selected state");
   if (battlefieldResult.detailLayerOpen) failures.push("battlefield ref opened detail layer");

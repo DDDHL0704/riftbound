@@ -339,13 +339,24 @@ function RuleResponsibilityItem({
   selectedObjectId?: string;
 }) {
   return (
-    <li data-rule-responsibility-lane={item.lane} data-rule-responsibility-state={item.state}>
+    <li
+      data-rule-responsibility-lane={item.lane}
+      data-rule-responsibility-state={item.state}
+      data-rule-responsibility-submit-ready={item.submit.canSubmit ? "true" : "false"}
+      data-rule-responsibility-submit-state={item.submit.state}
+    >
       <div>
         <small>{item.label}</small>
         <strong>{item.stateLabel}</strong>
       </div>
       <span>{item.actionLabel} / {item.detailLabel}</span>
       <em>{item.actorLabel} / {item.objectCount} 对象</em>
+      <span
+        className="wire-rule-responsibility-submit"
+        data-rule-responsibility-submit={item.submit.state}
+      >
+        {item.submit.stateLabel} / {item.submit.enabledCandidateCount}/{item.submit.candidateCount} 候选 / {item.submit.reason}
+      </span>
       <small>{item.reason}</small>
       <WireObjectRefChips
         className="wire-rule-responsibility-object-refs"

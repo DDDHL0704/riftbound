@@ -198,21 +198,23 @@ assert.equal(taskBlocked.sections.find((section) => section.key === "task")?.ite
 assert.ok(taskBlocked.sections.find((section) => section.key === "task")?.notes.some((note) => note.includes("阻塞普通行动")));
 assert.ok(taskBlocked.sections.find((section) => section.key === "task")?.items[0]?.detail.id.includes("rule:task:task-1"));
 
+const stackPrioritySnapshot = {
+  ...baseSnapshot,
+  stack: [
+    {
+      cardNo: "OGN-001/298",
+      controllerId: "P2",
+      effectKind: "SPELL",
+      sourceObjectId: "spell-1",
+      stackItemId: "stack-1",
+      targetObjectIds: ["unit-1"]
+    }
+  ]
+};
+
 const stackResponse = buildWireRuleQueuePlan({
   playerId: "P1",
-  snapshot: {
-    ...baseSnapshot,
-    stack: [
-      {
-        cardNo: "OGN-001/298",
-        controllerId: "P2",
-        effectKind: "SPELL",
-        sourceObjectId: "spell-1",
-        stackItemId: "stack-1",
-        targetObjectIds: ["unit-1"]
-      }
-    ]
-  }
+  snapshot: stackPrioritySnapshot
 });
 
 assert.equal(stackResponse.state, "stack-response");
@@ -231,6 +233,10 @@ assert.equal(stackResponse.responsibility.items[0].stateLabel, "可响应");
 assert.equal(stackResponse.responsibility.items[0].actionLabel, "响应结算链");
 assert.equal(stackResponse.responsibility.items[0].actorLabel, "控制者 P2");
 assert.ok(stackResponse.responsibility.items[0].reason.includes("服务端 prompt"));
+assert.equal(stackResponse.responsibility.submitReadyCount, 0);
+assert.equal(stackResponse.responsibility.items[0].submit.state, "waiting-prompt");
+assert.equal(stackResponse.responsibility.items[0].submit.canSubmit, false);
+assert.ok(stackResponse.responsibility.items[0].submit.reason.includes("等待服务端 prompt"));
 assert.equal(stackResponse.inspector.activeLaneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].laneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].objectCount, 2);
@@ -267,6 +273,49 @@ assert.ok(
   stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.detail.lines.some((line) =>
     line.label === "边界" && line.value.includes("公开结算链项"))
 );
+
+const stackReadyPrompt = buildWireRuleQueuePlan({
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["RESPOND", "WAIT"],
+    candidates: [
+      { action: "RESPOND", enabled: true, label: "响应结算链", reason: "服务端候选可用" },
+      { action: "WAIT", enabled: false, label: "不响应", reason: "等待确认" }
+    ],
+    playerId: "P1",
+    reason: "P1 可以响应",
+    view: { message: "响应窗口", title: "响应", type: "STACK_PRIORITY" }
+  },
+  snapshot: stackPrioritySnapshot
+});
+
+assert.equal(stackReadyPrompt.responsibility.submitReadyCount, 1);
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.state, "ready");
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.canSubmit, true);
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.promptType, "STACK_PRIORITY");
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.candidateCount, 2);
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.enabledCandidateCount, 1);
+assert.ok(stackReadyPrompt.responsibility.items[0].submit.reason.includes("1/2"));
+assert.ok(stackReadyPrompt.responsibility.summary.includes("1 个可提交入口"));
+
+const stackOpponentPrompt = buildWireRuleQueuePlan({
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["RESPOND"],
+    candidates: [{ action: "RESPOND", enabled: true, label: "响应结算链", reason: "服务端候选可用" }],
+    playerId: "P2",
+    reason: "P2 可以响应",
+    view: { message: "响应窗口", title: "响应", type: "STACK_PRIORITY" }
+  },
+  snapshot: stackPrioritySnapshot
+});
+
+assert.equal(stackOpponentPrompt.responsibility.submitReadyCount, 0);
+assert.equal(stackOpponentPrompt.responsibility.items[0].submit.state, "wrong-player");
+assert.equal(stackOpponentPrompt.responsibility.items[0].submit.canSubmit, false);
+assert.ok(stackOpponentPrompt.responsibility.items[0].submit.reason.includes("P2"));
 
 const multiStackResponse = buildWireRuleQueuePlan({
   playerId: "P1",

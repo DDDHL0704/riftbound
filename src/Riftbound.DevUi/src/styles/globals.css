@@ -14534,6 +14534,7 @@ button.card-face:hover {
 .wire-rule-focus,
 .wire-rule-focus-heading,
 .wire-rule-focus-lines,
+.wire-rule-responsibility-submit,
 .wire-rule-lanes li,
 .wire-rule-sequence li,
 .wire-rule-state-grid,
@@ -14688,6 +14689,24 @@ button.card-face:hover {
 
 .wire-rule-responsibility li[data-rule-responsibility-state="waiting"],
 .wire-rule-responsibility li[data-rule-responsibility-state="history"] {
+  border-style: dashed;
+}
+
+.wire-rule-responsibility-submit {
+  display: block;
+  padding: 3px;
+}
+
+.wire-rule-responsibility-submit[data-rule-responsibility-submit="ready"] {
+  border-width: 2px;
+}
+
+.wire-rule-responsibility-submit[data-rule-responsibility-submit="history"],
+.wire-rule-responsibility-submit[data-rule-responsibility-submit="no-candidates"],
+.wire-rule-responsibility-submit[data-rule-responsibility-submit="readonly"],
+.wire-rule-responsibility-submit[data-rule-responsibility-submit="waiting-lane"],
+.wire-rule-responsibility-submit[data-rule-responsibility-submit="waiting-prompt"],
+.wire-rule-responsibility-submit[data-rule-responsibility-submit="wrong-player"] {
   border-style: dashed;
 }
 

@@ -52,6 +52,25 @@ export type WireRuleQueueResponsibilityState =
   | "waiting"
   | "watch";
 
+export type WireRuleQueueResponsibilitySubmitState =
+  | "history"
+  | "no-candidates"
+  | "ready"
+  | "readonly"
+  | "waiting-lane"
+  | "waiting-prompt"
+  | "wrong-player";
+
+export type WireRuleQueueResponsibilitySubmitPlan = {
+  canSubmit: boolean;
+  candidateCount: number;
+  enabledCandidateCount: number;
+  promptType: string;
+  reason: string;
+  state: WireRuleQueueResponsibilitySubmitState;
+  stateLabel: string;
+};
+
 export type WireRuleQueueResponsibilityItem = {
   actorLabel: string;
   actionLabel: string;
@@ -64,12 +83,14 @@ export type WireRuleQueueResponsibilityItem = {
   refs: WireRuleQueueObjectRef[];
   state: WireRuleQueueResponsibilityState;
   stateLabel: string;
+  submit: WireRuleQueueResponsibilitySubmitPlan;
 };
 
 export type WireRuleQueueResponsibilityPlan = {
   activeCount: number;
   items: WireRuleQueueResponsibilityItem[];
   stateLabel: string;
+  submitReadyCount: number;
   summary: string;
 };
 
@@ -313,7 +334,7 @@ export function buildWireRuleQueuePlan({
     triggers
   });
   const focus = focusPlanFor({ activeLaneKey, sections, state });
-  const responsibility = responsibilityPlanFor({ activeLaneKey, sequence, state });
+  const responsibility = responsibilityPlanFor({ activeLaneKey, playerId, prompt, sequence, state });
 
   return {
     activeLaneKey,
@@ -338,10 +359,14 @@ export function buildWireRuleQueuePlan({
 
 function responsibilityPlanFor({
   activeLaneKey,
+  playerId,
+  prompt,
   sequence,
   state
 }: {
   activeLaneKey: WireRuleQueueLaneKey | "none";
+  playerId: string;
+  prompt?: ActionPromptDto;
   sequence: WireRuleQueueSequenceItem[];
   state: WireRuleQueueState;
 }): WireRuleQueueResponsibilityPlan {
@@ -353,17 +378,21 @@ function responsibilityPlanFor({
       activeLaneKey,
       item,
       laneIndex,
+      playerId,
+      prompt,
       state
     });
   });
   const activeCount = items.filter((item) => item.state === "respond" || item.state === "blocked" || item.state === "watch").length;
+  const submitReadyCount = items.filter((item) => item.submit.canSubmit).length;
   const stateLabel = responsibilityStateLabel(state);
 
   return {
     activeCount,
     items,
     stateLabel,
-    summary: responsibilitySummaryFor(state, activeCount, items.length)
+    submitReadyCount,
+    summary: responsibilitySummaryFor(state, activeCount, items.length, submitReadyCount)
   };
 }
 
@@ -371,15 +400,20 @@ function responsibilityItemFor({
   activeLaneKey,
   item,
   laneIndex,
+  playerId,
+  prompt,
   state
 }: {
   activeLaneKey: WireRuleQueueLaneKey | "none";
   item: WireRuleQueueSequenceItem;
   laneIndex: number;
+  playerId: string;
+  prompt?: ActionPromptDto;
   state: WireRuleQueueState;
 }): WireRuleQueueResponsibilityItem {
   const activeForLane = activeLaneKey === item.lane && laneIndex === 0;
   const responsibilityState = responsibilityItemState(item.lane, state, activeForLane);
+  const submit = responsibilitySubmitPlanFor({ item, playerId, prompt, state: responsibilityState });
 
   return {
     actorLabel: responsibilityActorLabel(item),
@@ -392,8 +426,137 @@ function responsibilityItemFor({
     reason: responsibilityReason(item, responsibilityState),
     refs: item.refs,
     state: responsibilityState,
-    stateLabel: responsibilityItemStateLabel(responsibilityState)
+    stateLabel: responsibilityItemStateLabel(responsibilityState),
+    submit
   };
+}
+
+function responsibilitySubmitPlanFor({
+  item,
+  playerId,
+  prompt,
+  state
+}: {
+  item: WireRuleQueueSequenceItem;
+  playerId: string;
+  prompt?: ActionPromptDto;
+  state: WireRuleQueueResponsibilityState;
+}): WireRuleQueueResponsibilitySubmitPlan {
+  const candidates = prompt?.candidates ?? [];
+  const enabledCandidateCount = candidates.filter((candidate) => candidate.enabled).length;
+  const candidateCount = candidates.length;
+  const promptType = prompt?.view?.type ?? prompt?.serverFlow?.promptType ?? "无";
+
+  if (state === "history" || item.lane === "resolution") {
+    return responsibilitySubmitPlan({
+      candidateCount,
+      enabledCandidateCount,
+      promptType,
+      reason: "历史规则事件只用于回看，不提供提交入口。",
+      state: "history"
+    });
+  }
+
+  if (state === "waiting") {
+    return responsibilitySubmitPlan({
+      candidateCount,
+      enabledCandidateCount,
+      promptType,
+      reason: "等待前序结算、任务或触发先处理。",
+      state: "waiting-lane"
+    });
+  }
+
+  if (!prompt) {
+    return responsibilitySubmitPlan({
+      candidateCount,
+      enabledCandidateCount,
+      promptType,
+      reason: "等待服务端 prompt 提供可提交候选。",
+      state: "waiting-prompt"
+    });
+  }
+
+  if (prompt.playerId !== playerId) {
+    return responsibilitySubmitPlan({
+      candidateCount,
+      enabledCandidateCount,
+      promptType,
+      reason: `当前行动窗口属于 ${prompt.playerId || "未知玩家"}，本地玩家 ${playerId} 只读观察。`,
+      state: "wrong-player"
+    });
+  }
+
+  if (!prompt.actionable) {
+    return responsibilitySubmitPlan({
+      candidateCount,
+      enabledCandidateCount,
+      promptType,
+      reason: prompt.reason?.trim() || "服务端提示当前只读，不能提交行动。",
+      state: "readonly"
+    });
+  }
+
+  if (enabledCandidateCount <= 0) {
+    return responsibilitySubmitPlan({
+      candidateCount,
+      enabledCandidateCount,
+      promptType,
+      reason: "服务端 prompt 已到达，但没有可用候选。",
+      state: "no-candidates"
+    });
+  }
+
+  return responsibilitySubmitPlan({
+    candidateCount,
+    enabledCandidateCount,
+    promptType,
+    reason: `服务端 prompt 提供 ${enabledCandidateCount}/${candidateCount} 个可用候选。`,
+    state: "ready"
+  });
+}
+
+function responsibilitySubmitPlan({
+  candidateCount,
+  enabledCandidateCount,
+  promptType,
+  reason,
+  state
+}: {
+  candidateCount: number;
+  enabledCandidateCount: number;
+  promptType: string;
+  reason: string;
+  state: WireRuleQueueResponsibilitySubmitState;
+}): WireRuleQueueResponsibilitySubmitPlan {
+  return {
+    canSubmit: state === "ready",
+    candidateCount,
+    enabledCandidateCount,
+    promptType,
+    reason,
+    state,
+    stateLabel: responsibilitySubmitStateLabel(state)
+  };
+}
+
+function responsibilitySubmitStateLabel(state: WireRuleQueueResponsibilitySubmitState): string {
+  switch (state) {
+    case "history":
+      return "历史回看";
+    case "no-candidates":
+      return "无可用候选";
+    case "ready":
+      return "可提交";
+    case "readonly":
+      return "只读窗口";
+    case "waiting-lane":
+      return "等待前序";
+    case "waiting-prompt":
+      return "等待提示";
+    case "wrong-player":
+      return "非当前玩家";
+  }
 }
 
 function responsibilityItemState(
@@ -440,20 +603,25 @@ function responsibilityStateLabel(state: WireRuleQueueState): string {
   }
 }
 
-function responsibilitySummaryFor(state: WireRuleQueueState, activeCount: number, totalCount: number): string {
+function responsibilitySummaryFor(
+  state: WireRuleQueueState,
+  activeCount: number,
+  totalCount: number,
+  submitReadyCount: number
+): string {
   if (totalCount === 0) {
     return "当前没有服务端结算链、规则任务、触发或近期规则事件。";
   }
 
   switch (state) {
     case "stack-response":
-      return `${activeCount} 个当前响应入口；提交动作仍以服务端 prompt 候选为准。`;
+      return `${activeCount} 个当前响应入口，${submitReadyCount} 个可提交入口；提交动作仍以服务端 prompt 候选为准。`;
     case "task-blocked":
-      return `${activeCount} 个阻塞规则任务；普通行动保持只读直到服务端推进。`;
+      return `${activeCount} 个阻塞规则任务，${submitReadyCount} 个可提交入口；普通行动保持只读直到服务端推进。`;
     case "task-open":
-      return `${activeCount} 个规则任务可观察；等待服务端任务队列推进。`;
+      return `${activeCount} 个规则任务可观察，${submitReadyCount} 个可提交入口；等待服务端任务队列推进。`;
     case "trigger-pending":
-      return `${activeCount} 个触发队列项可观察；排序或结算由服务端窗口裁定。`;
+      return `${activeCount} 个触发队列项可观察，${submitReadyCount} 个可提交入口；排序或结算由服务端窗口裁定。`;
     case "resolution-history":
       return `${totalCount} 个近期规则事件可回看。`;
     case "idle":
