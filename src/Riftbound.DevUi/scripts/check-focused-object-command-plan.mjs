@@ -33,6 +33,22 @@ new Function(
   commandFieldModuleShim.exports.commandFieldDisplayLabel
 );
 
+const wireActionSyntaxPath = resolve(scriptDir, "../src/utils/wireActionSyntaxPlan.ts");
+const wireActionSyntaxOutput = transpile(readFileSync(wireActionSyntaxPath, "utf8"));
+const wireActionSyntaxModuleShim = { exports: {} };
+new Function(
+  "exports",
+  "module",
+  "promptChoiceRoleFromString",
+  "promptChoiceRoleLabel",
+  wireActionSyntaxOutput
+)(
+  wireActionSyntaxModuleShim.exports,
+  wireActionSyntaxModuleShim,
+  promptChoiceRoleFromString,
+  promptChoiceRoleLabel
+);
+
 const sourcePath = resolve(scriptDir, "../src/utils/focusedObjectCommandPlan.ts");
 const source = readFileSync(sourcePath, "utf8");
 const output = transpile(source);
@@ -43,12 +59,14 @@ new Function(
   "module",
   "commandFieldLabelsForCandidate",
   "tableObjectContextSourceLabel",
+  "buildWireActionSyntaxPlanFromTableContext",
   output
 )(
   moduleShim.exports,
   moduleShim,
   candidateSemanticsModuleShim.exports.commandFieldLabelsForCandidate,
-  tableObjectContextSourceLabel
+  tableObjectContextSourceLabel,
+  wireActionSyntaxModuleShim.exports.buildWireActionSyntaxPlanFromTableContext
 );
 
 const { buildFocusedObjectCommandPlan } = moduleShim.exports;
@@ -183,6 +201,20 @@ assert.equal(plan.nextStepRows[0].nextStepLabel, "目标");
 assert.equal(plan.eventRows[0].kind, "OBJECT_EXHAUSTED");
 assert.equal(plan.contract.hiddenMetadataCount, 1);
 assert.equal(plan.contract.requiredPayloadCount, 2);
+assert.equal(plan.syntax.rows.length, 3);
+assert.equal(plan.syntax.usableCount, 2);
+assert.equal(plan.syntax.missingRequiredCount, 1);
+assert.ok(plan.syntax.summary.includes("可作为 来源"));
+assert.ok(plan.syntax.summary.includes("还需 目标"));
+assert.deepEqual(
+  plan.syntax.rows.map((row) =>
+    `${row.source}:${row.roleLabel}:${row.state}:${row.objectChoiceCount}/${row.choiceCount}:${row.required}:${row.candidateLabel}`),
+  [
+    "object-context:来源:usable-required:1/1:true:启动能力",
+    "object-context:来源:usable-required:1/1:true:打出卡牌",
+    "object-context:目标:missing-required:0/2:true:打出卡牌"
+  ]
+);
 assert.equal(JSON.stringify(plan).includes("服务端:cardNo"), false);
 assert.equal(JSON.stringify(plan).includes("serverPaymentState"), false);
 
@@ -208,4 +240,18 @@ function tableObjectContextSourceLabel(context) {
           return "未建立上下文";
       }
   }
+}
+
+function promptChoiceRoleFromString(role) {
+  return ["source", "target", "destination", "mode", "optionalCost"].includes(role) ? role : undefined;
+}
+
+function promptChoiceRoleLabel(role) {
+  return {
+    destination: "位置",
+    mode: "模式",
+    optionalCost: "费用",
+    source: "来源",
+    target: "目标"
+  }[role] ?? role;
 }

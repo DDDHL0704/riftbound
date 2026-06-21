@@ -167,6 +167,9 @@ const helperModules = {
         target: "目标"
       }[role] ?? role;
     },
+    promptChoiceRoleFromString(role) {
+      return ["source", "target", "destination", "mode", "optionalCost"].includes(role) ? role : undefined;
+    },
     promptChoiceSummaryObjectIds(choice) {
       return choice.objectIds?.length ? choice.objectIds : promptChoiceObjectIdsForCheck(choice.id);
     }
@@ -257,6 +260,21 @@ function requireShim(id) {
 
   return module;
 }
+
+function loadTsModule(path) {
+  const moduleSource = readFileSync(path, "utf8");
+  const moduleOutput = ts.transpileModule(moduleSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022
+    }
+  }).outputText;
+  const moduleShim = { exports: {} };
+  new Function("exports", "module", "require", moduleOutput)(moduleShim.exports, moduleShim, requireShim);
+  return moduleShim.exports;
+}
+
+helperModules["./wireActionSyntaxPlan"] = loadTsModule(resolve(scriptDir, "../src/utils/wireActionSyntaxPlan.ts"));
 
 new Function("exports", "module", "require", output)(moduleShim.exports, moduleShim, requireShim);
 

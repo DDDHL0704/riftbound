@@ -1275,15 +1275,25 @@ async function runWireClickSelectionSmoke(cdp) {
     const tableObject = document.querySelector('[data-object-id="p2-right-1"]');
     const selectedRef = document.querySelector('[data-candidate-object-ref="p2-right-1"][data-selected="true"]');
     const selectedObjectContext = document.querySelector('[data-wire-selected-object-context="p2-right-1"]');
+    const objectContext = document.querySelector(".wire-object-context");
     const selectedProjection = document.querySelector('[data-rule-selected-object="p2-right-1"]');
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
-      contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
+      contextText: objectContext?.textContent ?? "",
       detailContextText: selectedObjectContext?.textContent ?? "",
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       hasCandidateRefs: document.querySelectorAll("[data-candidate-object-ref]").length,
       hasSelectedObjectContext: Boolean(selectedObjectContext),
+      objectSyntaxMissingRequiredCount: Number(objectContext?.querySelector("[data-wire-object-syntax-missing-required-count]")?.getAttribute("data-wire-object-syntax-missing-required-count") ?? 0),
+      objectSyntaxRoles: Array.from(objectContext?.querySelectorAll("[data-wire-object-syntax-role]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-syntax-role")),
+      objectSyntaxSources: Array.from(objectContext?.querySelectorAll("[data-wire-object-syntax-source]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-syntax-source")),
+      objectSyntaxStates: Array.from(objectContext?.querySelectorAll("[data-wire-object-syntax-state]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-syntax-state")),
+      objectSyntaxSummary: objectContext?.querySelector("[data-wire-object-syntax-summary]")?.textContent ?? "",
+      objectSyntaxUsableCount: Number(objectContext?.querySelector("[data-wire-object-syntax-usable-count]")?.getAttribute("data-wire-object-syntax-usable-count") ?? 0),
       projectionRelationCount: Number(selectedProjection?.getAttribute("data-rule-selected-object-relation-count") ?? 0),
       projectionSources: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-relation-source]") ?? [])
         .map((node) => node.getAttribute("data-rule-selected-object-relation-source")),
@@ -1677,6 +1687,14 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.detailContextText.includes("服务端字段")) failures.push("timeline selected object context command metadata summary missing");
   if (candidateRefResult.detailContextText.includes("服务端:cardNo*")) failures.push("timeline selected object context leaked raw metadata command field");
   if (!candidateRefResult.detailContextText.includes("近期事件")) failures.push("timeline selected object context event section missing");
+  if (!candidateRefResult.objectSyntaxSources.includes("object-context")) failures.push("focused object syntax object-context source missing");
+  if (!candidateRefResult.objectSyntaxStates.includes("usable-optional")) failures.push("focused object syntax usable optional state missing");
+  if (!candidateRefResult.objectSyntaxStates.includes("missing-required")) failures.push("focused object syntax missing required state missing");
+  if (!candidateRefResult.objectSyntaxRoles.includes("target")) failures.push("focused object syntax target role missing");
+  if (!candidateRefResult.objectSyntaxSummary.includes("可作为 目标")) failures.push("focused object syntax usable role summary missing");
+  if (!candidateRefResult.objectSyntaxSummary.includes("还需 来源")) failures.push("focused object syntax missing role summary missing");
+  if (candidateRefResult.objectSyntaxUsableCount < 1) failures.push(`focused object syntax usable count too low: ${candidateRefResult.objectSyntaxUsableCount}`);
+  if (candidateRefResult.objectSyntaxMissingRequiredCount < 1) failures.push(`focused object syntax missing required count too low: ${candidateRefResult.objectSyntaxMissingRequiredCount}`);
   if (candidateRefResult.projectionState !== "linked") failures.push(`selected object rule projection state unexpected: ${candidateRefResult.projectionState}`);
   if (candidateRefResult.projectionRelationCount < 3) failures.push(`selected object rule projection relation count too low: ${candidateRefResult.projectionRelationCount}`);
   if (!candidateRefResult.projectionSources.includes("server-flow")) failures.push("selected object projection server-flow source missing");

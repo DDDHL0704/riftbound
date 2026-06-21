@@ -12,7 +12,6 @@ import { gameEventObjectRefPlan, gameEventObjectRefSourceLabel } from "./gameEve
 import { promptCandidateCounts } from "./promptCandidateCounts";
 import {
   buildPromptInteractionModel,
-  promptChoiceRoleFromString,
   promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
   type PromptCandidateSummary,
@@ -20,6 +19,13 @@ import {
 } from "./promptInteraction";
 import { redactInternalText } from "./redaction";
 import { buildCardObjectIndex, type SnapshotObjectIndex } from "./snapshotObjectIndex";
+import {
+  buildWireActionSyntaxPlanForObject,
+  buildWireActionSyntaxPlanFromRows,
+  type WireActionSyntaxRow,
+  type WireActionSyntaxSource,
+  type WireActionSyntaxState
+} from "./wireActionSyntaxPlan";
 
 export type WireRuleQueueLaneKey = "resolution" | "stack" | "task" | "trigger";
 
@@ -254,26 +260,9 @@ export type WireRuleQueueFocusActionRow = {
 
 export type WireRuleQueueSelectedObjectState = "empty" | "linked" | "unlinked";
 
-export type WireRuleQueueSelectedObjectSyntaxSource = "object-context" | "server-flow";
-
-export type WireRuleQueueSelectedObjectSyntaxState =
-  | "missing-required"
-  | "usable-optional"
-  | "usable-required";
-
-export type WireRuleQueueSelectedObjectSyntaxRow = {
-  candidateLabel: string;
-  choiceCount: number;
-  key: string;
-  objectChoiceCount: number;
-  required: boolean;
-  role: string;
-  roleLabel: string;
-  source: WireRuleQueueSelectedObjectSyntaxSource;
-  sourceLabel: string;
-  state: WireRuleQueueSelectedObjectSyntaxState;
-  stateLabel: string;
-};
+export type WireRuleQueueSelectedObjectSyntaxSource = WireActionSyntaxSource;
+export type WireRuleQueueSelectedObjectSyntaxState = WireActionSyntaxState;
+export type WireRuleQueueSelectedObjectSyntaxRow = WireActionSyntaxRow;
 
 export type WireRuleQueueSelectedObjectRelationSource =
   | "object-context"
@@ -562,7 +551,7 @@ function selectedObjectPlanFor({
     objectId,
     relations,
     state: relations.length > 0 ? "linked" : "unlinked",
-    syntaxRows: selectedObjectSyntaxRows(objectId, prompt)
+    syntaxRows: buildWireActionSyntaxPlanForObject({ objectId, prompt }).rows
   });
 }
 
@@ -704,70 +693,6 @@ function selectedObjectContextRelations(
     });
 }
 
-function selectedObjectSyntaxRows(
-  objectId: string,
-  prompt?: ActionPromptDto
-): WireRuleQueueSelectedObjectSyntaxRow[] {
-  const serverFlowRows = (prompt?.serverFlow?.relatedObjects ?? [])
-    .filter((ref) => ref.objectId === objectId)
-    .flatMap((ref, refIndex) =>
-      selectedObjectSyntaxRowsFromSteps({
-        candidateLabel: uniqueStrings([ref.role, ...(ref.candidateRoles ?? [])]).join(" / ") || "服务端流程",
-        keyPrefix: `server-flow:${refIndex}`,
-        source: "server-flow",
-        steps: ref.candidateSteps
-      }));
-  const objectContextRows = (prompt?.objectContexts ?? [])
-    .filter((context) => context.objectId === objectId)
-    .flatMap((context) =>
-      context.candidates.flatMap((candidate, candidateIndex) =>
-        selectedObjectSyntaxRowsFromSteps({
-          candidateLabel: candidate.label?.trim() || candidate.action,
-          keyPrefix: `object-context:${candidateIndex}:${candidate.action}`,
-          source: "object-context",
-          steps: candidate.selectionSteps
-        })));
-
-  return [...serverFlowRows, ...objectContextRows]
-    .sort((left, right) =>
-      selectedObjectSyntaxSourceRank(left.source) - selectedObjectSyntaxSourceRank(right.source)
-      || selectedObjectSyntaxStateRank(left.state) - selectedObjectSyntaxStateRank(right.state)
-      || left.roleLabel.localeCompare(right.roleLabel)
-      || left.candidateLabel.localeCompare(right.candidateLabel));
-}
-
-function selectedObjectSyntaxRowsFromSteps({
-  candidateLabel,
-  keyPrefix,
-  source,
-  steps
-}: {
-  candidateLabel: string;
-  keyPrefix: string;
-  source: WireRuleQueueSelectedObjectSyntaxSource;
-  steps: ActionPromptObjectCandidateStepDto[] | null | undefined;
-}): WireRuleQueueSelectedObjectSyntaxRow[] {
-  return (steps ?? [])
-    .filter((step) => step.required || step.objectChoiceCount > 0)
-    .map((step) => {
-      const state = selectedObjectSyntaxState(step);
-      const roleLabel = step.label?.trim() || selectedObjectSyntaxRoleLabel(step.role);
-      return {
-        candidateLabel,
-        choiceCount: finiteCountValue(step.choiceCount),
-        key: `syntax:${keyPrefix}:${step.index}:${step.role}`,
-        objectChoiceCount: finiteCountValue(step.objectChoiceCount),
-        required: Boolean(step.required),
-        role: step.role,
-        roleLabel,
-        source,
-        sourceLabel: selectedObjectSyntaxSourceLabel(source),
-        state,
-        stateLabel: selectedObjectSyntaxStateLabel(state)
-      };
-    });
-}
-
 function selectedObjectPlan({
   objectId,
   relations,
@@ -782,20 +707,19 @@ function selectedObjectPlan({
   const enabledCandidateCount = selectedObjectRelationCandidateTotal(relations, "enabled");
   const disabledCandidateCount = selectedObjectRelationCandidateTotal(relations, "disabled");
   const candidateCount = selectedObjectRelationCandidateTotal(relations, "total");
-  const usableSyntaxCount = syntaxRows.filter((row) => row.state === "usable-optional" || row.state === "usable-required").length;
-  const missingRequiredSyntaxCount = syntaxRows.filter((row) => row.state === "missing-required").length;
+  const syntaxPlan = buildWireActionSyntaxPlanFromRows(syntaxRows);
 
   return {
     candidateCount,
     disabledCandidateCount,
     enabledCandidateCount,
-    missingRequiredSyntaxCount,
+    missingRequiredSyntaxCount: syntaxPlan.missingRequiredCount,
     objectId,
     relationCount: relations.length,
     relations,
     state,
-    syntaxRows,
-    syntaxSummary: selectedObjectSyntaxSummary(syntaxRows),
+    syntaxRows: syntaxPlan.rows,
+    syntaxSummary: syntaxPlan.summary,
     summary: selectedObjectSummary({
       candidateCount,
       enabledCandidateCount,
@@ -803,7 +727,7 @@ function selectedObjectPlan({
       relationCount: relations.length,
       state
     }),
-    usableSyntaxCount
+    usableSyntaxCount: syntaxPlan.usableCount
   };
 }
 
@@ -1375,10 +1299,6 @@ function finiteOptionalCount(...values: Array<number | null | undefined>): numbe
   return undefined;
 }
 
-function finiteCountValue(value: number | null | undefined): number {
-  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
-}
-
 function candidatesForObject(candidates: PromptCandidateSummary[], objectId: string): PromptCandidateSummary[] {
   return candidates.filter((candidate) =>
     candidate.choices.some((choice) =>
@@ -1475,81 +1395,6 @@ function focusActionSelectionStepSummary(steps: ActionPromptObjectCandidateStepD
 
 function uniqueStrings(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
-}
-
-function selectedObjectSyntaxState(
-  step: ActionPromptObjectCandidateStepDto
-): WireRuleQueueSelectedObjectSyntaxState {
-  if (step.objectChoiceCount > 0 && step.required) {
-    return "usable-required";
-  }
-
-  if (step.objectChoiceCount > 0) {
-    return "usable-optional";
-  }
-
-  return "missing-required";
-}
-
-function selectedObjectSyntaxStateLabel(state: WireRuleQueueSelectedObjectSyntaxState): string {
-  switch (state) {
-    case "missing-required":
-      return "还需其他对象";
-    case "usable-optional":
-      return "可作为可选";
-    case "usable-required":
-      return "可承担必选";
-  }
-}
-
-function selectedObjectSyntaxSourceLabel(source: WireRuleQueueSelectedObjectSyntaxSource): string {
-  switch (source) {
-    case "object-context":
-      return "对象上下文";
-    case "server-flow":
-      return "服务端流程";
-  }
-}
-
-function selectedObjectSyntaxRoleLabel(role: string): string {
-  const knownRole = promptChoiceRoleFromString(role);
-  return knownRole ? promptChoiceRoleLabel(knownRole) : role;
-}
-
-function selectedObjectSyntaxSourceRank(source: WireRuleQueueSelectedObjectSyntaxSource): number {
-  switch (source) {
-    case "server-flow":
-      return 0;
-    case "object-context":
-      return 1;
-  }
-}
-
-function selectedObjectSyntaxStateRank(state: WireRuleQueueSelectedObjectSyntaxState): number {
-  switch (state) {
-    case "usable-required":
-      return 0;
-    case "usable-optional":
-      return 1;
-    case "missing-required":
-      return 2;
-  }
-}
-
-function selectedObjectSyntaxSummary(rows: WireRuleQueueSelectedObjectSyntaxRow[]): string {
-  if (rows.length === 0) {
-    return "服务端未公开该对象的候选语法。";
-  }
-
-  const usableRoles = uniqueStrings(rows
-    .filter((row) => row.state === "usable-optional" || row.state === "usable-required")
-    .map((row) => row.roleLabel));
-  const missingRoles = uniqueStrings(rows
-    .filter((row) => row.state === "missing-required")
-    .map((row) => row.roleLabel));
-  const usableLabel = usableRoles.length > 0 ? `可作为 ${usableRoles.join(" / ")}` : "当前对象不可直接填入候选角色";
-  const missingLabel = missingRoles.length > 0 ? `还需 ${missingRoles.join(" / ")}` : "必选步骤已由当前对象覆盖或服务端未要求";
-  return `${usableLabel}；${missingLabel}`;
 }
 
 function dedupeSelectedObjectRelations(

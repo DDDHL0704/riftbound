@@ -67,6 +67,31 @@ export function WireObjectContextSummary({
           </ol>
         </div>
       )}
+      {plan.syntax.rows.length > 0 && (
+        <div
+          aria-label="焦点对象候选语法"
+          className="wire-object-syntax-block"
+          data-wire-object-syntax-count={plan.syntax.rows.length}
+          data-wire-object-syntax-missing-required-count={plan.syntax.missingRequiredCount}
+          data-wire-object-syntax-usable-count={plan.syntax.usableCount}
+        >
+          <span className="wire-object-context-line" data-wire-object-syntax-summary>{plan.syntax.summary}</span>
+          <ol className="wire-object-syntax-list">
+            {plan.syntax.rows.slice(0, 4).map((row) => (
+              <li
+                data-wire-object-syntax-role={row.role}
+                data-wire-object-syntax-source={row.source}
+                data-wire-object-syntax-state={row.state}
+                key={row.key}
+              >
+                <span>{row.sourceLabel} / {row.candidateLabel}</span>
+                <strong>{row.roleLabel} / {row.stateLabel}</strong>
+                <small>{row.objectChoiceCount}/{row.choiceCount} 选项{row.required ? " / 必选" : " / 可选"}</small>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
       {plan.nextStepRows.length > 0 && (
         <ol className="wire-object-next-step-list" aria-label="焦点对象候选步骤">
           {plan.nextStepRows.slice(0, 3).map((row) => (

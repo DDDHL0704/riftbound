@@ -7,6 +7,10 @@ import {
   type TableObjectContext,
   type TableObjectEventContext
 } from "./tableObjectContext";
+import {
+  buildWireActionSyntaxPlanFromTableContext,
+  type WireActionSyntaxPlan
+} from "./wireActionSyntaxPlan";
 
 export type FocusedObjectStatusCard = {
   label: string;
@@ -70,6 +74,7 @@ export type FocusedObjectCommandPlan = {
   serverRelationRows: FocusedObjectServerRelationRow[];
   stackRoles: string[];
   statusCards: FocusedObjectStatusCard[];
+  syntax: WireActionSyntaxPlan;
 };
 
 export type FocusedObjectServerRelationRow = {
@@ -120,6 +125,7 @@ export function buildFocusedObjectCommandPlan({
     nextStepRows,
     serverRelationRows: (context.serverRelations ?? []).map(serverRelationRowFromContext),
     stackRoles: context.stackRoles,
+    syntax: buildWireActionSyntaxPlanFromTableContext(context),
     statusCards: [
       { label: "位置", value: context.zone.label },
       { label: "状态", value: stateValue },

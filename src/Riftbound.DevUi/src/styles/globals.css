@@ -12080,6 +12080,8 @@ button.card-face:hover {
 .wire-object-context-grid span,
 .wire-object-contract-block,
 .wire-object-contract-block small,
+.wire-object-syntax-block,
+.wire-object-syntax-list li,
 .wire-object-next-step-list li,
 .wire-object-command-list small,
 .wire-object-event-list li,
@@ -13624,6 +13626,7 @@ button.card-face:hover {
 
 .wire-object-context-grid span,
 .wire-object-contract-block,
+.wire-object-syntax-list li,
 .wire-object-next-step-list li,
 .wire-object-server-relation-list li,
 .wire-object-command-list li,
@@ -13637,6 +13640,8 @@ button.card-face:hover {
 .wire-object-context-grid small,
 .wire-object-context-line,
 .wire-object-contract-block small,
+.wire-object-syntax-list span,
+.wire-object-syntax-list small,
 .wire-object-next-step-list span,
 .wire-object-server-relation-list span,
 .wire-object-server-relation-list small,
@@ -13648,6 +13653,9 @@ button.card-face:hover {
 
 .wire-object-context-grid strong,
 .wire-object-context-line,
+.wire-object-syntax-list span,
+.wire-object-syntax-list strong,
+.wire-object-syntax-list small,
 .wire-object-next-step-list strong,
 .wire-object-server-relation-list strong,
 .wire-object-server-relation-list small,
@@ -13662,6 +13670,7 @@ button.card-face:hover {
 
 .wire-object-command-list,
 .wire-object-next-step-list,
+.wire-object-syntax-list,
 .wire-object-server-relation-list,
 .wire-object-event-list {
   display: grid;
@@ -13673,6 +13682,7 @@ button.card-face:hover {
 
 .wire-object-command-block,
 .wire-object-contract-block,
+.wire-object-syntax-block,
 .wire-object-server-relation-block,
 .wire-object-event-block {
   display: grid;
@@ -13692,6 +13702,15 @@ button.card-face:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-object-syntax-list li {
+  grid-template-columns: minmax(72px, auto) minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.wire-object-syntax-list li[data-wire-object-syntax-state="missing-required"] {
+  border-style: dashed;
 }
 
 .wire-object-next-step-list li.is-disabled,
@@ -16731,6 +16750,8 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-selected-object-heading,
 .wire-match-page .wire-rule-selected-object-syntax,
 .wire-match-page .wire-rule-selected-object-syntax li,
+.wire-match-page .wire-object-syntax-block,
+.wire-match-page .wire-object-syntax-list li,
 .wire-match-page .wire-rule-selected-object-relations li,
 .wire-match-page .wire-rule-lanes li,
 .wire-match-page .wire-rule-sequence li,
