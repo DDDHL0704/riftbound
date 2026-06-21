@@ -92,7 +92,7 @@ const fixtureBlockedAbilityComposer = {
   supported: false
 } satisfies ActionPromptComposerDto;
 
-export type WireLayoutFixtureCommandSubmissionMode = "rejected" | "timeline";
+export type WireLayoutFixtureCommandSubmissionMode = "rejected" | "snapshot" | "timeline";
 
 export function isWireLayoutFixtureEnabled(search = window.location.search): boolean {
   const params = new URLSearchParams(search);
@@ -110,7 +110,7 @@ export function wireLayoutFixtureCommandSubmissionMode(search = window.location.
 
   const params = new URLSearchParams(search);
   const mode = params.get("fixtureSubmission");
-  return mode === "timeline" || mode === "rejected" ? mode : undefined;
+  return mode === "timeline" || mode === "rejected" || mode === "snapshot" ? mode : undefined;
 }
 
 export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): ActionPromptDto {
@@ -679,6 +679,30 @@ export function buildWireLayoutFixtureCommandSubmission({
   mode?: WireLayoutFixtureCommandSubmissionMode;
   uiSource?: CommandSubmissionUiSource;
 } = {}): CommandSubmissionFeedback {
+  if (mode === "snapshot") {
+    return {
+      clientIntentId: "fixture-snapshot-play-card-timeline-detail",
+      cmdType,
+      followup: {
+        eventCount: 0,
+        promptCount: 1,
+        serverTick: 7,
+        snapshotCount: 1,
+        state: "snapshot-prompt",
+        summary: "fixture tick 7 无公开事件，但已生成 1 个快照、1 个提示。"
+      },
+      message: "服务端已接受 fixture 命令；该命令没有公开事件，后续以快照和提示为准。",
+      promptId: "fixture-main-action",
+      receiptState: "ACCEPTED",
+      serverTick: 7,
+      snapshotTick: 7,
+      state: "sent",
+      stateLabel: "服务端已接受",
+      submittedAt: 0,
+      uiSource
+    };
+  }
+
   if (mode === "rejected") {
     return {
       clientIntentId: "fixture-rejected-play-card-timeline-detail",

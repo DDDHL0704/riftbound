@@ -110,6 +110,11 @@ try {
   await waitForText(cdp, ["符文战场对战线框", "事件详情", "行动提示"]);
   await runWireTimelineCommandSubmitSmoke(cdp);
   console.log("Chrome smoke OK: wire timeline command submit");
+  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=snapshot`);
+  await waitForText(cdp, ["符文战场对战线框", "服务端已接受", "快照"]);
+  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=snapshot");
+  await runWireSnapshotSubmissionSmoke(cdp);
+  console.log("Chrome smoke OK: wire snapshot submission");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=rejected`);
   await waitForText(cdp, ["符文战场对战线框", "服务端拒绝", "提交反馈"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=rejected");
@@ -2203,6 +2208,59 @@ async function runWireRejectedSubmissionSmoke(cdp) {
 
   if (failures.length > 0) {
     throw new Error(`Rejected submission smoke failed:\n${failures.join("\n")}\n${JSON.stringify({ result, layer }, null, 2)}`);
+  }
+}
+
+async function runWireSnapshotSubmissionSmoke(cdp) {
+  const result = await evaluateJson(cdp, `(() => {
+    const feedback = document.querySelector(".wire-command-submission-feedback");
+    const followup = feedback?.querySelector("[data-command-followup-state]");
+    const bridge = followup?.querySelector("[data-command-followup-bridge-state]");
+    const layoutProjection = followup?.querySelector("[data-command-followup-layout-state]");
+    return {
+      command: feedback?.querySelector('[data-command-submission-metric="command"] strong')?.textContent?.trim() ?? "",
+      eventButtonCount: followup?.querySelectorAll("[data-command-followup-event-action]").length ?? 0,
+      followupEventCount: Number(followup?.getAttribute("data-command-followup-event-count") ?? "-1"),
+      followupHiddenCount: Number(followup?.getAttribute("data-command-followup-hidden-count") ?? "-1"),
+      followupServerState: followup?.getAttribute("data-command-followup-server-state") ?? "",
+      followupState: followup?.getAttribute("data-command-followup-state") ?? "",
+      layoutProjectionState: layoutProjection?.getAttribute("data-command-followup-layout-state") ?? "",
+      receipt: feedback?.querySelector('[data-command-submission-metric="receipt"] strong')?.textContent?.trim() ?? "",
+      state: feedback?.getAttribute("data-command-submission-state") ?? "",
+      text: feedback?.textContent ?? "",
+      bridgeState: bridge?.getAttribute("data-command-followup-bridge-state") ?? ""
+    };
+  })()`);
+  const failures = [];
+  if (result.state !== "sent") failures.push(`feedback state ${result.state}`);
+  if (result.command !== "PLAY_CARD") failures.push(`command ${result.command}`);
+  if (result.receipt !== "ACCEPTED") failures.push(`receipt ${result.receipt}`);
+  if (result.followupState !== "accepted-snapshot") failures.push(`followup state ${result.followupState}`);
+  if (result.followupServerState !== "snapshot-prompt") failures.push(`followup server state ${result.followupServerState}`);
+  if (result.bridgeState !== "ready") failures.push(`bridge state ${result.bridgeState}`);
+  if (result.layoutProjectionState !== "empty") failures.push(`layout projection state ${result.layoutProjectionState}`);
+  if (result.followupEventCount !== 0) failures.push(`event count ${result.followupEventCount}`);
+  if (result.followupHiddenCount !== 0) failures.push(`hidden event count ${result.followupHiddenCount}`);
+  if (result.eventButtonCount !== 0) failures.push(`event button count ${result.eventButtonCount}`);
+  if (!result.text.includes("快照/提示已同步")) failures.push("snapshot bridge headline missing");
+  if (!result.text.includes("无公开事件")) failures.push("snapshot summary missing");
+
+  const layer = await openCommandSubmissionLayer(cdp);
+  if (layer.state !== "open") failures.push(`layer state ${layer.state}`);
+  if (layer.cmdType !== "PLAY_CARD") failures.push(`layer command ${layer.cmdType}`);
+  if (layer.receiptState !== "ACCEPTED") failures.push(`layer receipt ${layer.receiptState}`);
+  if (layer.followupState !== "accepted-snapshot") failures.push(`layer followup state ${layer.followupState}`);
+  if (layer.serverState !== "snapshot-prompt") failures.push(`layer server state ${layer.serverState}`);
+  if (layer.eventCount !== 0) failures.push(`layer event count ${layer.eventCount}`);
+  if (layer.hiddenCount !== 0) failures.push(`layer hidden count ${layer.hiddenCount}`);
+  if (layer.eventKinds.length !== 0) failures.push(`layer event kinds ${layer.eventKinds.join(",")}`);
+  if (layer.layoutObjects.length !== 0) failures.push(`layer layout objects ${layer.layoutObjects.join(",")}`);
+  if (layer.sourceSurface !== "timeline-detail") failures.push(`layer source surface ${layer.sourceSurface}`);
+  if (!layer.text.includes("快照/提示已同步")) failures.push("layer snapshot bridge headline missing");
+  if (!layer.text.includes("无公开事件")) failures.push("layer snapshot summary missing");
+
+  if (failures.length > 0) {
+    throw new Error(`Snapshot submission smoke failed:\n${failures.join("\n")}\n${JSON.stringify({ result, layer }, null, 2)}`);
   }
 }
 

@@ -1,4 +1,4 @@
-import type { CommandReceiptFollowupDto, GameEvent, GameEventObjectRef, SnapshotDto } from "../types/protocol";
+import type { CommandReceiptEventRefDto, CommandReceiptFollowupDto, GameEvent, GameEventObjectRef, SnapshotDto } from "../types/protocol";
 import { eventDescriptionLabel, eventKindLabel } from "./eventLogPlan";
 
 export type ObservedGameEvent = GameEvent & {
@@ -129,10 +129,16 @@ export function buildCommandSubmissionFollowupPlan({
     return emptyPlan("unknown-tick", "回执未携带服务端 tick，无法关联后续事件。", feedback, snapshot);
   }
 
-  const allMatchingEvents = (events ?? []).filter((event) => event.receivedServerTick === serverTick);
   const reportedEventCount = nonNegativeIntegerOrUndefined(receiptFollowup?.eventCount);
   const reportedSnapshotCount = nonNegativeIntegerOrUndefined(receiptFollowup?.snapshotCount);
   const reportedPromptCount = nonNegativeIntegerOrUndefined(receiptFollowup?.promptCount);
+  const reportedEventRefs = receiptEventRefs(receiptFollowup?.eventRefs);
+  const allMatchingEvents = matchingReceiptEvents({
+    eventRefs: reportedEventRefs,
+    events: events ?? [],
+    reportedEventCount,
+    serverTick
+  });
   const authoritativeEventCount = Math.max(allMatchingEvents.length, reportedEventCount ?? 0);
   const visibleEvents = allMatchingEvents.slice(0, limit).map((event, index) => ({
     description: eventDescriptionLabel(event),
@@ -443,8 +449,8 @@ function serverFollowupFields(feedback?: CommandSubmissionFollowupFeedback): {
 }
 
 function serverEventRefs(followup?: CommandReceiptFollowupDto | null): CommandSubmissionFollowupServerEventKind[] | undefined {
-  const values = followup?.eventRefs;
-  if (!Array.isArray(values) || values.length === 0) {
+  const values = receiptEventRefs(followup?.eventRefs);
+  if (values.length === 0) {
     return undefined;
   }
 
@@ -468,6 +474,48 @@ function serverEventRefs(followup?: CommandReceiptFollowupDto | null): CommandSu
   }
 
   return result.length > 0 ? result : undefined;
+}
+
+function matchingReceiptEvents({
+  eventRefs,
+  events,
+  reportedEventCount,
+  serverTick
+}: {
+  eventRefs: readonly CommandReceiptEventRefDto[];
+  events: readonly ObservedGameEvent[];
+  reportedEventCount?: number;
+  serverTick: number;
+}): ObservedGameEvent[] {
+  if (eventRefs.length > 0) {
+    return eventRefs.flatMap((eventRef) => {
+      const match = events.find((event) =>
+        event.kind === eventRef.kind
+        && event.receivedServerTick === eventRef.serverTick
+        && event.receivedBatchIndex === eventRef.order
+      );
+      return match ? [match] : [];
+    });
+  }
+
+  if (reportedEventCount === 0) {
+    return [];
+  }
+
+  return events.filter((event) => event.receivedServerTick === serverTick);
+}
+
+function receiptEventRefs(values?: readonly CommandReceiptEventRefDto[] | null): CommandReceiptEventRefDto[] {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values.filter((value) =>
+    typeof value?.kind === "string"
+    && value.kind.trim().length > 0
+    && numberOrUndefined(value.serverTick) != null
+    && nonNegativeIntegerOrUndefined(value.order) != null
+  );
 }
 
 function compactStringList(values?: readonly string[] | null): CommandSubmissionFollowupServerEventKind[] {

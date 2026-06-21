@@ -214,7 +214,9 @@ assert.equal(snapshotPlan.state, "accepted-snapshot");
 assert.equal(snapshotPlan.metrics.find((metric) => metric.key === "snapshot").state, "ready");
 
 const receiptSnapshotPlan = buildCommandSubmissionFollowupPlan({
-  events: [],
+  events: [
+    { description: "same tick but not receipt-scoped", kind: "UNRELATED_EVENT", receivedBatchIndex: 0, receivedServerTick: 22 }
+  ],
   feedback: {
     clientIntentId: "client-4b",
     cmdType: "PASS_PRIORITY",
@@ -234,6 +236,7 @@ const receiptSnapshotPlan = buildCommandSubmissionFollowupPlan({
   snapshot: { tick: 21 }
 });
 assert.equal(receiptSnapshotPlan.state, "accepted-snapshot");
+assert.equal(receiptSnapshotPlan.events.length, 0);
 assert.equal(receiptSnapshotPlan.summary, "tick 22 无公开事件，但已生成 2 个快照、2 个提示。");
 assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "events").state, "empty");
 assert.equal(receiptSnapshotPlan.metrics.find((metric) => metric.key === "prompt").value, "2");
