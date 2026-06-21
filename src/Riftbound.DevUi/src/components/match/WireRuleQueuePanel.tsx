@@ -1,6 +1,6 @@
 import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protocol";
 import { Children, type ReactNode, useState } from "react";
-import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
+import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSelectedObjectPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import { StatusPill } from "../ui/StatusPill";
 import { WireDetailTrigger } from "./WireDetailTrigger";
@@ -25,7 +25,7 @@ type ObjectIndex = WireObjectIndex;
 export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [responsibilityLayerOpen, setResponsibilityLayerOpen] = useState(false);
-  const plan = buildWireRuleQueuePlan({ events, playerId, prompt, snapshot });
+  const plan = buildWireRuleQueuePlan({ events, playerId, prompt, selectedObjectId, snapshot });
   const objects = buildCardObjectIndex(snapshot);
 
   return (
@@ -111,6 +111,8 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
         selectedObjectId={selectedObjectId}
       />
 
+      <RuleSelectedObjectProjection plan={plan.selectedObject} />
+
       <div className="wire-rule-state-grid">
         {plan.metrics.map((metric) => (
           <RuleMetric key={metric.key} label={metric.label} mine={metric.mine} value={metric.value} />
@@ -139,6 +141,48 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
           ))}
         </RuleSection>
       ))}
+    </section>
+  );
+}
+
+function RuleSelectedObjectProjection({ plan }: { plan: WireRuleQueueSelectedObjectPlan }) {
+  return (
+    <section
+      aria-label="选中对象规则投影"
+      className="wire-rule-selected-object"
+      data-rule-selected-object={plan.objectId ?? ""}
+      data-rule-selected-object-relation-count={plan.relationCount}
+      data-rule-selected-object-state={plan.state}
+    >
+      <div className="wire-rule-selected-object-heading">
+        <strong>选中对象投影</strong>
+        <span>{plan.summary}</span>
+      </div>
+      {plan.relations.length === 0 ? (
+        <span className="empty-hint">{plan.summary}</span>
+      ) : (
+        <ol className="wire-rule-selected-object-relations" aria-label="选中对象关联规则线索">
+          {plan.relations.slice(0, 6).map((relation) => (
+            <li
+              data-rule-selected-object-relation={relation.key}
+              data-rule-selected-object-relation-detail={relation.detailId ?? ""}
+              data-rule-selected-object-relation-lane={relation.laneKey ?? ""}
+              data-rule-selected-object-relation-source={relation.source}
+              data-rule-selected-object-relation-state={relation.state}
+              key={relation.key}
+              title={relation.boundaryLabel}
+            >
+              <span>{relation.sourceLabel} / {relation.laneLabel}</span>
+              <strong>{relation.roleLabel} / {relation.stateLabel}</strong>
+              <small>{relation.detailLabel}</small>
+              <small>{relation.stepSummary ?? "无步骤摘要"}</small>
+              {relation.candidateCount != null && (
+                <em>{relation.enabledCandidateCount ?? 0}/{relation.candidateCount} 候选</em>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
     </section>
   );
 }

@@ -15416,6 +15416,69 @@ button.card-face:hover {
   grid-column: 1 / -1;
 }
 
+.wire-rule-selected-object {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-rule-selected-object-heading {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-rule-selected-object-heading span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-rule-selected-object-relations {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-rule-selected-object-relations li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(72px, auto) minmax(0, 1fr) auto;
+  gap: 3px 5px;
+  align-items: center;
+  padding: 4px;
+}
+
+.wire-rule-selected-object-relations li[data-rule-selected-object-relation-state="blocked"],
+.wire-rule-selected-object-relations li[data-rule-selected-object-relation-state="history"],
+.wire-rule-selected-object-relations li[data-rule-selected-object-relation-state="referenced"],
+.wire-rule-selected-object-relations li[data-rule-selected-object-relation-state="waiting"] {
+  border-style: dashed;
+}
+
+.wire-rule-selected-object-relations span,
+.wire-rule-selected-object-relations strong,
+.wire-rule-selected-object-relations small,
+.wire-rule-selected-object-relations em {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: normal;
+}
+
+.wire-rule-selected-object-relations small {
+  grid-column: span 2;
+}
+
+.wire-rule-selected-object-relations em {
+  justify-self: end;
+}
+
 .wire-rule-inspector {
   display: grid;
   gap: 4px;
@@ -16617,6 +16680,9 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-focus,
 .wire-match-page .wire-rule-focus-heading,
 .wire-match-page .wire-rule-focus-lines,
+.wire-match-page .wire-rule-selected-object,
+.wire-match-page .wire-rule-selected-object-heading,
+.wire-match-page .wire-rule-selected-object-relations li,
 .wire-match-page .wire-rule-lanes li,
 .wire-match-page .wire-rule-sequence li,
 .wire-match-page .wire-rule-state-grid,

@@ -356,6 +356,7 @@ const stackPrioritySnapshot = {
 
 const stackResponse = buildWireRuleQueuePlan({
   playerId: "P1",
+  selectedObjectId: "unit-1",
   snapshot: stackPrioritySnapshot
 });
 
@@ -423,6 +424,19 @@ assert.ok(
 assert.ok(
   stackResponse.sections.find((section) => section.key === "stack")?.items[0]?.detail.lines.some((line) =>
     line.label === "边界" && line.value.includes("公开结算链项"))
+);
+assert.equal(stackResponse.selectedObject.state, "linked");
+assert.equal(stackResponse.selectedObject.objectId, "unit-1");
+assert.equal(stackResponse.selectedObject.relationCount, 3);
+assert.equal(stackResponse.selectedObject.candidateCount, 0);
+assert.deepEqual(
+  stackResponse.selectedObject.relations.map((relation) =>
+    `${relation.source}:${relation.laneKey ?? relation.laneLabel}:${relation.roleLabel}:${relation.state}:${relation.stateLabel}:${relation.detailId ?? ""}`),
+  [
+    "responsibility:stack:目标:candidate:响应候选:",
+    "sequence:stack:目标:referenced:规则引用:",
+    "section:stack:目标:referenced:规则引用:rule:stack:stack-1"
+  ]
 );
 
 const stackReadyPrompt = buildWireRuleQueuePlan({
@@ -563,6 +577,7 @@ const stackReadyPrompt = buildWireRuleQueuePlan({
     },
     view: { message: "响应窗口", title: "响应", type: "STACK_PRIORITY" }
   },
+  selectedObjectId: "unit-1",
   snapshot: stackPrioritySnapshot
 });
 
@@ -589,6 +604,32 @@ assert.deepEqual(stackReadyPrompt.responsibility.items[0].submit.semanticRows.ma
 ]);
 assert.ok(stackReadyPrompt.responsibility.items[0].submit.reason.includes("4/9"));
 assert.ok(stackReadyPrompt.responsibility.summary.includes("1 个可提交入口"));
+assert.equal(stackReadyPrompt.selectedObject.state, "linked");
+assert.equal(stackReadyPrompt.selectedObject.relationCount, 5);
+assert.equal(stackReadyPrompt.selectedObject.candidateCount, 2);
+assert.equal(stackReadyPrompt.selectedObject.enabledCandidateCount, 1);
+assert.equal(stackReadyPrompt.selectedObject.disabledCandidateCount, 1);
+assert.deepEqual(
+  stackReadyPrompt.selectedObject.relations.map((relation) =>
+    `${relation.source}:${relation.roleLabel}:${relation.state}:${relation.candidateCount ?? "无"}:${relation.stepSummary ?? "无"}`),
+  [
+    "server-flow:候选目标 / 目标:ready:2:目标 1/1 / 来源 0/1* +1",
+    "object-context:目标:ready:2:目标 1/1 / 目标 1/1* +3",
+    "responsibility:目标:candidate:无:服务端 prompt 提供 4/9 个可用候选。",
+    "sequence:目标:referenced:无:无",
+    "section:目标:referenced:无:法术"
+  ]
+);
+
+const selectedObjectUnlinked = buildWireRuleQueuePlan({
+  playerId: "P1",
+  selectedObjectId: "unrelated-object",
+  snapshot: stackPrioritySnapshot
+});
+assert.equal(selectedObjectUnlinked.selectedObject.state, "unlinked");
+assert.equal(selectedObjectUnlinked.selectedObject.objectId, "unrelated-object");
+assert.equal(selectedObjectUnlinked.selectedObject.relationCount, 0);
+assert.ok(selectedObjectUnlinked.selectedObject.summary.includes("当前未出现在公开规则队列"));
 
 const stackOpponentPrompt = buildWireRuleQueuePlan({
   playerId: "P1",

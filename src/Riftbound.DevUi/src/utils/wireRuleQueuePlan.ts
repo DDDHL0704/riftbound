@@ -251,6 +251,52 @@ export type WireRuleQueueFocusActionRow = {
   stateLabel: string;
 };
 
+export type WireRuleQueueSelectedObjectState = "empty" | "linked" | "unlinked";
+
+export type WireRuleQueueSelectedObjectRelationSource =
+  | "object-context"
+  | "responsibility"
+  | "section"
+  | "sequence"
+  | "server-flow";
+
+export type WireRuleQueueSelectedObjectRelationState =
+  | "blocked"
+  | "candidate"
+  | "history"
+  | "ready"
+  | "referenced"
+  | "waiting";
+
+export type WireRuleQueueSelectedObjectRelation = {
+  boundaryLabel?: string;
+  candidateCount?: number;
+  detailId?: string;
+  detailLabel: string;
+  disabledCandidateCount?: number;
+  enabledCandidateCount?: number;
+  key: string;
+  laneKey?: WireRuleQueueLaneKey;
+  laneLabel: string;
+  roleLabel: string;
+  source: WireRuleQueueSelectedObjectRelationSource;
+  sourceLabel: string;
+  state: WireRuleQueueSelectedObjectRelationState;
+  stateLabel: string;
+  stepSummary?: string;
+};
+
+export type WireRuleQueueSelectedObjectPlan = {
+  candidateCount: number;
+  disabledCandidateCount: number;
+  enabledCandidateCount: number;
+  objectId?: string;
+  relationCount: number;
+  relations: WireRuleQueueSelectedObjectRelation[];
+  state: WireRuleQueueSelectedObjectState;
+  summary: string;
+};
+
 export type WireRuleQueuePlan = {
   activeLaneKey: WireRuleQueueLaneKey | "none";
   coverage: WireRuleQueueCoverageRow[];
@@ -262,6 +308,7 @@ export type WireRuleQueuePlan = {
   nextStepLabel: string;
   responsibility: WireRuleQueueResponsibilityPlan;
   sections: WireRuleQueueSectionPlan[];
+  selectedObject: WireRuleQueueSelectedObjectPlan;
   sequence: WireRuleQueueSequenceItem[];
   state: WireRuleQueueState;
   stateLabel: string;
@@ -271,6 +318,7 @@ type BuildWireRuleQueuePlanInput = {
   events?: GameEvent[];
   playerId: string;
   prompt?: ActionPromptDto;
+  selectedObjectId?: string;
   snapshot?: SnapshotDto;
 };
 
@@ -288,6 +336,7 @@ export function buildWireRuleQueuePlan({
   events = [],
   playerId,
   prompt,
+  selectedObjectId,
   snapshot
 }: BuildWireRuleQueuePlanInput): WireRuleQueuePlan {
   const timing = asRecord(snapshot?.timing);
@@ -382,6 +431,13 @@ export function buildWireRuleQueuePlan({
   });
   const focus = focusPlanFor({ activeLaneKey, interactionModel, prompt, sections, state });
   const responsibility = responsibilityPlanFor({ activeLaneKey, playerId, prompt, sequence, state });
+  const selectedObject = selectedObjectPlanFor({
+    prompt,
+    responsibility,
+    sections,
+    selectedObjectId,
+    sequence
+  });
 
   return {
     activeLaneKey,
@@ -398,6 +454,7 @@ export function buildWireRuleQueuePlan({
     nextStepLabel: nextStep,
     responsibility,
     sections,
+    selectedObject,
     sequence,
     state,
     stateLabel: queueStateLabel(state)
@@ -441,6 +498,234 @@ function responsibilityPlanFor({
     submitReadyCount,
     summary: responsibilitySummaryFor(state, activeCount, items.length, submitReadyCount)
   };
+}
+
+function selectedObjectPlanFor({
+  prompt,
+  responsibility,
+  sections,
+  selectedObjectId,
+  sequence
+}: {
+  prompt?: ActionPromptDto;
+  responsibility: WireRuleQueueResponsibilityPlan;
+  sections: WireRuleQueueSectionPlan[];
+  selectedObjectId?: string;
+  sequence: WireRuleQueueSequenceItem[];
+}): WireRuleQueueSelectedObjectPlan {
+  const objectId = selectedObjectId?.trim();
+  if (!objectId) {
+    return selectedObjectPlan({
+      objectId: undefined,
+      relations: [],
+      state: "empty"
+    });
+  }
+
+  const relations = dedupeSelectedObjectRelations([
+    ...selectedObjectSequenceRelations(objectId, sequence),
+    ...selectedObjectResponsibilityRelations(objectId, responsibility.items),
+    ...selectedObjectSectionRelations(objectId, sections),
+    ...selectedObjectServerFlowRelations(objectId, prompt),
+    ...selectedObjectContextRelations(objectId, prompt)
+  ]);
+
+  return selectedObjectPlan({
+    objectId,
+    relations,
+    state: relations.length > 0 ? "linked" : "unlinked"
+  });
+}
+
+function selectedObjectSequenceRelations(
+  objectId: string,
+  sequence: WireRuleQueueSequenceItem[]
+): WireRuleQueueSelectedObjectRelation[] {
+  return sequence.flatMap((item) => {
+    const roleLabel = selectedObjectRefRoleLabel(objectId, item.refs);
+    if (!roleLabel) {
+      return [];
+    }
+
+    return [{
+      detailLabel: item.detailLabel,
+      key: `selected:sequence:${item.key}:${roleLabel}`,
+      laneKey: item.lane,
+      laneLabel: laneLabel(item.lane),
+      roleLabel,
+      source: "sequence" as const,
+      sourceLabel: selectedObjectRelationSourceLabel("sequence"),
+      state: item.lane === "resolution" ? "history" as const : "referenced" as const,
+      stateLabel: selectedObjectRelationStateLabel(item.lane === "resolution" ? "history" : "referenced")
+    }];
+  });
+}
+
+function selectedObjectResponsibilityRelations(
+  objectId: string,
+  items: WireRuleQueueResponsibilityItem[]
+): WireRuleQueueSelectedObjectRelation[] {
+  return items.flatMap((item) => {
+    const roleLabel = selectedObjectRefRoleLabel(objectId, item.refs);
+    if (!roleLabel) {
+      return [];
+    }
+
+    const state = selectedObjectRelationStateFromResponsibility(item.state);
+    return [{
+      detailLabel: item.detailLabel,
+      key: `selected:responsibility:${item.key}:${roleLabel}`,
+      laneKey: item.lane,
+      laneLabel: laneLabel(item.lane),
+      roleLabel,
+      source: "responsibility" as const,
+      sourceLabel: selectedObjectRelationSourceLabel("responsibility"),
+      state,
+      stateLabel: selectedObjectRelationStateLabel(state),
+      stepSummary: item.submit.reason
+    }];
+  });
+}
+
+function selectedObjectSectionRelations(
+  objectId: string,
+  sections: WireRuleQueueSectionPlan[]
+): WireRuleQueueSelectedObjectRelation[] {
+  return sections.flatMap((section) =>
+    section.items.flatMap((item) => {
+      const roleLabel = selectedObjectRefRoleLabel(objectId, item.refs);
+      if (!roleLabel) {
+        return [];
+      }
+
+      return [{
+        detailId: item.detail.id,
+        detailLabel: item.title,
+        key: `selected:section:${item.key}:${roleLabel}`,
+        laneKey: section.key,
+        laneLabel: section.title,
+        roleLabel,
+        source: "section" as const,
+        sourceLabel: selectedObjectRelationSourceLabel("section"),
+        state: section.key === "resolution" ? "history" as const : "referenced" as const,
+        stateLabel: selectedObjectRelationStateLabel(section.key === "resolution" ? "history" : "referenced"),
+        stepSummary: item.subtitle
+      }];
+    }));
+}
+
+function selectedObjectServerFlowRelations(
+  objectId: string,
+  prompt?: ActionPromptDto
+): WireRuleQueueSelectedObjectRelation[] {
+  const serverFlow = prompt?.serverFlow;
+  return (serverFlow?.relatedObjects ?? [])
+    .filter((ref) => ref.objectId === objectId)
+    .map((ref, index) => {
+      const enabledCandidateCount = finiteOptionalCount(ref.enabledCandidateCount);
+      const disabledCandidateCount = finiteOptionalCount(ref.disabledCandidateCount);
+      const state = selectedObjectRelationStateFromCounts(enabledCandidateCount, disabledCandidateCount);
+      return {
+        boundaryLabel: ref.candidateBoundary?.trim() || undefined,
+        candidateCount: selectedObjectCandidateCount(enabledCandidateCount, disabledCandidateCount),
+        detailLabel: serverFlow?.primaryLabel?.trim()
+          || serverFlow?.nextStep?.trim()
+          || serverFlow?.promptType?.trim()
+          || "服务端流程",
+        disabledCandidateCount,
+        enabledCandidateCount,
+        key: `selected:server-flow:${index}:${ref.role ?? "related"}`,
+        laneLabel: "服务端流程",
+        roleLabel: uniqueStrings([ref.role, ...(ref.candidateRoles ?? [])]).join(" / ") || "关联对象",
+        source: "server-flow" as const,
+        sourceLabel: selectedObjectRelationSourceLabel("server-flow"),
+        state,
+        stateLabel: selectedObjectRelationStateLabel(state),
+        stepSummary: focusActionSelectionStepSummary(ref.candidateSteps)
+      };
+    });
+}
+
+function selectedObjectContextRelations(
+  objectId: string,
+  prompt?: ActionPromptDto
+): WireRuleQueueSelectedObjectRelation[] {
+  return (prompt?.objectContexts ?? [])
+    .filter((context) => context.objectId === objectId)
+    .map((context) => {
+      const enabledCandidateCount = finiteOptionalCount(context.enabledCandidateCount);
+      const disabledCandidateCount = finiteOptionalCount(context.disabledCandidateCount);
+      const state = selectedObjectRelationStateFromCounts(enabledCandidateCount, disabledCandidateCount);
+      return {
+        boundaryLabel: context.boundary?.trim() || context.inspection?.boundary?.trim() || undefined,
+        candidateCount: selectedObjectCandidateCount(enabledCandidateCount, disabledCandidateCount),
+        detailLabel: "服务端对象上下文",
+        disabledCandidateCount,
+        enabledCandidateCount,
+        key: `selected:object-context:${context.objectId}`,
+        laneLabel: "服务端对象上下文",
+        roleLabel: uniqueStrings(context.candidates.flatMap((candidate) => candidate.roles)).join(" / ") || "候选对象",
+        source: "object-context" as const,
+        sourceLabel: selectedObjectRelationSourceLabel("object-context"),
+        state,
+        stateLabel: selectedObjectRelationStateLabel(state),
+        stepSummary: focusActionSelectionStepSummary(context.candidates.flatMap((candidate) => candidate.selectionSteps ?? []))
+      };
+    });
+}
+
+function selectedObjectPlan({
+  objectId,
+  relations,
+  state
+}: {
+  objectId?: string;
+  relations: WireRuleQueueSelectedObjectRelation[];
+  state: WireRuleQueueSelectedObjectState;
+}): WireRuleQueueSelectedObjectPlan {
+  const enabledCandidateCount = selectedObjectRelationCandidateTotal(relations, "enabled");
+  const disabledCandidateCount = selectedObjectRelationCandidateTotal(relations, "disabled");
+  const candidateCount = selectedObjectRelationCandidateTotal(relations, "total");
+
+  return {
+    candidateCount,
+    disabledCandidateCount,
+    enabledCandidateCount,
+    objectId,
+    relationCount: relations.length,
+    relations,
+    state,
+    summary: selectedObjectSummary({
+      candidateCount,
+      enabledCandidateCount,
+      objectId,
+      relationCount: relations.length,
+      state
+    })
+  };
+}
+
+function selectedObjectSummary({
+  candidateCount,
+  enabledCandidateCount,
+  objectId,
+  relationCount,
+  state
+}: {
+  candidateCount: number;
+  enabledCandidateCount: number;
+  objectId?: string;
+  relationCount: number;
+  state: WireRuleQueueSelectedObjectState;
+}): string {
+  switch (state) {
+    case "empty":
+      return "未选择桌面对象；点击卡牌、战场或规则引用后显示规则投影。";
+    case "linked":
+      return `${idLabel(objectId ?? "")} 关联 ${relationCount} 条服务端规则线索；候选 ${enabledCandidateCount}/${candidateCount} 可用。`;
+    case "unlinked":
+      return `${idLabel(objectId ?? "")} 当前未出现在公开规则队列、服务端流程或对象上下文中。`;
+  }
 }
 
 function responsibilityItemFor({
@@ -1084,6 +1369,148 @@ function focusActionSelectionStepSummary(steps: ActionPromptObjectCandidateStepD
 
 function uniqueStrings(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function dedupeSelectedObjectRelations(
+  relations: WireRuleQueueSelectedObjectRelation[]
+): WireRuleQueueSelectedObjectRelation[] {
+  const byKey = new Map<string, WireRuleQueueSelectedObjectRelation>();
+  for (const relation of relations) {
+    const key = [
+      relation.source,
+      relation.laneKey ?? relation.laneLabel,
+      relation.detailId ?? relation.detailLabel,
+      relation.roleLabel
+    ].join(":");
+    if (!byKey.has(key)) {
+      byKey.set(key, relation);
+    }
+  }
+
+  return [...byKey.values()].sort((left, right) =>
+    selectedObjectRelationSourceRank(left.source) - selectedObjectRelationSourceRank(right.source)
+    || (left.laneKey ?? left.laneLabel).localeCompare(right.laneKey ?? right.laneLabel)
+    || left.detailLabel.localeCompare(right.detailLabel)
+    || left.roleLabel.localeCompare(right.roleLabel));
+}
+
+function selectedObjectRelationSourceRank(source: WireRuleQueueSelectedObjectRelationSource): number {
+  switch (source) {
+    case "server-flow":
+      return 0;
+    case "object-context":
+      return 1;
+    case "responsibility":
+      return 2;
+    case "sequence":
+      return 3;
+    case "section":
+      return 4;
+  }
+}
+
+function selectedObjectRefRoleLabel(objectId: string, refs: WireRuleQueueObjectRef[]): string {
+  return uniqueStrings(refs
+    .filter((ref) => ref.id === objectId && ref.visibility !== "hidden")
+    .map((ref) => ref.role))
+    .join(" / ");
+}
+
+function selectedObjectRelationStateFromResponsibility(
+  state: WireRuleQueueResponsibilityState
+): WireRuleQueueSelectedObjectRelationState {
+  switch (state) {
+    case "blocked":
+      return "blocked";
+    case "history":
+      return "history";
+    case "respond":
+      return "candidate";
+    case "waiting":
+      return "waiting";
+    case "watch":
+      return "referenced";
+  }
+}
+
+function selectedObjectRelationStateFromCounts(
+  enabledCandidateCount: number | undefined,
+  disabledCandidateCount: number | undefined
+): WireRuleQueueSelectedObjectRelationState {
+  if ((enabledCandidateCount ?? 0) > 0) {
+    return "ready";
+  }
+
+  if ((disabledCandidateCount ?? 0) > 0) {
+    return "blocked";
+  }
+
+  return "referenced";
+}
+
+function selectedObjectRelationStateLabel(state: WireRuleQueueSelectedObjectRelationState): string {
+  switch (state) {
+    case "blocked":
+      return "候选阻断";
+    case "candidate":
+      return "响应候选";
+    case "history":
+      return "历史引用";
+    case "ready":
+      return "候选可用";
+    case "referenced":
+      return "规则引用";
+    case "waiting":
+      return "等待前序";
+  }
+}
+
+function selectedObjectRelationSourceLabel(source: WireRuleQueueSelectedObjectRelationSource): string {
+  switch (source) {
+    case "object-context":
+      return "服务端对象上下文";
+    case "responsibility":
+      return "响应责任";
+    case "section":
+      return "规则详情";
+    case "sequence":
+      return "规则队列";
+    case "server-flow":
+      return "服务端流程";
+  }
+}
+
+function selectedObjectCandidateCount(
+  enabledCandidateCount: number | undefined,
+  disabledCandidateCount: number | undefined
+): number | undefined {
+  if (enabledCandidateCount == null && disabledCandidateCount == null) {
+    return undefined;
+  }
+
+  return (enabledCandidateCount ?? 0) + (disabledCandidateCount ?? 0);
+}
+
+function selectedObjectRelationCandidateTotal(
+  relations: WireRuleQueueSelectedObjectRelation[],
+  kind: "disabled" | "enabled" | "total"
+): number {
+  const values = relations.map((relation) => {
+    switch (kind) {
+      case "disabled":
+        return relation.disabledCandidateCount;
+      case "enabled":
+        return relation.enabledCandidateCount;
+      case "total":
+        return relation.candidateCount;
+    }
+  }).filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+
+  if (values.length === 0) {
+    return 0;
+  }
+
+  return Math.max(...values);
 }
 
 function focusReasonLabel(state: WireRuleQueueState, laneTitle: string | undefined): string {
