@@ -475,6 +475,32 @@ function TimelineCommandBridge({
                     <span>{field.label}</span>
                     <small>{field.required ? "必需" : "可选"} / {field.sourceLabel} / {field.stateLabel}</small>
                     <small className="wire-timeline-command-field-coverage">{field.coverageLabel}</small>
+                    {onOpenObjectDetail && (field.detailObjectIds.length > 0 || field.selectedObjectIds.length > 0) && (
+                      <div className="wire-timeline-command-field-objects" role="group" aria-label={`${field.label} 字段对象`}>
+                        {field.detailObjectIds.map((objectId, index) => (
+                          <button
+                            data-timeline-command-field-detail-object-id={objectId}
+                            key={`detail:${field.key}:${objectId}`}
+                            onClick={() => onOpenObjectDetail(objectId)}
+                            type="button"
+                          >
+                            <span>详情</span>
+                            <strong>{field.detailObjectLabels[index] ?? objectId}</strong>
+                          </button>
+                        ))}
+                        {field.selectedObjectIds.map((objectId, index) => (
+                          <button
+                            data-timeline-command-field-selected-object-id={objectId}
+                            key={`selected:${field.key}:${objectId}`}
+                            onClick={() => onOpenObjectDetail(objectId)}
+                            type="button"
+                          >
+                            <span>草稿</span>
+                            <strong>{field.selectedChoiceLabels[index] ?? objectId}</strong>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </li>
                 ))}
               </ol>

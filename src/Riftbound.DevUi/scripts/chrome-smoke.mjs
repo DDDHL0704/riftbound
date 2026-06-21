@@ -2276,6 +2276,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-field-selected-count")),
       commandBridgeFieldCandidateChoiceCounts: Array.from(panel?.querySelectorAll("[data-timeline-command-field-candidate-choice-count]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-candidate-choice-count")),
+      commandBridgeFieldDetailObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-detail-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-detail-object-id") ?? ""),
+      commandBridgeFieldSelectedObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-selected-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-selected-object-id") ?? ""),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
@@ -2446,6 +2450,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-field-selected-count")),
       commandBridgeFieldCandidateChoiceCounts: Array.from(panel?.querySelectorAll("[data-timeline-command-field-candidate-choice-count]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-candidate-choice-count")),
+      commandBridgeFieldDetailObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-detail-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-detail-object-id") ?? ""),
+      commandBridgeFieldSelectedObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-selected-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-selected-object-id") ?? ""),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
@@ -2612,6 +2620,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-field-selected-count")),
       commandBridgeFieldCandidateChoiceCounts: Array.from(panel?.querySelectorAll("[data-timeline-command-field-candidate-choice-count]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-candidate-choice-count")),
+      commandBridgeFieldDetailObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-detail-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-detail-object-id") ?? ""),
+      commandBridgeFieldSelectedObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-selected-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-selected-object-id") ?? ""),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
@@ -2903,6 +2915,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.commandBridgeFieldDetailCounts.includes("1")) failures.push("rule detail command bridge detail field coverage missing");
   if (!ruleDetailResult.commandBridgeFieldSelectedCounts.includes("1")) failures.push("rule detail command bridge selected field coverage missing");
   if (!ruleDetailResult.commandBridgeFieldCandidateChoiceCounts.includes("1")) failures.push("rule detail command bridge candidate choice count missing");
+  if (!ruleDetailResult.commandBridgeFieldDetailObjectIds.includes("p1-hand-spell")) failures.push("rule detail command bridge source field detail object missing");
+  if (!ruleDetailResult.commandBridgeFieldDetailObjectIds.includes("p2-right-1")) failures.push("rule detail command bridge target field detail object missing");
+  if (!ruleDetailResult.commandBridgeFieldSelectedObjectIds.includes("p1-hand-spell")) failures.push("rule detail command bridge source field selected object missing");
   if (!ruleDetailResult.commandBridgeText.includes("服务端注入")) failures.push("rule detail command bridge server field label missing");
   if (!ruleDetailResult.commandBridgeText.includes("草稿已选来源")) failures.push("rule detail command bridge source coverage label missing");
   if (!ruleDetailResult.commandBridgeText.includes("详情引用可作为目标")) failures.push("rule detail command bridge target coverage label missing");
@@ -2995,6 +3010,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeFocusResult.commandBridgeFieldDetailCounts.includes("1")) failures.push("command bridge detail field detail coverage missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeFieldSelectedCounts.includes("1")) failures.push("command bridge detail selected field coverage missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeFieldCandidateChoiceCounts.includes("1")) failures.push("command bridge detail candidate choice count missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeFieldDetailObjectIds.includes("p1-hand-spell")) failures.push("command bridge detail source field detail object missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeFieldDetailObjectIds.includes("p2-right-1")) failures.push("command bridge detail target field detail object missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeFieldSelectedObjectIds.includes("p1-hand-spell")) failures.push("command bridge detail source field selected object missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeFieldSelectedObjectIds.includes("p2-right-1")) failures.push("command bridge detail target field selected object missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("2 覆盖 / 0 缺少")) failures.push("command bridge detail coverage summary missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("草稿已选目标")) failures.push("command bridge detail target coverage label missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("详情 ") || !commandBridgeFocusResult.commandBridgeText.includes("草稿 ")) failures.push("command bridge detail field coverage summary missing after target selection");
@@ -3105,6 +3124,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.commandBridgeFieldDetailCounts.includes("1")) failures.push("event detail command bridge detail field coverage missing");
   if (!eventDetailResult.commandBridgeFieldSelectedCounts.includes("1")) failures.push("event detail command bridge selected field coverage missing");
   if (!eventDetailResult.commandBridgeFieldCandidateChoiceCounts.includes("1")) failures.push("event detail command bridge candidate choice count missing");
+  if (!eventDetailResult.commandBridgeFieldDetailObjectIds.includes("p1-hand-spell")) failures.push("event detail command bridge source field detail object missing");
+  if (!eventDetailResult.commandBridgeFieldDetailObjectIds.includes("p2-right-1")) failures.push("event detail command bridge target field detail object missing");
+  if (!eventDetailResult.commandBridgeFieldSelectedObjectIds.includes("p1-hand-spell")) failures.push("event detail command bridge source field selected object missing");
   if (!eventDetailResult.commandBridgeText.includes("服务端注入")) failures.push("event detail command bridge server field label missing");
   if (!eventDetailResult.commandBridgeText.includes("草稿已选来源")) failures.push("event detail command bridge source coverage label missing");
   if (!eventDetailResult.commandBridgeText.includes("详情引用可作为目标")) failures.push("event detail command bridge target coverage label missing");
