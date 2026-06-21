@@ -1288,6 +1288,15 @@ async function runWireClickSelectionSmoke(cdp) {
       projectionSources: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-relation-source]") ?? [])
         .map((node) => node.getAttribute("data-rule-selected-object-relation-source")),
       projectionState: selectedProjection?.getAttribute("data-rule-selected-object-state") ?? null,
+      syntaxMissingRequiredCount: Number(selectedProjection?.querySelector("[data-rule-selected-object-syntax-missing-required-count]")?.getAttribute("data-rule-selected-object-syntax-missing-required-count") ?? 0),
+      syntaxRoles: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-syntax-role]") ?? [])
+        .map((node) => node.getAttribute("data-rule-selected-object-syntax-role")),
+      syntaxSources: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-syntax-source]") ?? [])
+        .map((node) => node.getAttribute("data-rule-selected-object-syntax-source")),
+      syntaxStates: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-syntax-state]") ?? [])
+        .map((node) => node.getAttribute("data-rule-selected-object-syntax-state")),
+      syntaxSummary: selectedProjection?.querySelector("[data-rule-selected-object-syntax-summary]")?.textContent ?? "",
+      syntaxUsableCount: Number(selectedProjection?.querySelector("[data-rule-selected-object-syntax-usable-count]")?.getAttribute("data-rule-selected-object-syntax-usable-count") ?? 0),
       projectionText: selectedProjection?.textContent ?? ""
     };
   })()`);
@@ -1675,6 +1684,15 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.projectionSources.includes("responsibility")) failures.push("selected object projection responsibility source missing");
   if (!candidateRefResult.projectionText.includes("选中对象投影")) failures.push("selected object projection heading missing");
   if (!candidateRefResult.projectionText.includes("候选目标")) failures.push("selected object projection server role missing");
+  if (!candidateRefResult.syntaxSources.includes("server-flow")) failures.push("selected object syntax server-flow source missing");
+  if (!candidateRefResult.syntaxSources.includes("object-context")) failures.push("selected object syntax object-context source missing");
+  if (!candidateRefResult.syntaxStates.includes("usable-optional")) failures.push("selected object syntax usable optional state missing");
+  if (!candidateRefResult.syntaxStates.includes("missing-required")) failures.push("selected object syntax missing required state missing");
+  if (!candidateRefResult.syntaxRoles.includes("target")) failures.push("selected object syntax target role missing");
+  if (!candidateRefResult.syntaxSummary.includes("可作为 目标")) failures.push("selected object syntax usable role summary missing");
+  if (!candidateRefResult.syntaxSummary.includes("还需 来源")) failures.push("selected object syntax missing role summary missing");
+  if (candidateRefResult.syntaxUsableCount < 1) failures.push(`selected object syntax usable count too low: ${candidateRefResult.syntaxUsableCount}`);
+  if (candidateRefResult.syntaxMissingRequiredCount < 1) failures.push(`selected object syntax missing required count too low: ${candidateRefResult.syntaxMissingRequiredCount}`);
   if (projectionDetailResult.detailId !== "rule:stack:fixture-stack-1") failures.push(`selected object projection detail id unexpected: ${projectionDetailResult.detailId}`);
   if (projectionDetailResult.detailSource !== "rule") failures.push(`selected object projection detail source unexpected: ${projectionDetailResult.detailSource}`);
   if (projectionDetailResult.projectionTriggerPressed !== "true") failures.push("selected object projection detail trigger did not reflect selected state");

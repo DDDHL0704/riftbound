@@ -429,6 +429,8 @@ assert.equal(stackResponse.selectedObject.state, "linked");
 assert.equal(stackResponse.selectedObject.objectId, "unit-1");
 assert.equal(stackResponse.selectedObject.relationCount, 3);
 assert.equal(stackResponse.selectedObject.candidateCount, 0);
+assert.equal(stackResponse.selectedObject.syntaxRows.length, 0);
+assert.ok(stackResponse.selectedObject.syntaxSummary.includes("未公开"));
 assert.deepEqual(
   stackResponse.selectedObject.relations.map((relation) =>
     `${relation.source}:${relation.laneKey ?? relation.laneLabel}:${relation.roleLabel}:${relation.state}:${relation.stateLabel}:${relation.detailId ?? ""}`),
@@ -613,6 +615,23 @@ assert.equal(stackReadyPrompt.selectedObject.relationCount, 5);
 assert.equal(stackReadyPrompt.selectedObject.candidateCount, 2);
 assert.equal(stackReadyPrompt.selectedObject.enabledCandidateCount, 1);
 assert.equal(stackReadyPrompt.selectedObject.disabledCandidateCount, 1);
+assert.equal(stackReadyPrompt.selectedObject.syntaxRows.length, 6);
+assert.equal(stackReadyPrompt.selectedObject.usableSyntaxCount, 3);
+assert.equal(stackReadyPrompt.selectedObject.missingRequiredSyntaxCount, 3);
+assert.ok(stackReadyPrompt.selectedObject.syntaxSummary.includes("可作为 目标"));
+assert.ok(stackReadyPrompt.selectedObject.syntaxSummary.includes("还需 来源"));
+assert.deepEqual(
+  stackReadyPrompt.selectedObject.syntaxRows.map((row) =>
+    `${row.source}:${row.roleLabel}:${row.state}:${row.objectChoiceCount}/${row.choiceCount}:${row.required}:${row.candidateLabel}`),
+  [
+    "server-flow:目标:usable-optional:1/1:false:候选目标 / 目标",
+    "server-flow:来源:missing-required:0/1:true:候选目标 / 目标",
+    "object-context:目标:usable-required:1/1:true:禁用技能",
+    "object-context:目标:usable-optional:1/1:false:打出反应",
+    "object-context:来源:missing-required:0/1:true:打出反应",
+    "object-context:来源:missing-required:0/1:true:禁用技能"
+  ]
+);
 assert.deepEqual(
   stackReadyPrompt.selectedObject.relations.map((relation) =>
     `${relation.source}:${relation.roleLabel}:${relation.state}:${relation.candidateCount ?? "无"}:${relation.stepSummary ?? "无"}`),

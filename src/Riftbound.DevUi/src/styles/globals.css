@@ -15436,6 +15436,49 @@ button.card-face:hover {
   white-space: nowrap;
 }
 
+.wire-rule-selected-object-syntax {
+  display: grid;
+  gap: 3px;
+  padding: 4px;
+}
+
+.wire-rule-selected-object-syntax > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-rule-selected-object-syntax ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-rule-selected-object-syntax li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(72px, auto) minmax(0, 1fr) auto;
+  gap: 3px 5px;
+  align-items: center;
+  padding: 4px;
+}
+
+.wire-rule-selected-object-syntax li[data-rule-selected-object-syntax-state="missing-required"] {
+  border-style: dashed;
+}
+
+.wire-rule-selected-object-syntax span,
+.wire-rule-selected-object-syntax strong,
+.wire-rule-selected-object-syntax small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-rule-selected-object-relations {
   display: grid;
   gap: 3px;
@@ -16686,6 +16729,8 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-focus-lines,
 .wire-match-page .wire-rule-selected-object,
 .wire-match-page .wire-rule-selected-object-heading,
+.wire-match-page .wire-rule-selected-object-syntax,
+.wire-match-page .wire-rule-selected-object-syntax li,
 .wire-match-page .wire-rule-selected-object-relations li,
 .wire-match-page .wire-rule-lanes li,
 .wire-match-page .wire-rule-sequence li,

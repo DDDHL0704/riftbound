@@ -170,6 +170,32 @@ function RuleSelectedObjectProjection({
         <strong>选中对象投影</strong>
         <span>{plan.summary}</span>
       </div>
+      {plan.syntaxRows.length > 0 && (
+        <section
+          aria-label="选中对象候选语法"
+          className="wire-rule-selected-object-syntax"
+          data-rule-selected-object-syntax-count={plan.syntaxRows.length}
+          data-rule-selected-object-syntax-missing-required-count={plan.missingRequiredSyntaxCount}
+          data-rule-selected-object-syntax-usable-count={plan.usableSyntaxCount}
+        >
+          <strong>候选语法</strong>
+          <span data-rule-selected-object-syntax-summary>{plan.syntaxSummary}</span>
+          <ol>
+            {plan.syntaxRows.slice(0, 6).map((row) => (
+              <li
+                data-rule-selected-object-syntax-role={row.role}
+                data-rule-selected-object-syntax-source={row.source}
+                data-rule-selected-object-syntax-state={row.state}
+                key={row.key}
+              >
+                <span>{row.sourceLabel} / {row.candidateLabel}</span>
+                <strong>{row.roleLabel} / {row.stateLabel}</strong>
+                <small>{row.objectChoiceCount}/{row.choiceCount} 选项{row.required ? " / 必选" : " / 可选"}</small>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
       {plan.relations.length === 0 ? (
         <span className="empty-hint">{plan.summary}</span>
       ) : (
