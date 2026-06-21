@@ -127,6 +127,17 @@ const plan = buildFocusedObjectCommandPlan({
     ownerId: "P1",
     promptDisabledCount: 1,
     promptEnabledCount: 1,
+    serverRelations: [
+      {
+        boundary: "服务端流程对象关联边界。",
+        candidateActions: ["PLAY_CARD"],
+        disabledCandidateCount: 0,
+        enabledCandidateCount: 1,
+        roles: ["候选来源", "来源"],
+        source: "server-action-prompt",
+        stepSummary: "来源* 1/1"
+      }
+    ],
     stackRoles: ["结算链来源"],
     stateLabels: ["横置", "伤害 1"],
     zone: {
@@ -190,7 +201,7 @@ assert.deepEqual(
     "authority:server:2:服务端对象上下文",
     "syntax:warning:3:缺少 1",
     "commands:ready:2:有可提交",
-    "relations:empty:0:无关联",
+    "relations:server:1:已关联",
     "stack:ready:1:有关联",
     "events:ready:2:有记录",
     "contract:server:1:服务端契约"
@@ -198,6 +209,8 @@ assert.deepEqual(
 );
 assert.ok(plan.sectionRows.find((row) => row.key === "authority")?.summary.includes("服务端对象上下文"));
 assert.ok(plan.sectionRows.find((row) => row.key === "commands")?.summary.includes("1 可用 / 1 阻断"));
+assert.deepEqual(plan.serverRelationRows[0].actionLabels, ["PLAY_CARD"]);
+assert.equal(plan.serverRelationRows[0].candidateSummary, "1 可用 / 0 阻断");
 assert.ok(plan.sectionRows.find((row) => row.key === "syntax")?.summary.includes("还需 目标"));
 assert.ok(plan.boundaryLabel.includes("服务端对象上下文"));
 assert.equal(plan.commandRows.length, 2);

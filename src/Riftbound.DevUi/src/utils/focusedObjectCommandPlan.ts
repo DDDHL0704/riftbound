@@ -101,6 +101,7 @@ export type FocusedObjectCommandPlan = {
 };
 
 export type FocusedObjectServerRelationRow = {
+  actionLabels: string[];
   candidateSummary: string;
   key: string;
   roles: string[];
@@ -338,6 +339,7 @@ function serverRelationRowFromContext(
   const disabled = relation.disabledCandidateCount ?? 0;
 
   return {
+    actionLabels: relation.candidateActions,
     candidateSummary: relation.enabledCandidateCount == null && relation.disabledCandidateCount == null
       ? "无候选计数"
       : `${enabled} 可用 / ${disabled} 阻断`,

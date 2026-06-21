@@ -76,11 +76,13 @@ export function WireObjectContextSummary({
             {plan.serverRelationRows.slice(0, 4).map((row) => (
               <li
                 data-wire-object-server-relation={row.key}
+                data-wire-object-server-relation-actions={row.actionLabels.join("|")}
                 data-wire-object-server-relation-source={row.sourceLabel}
                 key={row.key}
               >
                 <span>{row.roles.length > 0 ? row.roles.join(" / ") : "服务端关联"}</span>
                 <strong>{row.candidateSummary}</strong>
+                {row.actionLabels.length > 0 ? <small>{row.actionLabels.join(" / ")}</small> : null}
                 <small>{row.stepSummary}</small>
               </li>
             ))}

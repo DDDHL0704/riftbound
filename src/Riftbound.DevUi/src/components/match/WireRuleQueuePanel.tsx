@@ -220,6 +220,7 @@ function RuleSelectedObjectProjection({
           {plan.relations.slice(0, 8).map((relation) => (
             <li
               data-rule-selected-object-relation={relation.key}
+              data-rule-selected-object-relation-actions={relation.candidateActions.join("|")}
               data-rule-selected-object-relation-detail={relation.detailId ?? ""}
               data-rule-selected-object-relation-lane={relation.laneKey ?? ""}
               data-rule-selected-object-relation-source={relation.source}
@@ -230,6 +231,7 @@ function RuleSelectedObjectProjection({
               <span>{relation.sourceLabel} / {relation.laneLabel}</span>
               <strong>{relation.roleLabel} / {relation.stateLabel}</strong>
               <small>{relation.detailLabel}</small>
+              {relation.candidateActions.length > 0 && <small>{relation.candidateActions.join(" / ")}</small>}
               <small>{relation.stepSummary ?? "无步骤摘要"}</small>
               {relation.candidateCount != null && (
                 <em>{relation.enabledCandidateCount ?? 0}/{relation.candidateCount} 候选</em>

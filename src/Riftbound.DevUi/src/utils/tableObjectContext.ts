@@ -56,6 +56,7 @@ export type TableObjectEventContext = {
 
 export type TableObjectServerRelationContext = {
   boundary?: string;
+  candidateActions: string[];
   disabledCandidateCount?: number;
   enabledCandidateCount?: number;
   roles: string[];
@@ -259,6 +260,7 @@ function buildServerRelationIndex(
 
     const relation: TableObjectServerRelationContext = {
       boundary: ref.candidateBoundary?.trim() || undefined,
+      candidateActions: uniqueStrings(ref.candidateActions ?? []),
       disabledCandidateCount: numberOrUndefined(ref.disabledCandidateCount),
       enabledCandidateCount: numberOrUndefined(ref.enabledCandidateCount),
       roles: uniqueStrings([

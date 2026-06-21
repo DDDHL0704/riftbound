@@ -287,6 +287,7 @@ export type WireRuleQueueSelectedObjectRelationState =
 
 export type WireRuleQueueSelectedObjectRelation = {
   boundaryLabel?: string;
+  candidateActions: string[];
   candidateCount?: number;
   detail?: WireRuleQueueDetailPlan;
   detailId?: string;
@@ -619,6 +620,7 @@ function selectedObjectSequenceRelations(
     }
 
     return [{
+      candidateActions: [],
       detailLabel: item.detailLabel,
       detailId: item.detail?.id,
       detail: item.detail,
@@ -646,6 +648,7 @@ function selectedObjectResponsibilityRelations(
 
     const state = selectedObjectRelationStateFromResponsibility(item.state);
     return [{
+      candidateActions: [],
       detailLabel: item.detailLabel,
       detailId: item.detail?.id,
       detail: item.detail,
@@ -674,6 +677,7 @@ function selectedObjectSectionRelations(
       }
 
       return [{
+        candidateActions: [],
         detailId: item.detail.id,
         detail: item.detail,
         detailLabel: item.title,
@@ -703,6 +707,7 @@ function selectedObjectServerFlowRelations(
       const state = selectedObjectRelationStateFromCounts(enabledCandidateCount, disabledCandidateCount);
       return {
         boundaryLabel: ref.candidateBoundary?.trim() || undefined,
+        candidateActions: uniqueStrings(ref.candidateActions ?? []),
         candidateCount: selectedObjectCandidateCount(enabledCandidateCount, disabledCandidateCount),
         detailLabel: serverFlow?.primaryLabel?.trim()
           || serverFlow?.nextStep?.trim()
@@ -734,6 +739,7 @@ function selectedObjectContextRelations(
       const state = selectedObjectRelationStateFromCounts(enabledCandidateCount, disabledCandidateCount);
       return {
         boundaryLabel: context.boundary?.trim() || context.inspection?.boundary?.trim() || undefined,
+        candidateActions: uniqueStrings(context.candidates.map((candidate) => candidate.action)),
         candidateCount: selectedObjectCandidateCount(enabledCandidateCount, disabledCandidateCount),
         detailLabel: "服务端对象上下文",
         disabledCandidateCount,

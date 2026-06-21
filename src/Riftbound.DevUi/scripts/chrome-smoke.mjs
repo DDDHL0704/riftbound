@@ -1546,6 +1546,8 @@ async function runWireClickSelectionSmoke(cdp) {
       objectSyntaxSummary: objectContext?.querySelector("[data-wire-object-syntax-summary]")?.textContent ?? "",
       objectSyntaxUsableCount: Number(objectContext?.querySelector("[data-wire-object-syntax-usable-count]")?.getAttribute("data-wire-object-syntax-usable-count") ?? 0),
       projectionRelationCount: Number(selectedProjection?.getAttribute("data-rule-selected-object-relation-count") ?? 0),
+      projectionRelationActions: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-relation-actions]") ?? [])
+        .map((node) => node.getAttribute("data-rule-selected-object-relation-actions") ?? ""),
       projectionSources: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-relation-source]") ?? [])
         .map((node) => node.getAttribute("data-rule-selected-object-relation-source")),
       projectionState: selectedProjection?.getAttribute("data-rule-selected-object-state") ?? null,
@@ -2071,6 +2073,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.projectionSources.includes("responsibility")) failures.push("selected object projection responsibility source missing");
   if (!candidateRefResult.projectionText.includes("选中对象投影")) failures.push("selected object projection heading missing");
   if (!candidateRefResult.projectionText.includes("候选目标")) failures.push("selected object projection server role missing");
+  if (!candidateRefResult.projectionRelationActions.some((actions) => actions.includes("PLAY_CARD"))) {
+    failures.push(`selected object projection relation actions missing command name: ${candidateRefResult.projectionRelationActions.join(",")}`);
+  }
   if (!candidateRefResult.syntaxSources.includes("server-flow")) failures.push("selected object syntax server-flow source missing");
   if (!candidateRefResult.syntaxSources.includes("object-context")) failures.push("selected object syntax object-context source missing");
   if (!candidateRefResult.syntaxStates.includes("usable-optional")) failures.push("selected object syntax usable optional state missing");

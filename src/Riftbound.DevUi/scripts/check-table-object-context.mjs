@@ -63,6 +63,7 @@ const model = buildTableObjectContextModel({
           role: "任务战场"
         },
         {
+          candidateActions: ["TAP_RUNE"],
           candidateRoles: ["费用"],
           candidateSteps: [
             { choiceCount: 2, index: 0, label: "费用", objectChoiceCount: 1, required: false, role: "optionalCost" }
@@ -158,6 +159,7 @@ assert.deepEqual(
   model.byId["p1-base-rune"].serverRelations.map((relation) => `${relation.roles.join("/")}:${relation.stepSummary}`),
   ["费用资源/费用:费用 1/2"]
 );
+assert.deepEqual(model.byId["p1-base-rune"].serverRelations[0].candidateActions, ["TAP_RUNE"]);
 
 console.log("Table object context check passed.");
 
