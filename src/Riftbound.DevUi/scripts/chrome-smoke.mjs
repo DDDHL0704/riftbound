@@ -872,9 +872,13 @@ async function runWireClickSelectionSmoke(cdp) {
     const readiness = document.querySelector(".wire-focused-readiness");
     const commandCenter = document.querySelector(".wire-command-center");
     const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
+    const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     return {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
       text: summary?.textContent ?? "",
+      sourcePromptNext: sourceObject?.getAttribute("data-prompt-next") ?? null,
+      sourcePromptRoles: sourceObject?.getAttribute("data-prompt-role-labels") ?? null,
+      sourcePromptSummary: sourceObject?.getAttribute("data-prompt-summary") ?? null,
       contextAuthority: document.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-authority") ?? null,
       contextSource: document.querySelector(".wire-object-context")?.getAttribute("data-wire-object-context-source") ?? null,
       contextText: document.querySelector(".wire-object-context")?.textContent ?? "",
@@ -911,6 +915,12 @@ async function runWireClickSelectionSmoke(cdp) {
       commandCenterFollowupMetricCount: commandCenterFollowup?.querySelectorAll("[data-command-followup-metric]").length ?? 0,
       commandCenterFollowupText: commandCenterFollowup?.textContent ?? "",
       commandCenterText: commandCenter?.textContent ?? "",
+      traySelectionRows: Array.from(document.querySelectorAll(".wire-object-command-tray-selection li")).map((node) => ({
+        choice: node.getAttribute("data-wire-object-command-tray-selection-choice") ?? "",
+        objectIds: node.getAttribute("data-wire-object-command-tray-selection-object-ids") ?? "",
+        role: node.getAttribute("data-wire-object-command-tray-selection") ?? "",
+        text: node.textContent ?? ""
+      })),
       focusedActionButtonCount: document.querySelectorAll(".wire-focused-actions button").length,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
@@ -974,6 +984,18 @@ async function runWireClickSelectionSmoke(cdp) {
       grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
       commandCenterState: document.querySelector("[data-wire-command-center-state]")?.getAttribute("data-wire-command-center-state") ?? null,
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
+      selectionRows: Array.from(document.querySelectorAll(".wire-selection-row-list li")).map((node) => ({
+        choice: node.getAttribute("data-wire-selection-row-choice") ?? "",
+        objectIds: node.getAttribute("data-wire-selection-row-object-ids") ?? "",
+        role: node.getAttribute("data-wire-selection-row") ?? "",
+        text: node.textContent ?? ""
+      })),
+      traySelectionRows: Array.from(document.querySelectorAll(".wire-object-command-tray-selection li")).map((node) => ({
+        choice: node.getAttribute("data-wire-object-command-tray-selection-choice") ?? "",
+        objectIds: node.getAttribute("data-wire-object-command-tray-selection-object-ids") ?? "",
+        role: node.getAttribute("data-wire-object-command-tray-selection") ?? "",
+        text: node.textContent ?? ""
+      })),
       targetSelectValue: targetSelect?.value ?? null
     };
   })()`);
@@ -1265,6 +1287,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (battlefieldPreviewResult.orientation !== "landscape-counterclockwise") failures.push(`battlefield card preview orientation unexpected: ${battlefieldPreviewResult.orientation}`);
   if (battlefieldPreviewResult.objectId !== "fixture-left-battlefield") failures.push(`battlefield card preview object id unexpected: ${battlefieldPreviewResult.objectId}`);
   if (focusResult.state !== "server-candidate") failures.push("focused action summary did not use server candidate state");
+  if (focusResult.sourcePromptNext !== "已选来源") failures.push(`source object prompt next hint unexpected: ${focusResult.sourcePromptNext}`);
+  if (focusResult.sourcePromptRoles !== "来源") failures.push(`source object prompt roles unexpected: ${focusResult.sourcePromptRoles}`);
+  if (!String(focusResult.sourcePromptSummary ?? "").includes("打出手牌样例")) failures.push("source object prompt summary missing server action label");
+  if (!focusResult.traySelectionRows.some((row) => row.role === "source" && row.choice === "p1-hand-spell" && row.text.includes("手牌法术"))) {
+    failures.push(`object command tray did not expose source selection row: ${JSON.stringify(focusResult.traySelectionRows)}`);
+  }
   if (focusResult.readinessState !== "ready") failures.push(`focused readiness state unexpected: ${focusResult.readinessState}`);
   if (focusResult.readinessCanSubmit !== "true") failures.push("focused readiness did not allow submit");
   if (focusResult.readinessCommand !== "PLAY_CARD") failures.push(`focused readiness command unexpected: ${focusResult.readinessCommand}`);
@@ -1367,6 +1395,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (targetResult.commandCenterState !== "ready") failures.push(`command center state unexpected after target click: ${targetResult.commandCenterState}`);
   if (targetResult.detailLayerOpen) failures.push("target click opened detail");
   if (!targetResult.draftText.includes("目标 1")) failures.push("draft target count missing");
+  if (!targetResult.selectionRows.some((row) => row.role === "target" && row.choice === "p2-left-1" && row.objectIds.includes("p2-left-1"))) {
+    failures.push(`selection guide did not expose target selection row: ${JSON.stringify(targetResult.selectionRows)}`);
+  }
+  if (!targetResult.traySelectionRows.some((row) => row.role === "target" && row.choice === "p2-left-1" && row.objectIds.includes("p2-left-1"))) {
+    failures.push(`object command tray did not expose target selection row: ${JSON.stringify(targetResult.traySelectionRows)}`);
+  }
   if (targetResult.grammarComposerState !== "server") failures.push(`target interaction grammar composer state unexpected: ${targetResult.grammarComposerState}`);
   if (targetResult.grammarState !== "ready") failures.push(`target interaction grammar state unexpected: ${targetResult.grammarState}`);
   if (!targetResult.grammarText.includes("目标")) failures.push("target interaction grammar target step missing");
