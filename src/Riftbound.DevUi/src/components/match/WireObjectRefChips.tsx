@@ -12,6 +12,14 @@ export type WireObjectRefVisibility = "hidden" | "missing" | "visible";
 
 export type WireObjectIndex = Record<string, CardObjectView>;
 
+export type WireObjectRefRenderPlan = {
+  canInspect: boolean;
+  dataObjectId: string;
+  label: string;
+  selected: boolean;
+  visibility: WireObjectRefVisibility;
+};
+
 export function WireObjectRefChips({
   className = "",
   objects,
@@ -35,34 +43,29 @@ export function WireObjectRefChips({
   return (
     <div className={`wire-object-refs wire-${source}-object-refs ${className}`.trim()} role="group" aria-label="关联桌面对象">
       {visibleRefs.map((ref) => {
-        const object = objects[ref.id];
-        const hidden = ref.id === "HIDDEN";
-        const visibility = ref.visibility ?? objectRefVisibility(ref.id, object);
-        const canInspect = Boolean(object && onInspectObject && !hidden);
-        const selected = selectedObjectId === ref.id;
-        const label = `${ref.role} ${ref.label ?? wireObjectLabel(ref.id, objects)}`;
+        const plan = wireObjectRefRenderPlan({ objects, onInspectObject, ref, selectedObjectId });
         const dataProps = {
-          "data-object-ref": ref.id,
-          "data-object-ref-inspectable": canInspect ? "true" : "false",
+          "data-object-ref": plan.dataObjectId,
+          "data-object-ref-inspectable": plan.canInspect ? "true" : "false",
           "data-object-ref-role": ref.role,
-          "data-object-ref-visibility": visibility,
-          "data-event-object-ref": source === "event" ? ref.id : undefined,
-          "data-rule-object-ref": source === "rule" ? ref.id : undefined,
-          "data-candidate-object-ref": source === "candidate" ? ref.id : undefined,
-          "data-selected": selected ? "true" : undefined
+          "data-object-ref-visibility": plan.visibility,
+          "data-event-object-ref": source === "event" ? plan.dataObjectId : undefined,
+          "data-rule-object-ref": source === "rule" ? plan.dataObjectId : undefined,
+          "data-candidate-object-ref": source === "candidate" ? plan.dataObjectId : undefined,
+          "data-selected": plan.selected ? "true" : undefined
         };
         const classNameParts = [
           "wire-object-ref",
           `wire-${source}-object-ref`,
-          `is-${visibility}`,
-          selected ? "is-selected" : "",
-          canInspect ? "" : "is-disabled"
+          `is-${plan.visibility}`,
+          plan.selected ? "is-selected" : "",
+          plan.canInspect ? "" : "is-disabled"
         ].filter(Boolean).join(" ");
 
-        if (!canInspect) {
+        if (!plan.canInspect) {
           return (
             <span className={classNameParts} key={`${ref.role}-${ref.id}`} {...dataProps}>
-              {label}
+              {plan.label}
             </span>
           );
         }
@@ -75,12 +78,40 @@ export function WireObjectRefChips({
             type="button"
             {...dataProps}
           >
-            {label}
+            {plan.label}
           </button>
         );
       })}
     </div>
   );
+}
+
+export function wireObjectRefRenderPlan({
+  objects,
+  onInspectObject,
+  ref,
+  selectedObjectId
+}: {
+  objects: WireObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  ref: WireObjectRef;
+  selectedObjectId?: string;
+}): WireObjectRefRenderPlan {
+  const hidden = ref.visibility === "hidden" || ref.id === "HIDDEN";
+  const object = hidden ? undefined : objects[ref.id];
+  const visibility = hidden ? "hidden" : ref.visibility ?? objectRefVisibility(ref.id, object);
+  const canInspect = visibility === "visible" && Boolean(object && onInspectObject);
+  const dataObjectId = hidden ? "HIDDEN" : ref.id;
+  const selected = !hidden && selectedObjectId === ref.id;
+  const objectLabel = hidden ? "隐藏对象" : ref.label ?? wireObjectLabel(ref.id, objects);
+
+  return {
+    canInspect,
+    dataObjectId,
+    label: `${ref.role} ${objectLabel}`,
+    selected,
+    visibility
+  };
 }
 
 export function wireObjectLabel(objectId: string | null | undefined, objects: WireObjectIndex): string {
