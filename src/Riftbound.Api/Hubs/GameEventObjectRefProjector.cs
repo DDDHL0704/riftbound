@@ -47,6 +47,9 @@ public static class GameEventObjectRefProjector
         ["unitObjectIds"] = "单位"
     };
 
+    private const string SingularObjectIdSuffix = "ObjectId";
+    private const string ArrayObjectIdsSuffix = "ObjectIds";
+
     public static IReadOnlyList<GameEvent> ProjectEvents(IReadOnlyList<GameEvent> events, MatchState state)
     {
         return events
@@ -104,11 +107,154 @@ public static class GameEventObjectRefProjector
                 continue;
             }
 
+            if (TryInferSingularObjectRefRole(key, out var inferredSingularRole)
+                && TryReadString(value, out var inferredObjectId))
+            {
+                refs.Add((inferredSingularRole, inferredObjectId));
+                continue;
+            }
+
+            if (TryInferArrayObjectRefRole(key, out var inferredArrayRole))
+            {
+                refs.AddRange(ReadStringList(value).Select(objectId => (inferredArrayRole, objectId)));
+                continue;
+            }
+
             foreach (var nested in ReadNestedRecords(value))
             {
                 CollectEventObjectRefs(nested, refs, depth + 1);
             }
         }
+    }
+
+    private static bool TryInferSingularObjectRefRole(string key, out string role)
+    {
+        if (!key.EndsWith(SingularObjectIdSuffix, StringComparison.Ordinal)
+            || key.Length <= SingularObjectIdSuffix.Length)
+        {
+            role = string.Empty;
+            return false;
+        }
+
+        role = InferObjectRefRole(key[..^SingularObjectIdSuffix.Length]);
+        return true;
+    }
+
+    private static bool TryInferArrayObjectRefRole(string key, out string role)
+    {
+        if (!key.EndsWith(ArrayObjectIdsSuffix, StringComparison.Ordinal)
+            || key.Length <= ArrayObjectIdsSuffix.Length)
+        {
+            role = string.Empty;
+            return false;
+        }
+
+        role = InferObjectRefRole(key[..^ArrayObjectIdsSuffix.Length]);
+        return true;
+    }
+
+    private static string InferObjectRefRole(string rawPrefix)
+    {
+        var prefix = rawPrefix.ToLowerInvariant();
+        if (prefix.Contains("battlefield", StringComparison.Ordinal))
+        {
+            return "战场";
+        }
+
+        if (prefix.Contains("source", StringComparison.Ordinal) || prefix.Contains("triggeredby", StringComparison.Ordinal))
+        {
+            return "来源";
+        }
+
+        if (prefix.Contains("target", StringComparison.Ordinal) || prefix.Contains("chosen", StringComparison.Ordinal) || prefix.Contains("selected", StringComparison.Ordinal))
+        {
+            return "目标";
+        }
+
+        if (prefix.Contains("attacker", StringComparison.Ordinal))
+        {
+            return "攻击";
+        }
+
+        if (prefix.Contains("defender", StringComparison.Ordinal))
+        {
+            return "防守";
+        }
+
+        if (prefix.Contains("destroy", StringComparison.Ordinal)
+            || prefix.Contains("defeated", StringComparison.Ordinal)
+            || prefix.Contains("removed", StringComparison.Ordinal)
+            || prefix.Contains("cleared", StringComparison.Ordinal))
+        {
+            return "被移除";
+        }
+
+        if (prefix.Contains("discard", StringComparison.Ordinal))
+        {
+            return "弃置";
+        }
+
+        if (prefix.Contains("returned", StringComparison.Ordinal) || prefix.Contains("recalled", StringComparison.Ordinal))
+        {
+            return "返回";
+        }
+
+        if (prefix.Contains("recycled", StringComparison.Ordinal))
+        {
+            return "回收";
+        }
+
+        if (prefix.Contains("revealed", StringComparison.Ordinal))
+        {
+            return "展示";
+        }
+
+        if (prefix.Contains("rune", StringComparison.Ordinal))
+        {
+            return "符文";
+        }
+
+        if (prefix.Contains("equipment", StringComparison.Ordinal) || prefix.Contains("armament", StringComparison.Ordinal))
+        {
+            return "装备";
+        }
+
+        if (prefix.Contains("token", StringComparison.Ordinal))
+        {
+            return "衍生";
+        }
+
+        if (prefix.Contains("played", StringComparison.Ordinal))
+        {
+            return "打出";
+        }
+
+        if (prefix.Contains("activated", StringComparison.Ordinal))
+        {
+            return "激活";
+        }
+
+        if (prefix.Contains("ready", StringComparison.Ordinal) || prefix.Contains("readied", StringComparison.Ordinal))
+        {
+            return "重置";
+        }
+
+        if (prefix.Contains("moved", StringComparison.Ordinal) || prefix.Contains("destination", StringComparison.Ordinal))
+        {
+            return "移动";
+        }
+
+        if (prefix.Contains("unit", StringComparison.Ordinal) || prefix.Contains("participant", StringComparison.Ordinal))
+        {
+            return "单位";
+        }
+
+        if (prefix.Contains("hidden", StringComparison.Ordinal))
+        {
+            return "隐藏";
+        }
+
+        return "对象";
     }
 
     private static GameEventObjectRef BuildEventObjectRef(string objectId, string role, MatchState state)

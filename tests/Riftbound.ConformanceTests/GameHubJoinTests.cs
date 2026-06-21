@@ -125,6 +125,75 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public void GameEventObjectRefProjectorInfersRulesPayloadObjectIdSuffixes()
+    {
+        var state = new MatchState(
+            "object-ref-inferred-rules-room",
+            3,
+            2,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-COMPLETE"] = new("BF-COMPLETE", cardNo: "BF-001", ownerId: "P1", controllerId: "P1"),
+                ["P1-PLAYED"] = new("P1-PLAYED", cardNo: "UNIT-001", ownerId: "P1", controllerId: "P1"),
+                ["P1-RETURNED"] = new("P1-RETURNED", cardNo: "SPELL-001", ownerId: "P1", controllerId: "P1"),
+                ["P2-SPELLSHIELD"] = new("P2-SPELLSHIELD", cardNo: "UNIT-002", ownerId: "P2", controllerId: "P2"),
+                ["P2-HIDDEN"] = new("P2-HIDDEN", isFaceDown: true, cardNo: "SECRET-UNIT", ownerId: "P2", controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-COMPLETE"] = new("P1", "BATTLEFIELD"),
+                ["P1-PLAYED"] = new("P1", "BASE"),
+                ["P1-RETURNED"] = new("P1", "HAND"),
+                ["P2-SPELLSHIELD"] = new("P2", "BATTLEFIELD", "BF-COMPLETE"),
+                ["P2-HIDDEN"] = new("P2", "BATTLEFIELD", "BF-COMPLETE")
+            });
+        var sourceEvent = new GameEvent(
+            "RULE_EVENT_SUFFIXES",
+            "规则事件对象引用后缀投影",
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["playedObjectId"] = "P1-PLAYED",
+                ["returnedObjectIds"] = new[] { "P1-RETURNED" },
+                ["completedBattlefieldObjectIds"] = new[] { "BF-COMPLETE" },
+                ["spellshieldTaxTargetObjectIds"] = new[] { "P2-SPELLSHIELD" },
+                ["nestedChoice"] = new { hiddenObjectId = "P2-HIDDEN" },
+                ["revealedObjectId"] = "HIDDEN"
+            });
+
+        var projected = Assert.Single(GameEventObjectRefProjector.ProjectEvents([sourceEvent], state));
+
+        Assert.NotNull(projected.ObjectRefs);
+        var refs = projected.ObjectRefs!;
+        Assert.Equal(
+            [
+                "打出:P1-PLAYED",
+                "返回:P1-RETURNED",
+                "战场:BF-COMPLETE",
+                "目标:P2-SPELLSHIELD",
+                "隐藏:P2-HIDDEN",
+                "展示:HIDDEN"
+            ],
+            refs.Select(item => $"{item.Role}:{item.ObjectId}"));
+
+        var hiddenRef = Assert.Single(refs, item => item.ObjectId == "P2-HIDDEN");
+        Assert.True(hiddenRef.IsHidden);
+        Assert.True(hiddenRef.IsFaceDown);
+        Assert.Null(hiddenRef.CardNo);
+        Assert.True(Assert.Single(refs, item => item.ObjectId == "HIDDEN").IsHidden);
+    }
+
+    [Fact]
     public async Task JoinRoomSendsSnapshotPromptAndAddsRoomGroups()
     {
         var clients = new RecordingHubClients();
