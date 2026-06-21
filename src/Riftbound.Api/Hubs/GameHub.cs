@@ -265,7 +265,7 @@ public sealed class GameHub(
                 state: "FAILED",
                 message: "服务端未能接收命令，已返回错误。",
                 errorCode: ErrorCodeFor(ex),
-                followup: CommandReceiptFollowup(
+                followup: CommandReceiptFollowups.Create(
                     accepted: false,
                     serverTick: 0,
                     eventCount: 0,
@@ -297,7 +297,7 @@ public sealed class GameHub(
                 state: "REJECTED",
                 message: errorMessage,
                 errorCode: errorCode,
-                followup: CommandReceiptFollowup(
+                followup: CommandReceiptFollowups.Create(
                     accepted: false,
                     serverTick: result.State.Tick,
                     eventCount: 0,
@@ -349,7 +349,7 @@ public sealed class GameHub(
             serverTick: result.State.Tick,
             state: "ACCEPTED",
             message: "服务端已接受命令，后续以快照和规则事件为准。",
-            followup: CommandReceiptFollowup(
+            followup: CommandReceiptFollowups.Create(
                 accepted: true,
                 serverTick: result.State.Tick,
                 eventCount: projectedEvents.Count,
@@ -357,7 +357,7 @@ public sealed class GameHub(
                 promptCount: result.Prompts.Count,
                 receiptState: "ACCEPTED",
                 eventKinds: projectedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
-                eventRefs: CommandReceiptEventRefs(projectedEvents, result.State.Tick)));
+                eventRefs: CommandReceiptFollowups.EventRefs(projectedEvents, result.State.Tick)));
     }
 
     private static MessageType EventMessageType(GameCommand command, ResolutionResult result)
@@ -426,72 +426,6 @@ public sealed class GameHub(
             PromptIdFromRawCommand(rawCommand),
             SnapshotTickFromRawCommand(rawCommand),
             followup);
-    }
-
-    private static CommandReceiptFollowupDto CommandReceiptFollowup(
-        bool accepted,
-        long serverTick,
-        int eventCount,
-        int snapshotCount,
-        int promptCount,
-        string receiptState,
-        IReadOnlyList<string>? eventKinds = null,
-        IReadOnlyList<CommandReceiptEventRefDto>? eventRefs = null)
-    {
-        var state = accepted
-            ? eventCount > 0
-                ? "events"
-                : snapshotCount > 0 || promptCount > 0
-                    ? "snapshot-prompt"
-                    : "silent"
-            : string.Equals(receiptState, "REJECTED", StringComparison.Ordinal)
-                ? "rejected"
-                : "failed";
-
-        return new CommandReceiptFollowupDto(
-            serverTick,
-            eventCount,
-            snapshotCount,
-            promptCount,
-            state,
-            CommandReceiptFollowupSummary(state, serverTick, eventCount, snapshotCount, promptCount),
-            eventKinds is { Count: > 0 } ? eventKinds : null,
-            eventRefs is { Count: > 0 } ? eventRefs : null);
-    }
-
-    private static IReadOnlyList<CommandReceiptEventRefDto>? CommandReceiptEventRefs(
-        IReadOnlyList<GameEvent> events,
-        long serverTick)
-    {
-        if (events.Count == 0)
-        {
-            return null;
-        }
-
-        var refs = new CommandReceiptEventRefDto[events.Count];
-        for (var index = 0; index < events.Count; index++)
-        {
-            refs[index] = new CommandReceiptEventRefDto(serverTick, index, events[index].Kind);
-        }
-
-        return refs;
-    }
-
-    private static string CommandReceiptFollowupSummary(
-        string state,
-        long serverTick,
-        int eventCount,
-        int snapshotCount,
-        int promptCount)
-    {
-        return state switch
-        {
-            "events" => $"tick {serverTick} 已生成 {eventCount} 条公开事件、{snapshotCount} 个快照、{promptCount} 个提示。",
-            "snapshot-prompt" => $"tick {serverTick} 无公开事件，但已生成 {snapshotCount} 个快照、{promptCount} 个提示。",
-            "silent" => $"tick {serverTick} 命令已接受，未生成公开事件或广播视图。",
-            "rejected" => $"tick {serverTick} 命令被服务端规则拒绝，未广播事件或快照。",
-            _ => "命令未进入服务端规则结算，未广播事件或快照。"
-        };
     }
 
     private static string ErrorCodeFor(Exception ex)
