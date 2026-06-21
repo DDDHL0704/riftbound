@@ -14778,6 +14778,25 @@ button.card-face:hover {
   padding: 4px;
 }
 
+.wire-rule-responsibility-heading > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 6px;
+}
+
+.wire-rule-responsibility-open-layer {
+  flex: 0 0 auto;
+  border-radius: 0;
+  padding: 3px 5px;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .wire-rule-responsibility ol {
   display: grid;
   gap: 3px;
@@ -14831,6 +14850,170 @@ button.card-face:hover {
 }
 
 .wire-rule-responsibility .wire-object-refs {
+  padding: 0;
+}
+
+.wire-rule-responsibility-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 57;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.wire-rule-responsibility-layer-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0 !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  cursor: pointer;
+}
+
+.wire-rule-responsibility-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(940px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 4px;
+  border: 2px solid #000 !important;
+  background: #fff !important;
+  color: #000 !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+.wire-rule-responsibility-layer-header,
+.wire-rule-responsibility-layer-footer {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px;
+  border-bottom: 1px solid #000;
+}
+
+.wire-rule-responsibility-layer-footer {
+  border-top: 1px solid #000;
+  border-bottom: 0;
+}
+
+.wire-rule-responsibility-layer-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-rule-responsibility-layer-header span,
+.wire-rule-responsibility-layer-header h2,
+.wire-rule-responsibility-layer-footer span {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-rule-responsibility-layer-header span {
+  font-size: 11px;
+}
+
+.wire-rule-responsibility-layer-header h2 {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.wire-rule-responsibility-layer-close {
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.wire-rule-responsibility-layer-body {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(320px, 1.2fr);
+  gap: 4px;
+  padding: 6px;
+  overflow: auto;
+}
+
+.wire-rule-responsibility-layer-body section {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-rule-responsibility-layer-body section[data-rule-responsibility-layer-section="items"] {
+  grid-column: span 2;
+}
+
+.wire-rule-responsibility-layer-metrics {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wire-rule-responsibility-layer-metrics span,
+.wire-rule-responsibility-layer-submits li,
+.wire-rule-responsibility-layer-items li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-rule-responsibility-layer-submits,
+.wire-rule-responsibility-layer-items {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-rule-responsibility-layer-submits {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.wire-rule-responsibility-layer-items {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wire-rule-responsibility-layer-items li[data-rule-responsibility-layer-state="respond"],
+.wire-rule-responsibility-layer-items li[data-rule-responsibility-layer-state="blocked"],
+.wire-rule-responsibility-layer-items li[data-rule-responsibility-layer-state="watch"],
+.wire-rule-responsibility-layer-submits li[data-rule-responsibility-layer-submit-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-rule-responsibility-layer-items li[data-rule-responsibility-layer-state="waiting"],
+.wire-rule-responsibility-layer-items li[data-rule-responsibility-layer-state="history"],
+.wire-rule-responsibility-layer-submits li[data-rule-responsibility-layer-submit-state="history"],
+.wire-rule-responsibility-layer-submits li[data-rule-responsibility-layer-submit-state="no-candidates"],
+.wire-rule-responsibility-layer-submits li[data-rule-responsibility-layer-submit-state="readonly"],
+.wire-rule-responsibility-layer-submits li[data-rule-responsibility-layer-submit-state="waiting-lane"],
+.wire-rule-responsibility-layer-submits li[data-rule-responsibility-layer-submit-state="waiting-prompt"],
+.wire-rule-responsibility-layer-submits li[data-rule-responsibility-layer-submit-state="wrong-player"] {
+  border-style: dashed;
+}
+
+.wire-rule-responsibility-layer-object-refs {
   padding: 0;
 }
 
@@ -16030,6 +16213,16 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-responsibility,
 .wire-match-page .wire-rule-responsibility-heading,
 .wire-match-page .wire-rule-responsibility li,
+.wire-match-page .wire-rule-responsibility-open-layer,
+.wire-match-page .wire-rule-responsibility-layer,
+.wire-match-page .wire-rule-responsibility-dialog,
+.wire-match-page .wire-rule-responsibility-layer-header,
+.wire-match-page .wire-rule-responsibility-layer-body section,
+.wire-match-page .wire-rule-responsibility-layer-footer,
+.wire-match-page .wire-rule-responsibility-layer-close,
+.wire-match-page .wire-rule-responsibility-layer-metrics span,
+.wire-match-page .wire-rule-responsibility-layer-submits li,
+.wire-match-page .wire-rule-responsibility-layer-items li,
 .wire-match-page .wire-rule-focus,
 .wire-match-page .wire-rule-focus-heading,
 .wire-match-page .wire-rule-focus-lines,
@@ -16526,6 +16719,29 @@ button.wire-object-ref {
 
   .wire-command-review-layer-submit {
     width: 100%;
+  }
+
+  .wire-rule-responsibility-layer {
+    padding: 10px;
+  }
+
+  .wire-rule-responsibility-dialog {
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+  }
+
+  .wire-rule-responsibility-layer-body,
+  .wire-rule-responsibility-layer-items {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wire-rule-responsibility-layer-body section[data-rule-responsibility-layer-section="items"] {
+    grid-column: auto;
+  }
+
+  .wire-rule-responsibility-layer-footer {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 

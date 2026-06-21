@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
 import type { ActionPromptDto } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { Button } from "../ui/Button";
+import { useWireDialogFocus } from "./useWireDialogFocus";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "./WireTimelineDetailPanel";
 import type { WireObjectIndex } from "./WireObjectRefChips";
 
@@ -39,44 +39,7 @@ export function WireTimelineDetailLayer({
   selectedObjectContext,
   selectedObjectId
 }: WireTimelineDetailLayerProps) {
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const dialogRef = useRef<HTMLElement | null>(null);
-  const onCloseRef = useRef(onClose);
-  const previousActiveElementRef = useRef<HTMLElement | null>(null);
-  onCloseRef.current = onClose;
-
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onCloseRef.current();
-        return;
-      }
-
-      if (event.key === "Tab") {
-        trapDialogFocus(event, dialogRef.current);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-      previousActiveElementRef.current?.focus();
-      previousActiveElementRef.current = null;
-    };
-  }, [open]);
+  const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose, open);
 
   if (!open || (!detail && !selectedObjectContext)) {
     return null;
@@ -122,35 +85,4 @@ export function WireTimelineDetailLayer({
       </aside>
     </div>
   );
-}
-
-function trapDialogFocus(event: KeyboardEvent, root: HTMLElement | null) {
-  if (!root) {
-    return;
-  }
-
-  const focusable = Array.from(root.querySelectorAll<HTMLElement>(
-    "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])"
-  )).filter((element) => !element.hasAttribute("hidden") && element.offsetParent !== null);
-
-  if (focusable.length === 0) {
-    event.preventDefault();
-    root.focus();
-    return;
-  }
-
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  const active = document.activeElement;
-
-  if (event.shiftKey && active === first) {
-    event.preventDefault();
-    last.focus();
-    return;
-  }
-
-  if (!event.shiftKey && active === last) {
-    event.preventDefault();
-    first.focus();
-  }
 }

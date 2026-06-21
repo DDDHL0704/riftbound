@@ -1613,6 +1613,49 @@ async function runWireRuleObjectRefSmoke(cdp) {
     responsibilitySubmitText: document.querySelector(".wire-rule-responsibility")?.textContent ?? ""
   }))()`);
 
+  await clickButtonByText(cdp, "打开责任检查层");
+  await delay(150);
+  const responsibilityLayerResult = await evaluateJson(cdp, `(() => {
+    const layer = document.querySelector(".wire-rule-responsibility-layer");
+    return {
+      activeCount: layer?.getAttribute("data-rule-responsibility-layer-active-count") ?? "",
+      activeText: document.activeElement?.textContent ?? "",
+      hiddenBoundary: layer?.querySelector("[data-rule-responsibility-layer-hidden-boundary]")?.getAttribute("data-rule-responsibility-layer-hidden-boundary") ?? "",
+      hiddenRefCount: layer?.querySelectorAll('[data-rule-object-ref="HIDDEN"]').length ?? 0,
+      itemCount: layer?.getAttribute("data-rule-responsibility-layer-item-count") ?? "",
+      itemStates: Array.from(layer?.querySelectorAll("[data-rule-responsibility-layer-state]") ?? [])
+        .map((item) => item.getAttribute("data-rule-responsibility-layer-state") ?? ""),
+      modal: layer?.getAttribute("aria-modal") ?? "",
+      open: Boolean(layer),
+      readyCount: layer?.getAttribute("data-rule-responsibility-layer-ready-count") ?? "",
+      role: layer?.getAttribute("role") ?? "",
+      sourceRefCount: layer?.querySelectorAll('[data-rule-object-ref="p1-hand-spell"]').length ?? 0,
+      state: layer?.getAttribute("data-rule-responsibility-layer-state") ?? "",
+      submitReadyStates: Array.from(layer?.querySelectorAll("[data-rule-responsibility-layer-submit-ready]") ?? [])
+        .map((item) => item.getAttribute("data-rule-responsibility-layer-submit-ready") ?? ""),
+      submitStates: Array.from(layer?.querySelectorAll("[data-rule-responsibility-layer-submit-state]") ?? [])
+        .map((item) => item.getAttribute("data-rule-responsibility-layer-submit-state") ?? ""),
+      targetRefCount: layer?.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length ?? 0,
+      text: layer?.textContent ?? "",
+      title: layer?.querySelector("#wire-rule-responsibility-layer-title")?.textContent ?? ""
+    };
+  })()`);
+  const responsibilityLayerObjectResult = await evaluateJson(cdp, `(() => {
+    const ref = document.querySelector('.wire-rule-responsibility-layer [data-rule-object-ref="p2-right-1"]');
+    ref?.click();
+    const tableObject = document.querySelector('[data-object-id="p2-right-1"]');
+    const selectedRef = document.querySelector('.wire-rule-responsibility-layer [data-rule-object-ref="p2-right-1"][data-selected="true"]');
+    return {
+      clicked: Boolean(ref),
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      selectedRef: Boolean(selectedRef)
+    };
+  })()`);
+  await pressEscape(cdp);
+  await delay(120);
+  const responsibilityLayerClosed = await evaluateJson(cdp, `(() => !document.querySelector(".wire-rule-responsibility-layer"))()`);
+
   await clickRuleObjectRef(cdp, "fixture-left-battlefield");
   await delay(150);
   const battlefieldResult = await evaluateJson(cdp, `(() => {
@@ -2083,6 +2126,29 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!initial.responsibilitySubmitStates.includes("ready")) failures.push("rule responsibility ready submit state missing");
   if (!initial.responsibilitySubmitReadyStates.includes("true")) failures.push("rule responsibility ready data attr missing");
   if (!initial.responsibilitySubmitText.includes("候选")) failures.push("rule responsibility submit candidate text missing");
+  if (!responsibilityLayerResult.open) failures.push("rule responsibility layer did not open");
+  if (responsibilityLayerResult.state !== "open") failures.push(`rule responsibility layer state unexpected: ${responsibilityLayerResult.state}`);
+  if (responsibilityLayerResult.role !== "dialog") failures.push("rule responsibility layer role missing");
+  if (responsibilityLayerResult.modal !== "true") failures.push("rule responsibility layer aria-modal missing");
+  if (!responsibilityLayerResult.activeText.includes("关闭检查层")) failures.push("rule responsibility layer close button did not receive focus");
+  if (Number(responsibilityLayerResult.itemCount) < 1) failures.push("rule responsibility layer item count missing");
+  if (Number(responsibilityLayerResult.readyCount) < 1) failures.push("rule responsibility layer ready count missing");
+  if (!responsibilityLayerResult.submitStates.includes("ready")) failures.push("rule responsibility layer ready submit state missing");
+  if (!responsibilityLayerResult.submitReadyStates.includes("true")) failures.push("rule responsibility layer ready submit attr missing");
+  if (!responsibilityLayerResult.itemStates.some((state) => ["blocked", "respond", "watch"].includes(state))) {
+    failures.push(`rule responsibility layer active item state missing: ${responsibilityLayerResult.itemStates.join(",")}`);
+  }
+  if (responsibilityLayerResult.sourceRefCount < 1) failures.push("rule responsibility layer source ref missing");
+  if (responsibilityLayerResult.targetRefCount < 1) failures.push("rule responsibility layer target ref missing");
+  if (responsibilityLayerResult.hiddenRefCount < 1) failures.push("rule responsibility layer hidden boundary ref missing");
+  if (responsibilityLayerResult.hiddenBoundary !== "true") failures.push("rule responsibility layer hidden boundary attr missing");
+  if (!responsibilityLayerResult.text.includes("响应责任和候选入口来自服务端")) failures.push("rule responsibility layer authority text missing");
+  if (responsibilityLayerResult.text.includes("serverPaymentState")) failures.push("rule responsibility layer leaked hidden server state");
+  if (!responsibilityLayerObjectResult.clicked) failures.push("rule responsibility layer object ref not clickable");
+  if (responsibilityLayerObjectResult.selected !== "true") failures.push("rule responsibility layer object ref did not focus table object");
+  if (!responsibilityLayerObjectResult.selectedRef) failures.push("rule responsibility layer object ref did not show selected state");
+  if (responsibilityLayerObjectResult.detailLayerOpen) failures.push("rule responsibility layer object ref opened detail");
+  if (!responsibilityLayerClosed) failures.push("rule responsibility layer did not close on Escape");
   if (battlefieldResult.selected !== "true") failures.push("battlefield ref did not focus battlefield card");
   if (!battlefieldResult.selectedRef) failures.push("battlefield ref did not show selected state");
   if (battlefieldResult.detailLayerOpen) failures.push("battlefield ref opened detail layer");

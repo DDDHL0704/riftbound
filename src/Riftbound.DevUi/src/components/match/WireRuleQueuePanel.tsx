@@ -7,6 +7,7 @@ import { WireDetailTrigger } from "./WireDetailTrigger";
 import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
 import { WireRuleAuthorityPanel } from "./WireRuleAuthorityPanel";
 import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
+import { useWireDialogFocus } from "./useWireDialogFocus";
 
 type WireRuleQueuePanelProps = {
   events?: GameEvent[];
@@ -23,6 +24,7 @@ type ObjectIndex = WireObjectIndex;
 
 export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
   const [inspectorOpen, setInspectorOpen] = useState(false);
+  const [responsibilityLayerOpen, setResponsibilityLayerOpen] = useState(false);
   const plan = buildWireRuleQueuePlan({ events, playerId, prompt, snapshot });
   const objects = buildCardObjectIndex(snapshot);
 
@@ -52,11 +54,22 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
           下一步：{plan.nextStepLabel}
         </div>
         <RuleResponsibilityTimeline
+          layerOpen={responsibilityLayerOpen}
           objects={objects}
           onInspectObject={onInspectObject}
+          onOpenLayer={() => setResponsibilityLayerOpen(true)}
           plan={plan.responsibility}
           selectedObjectId={selectedObjectId}
         />
+        {responsibilityLayerOpen && (
+          <RuleResponsibilityLayer
+            objects={objects}
+            onClose={() => setResponsibilityLayerOpen(false)}
+            onInspectObject={onInspectObject}
+            plan={plan.responsibility}
+            selectedObjectId={selectedObjectId}
+          />
+        )}
         <RuleCoverageStrip coverage={plan.coverage} />
         {plan.sequence.length > 0 && (
           <ol className="wire-rule-sequence" aria-label="服务端规则队列顺序">
@@ -287,13 +300,17 @@ function RuleLaneCard({ lane }: { lane: WireRuleQueueLane }) {
 }
 
 function RuleResponsibilityTimeline({
+  layerOpen,
   objects,
   onInspectObject,
+  onOpenLayer,
   plan,
   selectedObjectId
 }: {
+  layerOpen: boolean;
   objects: ObjectIndex;
   onInspectObject?: (objectId: string) => void;
+  onOpenLayer: () => void;
   plan: WireRuleQueueResponsibilityPlan;
   selectedObjectId?: string;
 }) {
@@ -305,7 +322,19 @@ function RuleResponsibilityTimeline({
     >
       <div className="wire-rule-responsibility-heading">
         <strong>响应责任时间线</strong>
-        <span>{plan.stateLabel}</span>
+        <div>
+          <span>{plan.stateLabel}</span>
+          <button
+            aria-controls="wire-rule-responsibility-layer"
+            aria-expanded={layerOpen}
+            className="wire-rule-responsibility-open-layer"
+            data-rule-responsibility-layer-trigger={plan.items.length > 0 ? "available" : "empty"}
+            onClick={onOpenLayer}
+            type="button"
+          >
+            打开责任检查层
+          </button>
+        </div>
       </div>
       <small>{plan.summary}</small>
       {plan.items.length === 0 ? (
@@ -324,6 +353,149 @@ function RuleResponsibilityTimeline({
         </ol>
       )}
     </section>
+  );
+}
+
+function RuleResponsibilityLayer({
+  objects,
+  onClose,
+  onInspectObject,
+  plan,
+  selectedObjectId
+}: {
+  objects: ObjectIndex;
+  onClose: () => void;
+  onInspectObject?: (objectId: string) => void;
+  plan: WireRuleQueueResponsibilityPlan;
+  selectedObjectId?: string;
+}) {
+  const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);
+
+  return (
+    <div
+      aria-labelledby="wire-rule-responsibility-layer-title"
+      aria-modal="true"
+      className="wire-rule-responsibility-layer"
+      data-rule-responsibility-layer-active-count={plan.activeCount}
+      data-rule-responsibility-layer-item-count={plan.items.length}
+      data-rule-responsibility-layer-ready-count={plan.submitReadyCount}
+      data-rule-responsibility-layer-state="open"
+      id="wire-rule-responsibility-layer"
+      role="dialog"
+    >
+      <button aria-label="关闭响应责任检查层" className="wire-rule-responsibility-layer-scrim" onClick={onClose} type="button" />
+      <aside className="wire-rule-responsibility-dialog" ref={dialogRef} tabIndex={-1}>
+        <header className="wire-rule-responsibility-layer-header">
+          <div>
+            <span>响应责任检查层</span>
+            <h2 id="wire-rule-responsibility-layer-title">{plan.stateLabel}</h2>
+          </div>
+          <button className="wire-rule-responsibility-layer-close" onClick={onClose} ref={closeButtonRef} type="button">
+            关闭检查层
+          </button>
+        </header>
+        <div className="wire-rule-responsibility-layer-body" id="wire-rule-responsibility-layer-body">
+          <section data-rule-responsibility-layer-section="summary">
+            <strong>责任状态</strong>
+            <span>{plan.summary}</span>
+            <div className="wire-rule-responsibility-layer-metrics">
+              <span data-rule-responsibility-layer-metric="items">
+                <b>队列项</b>
+                <small>{plan.items.length}</small>
+              </span>
+              <span data-rule-responsibility-layer-metric="active">
+                <b>需关注</b>
+                <small>{plan.activeCount}</small>
+              </span>
+              <span data-rule-responsibility-layer-metric="ready">
+                <b>可提交</b>
+                <small>{plan.submitReadyCount}</small>
+              </span>
+            </div>
+          </section>
+          <section data-rule-responsibility-layer-section="submits">
+            <strong>提交入口</strong>
+            {plan.items.length === 0 ? (
+              <span className="empty-hint">当前没有服务端队列项。</span>
+            ) : (
+              <ol className="wire-rule-responsibility-layer-submits">
+                {plan.items.map((item) => (
+                  <li
+                    data-rule-responsibility-layer-submit-item={item.key}
+                    data-rule-responsibility-layer-submit-ready={item.submit.canSubmit ? "true" : "false"}
+                    data-rule-responsibility-layer-submit-state={item.submit.state}
+                    key={`submit:${item.key}`}
+                  >
+                    <span>{item.actionLabel}</span>
+                    <strong>{item.submit.stateLabel}</strong>
+                    <small>{item.submit.enabledCandidateCount}/{item.submit.candidateCount} 候选 / {item.submit.promptType}</small>
+                    <small>{item.submit.reason}</small>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+          <section data-rule-responsibility-layer-section="items">
+            <strong>责任项目</strong>
+            {plan.items.length === 0 ? (
+              <span className="empty-hint">当前没有结算链、规则任务、触发或近期事件。</span>
+            ) : (
+              <ol className="wire-rule-responsibility-layer-items">
+                {plan.items.map((item) => (
+                  <RuleResponsibilityLayerItem
+                    item={item}
+                    key={item.key}
+                    objects={objects}
+                    onInspectObject={onInspectObject}
+                    selectedObjectId={selectedObjectId}
+                  />
+                ))}
+              </ol>
+            )}
+          </section>
+        </div>
+        <footer className="wire-rule-responsibility-layer-footer">
+          <span data-rule-responsibility-layer-authority="server">响应责任和候选入口来自服务端 prompt 与规则队列投影</span>
+          <span data-rule-responsibility-layer-hidden-boundary="true">隐藏对象仅显示边界，不泄漏牌面</span>
+        </footer>
+      </aside>
+    </div>
+  );
+}
+
+function RuleResponsibilityLayerItem({
+  item,
+  objects,
+  onInspectObject,
+  selectedObjectId
+}: {
+  item: WireRuleQueueResponsibilityItem;
+  objects: ObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  selectedObjectId?: string;
+}) {
+  return (
+    <li
+      data-rule-responsibility-layer-item={item.key}
+      data-rule-responsibility-layer-lane={item.lane}
+      data-rule-responsibility-layer-state={item.state}
+    >
+      <div>
+        <small>{item.label}</small>
+        <strong>{item.stateLabel}</strong>
+      </div>
+      <span>{item.actionLabel} / {item.detailLabel}</span>
+      <em>{item.actorLabel} / {item.objectCount} 对象</em>
+      <small>{item.reason}</small>
+      <WireObjectRefChips
+        className="wire-rule-responsibility-layer-object-refs"
+        objects={objects}
+        onInspectObject={onInspectObject}
+        refs={item.refs}
+        selectedObjectId={selectedObjectId}
+        source="rule"
+      />
+    </li>
   );
 }
 
