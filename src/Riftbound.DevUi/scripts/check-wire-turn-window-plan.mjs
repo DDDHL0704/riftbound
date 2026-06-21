@@ -25,12 +25,37 @@ const output = ts.transpileModule(source, {
 }).outputText;
 const moduleShim = { exports: {} };
 
+const promptCandidateCountsModule = {
+  promptCandidateCounts(prompt) {
+    const candidates = prompt?.candidates ?? [];
+    const enabledFallback = candidates.filter((candidate) => candidate.enabled).length;
+    const total = finiteCount(prompt?.serverFlow?.candidateCount) ?? candidates.length;
+    const enabled = finiteCount(prompt?.serverFlow?.enabledCandidateCount) ?? enabledFallback;
+    const disabled = finiteCount(prompt?.serverFlow?.disabledCandidateCount)
+      ?? (prompt?.serverFlow ? Math.max(0, total - enabled) : candidates.filter((candidate) => !candidate.enabled).length);
+    return {
+      candidateCount: total,
+      disabledCandidateCount: disabled,
+      enabledCandidateCount: enabled,
+      source: prompt?.serverFlow ? "server-flow" : "candidates"
+    };
+  }
+};
+
+function finiteCount(value) {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : undefined;
+}
+
 new Function("exports", "module", "require", output)(
   moduleShim.exports,
   moduleShim,
   (id) => {
     if (id === "./promptInspectionPlan") {
       return promptInspectionModuleShim.exports;
+    }
+
+    if (id === "./promptCandidateCounts") {
+      return promptCandidateCountsModule;
     }
 
     throw new Error(`Unexpected module import: ${id}`);
@@ -99,7 +124,11 @@ const actionable = buildWireTurnWindowPlan({
 
 assert.equal(actionable.state, "you-action");
 assert.equal(actionable.tone, "good");
+assert.equal(actionable.candidateCount, 2);
+assert.equal(actionable.candidateCountSource, "candidates");
+assert.equal(actionable.disabledCandidateCount, 1);
 assert.equal(actionable.enabledCandidateCount, 1);
+assert.equal(actionable.metrics.find((metric) => metric.key === "candidates")?.value, "1/2");
 assert.equal(actionable.metrics.find((metric) => metric.key === "prompt")?.mine, true);
 assert.ok(actionable.nextStepLabel.includes("服务端候选"));
 assert.equal(actionable.inspection.sourceLabel, "服务端提示检查");
@@ -117,6 +146,7 @@ const serverResponsibilityActionable = buildWireTurnWindowPlan({
     candidates: [{ action: "PLAY_CARD", enabled: true, label: "打出卡牌", reason: "可提交" }],
     playerId: "P1",
     reason: "服务端责任窗口",
+    serverFlow: { candidateCount: 6, disabledCandidateCount: 2, enabledCandidateCount: 4 },
     view: {
       message: "请选择行动",
       responsibility: {
@@ -152,6 +182,12 @@ const serverResponsibilityActionable = buildWireTurnWindowPlan({
 assert.equal(serverResponsibilityActionable.state, "you-action");
 assert.equal(serverResponsibilityActionable.responsibilitySource, "server");
 assert.equal(serverResponsibilityActionable.responsibilityPromptType, "MAIN_ACTION");
+assert.equal(serverResponsibilityActionable.candidateCount, 6);
+assert.equal(serverResponsibilityActionable.candidateCountSource, "server-flow");
+assert.equal(serverResponsibilityActionable.disabledCandidateCount, 2);
+assert.equal(serverResponsibilityActionable.enabledCandidateCount, 4);
+assert.equal(serverResponsibilityActionable.metrics.find((metric) => metric.key === "candidates")?.value, "4/6");
+assert.equal(serverResponsibilityActionable.inspection.summaryRows.find((row) => row.key === "candidate")?.value, "4 可提交 / 2 阻断");
 assert.equal(serverResponsibilityActionable.metrics.find((metric) => metric.key === "prompt")?.mine, true);
 assert.equal(serverResponsibilityActionable.queueStateLabel, "责任玩家可行动");
 

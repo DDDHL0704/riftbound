@@ -3,6 +3,7 @@ import { asArray, asNumber, asRecord, asString } from "./collections";
 import { eventDescriptionLabel, eventKindLabel } from "./eventLogPlan";
 import { matchPhaseLabel, timingStateLabel } from "./formatters";
 import { gameEventObjectRefPlan, gameEventObjectRefSourceLabel } from "./gameEventObjectRefs";
+import { promptCandidateCounts } from "./promptCandidateCounts";
 import { redactInternalText } from "./redaction";
 import { buildCardObjectIndex, type SnapshotObjectIndex } from "./snapshotObjectIndex";
 
@@ -442,12 +443,9 @@ function responsibilitySubmitPlanFor({
   prompt?: ActionPromptDto;
   state: WireRuleQueueResponsibilityState;
 }): WireRuleQueueResponsibilitySubmitPlan {
-  const candidates = prompt?.candidates ?? [];
-  const candidateCount = normalizedCount(prompt?.serverFlow?.candidateCount, candidates.length);
-  const enabledCandidateCount = normalizedCount(
-    prompt?.serverFlow?.enabledCandidateCount,
-    candidates.filter((candidate) => candidate.enabled).length
-  );
+  const counts = promptCandidateCounts(prompt);
+  const candidateCount = counts.candidateCount;
+  const enabledCandidateCount = counts.enabledCandidateCount;
   const promptType = prompt?.view?.type ?? prompt?.serverFlow?.promptType ?? "无";
 
   if (state === "history" || item.lane === "resolution") {
@@ -560,10 +558,6 @@ function responsibilitySubmitStateLabel(state: WireRuleQueueResponsibilitySubmit
     case "wrong-player":
       return "非当前玩家";
   }
-}
-
-function normalizedCount(value: number | null | undefined, fallback: number): number {
-  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : fallback;
 }
 
 function responsibilityItemState(

@@ -15,7 +15,38 @@ const output = ts.transpileModule(source, {
 }).outputText;
 const moduleShim = { exports: {} };
 
-new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+const promptCandidateCountsModule = {
+  promptCandidateCounts(prompt) {
+    const candidates = prompt?.candidates ?? [];
+    const enabledFallback = candidates.filter((candidate) => candidate.enabled).length;
+    const total = finiteCount(prompt?.serverFlow?.candidateCount) ?? candidates.length;
+    const enabled = finiteCount(prompt?.serverFlow?.enabledCandidateCount) ?? enabledFallback;
+    const disabled = finiteCount(prompt?.serverFlow?.disabledCandidateCount)
+      ?? (prompt?.serverFlow ? Math.max(0, total - enabled) : candidates.filter((candidate) => !candidate.enabled).length);
+    return {
+      candidateCount: total,
+      disabledCandidateCount: disabled,
+      enabledCandidateCount: enabled,
+      source: prompt?.serverFlow ? "server-flow" : "candidates"
+    };
+  }
+};
+
+function finiteCount(value) {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : undefined;
+}
+
+new Function("exports", "module", "require", output)(
+  moduleShim.exports,
+  moduleShim,
+  (id) => {
+    if (id === "./promptCandidateCounts") {
+      return promptCandidateCountsModule;
+    }
+
+    throw new Error(`Unexpected priority rail import: ${id}`);
+  }
+);
 
 const { buildWirePriorityRailPlan } = moduleShim.exports;
 
@@ -46,6 +77,7 @@ const mainAction = buildWirePriorityRailPlan({
     ],
     playerId: "P1",
     reason: "主行动窗口",
+    serverFlow: { candidateCount: 5, disabledCandidateCount: 2, enabledCandidateCount: 3 },
     view: { message: "请选择行动", title: "主行动窗口", type: "MAIN_ACTION" }
   },
   snapshot: baseSnapshot
@@ -53,8 +85,9 @@ const mainAction = buildWirePriorityRailPlan({
 
 assert.equal(mainAction.mode, "main-action");
 assert.equal(mainAction.activeStepKey, "entry");
-assert.ok(mainAction.steps.some((step) => step.key === "entry" && step.mine && step.value.includes("2")));
+assert.ok(mainAction.steps.some((step) => step.key === "entry" && step.mine && step.value.includes("3")));
 assert.ok(mainAction.nextInteractionLabel.includes("服务端候选"));
+assert.ok(mainAction.nextInteractionLabel.includes("3 项"));
 
 const stackResponse = buildWirePriorityRailPlan({
   connectionStatus: "connected",

@@ -6,6 +6,7 @@ import {
   type PromptInspectionRowPlan,
   type PromptInspectionTone
 } from "./promptInspectionPlan";
+import { promptCandidateCounts, type PromptCandidateCountSource } from "./promptCandidateCounts";
 
 export type WireWindowPlanTone = PromptInspectionTone;
 
@@ -23,6 +24,9 @@ export type WireTurnWindowInspectionPlan = PromptInspectionPlan;
 export type WireTurnWindowPlan = {
   activePlayerId?: string;
   blockingTaskCount: number;
+  candidateCount: number;
+  candidateCountSource: PromptCandidateCountSource;
+  disabledCandidateCount: number;
   enabledCandidateCount: number;
   inspection: WireTurnWindowInspectionPlan;
   nextStepLabel: string;
@@ -69,7 +73,8 @@ export function buildWireTurnWindowPlan({
   const responsiblePlayerId = stringValue(responsibility?.responsiblePlayerId);
   const promptOwnerId = responsiblePlayerId || prompt?.playerId || stringValue(timing.promptPlayerId);
   const activePlayerId = snapshot?.activePlayerId || stringValue(turnWindow.actingPlayerId) || stringValue(timing.priorityPlayerId);
-  const enabledCandidateCount = (prompt?.candidates ?? []).filter((candidate) => candidate.enabled).length;
+  const candidateCounts = promptCandidateCounts(prompt);
+  const enabledCandidateCount = candidateCounts.enabledCandidateCount;
   const isConnected = connectionStatus === "connected" || connectionStatus === "resyncing";
   const isBlocking = Boolean(queue.isBlocking);
   const promptActionable = Boolean(responsibility?.actionableForPromptPlayer ?? prompt?.actionable);
@@ -90,9 +95,12 @@ export function buildWireTurnWindowPlan({
   return {
     activePlayerId,
     blockingTaskCount: taskCount,
+    candidateCount: candidateCounts.candidateCount,
+    candidateCountSource: candidateCounts.source,
+    disabledCandidateCount: candidateCounts.disabledCandidateCount,
     enabledCandidateCount,
     inspection: buildPromptInspectionPlan({
-      candidateCount: prompt?.candidates?.length ?? 0,
+      candidateCount: candidateCounts.candidateCount,
       enabledCandidateCount,
       prompt
     }),
@@ -127,7 +135,7 @@ export function buildWireTurnWindowPlan({
     metrics: [
       { key: "active", label: "当前玩家", mine: activePlayerId === playerId, value: activePlayerId || "无" },
       { key: "prompt", label: "责任玩家", mine, value: promptOwnerId || "无" },
-      { key: "candidates", label: "可提交", value: String(enabledCandidateCount) },
+      { key: "candidates", label: "可提交", value: `${enabledCandidateCount}/${candidateCounts.candidateCount}` },
       { key: "stack", label: "结算链", value: `${stackCount} 项` },
       { key: "tasks", label: "任务", value: `${taskCount} 项` },
       { key: "triggers", label: "触发", value: `${triggerCount} 项` }

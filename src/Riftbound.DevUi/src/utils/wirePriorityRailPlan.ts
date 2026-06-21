@@ -1,4 +1,5 @@
 import type { ActionPromptDto, ConnectionStatus, SnapshotDto } from "../types/protocol";
+import { promptCandidateCounts } from "./promptCandidateCounts";
 
 export type WirePriorityRailMode =
   | "battle"
@@ -59,7 +60,8 @@ export function buildWirePriorityRailPlan({
   const promptOwnerId = prompt?.playerId ?? stringValue(timing.promptPlayerId);
   const activePlayerId = snapshot?.activePlayerId || stringValue(turnWindow.actingPlayerId) || stringValue(timing.priorityPlayerId);
   const focusPlayerId = stringValue(spellDuel.focusPlayerId) || stringValue(timing.focusPlayerId);
-  const enabledCandidateCount = (prompt?.candidates ?? []).filter((candidate) => candidate.enabled).length;
+  const candidateCounts = promptCandidateCounts(prompt);
+  const enabledCandidateCount = candidateCounts.enabledCandidateCount;
   const isConnected = connectionStatus === "connected" || connectionStatus === "resyncing";
   const isBlocking = Boolean(queue.isBlocking);
   const taskPhase = stringValue(queue.phase);

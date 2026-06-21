@@ -88,6 +88,22 @@ const helperModules = {
       }[source];
     }
   },
+  "./promptCandidateCounts": {
+    promptCandidateCounts(prompt) {
+      const candidates = prompt?.candidates ?? [];
+      const enabledFallback = candidates.filter((candidate) => candidate.enabled).length;
+      const total = finiteCount(prompt?.serverFlow?.candidateCount) ?? candidates.length;
+      const enabled = finiteCount(prompt?.serverFlow?.enabledCandidateCount) ?? enabledFallback;
+      const disabled = finiteCount(prompt?.serverFlow?.disabledCandidateCount)
+        ?? (prompt?.serverFlow ? Math.max(0, total - enabled) : candidates.filter((candidate) => !candidate.enabled).length);
+      return {
+        candidateCount: total,
+        disabledCandidateCount: disabled,
+        enabledCandidateCount: enabled,
+        source: prompt?.serverFlow ? "server-flow" : "candidates"
+      };
+    }
+  },
   "./redaction": {
     redactInternalText(value) {
       return value;
@@ -106,6 +122,10 @@ const helperModules = {
     }
   }
 };
+
+function finiteCount(value) {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : undefined;
+}
 
 function requireShim(id) {
   const module = helperModules[id];
