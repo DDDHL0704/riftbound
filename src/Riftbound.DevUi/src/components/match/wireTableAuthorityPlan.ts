@@ -93,6 +93,7 @@ export type WireTableSelectedLayoutKind =
 export type WireTableSelectedLayoutState = "empty" | "located" | "unknown";
 
 export type WireTableSelectedLayoutPlan = {
+  capacity?: WireTableSelectedCapacityPlan;
   capacityRowKey?: string;
   kind: WireTableSelectedLayoutKind;
   objectId?: string;
@@ -102,6 +103,21 @@ export type WireTableSelectedLayoutPlan = {
   summary: string;
   zoneKey?: string;
   zoneLabel: string;
+};
+
+export type WireTableSelectedCapacityPlan = {
+  cardHeight: number;
+  cardWidth: number;
+  density: string;
+  fit: string;
+  label: string;
+  overflow: string;
+  overflowCount: number;
+  slotCount: number;
+  state: WireTableCapacityState;
+  stateLabel: string;
+  summary: string;
+  visibleSlotCount: number;
 };
 
 export type WireTableAuthorityPlan = {
@@ -154,7 +170,10 @@ export function buildWireTableAuthorityPlan(
   const missingPlayerCount = Math.max(0, REQUIRED_PLAYER_COUNT - players.length);
   const missingLaneCount = Math.max(0, REQUIRED_LANE_COUNT - lanes.length);
   const capacityRows = buildCapacityRows(table);
-  const selectedLayout = buildSelectedLayoutPlan(table, capacityRows, options.selectedObjectId);
+  const selectedLayout = attachSelectedCapacity(
+    buildSelectedLayoutPlan(table, capacityRows, options.selectedObjectId),
+    capacityRows
+  );
   const consistencyRows = buildConsistencyRows(table);
   const consistencyIssueCount = consistencyRows.filter((row) => row.state !== "consistent").length;
   const consistencyState = resolveConsistencyState(consistencyRows.map((row) => row.state));
@@ -220,7 +239,8 @@ export function buildWireTableSelectedLayoutPlan(
   table: WireTableViewModel,
   selectedObjectId?: string
 ): WireTableSelectedLayoutPlan {
-  return buildSelectedLayoutPlan(table, buildCapacityRows(table), selectedObjectId);
+  const capacityRows = buildCapacityRows(table);
+  return attachSelectedCapacity(buildSelectedLayoutPlan(table, capacityRows, selectedObjectId), capacityRows);
 }
 
 function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
@@ -507,6 +527,36 @@ function selectedLayoutPlan({
     summary: summary ?? `${objectId} 位于${zoneLabel}${capacityRowKey ? `，受 ${capacityRowKey} 容量行约束。` : "固定槽位。"}。`,
     zoneKey,
     zoneLabel
+  };
+}
+
+function attachSelectedCapacity(
+  selectedLayout: WireTableSelectedLayoutPlan,
+  capacityRows: WireTableCapacityRow[]
+): WireTableSelectedLayoutPlan {
+  const capacity = selectedLayout.capacityRowKey
+    ? capacityRows.find((row) => row.key === selectedLayout.capacityRowKey)
+    : undefined;
+  if (!capacity) {
+    return selectedLayout;
+  }
+
+  return {
+    ...selectedLayout,
+    capacity: {
+      cardHeight: capacity.cardHeight,
+      cardWidth: capacity.cardWidth,
+      density: capacity.density,
+      fit: capacity.fit,
+      label: capacity.label,
+      overflow: capacity.overflow,
+      overflowCount: capacity.overflowCount,
+      slotCount: capacity.slotCount,
+      state: capacity.state,
+      stateLabel: capacity.stateLabel,
+      summary: `${capacity.label}：${capacity.stateLabel}，${capacity.cardWidth}x${capacity.cardHeight}，槽 ${capacity.slotCount} / 可见 ${capacity.visibleSlotCount} / 溢出 ${capacity.overflowCount}。`,
+      visibleSlotCount: capacity.visibleSlotCount
+    }
   };
 }
 

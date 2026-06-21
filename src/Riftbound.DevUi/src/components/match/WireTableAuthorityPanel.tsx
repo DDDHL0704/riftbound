@@ -105,7 +105,10 @@ export function WireTableAuthorityPanel({ selectedObjectId, table }: { selectedO
       <section
         aria-label="选中对象布局定位"
         className="wire-table-authority-group"
+        data-wire-table-selected-layout-capacity-overflow={plan.selectedLayout.capacity?.overflow ?? ""}
+        data-wire-table-selected-layout-capacity-overflow-count={plan.selectedLayout.capacity?.overflowCount ?? ""}
         data-wire-table-selected-layout-capacity-row={plan.selectedLayout.capacityRowKey ?? ""}
+        data-wire-table-selected-layout-capacity-state={plan.selectedLayout.capacity?.state ?? ""}
         data-wire-table-selected-layout-kind={plan.selectedLayout.kind}
         data-wire-table-selected-layout-object={plan.selectedLayout.objectId ?? ""}
         data-wire-table-selected-layout-source={plan.selectedLayout.source}
@@ -119,6 +122,16 @@ export function WireTableAuthorityPanel({ selectedObjectId, table }: { selectedO
             <strong>{plan.selectedLayout.stateLabel}</strong>
             <small>{plan.selectedLayout.summary}</small>
           </li>
+          {plan.selectedLayout.capacity && (
+            <li
+              data-wire-table-selected-layout-row="capacity"
+              data-wire-table-selected-layout-row-state={plan.selectedLayout.capacity.state}
+            >
+              <span>{plan.selectedLayout.capacity.label}</span>
+              <strong>{plan.selectedLayout.capacity.stateLabel}</strong>
+              <small>{plan.selectedLayout.capacity.summary}</small>
+            </li>
+          )}
         </ol>
       </section>
 

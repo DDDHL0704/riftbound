@@ -67,6 +67,9 @@ const selectedBasePlan = buildWireTableAuthorityPlan(table({
 assert.equal(selectedBasePlan.selectedLayout.state, "located");
 assert.equal(selectedBasePlan.selectedLayout.kind, "base");
 assert.equal(selectedBasePlan.selectedLayout.capacityRowKey, "opponent:base");
+assert.equal(selectedBasePlan.selectedLayout.capacity?.state, "stable");
+assert.equal(selectedBasePlan.selectedLayout.capacity?.label, "P1 基地流");
+assert.equal(selectedBasePlan.selectedLayout.capacity?.slotCount, 1);
 
 const selectedUnitPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],
@@ -76,6 +79,9 @@ const selectedUnitPlan = buildWireTableAuthorityPlan(table({
 assert.equal(selectedUnitPlan.selectedLayout.state, "located");
 assert.equal(selectedUnitPlan.selectedLayout.kind, "battlefield-unit");
 assert.equal(selectedUnitPlan.selectedLayout.capacityRowKey, "battlefield:0:self");
+assert.equal(selectedUnitPlan.selectedLayout.capacity?.state, "stable");
+assert.equal(selectedUnitPlan.selectedLayout.capacity?.visibleSlotCount, 3);
+assert.match(selectedUnitPlan.selectedLayout.capacity?.summary ?? "", /左战场 我方单位/);
 
 const selectedStandbyPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],
@@ -85,6 +91,7 @@ const selectedStandbyPlan = buildWireTableAuthorityPlan(table({
 assert.equal(selectedStandbyPlan.selectedLayout.state, "located");
 assert.equal(selectedStandbyPlan.selectedLayout.kind, "standby");
 assert.equal(selectedStandbyPlan.selectedLayout.capacityRowKey, "battlefield:0:standby");
+assert.equal(selectedStandbyPlan.selectedLayout.capacity?.state, "stable");
 
 const selectedUnknownPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],
@@ -182,6 +189,33 @@ assert.equal(scrollCapacityRows.get("battlefield:0:self")?.overflowCount, 2);
 assert.equal(scrollCapacityRows.get("battlefield:0:standby")?.state, "scroll");
 assert.equal(scrollCapacityRows.get("battlefield:0:standby")?.overflowCount, 1);
 assert.equal(scrollCapacityRows.get("battlefield:1:self")?.state, "stable");
+
+const selectedScrollPlan = buildWireTableAuthorityPlan(table({
+  laneSources: ["server-unitsBySide", "server-unitsBySide"],
+  playerSources: ["server", "server"],
+  standbySources: ["server-standbySlots", "server-standbySlots"],
+  laneObjects: {
+    0: {
+      own: range("p1-left", 14),
+      opposing: range("p2-left", 14),
+      standby: range("left-standby", 9)
+    },
+    1: {
+      own: range("p1-right", 2),
+      opposing: range("p2-right", 2),
+      standby: range("right-standby", 2)
+    }
+  },
+  plans: {
+    standbyPlan: plan("standby", 9, 9, 8, 40),
+    unitPlan: plan("battlefield-unit", 14, 14, 12, 42)
+  }
+}), { selectedObjectId: "p1-left-14" });
+assert.equal(selectedScrollPlan.selectedLayout.capacityRowKey, "battlefield:0:self");
+assert.equal(selectedScrollPlan.selectedLayout.capacity?.state, "scroll");
+assert.equal(selectedScrollPlan.selectedLayout.capacity?.overflowCount, 2);
+assert.equal(selectedScrollPlan.selectedLayout.capacity?.visibleSlotCount, 12);
+assert.match(selectedScrollPlan.selectedLayout.capacity?.summary ?? "", /溢出 2/);
 
 console.log("Wire table authority plan check passed.");
 
