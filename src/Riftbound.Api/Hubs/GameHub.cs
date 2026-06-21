@@ -306,15 +306,17 @@ public sealed class GameHub(
                     receiptState: "REJECTED"));
         }
 
-        if (result.Events.Count > 0)
+        var projectedEvents = result.Events.Count > 0
+            ? ProjectEvents(result.Events, result.State)
+            : Array.Empty<GameEvent>();
+        if (projectedEvents.Count > 0)
         {
-            var events = ProjectEvents(result.Events, result.State);
             await Clients.Group(RoomGroup(roomId)).Events(new WsServerMessage(
                 EventMessageType(command, result),
                 roomId,
                 normalizedPlayerId,
                 result.State.Tick,
-                events));
+                projectedEvents));
         }
 
         foreach (var (snapshotPlayerId, snapshot) in result.Snapshots)
@@ -350,10 +352,11 @@ public sealed class GameHub(
             followup: CommandReceiptFollowup(
                 accepted: true,
                 serverTick: result.State.Tick,
-                eventCount: result.Events.Count,
+                eventCount: projectedEvents.Count,
                 snapshotCount: result.Snapshots.Count,
                 promptCount: result.Prompts.Count,
-                receiptState: "ACCEPTED"));
+                receiptState: "ACCEPTED",
+                eventKinds: projectedEvents.Select(gameEvent => gameEvent.Kind).ToArray()));
     }
 
     private static MessageType EventMessageType(GameCommand command, ResolutionResult result)
@@ -430,7 +433,8 @@ public sealed class GameHub(
         int eventCount,
         int snapshotCount,
         int promptCount,
-        string receiptState)
+        string receiptState,
+        IReadOnlyList<string>? eventKinds = null)
     {
         var state = accepted
             ? eventCount > 0
@@ -448,7 +452,8 @@ public sealed class GameHub(
             snapshotCount,
             promptCount,
             state,
-            CommandReceiptFollowupSummary(state, serverTick, eventCount, snapshotCount, promptCount));
+            CommandReceiptFollowupSummary(state, serverTick, eventCount, snapshotCount, promptCount),
+            eventKinds is { Count: > 0 } ? eventKinds : null);
     }
 
     private static string CommandReceiptFollowupSummary(

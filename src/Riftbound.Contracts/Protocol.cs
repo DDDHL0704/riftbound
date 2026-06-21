@@ -550,7 +550,8 @@ public sealed record CommandReceiptFollowupDto(
     int SnapshotCount,
     int PromptCount,
     string State,
-    string Summary);
+    string Summary,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? EventKinds = null);
 
 public sealed record CommandReceiptDto(
     string RoomId,

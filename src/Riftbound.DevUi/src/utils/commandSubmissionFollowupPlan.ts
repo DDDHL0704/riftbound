@@ -76,11 +76,18 @@ export type CommandSubmissionFollowupEventRef = {
   role: string;
 };
 
+export type CommandSubmissionFollowupServerEventKind = {
+  key: string;
+  kind: string;
+  label: string;
+};
+
 export type CommandSubmissionFollowupPlan = {
   bridge: CommandSubmissionFollowupBridgePlan;
   events: CommandSubmissionFollowupEventRow[];
   hiddenEventCount: number;
   metrics: CommandSubmissionFollowupMetric[];
+  serverEventKinds: CommandSubmissionFollowupServerEventKind[];
   serverFollowupState: string;
   serverFollowupStateLabel: string;
   state: CommandSubmissionFollowupState;
@@ -416,14 +423,40 @@ function followupMetrics({
 }
 
 function serverFollowupFields(feedback?: CommandSubmissionFollowupFeedback): {
+  serverEventKinds: CommandSubmissionFollowupServerEventKind[];
   serverFollowupState: string;
   serverFollowupStateLabel: string;
 } {
   const state = serverFollowupState(feedback);
   return {
+    serverEventKinds: compactStringList(feedback?.followup?.eventKinds),
     serverFollowupState: state,
     serverFollowupStateLabel: serverFollowupStateLabel(state)
   };
+}
+
+function compactStringList(values?: readonly string[] | null): CommandSubmissionFollowupServerEventKind[] {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const result: CommandSubmissionFollowupServerEventKind[] = [];
+  for (const value of values) {
+    const normalized = typeof value === "string" ? value.trim() : "";
+    if (!normalized || seen.has(normalized)) {
+      continue;
+    }
+
+    seen.add(normalized);
+    result.push({
+      key: normalized,
+      kind: normalized,
+      label: eventKindLabel(normalized)
+    });
+  }
+
+  return result;
 }
 
 function serverFollowupState(feedback?: CommandSubmissionFollowupFeedback): string {

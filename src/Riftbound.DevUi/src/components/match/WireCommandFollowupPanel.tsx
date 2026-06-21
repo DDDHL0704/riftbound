@@ -76,6 +76,16 @@ export function WireCommandFollowupPanel({
           <strong>{plan.uiSource.label}</strong>
         </div>
       )}
+      {plan.serverEventKinds.length > 0 && (
+        <ol className="wire-command-followup-server-kinds" aria-label="服务端回执事件种类">
+          {plan.serverEventKinds.map((eventKind) => (
+            <li data-command-followup-server-event-kind={eventKind.kind} key={eventKind.key}>
+              <span>{eventKind.label}</span>
+              <small>{eventKind.kind}</small>
+            </li>
+          ))}
+        </ol>
+      )}
       {layoutProjection && (
         <CommandFollowupLayoutProjectionPanel onInspectObject={onInspectObject} plan={layoutProjection} />
       )}

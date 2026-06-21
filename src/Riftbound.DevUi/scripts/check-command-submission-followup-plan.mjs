@@ -82,6 +82,15 @@ const eventPlan = buildCommandSubmissionFollowupPlan({
   feedback: {
     clientIntentId: "client-2",
     cmdType: "END_TURN",
+    followup: {
+      eventCount: 2,
+      eventKinds: ["MAIN_PHASE_BEGAN", "CARD_DRAWN", "CARD_DRAWN"],
+      promptCount: 0,
+      serverTick: 12,
+      snapshotCount: 1,
+      state: "events",
+      summary: "tick 12 已生成 2 条公开事件、1 个快照、0 个提示。"
+    },
     message: "服务端已接受",
     receiptState: "ACCEPTED",
     serverTick: 12,
@@ -100,6 +109,10 @@ assert.equal(eventPlan.state, "accepted-events");
 assert.equal(eventPlan.uiSource?.surface, "timeline-detail");
 assert.equal(eventPlan.uiSource?.detailId, "rule:stack:1");
 assert.equal(eventPlan.uiSource?.objectId, "card-1");
+assert.deepEqual(
+  eventPlan.serverEventKinds.map((row) => `${row.kind}:${row.label}`),
+  ["MAIN_PHASE_BEGAN:label:MAIN_PHASE_BEGAN", "CARD_DRAWN:label:CARD_DRAWN"]
+);
 assert.equal(eventPlan.events.length, 2);
 assert.equal(eventPlan.events[0].title, "label:MAIN_PHASE_BEGAN");
 assert.equal(eventPlan.events[1].refCount, 2);
@@ -111,8 +124,8 @@ assert.equal(eventPlan.events[1].refs[1].label, "隐藏：隐藏对象");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "events").value, "2");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "snapshot").state, "ready");
 assert.equal(eventPlan.metrics.find((metric) => metric.key === "prompt").value, "0");
-assert.equal(eventPlan.serverFollowupState, "receipt-only");
-assert.equal(eventPlan.metrics.find((metric) => metric.key === "serverState").value, "仅回执");
+assert.equal(eventPlan.serverFollowupState, "events");
+assert.equal(eventPlan.metrics.find((metric) => metric.key === "serverState").value, "事件");
 assert.equal(eventPlan.bridge.state, "ready");
 assert.equal(eventPlan.bridge.headline, "已收到同 tick 事件");
 assert.equal(eventPlan.bridge.nextStepLabel, "查看事件引用，必要时选择对象检查规则上下文。");

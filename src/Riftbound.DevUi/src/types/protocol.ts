@@ -23,6 +23,7 @@ export type ErrorDto = {
 
 export type CommandReceiptFollowupDto = {
   eventCount: number;
+  eventKinds?: string[] | null;
   promptCount: number;
   serverTick: number;
   snapshotCount: number;

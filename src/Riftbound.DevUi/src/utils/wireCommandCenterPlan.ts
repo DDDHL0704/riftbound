@@ -115,6 +115,7 @@ function emptySubmissionFollowupPlan(): CommandSubmissionFollowupPlan {
     events: [],
     hiddenEventCount: 0,
     metrics: [],
+    serverEventKinds: [],
     serverFollowupState: "none",
     serverFollowupStateLabel: "无",
     state: "empty",
