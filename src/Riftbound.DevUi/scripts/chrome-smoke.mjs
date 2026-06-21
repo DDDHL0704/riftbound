@@ -1951,6 +1951,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
       .map((item) => item.getAttribute("data-object-ref-inspectable")),
     eventRefVisibilityStates: Array.from(document.querySelectorAll('[data-event-object-ref="p1-hand-spell"]'))
       .map((item) => item.getAttribute("data-object-ref-visibility")),
+    eventRefZoneLabels: Array.from(document.querySelectorAll('[data-event-object-ref="p1-hand-spell"]'))
+      .map((item) => item.getAttribute("data-object-ref-zone-label") ?? ""),
     unitRefs: document.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length,
     hiddenRefs: document.querySelectorAll('[data-rule-object-ref="HIDDEN"]').length,
     responsibilitySubmitReadyStates: Array.from(document.querySelectorAll("[data-rule-responsibility-submit-ready]"))
@@ -2100,6 +2102,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
       selectedRef: Boolean(selectedRef),
       selectedRefInspectable: selectedRef?.getAttribute("data-object-ref-inspectable") ?? null,
       selectedRefVisibility: selectedRef?.getAttribute("data-object-ref-visibility") ?? null,
+      selectedRefZoneLabel: selectedRef?.getAttribute("data-object-ref-zone-label") ?? null,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
@@ -2530,6 +2533,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (initial.eventRefs < 1) failures.push("event object ref missing");
   if (!initial.eventRefVisibilityStates.includes("visible")) failures.push("event object ref visible state missing");
   if (!initial.eventRefInspectableStates.includes("true")) failures.push("event object ref inspectable state missing");
+  if (!initial.eventRefZoneLabels.some((label) => label.length > 0)) failures.push("event object ref zone label missing");
   if (initial.unitRefs < 1) failures.push("unit rule object ref missing");
   if (initial.hiddenRefs < 1) failures.push("hidden rule object ref missing");
   if (initial.responsibilitySubmitStates.length < 1) failures.push("rule responsibility submit state missing");
@@ -2610,6 +2614,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventResult.selectedRef) failures.push("event ref did not show selected state");
   if (eventResult.selectedRefVisibility !== "visible") failures.push(`event ref visibility unexpected: ${eventResult.selectedRefVisibility}`);
   if (eventResult.selectedRefInspectable !== "true") failures.push(`event ref inspectable state unexpected: ${eventResult.selectedRefInspectable}`);
+  if (!eventResult.selectedRefZoneLabel) failures.push("selected event object ref zone label missing");
   if (eventResult.detailLayerOpen) failures.push("event ref opened detail layer");
   if (!ruleDetailResult.text.includes("结算链项目")) failures.push("rule detail title missing");
   if (ruleDetailResult.panelState !== "rule") failures.push(`rule detail panel state unexpected: ${ruleDetailResult.panelState}`);

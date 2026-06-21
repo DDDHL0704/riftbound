@@ -2,10 +2,12 @@ import type { CardObjectView } from "../../types/protocol";
 import { redactInternalText } from "../../utils/redaction";
 
 export type WireObjectRef = {
+  battlefieldObjectId?: string | null;
   id: string;
   label?: string;
   role: string;
   visibility?: WireObjectRefVisibility;
+  zone?: string | null;
 };
 
 export type WireObjectRefVisibility = "hidden" | "missing" | "visible";
@@ -13,11 +15,14 @@ export type WireObjectRefVisibility = "hidden" | "missing" | "visible";
 export type WireObjectIndex = Record<string, CardObjectView>;
 
 export type WireObjectRefRenderPlan = {
+  battlefieldObjectId?: string;
   canInspect: boolean;
   dataObjectId: string;
   label: string;
   selected: boolean;
   visibility: WireObjectRefVisibility;
+  zone?: string;
+  zoneLabel: string;
 };
 
 export function WireObjectRefChips({
@@ -49,6 +54,9 @@ export function WireObjectRefChips({
           "data-object-ref-inspectable": plan.canInspect ? "true" : "false",
           "data-object-ref-role": ref.role,
           "data-object-ref-visibility": plan.visibility,
+          "data-object-ref-zone": plan.zone,
+          "data-object-ref-zone-label": plan.zoneLabel,
+          "data-object-ref-battlefield": plan.battlefieldObjectId,
           "data-event-object-ref": source === "event" ? plan.dataObjectId : undefined,
           "data-rule-object-ref": source === "rule" ? plan.dataObjectId : undefined,
           "data-candidate-object-ref": source === "candidate" ? plan.dataObjectId : undefined,
@@ -65,7 +73,7 @@ export function WireObjectRefChips({
         if (!plan.canInspect) {
           return (
             <span className={classNameParts} key={`${ref.role}-${ref.id}`} {...dataProps}>
-              {plan.label}
+              <ObjectRefChipContent plan={plan} />
             </span>
           );
         }
@@ -78,7 +86,7 @@ export function WireObjectRefChips({
             type="button"
             {...dataProps}
           >
-            {plan.label}
+            <ObjectRefChipContent plan={plan} />
           </button>
         );
       })}
@@ -104,14 +112,31 @@ export function wireObjectRefRenderPlan({
   const dataObjectId = hidden ? "HIDDEN" : ref.id;
   const selected = !hidden && selectedObjectId === ref.id;
   const objectLabel = hidden ? "隐藏对象" : ref.label ?? wireObjectLabel(ref.id, objects);
+  const zone = hidden ? undefined : normalizeText(ref.zone) ?? normalizeText(object?.location?.zone);
+  const battlefieldObjectId = hidden
+    ? undefined
+    : normalizeText(ref.battlefieldObjectId) ?? normalizeText(object?.location?.battlefieldObjectId);
+  const zoneLabel = hidden ? "" : wireObjectZoneLabel(zone, battlefieldObjectId);
 
   return {
+    battlefieldObjectId,
     canInspect,
     dataObjectId,
     label: `${ref.role} ${objectLabel}`,
     selected,
-    visibility
+    visibility,
+    zone,
+    zoneLabel
   };
+}
+
+function ObjectRefChipContent({ plan }: { plan: WireObjectRefRenderPlan }) {
+  return (
+    <>
+      <span className="wire-object-ref-main">{plan.label}</span>
+      {plan.zoneLabel && <small className="wire-object-ref-zone">{plan.zoneLabel}</small>}
+    </>
+  );
 }
 
 export function wireObjectLabel(objectId: string | null | undefined, objects: WireObjectIndex): string {
@@ -141,6 +166,45 @@ function objectRefVisibility(objectId: string, object: CardObjectView | undefine
   }
 
   return object ? "visible" : "missing";
+}
+
+function wireObjectZoneLabel(zone: string | undefined, battlefieldObjectId: string | undefined): string {
+  if (!zone && !battlefieldObjectId) {
+    return "";
+  }
+
+  const zoneLabel = zone ? zoneLabelFor(zone) : "未知区域";
+  return battlefieldObjectId ? `${zoneLabel} / ${battlefieldObjectId}` : zoneLabel;
+}
+
+function zoneLabelFor(zone: string): string {
+  switch (zone.toUpperCase()) {
+    case "BASE":
+      return "基地";
+    case "BATTLEFIELD":
+      return "战场";
+    case "BANISHED":
+      return "放逐区";
+    case "DECK":
+      return "牌库";
+    case "GRAVEYARD":
+      return "已打出";
+    case "HAND":
+      return "手牌";
+    case "LEGEND":
+    case "LEGEND_ZONE":
+      return "传奇";
+    case "CHAMPION":
+    case "CHAMPION_ZONE":
+      return "英雄";
+    default:
+      return zone;
+  }
+}
+
+function normalizeText(value: string | null | undefined): string | undefined {
+  const normalized = value?.trim();
+  return normalized ? normalized : undefined;
 }
 
 export function uniqueWireObjectRefs(refs: WireObjectRef[]): WireObjectRef[] {

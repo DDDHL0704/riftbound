@@ -84,7 +84,7 @@ const serverRefPlan = buildEventLogPlan({
     {
       description: "serverPaymentState should be hidden",
       kind: "CARD_PLAYED",
-      objectRefs: [{ cardNo: "CH-001", objectId: "unit-1", role: "来源" }],
+      objectRefs: [{ battlefieldObjectId: "battlefield-1", cardNo: "CH-001", objectId: "unit-1", role: "来源", zone: "BATTLEFIELD" }],
       payload: { targetObjectId: "unit-2" }
     }
   ],
@@ -94,6 +94,8 @@ const serverRefPlan = buildEventLogPlan({
 assert.equal(serverRefPlan.events[0].refs.length, 1);
 assert.equal(serverRefPlan.events[0].refs[0].label, "CH-001");
 assert.equal(serverRefPlan.events[0].refs[0].visibility, "visible");
+assert.equal(serverRefPlan.events[0].refs[0].zone, "BATTLEFIELD");
+assert.equal(serverRefPlan.events[0].refs[0].battlefieldObjectId, "battlefield-1");
 assert.equal(serverRefPlan.events[0].detail.lines.find((line) => line.label === "对象来源").value, "服务端摘要");
 assert.equal(serverRefPlan.events[0].detail.lines.find((line) => line.label === "引用边界").value, "可见 1");
 assert.equal(serverRefPlan.events[0].description.includes("serverPaymentState"), false);
@@ -165,8 +167,8 @@ const suffixFallbackRefPlan = buildEventLogPlan({
   ],
   objectIndex: {
     "battlefield-1": {},
-    "unit-1": {},
-    "unit-2": {},
+    "unit-1": { location: { zone: "HAND" } },
+    "unit-2": { location: { zone: "BASE" } },
     "unit-3": {}
   }
 });
@@ -182,6 +184,8 @@ assert.deepEqual(
   ]
 );
 assert.equal(suffixFallbackRefPlan.events[0].detail.lines.find((line) => line.label === "对象来源").value, "事件字段");
+assert.equal(suffixFallbackRefPlan.events[0].refs.find((ref) => ref.id === "unit-1").zone, "HAND");
+assert.equal(suffixFallbackRefPlan.events[0].refs.find((ref) => ref.id === "unit-2").zone, "BASE");
 
 const mixedPlan = buildEventLogPlan({
   errors: [{ code: "BAD_COMMAND", message: "invalid payload" }],

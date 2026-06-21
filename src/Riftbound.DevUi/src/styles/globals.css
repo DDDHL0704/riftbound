@@ -16944,13 +16944,25 @@ button.card-face:hover {
 
 .wire-object-ref {
   min-width: 0;
-  display: inline-flex;
+  display: inline-grid;
   align-items: center;
   max-width: 100%;
   padding: 2px 4px;
   font: inherit;
   line-height: 1.15;
   text-align: left;
+}
+
+.wire-object-ref-main,
+.wire-object-ref-zone {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-object-ref-zone {
+  font-size: 10px;
 }
 
 button.wire-object-ref {

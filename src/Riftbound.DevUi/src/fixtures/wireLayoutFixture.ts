@@ -1,12 +1,16 @@
 import { BehaviorSpec } from "../types/catalog";
 import {
   ActionPromptDto,
+  BattlefieldSnapshotView,
   CardObjectView,
   GameEvent,
+  GameEventObjectRef,
   PlayerSnapshotView,
   SnapshotDto,
-  type ActionPromptComposerDto
+  type ActionPromptComposerDto,
+  type ZoneView
 } from "../types/protocol";
+import { buildCardObjectIndex, type SnapshotObjectIndex } from "../utils/snapshotObjectIndex";
 
 type FixtureCard = {
   cardNo: string;
@@ -592,15 +596,16 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
 export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameEvent[] {
   const selfId = perspectivePlayerId || "P1";
   const opponentId = selfId === "P2" ? "P1" : "P2";
+  const objectIndex = buildCardObjectIndex(buildWireLayoutFixtureSnapshot(selfId));
 
   return [
     {
       description: "惩戒加入结算链，目标为右战场对方单位。",
       kind: "STACK_ITEM_ADDED",
-      objectRefs: [
+      objectRefs: fixtureEventObjectRefs(objectIndex, [
         { cardNo: "UNL-007/219", objectId: "p1-hand-spell", role: "来源" },
         { cardNo: "UNL-008/219", objectId: "p2-right-1", role: "目标" }
-      ],
+      ]),
       payload: {
         controllerId: selfId,
         sourceObjectId: "p1-hand-spell",
@@ -611,11 +616,11 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
     {
       description: "左战场控制结算完成。",
       kind: "BATTLEFIELD_CONTROL_RESOLVED",
-      objectRefs: [
+      objectRefs: fixtureEventObjectRefs(objectIndex, [
         { cardNo: "UNL-205/219", objectId: "fixture-left-battlefield", role: "战场" },
         { cardNo: "UNL-002/219", objectId: "p1-left-1", role: "参与" },
         { cardNo: "UNL-030/219", objectId: "p2-left-1", role: "参与" }
-      ],
+      ]),
       payload: {
         battlefieldObjectId: "fixture-left-battlefield",
         controllerId: selfId,
@@ -626,12 +631,12 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
     {
       description: "右战场战斗结算，无胜者。",
       kind: "BATTLE_NO_RESULT",
-      objectRefs: [
+      objectRefs: fixtureEventObjectRefs(objectIndex, [
         { cardNo: "UNL-206/219", objectId: "fixture-right-battlefield", role: "战场" },
         { cardNo: "UNL-001/219", objectId: "p1-right-1", role: "攻击" },
         { cardNo: "UNL-008/219", objectId: "p2-right-1", role: "防守" },
         { cardNo: "UNL-002/219", objectId: "p2-right-2", role: "被摧毁" }
-      ],
+      ]),
       payload: {
         attackerObjectIds: ["p1-right-1"],
         battlefieldId: "fixture-right-battlefield",
@@ -640,6 +645,29 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
       }
     }
   ];
+}
+
+function fixtureEventObjectRefs(objectIndex: SnapshotObjectIndex, refs: GameEventObjectRef[]): GameEventObjectRef[] {
+  return refs.map((ref) => fixtureEventObjectRef(objectIndex, ref));
+}
+
+function fixtureEventObjectRef(objectIndex: SnapshotObjectIndex, ref: GameEventObjectRef): GameEventObjectRef {
+  if (ref.isHidden || ref.objectId === "HIDDEN") {
+    return ref;
+  }
+
+  const object = objectIndex[ref.objectId];
+  if (!object) {
+    return ref;
+  }
+
+  return {
+    ...ref,
+    battlefieldObjectId: ref.battlefieldObjectId ?? object.location?.battlefieldObjectId ?? null,
+    controllerId: ref.controllerId ?? object.controllerId ?? null,
+    ownerId: ref.ownerId ?? object.ownerId ?? null,
+    zone: ref.zone ?? object.location?.zone ?? null
+  };
 }
 
 export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): SnapshotDto {
@@ -719,86 +747,87 @@ export function buildWireLayoutFixtureSnapshot(perspectivePlayerId: string): Sna
     runeDeckCount: 7
   });
 
-  return {
-    activePlayerId: selfId,
-    lanes: {
-      battlefields: [
+  const battlefields: BattlefieldSnapshotView[] = [
+    {
+      battlefieldObjectId: "fixture-left-battlefield",
+      cardNo: "UNL-205/219",
+      controllerId: selfId,
+      hiddenStandbyCount: 1,
+      occupantObjectIds: ["p2-left-1", "p2-left-2", "p2-left-3", "p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"],
+      scoredThisTurn: false,
+      status: "CONTESTED",
+      standbySlotCount: 2,
+      standbySlots: [
         {
           battlefieldObjectId: "fixture-left-battlefield",
-          cardNo: "UNL-205/219",
           controllerId: selfId,
-          hiddenStandbyCount: 1,
-          occupantObjectIds: ["p2-left-1", "p2-left-2", "p2-left-3", "p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"],
-          scoredThisTurn: false,
-          status: "CONTESTED",
-          standbySlotCount: 2,
-          standbySlots: [
-            {
-              battlefieldObjectId: "fixture-left-battlefield",
-              controllerId: selfId,
-              isFaceDown: false,
-              objectId: "p1-left-standby",
-              sidePlayerId: selfId,
-              slotId: "fixture-left-battlefield:standby:1",
-              state: "VISIBLE",
-              visible: true
-            },
-            {
-              battlefieldObjectId: "fixture-left-battlefield",
-              controllerId: opponentId,
-              isFaceDown: false,
-              sidePlayerId: opponentId,
-              slotId: "fixture-left-battlefield:standby:2",
-              state: "HIDDEN",
-              visible: false
-            }
-          ],
-          unitsBySide: {
-            [opponentId]: ["p2-left-1", "p2-left-2", "p2-left-3"],
-            [selfId]: ["p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"]
-          },
-          zonePlayerId: selfId
+          isFaceDown: false,
+          objectId: "p1-left-standby",
+          sidePlayerId: selfId,
+          slotId: "fixture-left-battlefield:standby:1",
+          state: "VISIBLE",
+          visible: true
+        },
+        {
+          battlefieldObjectId: "fixture-left-battlefield",
+          controllerId: opponentId,
+          isFaceDown: false,
+          sidePlayerId: opponentId,
+          slotId: "fixture-left-battlefield:standby:2",
+          state: "HIDDEN",
+          visible: false
+        }
+      ],
+      unitsBySide: {
+        [opponentId]: ["p2-left-1", "p2-left-2", "p2-left-3"],
+        [selfId]: ["p1-left-1", "p1-left-2", "p1-left-3", "p1-left-4"]
+      },
+      zonePlayerId: selfId
+    },
+    {
+      battlefieldObjectId: "fixture-right-battlefield",
+      cardNo: "UNL-206/219",
+      controllerId: opponentId,
+      hiddenStandbyCount: 0,
+      occupantObjectIds: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4", "p1-right-1", "p1-right-2", "p1-right-3"],
+      scoredThisTurn: true,
+      scoredThisTurnPlayerIds: [opponentId],
+      status: "CONTROLLED",
+      standbySlotCount: 2,
+      standbySlots: [
+        {
+          battlefieldObjectId: "fixture-right-battlefield",
+          controllerId: opponentId,
+          isFaceDown: false,
+          objectId: "p2-right-standby",
+          sidePlayerId: opponentId,
+          slotId: "fixture-right-battlefield:standby:1",
+          state: "VISIBLE",
+          visible: true
         },
         {
           battlefieldObjectId: "fixture-right-battlefield",
-          cardNo: "UNL-206/219",
-          controllerId: opponentId,
-          hiddenStandbyCount: 0,
-          occupantObjectIds: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4", "p1-right-1", "p1-right-2", "p1-right-3"],
-          scoredThisTurn: true,
-          scoredThisTurnPlayerIds: [opponentId],
-          status: "CONTROLLED",
-          standbySlotCount: 2,
-          standbySlots: [
-            {
-              battlefieldObjectId: "fixture-right-battlefield",
-              controllerId: opponentId,
-              isFaceDown: false,
-              objectId: "p2-right-standby",
-              sidePlayerId: opponentId,
-              slotId: "fixture-right-battlefield:standby:1",
-              state: "VISIBLE",
-              visible: true
-            },
-            {
-              battlefieldObjectId: "fixture-right-battlefield",
-              controllerId: selfId,
-              isFaceDown: true,
-              objectId: "p1-right-standby",
-              sidePlayerId: selfId,
-              slotId: "fixture-right-battlefield:standby:2",
-              state: "VISIBLE",
-              visible: true
-            }
-          ],
-          unitsBySide: {
-            [opponentId]: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4"],
-            [selfId]: ["p1-right-1", "p1-right-2", "p1-right-3"]
-          },
-          zonePlayerId: opponentId
+          controllerId: selfId,
+          isFaceDown: true,
+          objectId: "p1-right-standby",
+          sidePlayerId: selfId,
+          slotId: "fixture-right-battlefield:standby:2",
+          state: "VISIBLE",
+          visible: true
         }
-      ]
-    },
+      ],
+      unitsBySide: {
+        [opponentId]: ["p2-right-1", "p2-right-2", "p2-right-3", "p2-right-4"],
+        [selfId]: ["p1-right-1", "p1-right-2", "p1-right-3"]
+      },
+      zonePlayerId: opponentId
+    }
+  ];
+  applyFixtureBattlefieldLocations([self, opponent], battlefields);
+
+  return {
+    activePlayerId: selfId,
+    lanes: { battlefields },
     players: {
       [selfId]: self,
       [opponentId]: opponent
@@ -939,6 +968,8 @@ function toBehaviorSpec(fixture: FixtureCard): BehaviorSpec {
 }
 
 function buildPlayer(id: string, name: string, objects: CardObjectView[], zones: NonNullable<PlayerSnapshotView["zones"]>): PlayerSnapshotView {
+  const locatedObjects = withFixtureZoneLocations(id, objects, zones);
+
   return {
     cardsPlayedThisTurn: 2,
     deckSubmitted: true,
@@ -947,13 +978,99 @@ function buildPlayer(id: string, name: string, objects: CardObjectView[], zones:
     id,
     mulliganCompleted: true,
     name,
-    objects: Object.fromEntries(objects.map((object) => [object.objectId ?? object.cardNo ?? crypto.randomUUID(), object])),
+    objects: Object.fromEntries(locatedObjects.map((object) => [object.objectId ?? object.cardNo ?? crypto.randomUUID(), object])),
     ready: true,
     runePool: { mana: 12, power: 3, powerByTrait: { 红色: 2, 蓝色: 1 }, totalPower: 3, untypedPower: 0 },
     score: id.startsWith("P2") ? 4 : 5,
     seat: id.startsWith("P2") ? "opponent" : "self",
     zones
   };
+}
+
+function withFixtureZoneLocations(playerId: string, objects: CardObjectView[], zones: ZoneView): CardObjectView[] {
+  const zoneByObjectId = new Map<string, string>();
+  markFixtureZone(zoneByObjectId, zones.hand, "HAND");
+  markFixtureZone(zoneByObjectId, zones.base, "BASE");
+  markFixtureZone(zoneByObjectId, zones.baseCards, "BASE");
+  markFixtureZone(zoneByObjectId, zones.baseRunes, "BASE");
+  markFixtureZone(zoneByObjectId, zones.graveyard, "GRAVEYARD");
+  markFixtureZone(zoneByObjectId, zones.banished, "BANISHED");
+  markFixtureZone(zoneByObjectId, zones.legendZone, "LEGEND_ZONE");
+  markFixtureZone(zoneByObjectId, zones.championZone, "CHAMPION_ZONE");
+
+  return objects.map((object) => {
+    const objectId = object.objectId?.trim();
+    const zone = objectId ? zoneByObjectId.get(objectId) : undefined;
+    if (!objectId || !zone || object.location?.zone) {
+      return object;
+    }
+
+    return {
+      ...object,
+      location: { playerId, zone }
+    };
+  });
+}
+
+function markFixtureZone(zoneByObjectId: Map<string, string>, ids: string[] | undefined, zone: string) {
+  for (const id of ids ?? []) {
+    if (!zoneByObjectId.has(id)) {
+      zoneByObjectId.set(id, zone);
+    }
+  }
+}
+
+function applyFixtureBattlefieldLocations(players: PlayerSnapshotView[], battlefields: BattlefieldSnapshotView[]) {
+  for (const battlefield of battlefields) {
+    const battlefieldObjectId = battlefield.battlefieldObjectId;
+    if (!battlefieldObjectId) {
+      continue;
+    }
+
+    for (const [playerId, objectIds] of Object.entries(battlefield.unitsBySide ?? {})) {
+      for (const objectId of objectIds) {
+        setFixtureObjectLocation(players, objectId, {
+          battlefieldObjectId,
+          playerId,
+          zone: "BATTLEFIELD"
+        });
+      }
+    }
+
+    for (const slot of battlefield.standbySlots ?? []) {
+      if (!slot.objectId || !slot.sidePlayerId || slot.visible === false) {
+        continue;
+      }
+
+      setFixtureObjectLocation(players, slot.objectId, {
+        battlefieldObjectId,
+        playerId: slot.sidePlayerId,
+        zone: "BATTLEFIELD"
+      });
+    }
+  }
+}
+
+function setFixtureObjectLocation(
+  players: PlayerSnapshotView[],
+  objectId: string,
+  location: NonNullable<CardObjectView["location"]>
+) {
+  for (const player of players) {
+    const object = player.objects?.[objectId];
+    if (!object) {
+      continue;
+    }
+
+    player.objects = {
+      ...player.objects,
+      [objectId]: {
+        ...object,
+        location: object.location?.zone ? object.location : location
+      }
+    };
+    return;
+  }
 }
 
 function obj(

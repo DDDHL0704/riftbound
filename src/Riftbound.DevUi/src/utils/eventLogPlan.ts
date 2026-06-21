@@ -7,10 +7,12 @@ import { redactInternalText } from "./redaction";
 export type LogDensity = "compact" | "standard" | "detailed";
 
 export type EventLogObjectRef = {
+  battlefieldObjectId?: string | null;
   id: string;
   label?: string;
   role: string;
   visibility: "hidden" | "missing" | "visible";
+  zone?: string | null;
 };
 
 export type EventLogErrorRowPlan = {
@@ -296,12 +298,15 @@ function serverObjectRef(ref: GameEventObjectRef, objects: Record<string, CardOb
     return undefined;
   }
   const visibility = eventRefVisibility(ref, objects);
+  const object = visibility === "hidden" ? undefined : objects[objectId];
 
   return {
+    battlefieldObjectId: visibility === "hidden" ? undefined : ref.battlefieldObjectId ?? object?.location?.battlefieldObjectId,
     id: objectId,
     label: visibility === "hidden" ? "隐藏对象" : ref.cardNo?.trim() || undefined,
     role: ref.role?.trim() || "对象",
-    visibility
+    visibility,
+    zone: visibility === "hidden" ? undefined : ref.zone ?? object?.location?.zone
   };
 }
 
