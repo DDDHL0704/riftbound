@@ -100,7 +100,7 @@ const model = buildTableObjectContextModel({
         objects: {
           "battlefield-left": {
             cardNo: "OGN-275/298",
-            location: { playerId: "P1", zone: "BATTLEFIELD" },
+            location: { playerId: "P1", zone: "BATTLEFIELD", zoneKind: "battlefield-site", zoneLabel: "战场牌" },
             objectId: "battlefield-left",
             ownerId: "P1",
             tags: ["CARD_TYPE:BATTLEFIELD"]
@@ -108,21 +108,20 @@ const model = buildTableObjectContextModel({
           "conflicting-hand-card": {
             cardNo: "OGN-001/298",
             controllerId: "P1",
-            location: { playerId: "P2", zone: "GRAVEYARD" },
+            location: { playerId: "P2", zone: "GRAVEYARD", zoneKind: "graveyard", zoneLabel: "已打出牌堆" },
             objectId: "conflicting-hand-card",
             ownerId: "P1"
           },
           "p1-base-rune": {
             cardNo: "RUNE-RED",
-            location: { playerId: "P1", zone: "BASE" },
+            location: { playerId: "P1", zone: "BASE", zoneKind: "rune", zoneLabel: "已抽出符文" },
             objectId: "p1-base-rune",
-            ownerId: "P1",
-            tags: ["CARD_TYPE:RUNE"]
+            ownerId: "P1"
           },
           "p1-left-unit": {
             cardNo: "OGN-010/298",
             controllerId: "P1",
-            location: { battlefieldObjectId: "battlefield-left", playerId: "P1", zone: "BATTLEFIELD" },
+            location: { battlefieldObjectId: "battlefield-left", playerId: "P1", zone: "BATTLEFIELD", zoneKind: "battlefield", zoneLabel: "战场" },
             objectId: "p1-left-unit",
             ownerId: "P1"
           }

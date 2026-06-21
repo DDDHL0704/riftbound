@@ -38,7 +38,9 @@ export type TableObjectZoneKind =
   | "graveyard"
   | "hand"
   | "legend"
+  | "main-deck"
   | "rune"
+  | "rune-deck"
   | "stack"
   | "unknown";
 
@@ -566,6 +568,8 @@ function zoneContextFromObjectLocation(
   }
 
   const battlefieldObjectId = asString(location.battlefieldObjectId, "").trim();
+  const serverZoneKind = tableObjectZoneKindFromServer(asString(location.zoneKind, "").trim());
+  const serverZoneLabel = asString(location.zoneLabel, "").trim();
   const playerId = asString(location.playerId, "").trim() || object?.controllerId || object?.ownerId || undefined;
   const sideLabel = playerSideLabel(playerId, perspectivePlayerId);
   const battlefieldLabel = laneLabelByBattlefieldId[battlefieldObjectId] ?? laneLabelByBattlefieldId[objectId] ?? "战场";
@@ -576,29 +580,54 @@ function zoneContextFromObjectLocation(
 
   switch (zone) {
     case "BANISHED":
-      return { ...shared, kind: "banished", label: `${sideLabel}放逐区` };
+      return { ...shared, kind: serverZoneKind ?? "banished", label: `${sideLabel}${serverZoneLabel || "放逐区"}` };
     case "BASE":
-      return isRuneObject(object)
-        ? { ...shared, kind: "rune", label: `${sideLabel}已抽出符文` }
-        : { ...shared, kind: "base", label: `${sideLabel}基地` };
+      return serverZoneKind === "rune" || (!serverZoneKind && isRuneObject(object))
+        ? { ...shared, kind: "rune", label: `${sideLabel}${serverZoneLabel || "已抽出符文"}` }
+        : { ...shared, kind: serverZoneKind ?? "base", label: `${sideLabel}${serverZoneLabel || "基地"}` };
     case "BATTLEFIELD":
-      if (isBattlefieldSiteObject(object, objectId, laneLabelByBattlefieldId)) {
+      if (serverZoneKind === "battlefield-site" || (!serverZoneKind && isBattlefieldSiteObject(object, objectId, laneLabelByBattlefieldId))) {
         return { ...shared, battlefieldObjectId: objectId, kind: "battlefield-site", label: `${battlefieldLabel}牌` };
       }
 
       return { ...shared, kind: "battlefield", label: `${battlefieldLabel} / ${sideLabel}单位` };
     case "CHAMPION":
-      return { ...shared, kind: "champion", label: `${sideLabel}英雄区` };
+      return { ...shared, kind: serverZoneKind ?? "champion", label: `${sideLabel}${serverZoneLabel || "英雄区"}` };
     case "GRAVEYARD":
-      return { ...shared, kind: "graveyard", label: `${sideLabel}已打出牌堆` };
+      return { ...shared, kind: serverZoneKind ?? "graveyard", label: `${sideLabel}${serverZoneLabel || "已打出牌堆"}` };
     case "HAND":
-      return { ...shared, kind: "hand", label: `${sideLabel}手牌` };
+      return { ...shared, kind: serverZoneKind ?? "hand", label: `${sideLabel}${serverZoneLabel || "手牌"}` };
     case "LEGEND":
-      return { ...shared, kind: "legend", label: `${sideLabel}传奇区` };
+      return { ...shared, kind: serverZoneKind ?? "legend", label: `${sideLabel}${serverZoneLabel || "传奇区"}` };
+    case "MAIN_DECK":
+      return { ...shared, kind: serverZoneKind ?? "main-deck", label: `${sideLabel}${serverZoneLabel || "主牌库"}` };
+    case "RUNE_DECK":
+      return { ...shared, kind: serverZoneKind ?? "rune-deck", label: `${sideLabel}${serverZoneLabel || "符文牌堆"}` };
     case "STACK":
-      return { ...shared, kind: "stack", label: "结算链" };
+      return { ...shared, kind: serverZoneKind ?? "stack", label: serverZoneLabel || "结算链" };
     default:
-      return { ...shared, kind: "unknown", label: `${sideLabel}服务端区域` };
+      return { ...shared, kind: serverZoneKind ?? "unknown", label: `${sideLabel}${serverZoneLabel || "服务端区域"}` };
+  }
+}
+
+function tableObjectZoneKindFromServer(value: string): TableObjectZoneKind | undefined {
+  switch (value) {
+    case "banished":
+    case "base":
+    case "battlefield":
+    case "battlefield-site":
+    case "champion":
+    case "graveyard":
+    case "hand":
+    case "legend":
+    case "main-deck":
+    case "rune":
+    case "rune-deck":
+    case "stack":
+    case "unknown":
+      return value;
+    default:
+      return undefined;
   }
 }
 

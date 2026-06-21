@@ -479,6 +479,8 @@ export type ObjectLocationView = {
   battlefieldObjectId?: string | null;
   playerId?: string | null;
   zone?: string | null;
+  zoneKind?: string | null;
+  zoneLabel?: string | null;
 };
 
 export type CardObjectView = {
