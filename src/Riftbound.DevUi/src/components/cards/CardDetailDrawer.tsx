@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
-import { buildCardDetailPlan, type CardDetailInspectorPlan } from "../../utils/cardDetailPlan";
+import { buildCardDetailPlan, type CardDetailInspectorPlan, type CardDetailPlan } from "../../utils/cardDetailPlan";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { FocusedActionModel } from "../../utils/focusedActionModel";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -136,6 +136,7 @@ export function CardDetailDrawer({
             <StatusPill key={badge.key} tone={badge.tone}>{badge.label}</StatusPill>
           ))}
         </div>
+        <DetailCheckMap plan={detailPlan} />
         {detailPlan.hidden ? (
           <>
             <p className="detail-muted">{detailPlan.hiddenMessage}</p>
@@ -210,6 +211,34 @@ export function CardDetailDrawer({
         )}
       </aside>
     </div>
+  );
+}
+
+function DetailCheckMap({ plan }: { plan: CardDetailPlan }) {
+  return (
+    <section
+      aria-label="卡牌详情检查地图"
+      className="detail-section detail-check-map"
+      data-card-detail-check-map={plan.hidden ? "hidden" : "visible"}
+      data-card-detail-check-map-count={plan.checkRows.length}
+    >
+      <strong>检查地图</strong>
+      <ol>
+        {plan.checkRows.map((row) => (
+          <li
+            data-card-detail-check-row={row.key}
+            data-card-detail-check-row-count={row.count}
+            data-card-detail-check-row-source={row.sourceLabel}
+            data-card-detail-check-row-state={row.state}
+            key={row.key}
+          >
+            <span>{row.label}</span>
+            <strong>{row.stateLabel}</strong>
+            <small>{row.summary}</small>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

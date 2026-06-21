@@ -2708,6 +2708,55 @@ button.card-face:hover {
   margin: 3px 0 0;
 }
 
+.detail-check-map {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.detail-check-map > strong {
+  display: block;
+}
+
+.detail-check-map ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.detail-check-map li {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.detail-check-map li[data-card-detail-check-row-state="ready"],
+.detail-check-map li[data-card-detail-check-row-state="server"] {
+  border-width: 2px;
+}
+
+.detail-check-map li[data-card-detail-check-row-state="hidden"],
+.detail-check-map li[data-card-detail-check-row-state="warning"] {
+  border-style: dashed;
+}
+
+.detail-check-map span,
+.detail-check-map strong,
+.detail-check-map small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .detail-actions {
   display: grid;
   gap: 10px;
@@ -16757,6 +16806,8 @@ button.wire-object-ref {
 .wire-match-page .candidate-composer-warning,
 .wire-match-page .detail-drawer,
 .wire-match-page .detail-section,
+.wire-match-page .detail-check-map,
+.wire-match-page .detail-check-map li,
 .wire-match-page .detail-related-candidate-list,
 .wire-match-page .detail-grid div,
 .wire-match-page .play-card-composer,

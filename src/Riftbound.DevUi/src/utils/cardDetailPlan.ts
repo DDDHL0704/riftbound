@@ -67,10 +67,23 @@ export type CardDetailInspectorPlan = {
   summaryRows: CardDetailInspectorRow[];
 };
 
+export type CardDetailCheckState = "empty" | "hidden" | "ready" | "server" | "snapshot" | "warning";
+
+export type CardDetailCheckRow = {
+  count: number;
+  key: string;
+  label: string;
+  sourceLabel: string;
+  state: CardDetailCheckState;
+  stateLabel: string;
+  summary: string;
+};
+
 export type CardDetailPlan = {
   actionCandidates: ActionPromptCandidateDto[];
   actionEmptyLabel: string;
   badges: CardDetailBadge[];
+  checkRows: CardDetailCheckRow[];
   detailRows: CardDetailRow[];
   hidden: boolean;
   hiddenMessage?: string;
@@ -111,6 +124,7 @@ export function buildCardDetailPlan({
         { key: "visibility", label: "隐藏信息", tone: "warn" },
         { key: "card-no", label: "未公开", tone: "neutral" }
       ],
+      checkRows: hiddenCheckRows(sourceObjectId),
       detailRows: [],
       hidden,
       hiddenMessage: "该对象未向当前玩家公开。前端只展示服务端快照允许的信息，不读取或推断卡名、费用、类型或规则文本。",
@@ -157,6 +171,12 @@ export function buildCardDetailPlan({
           ] satisfies CardDetailBadge[]
         : [])
     ],
+    checkRows: visibleCheckRows({
+      actionCandidateCount: actionCandidates.length,
+      objectContext,
+      sections,
+      sourceObjectId
+    }),
     detailRows,
     hidden,
     inspector: buildVisibleInspectorPlan({
@@ -196,6 +216,136 @@ function buildHiddenInspectorPlan(sourceObjectId?: string): CardDetailInspectorP
       }
     ]
   };
+}
+
+function hiddenCheckRows(sourceObjectId?: string): CardDetailCheckRow[] {
+  return [
+    {
+      count: sourceObjectId ? 1 : 0,
+      key: "identity",
+      label: "对象身份",
+      sourceLabel: "隐藏对象安全外壳",
+      state: "hidden",
+      stateLabel: "未公开",
+      summary: sourceObjectId || "服务端未公开对象 ID"
+    },
+    {
+      count: 0,
+      key: "rules",
+      label: "规则文本",
+      sourceLabel: "隐藏边界",
+      state: "hidden",
+      stateLabel: "不展示",
+      summary: "卡名、费用、规则文本和卡面不向当前玩家公开。"
+    },
+    {
+      count: 0,
+      key: "candidates",
+      label: "服务端候选",
+      sourceLabel: "隐藏边界",
+      state: "hidden",
+      stateLabel: "不推导",
+      summary: "隐藏对象不会展示或提交前端推断操作。"
+    },
+    {
+      count: 1,
+      key: "boundary",
+      label: "信息边界",
+      sourceLabel: "服务端快照",
+      state: "hidden",
+      stateLabel: "受保护",
+      summary: "只展示服务端允许的隐藏外壳。"
+    }
+  ];
+}
+
+function visibleCheckRows({
+  actionCandidateCount,
+  objectContext,
+  sections,
+  sourceObjectId
+}: {
+  actionCandidateCount: number;
+  objectContext?: TableObjectContext;
+  sections: CardDetailSection[];
+  sourceObjectId?: string;
+}): CardDetailCheckRow[] {
+  const enabledCount = objectContext?.promptEnabledCount ?? actionCandidateCount;
+  const disabledCount = objectContext?.promptDisabledCount ?? 0;
+  const candidateLinks = objectContext?.candidateLinks ?? [];
+  const selectionStepCount = candidateLinks.reduce((count, candidate) => count + (candidate.selectionSteps?.length ?? 0), 0);
+  const requiredStepMissingCount = candidateLinks.reduce((count, candidate) =>
+    count + (candidate.selectionSteps ?? []).filter((step) => step.required && step.objectChoiceCount <= 0).length, 0);
+  const stackCount = objectContext?.stackRoles.length ?? 0;
+  const stackSummary = objectContext?.stackRoles.join(" / ") || "当前对象不在公开结算链中。";
+  const eventCount = objectContext?.eventLinks.length ?? 0;
+  const rulesSection = sections.find((section) => section.key === "rules");
+
+  return [
+    {
+      count: sourceObjectId ? 1 : 0,
+      key: "identity",
+      label: "对象身份",
+      sourceLabel: objectContext ? tableObjectContextSourceLabel(objectContext) : "公开快照索引",
+      state: objectContext?.candidateSource === "server" ? "server" : "snapshot",
+      stateLabel: sourceObjectId ? "已定位" : "无对象",
+      summary: sourceObjectId || "服务端未公开对象 ID"
+    },
+    {
+      count: objectContext ? 1 : 0,
+      key: "zone",
+      label: "状态与区域",
+      sourceLabel: objectContext ? "快照对象索引" : "公开快照",
+      state: objectContext ? "ready" : "snapshot",
+      stateLabel: objectContext ? "已映射" : "快照兜底",
+      summary: objectContext?.zone.label ?? "使用对象 location 兜底。"
+    },
+    {
+      count: enabledCount + disabledCount,
+      key: "candidates",
+      label: "服务端候选",
+      sourceLabel: objectContext ? tableObjectCandidateSourceLabel(objectContext.candidateSource) : "当前 prompt",
+      state: enabledCount > 0 ? "server" : disabledCount > 0 ? "warning" : "empty",
+      stateLabel: `${enabledCount} 可用 / ${disabledCount} 阻断`,
+      summary: enabledCount + disabledCount > 0 ? "只显示服务端当前候选。" : "当前没有关联候选。"
+    },
+    {
+      count: selectionStepCount,
+      key: "selection",
+      label: "选择步骤",
+      sourceLabel: objectContext ? "服务端候选步骤" : "无候选步骤",
+      state: requiredStepMissingCount > 0 ? "warning" : selectionStepCount > 0 ? "server" : "empty",
+      stateLabel: requiredStepMissingCount > 0 ? `缺少 ${requiredStepMissingCount}` : selectionStepCount > 0 ? "已公开" : "无步骤",
+      summary: selectionStepCount > 0 ? `${selectionStepCount} 步骤来自服务端候选。` : "没有需要展示的选择步骤。"
+    },
+    {
+      count: stackCount,
+      key: "stack",
+      label: "结算链",
+      sourceLabel: stackCount > 0 ? "snapshot.stack" : "无结算链",
+      state: stackCount > 0 ? "ready" : "empty",
+      stateLabel: stackCount > 0 ? "有关联" : "无关联",
+      summary: stackSummary
+    },
+    {
+      count: eventCount,
+      key: "events",
+      label: "近期事件",
+      sourceLabel: eventCount > 0 ? "event log" : "无事件",
+      state: eventCount > 0 ? "ready" : "empty",
+      stateLabel: eventCount > 0 ? "有记录" : "无记录",
+      summary: eventCount > 0 ? `${eventCount} 条公开事件引用。` : "最近事件没有公开引用这张牌。"
+    },
+    {
+      count: rulesSection?.body ? 1 : 0,
+      key: "rules",
+      label: "规则文本",
+      sourceLabel: "官方卡牌快照",
+      state: rulesSection?.body ? "ready" : "empty",
+      stateLabel: rulesSection?.body ? "已展示" : "无文本",
+      summary: rulesSection?.body ? "规则文本来自卡牌快照/官方文本映射。" : "服务端未提供卡面规则文本。"
+    }
+  ];
 }
 
 function buildVisibleInspectorPlan({

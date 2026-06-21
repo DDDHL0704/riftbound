@@ -76,6 +76,13 @@ assert.equal(hiddenPlan.inspector.authorityState, "hidden");
 assert.equal(hiddenPlan.inspector.authorityLabel, "隐藏信息边界");
 assert.equal(hiddenPlan.inspector.sourceLabel, "隐藏对象安全外壳");
 assert.equal(hiddenPlan.inspector.groups[0].rows.find((row) => row.key === "rules")?.value, "未公开");
+assert.deepEqual(hiddenPlan.checkRows.map((row) => `${row.key}:${row.state}:${row.count}`), [
+  "identity:hidden:1",
+  "rules:hidden:0",
+  "candidates:hidden:0",
+  "boundary:hidden:1"
+]);
+assert.equal(hiddenPlan.checkRows.find((row) => row.key === "candidates")?.stateLabel, "不推导");
 assert.equal(JSON.stringify(hiddenPlan).includes("PLAY_CARD"), false);
 
 const visiblePlan = buildCardDetailPlan({
@@ -229,6 +236,17 @@ assert.equal(visiblePlan.inspector.summaryRows.find((row) => row.key === "author
 assert.equal(visiblePlan.inspector.authorityState, "server-inspection");
 assert.equal(visiblePlan.inspector.authorityLabel, "服务端检查摘要");
 assert.equal(visiblePlan.inspector.sourceLabel, "服务端检查摘要");
+assert.deepEqual(visiblePlan.checkRows.map((row) => `${row.key}:${row.state}:${row.count}`), [
+  "identity:server:1",
+  "zone:ready:1",
+  "candidates:server:2",
+  "selection:warning:4",
+  "stack:ready:1",
+  "events:ready:1",
+  "rules:ready:1"
+]);
+assert.equal(visiblePlan.checkRows.find((row) => row.key === "selection")?.stateLabel, "缺少 1");
+assert.ok(visiblePlan.checkRows.find((row) => row.key === "candidates")?.summary.includes("服务端"));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "identity")?.rows.some((row) => row.value.includes("prompt-1")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "candidate")?.rows.some((row) => row.value.includes("缺少合法目标")));
 assert.ok(visiblePlan.inspector.groups.find((group) => group.key === "selection-steps")?.rows.some((row) => row.value.includes("来源* 1/1")));

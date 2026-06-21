@@ -954,6 +954,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const inspector = detail?.querySelector("[data-card-detail-inspector]");
     const actions = detail?.querySelector("[data-card-detail-actions-state]");
     const actionRoutes = detail?.querySelector(".detail-action-routes");
+    const checkMap = detail?.querySelector("[data-card-detail-check-map]");
     return {
       actionCount: Number(actions?.querySelector("[data-card-detail-action-count]")?.getAttribute("data-card-detail-action-count") ?? "0"),
       actionModes: Array.from(actions?.querySelectorAll("[data-card-detail-action-mode]") ?? []).map((node) => node.getAttribute("data-card-detail-action-mode")),
@@ -968,6 +969,14 @@ async function runWireClickSelectionSmoke(cdp) {
       actionSummaryKeys: Array.from(actions?.querySelectorAll("[data-card-detail-action-summary]") ?? []).map((node) => node.getAttribute("data-card-detail-action-summary")),
       actionText: actions?.textContent ?? "",
       activeText: document.activeElement?.textContent ?? "",
+      checkMapCount: Number(checkMap?.getAttribute("data-card-detail-check-map-count") ?? "0"),
+      checkMapMode: checkMap?.getAttribute("data-card-detail-check-map") ?? null,
+      checkRows: Array.from(checkMap?.querySelectorAll("[data-card-detail-check-row]") ?? [])
+        .map((node) => [
+          node.getAttribute("data-card-detail-check-row") ?? "",
+          node.getAttribute("data-card-detail-check-row-state") ?? "",
+          node.getAttribute("data-card-detail-check-row-count") ?? ""
+        ].join(":")),
       groups: Array.from(inspector?.querySelectorAll("[data-card-detail-inspector-group]") ?? []).map((node) => node.getAttribute("data-card-detail-inspector-group")),
       inspectorAuthority: inspector?.getAttribute("data-card-detail-inspector-authority") ?? null,
       inspectorOpen: Boolean(inspector),
@@ -1441,6 +1450,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.text.includes("来源:sourceObjectId*")) failures.push("card detail command field missing");
   if (!detailContextResult.text.includes("服务端字段")) failures.push("card detail command metadata summary missing");
   if (detailContextResult.text.includes("服务端:cardNo*")) failures.push("card detail leaked raw metadata command field");
+  if (detailContextResult.checkMapMode !== "visible") failures.push(`card detail check map mode unexpected: ${detailContextResult.checkMapMode}`);
+  if (detailContextResult.checkMapCount < 7) failures.push("card detail check map rows missing");
+  if (!detailContextResult.checkRows.some((row) => row.startsWith("identity:server:"))) failures.push("card detail check map identity row missing");
+  if (!detailContextResult.checkRows.some((row) => row.startsWith("candidates:server:"))) failures.push("card detail check map server candidate row missing");
+  if (!detailContextResult.checkRows.some((row) => row.startsWith("selection:server:") || row.startsWith("selection:warning:"))) failures.push("card detail check map selection row missing");
+  if (!detailContextResult.checkRows.some((row) => row.startsWith("rules:ready:"))) failures.push("card detail check map rules row missing");
   if (detailContextResult.actionState !== "ready") failures.push(`card detail action state unexpected: ${detailContextResult.actionState}`);
   if (detailContextResult.actionSource !== "p1-hand-spell") failures.push("card detail action source binding missing");
   if (detailContextResult.actionCount < 1) failures.push("card detail action entries missing");
