@@ -57,6 +57,7 @@ const prompt = {
       },
       enabled: true,
       label: "打出手牌",
+      presentation: { category: "play", intent: "play-card", priority: 100, uiHint: "card-action" },
       reason: "可提交",
       sources: [{ id: "p1-hand-1", label: "手牌法术", objectIds: ["p1-hand-1"] }],
       targets: [{ id: "p2-unit-1", label: "敌方单位", objectIds: ["p2-unit-1"] }]
@@ -65,6 +66,7 @@ const prompt = {
       action: "ACTIVATE_ABILITY",
       enabled: false,
       label: "启动能力",
+      presentation: { category: "ability", intent: "activate-ability", priority: 160, uiHint: "card-action" },
       reason: "窗口不允许",
       sources: [{ id: "p1-hand-1", label: "手牌法术", objectIds: ["p1-hand-1"] }]
     },
@@ -72,6 +74,7 @@ const prompt = {
       action: "MOVE_UNIT",
       enabled: false,
       label: "移动单位",
+      presentation: { category: "movement", intent: "move-unit", priority: 140, uiHint: "card-action" },
       reason: "单位不能移动",
       sources: [{ id: "blocked-unit", label: "疲劳单位", objectIds: ["blocked-unit"] }]
     }
@@ -140,6 +143,9 @@ assert.equal(plan.focus.disabledCandidateCount, 1);
 assert.equal(plan.focus.relatedCandidates.length, 2);
 assert.equal(plan.focus.relatedCandidates[0].label, "打出手牌");
 assert.equal(plan.focus.relatedCandidates[0].commandType, "PLAY_CARD");
+assert.equal(plan.focus.relatedCandidates[0].category, "play");
+assert.equal(plan.focus.relatedCandidates[0].intent, "play-card");
+assert.equal(plan.focus.relatedCandidates[0].priority, 100);
 assert.deepEqual(plan.focus.relatedCandidates[0].roleLabels, ["来源"]);
 assert.equal(plan.focus.relatedCandidates[0].nextStepLabel, "可选目标");
 assert.deepEqual(plan.focus.relatedCandidates[0].nextObjectRefs, [{
@@ -176,6 +182,10 @@ assert.deepEqual(plan.coverage.blockers.map((blocker) => `${blocker.count}:${blo
 ]);
 assert.equal(JSON.stringify(plan.coverage).includes("serverPaymentState"), false);
 assert.equal(plan.groups[0].label, "打出手牌");
+assert.equal(plan.groups[0].category, "play");
+assert.equal(plan.groups[0].intent, "play-card");
+assert.equal(plan.groups[0].priority, 100);
+assert.equal(plan.groups[1].action, "MOVE_UNIT");
 assert.equal(plan.groups[0].enabledCount, 1);
 assert.equal(plan.groups[0].roleCounts.find((role) => role.role === "source")?.count, 1);
 assert.equal(plan.groups[0].roleCounts.find((role) => role.role === "target")?.count, 1);

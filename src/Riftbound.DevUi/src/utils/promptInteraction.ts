@@ -37,12 +37,20 @@ export type PromptCandidateComposerSummary = {
   supported: boolean;
 };
 
+export type PromptCandidatePresentationSummary = {
+  category: string;
+  intent: string;
+  priority: number;
+  uiHint: string;
+};
+
 export type PromptCandidateSummary = {
   action: string;
   command?: PromptCandidateCommandSummary;
   composer?: PromptCandidateComposerSummary;
   enabled: boolean;
   label: string;
+  presentation: PromptCandidatePresentationSummary;
   reason: string;
   choices: PromptChoiceSummary[];
   steps: PromptCandidateStep[];
@@ -134,6 +142,7 @@ export function buildPromptInteractionModel(prompt?: ActionPromptDto): PromptInt
       composer: composerSummary(candidate),
       enabled: candidate.enabled,
       label: promptActionLabel(candidate),
+      presentation: candidatePresentation(candidate),
       reason: promptReasonLabel(candidate.reason, candidate.enabled ? "可提交" : "暂不可提交"),
       choices,
       steps: candidateSteps(candidate, choices)
@@ -275,6 +284,23 @@ function composerSummary(candidate: ActionPromptCandidateDto): PromptCandidateCo
     stateLabel: "未公开",
     supported: false
   };
+}
+
+function candidatePresentation(candidate: ActionPromptCandidateDto): PromptCandidatePresentationSummary {
+  const presentation = candidate.presentation;
+  return {
+    category: normalizedPresentationText(presentation?.category, "custom"),
+    intent: normalizedPresentationText(presentation?.intent, candidate.action.toLowerCase().replaceAll("_", "-")),
+    priority: typeof presentation?.priority === "number" && Number.isFinite(presentation.priority)
+      ? presentation.priority
+      : 700,
+    uiHint: normalizedPresentationText(presentation?.uiHint, "card-action")
+  };
+}
+
+function normalizedPresentationText(value: string | null | undefined, fallback: string): string {
+  const normalized = value?.trim();
+  return normalized && normalized.length > 0 ? normalized : fallback;
 }
 
 function candidateSteps(candidate: ActionPromptCandidateDto, choices: PromptChoiceSummary[]): PromptCandidateStep[] {

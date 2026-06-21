@@ -112,7 +112,14 @@ export function WireActionMapPanel({
       <div className="wire-action-group-list">
         {plan.groups.length === 0 && <span className="empty-hint">等待服务端行动窗口。</span>}
         {plan.groups.map((group) => (
-          <article className={group.enabled ? "wire-action-group is-enabled" : "wire-action-group"} key={group.key}>
+          <article
+            className={group.enabled ? "wire-action-group is-enabled" : "wire-action-group"}
+            data-action-group-category={group.category}
+            data-action-group-intent={group.intent}
+            data-action-group-priority={group.priority}
+            data-action-group-ui-hint={group.uiHint}
+            key={group.key}
+          >
             <div className="wire-action-group-heading">
               <strong>{group.label}</strong>
               <span>{group.enabledCount} / {group.totalCount}</span>
@@ -124,6 +131,7 @@ export function WireActionMapPanel({
                 </span>
               ))}
             </div>
+            <small>{group.category} / {group.intent} / {group.uiHint}</small>
             <small>{group.reason}</small>
           </article>
         ))}
@@ -846,10 +854,17 @@ function FocusedActionBridge({ onChooseObject, plan }: { onChooseObject?: (objec
       {focus.relatedCandidates.length > 0 ? (
         <ol className="wire-action-focus-candidate-list">
           {focus.relatedCandidates.map((candidate) => (
-            <li className={candidate.enabled ? "is-enabled" : "is-disabled"} key={candidate.key}>
+            <li
+              className={candidate.enabled ? "is-enabled" : "is-disabled"}
+              data-action-focus-candidate-category={candidate.category}
+              data-action-focus-candidate-intent={candidate.intent}
+              data-action-focus-candidate-priority={candidate.priority}
+              data-action-focus-candidate-ui-hint={candidate.uiHint}
+              key={candidate.key}
+            >
               <span>{candidate.label}</span>
               <strong>{candidate.nextStepLabel}</strong>
-              <small>{candidate.roleLabels.join(" / ")} / {candidate.commandType ?? "未公开命令"} / {candidate.stateLabel}</small>
+              <small>{candidate.roleLabels.join(" / ")} / {candidate.commandType ?? "未公开命令"} / {candidate.stateLabel} / {candidate.intent}</small>
               {!candidate.enabled && <small>{candidate.reason}</small>}
               {candidate.nextObjectRefs.length > 0 && (
                 <div className="wire-action-focus-choice-list" role="group" aria-label={`${candidate.label} 下一步对象`}>

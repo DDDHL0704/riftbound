@@ -220,6 +220,13 @@ export type ActionPromptComposerDto = {
   commandFields: string[];
 };
 
+export type ActionPromptCandidatePresentationDto = {
+  category: string;
+  intent: string;
+  priority: number;
+  uiHint: string;
+};
+
 export type ActionPromptCandidateDto = {
   action: string;
   label: string;
@@ -234,6 +241,7 @@ export type ActionPromptCandidateDto = {
   selectionSteps?: ActionPromptSelectionStepDto[] | null;
   commandTemplate?: ActionPromptCommandTemplateDto | null;
   composer?: ActionPromptComposerDto | null;
+  presentation?: ActionPromptCandidatePresentationDto | null;
 };
 
 export type ActionPromptObjectCandidateStepDto = {

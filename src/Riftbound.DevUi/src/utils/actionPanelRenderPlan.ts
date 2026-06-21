@@ -63,7 +63,7 @@ export function buildActionPanelRenderPlan({
   const baseSubmitGate = submissionGate ?? fallbackSubmissionGate(connected ?? true);
   const entries = [
     ...readonlyEntriesForPrompt(promptType, allCandidates, enabledCandidates),
-    ...allCandidates.map((candidate, index) => entryForCandidate({
+    ...[...allCandidates].sort(candidatePresentationSort).map((candidate, index) => entryForCandidate({
       canAct,
       candidate,
       index,
@@ -78,6 +78,19 @@ export function buildActionPanelRenderPlan({
     promptType: promptType || "无",
     state: renderStateFor(entries, baseSubmitGate.canSubmit, canAct)
   };
+}
+
+function candidatePresentationSort(left: ActionPromptCandidateDto, right: ActionPromptCandidateDto): number {
+  const leftPriority = normalizedCandidatePriority(left);
+  const rightPriority = normalizedCandidatePriority(right);
+  return Number(right.enabled) - Number(left.enabled)
+    || leftPriority - rightPriority
+    || left.action.localeCompare(right.action);
+}
+
+function normalizedCandidatePriority(candidate: ActionPromptCandidateDto): number {
+  const priority = candidate.presentation?.priority;
+  return typeof priority === "number" && Number.isFinite(priority) ? priority : 700;
 }
 
 function readonlyEntriesForPrompt(

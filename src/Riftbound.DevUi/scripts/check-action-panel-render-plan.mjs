@@ -35,12 +35,12 @@ const mainPlan = buildActionPanelRenderPlan({
   prompt: {
     actionable: true,
     candidates: [
-      { action: "MULLIGAN", enabled: true, label: "起手调整" },
-      { action: "CHOOSE_HAND_CARDS", enabled: true, label: "选择手牌" },
-      { action: "ASSIGN_COMBAT_DAMAGE", enabled: true, label: "分配伤害" },
-      { action: "ORDER_TRIGGERS", enabled: true, label: "排列触发" },
-      { action: "TAP_RUNE", enabled: true, label: "横置符文" },
-      { action: "ACTIVATE_ABILITY", enabled: false, label: "禁用能力" }
+      { action: "TAP_RUNE", enabled: true, label: "横置符文", presentation: { category: "resource", intent: "tap-rune", priority: 180, uiHint: "resource" } },
+      { action: "ACTIVATE_ABILITY", enabled: false, label: "禁用能力", presentation: { category: "ability", intent: "activate-ability", priority: 10, uiHint: "card-action" } },
+      { action: "ORDER_TRIGGERS", enabled: true, label: "排列触发", presentation: { category: "choice", intent: "order-triggers", priority: 60, uiHint: "choice" } },
+      { action: "MULLIGAN", enabled: true, label: "起手调整", presentation: { category: "setup", intent: "mulligan", priority: 30, uiHint: "primary" } },
+      { action: "CHOOSE_HAND_CARDS", enabled: true, label: "选择手牌", presentation: { category: "choice", intent: "choose-hand", priority: 40, uiHint: "choice" } },
+      { action: "ASSIGN_COMBAT_DAMAGE", enabled: true, label: "分配伤害", presentation: { category: "battle", intent: "assign-damage", priority: 50, uiHint: "battle" } }
     ],
     playerId: "P1",
     view: { type: "MAIN_ACTION" }
@@ -56,6 +56,14 @@ assert.deepEqual(mainPlan.entries.map((entry) => entry.kind), [
   "order-triggers",
   "candidate-button",
   "candidate-button"
+]);
+assert.deepEqual(mainPlan.entries.map((entry) => entry.candidate?.action), [
+  "MULLIGAN",
+  "CHOOSE_HAND_CARDS",
+  "ASSIGN_COMBAT_DAMAGE",
+  "ORDER_TRIGGERS",
+  "TAP_RUNE",
+  "ACTIVATE_ABILITY"
 ]);
 assert.equal(mainPlan.entries.some((entry) => entry.candidate?.action === "ACTIVATE_ABILITY"), true);
 assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.canAct, false);

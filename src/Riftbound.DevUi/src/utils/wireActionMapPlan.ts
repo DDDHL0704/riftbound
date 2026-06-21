@@ -44,15 +44,19 @@ export type WireActionObjectEntry = {
 };
 
 export type WireActionFocusCandidatePlan = {
+  category: string;
   commandType?: string;
   enabled: boolean;
+  intent: string;
   key: string;
   label: string;
   nextObjectRefs: WireActionFocusObjectRef[];
   nextStepLabel: string;
+  priority: number;
   reason: string;
   roleLabels: string[];
   stateLabel: string;
+  uiHint: string;
 };
 
 export type WireActionFocusObjectRef = {
@@ -225,13 +229,17 @@ export type WireActionCoveragePlan = {
 
 export type WireActionGroupPlan = {
   action: string;
+  category: string;
   enabled: boolean;
   enabledCount: number;
+  intent: string;
   key: string;
   label: string;
+  priority: number;
   reason: string;
   roleCounts: WireActionRoleCount[];
   totalCount: number;
+  uiHint: string;
 };
 
 export type WireActionContractPlan = {
@@ -311,7 +319,11 @@ type ObjectIndex = Record<string, CardObjectView>;
 type ActionGroup = {
   action: string;
   candidates: PromptCandidateSummary[];
+  category: string;
   enabledCount: number;
+  intent: string;
+  priority: number;
+  uiHint: string;
 };
 
 export function buildWireActionMapPlan({
@@ -1080,15 +1092,19 @@ function focusCandidatePlan(
 
   const nextStep = nextStepForFocusedCandidate(candidate, roleLabels);
   return {
+    category: candidate.presentation.category,
     commandType: candidate.command?.cmdType ?? candidate.action,
     enabled: candidate.enabled,
+    intent: candidate.presentation.intent,
     key: `${candidate.action}:${candidate.label}:${objectId}`,
     label: candidate.label,
     nextObjectRefs: nextStep ? objectRefsForStep(candidate, nextStep.role, objects) : [],
     nextStepLabel: nextStepLabelForFocusedCandidate(candidate, nextStep),
+    priority: candidate.presentation.priority,
     reason: candidate.reason,
     roleLabels,
-    stateLabel: candidate.enabled ? "可提交" : "暂不可提交"
+    stateLabel: candidate.enabled ? "可提交" : "暂不可提交",
+    uiHint: candidate.presentation.uiHint
   };
 }
 
@@ -1171,6 +1187,10 @@ function focusCandidateSort(left: WireActionFocusCandidatePlan, right: WireActio
     return left.enabled ? -1 : 1;
   }
 
+  if (left.priority !== right.priority) {
+    return left.priority - right.priority;
+  }
+
   return left.label.localeCompare(right.label, "zh-Hans-CN");
 }
 
@@ -1193,17 +1213,21 @@ function objectEntryPlan(
 function actionGroupPlan(group: ActionGroup): WireActionGroupPlan {
   return {
     action: group.action,
+    category: group.category,
     enabled: group.enabledCount > 0,
     enabledCount: group.enabledCount,
+    intent: group.intent,
     key: group.action,
     label: actionGroupLabel(group.action, group.candidates),
+    priority: group.priority,
     reason: groupReason(group.candidates),
     roleCounts: promptChoiceRoleOrder.map((role) => ({
       count: roleCount(group.candidates, role),
       label: promptChoiceRoleLabel(role),
       role
     })),
-    totalCount: group.candidates.length
+    totalCount: group.candidates.length,
+    uiHint: group.uiHint
   };
 }
 
@@ -1267,13 +1291,21 @@ function actionGroups(model: PromptInteractionModel): ActionGroup[] {
   }
 
   return [...byAction.entries()]
-    .map(([action, candidates]) => ({
-      action,
-      candidates,
-      enabledCount: candidates.filter((candidate) => candidate.enabled).length
-    }))
+    .map(([action, candidates]) => {
+      const first = candidates[0];
+      return {
+        action,
+        candidates,
+        category: first?.presentation.category ?? "custom",
+        enabledCount: candidates.filter((candidate) => candidate.enabled).length,
+        intent: first?.presentation.intent ?? action.toLowerCase().replaceAll("_", "-"),
+        priority: Math.min(...candidates.map((candidate) => candidate.presentation.priority)),
+        uiHint: first?.presentation.uiHint ?? "card-action"
+      };
+    })
     .sort((left, right) =>
-      right.enabledCount - left.enabledCount
+      left.priority - right.priority
+      || right.enabledCount - left.enabledCount
       || right.candidates.length - left.candidates.length
       || left.action.localeCompare(right.action));
 }

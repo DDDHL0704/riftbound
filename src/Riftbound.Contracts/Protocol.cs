@@ -499,6 +499,12 @@ public sealed record ActionPromptComposerDto(
     IReadOnlyList<string> RequiredSelectionRoles,
     IReadOnlyList<string> CommandFields);
 
+public sealed record ActionPromptCandidatePresentationDto(
+    string Category,
+    string Intent,
+    string UiHint,
+    int Priority);
+
 public sealed record ActionPromptCommandBindingDto(
     string Field,
     string Source,
@@ -522,7 +528,8 @@ public sealed record ActionPromptCandidateDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, object?>? Metadata = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptSelectionStepDto>? SelectionSteps = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptCommandTemplateDto? CommandTemplate = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptComposerDto? Composer = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptComposerDto? Composer = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptCandidatePresentationDto? Presentation = null);
 
 public sealed record ActionPromptChoiceDto(
     string Id,

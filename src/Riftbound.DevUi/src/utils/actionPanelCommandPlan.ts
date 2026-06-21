@@ -44,7 +44,7 @@ export function buildActionPanelCandidateCommandPlan({
     icon: candidateIcon(candidate, executable),
     labelSuffix: !executable && !needsComposer && candidate.action !== "WAIT" ? "（需选择）" : "",
     needsComposer,
-    variant: candidate.action === "SURRENDER" && candidate.enabled ? "danger" : candidate.enabled ? "primary" : "ghost"
+    variant: candidateVariant(candidate)
   };
 }
 
@@ -62,16 +62,33 @@ function candidateIcon(
   candidate: ActionPromptCandidateDto,
   executable: GameCommand | ActionPanelDirectActionKind | undefined
 ): ActionPanelCandidateButtonIcon {
+  const uiHint = candidate.presentation?.uiHint;
   if (candidate.action === "SUBMIT_DECK") {
     return "send";
   }
   if (candidate.action === "READY") {
     return "check";
   }
-  if (candidate.action === "SURRENDER") {
+  if (uiHint === "danger" || candidate.action === "SURRENDER") {
     return "flag";
   }
   return executable ? "play" : "hourglass";
+}
+
+function candidateVariant(candidate: ActionPromptCandidateDto): ActionPanelCandidateButtonVariant {
+  if (!candidate.enabled) {
+    return "ghost";
+  }
+
+  switch (candidate.presentation?.uiHint) {
+    case "danger":
+      return "danger";
+    case "readonly":
+    case "secondary":
+      return "ghost";
+    default:
+      return candidate.action === "SURRENDER" ? "danger" : "primary";
+  }
 }
 
 function simpleCommand(candidate: ActionPromptCandidateDto): GameCommand | undefined {

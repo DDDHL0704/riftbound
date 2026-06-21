@@ -7032,7 +7032,48 @@ internal static class ActionPromptBuilder
             MetadataFor(state, playerId, action),
             selectionSteps,
             commandTemplate,
-            ComposerFor(selectionSteps, commandTemplate));
+            ComposerFor(selectionSteps, commandTemplate),
+            PresentationFor(action));
+    }
+
+    private static ActionPromptCandidatePresentationDto PresentationFor(string action)
+    {
+        return action switch
+        {
+            CommandTypes.Ready => CandidatePresentation("setup", "ready", "primary", 20),
+            CommandTypes.SubmitDeck => CandidatePresentation("setup", "submit-deck", "primary", 10),
+            CommandTypes.Mulligan => CandidatePresentation("setup", "mulligan", "primary", 30),
+            CommandTypes.PayCost => CandidatePresentation("payment", "pay-cost", "payment", 40),
+            CommandTypes.AssignCombatDamage => CandidatePresentation("battle", "assign-damage", "battle", 50),
+            CommandTypes.OrderTriggers => CandidatePresentation("choice", "order-triggers", "choice", 60),
+            CommandTypes.ChooseHandCards => CandidatePresentation("choice", "choose-hand", "choice", 70),
+            CommandTypes.PlayCard => CandidatePresentation("play", "play-card", "card-action", 100),
+            CommandTypes.HideCard => CandidatePresentation("play", "hide-card", "card-action", 110),
+            CommandTypes.RevealCard => CandidatePresentation("play", "reveal-card", "card-action", 120),
+            CommandTypes.DeclareBattle => CandidatePresentation("battle", "declare-battle", "battle", 130),
+            CommandTypes.MoveUnit => CandidatePresentation("movement", "move-unit", "card-action", 140),
+            CommandTypes.AssembleEquipment => CandidatePresentation("ability", "assemble-equipment", "card-action", 150),
+            CommandTypes.ActivateAbility => CandidatePresentation("ability", "activate-ability", "card-action", 160),
+            CommandTypes.LegendAct => CandidatePresentation("ability", "legend-act", "card-action", 170),
+            CommandTypes.TapRune => CandidatePresentation("resource", "tap-rune", "resource", 180),
+            CommandTypes.RecycleRune => CandidatePresentation("resource", "recycle-rune", "resource", 190),
+            CommandTypes.PassPriority => CandidatePresentation("tempo", "pass-priority", "secondary", 500),
+            CommandTypes.PassFocus => CandidatePresentation("tempo", "pass-focus", "secondary", 510),
+            CommandTypes.Pass => CandidatePresentation("tempo", "pass", "secondary", 520),
+            CommandTypes.EndTurn => CandidatePresentation("tempo", "end-turn", "secondary", 530),
+            CommandTypes.Surrender => CandidatePresentation("concede", "surrender", "danger", 900),
+            "WAIT" => CandidatePresentation("system", "wait", "readonly", 990),
+            _ => CandidatePresentation("custom", action.ToLowerInvariant().Replace('_', '-'), "card-action", 700)
+        };
+    }
+
+    private static ActionPromptCandidatePresentationDto CandidatePresentation(
+        string category,
+        string intent,
+        string uiHint,
+        int priority)
+    {
+        return new ActionPromptCandidatePresentationDto(category, intent, uiHint, priority);
     }
 
     private static ActionPromptComposerDto? ComposerFor(
