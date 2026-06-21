@@ -1101,6 +1101,14 @@ async function runWireClickSelectionSmoke(cdp) {
       ruleFlowText: ruleFlow?.textContent ?? "",
       ruleFocusDetailId: ruleFocus?.getAttribute("data-rule-focus-detail-id") ?? null,
       ruleFocusLane: ruleFocus?.getAttribute("data-rule-focus-lane") ?? null,
+      ruleFocusActionCount: document.querySelectorAll("[data-rule-focus-action-object-id]").length,
+      ruleFocusActionObjectIds: Array.from(document.querySelectorAll("[data-rule-focus-action-object-id]"))
+        .map((node) => node.getAttribute("data-rule-focus-action-object-id")),
+      ruleFocusActionSelectedStates: Array.from(document.querySelectorAll("[data-rule-focus-action-selected]"))
+        .map((node) => node.getAttribute("data-rule-focus-action-selected")),
+      ruleFocusActionStates: Array.from(document.querySelectorAll("[data-rule-focus-action-state]"))
+        .map((node) => node.getAttribute("data-rule-focus-action-state")),
+      ruleFocusActionText: document.querySelector(".wire-rule-focus-action-bridge")?.textContent ?? "",
       ruleFocusRefCount: ruleFocus?.querySelectorAll("[data-rule-object-ref]").length ?? 0,
       ruleFocusText: ruleFocus?.textContent ?? "",
       ruleLaneCount: document.querySelectorAll("[data-rule-lane]").length,
@@ -1498,6 +1506,11 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.ruleFocusText.includes("当前规则焦点")) failures.push("wire rule focus heading missing");
   if (!actionMapResult.ruleFocusText.includes("阻塞普通行动")) failures.push("wire rule focus reason missing");
   if (actionMapResult.ruleFocusRefCount < 1) failures.push("wire rule focus object refs missing");
+  if (actionMapResult.ruleFocusActionCount < 1) failures.push("wire rule focus action bridge missing");
+  if (!actionMapResult.ruleFocusActionStates.some((state) => ["blocked", "ready", "referenced"].includes(state))) {
+    failures.push(`wire rule focus action bridge state missing: ${actionMapResult.ruleFocusActionStates.join(",")}`);
+  }
+  if (!actionMapResult.ruleFocusActionText.includes("候选")) failures.push("wire rule focus action bridge candidate summary missing");
   if (!actionMapResult.ruleFlowText.includes("结算链")) failures.push("wire rule queue stack lane missing");
   if (!actionMapResult.ruleFlowText.includes("规则任务")) failures.push("wire rule queue task lane missing");
   if (!actionMapResult.ruleFlowText.includes("触发队列")) failures.push("wire rule queue trigger lane missing");

@@ -4,6 +4,13 @@ import { eventDescriptionLabel, eventKindLabel } from "./eventLogPlan";
 import { matchPhaseLabel, timingStateLabel } from "./formatters";
 import { gameEventObjectRefPlan, gameEventObjectRefSourceLabel } from "./gameEventObjectRefs";
 import { promptCandidateCounts } from "./promptCandidateCounts";
+import {
+  buildPromptInteractionModel,
+  promptChoiceRoleLabel,
+  promptChoiceSummaryObjectIds,
+  type PromptCandidateSummary,
+  type PromptInteractionModel
+} from "./promptInteraction";
 import { redactInternalText } from "./redaction";
 import { buildCardObjectIndex, type SnapshotObjectIndex } from "./snapshotObjectIndex";
 
@@ -211,11 +218,28 @@ export type WireRuleQueueSectionPlan = {
 };
 
 export type WireRuleQueueFocusPlan = {
+  actionRows: WireRuleQueueFocusActionRow[];
   detail?: WireRuleQueueDetailPlan;
   emptyLabel: string;
   laneKey: WireRuleQueueLaneKey | "none";
   laneLabel: string;
   reasonLabel: string;
+};
+
+export type WireRuleQueueFocusActionState = "blocked" | "ready" | "referenced";
+
+export type WireRuleQueueFocusActionRow = {
+  actionRoleLabels: string[];
+  candidateCount: number;
+  disabledCandidateCount: number;
+  enabledCandidateCount: number;
+  key: string;
+  nextStepLabel: string;
+  objectId: string;
+  semanticSummary: string;
+  serverRoleLabel: string;
+  state: WireRuleQueueFocusActionState;
+  stateLabel: string;
 };
 
 export type WireRuleQueuePlan = {
@@ -335,6 +359,7 @@ export function buildWireRuleQueuePlan({
   const sequence = queueSequence({ battleResolutions, battlefieldResolutions, ruleEvents, stack, tasks, triggers });
   const nextStep = nextStepLabel(state);
   const objectIndex = buildCardObjectIndex(snapshot);
+  const interactionModel = buildPromptInteractionModel(prompt);
   const sections = ruleQueueSections({
     battleResolutions,
     battlefieldResolutions,
@@ -346,7 +371,7 @@ export function buildWireRuleQueuePlan({
     tasks,
     triggers
   });
-  const focus = focusPlanFor({ activeLaneKey, sections, state });
+  const focus = focusPlanFor({ activeLaneKey, interactionModel, sections, state });
   const responsibility = responsibilityPlanFor({ activeLaneKey, playerId, prompt, sequence, state });
 
   return {
@@ -815,22 +840,131 @@ function statusToneForState(state: WireRuleQueueState): WireRuleQueueStatusTone 
 
 function focusPlanFor({
   activeLaneKey,
+  interactionModel,
   sections,
   state
 }: {
   activeLaneKey: WireRuleQueueLaneKey | "none";
+  interactionModel: PromptInteractionModel;
   sections: WireRuleQueueSectionPlan[];
   state: WireRuleQueueState;
 }): WireRuleQueueFocusPlan {
   const activeSection = sections.find((section) => section.key === activeLaneKey);
   const detail = activeSection?.items[0]?.detail;
   return {
+    actionRows: ruleFocusActionRows(detail?.refs ?? [], interactionModel),
     detail,
     emptyLabel: "当前没有活动规则对象。",
     laneKey: activeLaneKey,
     laneLabel: activeSection?.title ?? "无活动通道",
     reasonLabel: focusReasonLabel(state, activeSection?.title)
   };
+}
+
+function ruleFocusActionRows(
+  refs: WireRuleQueueObjectRef[],
+  interactionModel: PromptInteractionModel
+): WireRuleQueueFocusActionRow[] {
+  const grouped = new Map<string, Set<string>>();
+  for (const ref of refs) {
+    if (!ref.id || ref.id === "HIDDEN" || ref.visibility === "hidden") {
+      continue;
+    }
+
+    const roles = grouped.get(ref.id) ?? new Set<string>();
+    roles.add(ref.role);
+    grouped.set(ref.id, roles);
+  }
+
+  return Array.from(grouped.entries()).map(([objectId, serverRoles]) => {
+    const summary = interactionModel.objectById.get(objectId);
+    const candidates = candidatesForObject(interactionModel.candidates, objectId);
+    const actionRoleLabels = uniqueStrings((summary?.choices ?? [])
+      .filter((choice) => choice.role !== "mode")
+      .filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId))
+      .map((choice) => promptChoiceRoleLabel(choice.role)));
+    const enabledCandidateCount = summary?.enabledCandidateCount ?? candidates.filter((candidate) => candidate.enabled).length;
+    const disabledCandidateCount = summary?.disabledCandidateCount ?? candidates.filter((candidate) => !candidate.enabled).length;
+    const state = focusActionState(enabledCandidateCount, disabledCandidateCount);
+    const semanticSummary = focusActionSemanticSummary(candidates);
+
+    return {
+      actionRoleLabels,
+      candidateCount: enabledCandidateCount + disabledCandidateCount,
+      disabledCandidateCount,
+      enabledCandidateCount,
+      key: `focus-action:${objectId}`,
+      nextStepLabel: focusActionNextStepLabel(state, actionRoleLabels, candidates),
+      objectId,
+      semanticSummary,
+      serverRoleLabel: Array.from(serverRoles).join(" / "),
+      state,
+      stateLabel: focusActionStateLabel(state)
+    };
+  });
+}
+
+function candidatesForObject(candidates: PromptCandidateSummary[], objectId: string): PromptCandidateSummary[] {
+  return candidates.filter((candidate) =>
+    candidate.choices.some((choice) =>
+      choice.role !== "mode"
+      && promptChoiceSummaryObjectIds(choice).includes(objectId)));
+}
+
+function focusActionState(enabledCandidateCount: number, disabledCandidateCount: number): WireRuleQueueFocusActionState {
+  if (enabledCandidateCount > 0) {
+    return "ready";
+  }
+
+  if (disabledCandidateCount > 0) {
+    return "blocked";
+  }
+
+  return "referenced";
+}
+
+function focusActionStateLabel(state: WireRuleQueueFocusActionState): string {
+  switch (state) {
+    case "blocked":
+      return "候选阻断";
+    case "ready":
+      return "候选可用";
+    case "referenced":
+      return "仅规则引用";
+  }
+}
+
+function focusActionNextStepLabel(
+  state: WireRuleQueueFocusActionState,
+  actionRoleLabels: string[],
+  candidates: PromptCandidateSummary[]
+): string {
+  if (state === "ready") {
+    return actionRoleLabels.length > 0
+      ? `该对象可作为${actionRoleLabels.join("/")}参与当前服务端候选。`
+      : "该对象关联当前可用服务端候选。";
+  }
+
+  if (state === "blocked") {
+    return candidates.find((candidate) => !candidate.enabled)?.reason || "该对象存在服务端候选，但当前不可提交。";
+  }
+
+  return "该对象来自当前规则焦点，当前 prompt 未给它行动候选。";
+}
+
+function focusActionSemanticSummary(candidates: PromptCandidateSummary[]): string {
+  const values = uniqueStrings(candidates.map((candidate) =>
+    `${candidate.presentation.category}/${candidate.presentation.intent}`));
+  if (values.length === 0) {
+    return "无候选语义";
+  }
+
+  const visible = values.slice(0, 2);
+  return values.length > 2 ? `${visible.join(" / ")} +${values.length - 2}` : visible.join(" / ");
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
 function focusReasonLabel(state: WireRuleQueueState, laneTitle: string | undefined): string {

@@ -181,11 +181,69 @@ function RuleFocus({
             ))}
           </div>
           <WireObjectRefChips objects={objects} onInspectObject={onInspectObject} refs={focus.detail.refs} selectedObjectId={selectedObjectId} source="rule" />
+          <RuleFocusActionBridge
+            focus={focus}
+            objects={objects}
+            onInspectObject={onInspectObject}
+            selectedObjectId={selectedObjectId}
+          />
         </>
       ) : (
         <span className="empty-hint">{focus.emptyLabel}</span>
       )}
     </section>
+  );
+}
+
+function RuleFocusActionBridge({
+  focus,
+  objects,
+  onInspectObject,
+  selectedObjectId
+}: {
+  focus: WireRuleQueueFocusPlan;
+  objects: ObjectIndex;
+  onInspectObject?: (objectId: string) => void;
+  selectedObjectId?: string;
+}) {
+  if (focus.actionRows.length === 0) {
+    return null;
+  }
+
+  return (
+    <ol className="wire-rule-focus-action-bridge" aria-label="规则焦点关联服务端候选">
+      {focus.actionRows.map((row) => {
+        const canInspect = Boolean(objects[row.objectId] && onInspectObject);
+        const content = (
+          <>
+            <span>{row.serverRoleLabel || "规则对象"}</span>
+            <strong>{row.actionRoleLabels.length > 0 ? row.actionRoleLabels.join(" / ") : row.stateLabel}</strong>
+            <small>{row.enabledCandidateCount}/{row.candidateCount} 候选</small>
+            <small>{row.semanticSummary}</small>
+            <em>{row.nextStepLabel}</em>
+          </>
+        );
+
+        return (
+          <li
+            data-rule-focus-action-candidate-count={row.candidateCount}
+            data-rule-focus-action-object-id={row.objectId}
+            data-rule-focus-action-selected={selectedObjectId === row.objectId ? "true" : "false"}
+            data-rule-focus-action-semantic={row.semanticSummary}
+            data-rule-focus-action-state={row.state}
+            key={row.key}
+          >
+            {canInspect ? (
+              <button onClick={() => onInspectObject?.(row.objectId)} type="button">
+                {content}
+              </button>
+            ) : (
+              <span>{content}</span>
+            )}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 

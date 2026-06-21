@@ -14924,6 +14924,9 @@ button.card-face:hover {
 .wire-rule-inspector-toggle,
 .wire-rule-coverage li,
 .wire-rule-focus,
+.wire-rule-focus-action-bridge li,
+.wire-rule-focus-action-bridge li > button,
+.wire-rule-focus-action-bridge li > span,
 .wire-rule-focus-heading,
 .wire-rule-focus-lines,
 .wire-rule-responsibility-submit,
@@ -15346,6 +15349,66 @@ button.card-face:hover {
   padding: 4px;
 }
 
+.wire-rule-focus-action-bridge {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-rule-focus-action-bridge li {
+  min-width: 0;
+  display: grid;
+}
+
+.wire-rule-focus-action-bridge li > button,
+.wire-rule-focus-action-bridge li > span {
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(54px, auto) minmax(0, 1fr) auto;
+  gap: 3px 5px;
+  align-items: center;
+  padding: 4px;
+  border-radius: 0;
+  font: inherit;
+  text-align: left;
+}
+
+.wire-rule-focus-action-bridge li > button {
+  cursor: pointer;
+}
+
+.wire-rule-focus-action-bridge li[data-rule-focus-action-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-rule-focus-action-bridge li[data-rule-focus-action-state="blocked"],
+.wire-rule-focus-action-bridge li[data-rule-focus-action-state="referenced"] {
+  border-style: dashed;
+}
+
+.wire-rule-focus-action-bridge li[data-rule-focus-action-selected="true"] {
+  outline: 2px solid #000;
+  outline-offset: 1px;
+}
+
+.wire-rule-focus-action-bridge span,
+.wire-rule-focus-action-bridge strong,
+.wire-rule-focus-action-bridge small,
+.wire-rule-focus-action-bridge em {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: normal;
+}
+
+.wire-rule-focus-action-bridge em {
+  grid-column: 1 / -1;
+}
+
 .wire-rule-inspector {
   display: grid;
   gap: 4px;
@@ -15463,6 +15526,10 @@ button.card-face:hover {
 .wire-rule-coverage em,
 .wire-rule-focus-heading strong,
 .wire-rule-focus-heading span,
+.wire-rule-focus-action-bridge small,
+.wire-rule-focus-action-bridge strong,
+.wire-rule-focus-action-bridge span,
+.wire-rule-focus-action-bridge em,
 .wire-rule-sequence small,
 .wire-rule-sequence strong,
 .wire-rule-sequence span,

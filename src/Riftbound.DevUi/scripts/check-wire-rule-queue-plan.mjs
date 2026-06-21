@@ -104,6 +104,73 @@ const helperModules = {
       };
     }
   },
+  "./promptInteraction": {
+    buildPromptInteractionModel(prompt) {
+      const objectById = new Map();
+      const candidates = (prompt?.candidates ?? []).map((candidate) => {
+        const choices = promptCandidateChoicesForCheck(candidate);
+        for (const choice of choices) {
+          for (const objectId of helperModules["./promptInteraction"].promptChoiceSummaryObjectIds(choice)) {
+            const existing = objectById.get(objectId) ?? {
+              choices: [],
+              disabledCandidateCount: 0,
+              enabledCandidateCount: 0,
+              objectId,
+              state: "disabled"
+            };
+            existing.choices.push(choice);
+            if (candidate.enabled) {
+              existing.enabledCandidateCount += 1;
+              existing.state = "enabled";
+            } else {
+              existing.disabledCandidateCount += 1;
+            }
+            objectById.set(objectId, existing);
+          }
+        }
+
+        return {
+          action: candidate.action,
+          enabled: Boolean(candidate.enabled),
+          label: candidate.label || candidate.action,
+          presentation: {
+            category: normalizedPresentationForCheck(candidate.presentation?.category, "custom"),
+            intent: normalizedPresentationForCheck(candidate.presentation?.intent, String(candidate.action ?? "action").toLowerCase().replaceAll("_", "-")),
+            priority: typeof candidate.presentation?.priority === "number" && Number.isFinite(candidate.presentation.priority)
+              ? candidate.presentation.priority
+              : 700,
+            uiHint: normalizedPresentationForCheck(candidate.presentation?.uiHint, "card-action")
+          },
+          reason: candidate.reason || (candidate.enabled ? "可提交" : "暂不可提交"),
+          choices,
+          steps: []
+        };
+      });
+      const enabledObjectIds = new Set();
+      const disabledObjectIds = new Set();
+      for (const [objectId, summary] of objectById) {
+        if (summary.enabledCandidateCount > 0) {
+          enabledObjectIds.add(objectId);
+        } else {
+          disabledObjectIds.add(objectId);
+        }
+      }
+
+      return { candidates, disabledObjectIds, enabledObjectIds, objectById };
+    },
+    promptChoiceRoleLabel(role) {
+      return {
+        destination: "位置",
+        mode: "模式",
+        optionalCost: "费用",
+        source: "来源",
+        target: "目标"
+      }[role] ?? role;
+    },
+    promptChoiceSummaryObjectIds(choice) {
+      return choice.objectIds?.length ? choice.objectIds : promptChoiceObjectIdsForCheck(choice.id);
+    }
+  },
   "./redaction": {
     redactInternalText(value) {
       return value;
@@ -125,6 +192,61 @@ const helperModules = {
 
 function finiteCount(value) {
   return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : undefined;
+}
+
+const promptChoiceGroupsForCheck = [
+  { key: "sources", role: "source" },
+  { key: "targets", role: "target" },
+  { key: "destinations", role: "destination" },
+  { key: "modes", role: "mode" },
+  { key: "optionalCosts", role: "optionalCost" }
+];
+
+function promptCandidateChoicesForCheck(candidate) {
+  return [
+    ...(candidate.selectionSteps ?? []).flatMap((step) =>
+      (step.choices ?? []).map((choice) => ({
+        id: choice.id,
+        label: choice.label || choice.id,
+        objectIds: normalizedObjectIdsForCheck(choice.objectIds),
+        role: step.role
+      }))),
+    ...promptChoiceGroupsForCheck.flatMap(({ key, role }) =>
+      (candidate[key] ?? []).map((choice) => ({
+        id: choice.id,
+        label: choice.label || choice.id,
+        objectIds: normalizedObjectIdsForCheck(choice.objectIds),
+        role
+      })))
+  ].filter((choice) => choice.id);
+}
+
+function promptChoiceObjectIdsForCheck(choiceId) {
+  const cleaned = String(choiceId ?? "").trim();
+  if (!cleaned) {
+    return [];
+  }
+
+  const ids = new Set([cleaned]);
+  const lastSegment = cleaned.split(":").filter(Boolean).at(-1);
+  if (lastSegment && lastSegment !== cleaned) {
+    ids.add(lastSegment);
+  }
+  return [...ids];
+}
+
+function normalizedObjectIdsForCheck(objectIds) {
+  if (!Array.isArray(objectIds)) {
+    return undefined;
+  }
+
+  const normalized = objectIds.map((objectId) => String(objectId).trim()).filter(Boolean);
+  return normalized.length > 0 ? [...new Set(normalized)] : undefined;
+}
+
+function normalizedPresentationForCheck(value, fallback) {
+  const normalized = typeof value === "string" ? value.trim() : "";
+  return normalized || fallback;
 }
 
 function requireShim(id) {
@@ -245,6 +367,13 @@ assert.equal(stackResponse.focus.laneKey, "stack");
 assert.equal(stackResponse.focus.laneLabel, "结算链");
 assert.ok(stackResponse.focus.reasonLabel.includes("结算链顶部"));
 assert.equal(stackResponse.focus.detail?.title, "结算链项目");
+assert.deepEqual(
+  stackResponse.focus.actionRows.map((row) => `${row.objectId}:${row.serverRoleLabel}:${row.state}:${row.stateLabel}:${row.semanticSummary}`),
+  [
+    "spell-1:来源:referenced:仅规则引用:无候选语义",
+    "unit-1:目标:referenced:仅规则引用:无候选语义"
+  ]
+);
 assert.equal(stackResponse.responsibility.stateLabel, "响应窗口");
 assert.equal(stackResponse.responsibility.activeCount, 1);
 assert.ok(stackResponse.responsibility.summary.includes("当前响应入口"));
@@ -307,7 +436,9 @@ const stackReadyPrompt = buildWireRuleQueuePlan({
         enabled: true,
         label: "打出反应",
         presentation: { category: "play", intent: "play-card", priority: 100, uiHint: "card-action" },
-        reason: "服务端候选可用"
+        reason: "服务端候选可用",
+        sources: [{ id: "spell-1", label: "反应牌", objectIds: ["spell-1"] }],
+        targets: [{ id: "unit-1", label: "目标单位", objectIds: ["unit-1"] }]
       },
       {
         action: "TAP_RUNE",
@@ -346,6 +477,13 @@ assert.equal(stackReadyPrompt.responsibility.items[0].submit.promptType, "STACK_
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.candidateCount, 9);
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.enabledCandidateCount, 4);
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.semanticSummary, "play/play-card / resource/tap-rune +1");
+assert.deepEqual(
+  stackReadyPrompt.focus.actionRows.map((row) => `${row.objectId}:${row.serverRoleLabel}:${row.state}:${row.actionRoleLabels.join("/")}:${row.semanticSummary}:${row.enabledCandidateCount}/${row.candidateCount}`),
+  [
+    "spell-1:来源:ready:来源:play/play-card:1/1",
+    "unit-1:目标:ready:目标:play/play-card:1/1"
+  ]
+);
 assert.deepEqual(stackReadyPrompt.responsibility.items[0].submit.semanticRows.map((row) => `${row.category}:${row.intent}:${row.enabledCount}/${row.count}:${row.priority}:${row.uiHint}`), [
   "play:play-card:1/1:100:card-action",
   "resource:tap-rune:1/1:180:resource",
