@@ -59,7 +59,7 @@ export function WireFocusedActionEntryList({
       data-wire-focused-action-entry-count={entries.length}
       {...countDataAttributes}
     >
-      {entries.map(({ actionGateReason, actionGateStateLabel, actionPlan, candidate, candidateDraft, disabledByActionGate, key, mode }) => {
+      {entries.map(({ actionGateReason, actionGateStateLabel, actionPlan, candidate, candidateDraft, category, disabledByActionGate, intent, key, mode, priority, uiHint }) => {
         const entryDataAttributes = {
           ...(dataAttributes?.entry ? { [dataAttributes.entry]: key } : {}),
           ...(dataAttributes?.mode ? { [dataAttributes.mode]: mode } : {})
@@ -69,7 +69,11 @@ export function WireFocusedActionEntryList({
           <div
             className={joinClasses("wire-focused-action-entry", entryClassName)}
             data-wire-focused-action-entry={key}
+            data-wire-focused-action-entry-category={category}
+            data-wire-focused-action-entry-intent={intent}
             data-wire-focused-action-mode={mode}
+            data-wire-focused-action-priority={priority}
+            data-wire-focused-action-ui-hint={uiHint}
             key={key}
             {...entryDataAttributes}
           >

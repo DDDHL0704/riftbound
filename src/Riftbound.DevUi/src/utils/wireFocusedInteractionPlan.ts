@@ -30,9 +30,13 @@ export type WireFocusedActionEntryPlan = {
   actionGateStateLabel?: string;
   candidate: ActionPromptCandidateDto;
   candidateDraft?: CandidateSelectionDraft;
+  category: string;
   disabledByActionGate: boolean;
+  intent: string;
   key: string;
   mode: "button" | "composer";
+  priority: number;
+  uiHint: string;
 };
 
 export type WireFocusedCandidatePathPlan = {
@@ -92,15 +96,19 @@ export type WireFocusedLegalActionState =
 
 export type WireFocusedLegalActionRowPlan = {
   action: string;
+  category: string;
   commandType?: string;
+  intent: string;
   key: string;
   label: string;
   missingRequiredLabels: string[];
   nextStepLabel: string;
+  priority: number;
   reason: string;
   roleLabels: string[];
   state: WireFocusedLegalActionState;
   stateLabel: string;
+  uiHint: string;
 };
 
 export type WireFocusedInteractionPlan = {
@@ -178,15 +186,17 @@ export function buildWireFocusedInteractionPlan({
     submitBlockedStateLabel: gateBlockStateLabel,
     sourceObjectId
   });
-  const actionEntries = sourceCandidates.map((candidate) => actionEntryFor({
-    actionGateReason: !windowGate.canAct ? windowGate.reason : undefined,
-    canSubmitCommands,
-    candidate,
-    disabledByActionGate: !windowGate.canAct,
-    disabledByConnection: !submitGate.canSubmit,
-    selectionDraft,
-    sourceObjectId
-  }));
+  const actionEntries = sourceCandidates
+    .map((candidate) => actionEntryFor({
+      actionGateReason: !windowGate.canAct ? windowGate.reason : undefined,
+      canSubmitCommands,
+      candidate,
+      disabledByActionGate: !windowGate.canAct,
+      disabledByConnection: !submitGate.canSubmit,
+      selectionDraft,
+      sourceObjectId
+    }))
+    .sort(actionEntrySort);
   const readiness = readinessPlanFor({
     focusModel,
     grammarPlan,
@@ -403,6 +413,7 @@ function actionEntryFor({
   const candidateDraft = selectionDraft?.candidateKey === candidateComposerKey(candidate)
     ? selectionDraft
     : undefined;
+  const presentation = normalizedCandidatePresentation(candidate);
 
   return {
     actionPlan,
@@ -410,10 +421,20 @@ function actionEntryFor({
     actionGateStateLabel: disabledByActionGate ? "行动窗口阻断" : undefined,
     candidate,
     candidateDraft,
+    category: presentation.category,
     disabledByActionGate,
+    intent: presentation.intent,
     key: `${candidate.action}-${candidate.label}`,
-    mode: actionPlan.needsComposer && canSubmitCommands ? "composer" : "button"
+    mode: actionPlan.needsComposer && canSubmitCommands ? "composer" : "button",
+    priority: presentation.priority,
+    uiHint: presentation.uiHint
   };
+}
+
+function actionEntrySort(left: WireFocusedActionEntryPlan, right: WireFocusedActionEntryPlan): number {
+  return Number(right.candidate.enabled) - Number(left.candidate.enabled)
+    || left.priority - right.priority
+    || left.actionPlan.label.localeCompare(right.actionPlan.label, "zh-Hans-CN");
 }
 
 function legalActionRowsFor({
@@ -441,7 +462,10 @@ function legalActionRowsFor({
       selectionDraft,
       sourceObjectId
     }))
-    .sort((left, right) => legalActionStateOrder(left.state) - legalActionStateOrder(right.state));
+    .sort((left, right) =>
+      legalActionStateOrder(left.state) - legalActionStateOrder(right.state)
+      || left.priority - right.priority
+      || left.label.localeCompare(right.label, "zh-Hans-CN"));
 }
 
 function legalActionRowFor({
@@ -472,7 +496,9 @@ function legalActionRowFor({
 
   return {
     action: candidate.action,
+    category: candidate.presentation.category,
     commandType: candidate.command?.cmdType,
+    intent: candidate.presentation.intent,
     key: `${candidate.action}-${candidate.label}-${roleKeys.join(":")}`,
     label: candidate.label,
     missingRequiredLabels: missingRequiredSteps.map((step) => step.label),
@@ -485,11 +511,34 @@ function legalActionRowFor({
       sourceRole,
       state
     }),
+    priority: candidate.presentation.priority,
     reason: candidate.reason,
     roleLabels,
     state,
-    stateLabel: legalActionStateLabel(state, sourceRole, roleLabels)
+    stateLabel: legalActionStateLabel(state, sourceRole, roleLabels),
+    uiHint: candidate.presentation.uiHint
   };
+}
+
+function normalizedCandidatePresentation(candidate: ActionPromptCandidateDto): {
+  category: string;
+  intent: string;
+  priority: number;
+  uiHint: string;
+} {
+  return {
+    category: normalizedPresentationText(candidate.presentation?.category, "custom"),
+    intent: normalizedPresentationText(candidate.presentation?.intent, candidate.action.toLowerCase().replaceAll("_", "-")),
+    priority: typeof candidate.presentation?.priority === "number" && Number.isFinite(candidate.presentation.priority)
+      ? candidate.presentation.priority
+      : 700,
+    uiHint: normalizedPresentationText(candidate.presentation?.uiHint, "card-action")
+  };
+}
+
+function normalizedPresentationText(value: string | null | undefined, fallback: string): string {
+  const normalized = value?.trim();
+  return normalized && normalized.length > 0 ? normalized : fallback;
 }
 
 function objectRolesForCandidate(candidate: PromptCandidateSummary, sourceObjectId: string): PromptChoiceRole[] {

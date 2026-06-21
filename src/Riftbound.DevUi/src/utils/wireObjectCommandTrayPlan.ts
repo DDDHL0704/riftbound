@@ -29,6 +29,15 @@ export type WireObjectCommandTrayContextRow = {
   value: string;
 };
 
+export type WireObjectCommandTraySemanticRow = {
+  category: string;
+  count: number;
+  intent: string;
+  key: string;
+  priority: number;
+  uiHint: string;
+};
+
 export type WireObjectCommandTrayPlan = {
   actionLimit: number;
   canShowActions: boolean;
@@ -37,6 +46,8 @@ export type WireObjectCommandTrayPlan = {
   nextStepLabel: string;
   objectId?: string;
   primaryLabel: string;
+  semanticRows: WireObjectCommandTraySemanticRow[];
+  semanticSummary: string;
   state: WireObjectCommandTrayState;
   stateLabel: string;
   subtitle: string;
@@ -66,6 +77,8 @@ export function buildWireObjectCommandTrayPlan({
   const roleLabel = hidden ? "隐藏" : roleSummary(focusedPlan);
   const commandLabel = hidden ? "不公开" : focusedPlan.readiness.commandType ?? "无";
   const sourceLabel = objectContext ? tableObjectContextSourceLabel(objectContext) : "公开快照索引";
+  const semanticRows = hidden ? [] : semanticRowsFor(focusedPlan);
+  const semanticSummary = hidden ? "不公开" : semanticSummaryFor(semanticRows);
   const canShowActions = !hidden
     && focusedPlan.actionEntries.length > 0
     && state !== "readonly"
@@ -77,6 +90,7 @@ export function buildWireObjectCommandTrayPlan({
     contextRows: hidden ? [] : objectCommandContextRows(objectContext, sourceLabel),
     metrics: [
       { key: "candidate", label: "候选", value: `${enabledCount} 可用 / ${blockedCount} 阻断` },
+      { key: "semantic", label: "动作", value: semanticSummary },
       { key: "role", label: "角色", value: roleLabel },
       { key: "command", label: "命令", value: commandLabel },
       { key: "gate", label: "门禁", value: focusedPlan.submissionGate.stateLabel },
@@ -87,6 +101,8 @@ export function buildWireObjectCommandTrayPlan({
       : focusedPlan.readiness.nextStepLabel,
     objectId,
     primaryLabel: primaryLabelFor(state, focusedPlan),
+    semanticRows,
+    semanticSummary,
     state,
     stateLabel: stateLabelFor(state),
     subtitle: subtitleFor(card, objectContext, sourceLabel),
@@ -103,6 +119,8 @@ const emptyPlan: WireObjectCommandTrayPlan = {
   metrics: [],
   nextStepLabel: "点击桌面上的公开卡牌查看服务端候选和下一步。",
   primaryLabel: "等待焦点",
+  semanticRows: [],
+  semanticSummary: "无",
   state: "empty",
   stateLabel: "无焦点",
   subtitle: "未选择对象",
@@ -195,6 +213,45 @@ function subtitleFor(
 function roleSummary(focusedPlan: WireFocusedInteractionPlan): string {
   const roles = uniqueStrings(focusedPlan.legalActionRows.flatMap((row) => row.roleLabels));
   return roles.length > 0 ? compactList(roles, 3) : "无";
+}
+
+function semanticRowsFor(focusedPlan: WireFocusedInteractionPlan): WireObjectCommandTraySemanticRow[] {
+  const byKey = new Map<string, WireObjectCommandTraySemanticRow>();
+  for (const row of focusedPlan.legalActionRows) {
+    const category = row.category?.trim() || "custom";
+    const intent = row.intent?.trim() || row.action.toLowerCase().replaceAll("_", "-");
+    const uiHint = row.uiHint?.trim() || "card-action";
+    const priority = typeof row.priority === "number" && Number.isFinite(row.priority) ? row.priority : 700;
+    const key = `${category}:${intent}:${uiHint}`;
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.count += 1;
+      existing.priority = Math.min(existing.priority, priority);
+      continue;
+    }
+
+    byKey.set(key, {
+      category,
+      count: 1,
+      intent,
+      key,
+      priority,
+      uiHint
+    });
+  }
+
+  return [...byKey.values()].sort((left, right) =>
+    left.priority - right.priority
+    || left.category.localeCompare(right.category)
+    || left.intent.localeCompare(right.intent));
+}
+
+function semanticSummaryFor(rows: WireObjectCommandTraySemanticRow[]): string {
+  if (rows.length === 0) {
+    return "无服务端动作语义";
+  }
+
+  return compactList(rows.map((row) => `${row.category}/${row.intent}${row.count > 1 ? ` x${row.count}` : ""}`), 2);
 }
 
 function objectCommandContextRows(

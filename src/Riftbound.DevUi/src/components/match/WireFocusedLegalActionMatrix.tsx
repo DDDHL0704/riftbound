@@ -36,13 +36,18 @@ function FocusedLegalActionRow({ row }: { row: WireFocusedLegalActionRowPlan }) 
     <li
       className={`is-${row.state}`}
       data-wire-focused-legal-action={row.action}
+      data-wire-focused-legal-action-category={row.category}
+      data-wire-focused-legal-action-intent={row.intent}
+      data-wire-focused-legal-action-priority={row.priority}
       data-wire-focused-legal-action-state={row.state}
+      data-wire-focused-legal-action-ui-hint={row.uiHint}
     >
       <div>
         <strong>{row.label}</strong>
         <StatusPill tone={legalActionTone(row.state)}>{row.stateLabel}</StatusPill>
       </div>
       <span>{row.nextStepLabel}</span>
+      <small>语义：{row.category} / {row.intent} / {row.uiHint}</small>
       <small>角色：{row.roleLabels.length > 0 ? row.roleLabels.join(" / ") : "无"}</small>
       <small>命令：{row.commandType ?? "未公开"}</small>
       {row.missingRequiredLabels.length > 0 && <small>缺少：{row.missingRequiredLabels.join(" / ")}</small>}

@@ -64,6 +64,7 @@ export function WireObjectCommandTray({
           <StatusPill tone={trayPlan.tone}>{trayPlan.stateLabel}</StatusPill>
         </header>
         <MetricGrid plan={trayPlan} />
+        <SemanticRows plan={trayPlan} />
         <strong className="wire-object-command-tray-next">{trayPlan.nextStepLabel}</strong>
         <ContextRows plan={trayPlan} />
       </div>
@@ -94,6 +95,30 @@ export function WireObjectCommandTray({
         <Button icon={<X size={16} />} onClick={onClear} variant="ghost">清除</Button>
       </div>
     </section>
+  );
+}
+
+function SemanticRows({ plan }: { plan: WireObjectCommandTrayPlan }) {
+  if (plan.semanticRows.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="wire-object-command-tray-semantics" aria-label="焦点对象服务端动作语义">
+      {plan.semanticRows.map((row) => (
+        <span
+          data-wire-object-command-tray-semantic-category={row.category}
+          data-wire-object-command-tray-semantic-intent={row.intent}
+          data-wire-object-command-tray-semantic-priority={row.priority}
+          data-wire-object-command-tray-semantic-ui-hint={row.uiHint}
+          key={row.key}
+        >
+          <small>{row.category}</small>
+          <strong>{row.intent}</strong>
+          <small>{row.count}</small>
+        </span>
+      ))}
+    </div>
   );
 }
 

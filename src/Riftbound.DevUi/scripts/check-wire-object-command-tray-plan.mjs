@@ -47,8 +47,13 @@ assert.equal(readyPlan.stateLabel, "可提交");
 assert.equal(readyPlan.primaryLabel, "提交 PLAY_CARD");
 assert.equal(readyPlan.canShowActions, true);
 assert.equal(readyPlan.metrics.find((metric) => metric.key === "candidate")?.value, "1 可用 / 0 阻断");
+assert.equal(readyPlan.metrics.find((metric) => metric.key === "semantic")?.value, "play/play-card");
 assert.equal(readyPlan.metrics.find((metric) => metric.key === "role")?.value, "来源");
 assert.equal(readyPlan.metrics.find((metric) => metric.key === "command")?.value, "PLAY_CARD");
+assert.deepEqual(readyPlan.semanticRows.map((row) => `${row.category}:${row.intent}:${row.priority}:${row.uiHint}:${row.count}`), [
+  "play:play-card:100:card-action:1"
+]);
+assert.equal(readyPlan.semanticSummary, "play/play-card");
 assert.equal(readyPlan.subtitle, "我方手牌 / 法术 / 服务端对象上下文");
 assert.equal(readyPlan.contextRows.find((row) => row.key === "source")?.value, "服务端对象上下文");
 assert.equal(readyPlan.contextRows.find((row) => row.key === "fields")?.value, "1 必填 / 2 公开");
@@ -92,6 +97,8 @@ assert.equal(hiddenPlan.canShowActions, false);
 assert.equal(hiddenPlan.contextRows.length, 0);
 assert.equal(JSON.stringify(hiddenPlan).includes("PLAY_CARD"), false);
 assert.equal(hiddenPlan.metrics.find((metric) => metric.key === "command")?.value, "不公开");
+assert.equal(hiddenPlan.metrics.find((metric) => metric.key === "semantic")?.value, "不公开");
+assert.equal(hiddenPlan.semanticRows.length, 0);
 assert.equal(hiddenPlan.nextStepLabel.includes("不展示或提交前端推断操作"), true);
 
 console.log("Wire object command tray plan check passed.");
@@ -107,15 +114,19 @@ function focusedPlan({
     legalActionRows: [
       {
         action: "PLAY_CARD",
+        category: "play",
         commandType,
+        intent: "play-card",
         key: "PLAY_CARD:打出",
         label: "打出",
         missingRequiredLabels: legalState === "needs-selection" ? ["目标"] : [],
         nextStepLabel,
+        priority: 100,
         reason: "可提交",
         roleLabels: ["来源"],
         state: legalState,
-        stateLabel: legalState === "needs-selection" ? "需选择" : "可提交"
+        stateLabel: legalState === "needs-selection" ? "需选择" : "可提交",
+        uiHint: "card-action"
       }
     ],
     readiness: {

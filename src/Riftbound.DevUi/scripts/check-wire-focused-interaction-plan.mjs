@@ -22,6 +22,7 @@ const playCandidate = {
   },
   enabled: true,
   label: "打出手牌",
+  presentation: { category: "play", intent: "play-card", priority: 100, uiHint: "card-action" },
   reason: "可提交",
   selectionSteps: [
     {
@@ -48,6 +49,7 @@ const tapCandidate = {
   },
   enabled: true,
   label: "横置符文",
+  presentation: { category: "resource", intent: "tap-rune", priority: 180, uiHint: "resource" },
   reason: "可提交",
   sources: [{ id: sourceObjectId, label: "手牌法术", objectIds: [sourceObjectId] }]
 };
@@ -117,6 +119,10 @@ assert.equal(plan.sourceObject.serverCandidateLabel, "2 可用 / 0 禁用");
 assert.equal(plan.relatedCandidateRows.length, 2);
 assert.equal(plan.sourceCandidates.length, 2);
 assert.equal(plan.actionEntries.length, 2);
+assert.deepEqual(plan.actionEntries.map((entry) => `${entry.category}:${entry.intent}:${entry.priority}:${entry.uiHint}`), [
+  "play:play-card:100:card-action",
+  "resource:tap-rune:180:resource"
+]);
 assert.equal(plan.actionEntries.find((entry) => entry.candidate.action === "PLAY_CARD")?.mode, "composer");
 assert.equal(plan.actionEntries.find((entry) => entry.candidate.action === "TAP_RUNE")?.mode, "button");
 assert.equal(plan.actionEntries.find((entry) => entry.candidate.action === "TAP_RUNE")?.actionPlan.command?.cmdType, "TAP_RUNE");
@@ -138,6 +144,10 @@ assert.deepEqual(plan.legalActionRows.map((row) => `${row.label}:${row.state}:${
   "横置符文:ready:可提交"
 ]);
 assert.equal(plan.legalActionRows[0].commandType, "PLAY_CARD");
+assert.equal(plan.legalActionRows[0].category, "play");
+assert.equal(plan.legalActionRows[0].intent, "play-card");
+assert.equal(plan.legalActionRows[0].priority, 100);
+assert.equal(plan.legalActionRows[1].uiHint, "resource");
 assert.deepEqual(plan.legalActionRows[0].roleLabels, ["来源"]);
 assert.deepEqual(plan.legalActionRows[0].missingRequiredLabels, []);
 
