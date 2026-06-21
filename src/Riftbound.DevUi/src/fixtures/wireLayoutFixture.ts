@@ -1,5 +1,6 @@
 import { BehaviorSpec } from "../types/catalog";
 import type { CommandSubmissionFeedback } from "../stores/useMatchController";
+import type { CommandSubmissionUiSource } from "../utils/commandSubmissionFollowupPlan";
 import {
   ActionPromptDto,
   BattlefieldSnapshotView,
@@ -653,10 +654,21 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
   ];
 }
 
-export function buildWireLayoutFixtureCommandSubmission(): CommandSubmissionFeedback {
+export function buildWireLayoutFixtureCommandSubmission({
+  cmdType = "PLAY_CARD",
+  uiSource = {
+    detailId: "rule:stack:fixture-stack-1",
+    label: "规则与事件详情",
+    objectId: "p1-hand-spell",
+    surface: "timeline-detail"
+  }
+}: {
+  cmdType?: string;
+  uiSource?: CommandSubmissionUiSource;
+} = {}): CommandSubmissionFeedback {
   return {
     clientIntentId: "fixture-play-card-timeline-detail",
-    cmdType: "PLAY_CARD",
+    cmdType,
     followup: {
       eventCount: 2,
       eventRefs: [
@@ -678,12 +690,7 @@ export function buildWireLayoutFixtureCommandSubmission(): CommandSubmissionFeed
     state: "sent",
     stateLabel: "服务端已接受",
     submittedAt: 0,
-    uiSource: {
-      detailId: "rule:stack:fixture-stack-1",
-      label: "规则与事件详情",
-      objectId: "p1-hand-spell",
-      surface: "timeline-detail"
-    }
+    uiSource
   };
 }
 

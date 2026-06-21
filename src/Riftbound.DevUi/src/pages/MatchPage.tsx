@@ -70,9 +70,9 @@ import {
 } from "../fixtures/wireLayoutFixture";
 import { useCatalog } from "../stores/catalogStore";
 import { useSettings } from "../stores/settingsStore";
-import { useMatchController } from "../stores/useMatchController";
+import { type CommandSubmissionFeedback, useMatchController } from "../stores/useMatchController";
 import { BehaviorSpec } from "../types/catalog";
-import type { CardObjectView } from "../types/protocol";
+import type { CardObjectView, GameCommand } from "../types/protocol";
 import { asRecord, asString } from "../utils/collections";
 import { connectionStatusLabel, matchPhaseLabel, timingStateLabel } from "../utils/formatters";
 import type { CandidateSelectionDraft } from "../utils/candidateSelectionDraft";
@@ -81,6 +81,7 @@ import { buildCardObjectIndex } from "../utils/snapshotObjectIndex";
 import { buildTableObjectContextModel } from "../utils/tableObjectContext";
 import type {
   CommandSubmissionFollowupEventRow,
+  CommandSubmissionUiSource,
   CommandSubmissionFollowupServerEventKind,
   ObservedGameEvent
 } from "../utils/commandSubmissionFollowupPlan";
@@ -108,6 +109,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const [selectionDraft, setSelectionDraft] = useState<CandidateSelectionDraft | undefined>();
   const [timelineDetail, setTimelineDetail] = useState<WireTimelineDetail | undefined>();
   const [timelineLayerOpen, setTimelineLayerOpen] = useState(false);
+  const [fixtureSubmissionFeedback, setFixtureSubmissionFeedback] = useState<CommandSubmissionFeedback | undefined>();
   const timelineDetailTriggerIdRef = useRef<string | undefined>(undefined);
   const { previewCard, queuePreviewCard } = useDelayedWireCardPreview();
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
@@ -132,8 +134,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     [controller.state.events, layoutFixtureEnabled, settings.playerId]
   );
   const tableSubmissionFeedback = useMemo(
-    () => layoutFixtureCommandSubmissionEnabled ? buildWireLayoutFixtureCommandSubmission() : controller.state.lastCommandSubmission,
-    [controller.state.lastCommandSubmission, layoutFixtureCommandSubmissionEnabled]
+    () => layoutFixtureEnabled
+      ? fixtureSubmissionFeedback ?? (layoutFixtureCommandSubmissionEnabled ? buildWireLayoutFixtureCommandSubmission() : undefined)
+      : controller.state.lastCommandSubmission,
+    [controller.state.lastCommandSubmission, fixtureSubmissionFeedback, layoutFixtureCommandSubmissionEnabled, layoutFixtureEnabled]
   );
   const tableSpecByNo = useMemo(
     () => layoutFixtureEnabled ? { ...wireLayoutFixtureSpecByNo, ...specByNo } : specByNo,
@@ -146,6 +150,17 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     prompt: tablePrompt,
     snapshot: tableSnapshot
   }), [tableConnectionStatus, tablePrompt, tableSnapshot]);
+  const submitTableCommand = useCallback((command: GameCommand, uiSource?: CommandSubmissionUiSource) => {
+    if (layoutFixtureEnabled) {
+      setFixtureSubmissionFeedback(buildWireLayoutFixtureCommandSubmission({
+        cmdType: command.cmdType,
+        uiSource
+      }));
+      return;
+    }
+
+    void controller.submitCommand(command, uiSource);
+  }, [controller, layoutFixtureEnabled]);
   const tableView = useMemo(
     () => buildWireTableViewModel({
       perspectivePlayerId: settings.playerId,
@@ -406,7 +421,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     }
 
     if (entry.command) {
-      void controller.submitCommand(entry.command, {
+      submitTableCommand(entry.command, {
         label: `顶部快捷：${entry.label}`,
         surface: "topbar"
       });
@@ -427,7 +442,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         surface: "topbar"
       });
     }
-  }, [controller]);
+  }, [controller, submitTableCommand]);
   const sidePanelDirectory = useMemo(() => buildWireSidePanelDirectoryPlan(WIRE_TABLE_LAYOUT.sidePanel.slots), []);
   const sidePanelSections = {
     overview: (
@@ -464,7 +479,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           focusedPlan={selectedFocusPlan}
           objectContext={selectedObjectContext}
           onClearFocus={clearInspectedCard}
-          onCommand={(command) => void controller.submitCommand(command, {
+          onCommand={(command) => submitTableCommand(command, {
             label: "指挥中心",
             objectId: selectedObjectId,
             surface: "command-center"
@@ -535,7 +550,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         <WireActionMapPanel
           events={tableEvents}
           onChooseObject={chooseObjectFromActionMap}
-          onCommand={(command) => void controller.submitCommand(command, {
+          onCommand={(command) => submitTableCommand(command, {
             label: "右侧合法操作",
             objectId: selectedObjectId,
             surface: "action-map"
@@ -560,7 +575,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           disabledByConnection={!tableSubmissionGate.canSubmit}
           focusedPlan={selectedFocusPlan}
           inspectedCard={inspectedCard}
-          onCommand={(command) => void controller.submitCommand(command, {
+          onCommand={(command) => submitTableCommand(command, {
             label: "焦点卡牌和候选行动",
             objectId: selectedObjectId,
             surface: "interaction-panel"
@@ -600,7 +615,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           objectContextById={tableObjectContextModel.byId}
           objectIndex={tableObjectIndex}
           onChooseObject={chooseObjectFromActionMap}
-          onCommand={(command) => void controller.submitCommand(command, {
+          onCommand={(command) => submitTableCommand(command, {
             detailId: timelineDetail?.id,
             label: "规则与事件详情",
             objectId: selectedObjectId,
@@ -626,7 +641,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" data-wire-side-panel-slot="actionPrompt" id={sidePanelDirectory.bySlot.actionPrompt.anchorId} key="actionPrompt" tabIndex={0}>
         <ActionPanel
           connectionStatus={tableConnectionStatus}
-          onCommand={(command) => void controller.submitCommand(command, {
+          onCommand={(command) => submitTableCommand(command, {
             label: "服务端行动提示",
             surface: "action-prompt"
           })}
@@ -709,7 +724,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             inspectedCard={inspectedCard}
             objectContext={selectedObjectContext}
             onClear={clearInspectedCard}
-            onCommand={(command) => void controller.submitCommand(command, {
+            onCommand={(command) => submitTableCommand(command, {
               label: "桌面对象命令托盘",
               objectId: selectedObjectId,
               surface: "object-command-tray"
@@ -731,7 +746,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         disabledByConnection={!tableSubmissionGate.canSubmit}
         objectContext={detailObjectContext}
         onClose={() => setDetailCard(undefined)}
-        onCommand={(command) => void controller.submitCommand(command, {
+        onCommand={(command) => submitTableCommand(command, {
           label: "卡牌详情抽屉",
           objectId: detailObjectId,
           surface: "card-detail"
@@ -750,7 +765,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         objectContextById={tableObjectContextModel.byId}
         objectIndex={tableObjectIndex}
         onChooseObject={chooseObjectFromActionMap}
-        onCommand={(command) => void controller.submitCommand(command, {
+        onCommand={(command) => submitTableCommand(command, {
           detailId: timelineDetail?.id,
           label: "规则事件检查层",
           objectId: selectedObjectId,

@@ -106,6 +106,10 @@ try {
   console.log("Chrome smoke OK: wire layout geometry");
   await runWireClickSelectionSmoke(cdp);
   console.log("Chrome smoke OK: wire click selection");
+  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
+  await waitForText(cdp, ["符文战场对战线框", "事件详情", "行动提示"]);
+  await runWireTimelineCommandSubmitSmoke(cdp);
+  console.log("Chrome smoke OK: wire timeline command submit");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=timeline`);
   await waitForText(cdp, ["符文战场对战线框", "规则与事件详情", "服务端已接受", "后续事件"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=timeline");
@@ -2025,6 +2029,85 @@ async function runWireClickSelectionSmoke(cdp) {
   }
 }
 
+async function runWireTimelineCommandSubmitSmoke(cdp) {
+  await clickWireDetail(cdp, "rule:stack:fixture-stack-1");
+  await delay(150);
+  const initial = await timelineCommandSubmitSummary(cdp);
+  if (initial.commandSubmissionState !== "empty") {
+    throw new Error(`Timeline submit smoke expected empty feedback before submit, got ${initial.commandSubmissionState}`);
+  }
+  if (initial.detailId !== "rule:stack:fixture-stack-1") {
+    throw new Error(`Timeline submit smoke did not open stack detail: ${initial.detailId}`);
+  }
+  if (!initial.submitTypes.includes("PLAY_CARD")) {
+    throw new Error(`Timeline submit smoke did not expose PLAY_CARD submit plan: ${initial.submitTypes.join(",")}`);
+  }
+  if (initial.submitStates.includes("ready")) {
+    throw new Error(`Timeline submit smoke should not start ready before choosing target: ${initial.submitStates.join(",")}`);
+  }
+  if (!initial.submitEnabledStates.includes("false")) {
+    throw new Error(`Timeline submit smoke expected disabled submit before choosing target: ${initial.submitEnabledStates.join(",")}`);
+  }
+  if (initial.fieldStates.includes("covered")) {
+    throw new Error(`Timeline submit smoke should not start with all fields covered: ${initial.fieldStates.join(",")}`);
+  }
+
+  const chosenSource = await clickTimelineCommandFieldChoose(cdp, "p1-hand-spell");
+  if (chosenSource !== "p1-hand-spell") {
+    throw new Error(`Timeline submit smoke chose wrong source: ${chosenSource}`);
+  }
+  await delay(150);
+
+  const chosenTarget = await clickTimelineCommandFieldChoose(cdp, "p2-right-1");
+  if (chosenTarget !== "p2-right-1") {
+    throw new Error(`Timeline submit smoke chose wrong target: ${chosenTarget}`);
+  }
+  await delay(150);
+  const ready = await timelineCommandSubmitSummary(cdp);
+  if (ready.routeSummaryState !== "ready") {
+    throw new Error(`Timeline submit smoke route summary did not become ready: ${ready.routeSummaryState}`);
+  }
+  if (!ready.submitStates.includes("ready")) {
+    throw new Error(`Timeline submit smoke submit plan did not become ready: ${ready.submitStates.join(",")}`);
+  }
+  if (!ready.submitCanSubmitStates.includes("true") || !ready.submitCommandReadyStates.includes("true")) {
+    throw new Error(`Timeline submit smoke submit gate not ready: canSubmit=${ready.submitCanSubmitStates.join(",")} commandReady=${ready.submitCommandReadyStates.join(",")}`);
+  }
+  if (!ready.submitEnabledStates.includes("true")) {
+    throw new Error(`Timeline submit smoke submit button was not enabled: ${ready.submitEnabledStates.join(",")}`);
+  }
+  if (!ready.fieldStates.includes("covered") || !ready.fieldStates.includes("server")) {
+    throw new Error(`Timeline submit smoke expected covered and server fields before submit: ${ready.fieldStates.join(",")}`);
+  }
+  if (!ready.selectedObjectIds.includes("p1-hand-spell") || !ready.selectedObjectIds.includes("p2-right-1")) {
+    throw new Error(`Timeline submit smoke selected object ids incomplete: ${ready.selectedObjectIds.join(",")}`);
+  }
+
+  const submittedType = await clickTimelineCommandSubmit(cdp);
+  if (submittedType !== "PLAY_CARD") {
+    throw new Error(`Timeline submit smoke clicked wrong submit command: ${submittedType}`);
+  }
+
+  const followup = await waitForTimelineCommandFollowup(cdp);
+  const failures = [];
+  if (followup.commandSubmissionState !== "sent") failures.push(`feedback state ${followup.commandSubmissionState}`);
+  if (followup.commandSubmissionCommand !== "PLAY_CARD") failures.push(`feedback command ${followup.commandSubmissionCommand}`);
+  if (followup.timelineFollowupState !== "accepted-events") failures.push(`timeline followup state ${followup.timelineFollowupState}`);
+  if (followup.timelineFollowupServerState !== "events") failures.push(`timeline server state ${followup.timelineFollowupServerState}`);
+  if (followup.timelineFollowupBridgeState !== "ready") failures.push(`timeline bridge state ${followup.timelineFollowupBridgeState}`);
+  if (followup.timelineFollowupLayoutState !== "linked") failures.push(`timeline layout projection state ${followup.timelineFollowupLayoutState}`);
+  if (followup.timelineFollowupSourceSurface !== "timeline-detail") failures.push(`source surface ${followup.timelineFollowupSourceSurface}`);
+  if (followup.timelineFollowupSourceDetail !== "rule:stack:fixture-stack-1") failures.push(`source detail ${followup.timelineFollowupSourceDetail}`);
+  if (!followup.timelineFollowupServerKindActions.includes("STACK_ITEM_ADDED")) failures.push("missing STACK_ITEM_ADDED server kind");
+  if (!followup.timelineFollowupServerKindActions.includes("BATTLEFIELD_CONTROL_RESOLVED")) failures.push("missing BATTLEFIELD_CONTROL_RESOLVED server kind");
+  if (!followup.timelineFollowupText.includes("后续事件")) failures.push("missing followup heading");
+  if (!followup.commandSubmissionText.includes("服务端已接受")) failures.push("missing accepted feedback copy");
+
+  if (failures.length > 0) {
+    throw new Error(`Timeline submit smoke failed:\n${failures.join("\n")}\n${JSON.stringify(followup, null, 2)}`);
+  }
+}
+
 async function runWireRuleObjectRefSmoke(cdp) {
   const initial = await evaluateJson(cdp, `(() => ({
     battlefieldRefs: document.querySelectorAll('[data-rule-object-ref="fixture-left-battlefield"]').length,
@@ -3511,6 +3594,90 @@ async function clickTimelineCommandFieldChoose(cdp, objectId) {
     throw new Error(`Wire timeline command field choose button not found: ${objectId}`);
   }
   return clickedObjectId;
+}
+
+async function timelineCommandSubmitSummary(cdp) {
+  return evaluateJson(cdp, `(() => {
+    const panel = document.querySelector(".wire-timeline-detail");
+    const routeSummary = panel?.querySelector(".wire-timeline-route-summary");
+    const feedback = document.querySelector("[data-command-submission-state]");
+    return {
+      commandSubmissionState: feedback?.getAttribute("data-command-submission-state") ?? "",
+      detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
+      fieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-state") ?? ""),
+      routeSummaryState: routeSummary?.getAttribute("data-timeline-route-summary-state") ?? "",
+      selectedObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-selected-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-selected-object-id") ?? ""),
+      submitCanSubmitStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-can-submit]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-can-submit") ?? ""),
+      submitCommandReadyStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-command-ready]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-command-ready") ?? ""),
+      submitEnabledStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-enabled") ?? ""),
+      submitStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-state") ?? ""),
+      submitText: Array.from(panel?.querySelectorAll(".wire-timeline-command-submit-plan") ?? [])
+        .map((item) => item.textContent ?? "").join(" / "),
+      submitTypes: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-type]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-type") ?? "")
+    };
+  })()`);
+}
+
+async function clickTimelineCommandSubmit(cdp) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector('[data-timeline-command-submit-enabled="true"]');
+      if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
+      const plan = element.closest("[data-timeline-command-submit-type]");
+      const commandType = plan?.getAttribute("data-timeline-command-submit-type") ?? "";
+      element.click();
+      return commandType;
+    })()`,
+    returnByValue: true
+  });
+  const commandType = String(result.result?.value ?? "");
+  if (!commandType) {
+    throw new Error("Wire timeline command submit button not found");
+  }
+  return commandType;
+}
+
+async function waitForTimelineCommandFollowup(cdp) {
+  const deadline = Date.now() + 10_000;
+  let last = {};
+  while (Date.now() < deadline) {
+    last = await evaluateJson(cdp, `(() => {
+      const panel = document.querySelector(".wire-timeline-detail");
+      const feedback = document.querySelector("[data-command-submission-state]");
+      const followup = panel?.querySelector(".wire-timeline-command-followup");
+      return {
+        commandSubmissionCommand: feedback?.querySelector('[data-command-submission-metric="command"] strong')?.textContent?.trim() ?? "",
+        commandSubmissionState: feedback?.getAttribute("data-command-submission-state") ?? "",
+        commandSubmissionText: feedback?.textContent ?? "",
+        timelineFollowupBridgeState: followup?.querySelector(".wire-command-followup-bridge")?.getAttribute("data-command-followup-bridge-state") ?? "",
+        timelineFollowupLayoutState: followup?.querySelector("[data-command-followup-layout-state]")?.getAttribute("data-command-followup-layout-state") ?? "",
+        timelineFollowupServerKindActions: Array.from(followup?.querySelectorAll("[data-command-followup-server-event-kind-action]") ?? [])
+          .map((item) => item.getAttribute("data-command-followup-server-event-kind-action") ?? ""),
+        timelineFollowupServerState: followup?.getAttribute("data-command-followup-server-state") ?? "",
+        timelineFollowupSourceDetail: followup?.querySelector("[data-command-followup-source-detail]")?.getAttribute("data-command-followup-source-detail") ?? "",
+        timelineFollowupSourceObject: followup?.querySelector("[data-command-followup-source-object]")?.getAttribute("data-command-followup-source-object") ?? "",
+        timelineFollowupSourceSurface: followup?.querySelector("[data-command-followup-source-surface]")?.getAttribute("data-command-followup-source-surface") ?? "",
+        timelineFollowupState: followup?.getAttribute("data-command-followup-state") ?? "",
+        timelineFollowupText: followup?.textContent ?? ""
+      };
+    })()`);
+    if (
+      last.commandSubmissionState === "sent"
+      && (last.timelineFollowupState === "accepted-events" || last.timelineFollowupState === "accepted-snapshot")
+    ) {
+      return last;
+    }
+    await delay(150);
+  }
+
+  throw new Error(`Timed out waiting for timeline command followup: ${JSON.stringify(last, null, 2)}`);
 }
 
 async function clickTimelineCommandBridgeDetail(cdp, objectId) {
