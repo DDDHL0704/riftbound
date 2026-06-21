@@ -317,6 +317,10 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       },
       {
         action: "PASS",
+        commandTemplate: {
+          bindings: [],
+          cmdType: "PASS"
+        },
         enabled: true,
         label: "让过",
         reason: "前端线框样例；真实窗口由服务端推进。"

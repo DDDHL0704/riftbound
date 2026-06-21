@@ -97,6 +97,18 @@ assert.equal(templatedEndTurn.commandSource, "server-template");
 assert.equal(templatedEndTurn.commandSourceLabel, "服务端模板");
 assert.equal(templatedEndTurn.needsComposer, false);
 
+const templatedPass = plan({
+  action: "PASS",
+  commandTemplate: { bindings: [], cmdType: "PASS" },
+  enabled: true,
+  label: "让过",
+  reason: "让过当前窗口"
+});
+assert.deepEqual(templatedPass.command, { cmdType: "PASS" });
+assert.equal(templatedPass.commandSource, "server-template");
+assert.equal(templatedPass.commandSourceLabel, "服务端模板");
+assert.equal(templatedPass.needsComposer, false);
+
 const surrender = plan({
   action: "SURRENDER",
   enabled: true,

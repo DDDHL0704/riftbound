@@ -1261,6 +1261,11 @@ async function runWireClickSelectionSmoke(cdp) {
       actionLayoutProjectionTotalCount: Number(layoutProjection?.getAttribute("data-action-layout-projection-total-count") ?? "0"),
       actionCommandSources: Array.from(document.querySelectorAll("[data-action-command-source]"))
         .map((node) => node.getAttribute("data-action-command-source") ?? ""),
+      actionCommandSourceRows: Array.from(document.querySelectorAll("[data-action-command-source]"))
+        .map((node) => ({
+          source: node.getAttribute("data-action-command-source") ?? "",
+          text: node.textContent ?? ""
+        })),
       actionCommandSourceText: document.querySelector(".action-command-plan")?.textContent ?? "",
       actionRenderCount: Number(actionButtons?.getAttribute("data-action-render-count") ?? "0"),
       actionRenderKinds: Array.from(actionButtons?.querySelectorAll("[data-action-render-kind]") ?? [])
@@ -1830,6 +1835,11 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.actionRenderCount < 1) failures.push("action panel render entries missing");
   if (!actionMapResult.actionRenderKinds.includes("candidate-button")) failures.push("action panel render candidate button entry missing");
   if (!actionMapResult.actionCommandSources.includes("composer")) failures.push("action panel command source did not expose composer route");
+  if (!actionMapResult.actionCommandSources.includes("server-template")) failures.push("action panel command source did not expose server template route");
+  if (actionMapResult.actionCommandSources.includes("client-fallback")) failures.push("wire fixture still exposes client fallback command source");
+  if (!actionMapResult.actionCommandSourceRows.some((row) => row.source === "server-template" && row.text.includes("让过"))) {
+    failures.push("pass candidate did not use server template command source");
+  }
   if (!actionMapResult.actionCommandSourceText.includes("服务端组合")) failures.push("action panel command source label missing");
   if (!actionMapResult.actionMapText.includes("命令字段")) failures.push("action map command field list missing");
   if (!actionMapResult.actionMapText.includes("候选步骤")) failures.push("action map candidate step plan missing");
