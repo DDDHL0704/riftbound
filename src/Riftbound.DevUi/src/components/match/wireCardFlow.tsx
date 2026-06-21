@@ -3,6 +3,7 @@ import { CardFace, type InspectedCard } from "../cards/CardFace";
 import { BehaviorSpec } from "../../types/catalog";
 import { CardObjectView } from "../../types/protocol";
 import type { PromptObjectState } from "../../utils/promptInteraction";
+import type { WireTableObjectHint } from "./wireTableInteractionModel";
 import {
   buildWireCardFlowPlan,
   type WireCardFlowKind,
@@ -18,6 +19,7 @@ export type WireTimelineObjectState = "event" | "rule";
 type WireCardFlowProps = {
   className?: string;
   emptyLabel?: string;
+  hintByObjectId?: Record<string, WireTableObjectHint | undefined>;
   interactionByObjectId?: Record<string, PromptObjectState | undefined>;
   ids: string[];
   kind: WireCardFlowKind;
@@ -37,6 +39,7 @@ type WireCssProperties = CSSProperties & Record<`--${string}`, string | number>;
 export function WireCardFlow({
   className = "",
   emptyLabel = "",
+  hintByObjectId,
   interactionByObjectId,
   ids,
   kind,
@@ -84,6 +87,7 @@ export function WireCardFlow({
         return (
           <CardFace
             compact
+            interactionHint={hintByObjectId?.[id]}
             interactionState={interactionByObjectId?.[id]}
             key={id}
             object={object}
@@ -106,6 +110,7 @@ export function WireCardSlot({ label }: { label: string }) {
 
 export function WirePublicPile({
   ids,
+  hintByObjectId,
   interactionByObjectId,
   kind,
   label,
@@ -117,6 +122,7 @@ export function WirePublicPile({
   timelineByObjectId
 }: {
   ids: string[];
+  hintByObjectId?: Record<string, WireTableObjectHint | undefined>;
   interactionByObjectId?: Record<string, PromptObjectState | undefined>;
   kind: Extract<WirePileKind, "banished" | "graveyard">;
   label: string;
@@ -136,6 +142,7 @@ export function WirePublicPile({
       {topId ? (
         <CardFace
           compact
+          interactionHint={topId ? hintByObjectId?.[topId] : undefined}
           interactionState={topId ? interactionByObjectId?.[topId] : undefined}
           object={topObject ?? hiddenObject(topId)}
           objectId={topId}

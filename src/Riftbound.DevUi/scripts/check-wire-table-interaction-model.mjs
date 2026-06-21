@@ -9,12 +9,21 @@ const interactionExports = loadTsModule(
   resolve(scriptDir, "../src/components/match/wireTableInteractionModel.ts"),
   {
     candidateComposerKey: (candidate) => `${candidate.action}:${candidate.label}`,
+    promptChoiceRoleLabel: (role) => ({
+      destination: "位置",
+      mode: "模式",
+      optionalCost: "费用",
+      source: "来源",
+      target: "目标"
+    })[role],
+    promptChoiceRoleOrder: ["source", "mode", "destination", "target", "optionalCost"],
     promptChoiceSummaryObjectIds: (choice) => choice.objectIds ?? []
   }
 );
 
 const {
   buildWireInteractionMap,
+  buildWireObjectHintMap,
   buildWireTimelineMap,
   candidateChoiceForObject,
   emptySelectionDraft,
@@ -52,7 +61,16 @@ const disabledCandidate = {
 const model = {
   candidates: [enabledCandidate, disabledCandidate],
   disabledObjectIds: new Set(["disabled-1"]),
-  enabledObjectIds: new Set(["source-1"])
+  enabledObjectIds: new Set(["source-1"]),
+  objectById: new Map([
+    objectSummary("source-1", [enabledCandidate.choices[0]], "enabled", 1, 0),
+    objectSummary("target-1", [enabledCandidate.choices[1]], "enabled", 1, 0),
+    objectSummary("target-2", [enabledCandidate.choices[2]], "enabled", 1, 0),
+    objectSummary("battlefield-1", [enabledCandidate.choices[3]], "enabled", 1, 0),
+    objectSummary("rune-1", [enabledCandidate.choices[4]], "enabled", 1, 0),
+    objectSummary("mode-object-ignored", [enabledCandidate.choices[5]], "enabled", 1, 0),
+    objectSummary("disabled-1", [disabledCandidate.choices[0]], "disabled", 0, 1)
+  ])
 };
 
 const focused = focusedCandidateSummaries(model.candidates, "source-1");
@@ -90,6 +108,22 @@ assert.equal(interaction["rune-1"], "chosen");
 assert.equal(interaction["disabled-1"], "disabled");
 assert.equal(interaction["mode-object-ignored"], undefined);
 
+const hints = buildWireObjectHintMap(model, focused, "source-1", draft);
+assert.equal(hints["source-1"]?.state, "source");
+assert.deepEqual(hints["source-1"]?.roleLabels, ["来源"]);
+assert.equal(hints["source-1"]?.nextClickLabel, "已选来源");
+assert.equal(hints["source-1"]?.semanticSummary.includes("打出卡牌"), true);
+assert.equal(hints["target-1"]?.state, "chosen");
+assert.deepEqual(hints["target-1"]?.roleLabels, ["目标"]);
+assert.equal(hints["target-1"]?.dataLabel, "chosen target");
+assert.equal(hints["battlefield-1"]?.nextClickLabel, "已选择");
+assert.deepEqual(hints["battlefield-1"]?.roleLabels, ["位置"]);
+assert.equal(hints["rune-1"]?.dataLabel, "chosen optionalCost");
+assert.equal(hints["disabled-1"]?.nextClickLabel, "暂不可用");
+assert.equal(hints["disabled-1"]?.enabledCandidateCount, 0);
+assert.equal(hints["disabled-1"]?.disabledCandidateCount, 1);
+assert.equal(hints["mode-object-ignored"], undefined, "mode choices should stay out of tabletop object hints");
+
 draft = updateSelectionDraft(draft, "source-1", enabledCandidate, enabledCandidate.choices[4]);
 interaction = buildWireInteractionMap(model, focused, "source-1", draft);
 assert.equal(interaction["rune-1"], "optionalCost", "clicking an optional cost twice should remove chosen state but keep role highlight");
@@ -122,6 +156,19 @@ function choice(role, id, objectIds) {
     objectIds,
     role
   };
+}
+
+function objectSummary(objectId, choices, state, enabledCandidateCount, disabledCandidateCount) {
+  return [
+    objectId,
+    {
+      choices,
+      disabledCandidateCount,
+      enabledCandidateCount,
+      objectId,
+      state
+    }
+  ];
 }
 
 function loadTsModule(sourcePath, injectedValues = {}) {

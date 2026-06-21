@@ -1,5 +1,7 @@
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
+  promptChoiceRoleLabel,
+  promptChoiceRoleOrder,
   promptChoiceSummaryObjectIds,
   type PromptCandidateSummary,
   type PromptChoiceRole,
@@ -10,6 +12,20 @@ import {
 import { candidateComposerKey } from "../../utils/candidateComposerModel";
 import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 import type { WireTimelineObjectState } from "./wireCardFlow";
+
+export type WireTableObjectHint = {
+  candidateLabels: string[];
+  choiceLabels: string[];
+  dataLabel: string;
+  disabledCandidateCount: number;
+  enabledCandidateCount: number;
+  nextClickLabel: string;
+  objectId: string;
+  roleLabels: string[];
+  roles: PromptChoiceRole[];
+  semanticSummary: string;
+  state: PromptObjectState;
+};
 
 export function focusedCandidateSummaries(
   candidates: PromptCandidateSummary[],
@@ -150,6 +166,83 @@ export function buildWireInteractionMap(
   return states;
 }
 
+export function buildWireObjectHintMap(
+  model: PromptInteractionModel,
+  focusedCandidates: PromptCandidateSummary[],
+  focusedObjectId?: string,
+  selectionDraft?: CandidateSelectionDraft
+): Record<string, WireTableObjectHint | undefined> {
+  const states = buildWireInteractionMap(model, focusedCandidates, focusedObjectId, selectionDraft);
+  const allObjectIds = new Set([
+    ...Object.keys(states),
+    ...Array.from(model.objectById.keys())
+  ]);
+  const selectedChoiceIds = selectionDraftChoiceIds(selectionDraft);
+  const hints: Record<string, WireTableObjectHint | undefined> = {};
+
+  for (const objectId of allObjectIds) {
+    const summary = model.objectById.get(objectId);
+    const state = states[objectId] ?? summary?.state;
+    if (!state) {
+      continue;
+    }
+
+    const objectChoices = uniqueChoicesByRoleAndId(
+      (summary?.choices ?? [])
+        .filter((choice) => choice.role !== "mode")
+        .filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId))
+    );
+    const focusedChoices = uniqueChoicesByRoleAndId(
+      focusedCandidates
+        .filter((candidate) => candidate.enabled)
+        .flatMap((candidate) => candidate.choices)
+        .filter((choice) => choice.role !== "mode")
+        .filter((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId))
+    );
+    if (objectChoices.length === 0 && focusedChoices.length === 0) {
+      continue;
+    }
+
+    const roles = orderedRoles(uniqueRoles([
+      ...objectChoices.map((choice) => choice.role),
+      ...focusedChoices.map((choice) => choice.role)
+    ]));
+    const roleLabels = roles.map(promptChoiceRoleLabel);
+    const candidateLabels = uniqueLabels(model.candidates
+      .filter((candidate) => candidate.choices.some((choice) =>
+        choice.role !== "mode"
+        && promptChoiceSummaryObjectIds(choice).includes(objectId)))
+      .map((candidate) => candidate.label));
+    const choiceLabels = uniqueLabels([
+      ...focusedChoices.map((choice) => selectedChoiceIds.has(choice.id) ? `${choice.label} 已选` : choice.label),
+      ...objectChoices.map((choice) => choice.label)
+    ]).slice(0, 4);
+    const nextClickLabel = objectNextClickLabel(state, roles);
+    const semanticSummary = [
+      nextClickLabel,
+      roleLabels.length ? roleLabels.join("/") : "",
+      candidateLabels.length ? candidateLabels.slice(0, 2).join(" / ") : "",
+      choiceLabels.length ? choiceLabels.slice(0, 2).join(" / ") : ""
+    ].filter(Boolean).join(" · ");
+
+    hints[objectId] = {
+      candidateLabels: candidateLabels.slice(0, 4),
+      choiceLabels,
+      dataLabel: [state, ...roles].join(" "),
+      disabledCandidateCount: summary?.disabledCandidateCount ?? 0,
+      enabledCandidateCount: summary?.enabledCandidateCount ?? 0,
+      nextClickLabel,
+      objectId,
+      roleLabels,
+      roles,
+      semanticSummary,
+      state
+    };
+  }
+
+  return hints;
+}
+
 export function buildWireTimelineMap(detail?: WireTimelineDetail): Record<string, WireTimelineObjectState | undefined> {
   if (!detail) {
     return {};
@@ -175,6 +268,75 @@ export function mergeWireTimelineMaps(
 
 function uniqueSelectionIds(ids: string[]): string[] {
   return Array.from(new Set(ids.filter((id) => id.trim().length > 0)));
+}
+
+function selectionDraftChoiceIds(selectionDraft?: CandidateSelectionDraft): Set<string> {
+  if (!selectionDraft) {
+    return new Set();
+  }
+
+  return new Set([
+    ...selectionDraft.targetChoiceIds,
+    selectionDraft.destinationId,
+    selectionDraft.mode,
+    ...selectionDraft.optionalCostIds
+  ].filter((id): id is string => Boolean(id)));
+}
+
+function uniqueChoicesByRoleAndId(choices: PromptChoiceSummary[]): PromptChoiceSummary[] {
+  const seen = new Set<string>();
+  return choices.filter((choice) => {
+    const key = `${choice.role}:${choice.id}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function uniqueRoles(roles: PromptChoiceRole[]): PromptChoiceRole[] {
+  return Array.from(new Set(roles));
+}
+
+function orderedRoles(roles: PromptChoiceRole[]): PromptChoiceRole[] {
+  return [...roles].sort((left, right) => promptChoiceRoleOrder.indexOf(left) - promptChoiceRoleOrder.indexOf(right));
+}
+
+function uniqueLabels(labels: string[]): string[] {
+  return Array.from(new Set(labels.map((label) => label.trim()).filter(Boolean)));
+}
+
+function objectNextClickLabel(state: PromptObjectState, roles: PromptChoiceRole[]): string {
+  if (state === "disabled") {
+    return "暂不可用";
+  }
+
+  if (state === "chosen") {
+    return "已选择";
+  }
+
+  if (state === "source") {
+    return "已选来源";
+  }
+
+  if (roles.includes("target") || state === "target") {
+    return "选择目标";
+  }
+
+  if (roles.includes("destination") || state === "destination") {
+    return "选择位置";
+  }
+
+  if (roles.includes("optionalCost") || state === "optionalCost") {
+    return "选择费用";
+  }
+
+  if (roles.includes("source") || state === "enabled") {
+    return "选择来源";
+  }
+
+  return "暂不可用";
 }
 
 function timelineDetailObjectIds(detail: WireTimelineDetail): string[] {

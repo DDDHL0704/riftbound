@@ -45,13 +45,15 @@ import {
 } from "../components/match/wireTableLayout";
 import {
   buildWireInteractionMap,
+  buildWireObjectHintMap,
   buildWireTimelineMap,
   candidateChoiceForObject,
   emptySelectionDraft,
   focusedCandidateSummaries,
   mergeWireTimelineMaps,
   sourceCandidateForObject,
-  updateSelectionDraft
+  updateSelectionDraft,
+  type WireTableObjectHint
 } from "../components/match/wireTableInteractionModel";
 import { Button } from "../components/ui/Button";
 import { ScrollArea } from "../components/ui/ScrollArea";
@@ -74,6 +76,7 @@ import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjec
 import { buildWireSidePanelDirectoryPlan, type WireSidePanelDirectoryPlan } from "../utils/wireSidePanelDirectoryPlan";
 
 type WireTableInteraction = {
+  hintByObjectId: Record<string, WireTableObjectHint | undefined>;
   interactionByObjectId: Record<string, PromptObjectState | undefined>;
   selectedObjectId?: string;
   timelineByObjectId: Record<string, WireTimelineObjectState | undefined>;
@@ -162,6 +165,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     [tablePrompt]
   );
   const tableInteraction = useMemo<WireTableInteraction>(() => ({
+    hintByObjectId: buildWireObjectHintMap(promptInteraction, focusedSourceCandidates, selectedObjectId, selectionDraft),
     interactionByObjectId: buildWireInteractionMap(promptInteraction, focusedSourceCandidates, selectedObjectId, selectionDraft),
     selectedObjectId,
     timelineByObjectId: mergeWireTimelineMaps(
@@ -674,12 +678,12 @@ function WirePlayerHome({
   const baseSections = {
     banish: (
       <section className="wire-banish-main" key="banish" aria-label={`${ownerLabel} 放逐区`}>
-        <WirePublicPile ids={zones.banished ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="banished" label="放逐" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WirePublicPile ids={zones.banished ?? []} hintByObjectId={interaction.hintByObjectId} interactionByObjectId={interaction.interactionByObjectId} kind="banished" label="放逐" objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </section>
     ),
     base: (
       <section className="wire-base-main" key="base" aria-label={`${ownerLabel} 基地`}>
-        <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" ids={baseObjectIds} interactionByObjectId={interaction.interactionByObjectId} kind="base" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={basePlan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WireCardFlow className="wire-base-card-grid" emptyLabel="基地" hintByObjectId={interaction.hintByObjectId} ids={baseObjectIds} interactionByObjectId={interaction.interactionByObjectId} kind="base" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={basePlan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </section>
     )
   } satisfies Record<string, ReactNode>;
@@ -693,12 +697,12 @@ function WirePlayerHome({
     ),
     hero: (
       <WireZone className="wire-home-hero wire-signature-zone" key="hero" title={`${ownerLabel} 英雄`}>
-        <WireCardFlow emptyLabel="英雄" ids={zones.championZone ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="signature" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WireCardFlow emptyLabel="英雄" hintByObjectId={interaction.hintByObjectId} ids={zones.championZone ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="signature" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </WireZone>
     ),
     legend: (
       <WireZone className="wire-home-legend wire-signature-zone" key="legend" title={`${ownerLabel} 传奇`}>
-        <WireCardFlow emptyLabel="传奇" ids={zones.legendZone ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="signature" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WireCardFlow emptyLabel="传奇" hintByObjectId={interaction.hintByObjectId} ids={zones.legendZone ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="signature" minSlots={1} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </WireZone>
     )
   } satisfies Record<string, ReactNode>;
@@ -744,14 +748,14 @@ function WireHandRail({
     ),
     played: (
       <div className="wire-hand-played-pile" key="played">
-        <WirePublicPile ids={zones.graveyard ?? []} interactionByObjectId={interaction.interactionByObjectId} kind="graveyard" label="已打出" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WirePublicPile ids={zones.graveyard ?? []} hintByObjectId={interaction.hintByObjectId} interactionByObjectId={interaction.interactionByObjectId} kind="graveyard" label="已打出" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </div>
     )
   } satisfies Record<string, ReactNode>;
   const handBodySections = {
     cards: (
       <div className="wire-hand-cards" key="cards">
-        <WireCardFlow ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="hand" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={handPlan} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WireCardFlow hintByObjectId={interaction.hintByObjectId} ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="hand" objects={zoneObjects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={handPlan} selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
       </div>
     ),
     piles: (
@@ -950,6 +954,7 @@ function WireStandbySlotCard({
   return (
     <CardFace
       compact
+      interactionHint={interaction.hintByObjectId[objectId]}
       interactionState={interaction.interactionByObjectId[objectId]}
       object={object}
       objectId={objectId}
@@ -983,6 +988,7 @@ function WireBattlefieldSite({
         {lane.cardNo ? (
           <CardFace
             compact
+            interactionHint={interaction.hintByObjectId[lane.battlefieldId]}
             interactionState={interaction.interactionByObjectId[lane.battlefieldId]}
             object={{ cardNo: lane.cardNo, controllerId: lane.controllerId, objectId: lane.battlefieldId, ownerId: lane.zonePlayerId }}
             objectId={lane.battlefieldId}
@@ -1023,7 +1029,7 @@ function WireBattlefieldUnitZone({
 }) {
   return (
     <section className="wire-battlefield-unit-zone" aria-label={title} data-wire-battlefield-split-source={splitSource}>
-      <WireCardFlow ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="battlefield-unit" minSlots={3} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={plan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+      <WireCardFlow hintByObjectId={interaction.hintByObjectId} ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="battlefield-unit" minSlots={3} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={plan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
     </section>
   );
 }
@@ -1094,7 +1100,7 @@ function WireRuneTrack({
                 className={`wire-rune-card-frame ${exhausted ? (reverse ? "is-exhausted-counter" : "is-exhausted-clockwise") : ""}`}
                 role="group"
               >
-                <CardFace compact interactionState={interaction.interactionByObjectId[id]} object={object} objectId={id} onInspect={onInspectCard} onPreview={onPreviewCard} selected={interaction.selectedObjectId === id} spec={object?.cardNo ? specs[object.cardNo] : undefined} timelineState={interaction.timelineByObjectId[id]} />
+                <CardFace compact interactionHint={interaction.hintByObjectId[id]} interactionState={interaction.interactionByObjectId[id]} object={object} objectId={id} onInspect={onInspectCard} onPreview={onPreviewCard} selected={interaction.selectedObjectId === id} spec={object?.cardNo ? specs[object.cardNo] : undefined} timelineState={interaction.timelineByObjectId[id]} />
               </div>
             ) : (
               <span aria-hidden="true" />

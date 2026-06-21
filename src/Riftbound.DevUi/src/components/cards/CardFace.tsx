@@ -10,11 +10,23 @@ type CardFaceProps = {
   object?: CardObjectView;
   spec?: BehaviorSpec;
   compact?: boolean;
+  interactionHint?: CardFaceInteractionHint;
   interactionState?: PromptObjectState;
   timelineState?: "event" | "rule";
   selected?: boolean;
   onInspect?: (card: InspectedCard) => void;
   onPreview?: (card?: InspectedCard) => void;
+};
+
+export type CardFaceInteractionHint = {
+  candidateLabels: string[];
+  choiceLabels: string[];
+  dataLabel: string;
+  disabledCandidateCount: number;
+  enabledCandidateCount: number;
+  nextClickLabel: string;
+  roleLabels: string[];
+  semanticSummary: string;
 };
 
 export type InspectedCard = {
@@ -23,12 +35,19 @@ export type InspectedCard = {
   spec?: BehaviorSpec;
 };
 
-export function CardFace({ objectId, object, spec, compact = false, interactionState, timelineState, selected = false, onInspect, onPreview }: CardFaceProps) {
+export function CardFace({ objectId, object, spec, compact = false, interactionHint, interactionState, timelineState, selected = false, onInspect, onPreview }: CardFaceProps) {
   const hidden = isHiddenObject(object) && !spec;
   const Container = onInspect ? "button" : "article";
   const previewCard = { objectId, object, spec };
   const dataProps = {
     "data-object-id": objectId,
+    "data-prompt-candidate-count": interactionHint ? String(interactionHint.enabledCandidateCount) : undefined,
+    "data-prompt-choice-labels": interactionHint?.choiceLabels.join("|") || undefined,
+    "data-prompt-disabled-candidate-count": interactionHint ? String(interactionHint.disabledCandidateCount) : undefined,
+    "data-prompt-next": interactionHint?.nextClickLabel,
+    "data-prompt-role-labels": interactionHint?.roleLabels.join("|") || undefined,
+    "data-prompt-roles": interactionHint?.dataLabel,
+    "data-prompt-summary": interactionHint?.semanticSummary,
     "data-prompt-state": interactionState,
     "data-timeline-state": timelineState,
     "data-selected": selected ? "true" : undefined
@@ -51,7 +70,7 @@ export function CardFace({ objectId, object, spec, compact = false, interactionS
 
   if (hidden) {
     return (
-      <Container aria-label="未公开卡牌" className={`card-face card-back ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} {...dataProps} {...containerProps}>
+      <Container aria-label={cardAccessibilityLabel("未公开卡牌", undefined, interactionHint)} className={`card-face card-back ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} title={interactionHint?.semanticSummary} {...dataProps} {...containerProps}>
         <div className="card-frame-top">未公开</div>
         <strong>卡背</strong>
         <span>隐藏信息</span>
@@ -66,6 +85,8 @@ export function CardFace({ objectId, object, spec, compact = false, interactionS
   const frontImage = spec?.frontImage?.trim();
   const ruleCopy = rulesText(spec?.officialText);
   const keywordCopy = keywordsText(spec);
+  const cardNo = spec?.cardNo ?? object?.cardNo ?? undefined;
+  const ariaLabel = cardAccessibilityLabel(title, cardNo, interactionHint);
 
   if (frontImage) {
     const battlefield = category === "战场";
@@ -74,8 +95,9 @@ export function CardFace({ objectId, object, spec, compact = false, interactionS
 
     return (
       <Container
-        aria-label={`${title} ${spec?.cardNo ?? object?.cardNo ?? ""}`.trim()}
+        aria-label={ariaLabel}
         className={`card-face card-image-only ${battlefield ? "card-battlefield-image" : ""} ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`}
+        title={interactionHint?.semanticSummary}
         {...dataProps}
         {...containerProps}
       >
@@ -91,10 +113,10 @@ export function CardFace({ objectId, object, spec, compact = false, interactionS
   }
 
   return (
-    <Container className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} {...dataProps} {...containerProps}>
+    <Container aria-label={ariaLabel} className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""} ${interactionClass(interactionState)} ${timelineClass(timelineState)}`} title={interactionHint?.semanticSummary} {...dataProps} {...containerProps}>
       <div className="card-frame-top">
         <span>{category}</span>
-        <span>{spec?.cardNo ?? object?.cardNo ?? "无编号"}</span>
+        <span>{cardNo ?? "无编号"}</span>
       </div>
       <div className="card-title-row">
         <strong title={title}>{title}</strong>
@@ -142,6 +164,14 @@ function interactionClass(state: CardFaceProps["interactionState"]): string {
 
 function timelineClass(state: CardFaceProps["timelineState"]): string {
   return state ? `is-timeline-${state}` : "";
+}
+
+function cardAccessibilityLabel(title: string, cardNo?: string, interactionHint?: CardFaceInteractionHint): string {
+  return [
+    title,
+    cardNo,
+    interactionHint?.semanticSummary
+  ].filter(Boolean).join("。");
 }
 
 export function objectStateLabels(object?: CardObjectView): string[] {
