@@ -8432,6 +8432,21 @@ public static class MatchRecoveryValidator
                 IsKnownObjectLocationZone);
             ValidateSnapshotPayloadOptionalStringValue(
                 locationPayload,
+                "zoneKind",
+                payloadLabel,
+                "zone kind",
+                errors,
+                ObjectLocationSnapshotZones.IsKnownZoneKind,
+                rejectEmptyString: true);
+            ValidateSnapshotPayloadOptionalStringValue(
+                locationPayload,
+                "zoneLabel",
+                payloadLabel,
+                "zone label",
+                errors,
+                rejectEmptyString: true);
+            ValidateSnapshotPayloadOptionalStringValue(
+                locationPayload,
                 "battlefieldObjectId",
                 payloadLabel,
                 "battlefield object id",
@@ -10417,6 +10432,13 @@ public static class MatchRecoveryValidator
                     FormatReadableStringValue(hasBattlefieldObjectId, battlefieldObjectId, locationPayload, "battlefieldObjectId"),
                     expectedLocation,
                     errors);
+                ValidateSpectatorSnapshotObjectLocationZoneHintParity(
+                    playerId,
+                    objectId,
+                    locationPayload,
+                    authoritativeState,
+                    expectedLocation,
+                    errors);
             }
 
             if (expectedLocation is null && hasAuthoritativeObject)
@@ -10729,6 +10751,13 @@ public static class MatchRecoveryValidator
             FormatReadableStringValue(hasBattlefieldObjectId, battlefieldObjectId, locationPayload, "battlefieldObjectId"),
             expectedLocation,
             errors);
+        ValidateSpectatorSnapshotObjectLocationZoneHintParity(
+            playerId,
+            objectId,
+            locationPayload,
+            authoritativeState,
+            expectedLocation,
+            errors);
     }
 
     private static void ValidateSpectatorSnapshotObjectLocationBattlefieldObjectIdParity(
@@ -10773,6 +10802,62 @@ public static class MatchRecoveryValidator
         {
             errors.Add(
                 $"{payloadLabel} does not match authoritative object location battlefield object id; {FormatExpectedActualForRecovery(expectedBattlefieldObjectId, actualBattlefieldObjectId)}");
+        }
+    }
+
+    private static void ValidateSpectatorSnapshotObjectLocationZoneHintParity(
+        string playerId,
+        string objectId,
+        object? locationPayload,
+        MatchState authoritativeState,
+        ObjectLocationState expectedLocation,
+        List<string> errors)
+    {
+        var payloadLabel = $"spectator replay frame snapshot player {playerId} object {objectId} location";
+        var hasZoneKind = TryReadObjectValue(locationPayload, "zoneKind", out var zoneKindPayload)
+            && !IsNullSnapshotPayloadValue(zoneKindPayload);
+        var zoneKind = ValidateSnapshotPayloadOptionalStringValue(
+            locationPayload,
+            "zoneKind",
+            payloadLabel,
+            "zone kind",
+            errors,
+            ObjectLocationSnapshotZones.IsKnownZoneKind,
+            rejectEmptyString: true);
+
+        var hasZoneLabel = TryReadObjectValue(locationPayload, "zoneLabel", out var zoneLabelPayload)
+            && !IsNullSnapshotPayloadValue(zoneLabelPayload);
+        var zoneLabel = ValidateSnapshotPayloadOptionalStringValue(
+            locationPayload,
+            "zoneLabel",
+            payloadLabel,
+            "zone label",
+            errors,
+            rejectEmptyString: true);
+
+        if (!hasZoneKind && !hasZoneLabel)
+        {
+            return;
+        }
+
+        var expectedHint = ExpectedSpectatorObjectLocationZoneHint(
+            authoritativeState,
+            objectId,
+            expectedLocation);
+        if (hasZoneKind
+            && zoneKind is not null
+            && !string.Equals(zoneKind, expectedHint.ZoneKind, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} zone kind does not match authoritative object location zone kind; {FormatExpectedActualForRecovery(expectedHint.ZoneKind, FormatReadableStringValue(true, zoneKind, locationPayload, "zoneKind"))}");
+        }
+
+        if (hasZoneLabel
+            && zoneLabel is not null
+            && !string.Equals(zoneLabel, expectedHint.ZoneLabel, StringComparison.Ordinal))
+        {
+            errors.Add(
+                $"{payloadLabel} zone label does not match authoritative object location zone label; {FormatExpectedActualForRecovery(expectedHint.ZoneLabel, FormatReadableStringValue(true, zoneLabel, locationPayload, "zoneLabel"))}");
         }
     }
 
@@ -10834,6 +10919,18 @@ public static class MatchRecoveryValidator
         }
 
         return null;
+    }
+
+    private static (string ZoneKind, string ZoneLabel) ExpectedSpectatorObjectLocationZoneHint(
+        MatchState authoritativeState,
+        string objectId,
+        ObjectLocationState location)
+    {
+        var includeObjectClassHints = !IsHiddenPlayerObjectForSpectator(authoritativeState, objectId);
+        var cardObject = authoritativeState.CardObjects.TryGetValue(objectId, out var candidate)
+            ? candidate
+            : null;
+        return ObjectLocationSnapshotZones.Describe(location, cardObject, includeObjectClassHints);
     }
 
     private static void ValidateSpectatorSnapshotVisiblePlayerObjectScalars(

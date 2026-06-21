@@ -4271,7 +4271,7 @@ public sealed record ResolutionResult(
         CardObjectState cardObject,
         bool includeObjectClassHints)
     {
-        var (zoneKind, zoneLabel) = ObjectLocationSnapshotZone(location, cardObject, includeObjectClassHints);
+        var (zoneKind, zoneLabel) = ObjectLocationSnapshotZones.Describe(location, cardObject, includeObjectClassHints);
         var view = new Dictionary<string, object?>
         {
             ["playerId"] = location.PlayerId,
@@ -4285,31 +4285,6 @@ public sealed record ResolutionResult(
         }
 
         return view;
-    }
-
-    private static (string ZoneKind, string ZoneLabel) ObjectLocationSnapshotZone(
-        ObjectLocationState location,
-        CardObjectState cardObject,
-        bool includeObjectClassHints)
-    {
-        return location.Zone switch
-        {
-            "BANISHED" => ("banished", "放逐区"),
-            "BASE" when includeObjectClassHints && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal) =>
-                ("rune", "已抽出符文"),
-            "BASE" => ("base", "基地"),
-            "BATTLEFIELD" when includeObjectClassHints && cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal) =>
-                ("battlefield-site", "战场牌"),
-            "BATTLEFIELD" => ("battlefield", "战场"),
-            "CHAMPION" => ("champion", "英雄区"),
-            "GRAVEYARD" => ("graveyard", "已打出牌堆"),
-            "HAND" => ("hand", "手牌"),
-            "LEGEND" => ("legend", "传奇区"),
-            "MAIN_DECK" => ("main-deck", "主牌库"),
-            "RUNE_DECK" => ("rune-deck", "符文牌堆"),
-            "STACK" => ("stack", "结算链"),
-            _ => ("unknown", "服务端区域")
-        };
     }
 
     private static ObjectLocationState? ResolveObjectLocation(MatchState state, string objectId)
