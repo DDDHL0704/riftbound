@@ -706,6 +706,8 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             <Button
               data-topbar-quick-action={entry.id}
               data-topbar-quick-action-candidate={entry.candidateAction ?? ""}
+              data-topbar-quick-action-command-source={entry.commandSource}
+              data-topbar-quick-action-command-source-label={entry.commandSourceLabel}
               data-topbar-quick-action-state={entry.state}
               disabled={entry.disabled}
               key={entry.id}

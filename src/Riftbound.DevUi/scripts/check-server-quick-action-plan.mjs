@@ -13,9 +13,9 @@ const { buildServerQuickActionPlan } = loadTsModule(resolve(srcRoot, "utils/serv
 const prompt = {
   actionable: true,
   candidates: [
-    { action: "PASS_PRIORITY", enabled: true, label: "让过优先权", reason: "可让过" },
-    { action: "END_TURN", enabled: true, label: "结束回合", reason: "可结束" },
-    { action: "SURRENDER", enabled: true, label: "投降", reason: "可投降" },
+    { action: "PASS_PRIORITY", commandTemplate: { bindings: [], cmdType: "PASS_PRIORITY" }, enabled: true, label: "让过优先权", reason: "可让过" },
+    { action: "END_TURN", commandTemplate: { bindings: [], cmdType: "END_TURN" }, enabled: true, label: "结束回合", reason: "可结束" },
+    { action: "SURRENDER", commandTemplate: { bindings: [], cmdType: "SURRENDER" }, enabled: true, label: "投降", reason: "可投降" },
     { action: "READY", enabled: false, label: "准备", reason: "比赛已开始" },
     { action: "SUBMIT_DECK", enabled: false, label: "提交构筑", reason: "已提交" }
   ],
@@ -35,22 +35,28 @@ const readyById = entriesById(readyPlan.entries);
 assert.equal(readyById.pass.state, "ready");
 assert.equal(readyById.pass.disabled, false);
 assert.equal(readyById.pass.candidateAction, "PASS_PRIORITY");
+assert.equal(readyById.pass.commandSource, "server-template");
+assert.equal(readyById.pass.commandSourceLabel, "服务端模板");
 assert.deepEqual(readyById.pass.command, {
   cmdType: "PASS_PRIORITY",
   promptId: "prompt-1",
   snapshotTick: 7
 });
 assert.equal(readyById.endTurn.state, "ready");
+assert.equal(readyById.endTurn.commandSource, "server-template");
 assert.deepEqual(readyById.endTurn.command, {
   cmdType: "END_TURN",
   promptId: "prompt-1",
   snapshotTick: 7
 });
 assert.equal(readyById.surrender.state, "ready");
+assert.equal(readyById.surrender.commandSource, "server-template");
 assert.equal(readyById.surrender.variant, "danger");
 assert.equal(readyById.ready.state, "blocked");
 assert.equal(readyById.ready.disabled, true);
+assert.equal(readyById.ready.commandSource, "direct-action");
 assert.equal(readyById.submitDeck.state, "blocked");
+assert.equal(readyById.submitDeck.commandSource, "direct-action");
 
 const disconnectedPlan = buildServerQuickActionPlan({
   canAct: true,
@@ -84,6 +90,8 @@ const missingById = entriesById(missingPlan.entries);
 assert.equal(missingById.pass.state, "missing");
 assert.equal(missingById.pass.disabled, true);
 assert.equal(missingById.pass.command, undefined);
+assert.equal(missingById.pass.commandSource, "unavailable");
+assert.equal(missingById.pass.commandSourceLabel, "等待服务端");
 assert.equal(missingById.endTurn.title, "当前服务端没有提供结束回合候选。");
 
 const roomPlan = buildServerQuickActionPlan({

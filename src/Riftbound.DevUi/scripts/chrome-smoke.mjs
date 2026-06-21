@@ -350,6 +350,8 @@ async function runRoomLifecycleSmoke(cdp) {
   const result = await evaluateJson(cdp, `(() => {
     const entries = Array.from(document.querySelectorAll("[data-room-quick-action]")).map((button) => ({
       candidate: button.getAttribute("data-room-quick-action-candidate") ?? "",
+      commandSource: button.getAttribute("data-room-quick-action-command-source") ?? "",
+      commandSourceLabel: button.getAttribute("data-room-quick-action-command-source-label") ?? "",
       disabled: button.hasAttribute("disabled"),
       id: button.getAttribute("data-room-quick-action") ?? "",
       state: button.getAttribute("data-room-quick-action-state") ?? "",
@@ -368,6 +370,9 @@ async function runRoomLifecycleSmoke(cdp) {
   }
   if (byId.ready?.state !== "missing" || byId.ready?.disabled !== true) {
     throw new Error(`Room ready quick action should be missing and disabled: ${JSON.stringify(byId.ready)}`);
+  }
+  if (byId.submitDeck?.commandSource !== "unavailable" || byId.ready?.commandSource !== "unavailable") {
+    throw new Error(`Room missing quick actions should expose unavailable command source: ${JSON.stringify(byId)}`);
   }
 }
 
@@ -684,6 +689,8 @@ async function runWireLayoutGeometrySmoke(cdp) {
       button.getAttribute("data-topbar-quick-action"),
       {
         candidate: button.getAttribute("data-topbar-quick-action-candidate") ?? "",
+        commandSource: button.getAttribute("data-topbar-quick-action-command-source") ?? "",
+        commandSourceLabel: button.getAttribute("data-topbar-quick-action-command-source-label") ?? "",
         disabled: button.hasAttribute("disabled"),
         state: button.getAttribute("data-topbar-quick-action-state") ?? ""
       }
@@ -693,8 +700,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (!passAction || passAction.state !== "ready" || passAction.disabled || passAction.candidate !== "PASS") {
       failures.push(\`topbar pass quick action did not bind to server PASS candidate: \${JSON.stringify(passAction)}\`);
     }
+    if (passAction?.commandSource !== "server-template" || passAction?.commandSourceLabel !== "服务端模板") {
+      failures.push(\`topbar pass quick action did not expose server template source: \${JSON.stringify(passAction)}\`);
+    }
     if (!endTurnAction || endTurnAction.state !== "missing" || !endTurnAction.disabled) {
       failures.push(\`topbar end turn quick action should be missing without a server candidate: \${JSON.stringify(endTurnAction)}\`);
+    }
+    if (endTurnAction?.commandSource !== "unavailable") {
+      failures.push(\`topbar missing end turn quick action did not expose unavailable source: \${JSON.stringify(endTurnAction)}\`);
     }
 
     const submissionGate = document.querySelector("[data-action-submission-gate-state]");

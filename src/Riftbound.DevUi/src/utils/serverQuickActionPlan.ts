@@ -1,6 +1,10 @@
 import type { ActionPromptCandidateDto, ActionPromptDto, GameCommand, SnapshotDto } from "../types/protocol";
 import { promptStampedCommand } from "./actionPromptCandidates";
-import { buildActionPanelCandidateCommandPlan, type ActionPanelDirectActionKind } from "./actionPanelCommandPlan";
+import {
+  buildActionPanelCandidateCommandPlan,
+  type ActionPanelCandidateCommandSource,
+  type ActionPanelDirectActionKind
+} from "./actionPanelCommandPlan";
 import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 
 export type ServerQuickActionId = "endTurn" | "pass" | "ready" | "submitDeck" | "surrender";
@@ -10,6 +14,9 @@ export type ServerQuickActionState = "blocked" | "disconnected" | "missing" | "r
 export type ServerQuickActionEntry = {
   candidateAction?: string;
   command?: GameCommand;
+  commandSource: ActionPanelCandidateCommandSource;
+  commandSourceDetail: string;
+  commandSourceLabel: string;
   directAction?: ActionPanelDirectActionKind;
   disabled: boolean;
   id: ServerQuickActionId;
@@ -124,6 +131,9 @@ function quickActionEntryForDefinition({
 }): ServerQuickActionEntry {
   if (!candidate) {
     return {
+      commandSource: "unavailable",
+      commandSourceDetail: definition.missingTitle,
+      commandSourceLabel: "等待服务端",
       disabled: true,
       id: definition.id,
       label: definition.label,
@@ -144,6 +154,9 @@ function quickActionEntryForDefinition({
   return {
     candidateAction: candidate.action,
     command,
+    commandSource: commandPlan.commandSource,
+    commandSourceDetail: commandPlan.commandSourceDetail,
+    commandSourceLabel: commandPlan.commandSourceLabel,
     directAction: commandPlan.directAction,
     disabled,
     id: definition.id,

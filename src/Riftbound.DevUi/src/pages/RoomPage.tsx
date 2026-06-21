@@ -183,6 +183,8 @@ function RoomPromptButtons({
         <Button
           data-room-quick-action={entry.id}
           data-room-quick-action-candidate={entry.candidateAction ?? ""}
+          data-room-quick-action-command-source={entry.commandSource}
+          data-room-quick-action-command-source-label={entry.commandSourceLabel}
           data-room-quick-action-state={entry.state}
           disabled={entry.disabled}
           icon={entry.id === "submitDeck" ? <Send size={16} /> : <Check size={16} />}
