@@ -147,7 +147,7 @@ function simpleCommand(candidate: ActionPromptCandidateDto): { command?: GameCom
   }
 }
 
-function commandSourceCopy(source: ActionPanelCandidateCommandSource): { detail: string; label: string } {
+export function commandSourceCopy(source: ActionPanelCandidateCommandSource): { detail: string; label: string } {
   switch (source) {
     case "server-template":
       return {

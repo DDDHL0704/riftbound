@@ -5,6 +5,7 @@ import {
   type ActionPanelCandidateCommandSource,
   type ActionPanelDirectActionKind
 } from "./actionPanelCommandPlan";
+import type { CommandSubmissionUiSource } from "./commandSubmissionFollowupPlan";
 import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "./serverSubmissionGatePlan";
 
 export type ServerQuickActionId = "endTurn" | "pass" | "ready" | "submitDeck" | "surrender";
@@ -109,6 +110,17 @@ export function buildServerQuickActionPlan({
         submissionGate: gate,
         snapshot
       }))
+  };
+}
+
+export function quickActionCommandUiSource(entry: ServerQuickActionEntry): Partial<CommandSubmissionUiSource> {
+  return {
+    candidateAction: entry.candidateAction,
+    candidateLabel: entry.label,
+    commandSource: entry.commandSource,
+    commandSourceDetail: entry.commandSourceDetail,
+    commandSourceLabel: entry.commandSourceLabel,
+    label: entry.label
   };
 }
 

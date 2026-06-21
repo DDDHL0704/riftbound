@@ -19,6 +19,7 @@ import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from ".
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
+import type { CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
 import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
@@ -32,7 +33,7 @@ type ActionPanelProps = {
   playerId: string;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
-  onCommand: (command: GameCommand) => void;
+  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
 };
 
 export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
@@ -97,7 +98,7 @@ function ActionPanelRenderEntryView({
 }: {
   disabledByConnection: boolean;
   entry: ActionPanelRenderEntry;
-  onCommand: (command: GameCommand) => void;
+  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
   prompt?: ActionPromptDto;
@@ -280,7 +281,7 @@ function MulliganCandidate({
   submitGate
 }: {
   candidate: ActionPromptCandidateDto;
-  onCommand: (command: GameCommand) => void;
+  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
   prompt?: ActionPromptDto;
   submitGate: ActionPanelSubmitGate;
 }) {
@@ -380,7 +381,7 @@ function HandChoiceCandidate({
 }: {
   canAct: boolean;
   candidate?: ActionPromptCandidateDto;
-  onCommand: (command: GameCommand) => void;
+  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
   prompt?: ActionPromptDto;
   readOnly?: boolean;
   submitGate: ActionPanelSubmitGate;
@@ -481,7 +482,7 @@ function DamageAssignmentCandidate({
   submitGate
 }: {
   candidate: ActionPromptCandidateDto;
-  onCommand: (command: GameCommand) => void;
+  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
   submitGate: ActionPanelSubmitGate;
@@ -585,7 +586,7 @@ function OrderTriggersCandidate({
 }: {
   canAct: boolean;
   candidate?: ActionPromptCandidateDto;
-  onCommand: (command: GameCommand) => void;
+  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
   prompt?: ActionPromptDto;
   readOnly?: boolean;
   submitGate: ActionPanelSubmitGate;
@@ -709,7 +710,7 @@ function CandidateButton({
 }: {
   candidate: ActionPromptCandidateDto;
   disabledByConnection: boolean;
-  onCommand: (command: GameCommand) => void;
+  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
   prompt?: ActionPromptDto;
@@ -736,7 +737,7 @@ function CandidateButton({
               <Button
                 disabled={plan.disabled}
                 icon={<Flag size={16} />}
-                onClick={() => onCommand(withPromptStamp(plan.command!, prompt))}
+                onClick={() => onCommand(withPromptStamp(plan.command!, prompt), candidateCommandUiSource(candidate, plan))}
                 title={buttonTitle}
                 variant="danger"
               >
@@ -793,7 +794,7 @@ function CandidateButton({
           if (plan.directAction) {
             runDirectAction(plan.directAction, onReady, onSubmitStarterDeck);
           } else if (plan.command) {
-            onCommand(withPromptStamp(plan.command, prompt));
+            onCommand(withPromptStamp(plan.command, prompt), candidateCommandUiSource(candidate, plan));
           }
         }}
         title={buttonTitle}
@@ -804,6 +805,20 @@ function CandidateButton({
       </Button>
     </CandidateCommandPlanShell>
   );
+}
+
+function candidateCommandUiSource(
+  candidate: ActionPromptCandidateDto,
+  plan: ActionPanelCandidateCommandPlan
+): Partial<CommandSubmissionUiSource> {
+  return {
+    candidateAction: candidate.action,
+    candidateLabel: promptActionLabel(candidate),
+    commandSource: plan.commandSource,
+    commandSourceDetail: plan.commandSourceDetail,
+    commandSourceLabel: plan.commandSourceLabel,
+    label: promptActionLabel(candidate)
+  };
 }
 
 function CandidateCommandPlanShell({ children, plan }: { children: ReactNode; plan: ActionPanelCandidateCommandPlan }) {

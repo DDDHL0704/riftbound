@@ -101,6 +101,11 @@ const eventPlan = buildCommandSubmissionFollowupPlan({
     state: "sent",
     stateLabel: "服务端已接受",
     uiSource: {
+      candidateAction: "PLAY_CARD",
+      candidateLabel: "打出手牌样例",
+      commandSource: "composer",
+      commandSourceDetail: "先选择来源、目标或模式，再按服务端模板提交。",
+      commandSourceLabel: "服务端组合",
       detailId: "rule:stack:1",
       label: "规则与事件详情",
       objectId: "card-1",
@@ -113,6 +118,9 @@ assert.equal(eventPlan.state, "accepted-events");
 assert.equal(eventPlan.uiSource?.surface, "timeline-detail");
 assert.equal(eventPlan.uiSource?.detailId, "rule:stack:1");
 assert.equal(eventPlan.uiSource?.objectId, "card-1");
+assert.equal(eventPlan.uiSource?.commandSource, "composer");
+assert.equal(eventPlan.uiSource?.commandSourceLabel, "服务端组合");
+assert.equal(eventPlan.uiSource?.candidateAction, "PLAY_CARD");
 assert.deepEqual(
   eventPlan.serverEventKinds.map((row) => `${row.kind}:${row.label}`),
   ["MAIN_PHASE_BEGAN:label:MAIN_PHASE_BEGAN", "CARD_DRAWN:label:CARD_DRAWN"]

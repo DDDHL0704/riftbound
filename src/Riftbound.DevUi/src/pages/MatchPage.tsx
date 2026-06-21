@@ -86,7 +86,7 @@ import type {
   ObservedGameEvent
 } from "../utils/commandSubmissionFollowupPlan";
 import { buildEventLogPlan } from "../utils/eventLogPlan";
-import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
+import { buildServerQuickActionPlan, quickActionCommandUiSource, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
 import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
@@ -98,6 +98,17 @@ type WireTableInteraction = {
   selectedObjectId?: string;
   timelineByObjectId: Record<string, WireTimelineObjectState | undefined>;
 };
+
+function commandUiSource(
+  base: CommandSubmissionUiSource,
+  routeSource?: Partial<CommandSubmissionUiSource>
+): CommandSubmissionUiSource {
+  return {
+    ...routeSource,
+    ...base,
+    label: routeSource?.label ? `${base.label}：${routeSource.label}` : base.label
+  };
+}
 
 export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
@@ -423,6 +434,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
     if (entry.command) {
       submitTableCommand(entry.command, {
+        ...quickActionCommandUiSource(entry),
         label: `顶部快捷：${entry.label}`,
         surface: "topbar"
       });
@@ -431,6 +443,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
     if (entry.directAction === "ready") {
       void controller.ready({
+        ...quickActionCommandUiSource(entry),
         label: `顶部快捷：${entry.label}`,
         surface: "topbar"
       });
@@ -439,6 +452,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
     if (entry.directAction === "submitDeck") {
       void controller.submitStarterDeck({
+        ...quickActionCommandUiSource(entry),
         label: `顶部快捷：${entry.label}`,
         surface: "topbar"
       });
@@ -645,10 +659,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <section aria-label="服务端行动提示" className="wire-panel wire-action-panel" data-wire-side-panel-slot="actionPrompt" id={sidePanelDirectory.bySlot.actionPrompt.anchorId} key="actionPrompt" tabIndex={0}>
         <ActionPanel
           connectionStatus={tableConnectionStatus}
-          onCommand={(command) => submitTableCommand(command, {
+          onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
             label: "服务端行动提示",
             surface: "action-prompt"
-          })}
+          }, routeSource))}
           onReady={() => void controller.ready({
             label: "服务端行动提示：准备",
             surface: "action-prompt"

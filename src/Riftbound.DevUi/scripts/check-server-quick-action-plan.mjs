@@ -8,7 +8,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const srcRoot = resolve(scriptDir, "../src");
 const moduleCache = new Map();
 
-const { buildServerQuickActionPlan } = loadTsModule(resolve(srcRoot, "utils/serverQuickActionPlan.ts")).exports;
+const { buildServerQuickActionPlan, quickActionCommandUiSource } = loadTsModule(resolve(srcRoot, "utils/serverQuickActionPlan.ts")).exports;
 
 const prompt = {
   actionable: true,
@@ -37,6 +37,14 @@ assert.equal(readyById.pass.disabled, false);
 assert.equal(readyById.pass.candidateAction, "PASS_PRIORITY");
 assert.equal(readyById.pass.commandSource, "server-template");
 assert.equal(readyById.pass.commandSourceLabel, "服务端模板");
+assert.deepEqual(quickActionCommandUiSource(readyById.pass), {
+  candidateAction: "PASS_PRIORITY",
+  candidateLabel: "跳过",
+  commandSource: "server-template",
+  commandSourceDetail: "按服务端 commandTemplate 生成，提交后仍由规则引擎校验。",
+  commandSourceLabel: "服务端模板",
+  label: "跳过"
+});
 assert.deepEqual(readyById.pass.command, {
   cmdType: "PASS_PRIORITY",
   promptId: "prompt-1",

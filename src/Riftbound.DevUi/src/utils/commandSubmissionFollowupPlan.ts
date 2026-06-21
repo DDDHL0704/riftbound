@@ -53,6 +53,11 @@ export type CommandSubmissionFollowupFeedback = {
 };
 
 export type CommandSubmissionUiSource = {
+  candidateAction?: string;
+  candidateLabel?: string;
+  commandSource?: string;
+  commandSourceDetail?: string;
+  commandSourceLabel?: string;
   detailId?: string;
   label: string;
   objectId?: string;

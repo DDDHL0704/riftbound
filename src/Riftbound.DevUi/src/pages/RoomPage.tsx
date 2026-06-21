@@ -9,7 +9,7 @@ import { candidateListLabel } from "../components/match/ActionPanel";
 import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
 import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
 import { connectionStatusLabel, connectionStatusTone } from "../utils/formatters";
-import { buildServerQuickActionPlan, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
+import { buildServerQuickActionPlan, quickActionCommandUiSource, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 
 export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (route: AppRoute) => void }) {
@@ -39,6 +39,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
 
     if (entry.command) {
       void controller.submitCommand(entry.command, {
+        ...quickActionCommandUiSource(entry),
         label: `房间快捷：${entry.label}`,
         surface: "room"
       });
@@ -47,6 +48,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
 
     if (entry.directAction === "submitDeck") {
       void controller.submitStarterDeck({
+        ...quickActionCommandUiSource(entry),
         label: `房间快捷：${entry.label}`,
         surface: "room"
       });
@@ -55,6 +57,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
 
     if (entry.directAction === "ready") {
       void controller.ready({
+        ...quickActionCommandUiSource(entry),
         label: `房间快捷：${entry.label}`,
         surface: "room"
       });

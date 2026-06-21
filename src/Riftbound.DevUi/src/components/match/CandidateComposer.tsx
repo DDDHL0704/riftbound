@@ -8,6 +8,8 @@ import type {
 } from "../../types/protocol";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import { commandSourceCopy } from "../../utils/actionPanelCommandPlan";
+import type { CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import {
   buildCandidateComposerModel,
@@ -32,7 +34,7 @@ type CandidateComposerProps = {
   candidate: ActionPromptCandidateDto;
   disabledByActionGate?: boolean;
   disabledByConnection: boolean;
-  onCommand: (command: GameCommand) => void;
+  onCommand: (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
   onSubmitted?: () => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
@@ -81,6 +83,7 @@ export function CandidateComposer({
     state
   });
   const gateDisabled = disabledByConnection || !submission.gateCanSubmit;
+  const composerSource = commandSourceCopy("composer");
 
   return (
     <div
@@ -221,7 +224,14 @@ export function CandidateComposer({
             return;
           }
 
-          onCommand(promptStampedCommand(submission.command, prompt));
+          onCommand(promptStampedCommand(submission.command, prompt), {
+            candidateAction: candidate.action,
+            candidateLabel: promptActionLabel(candidate),
+            commandSource: "composer",
+            commandSourceDetail: composerSource.detail,
+            commandSourceLabel: composerSource.label,
+            label: promptActionLabel(candidate)
+          });
           onSubmitted?.();
         }}
         title={submission.blockReason ?? promptReasonTitle(candidate.reason)}

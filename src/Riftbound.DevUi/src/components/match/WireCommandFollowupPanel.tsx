@@ -74,12 +74,22 @@ export function WireCommandFollowupPanel({
         <div
           aria-label="提交界面来源"
           className="wire-command-followup-source"
+          data-command-followup-source-candidate-action={plan.uiSource.candidateAction ?? ""}
+          data-command-followup-source-candidate-label={plan.uiSource.candidateLabel ?? ""}
+          data-command-followup-source-command-source={plan.uiSource.commandSource ?? ""}
+          data-command-followup-source-command-source-label={plan.uiSource.commandSourceLabel ?? ""}
           data-command-followup-source-detail={plan.uiSource.detailId ?? ""}
           data-command-followup-source-object={plan.uiSource.objectId ?? ""}
           data-command-followup-source-surface={plan.uiSource.surface}
         >
           <small>提交入口</small>
           <strong>{plan.uiSource.label}</strong>
+          {plan.uiSource.commandSourceLabel && (
+            <span>
+              路线：{plan.uiSource.commandSourceLabel}
+              {plan.uiSource.candidateLabel ? ` / ${plan.uiSource.candidateLabel}` : ""}
+            </span>
+          )}
         </div>
       )}
       {plan.serverEventKinds.length > 0 && (
