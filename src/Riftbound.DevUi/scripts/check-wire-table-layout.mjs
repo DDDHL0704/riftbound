@@ -1,10 +1,12 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const layoutPath = resolve(scriptDir, "../src/components/match/wireTableLayoutData.json");
 const layout = JSON.parse(readFileSync(layoutPath, "utf8"));
+const contract = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
 const errors = [];
 
 const handSlots = ["hand", "runeDeck", "runeTrack"];
@@ -46,8 +48,8 @@ if (errors.length > 0) {
 console.log("Wire table layout contract check passed.");
 
 function validateRoot() {
-  if (layout.runeDeckSize !== 12) {
-    errors.push(`runeDeckSize must be 12, got ${layout.runeDeckSize}`);
+  if (layout.runeDeckSize !== contract.WIRE_RUNE_DECK_SIZE) {
+    errors.push(`runeDeckSize must be ${contract.WIRE_RUNE_DECK_SIZE}, got ${layout.runeDeckSize}`);
   }
 }
 
@@ -84,7 +86,7 @@ function validateTableRows() {
     return;
   }
 
-  if (!Array.isArray(table.rows) || table.rows.length !== 5) {
+  if (!Array.isArray(table.rows) || table.rows.length !== contract.WIRE_TABLE_ROW_COUNT) {
     errors.push("table.rows must contain opponent hand, opponent home, battlefield, self home, self hand");
     return;
   }
@@ -136,7 +138,7 @@ function validateBattlefield() {
   expectLength("battlefield.centerRows", battlefield.centerRows, 3);
 
   const zones = battlefield.unitZones;
-  if (!Array.isArray(zones) || zones.length !== 4) {
+  if (!Array.isArray(zones) || zones.length !== contract.WIRE_TABLE_UNIT_ZONE_COUNT) {
     errors.push("battlefield.unitZones must contain four lane/player quadrants");
     return;
   }
@@ -147,7 +149,7 @@ function validateBattlefield() {
   expectUnitZone(3, 1, "self");
 
   const standbyZones = battlefield.standbyZones;
-  if (!Array.isArray(standbyZones) || standbyZones.length !== 2) {
+  if (!Array.isArray(standbyZones) || standbyZones.length !== contract.WIRE_TABLE_BATTLEFIELD_LANE_COUNT) {
     errors.push("battlefield.standbyZones must contain one standby rail per battlefield");
     return;
   }
@@ -221,6 +223,19 @@ function expectStandbyZone(index, laneIndex) {
   if (zone?.laneIndex !== laneIndex) {
     errors.push(`battlefield.standbyZones[${index}] should be lane ${laneIndex}`);
   }
+}
+
+function loadTsModule(sourcePath) {
+  const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
+  const output = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022
+    }
+  }).outputText;
+  const moduleShim = { exports: {} };
+  new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+  return moduleShim.exports;
 }
 
 function expectArray(name, actual, expected) {

@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const planExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts"));
+const contractExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
+const planExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts"), contractExports);
 const viewModelExports = loadTsModule(
   resolve(scriptDir, "../src/components/match/wireTableViewModel.ts"),
   { buildWireCardFlowPlan: planExports.buildWireCardFlowPlan }

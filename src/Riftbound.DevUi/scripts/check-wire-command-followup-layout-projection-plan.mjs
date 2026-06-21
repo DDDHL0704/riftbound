@@ -5,8 +5,12 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const flowPlanExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts"));
-const authorityExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableAuthorityPlan.ts"), flowPlanExports);
+const contractExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
+const flowPlanExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts"), contractExports);
+const authorityExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableAuthorityPlan.ts"), {
+  ...contractExports,
+  ...flowPlanExports
+});
 const projectionExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireCommandFollowupLayoutProjectionPlan.ts"), {
   buildWireTableSelectedLayoutPlan: authorityExports.buildWireTableSelectedLayoutPlan
 });

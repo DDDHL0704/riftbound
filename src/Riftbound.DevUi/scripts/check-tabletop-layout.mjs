@@ -1,17 +1,19 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const layoutPath = resolve(scriptDir, "../src/components/match/tabletopLayoutData.json");
 const layout = JSON.parse(readFileSync(layoutPath, "utf8"));
+const contract = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
 
 const requiredZones = ["legend", "champion", "score", "piles", "base", "runeBank", "hand"];
 const sides = ["self", "opponent"];
 const errors = [];
 
-if (layout.runeDeckSize !== 12) {
-  errors.push(`runeDeckSize must be 12, got ${layout.runeDeckSize}`);
+if (layout.runeDeckSize !== contract.WIRE_RUNE_DECK_SIZE) {
+  errors.push(`runeDeckSize must be ${contract.WIRE_RUNE_DECK_SIZE}, got ${layout.runeDeckSize}`);
 }
 
 if (!layout.players || typeof layout.players !== "object") {
@@ -41,11 +43,24 @@ for (const side of sides) {
   }
 }
 
-if (!Array.isArray(layout.battlefields) || layout.battlefields.length !== 2) {
-  errors.push("battlefields must contain exactly 2 public battlefield zones");
+if (!Array.isArray(layout.battlefields) || layout.battlefields.length !== contract.WIRE_TABLE_BATTLEFIELD_LANE_COUNT) {
+  errors.push(`battlefields must contain exactly ${contract.WIRE_TABLE_BATTLEFIELD_LANE_COUNT} public battlefield zones`);
 } else {
   layout.battlefields.forEach((box, index) => validateBox(`battlefields[${index}]`, box));
   validateNoOverlap("battlefields[0]", layout.battlefields[0], "battlefields[1]", layout.battlefields[1], 0.01);
+}
+
+function loadTsModule(sourcePath) {
+  const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
+  const output = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022
+    }
+  }).outputText;
+  const moduleShim = { exports: {} };
+  new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+  return moduleShim.exports;
 }
 
 if (errors.length > 0) {

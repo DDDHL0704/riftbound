@@ -1,4 +1,13 @@
-export type WireCardFlowKind = "battlefield-unit" | "base" | "hand" | "signature" | "standby";
+import {
+  WIRE_CARD_IMAGE_RATIO,
+  WIRE_RAIL_VISIBLE_SLOT_LIMITS,
+  WIRE_SIGNATURE_CARD_CAPACITY,
+  WIRE_UNBOUNDED_CAPACITY,
+  type WireTableFlowKind,
+  type WireTableRailFlowKind
+} from "./wireTableContract";
+
+export type WireCardFlowKind = WireTableFlowKind;
 export type WireCardFlowDensity = "single" | "sparse" | "normal" | "dense" | "packed";
 export type WireCardFlowFit = "fixed-slot" | "elastic-rail" | "overflow-rail";
 export type WireCardFlowLayout = "grid" | "rail";
@@ -22,10 +31,6 @@ export type WireCardFlowPlan = {
   visibleSlotCount: number;
 };
 
-const CARD_RATIO = 744 / 1039;
-const UNBOUNDED_CAPACITY = "unbounded" as const;
-
-type RailFlowKind = Exclude<WireCardFlowKind, "signature">;
 type WireCardFlowStep = {
   cardWidth: number;
   density: WireCardFlowDensity;
@@ -34,31 +39,31 @@ type WireCardFlowStep = {
   scrollAfter: number;
 };
 
-const RAIL_FLOW_STRATEGIES: Record<RailFlowKind, WireCardFlowStep[]> = {
+const RAIL_FLOW_STRATEGIES: Record<WireTableRailFlowKind, WireCardFlowStep[]> = {
   "battlefield-unit": [
-    step(3, "sparse", 74, 4, 12),
-    step(5, "normal", 68, 4, 12),
-    step(8, "dense", 58, 4, 12),
-    step(12, "packed", 48, 3, 12),
-    step(Number.POSITIVE_INFINITY, "packed", 42, 3, 12)
+    step(3, "sparse", 74, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS["battlefield-unit"]),
+    step(5, "normal", 68, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS["battlefield-unit"]),
+    step(8, "dense", 58, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS["battlefield-unit"]),
+    step(12, "packed", 48, 3, WIRE_RAIL_VISIBLE_SLOT_LIMITS["battlefield-unit"]),
+    step(Number.POSITIVE_INFINITY, "packed", 42, 3, WIRE_RAIL_VISIBLE_SLOT_LIMITS["battlefield-unit"])
   ],
   base: [
-    step(3, "sparse", 86, 4, 10),
-    step(6, "normal", 74, 4, 10),
-    step(10, "dense", 62, 3, 10),
-    step(Number.POSITIVE_INFINITY, "packed", 52, 3, 10)
+    step(3, "sparse", 86, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS.base),
+    step(6, "normal", 74, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS.base),
+    step(10, "dense", 62, 3, WIRE_RAIL_VISIBLE_SLOT_LIMITS.base),
+    step(Number.POSITIVE_INFINITY, "packed", 52, 3, WIRE_RAIL_VISIBLE_SLOT_LIMITS.base)
   ],
   hand: [
-    step(5, "sparse", 86, 4, 12),
-    step(8, "normal", 74, 4, 12),
-    step(12, "dense", 62, 3, 12),
-    step(Number.POSITIVE_INFINITY, "packed", 52, 3, 12)
+    step(5, "sparse", 86, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS.hand),
+    step(8, "normal", 74, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS.hand),
+    step(12, "dense", 62, 3, WIRE_RAIL_VISIBLE_SLOT_LIMITS.hand),
+    step(Number.POSITIVE_INFINITY, "packed", 52, 3, WIRE_RAIL_VISIBLE_SLOT_LIMITS.hand)
   ],
   standby: [
-    step(2, "sparse", 58, 4, 8),
-    step(4, "normal", 52, 4, 8),
-    step(8, "dense", 46, 3, 8),
-    step(Number.POSITIVE_INFINITY, "packed", 40, 3, 8)
+    step(2, "sparse", 58, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS.standby),
+    step(4, "normal", 52, 4, WIRE_RAIL_VISIBLE_SLOT_LIMITS.standby),
+    step(8, "dense", 46, 3, WIRE_RAIL_VISIBLE_SLOT_LIMITS.standby),
+    step(Number.POSITIVE_INFINITY, "packed", 40, 3, WIRE_RAIL_VISIBLE_SLOT_LIMITS.standby)
   ]
 };
 
@@ -76,7 +81,7 @@ export function buildWireCardFlowPlan({
 
   if (kind === "signature") {
     return plan({
-      capacity: 1,
+      capacity: WIRE_SIGNATURE_CARD_CAPACITY,
       cardWidth: 100,
       density: "single",
       gap: 4,
@@ -120,14 +125,14 @@ export function resolveWireCardFlowRenderPlan({
 }
 
 function railPlan(
-  kind: RailFlowKind,
+  kind: WireTableRailFlowKind,
   itemCount: number,
   minSlots: number,
   slotCount: number,
   strategy: WireCardFlowStep
 ): WireCardFlowPlan {
   return plan({
-    capacity: UNBOUNDED_CAPACITY,
+    capacity: WIRE_UNBOUNDED_CAPACITY,
     cardWidth: strategy.cardWidth,
     density: strategy.density,
     gap: strategy.gap,
@@ -182,7 +187,7 @@ function plan({
   const overflow: WireCardFlowOverflow = overflowCount > 0 ? "scroll" : "none";
   return {
     capacity,
-    cardHeight: Math.round(cardWidth / CARD_RATIO),
+    cardHeight: Math.round(cardWidth / WIRE_CARD_IMAGE_RATIO),
     cardWidth,
     density,
     fit: overflow === "scroll" ? "overflow-rail" : layout === "rail" ? "elastic-rail" : "fixed-slot",

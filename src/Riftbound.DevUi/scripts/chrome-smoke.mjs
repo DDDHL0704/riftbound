@@ -1,10 +1,11 @@
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import axe from "axe-core";
+import ts from "typescript";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.resolve(scriptDir, "..");
@@ -16,6 +17,7 @@ const frontendUrl = `http://127.0.0.1:${frontendPort}`;
 const startApi = process.argv.includes("--start-api");
 const acceptedCommandFollowupStates = ["accepted-events", "accepted-silent", "accepted-snapshot"];
 const validCommandFollowupStates = ["accepted-awaiting", ...acceptedCommandFollowupStates, "empty", "failed", "pending", "unknown-tick"];
+const { WIRE_CARD_IMAGE_RATIO } = loadTsModule(path.resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
 
 const routes = [
   { path: "/", texts: ["符文战场", "进入大厅"] },
@@ -380,6 +382,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
   const result = await evaluateJson(cdp, `(() => {
     const failures = [];
     const validFollowupStates = ${JSON.stringify(validCommandFollowupStates)};
+    const cardImageRatio = ${JSON.stringify(WIRE_CARD_IMAGE_RATIO)};
     const round = (value) => Math.round(value * 10) / 10;
     const rectOf = (element) => {
       const rect = element.getBoundingClientRect();
@@ -466,7 +469,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       if (Math.abs(rect.width - cardWidth) > 1 || Math.abs(rect.height - cardHeight) > 1) {
         failures.push(\`flow \${kind} DOM card size drifted from plan: dom \${sizeKey(rect)} plan \${cardWidth}x\${cardHeight}\`);
       }
-      if (Math.abs((rect.width / rect.height) - (744 / 1039)) > 0.04 && kind !== "battlefield-unit") {
+      if (Math.abs((rect.width / rect.height) - cardImageRatio) > 0.04 && kind !== "battlefield-unit") {
         failures.push(\`flow \${kind} card ratio drifted: \${sizeKey(rect)}\`);
       }
 
@@ -4276,6 +4279,19 @@ function isIgnorableConsoleError(text) {
       text.includes("Failed to complete negotiation with the server")
       || text.includes("Failed to start the connection")
     );
+}
+
+function loadTsModule(sourcePath) {
+  const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
+  const output = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022
+    }
+  }).outputText;
+  const moduleShim = { exports: {} };
+  new Function("exports", "module", output)(moduleShim.exports, moduleShim);
+  return moduleShim.exports;
 }
 
 function delay(ms) {

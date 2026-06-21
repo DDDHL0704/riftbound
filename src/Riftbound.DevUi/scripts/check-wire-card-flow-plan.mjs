@@ -5,20 +5,18 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const sourcePath = resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts");
-const source = readFileSync(sourcePath, "utf8");
-const output = ts.transpileModule(source, {
-  compilerOptions: {
-    module: ts.ModuleKind.CommonJS,
-    target: ts.ScriptTarget.ES2022
-  }
-}).outputText;
-const moduleShim = { exports: {} };
-
-new Function("exports", "module", output)(moduleShim.exports, moduleShim);
-
-const { buildWireCardFlowPlan } = moduleShim.exports;
-const cardAspect = 744 / 1039;
+const contractExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
+const { buildWireCardFlowPlan } = loadTsModule(
+  resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts"),
+  contractExports
+);
+const {
+  WIRE_CARD_IMAGE_RATIO,
+  WIRE_RAIL_VISIBLE_SLOT_LIMITS,
+  WIRE_SIGNATURE_CARD_CAPACITY,
+  WIRE_UNBOUNDED_CAPACITY
+} = contractExports;
+const cardAspect = WIRE_CARD_IMAGE_RATIO;
 
 for (const kind of ["battlefield-unit", "base", "hand", "signature", "standby"]) {
   for (const itemCount of [0, 1, 3, 5, 8, 12, 20, 40]) {
@@ -33,10 +31,10 @@ for (const kind of ["battlefield-unit", "base", "hand", "signature", "standby"])
     assert.ok(plan.cardHeight > 0, `${kind} ${itemCount} cardHeight must be positive`);
     assert.ok(Math.abs((plan.cardWidth / plan.cardHeight) - cardAspect) < 0.01, `${kind} ${itemCount} card ratio drifted`);
     if (kind === "signature") {
-      assert.equal(plan.capacity, 1, "signature slots are fixed one-card rule zones");
-      assert.equal(plan.scrollAfter, 1, "signature slots must declare one visible card");
+      assert.equal(plan.capacity, WIRE_SIGNATURE_CARD_CAPACITY, "signature slots are fixed one-card rule zones");
+      assert.equal(plan.scrollAfter, WIRE_SIGNATURE_CARD_CAPACITY, "signature slots must declare one visible card");
     } else {
-      assert.equal(plan.capacity, "unbounded", `${kind} must be modeled as an unbounded zone`);
+      assert.equal(plan.capacity, WIRE_UNBOUNDED_CAPACITY, `${kind} must be modeled as an unbounded zone`);
       assert.equal(plan.layout, "rail", `${kind} should use the rail layout`);
     }
     if (plan.overflowCount > 0) {
@@ -70,8 +68,8 @@ assert.equal(crowdedBattlefield.density, "packed");
 assert.equal(crowdedBattlefield.layout, "rail");
 assert.equal(crowdedBattlefield.cardWidth, 42);
 assert.equal(crowdedBattlefield.slotCount, 40);
-assert.equal(crowdedBattlefield.scrollAfter, 12);
-assert.equal(crowdedBattlefield.visibleSlotCount, 12);
+assert.equal(crowdedBattlefield.scrollAfter, WIRE_RAIL_VISIBLE_SLOT_LIMITS["battlefield-unit"]);
+assert.equal(crowdedBattlefield.visibleSlotCount, WIRE_RAIL_VISIBLE_SLOT_LIMITS["battlefield-unit"]);
 assert.equal(crowdedBattlefield.overflowCount, 28);
 assert.equal(crowdedBattlefield.overflow, "scroll");
 
@@ -80,8 +78,8 @@ assert.equal(crowdedStandby.density, "packed");
 assert.equal(crowdedStandby.layout, "rail");
 assert.equal(crowdedStandby.cardWidth, 40);
 assert.equal(crowdedStandby.slotCount, 40);
-assert.equal(crowdedStandby.scrollAfter, 8);
-assert.equal(crowdedStandby.visibleSlotCount, 8);
+assert.equal(crowdedStandby.scrollAfter, WIRE_RAIL_VISIBLE_SLOT_LIMITS.standby);
+assert.equal(crowdedStandby.visibleSlotCount, WIRE_RAIL_VISIBLE_SLOT_LIMITS.standby);
 assert.equal(crowdedStandby.overflowCount, 32);
 assert.equal(crowdedStandby.overflow, "scroll");
 
@@ -89,8 +87,8 @@ const crowdedBase = buildWireCardFlowPlan({ itemCount: 40, kind: "base" });
 assert.equal(crowdedBase.density, "packed");
 assert.equal(crowdedBase.cardWidth, 52);
 assert.equal(crowdedBase.slotCount, 40);
-assert.equal(crowdedBase.scrollAfter, 10);
-assert.equal(crowdedBase.visibleSlotCount, 10);
+assert.equal(crowdedBase.scrollAfter, WIRE_RAIL_VISIBLE_SLOT_LIMITS.base);
+assert.equal(crowdedBase.visibleSlotCount, WIRE_RAIL_VISIBLE_SLOT_LIMITS.base);
 assert.equal(crowdedBase.overflowCount, 30);
 assert.equal(crowdedBase.overflow, "scroll");
 
@@ -98,8 +96,8 @@ const crowdedHand = buildWireCardFlowPlan({ itemCount: 40, kind: "hand" });
 assert.equal(crowdedHand.density, "packed");
 assert.equal(crowdedHand.cardWidth, 52);
 assert.equal(crowdedHand.slotCount, 40);
-assert.equal(crowdedHand.scrollAfter, 12);
-assert.equal(crowdedHand.visibleSlotCount, 12);
+assert.equal(crowdedHand.scrollAfter, WIRE_RAIL_VISIBLE_SLOT_LIMITS.hand);
+assert.equal(crowdedHand.visibleSlotCount, WIRE_RAIL_VISIBLE_SLOT_LIMITS.hand);
 assert.equal(crowdedHand.overflowCount, 28);
 assert.equal(crowdedHand.overflow, "scroll");
 
@@ -112,7 +110,7 @@ assert.equal(signature.visibleSlotCount, 1);
 assert.equal(signature.overflow, "none");
 
 const invalidSignatureOverflow = buildWireCardFlowPlan({ itemCount: 2, kind: "signature" });
-assert.equal(invalidSignatureOverflow.capacity, 1);
+assert.equal(invalidSignatureOverflow.capacity, WIRE_SIGNATURE_CARD_CAPACITY);
 assert.equal(invalidSignatureOverflow.overflowCount, 1, "signature overflow should remain explicit if backend emits invalid data");
 assert.equal(invalidSignatureOverflow.overflow, "scroll");
 
@@ -126,4 +124,18 @@ function assertNonIncreasingWidths(kind, counts) {
       `${kind} card width should not increase as item count grows: ${widths.join(" -> ")}`
     );
   }
+}
+
+function loadTsModule(sourcePath, globals = {}) {
+  const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
+  const output = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022
+    }
+  }).outputText;
+  const moduleShim = { exports: {} };
+  const globalNames = Object.keys(globals);
+  new Function("exports", "module", ...globalNames, output)(moduleShim.exports, moduleShim, ...Object.values(globals));
+  return moduleShim.exports;
 }

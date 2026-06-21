@@ -10,6 +10,11 @@ import {
   type WireCardFlowKind,
   type WireCardFlowPlan
 } from "./wireCardFlowPlan";
+import {
+  WIRE_TABLE_BATTLEFIELD_LANE_COUNT,
+  WIRE_TABLE_PLAYER_COUNT,
+  wireTableCapacityRowKey
+} from "./wireTableContract";
 
 export type WireTableAuthorityState = "fallback" | "missing" | "mixed" | "server";
 export type WireTableCapacityState = "empty" | "stable" | "scroll";
@@ -135,9 +140,6 @@ export type WireTableAuthorityPlan = {
   summary: string;
 };
 
-const REQUIRED_PLAYER_COUNT = 2;
-const REQUIRED_LANE_COUNT = 2;
-
 export function buildWireTableAuthorityPlan(
   table: WireTableViewModel,
   options: { selectedObjectId?: string } = {}
@@ -167,8 +169,8 @@ export function buildWireTableAuthorityPlan(
     state: battlefieldSplitState(lane.occupantSplitSource)
   }));
 
-  const missingPlayerCount = Math.max(0, REQUIRED_PLAYER_COUNT - players.length);
-  const missingLaneCount = Math.max(0, REQUIRED_LANE_COUNT - lanes.length);
+  const missingPlayerCount = Math.max(0, WIRE_TABLE_PLAYER_COUNT - players.length);
+  const missingLaneCount = Math.max(0, WIRE_TABLE_BATTLEFIELD_LANE_COUNT - lanes.length);
   const capacityRows = buildCapacityRows(table);
   const selectedLayout = attachSelectedCapacity(
     buildSelectedLayoutPlan(table, capacityRows, options.selectedObjectId),
@@ -200,19 +202,19 @@ export function buildWireTableAuthorityPlan(
         key: "players",
         label: "玩家基础区",
         state: missingPlayerCount > 0 ? "missing" : aggregateRows(players.map((row) => row.state)),
-        value: `${players.filter((row) => row.state === "server").length}/${REQUIRED_PLAYER_COUNT}`
+        value: `${players.filter((row) => row.state === "server").length}/${WIRE_TABLE_PLAYER_COUNT}`
       },
       {
         key: "battlefields",
         label: "战场分边",
         state: missingLaneCount > 0 ? "missing" : aggregateRows(lanes.map((row) => row.state)),
-        value: `${lanes.filter((row) => row.state === "server").length}/${REQUIRED_LANE_COUNT}`
+        value: `${lanes.filter((row) => row.state === "server").length}/${WIRE_TABLE_BATTLEFIELD_LANE_COUNT}`
       },
       {
         key: "standbySlots",
         label: "待命槽位",
         state: missingLaneCount > 0 ? "missing" : aggregateRows(lanes.map((row) => row.standbyState)),
-        value: `${lanes.filter((row) => row.standbyState === "server").length}/${REQUIRED_LANE_COUNT}`
+        value: `${lanes.filter((row) => row.standbyState === "server").length}/${WIRE_TABLE_BATTLEFIELD_LANE_COUNT}`
       },
       {
         key: "layoutPlans",
@@ -248,7 +250,7 @@ function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
     ...table.players.flatMap((player) => [
       capacityRow({
         itemCount: player.baseObjectIds.length,
-        key: `${player.side}:base`,
+        key: wireTableCapacityRowKey(player.side, "base"),
         kind: "base",
         label: `${player.label} 基地流`,
         minSlots: 1,
@@ -256,7 +258,7 @@ function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
       }),
       capacityRow({
         itemCount: player.side === "opponent" ? player.hiddenHandIds.length : player.handIds.length,
-        key: `${player.side}:hand`,
+        key: wireTableCapacityRowKey(player.side, "hand"),
         kind: "hand",
         label: `${player.label} 手牌流`,
         sizingPlan: table.playerPlans.handPlan
@@ -265,7 +267,7 @@ function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
     ...table.battlefield.lanes.flatMap((lane) => [
       capacityRow({
         itemCount: lane.opposingOccupants.length,
-        key: `battlefield:${lane.index}:opponent`,
+        key: wireTableCapacityRowKey(lane.index, "opponent"),
         kind: "battlefield-unit",
         label: `${lane.index === 0 ? "左战场" : "右战场"} 对方单位`,
         minSlots: 3,
@@ -273,7 +275,7 @@ function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
       }),
       capacityRow({
         itemCount: lane.ownOccupants.length,
-        key: `battlefield:${lane.index}:self`,
+        key: wireTableCapacityRowKey(lane.index, "self"),
         kind: "battlefield-unit",
         label: `${lane.index === 0 ? "左战场" : "右战场"} 我方单位`,
         minSlots: 3,
@@ -281,7 +283,7 @@ function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
       }),
       capacityRow({
         itemCount: lane.standbySlots.length,
-        key: `battlefield:${lane.index}:standby`,
+        key: wireTableCapacityRowKey(lane.index, "standby"),
         kind: "standby",
         label: `${lane.index === 0 ? "左战场" : "右战场"} 待命槽`,
         minSlots: 1,
@@ -353,7 +355,7 @@ function buildSelectedLayoutPlan(
   const capacityKeys = new Set(capacityRows.map((row) => row.key));
   for (const player of table.players) {
     const playerLabel = player.side === "self" ? "我方" : "对手";
-    const capacityRowKey = `${player.side}:base`;
+    const capacityRowKey = wireTableCapacityRowKey(player.side, "base");
     if (player.baseObjectIds.includes(objectId)) {
       return selectedLayoutPlan({
         capacityRowKey,
@@ -377,7 +379,7 @@ function buildSelectedLayoutPlan(
       });
     }
 
-    const handRowKey = `${player.side}:hand`;
+    const handRowKey = wireTableCapacityRowKey(player.side, "hand");
     if (player.handIds.includes(objectId) || player.hiddenHandIds.includes(objectId)) {
       return selectedLayoutPlan({
         capacityRowKey: capacityKeys.has(handRowKey) ? handRowKey : undefined,
@@ -448,7 +450,7 @@ function buildSelectedLayoutPlan(
       });
     }
 
-    const opposingRowKey = `battlefield:${lane.index}:opponent`;
+    const opposingRowKey = wireTableCapacityRowKey(lane.index, "opponent");
     if (lane.opposingOccupants.includes(objectId)) {
       return selectedLayoutPlan({
         capacityRowKey: capacityKeys.has(opposingRowKey) ? opposingRowKey : undefined,
@@ -461,7 +463,7 @@ function buildSelectedLayoutPlan(
       });
     }
 
-    const ownRowKey = `battlefield:${lane.index}:self`;
+    const ownRowKey = wireTableCapacityRowKey(lane.index, "self");
     if (lane.ownOccupants.includes(objectId)) {
       return selectedLayoutPlan({
         capacityRowKey: capacityKeys.has(ownRowKey) ? ownRowKey : undefined,
@@ -474,7 +476,7 @@ function buildSelectedLayoutPlan(
       });
     }
 
-    const standbyRowKey = `battlefield:${lane.index}:standby`;
+    const standbyRowKey = wireTableCapacityRowKey(lane.index, "standby");
     if (lane.standbySlots.some((slot) => slot.objectId === objectId || slot.slotId === objectId)) {
       return selectedLayoutPlan({
         capacityRowKey: capacityKeys.has(standbyRowKey) ? standbyRowKey : undefined,
@@ -519,9 +521,9 @@ function selectedLayoutFromServerLocation(
   const player = playerFromLocation(table, location.playerId, object?.controllerId, object?.ownerId);
   const playerLabel = player?.side === "self" ? "我方" : player?.side === "opponent" ? "对手" : "未知玩家";
   const zoneLabel = normalizeLocationText(location.zoneLabel);
-  const capacityKeyForPlayer = (suffix: string) => player ? `${player.side}:${suffix}` : undefined;
-  const capacityKeyForLane = (laneIndex: number, suffix: string) => {
-    const key = `battlefield:${laneIndex}:${suffix}`;
+  const capacityKeyForPlayer = (suffix: "base" | "hand") => player ? wireTableCapacityRowKey(player.side, suffix) : undefined;
+  const capacityKeyForLane = (laneIndex: number, suffix: "opponent" | "self" | "standby") => {
+    const key = wireTableCapacityRowKey(laneIndex, suffix);
     return capacityKeys.has(key) ? key : undefined;
   };
 
@@ -634,7 +636,7 @@ function selectedLayoutFromServerLocation(
 
 function selectedBattlefieldLayoutFromServerLocation(
   table: WireTableViewModel,
-  capacityKeyForLane: (laneIndex: number, suffix: string) => string | undefined,
+  capacityKeyForLane: (laneIndex: number, suffix: "opponent" | "self" | "standby") => string | undefined,
   objectId: string,
   object: ReturnType<typeof objectFromTable>,
   location: NonNullable<ReturnType<typeof objectFromTable>>["location"],

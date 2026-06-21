@@ -5,9 +5,14 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const flowPlanExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts"));
-const authorityExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableAuthorityPlan.ts"), flowPlanExports);
+const contractExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
+const flowPlanExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireCardFlowPlan.ts"), contractExports);
+const authorityExports = loadTsModule(resolve(scriptDir, "../src/components/match/wireTableAuthorityPlan.ts"), {
+  ...contractExports,
+  ...flowPlanExports
+});
 const { buildWireTableAuthorityPlan } = authorityExports;
+const { WIRE_CARD_IMAGE_RATIO, WIRE_TABLE_CAPACITY_ROW_COUNT } = contractExports;
 
 const serverPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],
@@ -28,7 +33,7 @@ assert.deepEqual(
     ["standby", "standby", "consistent", 52]
   ]
 );
-assert.equal(serverPlan.capacityRows.length, 10);
+assert.equal(serverPlan.capacityRows.length, WIRE_TABLE_CAPACITY_ROW_COUNT);
 const serverCapacityRows = new Map(serverPlan.capacityRows.map((row) => [row.key, row]));
 assert.deepEqual(
   Array.from(serverCapacityRows.keys()),
@@ -347,7 +352,7 @@ function plan(kind, itemCount, slotCount = itemCount, visibleSlotCount = Math.mi
   const overflowCount = Math.max(0, slotCount - visibleSlots);
   return {
     capacity: "unbounded",
-    cardHeight: Math.round(width / (744 / 1039)),
+    cardHeight: Math.round(width / WIRE_CARD_IMAGE_RATIO),
     cardWidth: width,
     density: itemCount <= 3 ? "sparse" : "normal",
     fit: overflowCount > 0 ? "overflow-rail" : "elastic-rail",
