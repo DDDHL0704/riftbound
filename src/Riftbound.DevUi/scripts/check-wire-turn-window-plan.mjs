@@ -191,6 +191,59 @@ assert.equal(serverResponsibilityActionable.inspection.summaryRows.find((row) =>
 assert.equal(serverResponsibilityActionable.metrics.find((metric) => metric.key === "prompt")?.mine, true);
 assert.equal(serverResponsibilityActionable.queueStateLabel, "责任玩家可行动");
 
+const serverFlowOnlyResponsibility = buildWireTurnWindowPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: false,
+    actions: ["WAIT"],
+    candidates: [],
+    playerId: "P1",
+    reason: "服务端流程窗口",
+    serverFlow: {
+      actionableForPromptPlayer: true,
+      candidateCount: 4,
+      disabledCandidateCount: 1,
+      enabledCandidateCount: 3,
+      isResponsiblePlayer: true,
+      nextStep: "按 serverFlow 提交候选。",
+      promptPlayerId: "P1",
+      promptType: "STACK_PRIORITY",
+      responsiblePlayerId: "P1",
+      state: "ready"
+    },
+    view: {
+      message: "等待服务端流程",
+      title: "响应窗口",
+      type: "WAIT"
+    }
+  },
+  snapshot: {
+    activePlayerId: "P2",
+    lanes: {},
+    players: {},
+    stack: [{ stackItemId: "stack-1" }],
+    tick: 11,
+    timing: {
+      phase: "MAIN",
+      roomStatus: "IN_PROGRESS",
+      turnWindow: { actingPlayerId: "P1", state: "NEUTRAL_CLOSED" }
+    },
+    turnNumber: 3,
+    turnState: "MAIN"
+  }
+});
+
+assert.equal(serverFlowOnlyResponsibility.state, "you-action");
+assert.equal(serverFlowOnlyResponsibility.responsibilitySource, "server");
+assert.equal(serverFlowOnlyResponsibility.responsibilityPromptType, "STACK_PRIORITY");
+assert.equal(serverFlowOnlyResponsibility.promptOwnerId, "P1");
+assert.equal(serverFlowOnlyResponsibility.promptActionable, true);
+assert.equal(serverFlowOnlyResponsibility.queueStateLabel, "服务端流程可提交");
+assert.equal(serverFlowOnlyResponsibility.nextStepLabel, "按 serverFlow 提交候选。");
+assert.equal(serverFlowOnlyResponsibility.enabledCandidateCount, 3);
+assert.equal(serverFlowOnlyResponsibility.metrics.find((metric) => metric.key === "candidates")?.value, "3/4");
+
 const serverResponsibilityOpponent = buildWireTurnWindowPlan({
   connectionStatus: "connected",
   playerId: "P1",

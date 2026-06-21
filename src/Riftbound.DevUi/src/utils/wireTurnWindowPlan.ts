@@ -63,22 +63,23 @@ export function buildWireTurnWindowPlan({
   const timing = record(snapshot?.timing);
   const turnWindow = record(timing.turnWindow);
   const queue = record(timing.pendingTaskQueue);
+  const serverFlow = prompt?.serverFlow;
   const responsibility = prompt?.view?.responsibility;
-  const responsibilityPromptType = stringValue(responsibility?.promptType);
-  const responsibilityState = stringValue(responsibility?.state);
-  const responsibilityNextStep = stringValue(responsibility?.nextStep);
+  const responsibilityPromptType = stringValue(responsibility?.promptType) || stringValue(serverFlow?.promptType);
+  const responsibilityState = stringValue(responsibility?.state) || stringValue(serverFlow?.state);
+  const responsibilityNextStep = stringValue(responsibility?.nextStep) || stringValue(serverFlow?.nextStep);
   const stackCount = arrayLength(snapshot?.stack);
   const taskCount = arrayLength(queue.tasks) + arrayLength(timing.battlefieldTasks);
   const triggerCount = arrayLength(timing.triggerQueue);
-  const responsiblePlayerId = stringValue(responsibility?.responsiblePlayerId);
-  const promptOwnerId = responsiblePlayerId || prompt?.playerId || stringValue(timing.promptPlayerId);
+  const responsiblePlayerId = stringValue(responsibility?.responsiblePlayerId) || stringValue(serverFlow?.responsiblePlayerId);
+  const promptOwnerId = responsiblePlayerId || stringValue(serverFlow?.promptPlayerId) || prompt?.playerId || stringValue(timing.promptPlayerId);
   const activePlayerId = snapshot?.activePlayerId || stringValue(turnWindow.actingPlayerId) || stringValue(timing.priorityPlayerId);
   const candidateCounts = promptCandidateCounts(prompt);
   const enabledCandidateCount = candidateCounts.enabledCandidateCount;
   const isConnected = connectionStatus === "connected" || connectionStatus === "resyncing";
   const isBlocking = Boolean(queue.isBlocking);
-  const promptActionable = Boolean(responsibility?.actionableForPromptPlayer ?? prompt?.actionable);
-  const mine = Boolean(responsibility?.isResponsiblePlayer ?? (promptActionable && promptOwnerId === playerId));
+  const promptActionable = Boolean(responsibility?.actionableForPromptPlayer ?? serverFlow?.actionableForPromptPlayer ?? prompt?.actionable);
+  const mine = Boolean(responsibility?.isResponsiblePlayer ?? serverFlow?.isResponsiblePlayer ?? (promptActionable && promptOwnerId === playerId));
   const responsibleOther = Boolean(promptOwnerId && promptOwnerId !== playerId && !mine);
   const state = windowState({
     connectionStatus,
@@ -120,10 +121,10 @@ export function buildWireTurnWindowPlan({
     promptActionable,
     promptOwnerId,
     promptTitle: prompt?.view?.title?.trim() || "无行动窗口",
-    promptType: prompt?.view?.type || "WAIT",
+    promptType: prompt?.view?.type || serverFlow?.promptType || "WAIT",
     queueStateLabel: responsibilityQueueStateLabel(responsibilityState, isBlocking, taskCount),
     responsibilityPromptType,
-    responsibilitySource: responsibility ? "server" : "fallback",
+    responsibilitySource: responsibility || serverFlow ? "server" : "fallback",
     responsibilityState,
     roomStatus: stringValue(timing.roomStatus),
     stackCount,
@@ -168,7 +169,7 @@ function windowState({
     return "disconnected";
   }
 
-  if (isBlocking || responsibilityState === "SERVER_RESOLVING") {
+  if (isBlocking || responsibilityState === "SERVER_RESOLVING" || responsibilityState === "blocked") {
     return "resolving";
   }
 
@@ -290,6 +291,26 @@ function responsibilityQueueStateLabel(
 
   if (responsibilityState === "PLAYER_ACTION") {
     return "责任玩家可行动";
+  }
+
+  if (responsibilityState === "ready") {
+    return "服务端流程可提交";
+  }
+
+  if (responsibilityState === "respond") {
+    return "服务端响应窗口";
+  }
+
+  if (responsibilityState === "blocked") {
+    return "服务端流程阻塞";
+  }
+
+  if (responsibilityState === "history") {
+    return "服务端流程回看";
+  }
+
+  if (responsibilityState === "waiting") {
+    return "服务端流程等待";
   }
 
   if (isBlocking) {
