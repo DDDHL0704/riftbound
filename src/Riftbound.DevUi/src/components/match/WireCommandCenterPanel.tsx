@@ -1,5 +1,10 @@
 import type { ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import {
+  buildCommandSubmissionFollowupPlan,
+  type CommandSubmissionFollowupFeedback,
+  type ObservedGameEvent
+} from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import {
@@ -17,6 +22,7 @@ import { WireFocusedActionEntryList } from "./WireFocusedActionEntryList";
 export function WireCommandCenterPanel({
   connectionStatus,
   disabledByConnection,
+  events,
   focusedPlan,
   objectContext,
   onClearFocus,
@@ -25,10 +31,12 @@ export function WireCommandCenterPanel({
   prompt,
   selectionDraft,
   snapshot,
+  submissionFeedback,
   submissionGate
 }: {
   connectionStatus: ConnectionStatus;
   disabledByConnection: boolean;
+  events?: readonly ObservedGameEvent[];
   focusedPlan: WireFocusedInteractionPlan;
   objectContext?: TableObjectContext;
   onClearFocus: () => void;
@@ -37,6 +45,7 @@ export function WireCommandCenterPanel({
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
   snapshot?: SnapshotDto;
+  submissionFeedback?: CommandSubmissionFollowupFeedback;
   submissionGate?: ServerSubmissionGatePlan;
 }) {
   const coachPlan = buildWireResponseCoachPlan({
@@ -50,7 +59,12 @@ export function WireCommandCenterPanel({
   const plan = buildWireCommandCenterPlan({
     coachPlan,
     focusedPlan,
-    objectContext
+    objectContext,
+    submissionFollowup: buildCommandSubmissionFollowupPlan({
+      events,
+      feedback: submissionFeedback,
+      snapshot
+    })
   });
 
   return (

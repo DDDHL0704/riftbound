@@ -10,13 +10,16 @@ const { buildWireCommandCenterPlan } = loadTsModule(resolve(scriptDir, "../src/u
 const readyPlan = buildWireCommandCenterPlan({
   coachPlan: coach("ready", "submit"),
   focusedPlan: focused("ready", { actionCount: 1, legalState: "ready" }),
-  objectContext: context("手牌")
+  objectContext: context("手牌"),
+  submissionFollowup: followup("accepted-events")
 });
 assert.equal(readyPlan.state, "ready");
 assert.equal(readyPlan.stateLabel, "可提交");
 assert.equal(readyPlan.canShowFocusedActions, true);
 assert.equal(readyPlan.rows.find((row) => row.key === "focus")?.value, "hand-1");
 assert.equal(readyPlan.rows.find((row) => row.key === "submit")?.state, "ready");
+assert.equal(readyPlan.rows.find((row) => row.key === "feedback")?.state, "ready");
+assert.equal(readyPlan.rows.find((row) => row.key === "feedback")?.value, "已有后续事件");
 assert.deepEqual(readyPlan.actionRows.map((row) => [row.action, row.state]), [["PLAY_CARD", "ready"]]);
 
 const selectingPlan = buildWireCommandCenterPlan({
@@ -40,10 +43,12 @@ assert.equal(noFocusPlan.rows.find((row) => row.key === "focus")?.state, "empty"
 const blockedPlan = buildWireCommandCenterPlan({
   coachPlan: coach("blocked", "sync"),
   focusedPlan: focused("ready", { canSubmit: false }),
-  objectContext: context("基地")
+  objectContext: context("基地"),
+  submissionFollowup: followup("failed")
 });
 assert.equal(blockedPlan.state, "blocked");
 assert.equal(blockedPlan.rows.find((row) => row.key === "submit")?.state, "blocked");
+assert.equal(blockedPlan.rows.find((row) => row.key === "feedback")?.state, "blocked");
 
 console.log("Wire command center plan check passed.");
 
@@ -121,6 +126,16 @@ function context(zoneLabel) {
     stackRoles: [],
     stateLabels: [],
     zone: { kind: "hand", label: zoneLabel }
+  };
+}
+
+function followup(state) {
+  return {
+    events: [],
+    hiddenEventCount: 0,
+    metrics: [],
+    state,
+    summary: `${state} summary`
   };
 }
 

@@ -696,7 +696,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       row.getAttribute("data-wire-command-center-row") ?? "",
       row.getAttribute("data-wire-command-center-row-state") ?? ""
     ]));
-    for (const rowKey of ["window", "focus", "candidate", "command", "submit"]) {
+    for (const rowKey of ["window", "focus", "candidate", "command", "submit", "feedback"]) {
       if (!commandCenterRows.get(rowKey)) {
         failures.push(\`wire command center row \${rowKey} is missing\`);
       }

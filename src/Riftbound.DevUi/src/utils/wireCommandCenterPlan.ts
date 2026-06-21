@@ -1,3 +1,4 @@
+import type { CommandSubmissionFollowupPlan, CommandSubmissionFollowupState } from "./commandSubmissionFollowupPlan";
 import type { TableObjectContext } from "./tableObjectContext";
 import type { WireResponseCoachPlan, WireResponseCoachStepRole } from "./wireResponseCoachPlan";
 import type {
@@ -56,11 +57,13 @@ export type WireCommandCenterPlan = {
 export function buildWireCommandCenterPlan({
   coachPlan,
   focusedPlan,
-  objectContext
+  objectContext,
+  submissionFollowup
 }: {
   coachPlan: WireResponseCoachPlan;
   focusedPlan: WireFocusedInteractionPlan;
   objectContext?: TableObjectContext;
+  submissionFollowup?: CommandSubmissionFollowupPlan;
 }): WireCommandCenterPlan {
   const state = commandCenterState(focusedPlan, coachPlan);
   const actionRows = focusedPlan.legalActionRows.slice(0, 4).map((row): WireCommandCenterActionRow => ({
@@ -85,13 +88,51 @@ export function buildWireCommandCenterPlan({
       row("focus", "焦点", focusValue(focusedPlan), focusDetail(focusedPlan, objectContext), focusedPlan.sourceObjectId ? "server" : "empty"),
       row("candidate", "候选", `${focusedPlan.readiness.enabledCount} 可用 / ${focusedPlan.readiness.blockedCount} 阻断`, focusedPlan.readiness.stateLabel, candidateRowState(focusedPlan)),
       row("command", "命令", focusedPlan.readiness.commandType ?? coachPlan.candidateLabel ?? "无", focusedPlan.readiness.nextStepLabel, commandRowState(state)),
-      row("submit", "提交", focusedPlan.submissionGate.stateLabel, focusedPlan.submissionGate.reason, focusedPlan.submissionGate.canSubmit ? "ready" : "blocked")
+      row("submit", "提交", focusedPlan.submissionGate.stateLabel, focusedPlan.submissionGate.reason, focusedPlan.submissionGate.canSubmit ? "ready" : "blocked"),
+      row("feedback", "回执", submissionFollowupStateLabel(submissionFollowup?.state), submissionFollowup?.summary ?? "尚未提交命令。", submissionFollowupRowState(submissionFollowup?.state))
     ],
     state,
     stateLabel: stateLabelFor(state),
     stepRole: coachPlan.stepRole,
     tone: toneFor(state)
   };
+}
+
+function submissionFollowupStateLabel(state: CommandSubmissionFollowupState | undefined): string {
+  switch (state) {
+    case "accepted-awaiting":
+      return "等待事件/快照";
+    case "accepted-events":
+      return "已有后续事件";
+    case "accepted-snapshot":
+      return "快照已追上";
+    case "failed":
+      return "提交失败";
+    case "pending":
+      return "提交中";
+    case "unknown-tick":
+      return "回执缺 tick";
+    case "empty":
+    case undefined:
+      return "尚未提交";
+  }
+}
+
+function submissionFollowupRowState(state: CommandSubmissionFollowupState | undefined): WireCommandCenterRowState {
+  switch (state) {
+    case "accepted-events":
+    case "accepted-snapshot":
+      return "ready";
+    case "failed":
+      return "blocked";
+    case "accepted-awaiting":
+    case "pending":
+    case "unknown-tick":
+      return "waiting";
+    case "empty":
+    case undefined:
+      return "empty";
+  }
 }
 
 function commandCenterState(

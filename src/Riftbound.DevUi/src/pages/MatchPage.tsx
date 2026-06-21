@@ -367,6 +367,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         <WireCommandCenterPanel
           connectionStatus={tableConnectionStatus}
           disabledByConnection={!tableSubmissionGate.canSubmit}
+          events={tableEvents}
           focusedPlan={selectedFocusPlan}
           objectContext={selectedObjectContext}
           onClearFocus={clearInspectedCard}
@@ -375,6 +376,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           prompt={tablePrompt}
           selectionDraft={selectionDraft}
           snapshot={tableSnapshot}
+          submissionFeedback={controller.state.lastCommandSubmission}
           submissionGate={tableSubmissionGate}
         />
       </section>
