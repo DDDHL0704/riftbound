@@ -751,6 +751,27 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (sidePanelSlots.join("|") !== expectedSidePanelSlots.join("|")) {
       failures.push(\`wire side panel slot order drifted: \${sidePanelSlots.join(" -> ")}\`);
     }
+    const sidePanelDirectoryLinks = Array.from(document.querySelectorAll("[data-wire-side-panel-directory-link]")).map((link) => ({
+      href: link.getAttribute("href") ?? "",
+      label: link.textContent?.trim() ?? "",
+      slot: link.getAttribute("data-wire-side-panel-directory-link") ?? ""
+    }));
+    const sidePanelDirectoryLinkSlots = sidePanelDirectoryLinks.map((link) => link.slot);
+    if (sidePanelDirectoryLinkSlots.join("|") !== expectedSidePanelSlots.join("|")) {
+      failures.push(\`wire side panel directory order drifted: \${sidePanelDirectoryLinkSlots.join(" -> ")}\`);
+    }
+    for (const link of sidePanelDirectoryLinks) {
+      const expectedAnchorId = \`wire-side-panel-\${link.slot}\`;
+      if (link.href !== \`#\${expectedAnchorId}\`) {
+        failures.push(\`wire side panel directory link \${link.slot} has href \${link.href}\`);
+      }
+      if (!document.getElementById(expectedAnchorId)) {
+        failures.push(\`wire side panel directory target missing: \${expectedAnchorId}\`);
+      }
+      if (link.label.length === 0) {
+        failures.push(\`wire side panel directory link label missing: \${link.slot}\`);
+      }
+    }
 
     return {
       failures,
@@ -767,6 +788,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       responsibilitySource,
       responseCoachState,
       ruleAuthorityState,
+      sidePanelDirectoryCount: sidePanelDirectoryLinks.length,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length,
       tableAuthorityState
     };
@@ -788,6 +810,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if ((result.quickActionCount ?? 0) < 5) {
     throw new Error("Wire layout geometry smoke did not find topbar quick actions");
+  }
+  if ((result.sidePanelDirectoryCount ?? 0) < 13) {
+    throw new Error("Wire layout geometry smoke did not find side panel directory links");
   }
   if (result.tableAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server table authority: ${result.tableAuthorityState}`);
