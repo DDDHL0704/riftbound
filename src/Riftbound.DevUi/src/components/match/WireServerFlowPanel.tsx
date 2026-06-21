@@ -167,6 +167,7 @@ export function WireServerFlowPanel({
             <li
               data-wire-server-flow-step={step.key}
               data-wire-server-flow-step-detail={step.timelineDetail ? "available" : "empty"}
+              data-wire-server-flow-step-role={step.role}
               data-wire-server-flow-step-state={step.state}
               key={step.key}
             >
@@ -378,6 +379,7 @@ function WireServerFlowLayerSteps({
           <li
             data-wire-server-flow-layer-step={step.key}
             data-wire-server-flow-layer-step-detail={step.timelineDetail ? "available" : "empty"}
+            data-wire-server-flow-layer-step-role={step.role}
             data-wire-server-flow-layer-step-state={step.state}
             key={step.key}
           >

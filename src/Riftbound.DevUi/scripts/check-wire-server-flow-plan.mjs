@@ -131,6 +131,7 @@ const serverFlowFixture = {
       detail: "服务端候选裁定。",
       key: "stack",
       label: "结算链",
+      role: "stack",
       state: "respond",
       stateLabel: "响应",
       value: "1 项"
@@ -166,8 +167,10 @@ assert.equal(serverBackedPlan.detail?.title, "服务端关联对象");
 assert.deepEqual(serverBackedPlan.detail?.refs, [{ id: "unit-1", role: "结算来源" }]);
 assert.equal(serverBackedPlan.detailButtonLabel, "打开关联对象");
 assert.equal(serverBackedPlan.lanes.find((lane) => lane.key === "stack").headline, "DAMAGE / OGN-001");
+assert.equal(serverBackedPlan.steps[0].role, "stack");
 assert.equal(serverBackedPlan.steps[0].timelineDetail?.id, "server-flow:STACK_PRIORITY:P1:step:stack:0");
 assert.equal(serverBackedPlan.steps[0].timelineDetail?.title, "服务端流程：结算链");
+assert.equal(serverBackedPlan.steps[0].timelineDetail?.lines.find((line) => line.label === "角色").value, "stack");
 assert.equal(serverBackedPlan.steps[0].timelineDetail?.lines.find((line) => line.label === "说明").value, "服务端候选裁定。");
 assert.deepEqual(serverBackedPlan.steps[0].timelineDetail?.refs, [{ id: "unit-1", role: "结算来源" }]);
 
@@ -179,6 +182,7 @@ const crowdedServerFlowFixture = {
       detail: "当前窗口由服务端裁定。",
       key: "prompt",
       label: "行动窗口",
+      role: "window",
       state: "waiting",
       stateLabel: "等待",
       value: "结算链响应"
@@ -187,6 +191,7 @@ const crowdedServerFlowFixture = {
       detail: "责任方仍由服务端指定。",
       key: "responsibility",
       label: "责任方",
+      role: "responsibility",
       state: "ready",
       stateLabel: "负责",
       value: "P1"
@@ -195,6 +200,7 @@ const crowdedServerFlowFixture = {
       detail: "已有项目等待响应。",
       key: "stack",
       label: "结算链",
+      role: "stack",
       state: "respond",
       stateLabel: "响应",
       value: "1 项"
@@ -203,6 +209,7 @@ const crowdedServerFlowFixture = {
       detail: "规则任务阻塞主阶段行动。",
       key: "task",
       label: "规则任务",
+      role: "task",
       state: "blocked",
       stateLabel: "阻塞",
       value: "1 项"
@@ -211,6 +218,7 @@ const crowdedServerFlowFixture = {
       detail: "触发等待服务端结算。",
       key: "trigger",
       label: "触发队列",
+      role: "trigger",
       state: "server",
       stateLabel: "服务端",
       value: "1 项"
@@ -219,6 +227,7 @@ const crowdedServerFlowFixture = {
       detail: "前端只提交服务端候选，不重算合法性。",
       key: "candidate",
       label: "候选",
+      role: "candidate",
       state: "ready",
       stateLabel: "2 可提交",
       value: "WAIT / SURRENDER"
@@ -243,6 +252,10 @@ assert.equal(crowdedServerBackedPlan.steps.length, 6);
 assert.deepEqual(
   crowdedServerBackedPlan.steps.map((step) => step.key),
   ["server:prompt", "server:responsibility", "server:stack", "server:task", "server:trigger", "server:candidate"]
+);
+assert.deepEqual(
+  crowdedServerBackedPlan.steps.map((step) => step.role),
+  ["window", "responsibility", "stack", "task", "trigger", "candidate"]
 );
 assert.equal(crowdedServerBackedPlan.steps.at(-1).value, "WAIT / SURRENDER");
 assert.equal(crowdedServerBackedPlan.steps.at(-1).detail, "前端只提交服务端候选，不重算合法性。");

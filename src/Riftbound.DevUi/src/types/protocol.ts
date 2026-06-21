@@ -381,6 +381,7 @@ export type ActionPromptServerFlowStepDto = {
   stateLabel: string;
   value: string;
   detail: string;
+  role?: string | null;
 };
 
 export type ActionPromptServerFlowObjectRefDto = {

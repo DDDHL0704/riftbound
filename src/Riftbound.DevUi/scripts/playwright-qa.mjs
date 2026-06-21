@@ -408,6 +408,8 @@ async function runObjectCommandTrayInteraction(report) {
       laneCount: layer.getAttribute("data-wire-server-flow-layer-lane-count") ?? "",
       relatedCount: layer.getAttribute("data-wire-server-flow-layer-related-count") ?? "",
       stepCount: layer.getAttribute("data-wire-server-flow-layer-step-count") ?? "",
+      stepRoles: Array.from(layer.querySelectorAll("[data-wire-server-flow-layer-step-role]"))
+        .map((item) => item.getAttribute("data-wire-server-flow-layer-step-role") ?? ""),
       text: layer.textContent ?? ""
     }));
     if (
@@ -415,6 +417,7 @@ async function runObjectCommandTrayInteraction(report) {
       Number(serverFlowLayerResult.stepCount) < 1 ||
       Number(serverFlowLayerResult.laneCount) < 1 ||
       Number(serverFlowLayerResult.relatedCount) < 1 ||
+      !serverFlowLayerResult.stepRoles.includes("candidate") ||
       !serverFlowLayerResult.text.includes("服务端流程检查层")
     ) {
       throw new Error(`Server-flow layer failed structural checks: ${JSON.stringify(serverFlowLayerResult)}`);

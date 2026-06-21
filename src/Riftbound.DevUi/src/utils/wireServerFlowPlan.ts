@@ -50,6 +50,7 @@ export type WireServerFlowStep = {
   detail: string;
   key: string;
   label: string;
+  role: string;
   state: string;
   stateLabel: string;
   timelineDetail?: WireServerFlowDetail;
@@ -227,6 +228,7 @@ function serverBackedFlowPlan(
       detail: step.detail,
       key: `server:${step.key}`,
       label: step.label,
+      role: normalizedServerFlowStepRole(step.role, step.key),
       state: step.state,
       stateLabel: step.stateLabel,
       timelineDetail: serverFlowStepDetail(serverFlow, step, index, relatedObjectRefs),
@@ -248,6 +250,7 @@ function serverFlowStepDetail(
     id: `server-flow:${serverFlow.promptType || "UNKNOWN"}:${serverFlow.promptPlayerId || "UNKNOWN"}:step:${stepKey}:${index}`,
     lines: [
       { label: "步骤", value: step.label || stepKey },
+      { label: "角色", value: normalizedServerFlowStepRole(step.role, step.key) },
       { label: "状态", value: [step.stateLabel, step.state].filter(Boolean).join(" / ") || "无" },
       { label: "值", value: step.value || "无" },
       { label: "说明", value: step.detail || "无" },
@@ -274,6 +277,7 @@ function withFallbackStepDetail(
       id: `server-flow:fallback:step:${step.key}:${index}`,
       lines: [
         { label: "步骤", value: step.label || step.key },
+        { label: "角色", value: step.role || step.key },
         { label: "状态", value: [step.stateLabel, step.state].filter(Boolean).join(" / ") || "无" },
         { label: "值", value: step.value || "无" },
         { label: "说明", value: step.detail || "无" },
@@ -546,6 +550,10 @@ function normalizedOptionalCount(value: number | null | undefined): number | und
   return Number.isFinite(value) ? Number(value) : undefined;
 }
 
+function normalizedServerFlowStepRole(role: string | null | undefined, fallback: string): string {
+  return role?.trim() || fallback.trim() || "step";
+}
+
 function normalizedServerFlowCandidateSteps(
   steps: ActionPromptObjectCandidateStepDto[] | null | undefined
 ): WireServerFlowObjectCandidateStep[] | undefined {
@@ -639,6 +647,7 @@ function flowSteps(rulePlan: WireRuleQueuePlan, responsePlan: WireResponseCoachP
     detail: row.detail,
     key: `response:${row.key}`,
     label: row.label,
+    role: row.key || "response",
     state: row.state,
     stateLabel: row.stateLabel,
     value: row.value
@@ -650,6 +659,7 @@ function responsibilityStep(item: WireRuleQueueResponsibilityItem): WireServerFl
     detail: item.reason,
     key: item.key,
     label: item.label,
+    role: "responsibility",
     state: item.state,
     stateLabel: item.stateLabel,
     value: `${item.actorLabel} / ${item.actionLabel}`
@@ -661,6 +671,7 @@ function responseStep(responsePlan: WireResponseCoachPlan): WireServerFlowStep {
     detail: responsePlan.reason,
     key: "response:next",
     label: "服务端行动",
+    role: responsePlan.stepRole || "response",
     state: responsePlan.state,
     stateLabel: responsePlan.stateLabel,
     value: responsePlan.primaryLabel

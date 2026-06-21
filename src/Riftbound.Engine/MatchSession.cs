@@ -5718,13 +5718,13 @@ internal static class ActionPromptBuilder
             ?? state.PendingTaskQueue.Tasks.FirstOrDefault();
         if (task is not null)
         {
-            return string.IsNullOrWhiteSpace(task.Kind) ? "服务端任务" : task.Kind;
+            return state.PendingTaskQueue.IsBlocking ? "等待服务端清理任务" : "服务端规则任务";
         }
 
         var battlefieldTask = state.BattlefieldTasks.FirstOrDefault();
         return battlefieldTask is null
             ? "无任务"
-            : string.IsNullOrWhiteSpace(battlefieldTask.Kind) ? "战场任务" : battlefieldTask.Kind;
+            : "战场规则任务";
     }
 
     private static string ServerFlowTriggerHeadline(MatchState state)
@@ -5757,14 +5757,16 @@ internal static class ActionPromptBuilder
                 responsibility.ActionableForPromptPlayer ? "ready" : "waiting",
                 responsibility.ActionableForPromptPlayer ? "可行动" : "等待",
                 view.Title,
-                view.Message),
+                view.Message,
+                "window"),
             new(
                 "responsibility",
                 "责任方",
                 responsibility.IsResponsiblePlayer ? "ready" : "waiting",
                 responsibility.State,
                 string.IsNullOrWhiteSpace(responsibility.ResponsiblePlayerId) ? "服务端" : responsibility.ResponsiblePlayerId,
-                responsibility.NextStep)
+                responsibility.NextStep,
+                "responsibility")
         };
 
         if (state.StackItems.Count > 0)
@@ -5775,7 +5777,8 @@ internal static class ActionPromptBuilder
                 "respond",
                 "响应",
                 $"{state.StackItems.Count} 项",
-                ServerFlowStackHeadline(state)));
+                ServerFlowStackHeadline(state),
+                "stack"));
         }
 
         if (state.PendingTaskQueue.Tasks.Count > 0 || state.BattlefieldTasks.Count > 0)
@@ -5786,7 +5789,8 @@ internal static class ActionPromptBuilder
                 ResolutionResult.HasBlockingPendingTaskQueue(state) ? "blocked" : "server",
                 ResolutionResult.HasBlockingPendingTaskQueue(state) ? "阻塞" : "服务端",
                 $"{state.PendingTaskQueue.Tasks.Count + state.BattlefieldTasks.Count} 项",
-                ServerFlowTaskHeadline(state)));
+                ServerFlowTaskHeadline(state),
+                "task"));
         }
 
         if (state.TriggerQueue.Count > 0)
@@ -5797,7 +5801,8 @@ internal static class ActionPromptBuilder
                 "server",
                 "服务端",
                 $"{state.TriggerQueue.Count} 项",
-                ServerFlowTriggerHeadline(state)));
+                ServerFlowTriggerHeadline(state),
+                "trigger"));
         }
 
         steps.Add(new(
@@ -5806,7 +5811,8 @@ internal static class ActionPromptBuilder
             candidates.Any(candidate => candidate.Enabled) ? "ready" : "waiting",
             $"{candidates.Count(candidate => candidate.Enabled)} 可提交",
             actions.Count == 0 ? "无行动" : string.Join(" / ", actions),
-            "前端只提交服务端候选，不重算合法性。"));
+            "前端只提交服务端候选，不重算合法性。",
+            "candidate"));
 
         return steps.ToArray();
     }
@@ -6615,7 +6621,6 @@ internal static class ActionPromptBuilder
     {
         foreach (var task in state.PendingTaskQueue.Tasks)
         {
-            AddRelatedObjectRef(state, playerId, relatedObjects, task.ObjectId, "规则任务");
             AddRelatedObjectRef(state, playerId, relatedObjects, task.BattlefieldObjectId, "任务战场");
         }
 

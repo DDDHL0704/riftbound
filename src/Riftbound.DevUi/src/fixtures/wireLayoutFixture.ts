@@ -543,6 +543,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           detail: "候选命令仍以服务端返回的 action candidates 为准。",
           key: "candidate",
           label: "候选",
+          role: "candidate",
           state: "ready",
           stateLabel: "可提交",
           value: "5 项"
@@ -551,6 +552,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           detail: "桌面对象只展示服务端已经公开的关联关系。",
           key: "related",
           label: "关联对象",
+          role: "related",
           state: "ready",
           stateLabel: "已公开",
           value: "3 个"

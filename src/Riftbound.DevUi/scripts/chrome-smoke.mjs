@@ -1680,6 +1680,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
       stepCount: layer?.getAttribute("data-wire-server-flow-layer-step-count") ?? "",
       stepDetailStates: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-step-detail]") ?? [])
         .map((item) => item.getAttribute("data-wire-server-flow-layer-step-detail") ?? ""),
+      stepRoles: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-step-role]") ?? [])
+        .map((item) => item.getAttribute("data-wire-server-flow-layer-step-role") ?? ""),
       stepStates: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-step-state]") ?? [])
         .map((item) => item.getAttribute("data-wire-server-flow-layer-step-state") ?? ""),
       targetRefCount: layer?.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length ?? 0,
@@ -2208,6 +2210,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (Number(serverFlowLayerResult.laneCount) < 1) failures.push("server flow layer lane count missing");
   if (Number(serverFlowLayerResult.relatedCount) < 1) failures.push("server flow layer related count missing");
   if (!serverFlowLayerResult.stepDetailStates.includes("available")) failures.push("server flow layer step detail state missing");
+  if (!serverFlowLayerResult.stepRoles.includes("candidate")) failures.push(`server flow layer candidate step role missing: ${serverFlowLayerResult.stepRoles.join(",")}`);
   if (!serverFlowLayerResult.stepStates.some((state) => ["blocked", "ready", "respond", "selecting", "server", "watch"].includes(state))) {
     failures.push(`server flow layer active step state missing: ${serverFlowLayerResult.stepStates.join(",")}`);
   }

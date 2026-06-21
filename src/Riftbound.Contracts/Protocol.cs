@@ -356,7 +356,8 @@ public sealed record ActionPromptServerFlowStepDto(
     string State,
     string StateLabel,
     string Value,
-    string Detail);
+    string Detail,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Role = null);
 
 public sealed record ActionPromptServerFlowObjectRefDto(
     string ObjectId,
