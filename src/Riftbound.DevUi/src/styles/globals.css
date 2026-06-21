@@ -16550,7 +16550,14 @@ button.card-face:hover {
   grid-column: 1 / -1;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  gap: 2px;
+}
+
+.wire-timeline-command-field-object-actions {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 2px;
 }
 
@@ -16566,6 +16573,10 @@ button.card-face:hover {
   line-height: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+.wire-timeline-command-field-objects button:disabled {
+  cursor: default;
 }
 
 .wire-timeline-command-bridge-fields li[data-timeline-command-field-state="covered"],

@@ -2280,6 +2280,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-field-detail-object-id") ?? ""),
       commandBridgeFieldSelectedObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-selected-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-selected-object-id") ?? ""),
+      commandBridgeFieldChooseObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-choose-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-choose-object-id") ?? ""),
+      commandBridgeFieldChooseEnabledStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-choose-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-choose-enabled") ?? ""),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
@@ -2412,7 +2416,7 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
-  const commandBridgeObjectId = await clickTimelineCommandBridgeNext(cdp);
+  const commandBridgeObjectId = await clickTimelineCommandFieldChoose(cdp, "p2-right-1");
   await delay(150);
   const commandBridgeFocusResult = await evaluateJson(cdp, `(() => {
     const objectId = ${JSON.stringify(commandBridgeObjectId)};
@@ -2454,6 +2458,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-field-detail-object-id") ?? ""),
       commandBridgeFieldSelectedObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-selected-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-selected-object-id") ?? ""),
+      commandBridgeFieldChooseObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-choose-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-choose-object-id") ?? ""),
+      commandBridgeFieldChooseEnabledStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-choose-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-choose-enabled") ?? ""),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
@@ -2624,6 +2632,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-field-detail-object-id") ?? ""),
       commandBridgeFieldSelectedObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-selected-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-field-selected-object-id") ?? ""),
+      commandBridgeFieldChooseObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-field-choose-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-choose-object-id") ?? ""),
+      commandBridgeFieldChooseEnabledStates: Array.from(panel?.querySelectorAll("[data-timeline-command-field-choose-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-field-choose-enabled") ?? ""),
       commandBridgeGrammarStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-grammar-state")),
       commandBridgeGrammarStepStates: Array.from(panel?.querySelectorAll("[data-timeline-command-grammar-step-state]") ?? [])
@@ -2918,6 +2930,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.commandBridgeFieldDetailObjectIds.includes("p1-hand-spell")) failures.push("rule detail command bridge source field detail object missing");
   if (!ruleDetailResult.commandBridgeFieldDetailObjectIds.includes("p2-right-1")) failures.push("rule detail command bridge target field detail object missing");
   if (!ruleDetailResult.commandBridgeFieldSelectedObjectIds.includes("p1-hand-spell")) failures.push("rule detail command bridge source field selected object missing");
+  if (!ruleDetailResult.commandBridgeFieldChooseObjectIds.includes("p2-right-1")) failures.push("rule detail command bridge target field choose object missing");
+  if (!ruleDetailResult.commandBridgeFieldChooseEnabledStates.includes("true")) failures.push("rule detail command bridge field choose enabled state missing");
+  if (!ruleDetailResult.commandBridgeFieldChooseEnabledStates.includes("false")) failures.push("rule detail command bridge selected field choose disabled state missing");
   if (!ruleDetailResult.commandBridgeText.includes("服务端注入")) failures.push("rule detail command bridge server field label missing");
   if (!ruleDetailResult.commandBridgeText.includes("草稿已选来源")) failures.push("rule detail command bridge source coverage label missing");
   if (!ruleDetailResult.commandBridgeText.includes("详情引用可作为目标")) failures.push("rule detail command bridge target coverage label missing");
@@ -3014,6 +3029,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeFocusResult.commandBridgeFieldDetailObjectIds.includes("p2-right-1")) failures.push("command bridge detail target field detail object missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeFieldSelectedObjectIds.includes("p1-hand-spell")) failures.push("command bridge detail source field selected object missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeFieldSelectedObjectIds.includes("p2-right-1")) failures.push("command bridge detail target field selected object missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeFieldChooseObjectIds.includes("p2-right-1")) failures.push("command bridge detail target field choose object missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeFieldChooseEnabledStates.includes("false")) failures.push("command bridge detail chosen field disabled state missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("2 覆盖 / 0 缺少")) failures.push("command bridge detail coverage summary missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("草稿已选目标")) failures.push("command bridge detail target coverage label missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("详情 ") || !commandBridgeFocusResult.commandBridgeText.includes("草稿 ")) failures.push("command bridge detail field coverage summary missing after target selection");
@@ -3127,6 +3144,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.commandBridgeFieldDetailObjectIds.includes("p1-hand-spell")) failures.push("event detail command bridge source field detail object missing");
   if (!eventDetailResult.commandBridgeFieldDetailObjectIds.includes("p2-right-1")) failures.push("event detail command bridge target field detail object missing");
   if (!eventDetailResult.commandBridgeFieldSelectedObjectIds.includes("p1-hand-spell")) failures.push("event detail command bridge source field selected object missing");
+  if (!eventDetailResult.commandBridgeFieldChooseObjectIds.includes("p2-right-1")) failures.push("event detail command bridge target field choose object missing");
+  if (!eventDetailResult.commandBridgeFieldChooseEnabledStates.includes("true")) failures.push("event detail command bridge field choose enabled state missing");
   if (!eventDetailResult.commandBridgeText.includes("服务端注入")) failures.push("event detail command bridge server field label missing");
   if (!eventDetailResult.commandBridgeText.includes("草稿已选来源")) failures.push("event detail command bridge source coverage label missing");
   if (!eventDetailResult.commandBridgeText.includes("详情引用可作为目标")) failures.push("event detail command bridge target coverage label missing");
@@ -3477,22 +3496,21 @@ async function clickTimelineActionHint(cdp) {
   return objectId;
 }
 
-async function clickTimelineCommandBridgeNext(cdp) {
+async function clickTimelineCommandFieldChoose(cdp, objectId) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector("[data-timeline-command-bridge-next-object-id]");
-      if (!element) return "";
-      const objectId = element.getAttribute("data-timeline-command-bridge-next-object-id") ?? "";
+      const element = document.querySelector(${JSON.stringify(`[data-timeline-command-field-choose-object-id="${objectId}"]`)});
+      if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
       element.click();
-      return objectId;
+      return element.getAttribute("data-timeline-command-field-choose-object-id") ?? "";
     })()`,
     returnByValue: true
   });
-  const objectId = String(result.result?.value ?? "");
-  if (!objectId) {
-    throw new Error("Wire timeline command bridge next object button not found");
+  const clickedObjectId = String(result.result?.value ?? "");
+  if (!clickedObjectId) {
+    throw new Error(`Wire timeline command field choose button not found: ${objectId}`);
   }
-  return objectId;
+  return clickedObjectId;
 }
 
 async function clickTimelineCommandBridgeDetail(cdp, objectId) {

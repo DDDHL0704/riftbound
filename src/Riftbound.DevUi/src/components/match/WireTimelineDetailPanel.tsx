@@ -478,15 +478,29 @@ function TimelineCommandBridge({
                     {onOpenObjectDetail && (field.detailObjectIds.length > 0 || field.selectedObjectIds.length > 0) && (
                       <div className="wire-timeline-command-field-objects" role="group" aria-label={`${field.label} 字段对象`}>
                         {field.detailObjectIds.map((objectId, index) => (
-                          <button
-                            data-timeline-command-field-detail-object-id={objectId}
-                            key={`detail:${field.key}:${objectId}`}
-                            onClick={() => onOpenObjectDetail(objectId)}
-                            type="button"
-                          >
-                            <span>详情</span>
-                            <strong>{field.detailObjectLabels[index] ?? objectId}</strong>
-                          </button>
+                          <span className="wire-timeline-command-field-object-actions" key={`detail:${field.key}:${objectId}`}>
+                            <button
+                              data-timeline-command-field-detail-object-id={objectId}
+                              onClick={() => onOpenObjectDetail(objectId)}
+                              type="button"
+                            >
+                              <span>详情</span>
+                              <strong>{field.detailObjectLabels[index] ?? objectId}</strong>
+                            </button>
+                            {onChooseObject && (
+                              <button
+                                data-timeline-command-field-choose-enabled={field.selectedObjectIds.includes(objectId) ? "false" : "true"}
+                                data-timeline-command-field-choose-field={field.field}
+                                data-timeline-command-field-choose-object-id={objectId}
+                                disabled={field.selectedObjectIds.includes(objectId)}
+                                onClick={() => onChooseObject(objectId)}
+                                type="button"
+                              >
+                                <span>选择</span>
+                                <strong>{field.detailObjectLabels[index] ?? objectId}</strong>
+                              </button>
+                            )}
+                          </span>
                         ))}
                         {field.selectedObjectIds.map((objectId, index) => (
                           <button
