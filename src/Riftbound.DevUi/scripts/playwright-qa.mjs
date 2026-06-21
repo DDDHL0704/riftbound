@@ -399,6 +399,37 @@ async function runObjectCommandTrayInteraction(report) {
       { timeout: 10_000 }
     );
 
+    await page.getByRole("button", { name: "打开流程检查层" }).first().click();
+    const serverFlowLayer = page.locator(".wire-server-flow-layer").first();
+    await serverFlowLayer.waitFor({ timeout: 10_000 });
+    const serverFlowLayerResult = await serverFlowLayer.evaluate((layer) => ({
+      authority: layer.querySelector("[data-wire-server-flow-layer-authority]")?.getAttribute("data-wire-server-flow-layer-authority") ?? "",
+      flowState: layer.getAttribute("data-wire-server-flow-layer-flow-state") ?? "",
+      laneCount: layer.getAttribute("data-wire-server-flow-layer-lane-count") ?? "",
+      relatedCount: layer.getAttribute("data-wire-server-flow-layer-related-count") ?? "",
+      stepCount: layer.getAttribute("data-wire-server-flow-layer-step-count") ?? "",
+      text: layer.textContent ?? ""
+    }));
+    if (
+      serverFlowLayerResult.authority !== "server" ||
+      Number(serverFlowLayerResult.stepCount) < 1 ||
+      Number(serverFlowLayerResult.laneCount) < 1 ||
+      Number(serverFlowLayerResult.relatedCount) < 1 ||
+      !serverFlowLayerResult.text.includes("服务端流程检查层")
+    ) {
+      throw new Error(`Server-flow layer failed structural checks: ${JSON.stringify(serverFlowLayerResult)}`);
+    }
+    const serverFlowLayerRef = serverFlowLayer.locator('[data-rule-object-ref="p2-right-1"][data-object-ref-inspectable="true"]').first();
+    await serverFlowLayerRef.waitFor({ timeout: 10_000 });
+    await serverFlowLayerRef.click();
+    await page.waitForFunction(
+      (expectedObjectId) => document.querySelector("[data-wire-object-command-tray-state]")?.getAttribute("data-wire-object-command-tray-object") === expectedObjectId,
+      "p2-right-1",
+      { timeout: 10_000 }
+    );
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.querySelector(".wire-server-flow-layer"), { timeout: 10_000 });
+
     const sourceCard = page.locator('button.card-face[data-object-id="p1-hand-spell"][data-timeline-state="rule"]').first();
     await sourceCard.waitFor({ timeout: 10_000 });
     await page.locator('button.card-face[data-object-id="p2-right-1"][data-timeline-state="rule"]').first().waitFor({ timeout: 10_000 });
@@ -442,6 +473,7 @@ async function runObjectCommandTrayInteraction(report) {
       objectId,
       relatedCount,
       serverFlowRefObjectId: "p2-right-1",
+      serverFlowLayer: serverFlowLayerResult,
       state
     });
     console.log(`QA interaction OK: object-command-tray (${objectId}:${state})`);

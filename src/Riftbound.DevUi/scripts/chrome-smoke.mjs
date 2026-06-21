@@ -1656,6 +1656,53 @@ async function runWireRuleObjectRefSmoke(cdp) {
   await delay(120);
   const responsibilityLayerClosed = await evaluateJson(cdp, `(() => !document.querySelector(".wire-rule-responsibility-layer"))()`);
 
+  await clickButtonByText(cdp, "打开流程检查层");
+  await delay(150);
+  const serverFlowLayerResult = await evaluateJson(cdp, `(() => {
+    const layer = document.querySelector(".wire-server-flow-layer");
+    return {
+      activeText: document.activeElement?.textContent ?? "",
+      actionInspectableStates: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-action-inspectable]") ?? [])
+        .map((item) => item.getAttribute("data-wire-server-flow-layer-action-inspectable") ?? ""),
+      actionObjectIds: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-action-object-id]") ?? [])
+        .map((item) => item.getAttribute("data-wire-server-flow-layer-action-object-id") ?? ""),
+      actionStates: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-action-state]") ?? [])
+        .map((item) => item.getAttribute("data-wire-server-flow-layer-action-state") ?? ""),
+      authority: layer?.querySelector("[data-wire-server-flow-layer-authority]")?.getAttribute("data-wire-server-flow-layer-authority") ?? "",
+      flowState: layer?.getAttribute("data-wire-server-flow-layer-flow-state") ?? "",
+      laneCount: layer?.getAttribute("data-wire-server-flow-layer-lane-count") ?? "",
+      modal: layer?.getAttribute("aria-modal") ?? "",
+      open: Boolean(layer),
+      relatedCount: layer?.getAttribute("data-wire-server-flow-layer-related-count") ?? "",
+      role: layer?.getAttribute("role") ?? "",
+      sourceRefCount: layer?.querySelectorAll('[data-rule-object-ref="p1-hand-spell"]').length ?? 0,
+      state: layer?.getAttribute("data-wire-server-flow-layer-state") ?? "",
+      stepCount: layer?.getAttribute("data-wire-server-flow-layer-step-count") ?? "",
+      stepDetailStates: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-step-detail]") ?? [])
+        .map((item) => item.getAttribute("data-wire-server-flow-layer-step-detail") ?? ""),
+      stepStates: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-step-state]") ?? [])
+        .map((item) => item.getAttribute("data-wire-server-flow-layer-step-state") ?? ""),
+      targetRefCount: layer?.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length ?? 0,
+      text: layer?.textContent ?? "",
+      title: layer?.querySelector("#wire-server-flow-layer-title")?.textContent ?? ""
+    };
+  })()`);
+  const serverFlowLayerObjectResult = await evaluateJson(cdp, `(() => {
+    const ref = document.querySelector('.wire-server-flow-layer [data-rule-object-ref="p2-right-1"]');
+    ref?.click();
+    const tableObject = document.querySelector('[data-object-id="p2-right-1"]');
+    const selectedRef = document.querySelector('.wire-server-flow-layer [data-rule-object-ref="p2-right-1"][data-selected="true"]');
+    return {
+      clicked: Boolean(ref),
+      detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
+      selected: tableObject?.getAttribute("data-selected") ?? null,
+      selectedRef: Boolean(selectedRef)
+    };
+  })()`);
+  await pressEscape(cdp);
+  await delay(120);
+  const serverFlowLayerClosed = await evaluateJson(cdp, `(() => !document.querySelector(".wire-server-flow-layer"))()`);
+
   await clickRuleObjectRef(cdp, "fixture-left-battlefield");
   await delay(150);
   const battlefieldResult = await evaluateJson(cdp, `(() => {
@@ -2149,6 +2196,34 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!responsibilityLayerObjectResult.selectedRef) failures.push("rule responsibility layer object ref did not show selected state");
   if (responsibilityLayerObjectResult.detailLayerOpen) failures.push("rule responsibility layer object ref opened detail");
   if (!responsibilityLayerClosed) failures.push("rule responsibility layer did not close on Escape");
+  if (!serverFlowLayerResult.open) failures.push("server flow layer did not open");
+  if (serverFlowLayerResult.state !== "open") failures.push(`server flow layer state unexpected: ${serverFlowLayerResult.state}`);
+  if (serverFlowLayerResult.role !== "dialog") failures.push("server flow layer role missing");
+  if (serverFlowLayerResult.modal !== "true") failures.push("server flow layer aria-modal missing");
+  if (!serverFlowLayerResult.activeText.includes("关闭检查层")) failures.push("server flow layer close button did not receive focus");
+  if (!["blocked", "history", "ready", "respond", "selecting", "waiting"].includes(serverFlowLayerResult.flowState)) {
+    failures.push(`server flow layer flow state unsupported: ${serverFlowLayerResult.flowState}`);
+  }
+  if (Number(serverFlowLayerResult.stepCount) < 1) failures.push("server flow layer step count missing");
+  if (Number(serverFlowLayerResult.laneCount) < 1) failures.push("server flow layer lane count missing");
+  if (Number(serverFlowLayerResult.relatedCount) < 1) failures.push("server flow layer related count missing");
+  if (!serverFlowLayerResult.stepDetailStates.includes("available")) failures.push("server flow layer step detail state missing");
+  if (!serverFlowLayerResult.stepStates.some((state) => ["blocked", "ready", "respond", "selecting", "server", "watch"].includes(state))) {
+    failures.push(`server flow layer active step state missing: ${serverFlowLayerResult.stepStates.join(",")}`);
+  }
+  if (serverFlowLayerResult.sourceRefCount < 1) failures.push("server flow layer source ref missing");
+  if (serverFlowLayerResult.targetRefCount < 1) failures.push("server flow layer target ref missing");
+  if (!serverFlowLayerResult.actionObjectIds.includes("p2-right-1")) failures.push("server flow layer action object missing");
+  if (!serverFlowLayerResult.actionStates.includes("ready")) failures.push("server flow layer ready action state missing");
+  if (!serverFlowLayerResult.actionInspectableStates.includes("true")) failures.push("server flow layer inspectable action missing");
+  if (serverFlowLayerResult.authority !== "server") failures.push("server flow layer server authority attr missing");
+  if (!serverFlowLayerResult.text.includes("流程、责任、候选和对象关联来自服务端")) failures.push("server flow layer authority text missing");
+  if (serverFlowLayerResult.text.includes("serverPaymentState")) failures.push("server flow layer leaked hidden server state");
+  if (!serverFlowLayerObjectResult.clicked) failures.push("server flow layer object ref not clickable");
+  if (serverFlowLayerObjectResult.selected !== "true") failures.push("server flow layer object ref did not focus table object");
+  if (!serverFlowLayerObjectResult.selectedRef) failures.push("server flow layer object ref did not show selected state");
+  if (serverFlowLayerObjectResult.detailLayerOpen) failures.push("server flow layer object ref opened detail");
+  if (!serverFlowLayerClosed) failures.push("server flow layer did not close on Escape");
   if (battlefieldResult.selected !== "true") failures.push("battlefield ref did not focus battlefield card");
   if (!battlefieldResult.selectedRef) failures.push("battlefield ref did not show selected state");
   if (battlefieldResult.detailLayerOpen) failures.push("battlefield ref opened detail layer");

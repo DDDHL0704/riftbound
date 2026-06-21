@@ -12762,6 +12762,7 @@ button.card-face:hover {
 
 .wire-server-flow-step-button:focus-visible,
 .wire-server-flow-action-bridge li > button:focus-visible,
+.wire-server-flow-open-layer:focus-visible,
 .wire-server-flow-detail-button:focus-visible {
   outline: 2px solid #000;
   outline-offset: 2px;
@@ -12787,6 +12788,7 @@ button.card-face:hover {
   border-style: dashed;
 }
 
+.wire-server-flow-open-layer,
 .wire-server-flow-detail-button {
   width: 100%;
   border-radius: 0;
@@ -12825,6 +12827,227 @@ button.card-face:hover {
 .wire-server-flow-step-button strong,
 .wire-server-flow-step-button small,
 .wire-server-flow-step-button em {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: normal;
+}
+
+.wire-server-flow-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 57;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.wire-server-flow-layer-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0 !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  cursor: pointer;
+}
+
+.wire-server-flow-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(980px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 4px;
+  border: 2px solid #000 !important;
+  background: #fff !important;
+  color: #000 !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+.wire-server-flow-layer-header,
+.wire-server-flow-layer-footer {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px;
+  border-bottom: 1px solid #000;
+}
+
+.wire-server-flow-layer-footer {
+  border-top: 1px solid #000;
+  border-bottom: 0;
+}
+
+.wire-server-flow-layer-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-server-flow-layer-header span,
+.wire-server-flow-layer-header h2,
+.wire-server-flow-layer-footer span {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-server-flow-layer-header span {
+  font-size: 11px;
+}
+
+.wire-server-flow-layer-header h2 {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.wire-server-flow-layer-close {
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.wire-server-flow-layer-body {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(360px, 1.25fr);
+  gap: 4px;
+  padding: 6px;
+  overflow: auto;
+}
+
+.wire-server-flow-layer-body section {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-server-flow-layer-body section[data-wire-server-flow-layer-section="steps"],
+.wire-server-flow-layer-body section[data-wire-server-flow-layer-section="related"] {
+  grid-column: span 2;
+}
+
+.wire-server-flow-layer-metrics,
+.wire-server-flow-layer-lanes,
+.wire-server-flow-layer-steps,
+.wire-server-flow-layer-actions {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-server-flow-layer-metrics,
+.wire-server-flow-layer-lanes {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wire-server-flow-layer-steps,
+.wire-server-flow-layer-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wire-server-flow-layer-metrics span,
+.wire-server-flow-layer-lanes li,
+.wire-server-flow-layer-steps li,
+.wire-server-flow-layer-actions li > button,
+.wire-server-flow-layer-actions li > span,
+.wire-server-flow-layer-empty {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-server-flow-layer-step-button,
+.wire-server-flow-layer-actions li > button {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-server-flow-layer-actions li > button {
+  padding: 4px;
+}
+
+.wire-server-flow-layer-close:focus-visible,
+.wire-server-flow-layer-step-button:focus-visible,
+.wire-server-flow-layer-actions li > button:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+.wire-server-flow-layer-lanes li[data-wire-server-flow-layer-lane-state="active"],
+.wire-server-flow-layer-lanes li[data-wire-server-flow-layer-lane-state="blocked"],
+.wire-server-flow-layer-steps li[data-wire-server-flow-layer-step-state="respond"],
+.wire-server-flow-layer-steps li[data-wire-server-flow-layer-step-state="ready"],
+.wire-server-flow-layer-steps li[data-wire-server-flow-layer-step-state="selecting"],
+.wire-server-flow-layer-steps li[data-wire-server-flow-layer-step-state="server"],
+.wire-server-flow-layer-steps li[data-wire-server-flow-layer-step-state="watch"],
+.wire-server-flow-layer-actions li[data-wire-server-flow-layer-action-state="ready"] > button,
+.wire-server-flow-layer-actions li[data-wire-server-flow-layer-action-state="ready"] > span {
+  border-width: 2px;
+}
+
+.wire-server-flow-layer-lanes li[data-wire-server-flow-layer-lane-state="empty"],
+.wire-server-flow-layer-steps li[data-wire-server-flow-layer-step-state="waiting"],
+.wire-server-flow-layer-steps li[data-wire-server-flow-layer-step-state="history"],
+.wire-server-flow-layer-actions li[data-wire-server-flow-layer-action-state="unknown"] > button,
+.wire-server-flow-layer-actions li[data-wire-server-flow-layer-action-state="unknown"] > span {
+  border-style: dashed;
+}
+
+.wire-server-flow-layer-related-refs {
+  padding: 0;
+}
+
+.wire-server-flow-layer-body section > strong,
+.wire-server-flow-layer-body section > span,
+.wire-server-flow-layer-body section > small,
+.wire-server-flow-layer-body section > em,
+.wire-server-flow-layer-metrics small,
+.wire-server-flow-layer-metrics strong,
+.wire-server-flow-layer-lanes span,
+.wire-server-flow-layer-lanes strong,
+.wire-server-flow-layer-lanes small,
+.wire-server-flow-layer-steps span,
+.wire-server-flow-layer-steps strong,
+.wire-server-flow-layer-steps small,
+.wire-server-flow-layer-steps em,
+.wire-server-flow-layer-actions span,
+.wire-server-flow-layer-actions strong,
+.wire-server-flow-layer-actions small,
+.wire-server-flow-layer-actions em,
+.wire-server-flow-layer-step-button span,
+.wire-server-flow-layer-step-button strong,
+.wire-server-flow-layer-step-button small,
+.wire-server-flow-layer-step-button em {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -16104,7 +16327,20 @@ button.wire-object-ref {
 .wire-match-page .wire-server-flow-action-bridge li > span,
 .wire-match-page .wire-server-flow-lanes li,
 .wire-match-page .wire-server-flow-steps li,
+.wire-match-page .wire-server-flow-open-layer,
 .wire-match-page .wire-server-flow-detail-button,
+.wire-match-page .wire-server-flow-layer,
+.wire-match-page .wire-server-flow-dialog,
+.wire-match-page .wire-server-flow-layer-header,
+.wire-match-page .wire-server-flow-layer-body section,
+.wire-match-page .wire-server-flow-layer-footer,
+.wire-match-page .wire-server-flow-layer-close,
+.wire-match-page .wire-server-flow-layer-metrics span,
+.wire-match-page .wire-server-flow-layer-lanes li,
+.wire-match-page .wire-server-flow-layer-steps li,
+.wire-match-page .wire-server-flow-layer-actions li > button,
+.wire-match-page .wire-server-flow-layer-actions li > span,
+.wire-match-page .wire-server-flow-layer-empty,
 .wire-match-page .wire-rule-authority,
 .wire-match-page .wire-rule-authority-header,
 .wire-match-page .wire-rule-authority-metrics span,
@@ -16719,6 +16955,33 @@ button.wire-object-ref {
 
   .wire-command-review-layer-submit {
     width: 100%;
+  }
+
+  .wire-server-flow-layer {
+    padding: 10px;
+  }
+
+  .wire-server-flow-dialog {
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+  }
+
+  .wire-server-flow-layer-body,
+  .wire-server-flow-layer-metrics,
+  .wire-server-flow-layer-lanes,
+  .wire-server-flow-layer-steps,
+  .wire-server-flow-layer-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wire-server-flow-layer-body section[data-wire-server-flow-layer-section="steps"],
+  .wire-server-flow-layer-body section[data-wire-server-flow-layer-section="related"] {
+    grid-column: auto;
+  }
+
+  .wire-server-flow-layer-footer {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .wire-rule-responsibility-layer {

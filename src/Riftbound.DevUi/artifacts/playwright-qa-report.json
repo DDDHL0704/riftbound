@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T04:58:12.584Z",
+  "generatedAt": "2026-06-21T05:20:50.393Z",
   "frontendUrl": "http://127.0.0.1:5176",
   "serverUrl": "http://127.0.0.1:5088",
   "interactions": [
@@ -8,6 +8,14 @@
       "objectId": "p1-hand-spell",
       "relatedCount": "3",
       "serverFlowRefObjectId": "p2-right-1",
+      "serverFlowLayer": {
+        "authority": "server",
+        "flowState": "ready",
+        "laneCount": "4",
+        "relatedCount": "3",
+        "stepCount": "2",
+        "text": "服务端结算与行动流程服务端流程检查层关闭检查层服务端关联对象主行动 / 服务端关联对象 / 可提交服务端提示流公开了当前可操作对象和规则关联对象。根据服务端公开的关联对象选择来源、目标或费用。流程指标快照9001来源服务端行动规则处理中提示前端线框交互样例关联3规则通道结算链1前端样例结算链任务1前端样例规则任务触发0无触发结算1最近一次战场结算服务端步骤候选可提交5 项候选命令仍以服务端返回的 action candidates 为准。关联对象已公开3 个桌面对象只展示服务端已经公开的关联关系。关联对象与候选候选来源 UNL-007/219候选目标 UNL-008/219相关战场 UNL-205/219候选来源来源1 可 / 0 阻来源* 1/1 / 目标 0/1 / 位置 0/1 / 费用 0/1可作为 来源 进入 1 个候选。候选目标目标1 可 / 1 阻来源* 0/1 / 目标 1/1 / 位置 0/1 / 费用 0/1可作为 目标 进入 1 个候选。相关战场目标1 可 / 0 阻可作为 目标 进入 1 个候选。流程、责任、候选和对象关联来自服务端 prompt / 快照投影"
+      },
       "state": "ready"
     },
     {
@@ -92,8 +100,8 @@
       "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/match-midgame-showcase.png",
       "visual": {
         "status": "compared",
-        "ratio": 0.0037885802469135805,
-        "diffPixels": 4419
+        "ratio": 0.003950617283950617,
+        "diffPixels": 4608
       },
       "accessibility": {
         "checked": true,
@@ -106,8 +114,8 @@
       "path": "/Users/dinghaolin/MyProjects/riftbound-dotnet/src/Riftbound.DevUi/artifacts/appshots/prompt-pay-cost.png",
       "visual": {
         "status": "compared",
-        "ratio": 0.004025205761316873,
-        "diffPixels": 4695
+        "ratio": 0.004302126200274348,
+        "diffPixels": 5018
       },
       "accessibility": {
         "checked": true,
