@@ -1173,6 +1173,32 @@ async function runWireClickSelectionSmoke(cdp) {
     };
   })()`);
 
+  await clickButtonByText(cdp, "打开提交检查层");
+  await delay(150);
+  const commandReviewLayerResult = await evaluateJson(cdp, `(() => {
+    const layer = document.querySelector(".wire-command-review-layer");
+    return {
+      activeText: document.activeElement?.textContent ?? "",
+      canSubmit: layer?.getAttribute("data-command-review-layer-can-submit") ?? "",
+      commandType: layer?.getAttribute("data-command-review-layer-command-type") ?? "",
+      fieldStates: Array.from(layer?.querySelectorAll("[data-command-review-layer-field-state]") ?? [])
+        .map((node) => node.getAttribute("data-command-review-layer-field-state")),
+      checkStates: Array.from(layer?.querySelectorAll("[data-command-review-layer-check-state]") ?? [])
+        .map((node) => node.getAttribute("data-command-review-layer-check-state")),
+      modal: layer?.getAttribute("aria-modal") ?? "",
+      open: Boolean(layer),
+      reviewState: layer?.getAttribute("data-command-review-layer-review-state") ?? "",
+      role: layer?.getAttribute("role") ?? "",
+      state: layer?.getAttribute("data-command-review-layer-state") ?? "",
+      submitState: layer?.querySelector(".wire-command-review-layer-submit")?.getAttribute("data-command-review-layer-submit-state") ?? "",
+      text: layer?.textContent ?? "",
+      title: layer?.querySelector("#wire-command-review-layer-title")?.textContent ?? ""
+    };
+  })()`);
+  await pressEscape(cdp);
+  await delay(120);
+  const commandReviewLayerClosed = await evaluateJson(cdp, `(() => !document.querySelector(".wire-command-review-layer"))()`);
+
   await clickActionMapObject(cdp, "p1-base-equip");
   await delay(150);
   const blockedActionMapResult = await evaluateJson(cdp, `(() => {
@@ -1511,6 +1537,25 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!routeInspectorResult.stepStates.includes("selected")) failures.push("route inspector selected step missing");
   if (!routeInspectorResult.fieldStates.includes("covered")) failures.push("route inspector covered field missing");
   if (!routeInspectorResult.fieldStates.includes("server")) failures.push("route inspector server field missing");
+  if (!commandReviewLayerResult.open) failures.push("command review layer did not open");
+  if (commandReviewLayerResult.role !== "dialog") failures.push(`command review layer role unexpected: ${commandReviewLayerResult.role}`);
+  if (commandReviewLayerResult.modal !== "true") failures.push("command review layer modal state missing");
+  if (commandReviewLayerResult.state !== "open") failures.push(`command review layer state unexpected: ${commandReviewLayerResult.state}`);
+  if (commandReviewLayerResult.reviewState !== "ready") failures.push(`command review layer review state unexpected: ${commandReviewLayerResult.reviewState}`);
+  if (commandReviewLayerResult.canSubmit !== "true") failures.push(`command review layer submit gate unexpected: ${commandReviewLayerResult.canSubmit}`);
+  if (commandReviewLayerResult.commandType !== "PLAY_CARD") failures.push(`command review layer command type unexpected: ${commandReviewLayerResult.commandType}`);
+  if (commandReviewLayerResult.submitState !== "ready") failures.push(`command review layer submit state unexpected: ${commandReviewLayerResult.submitState}`);
+  if (!commandReviewLayerResult.activeText.includes("关闭")) failures.push("command review layer close button did not receive focus");
+  if (!commandReviewLayerResult.title.includes("打出手牌")) failures.push("command review layer title missing candidate label");
+  if (!commandReviewLayerResult.text.includes("提交检查层")) failures.push("command review layer heading missing");
+  if (!commandReviewLayerResult.text.includes("服务端字段覆盖")) failures.push("command review layer field coverage section missing");
+  if (!commandReviewLayerResult.text.includes("提交审计")) failures.push("command review layer audit section missing");
+  if (!commandReviewLayerResult.text.includes("最终仍由服务端规则校验")) failures.push("command review layer authority copy missing");
+  if (!commandReviewLayerResult.fieldStates.includes("covered")) failures.push("command review layer covered field missing");
+  if (!commandReviewLayerResult.fieldStates.includes("server")) failures.push("command review layer server field missing");
+  if (!commandReviewLayerResult.checkStates.includes("ready")) failures.push("command review layer ready check missing");
+  if (commandReviewLayerResult.text.includes("serverPaymentState")) failures.push("command review layer leaked hidden server state");
+  if (!commandReviewLayerClosed) failures.push("command review layer did not close on Escape");
   if (blockedActionMapResult.selected !== "true") failures.push("blocked action map object chip did not focus table object");
   if (blockedActionMapResult.chipSelected !== "true") failures.push("blocked action map object chip did not show selected state");
   if (blockedActionMapResult.chipState !== "blocked") failures.push(`blocked action map chip state unexpected: ${blockedActionMapResult.chipState}`);

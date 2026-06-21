@@ -1,5 +1,5 @@
 import type { ActionPromptDto, GameCommand, GameEvent, SnapshotDto } from "../../types/protocol";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { CommandSubmissionFeedback } from "../../stores/useMatchController";
 import { buildCommandSubmissionFollowupPlan } from "../../utils/commandSubmissionFollowupPlan";
@@ -253,63 +253,273 @@ function shortIntentId(clientIntentId: string): string {
 }
 
 function CommandReviewPanel({ onCommand, review }: { onCommand?: (command: GameCommand) => void; review: WireActionCommandReviewPlan }) {
+  const [layerOpen, setLayerOpen] = useState(false);
   const canSubmit = review.canSubmit && Boolean(review.command) && Boolean(onCommand);
 
   return (
-    <section
-      aria-label="服务端候选提交审阅"
-      className="wire-command-review"
-      data-command-review-state={review.state}
-    >
-      <div className="wire-command-review-heading">
-        <strong>提交审阅</strong>
-        <span>{review.stateLabel}</span>
-      </div>
-      <small>{review.summary}</small>
-      <div className="wire-command-review-metrics">
-        {review.metrics.map((metric) => (
-          <span data-command-review-metric={metric.key} key={metric.key}>
-            <b>{metric.label}</b>
-            <strong>{metric.value}</strong>
-          </span>
-        ))}
-      </div>
-      <div className="wire-command-review-next">下一步：{review.nextStepLabel}</div>
-      {review.commandPreview.length === 0 ? (
-        <span className="empty-hint">当前没有提交草稿。</span>
-      ) : (
-        <ol className="wire-command-review-fields" aria-label={`${review.candidateLabel} 命令字段审阅`}>
-          {review.commandPreview.map((field) => (
-            <li
-              data-command-review-field={field.field}
-              data-command-review-field-state={field.state}
-              key={field.key}
-            >
-              <span>{field.label}</span>
-              <strong>{field.stateLabel}</strong>
-              <small>{field.required ? "必需" : "可选"} / {field.sourceLabel}</small>
-            </li>
-          ))}
-        </ol>
-      )}
-      <button
-        className="wire-command-review-submit"
-        data-command-review-submit-state={canSubmit ? "ready" : "blocked"}
-        disabled={!canSubmit}
-        onClick={() => {
-          if (!review.command || !onCommand) {
-            return;
-          }
-
-          onCommand(review.command);
-        }}
-        title={review.submitReason}
-        type="button"
+    <>
+      <section
+        aria-label="服务端候选提交审阅"
+        className="wire-command-review"
+        data-command-review-state={review.state}
       >
-        {review.submitLabel}
-      </button>
-    </section>
+        <div className="wire-command-review-heading">
+          <strong>提交审阅</strong>
+          <span>{review.stateLabel}</span>
+        </div>
+        <small>{review.summary}</small>
+        <div className="wire-command-review-metrics">
+          {review.metrics.map((metric) => (
+            <span data-command-review-metric={metric.key} key={metric.key}>
+              <b>{metric.label}</b>
+              <strong>{metric.value}</strong>
+            </span>
+          ))}
+        </div>
+        <div className="wire-command-review-next">下一步：{review.nextStepLabel}</div>
+        {review.commandPreview.length === 0 ? (
+          <span className="empty-hint">当前没有提交草稿。</span>
+        ) : (
+          <ol className="wire-command-review-fields" aria-label={`${review.candidateLabel} 命令字段审阅`}>
+            {review.commandPreview.map((field) => (
+              <li
+                data-command-review-field={field.field}
+                data-command-review-field-state={field.state}
+                key={field.key}
+              >
+                <span>{field.label}</span>
+                <strong>{field.stateLabel}</strong>
+                <small>{field.required ? "必需" : "可选"} / {field.sourceLabel}</small>
+              </li>
+            ))}
+          </ol>
+        )}
+        <div className="wire-command-review-controls">
+          <button
+            aria-controls="wire-command-review-layer"
+            aria-expanded={layerOpen}
+            className="wire-command-review-open-layer"
+            data-command-review-open-layer-state={review.state}
+            onClick={() => setLayerOpen(true)}
+            type="button"
+          >
+            打开提交检查层
+          </button>
+          <button
+            className="wire-command-review-submit"
+            data-command-review-submit-state={canSubmit ? "ready" : "blocked"}
+            disabled={!canSubmit}
+            onClick={() => {
+              if (!review.command || !onCommand) {
+                return;
+              }
+
+              onCommand(review.command);
+            }}
+            title={review.submitReason}
+            type="button"
+          >
+            {review.submitLabel}
+          </button>
+        </div>
+      </section>
+      {layerOpen && (
+        <CommandReviewLayer
+          canSubmit={canSubmit}
+          onClose={() => setLayerOpen(false)}
+          onCommand={onCommand}
+          review={review}
+        />
+      )}
+    </>
   );
+}
+
+function CommandReviewLayer({
+  canSubmit,
+  onClose,
+  onCommand,
+  review
+}: {
+  canSubmit: boolean;
+  onClose: () => void;
+  onCommand?: (command: GameCommand) => void;
+  review: WireActionCommandReviewPlan;
+}) {
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        trapCommandReviewFocus(event, dialogRef.current);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousActiveElementRef.current?.focus();
+      previousActiveElementRef.current = null;
+    };
+  }, []);
+
+  const submitFromLayer = () => {
+    if (!canSubmit || !review.command || !onCommand) {
+      return;
+    }
+
+    onCommand(review.command);
+    onClose();
+  };
+
+  return (
+    <div
+      aria-labelledby="wire-command-review-layer-title"
+      aria-modal="true"
+      className="wire-command-review-layer"
+      data-command-review-layer-can-submit={canSubmit ? "true" : "false"}
+      data-command-review-layer-command-type={review.commandType}
+      data-command-review-layer-review-state={review.state}
+      data-command-review-layer-state="open"
+      id="wire-command-review-layer"
+      role="dialog"
+    >
+      <button aria-label="关闭提交检查层" className="wire-command-review-layer-scrim" onClick={onClose} type="button" />
+      <aside className="wire-command-review-dialog" ref={dialogRef} tabIndex={-1}>
+        <header className="wire-command-review-layer-header">
+          <div>
+            <span>提交检查层</span>
+            <h2 id="wire-command-review-layer-title">{review.candidateLabel}</h2>
+          </div>
+          <button className="wire-command-review-layer-close" onClick={onClose} ref={closeButtonRef} type="button">
+            关闭检查层
+          </button>
+        </header>
+        <div className="wire-command-review-layer-body" id="wire-command-review-layer-body">
+          <section data-command-review-layer-section="state">
+            <strong>状态</strong>
+            <span>{review.stateLabel}</span>
+            <small>{review.summary}</small>
+          </section>
+          <section data-command-review-layer-section="next-step">
+            <strong>下一步</strong>
+            <span>{review.nextStepLabel}</span>
+            <small>{review.submitReason}</small>
+          </section>
+          <section data-command-review-layer-section="metrics">
+            <strong>路线指标</strong>
+            <div className="wire-command-review-layer-metrics">
+              {review.metrics.map((metric) => (
+                <span data-command-review-layer-metric={metric.key} key={metric.key}>
+                  <b>{metric.label}</b>
+                  <small>{metric.value}</small>
+                </span>
+              ))}
+            </div>
+          </section>
+          <section data-command-review-layer-section="fields">
+            <strong>服务端字段覆盖</strong>
+            {review.commandPreview.length === 0 ? (
+              <span className="empty-hint">当前没有命令字段草稿。</span>
+            ) : (
+              <ol className="wire-command-review-layer-fields">
+                {review.commandPreview.map((field) => (
+                  <li
+                    data-command-review-layer-field={field.field}
+                    data-command-review-layer-field-state={field.state}
+                    key={field.key}
+                  >
+                    <span>{field.label}</span>
+                    <strong>{field.stateLabel}</strong>
+                    <small>{field.required ? "必需" : "可选"} / {field.sourceLabel}</small>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+          <section data-command-review-layer-section="checks">
+            <strong>提交审计</strong>
+            {review.checkRows.length === 0 ? (
+              <span className="empty-hint">等待服务端候选路线。</span>
+            ) : (
+              <ol className="wire-command-review-layer-checks">
+                {review.checkRows.map((check) => (
+                  <li
+                    data-command-review-layer-check={check.key}
+                    data-command-review-layer-check-state={check.state}
+                    key={check.key}
+                  >
+                    <span>{check.label}</span>
+                    <strong>{check.stateLabel}</strong>
+                    <small>{check.reason}</small>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        </div>
+        <footer className="wire-command-review-layer-footer">
+          <span data-command-review-layer-authority="server">最终仍由服务端规则校验</span>
+          <button
+            className="wire-command-review-layer-submit"
+            data-command-review-layer-submit-state={canSubmit ? "ready" : "blocked"}
+            disabled={!canSubmit}
+            onClick={submitFromLayer}
+            type="button"
+          >
+            提交检查层路线
+          </button>
+        </footer>
+      </aside>
+    </div>
+  );
+}
+
+function trapCommandReviewFocus(event: KeyboardEvent, root: HTMLElement | null) {
+  if (!root) {
+    return;
+  }
+
+  const focusable = Array.from(root.querySelectorAll<HTMLElement>(
+    "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])"
+  )).filter((element) => !element.hasAttribute("hidden") && element.offsetParent !== null);
+  if (focusable.length === 0) {
+    event.preventDefault();
+    root.focus();
+    return;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  const active = document.activeElement;
+  if (event.shiftKey && active === first) {
+    event.preventDefault();
+    last.focus();
+    return;
+  }
+
+  if (!event.shiftKey && active === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function ActionCoveragePanel({ coverage }: { coverage: WireActionCoveragePlan }) {
