@@ -1053,6 +1053,11 @@ async function runWireClickSelectionSmoke(cdp) {
       selectedLayoutState: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-state") ?? null,
       selectedLayoutText: document.querySelector("[data-wire-table-selected-layout-state]")?.textContent ?? "",
       selectedLayoutZone: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-zone") ?? null,
+      traySubmitPreviewRows: Array.from(document.querySelectorAll("[data-wire-object-command-tray-submit-preview]")).map((node) => ({
+        key: node.getAttribute("data-wire-object-command-tray-submit-preview") ?? "",
+        text: node.textContent ?? "",
+        tone: node.getAttribute("data-wire-object-command-tray-submit-preview-tone") ?? ""
+      })),
       traySelectionRows: Array.from(document.querySelectorAll(".wire-object-command-tray-selection li")).map((node) => ({
         choice: node.getAttribute("data-wire-object-command-tray-selection-choice") ?? "",
         objectIds: node.getAttribute("data-wire-object-command-tray-selection-object-ids") ?? "",
@@ -1164,6 +1169,11 @@ async function runWireClickSelectionSmoke(cdp) {
         objectIds: node.getAttribute("data-wire-selection-row-object-ids") ?? "",
         role: node.getAttribute("data-wire-selection-row") ?? "",
         text: node.textContent ?? ""
+      })),
+      traySubmitPreviewRows: Array.from(document.querySelectorAll("[data-wire-object-command-tray-submit-preview]")).map((node) => ({
+        key: node.getAttribute("data-wire-object-command-tray-submit-preview") ?? "",
+        text: node.textContent ?? "",
+        tone: node.getAttribute("data-wire-object-command-tray-submit-preview-tone") ?? ""
       })),
       traySelectionRows: Array.from(document.querySelectorAll(".wire-object-command-tray-selection li")).map((node) => ({
         choice: node.getAttribute("data-wire-object-command-tray-selection-choice") ?? "",
@@ -1620,6 +1630,18 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.traySelectionRows.some((row) => row.role === "source" && row.choice === "p1-hand-spell" && row.text.includes("手牌法术"))) {
     failures.push(`object command tray did not expose source selection row: ${JSON.stringify(focusResult.traySelectionRows)}`);
   }
+  if (!focusResult.traySubmitPreviewRows.some((row) => row.key === "route" && row.tone === "good")) {
+    failures.push(`object command tray did not expose ready route preview: ${JSON.stringify(focusResult.traySubmitPreviewRows)}`);
+  }
+  if (!focusResult.traySubmitPreviewRows.some((row) => row.key === "command" && row.text.includes("PLAY_CARD"))) {
+    failures.push(`object command tray did not expose command preview: ${JSON.stringify(focusResult.traySubmitPreviewRows)}`);
+  }
+  if (!focusResult.traySubmitPreviewRows.some((row) => row.key === "missing" && row.tone === "good" && row.text.includes("0 选择 / 0 字段"))) {
+    failures.push(`object command tray did not expose complete missing preview: ${JSON.stringify(focusResult.traySubmitPreviewRows)}`);
+  }
+  if (!focusResult.traySubmitPreviewRows.some((row) => row.key === "next" && row.tone === "good")) {
+    failures.push(`object command tray did not expose ready next-step preview: ${JSON.stringify(focusResult.traySubmitPreviewRows)}`);
+  }
   if (focusResult.readinessState !== "ready") failures.push(`focused readiness state unexpected: ${focusResult.readinessState}`);
   if (focusResult.readinessCanSubmit !== "true") failures.push("focused readiness did not allow submit");
   if (focusResult.readinessCommand !== "PLAY_CARD") failures.push(`focused readiness command unexpected: ${focusResult.readinessCommand}`);
@@ -1770,6 +1792,12 @@ async function runWireClickSelectionSmoke(cdp) {
   }
   if (!targetResult.traySelectionRows.some((row) => row.role === "target" && row.choice === "p2-left-1" && row.objectIds.includes("p2-left-1"))) {
     failures.push(`object command tray did not expose target selection row: ${JSON.stringify(targetResult.traySelectionRows)}`);
+  }
+  if (!targetResult.traySubmitPreviewRows.some((row) => row.key === "command" && row.text.includes("PLAY_CARD"))) {
+    failures.push(`object command tray lost command preview after target click: ${JSON.stringify(targetResult.traySubmitPreviewRows)}`);
+  }
+  if (!targetResult.traySubmitPreviewRows.some((row) => row.key === "next")) {
+    failures.push(`object command tray lost next-step preview after target click: ${JSON.stringify(targetResult.traySubmitPreviewRows)}`);
   }
   if (targetResult.grammarComposerState !== "server") failures.push(`target interaction grammar composer state unexpected: ${targetResult.grammarComposerState}`);
   if (targetResult.grammarState !== "ready") failures.push(`target interaction grammar state unexpected: ${targetResult.grammarState}`);

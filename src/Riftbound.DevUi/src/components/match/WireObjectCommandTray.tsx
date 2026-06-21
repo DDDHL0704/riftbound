@@ -65,6 +65,7 @@ export function WireObjectCommandTray({
           <StatusPill tone={trayPlan.tone}>{trayPlan.stateLabel}</StatusPill>
         </header>
         <MetricGrid plan={trayPlan} />
+        <SubmitPreviewRows plan={trayPlan} />
         <SemanticRows plan={trayPlan} />
         <SelectionRows plan={focusedPlan} />
         <strong className="wire-object-command-tray-next">{trayPlan.nextStepLabel}</strong>
@@ -103,6 +104,27 @@ export function WireObjectCommandTray({
         <Button icon={<X size={16} />} onClick={onClear} variant="ghost">清除</Button>
       </div>
     </section>
+  );
+}
+
+function SubmitPreviewRows({ plan }: { plan: WireObjectCommandTrayPlan }) {
+  if (plan.submitPreviewRows.length === 0) {
+    return null;
+  }
+
+  return (
+    <ol className="wire-object-command-tray-submit-preview" aria-label="焦点对象提交预览">
+      {plan.submitPreviewRows.map((row) => (
+        <li
+          data-wire-object-command-tray-submit-preview={row.key}
+          data-wire-object-command-tray-submit-preview-tone={row.tone}
+          key={row.key}
+        >
+          <span>{row.label}</span>
+          <strong>{row.value}</strong>
+        </li>
+      ))}
+    </ol>
   );
 }
 

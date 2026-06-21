@@ -29,6 +29,13 @@ export type WireObjectCommandTrayContextRow = {
   value: string;
 };
 
+export type WireObjectCommandTraySubmitPreviewRow = {
+  key: string;
+  label: string;
+  tone: WireObjectCommandTrayTone;
+  value: string;
+};
+
 export type WireObjectCommandTraySemanticRow = {
   category: string;
   count: number;
@@ -50,6 +57,7 @@ export type WireObjectCommandTrayPlan = {
   semanticSummary: string;
   state: WireObjectCommandTrayState;
   stateLabel: string;
+  submitPreviewRows: WireObjectCommandTraySubmitPreviewRow[];
   subtitle: string;
   title: string;
   tone: WireObjectCommandTrayTone;
@@ -105,6 +113,7 @@ export function buildWireObjectCommandTrayPlan({
     semanticSummary,
     state,
     stateLabel: stateLabelFor(state),
+    submitPreviewRows: hidden ? [] : submitPreviewRowsFor(focusedPlan),
     subtitle: subtitleFor(card, objectContext, sourceLabel),
     title: titleFor(card, hidden, objectId),
     tone: toneFor(state),
@@ -123,6 +132,7 @@ const emptyPlan: WireObjectCommandTrayPlan = {
   semanticSummary: "无",
   state: "empty",
   stateLabel: "无焦点",
+  submitPreviewRows: [],
   subtitle: "未选择对象",
   title: "未选择卡牌",
   tone: "neutral",
@@ -292,6 +302,72 @@ function semanticSummaryFor(rows: WireObjectCommandTraySemanticRow[]): string {
   }
 
   return compactList(rows.map((row) => `${row.category}/${row.intent}${row.count > 1 ? ` x${row.count}` : ""}`), 2);
+}
+
+function submitPreviewRowsFor(focusedPlan: WireFocusedInteractionPlan): WireObjectCommandTraySubmitPreviewRow[] {
+  const review = focusedPlan.commandReview;
+  const missingValue = metricValue(review.metrics, "missing", "无路线");
+  const serverFieldValue = metricValue(review.metrics, "server", "0");
+
+  return [
+    {
+      key: "route",
+      label: "路线",
+      tone: toneForSubmitReviewState(review.state),
+      value: review.stateLabel
+    },
+    {
+      key: "command",
+      label: "命令",
+      tone: commandTone(review.commandType),
+      value: review.commandType
+    },
+    {
+      key: "missing",
+      label: "缺口",
+      tone: missingValue === "0 选择 / 0 字段" ? "good" : "warn",
+      value: missingValue
+    },
+    {
+      key: "server",
+      label: "服务端字段",
+      tone: "neutral",
+      value: serverFieldValue
+    },
+    {
+      key: "next",
+      label: "下一步",
+      tone: review.canSubmit ? "good" : review.state === "empty" ? "neutral" : "warn",
+      value: review.nextStepLabel
+    }
+  ];
+}
+
+function toneForSubmitReviewState(
+  state: WireFocusedInteractionPlan["commandReview"]["state"]
+): WireObjectCommandTrayTone {
+  switch (state) {
+    case "ready":
+      return "good";
+    case "blocked":
+    case "drafting":
+      return "warn";
+    case "empty":
+      return "neutral";
+  }
+}
+
+function commandTone(commandType: string): WireObjectCommandTrayTone {
+  const normalized = commandType.trim();
+  return !normalized || normalized === "无" || normalized === "未公开命令" ? "warn" : "neutral";
+}
+
+function metricValue(
+  metrics: WireFocusedInteractionPlan["commandReview"]["metrics"],
+  key: string,
+  fallback: string
+): string {
+  return metrics.find((metric) => metric.key === key)?.value ?? fallback;
 }
 
 function objectCommandContextRows(

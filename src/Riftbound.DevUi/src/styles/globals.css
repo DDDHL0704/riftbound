@@ -12172,6 +12172,7 @@ button.card-face:hover {
 .wire-object-command-tray,
 .wire-object-command-tray-heading,
 .wire-object-command-tray-metrics span,
+.wire-object-command-tray-submit-preview li,
 .wire-object-command-tray-semantics span,
 .wire-object-command-tray-selection li,
 .wire-object-command-tray-next,
@@ -13579,6 +13580,8 @@ button.card-face:hover {
 .wire-object-command-tray-heading strong,
 .wire-object-command-tray-heading span,
 .wire-object-command-tray-metrics strong,
+.wire-object-command-tray-submit-preview strong,
+.wire-object-command-tray-submit-preview span,
 .wire-object-command-tray-context dt,
 .wire-object-command-tray-context dd,
 .wire-object-command-tray-semantics strong,
@@ -13605,6 +13608,30 @@ button.card-face:hover {
 
 .wire-object-command-tray-metrics small {
   color: #000;
+}
+
+.wire-object-command-tray-submit-preview {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-object-command-tray-submit-preview li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-object-command-tray-submit-preview li[data-wire-object-command-tray-submit-preview-tone="warn"] {
+  border-width: 2px;
+}
+
+.wire-object-command-tray-submit-preview span {
+  font-size: 11px;
 }
 
 .wire-object-command-tray-semantics {
@@ -17258,6 +17285,7 @@ button.wire-object-ref {
 .wire-match-page .wire-object-command-tray,
 .wire-match-page .wire-object-command-tray-heading,
 .wire-match-page .wire-object-command-tray-metrics span,
+.wire-match-page .wire-object-command-tray-submit-preview li,
 .wire-match-page .wire-object-command-tray-semantics span,
 .wire-match-page .wire-object-command-tray-selection li,
 .wire-match-page .wire-object-command-tray-context div,

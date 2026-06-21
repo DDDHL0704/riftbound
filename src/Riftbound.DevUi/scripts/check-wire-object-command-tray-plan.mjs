@@ -59,6 +59,13 @@ assert.equal(readyPlan.contextRows.find((row) => row.key === "source")?.value, "
 assert.equal(readyPlan.contextRows.find((row) => row.key === "fields")?.value, "1 必填 / 2 公开");
 assert.equal(readyPlan.contextRows.find((row) => row.key === "fields")?.tone, "warn");
 assert.equal(readyPlan.contextRows.find((row) => row.key === "boundary")?.value, "不公开隐藏 metadata");
+assert.deepEqual(readyPlan.submitPreviewRows.map((row) => `${row.key}:${row.tone}:${row.value}`), [
+  "route:good:可送服务端",
+  "command:neutral:PLAY_CARD",
+  "missing:good:0 选择 / 0 字段",
+  "server:neutral:1",
+  "next:good:可以提交服务端候选。"
+]);
 
 const selectingPlan = buildWireObjectCommandTrayPlan({
   card: card(),
@@ -74,6 +81,9 @@ assert.equal(selectingPlan.state, "selecting");
 assert.equal(selectingPlan.tone, "warn");
 assert.equal(selectingPlan.primaryLabel, "选择目标");
 assert.equal(selectingPlan.nextStepLabel, "选择目标");
+assert.equal(selectingPlan.submitPreviewRows.find((row) => row.key === "route")?.value, "草稿未齐");
+assert.equal(selectingPlan.submitPreviewRows.find((row) => row.key === "missing")?.tone, "warn");
+assert.equal(selectingPlan.submitPreviewRows.find((row) => row.key === "next")?.value, "选择目标");
 
 const readonlyPlan = buildWireObjectCommandTrayPlan({
   card: card(),
@@ -100,6 +110,7 @@ assert.equal(hiddenPlan.metrics.find((metric) => metric.key === "command")?.valu
 assert.equal(hiddenPlan.metrics.find((metric) => metric.key === "semantic")?.value, "不公开");
 assert.equal(hiddenPlan.semanticRows.length, 0);
 assert.equal(hiddenPlan.nextStepLabel.includes("不展示或提交前端推断操作"), true);
+assert.equal(hiddenPlan.submitPreviewRows.length, 0);
 
 console.log("Wire object command tray plan check passed.");
 
@@ -111,6 +122,7 @@ function focusedPlan({
 } = {}) {
   return {
     actionEntries: [{ key: "PLAY_CARD:打出", mode: "button" }],
+    commandReview: commandReviewFor({ commandType, nextStepLabel, readinessState }),
     legalActionRows: [
       {
         action: "PLAY_CARD",
@@ -142,6 +154,76 @@ function focusedPlan({
     },
     submissionGate: { state: "connected", stateLabel: "可提交" },
     windowGate: { state: "ready", stateLabel: "可行动" }
+  };
+}
+
+function commandReviewFor({
+  commandType,
+  nextStepLabel,
+  readinessState
+}) {
+  if (readinessState === "ready") {
+    return {
+      canSubmit: true,
+      candidateLabel: "打出",
+      checkRows: [],
+      command: { cmdType: commandType ?? "PLAY_CARD" },
+      commandPreview: [],
+      commandType: commandType ?? "PLAY_CARD",
+      metrics: [
+        { key: "selection", label: "已选步骤", value: "2" },
+        { key: "missing", label: "缺少", value: "0 选择 / 0 字段" },
+        { key: "server", label: "服务端字段", value: "1" }
+      ],
+      nextStepLabel,
+      state: "ready",
+      stateLabel: "可送服务端",
+      submitLabel: "提交当前路线",
+      submitReason: "命令已由服务端候选模板组装完成，提交后仍由服务端规则校验。",
+      summary: "打出 / PLAY_CARD / 服务端候选"
+    };
+  }
+
+  if (readinessState === "needs-selection") {
+    return {
+      canSubmit: false,
+      candidateLabel: "打出",
+      checkRows: [],
+      command: undefined,
+      commandPreview: [],
+      commandType: commandType ?? "PLAY_CARD",
+      metrics: [
+        { key: "selection", label: "已选步骤", value: "1" },
+        { key: "missing", label: "缺少", value: "1 选择 / 0 字段" },
+        { key: "server", label: "服务端字段", value: "1" }
+      ],
+      nextStepLabel,
+      state: "drafting",
+      stateLabel: "草稿未齐",
+      submitLabel: "提交当前路线",
+      submitReason: nextStepLabel,
+      summary: "打出 / PLAY_CARD / 待选择"
+    };
+  }
+
+  return {
+    canSubmit: false,
+    candidateLabel: "未选择候选",
+    checkRows: [],
+    command: undefined,
+    commandPreview: [],
+    commandType: "无",
+    metrics: [
+      { key: "selection", label: "选择", value: "0" },
+      { key: "missing", label: "缺少", value: "无路线" },
+      { key: "server", label: "服务端字段", value: "0" }
+    ],
+    nextStepLabel: "先点击服务端候选对象，建立提交路线。",
+    state: readinessState === "server-blocked" ? "blocked" : "empty",
+    stateLabel: readinessState === "server-blocked" ? "提交阻断" : "等待选择",
+    submitLabel: "提交当前路线",
+    submitReason: "尚未选择服务端候选。",
+    summary: "尚未选择服务端候选。"
   };
 }
 
