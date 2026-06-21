@@ -48,6 +48,7 @@ export type WireRuleQueueMetric = {
 
 export type WireRuleQueueLane = {
   count: number;
+  detail?: WireRuleQueueDetailPlan;
   headline: string;
   hint: string;
   key: WireRuleQueueLaneKey;
@@ -131,6 +132,7 @@ export type WireRuleQueueResponsibilityPlan = {
 
 export type WireRuleQueueInspectorLane = {
   count: number;
+  detail?: WireRuleQueueDetailPlan;
   headline: string;
   hint: string;
   key: WireRuleQueueLaneKey;
@@ -156,6 +158,7 @@ export type WireRuleQueueCoverageKey = "battle" | "payment" | "stack" | "trigger
 export type WireRuleQueueCoverageState = "empty" | "history" | "live" | "mixed";
 
 export type WireRuleQueueCoverageRow = {
+  detail?: WireRuleQueueDetailPlan;
   eventCount: number;
   hint: string;
   key: WireRuleQueueCoverageKey;
@@ -369,7 +372,7 @@ export function buildWireRuleQueuePlan({
   const battlefieldResolutions = asArray<Record<string, unknown>>(timing.battlefieldResolutions);
   const battleResolutions = asArray<Record<string, unknown>>(timing.battleResolutions);
   const ruleEvents = ruleQueueEvents(events);
-  const coverage = ruleCoverageRows({ battleResolutions, battlefieldResolutions, prompt, ruleEvents, stack, tasks, timing, triggers });
+  const baseCoverage = ruleCoverageRows({ battleResolutions, battlefieldResolutions, prompt, ruleEvents, stack, tasks, timing, triggers });
   const counts: RuleQueueCounts = {
     battlefieldResolutionCount: battlefieldResolutions.length,
     battleResolutionCount: battleResolutions.length,
@@ -388,7 +391,7 @@ export function buildWireRuleQueuePlan({
   const promptOwner = prompt?.playerId ?? asString(timing.promptPlayerId, "");
   const resolutionCount = counts.battlefieldResolutionCount + counts.battleResolutionCount + counts.ruleEventCount;
 
-  const lanes = [
+  const baseLanes = [
     lane({
       count: stack.length,
       headline: stack.length > 0 ? topStackHeadline(stack[0], stack.length) : "空",
@@ -431,7 +434,7 @@ export function buildWireRuleQueuePlan({
     { key: "task", label: "任务", value: `${counts.taskCount} 项` },
     { key: "trigger", label: "触发", value: `${counts.triggerCount} 项` },
     { key: "resolution", label: "近期事件", value: `${resolutionCount} 项` },
-    { key: "coverage", label: "事件覆盖", value: `${coverage.filter((row) => row.state !== "empty").length} 类` }
+    { key: "coverage", label: "事件覆盖", value: `${baseCoverage.filter((row) => row.state !== "empty").length} 类` }
   ];
   const nextStep = nextStepLabel(state);
   const objectIndex = buildCardObjectIndex(snapshot);
@@ -447,6 +450,8 @@ export function buildWireRuleQueuePlan({
     tasks,
     triggers
   });
+  const lanes = lanesWithSectionDetails(baseLanes, sections);
+  const coverage = coverageWithSectionDetails(baseCoverage, sections);
   const sequence = queueSequence({ battleResolutions, battlefieldResolutions, ruleEvents, sections, stack, tasks, triggers });
   const focus = focusPlanFor({ activeLaneKey, interactionModel, prompt, sections, state });
   const responsibility = responsibilityPlanFor({ activeLaneKey, playerId, prompt, sequence, state });
@@ -478,6 +483,51 @@ export function buildWireRuleQueuePlan({
     state,
     stateLabel: queueStateLabel(state)
   };
+}
+
+function lanesWithSectionDetails(
+  lanes: WireRuleQueueLane[],
+  sections: WireRuleQueueSectionPlan[]
+): WireRuleQueueLane[] {
+  return lanes.map((laneItem) => ({
+    ...laneItem,
+    detail: firstSectionDetail(sections, laneItem.key)
+  }));
+}
+
+function coverageWithSectionDetails(
+  coverage: WireRuleQueueCoverageRow[],
+  sections: WireRuleQueueSectionPlan[]
+): WireRuleQueueCoverageRow[] {
+  return coverage.map((row) => ({
+    ...row,
+    detail: coverageDetail(row.key, sections)
+  }));
+}
+
+function coverageDetail(
+  key: WireRuleQueueCoverageKey,
+  sections: WireRuleQueueSectionPlan[]
+): WireRuleQueueDetailPlan | undefined {
+  switch (key) {
+    case "battle":
+      return firstSectionDetail(sections, "task") ?? firstSectionDetail(sections, "resolution");
+    case "payment":
+      return firstSectionDetail(sections, "resolution");
+    case "stack":
+      return firstSectionDetail(sections, "stack");
+    case "trigger":
+      return firstSectionDetail(sections, "trigger");
+    case "window":
+      return undefined;
+  }
+}
+
+function firstSectionDetail(
+  sections: WireRuleQueueSectionPlan[],
+  key: WireRuleQueueLaneKey
+): WireRuleQueueDetailPlan | undefined {
+  return sectionItems(sections, key)[0]?.detail;
 }
 
 function responsibilityPlanFor({

@@ -47,7 +47,12 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
         </div>
         <ol className="wire-rule-lanes">
           {plan.lanes.map((lane) => (
-            <RuleLaneCard key={lane.key} lane={lane} />
+            <RuleLaneCard
+              key={lane.key}
+              lane={lane}
+              onSelectDetail={onSelectDetail}
+              selectedDetailId={selectedDetailId}
+            />
           ))}
         </ol>
         <div className="wire-rule-flow-next" data-wire-rule-next-lane={plan.activeLaneKey}>
@@ -74,7 +79,11 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
             selectedObjectId={selectedObjectId}
           />
         )}
-        <RuleCoverageStrip coverage={plan.coverage} />
+        <RuleCoverageStrip
+          coverage={plan.coverage}
+          onSelectDetail={onSelectDetail}
+          selectedDetailId={selectedDetailId}
+        />
         {plan.sequence.length > 0 && (
           <ol className="wire-rule-sequence" aria-label="服务端规则队列顺序">
             {plan.sequence.map((item) => (
@@ -382,11 +391,23 @@ function RuleQueueInspector({
         <strong>通道</strong>
         <ol className="wire-rule-inspector-lanes">
           {plan.lanes.map((lane) => (
-            <li data-rule-inspector-lane={lane.key} data-rule-inspector-lane-state={lane.state} key={lane.key}>
+            <li
+              data-rule-inspector-lane={lane.key}
+              data-rule-inspector-lane-detail-id={lane.detail?.id ?? ""}
+              data-rule-inspector-lane-state={lane.state}
+              key={lane.key}
+            >
               <span>{lane.label}</span>
               <strong>{lane.count} 项 / {lane.stateLabel}</strong>
               <small>{lane.headline}</small>
               <small>{lane.hint}</small>
+              {lane.detail ? (
+                <RuleDetailButton
+                  detail={lane.detail}
+                  onSelectDetail={onSelectDetail}
+                  selectedDetailId={selectedDetailId}
+                />
+              ) : null}
             </li>
           ))}
         </ol>
@@ -443,34 +464,85 @@ function RuleQueueInspector({
   );
 }
 
-function RuleCoverageStrip({ coverage }: { coverage: WireRuleQueueCoverageRow[] }) {
+function RuleCoverageStrip({
+  coverage,
+  onSelectDetail,
+  selectedDetailId
+}: {
+  coverage: WireRuleQueueCoverageRow[];
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
+}) {
   return (
     <ol className="wire-rule-coverage" aria-label="规则事件覆盖">
       {coverage.map((row) => (
-        <RuleCoverageItem key={row.key} row={row} />
+        <RuleCoverageItem
+          key={row.key}
+          onSelectDetail={onSelectDetail}
+          row={row}
+          selectedDetailId={selectedDetailId}
+        />
       ))}
     </ol>
   );
 }
 
-function RuleCoverageItem({ row }: { row: WireRuleQueueCoverageRow }) {
+function RuleCoverageItem({
+  onSelectDetail,
+  row,
+  selectedDetailId
+}: {
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  row: WireRuleQueueCoverageRow;
+  selectedDetailId?: string;
+}) {
   return (
-    <li data-rule-coverage={row.key} data-rule-coverage-state={row.state}>
+    <li
+      data-rule-coverage={row.key}
+      data-rule-coverage-detail-id={row.detail?.id ?? ""}
+      data-rule-coverage-state={row.state}
+    >
       <small>{row.label}</small>
       <strong>{row.stateLabel}</strong>
       <span>快照 {row.liveCount} / 事件 {row.eventCount}</span>
       <em>{row.hint}</em>
+      {row.detail ? (
+        <RuleDetailButton
+          detail={row.detail}
+          onSelectDetail={onSelectDetail}
+          selectedDetailId={selectedDetailId}
+        />
+      ) : null}
     </li>
   );
 }
 
-function RuleLaneCard({ lane }: { lane: WireRuleQueueLane }) {
+function RuleLaneCard({
+  lane,
+  onSelectDetail,
+  selectedDetailId
+}: {
+  lane: WireRuleQueueLane;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  selectedDetailId?: string;
+}) {
   return (
-    <li data-rule-lane={lane.key} data-rule-lane-state={lane.state}>
+    <li
+      data-rule-lane={lane.key}
+      data-rule-lane-detail-id={lane.detail?.id ?? ""}
+      data-rule-lane-state={lane.state}
+    >
       <small>{lane.label}</small>
       <strong>{lane.count} 项</strong>
       <span>{lane.headline}</span>
       <em>{lane.hint}</em>
+      {lane.detail ? (
+        <RuleDetailButton
+          detail={lane.detail}
+          onSelectDetail={onSelectDetail}
+          selectedDetailId={selectedDetailId}
+        />
+      ) : null}
     </li>
   );
 }

@@ -346,8 +346,10 @@ assert.equal(taskBlocked.responsibility.items[0].actionLabel, "等待规则任�
 assert.ok(taskBlocked.responsibility.items[0].reason.includes("阻塞普通行动"));
 assert.equal(taskBlocked.inspector.activeLaneLabel, "规则任务");
 assert.equal(taskBlocked.inspector.lanes.find((lane) => lane.key === "task")?.stateLabel, "阻塞");
+assert.equal(taskBlocked.inspector.lanes.find((lane) => lane.key === "task")?.detail?.id, "rule:task:task-1");
 assert.ok(taskBlocked.inspector.summary.includes("规则阻塞"));
 assert.equal(taskBlocked.lanes.find((lane) => lane.key === "task")?.state, "blocked");
+assert.equal(taskBlocked.lanes.find((lane) => lane.key === "task")?.detail?.id, "rule:task:task-1");
 assert.ok(taskBlocked.nextStepLabel.includes("阻塞规则任务"));
 assert.ok(taskBlocked.sequence[0].detailLabel.includes("战场控制检查"));
 assert.equal(taskBlocked.sequence[0].detail?.id, "rule:task:task-1");
@@ -357,6 +359,8 @@ assert.equal(taskBlocked.metrics.find((metric) => metric.key === "task")?.value,
 assert.equal(taskBlocked.metrics.find((metric) => metric.key === "coverage")?.value, "2 类");
 assert.equal(coverageRow(taskBlocked, "battle").state, "live");
 assert.equal(coverageRow(taskBlocked, "battle").liveCount, 1);
+assert.equal(coverageRow(taskBlocked, "battle").detail?.id, "rule:task:task-1");
+assert.equal(coverageRow(taskBlocked, "window").detail, undefined);
 assert.equal(taskBlocked.sections.find((section) => section.key === "task")?.items.length, 1);
 assert.ok(taskBlocked.sections.find((section) => section.key === "task")?.notes.some((note) => note.includes("阻塞普通行动")));
 assert.ok(taskBlocked.sections.find((section) => section.key === "task")?.items[0]?.detail.id.includes("rule:task:task-1"));
@@ -414,9 +418,11 @@ assert.equal(stackResponse.inspector.activeLaneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].laneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].objectCount, 2);
 assert.equal(stackResponse.inspector.sequence[0].detail?.id, "rule:stack:stack-1");
+assert.equal(stackResponse.inspector.lanes.find((lane) => lane.key === "stack")?.detail?.id, "rule:stack:stack-1");
 assert.equal(coverageRow(stackResponse, "stack").state, "live");
 assert.equal(coverageRow(stackResponse, "stack").liveCount, 1);
 assert.equal(coverageRow(stackResponse, "stack").eventCount, 0);
+assert.equal(coverageRow(stackResponse, "stack").detail?.id, "rule:stack:stack-1");
 assert.equal(stackResponse.metrics.find((metric) => metric.key === "coverage")?.value, "2 类");
 assert.deepEqual(
   stackResponse.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`),
@@ -427,6 +433,7 @@ assert.deepEqual(
   ["来源:spell-1", "目标:unit-1"]
 );
 assert.equal(stackResponse.lanes.find((lane) => lane.key === "stack")?.state, "active");
+assert.equal(stackResponse.lanes.find((lane) => lane.key === "stack")?.detail?.id, "rule:stack:stack-1");
 assert.equal(stackResponse.sequence[0].lane, "stack");
 assert.equal(stackResponse.sequence[0].objectCount, 2);
 assert.equal(stackResponse.sequence[0].detail?.id, "rule:stack:stack-1");
@@ -794,12 +801,14 @@ assert.equal(triggerPending.responsibility.items[0].state, "watch");
 assert.equal(triggerPending.responsibility.items[0].actionLabel, "查看触发");
 assert.ok(triggerPending.responsibility.items[0].reason.includes("触发队列"));
 assert.ok(triggerPending.lanes.find((lane) => lane.key === "trigger")?.headline.includes("触发"));
+assert.equal(triggerPending.lanes.find((lane) => lane.key === "trigger")?.detail?.id, "rule:trigger:trigger-1");
 assert.equal(triggerPending.sequence[0].stateLabel, "P1");
 assert.equal(triggerPending.sequence[0].detail?.id, "rule:trigger:trigger-1");
 assert.equal(triggerPending.responsibility.items[0].detail?.id, "rule:trigger:trigger-1");
 assert.deepEqual(triggerPending.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`), ["来源:jinx-1"]);
 assert.equal(coverageRow(triggerPending, "trigger").state, "live");
 assert.equal(coverageRow(triggerPending, "trigger").liveCount, 1);
+assert.equal(coverageRow(triggerPending, "trigger").detail?.id, "rule:trigger:trigger-1");
 assert.ok(triggerPending.sections.find((section) => section.key === "trigger")?.items[0]?.detail.lines.some((line) => line.label === "来源事件"));
 
 const resolutionHistory = buildWireRuleQueuePlan({
@@ -836,6 +845,7 @@ assert.equal(resolutionHistory.activeLaneKey, "resolution");
 assert.equal(resolutionHistory.header.statusLabel, "近期规则事件");
 assert.equal(resolutionHistory.focus.laneKey, "resolution");
 assert.equal(resolutionHistory.focus.detail?.title, "据守");
+assert.equal(resolutionHistory.lanes.find((lane) => lane.key === "resolution")?.detail?.id, "rule:battlefield-resolution:battlefield-resolution-1");
 assert.equal(resolutionHistory.responsibility.stateLabel, "可回看");
 assert.equal(resolutionHistory.responsibility.activeCount, 0);
 assert.deepEqual(resolutionHistory.responsibility.items.map((item) => item.state), ["history", "history"]);
@@ -846,6 +856,7 @@ assert.equal(resolutionHistory.sequence[0].detail?.id, "rule:battlefield-resolut
 assert.equal(resolutionHistory.sequence[1].detail?.id, "rule:battle-resolution:battle-resolution-1");
 assert.equal(coverageRow(resolutionHistory, "battle").state, "live");
 assert.equal(coverageRow(resolutionHistory, "battle").liveCount, 2);
+assert.equal(coverageRow(resolutionHistory, "battle").detail?.id, "rule:battlefield-resolution:battlefield-resolution-1");
 assert.deepEqual(
   resolutionHistory.sequence[0].refs.map((ref) => `${ref.role}:${ref.id}`),
   ["战场:battlefield-a", "参与:unit-b"]

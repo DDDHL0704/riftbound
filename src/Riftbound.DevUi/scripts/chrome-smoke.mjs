@@ -1261,6 +1261,10 @@ async function runWireClickSelectionSmoke(cdp) {
       ruleFocusRefCount: ruleFocus?.querySelectorAll("[data-rule-object-ref]").length ?? 0,
       ruleFocusText: ruleFocus?.textContent ?? "",
       ruleLaneCount: document.querySelectorAll("[data-rule-lane]").length,
+      ruleLaneDetailIds: Array.from(document.querySelectorAll("[data-rule-lane-detail-id]"))
+        .map((node) => node.getAttribute("data-rule-lane-detail-id") ?? ""),
+      ruleCoverageDetailIds: Array.from(document.querySelectorAll("[data-rule-coverage-detail-id]"))
+        .map((node) => node.getAttribute("data-rule-coverage-detail-id") ?? ""),
       ruleSectionKeys: Array.from(document.querySelectorAll("[data-rule-section-key]")).map((node) => node.getAttribute("data-rule-section-key")),
       ruleItemKeys: Array.from(document.querySelectorAll("[data-rule-item-key]")).map((node) => node.getAttribute("data-rule-item-key")),
       ruleStackItemText: document.querySelector('[data-rule-item-key^="stack:"]')?.textContent ?? "",
@@ -1285,6 +1289,8 @@ async function runWireClickSelectionSmoke(cdp) {
     return {
       hidden: inspector?.hasAttribute("hidden") ?? true,
       laneCount: inspector?.querySelectorAll("[data-rule-inspector-lane]").length ?? 0,
+      laneDetailIds: Array.from(inspector?.querySelectorAll("[data-rule-inspector-lane-detail-id]") ?? [])
+        .map((node) => node.getAttribute("data-rule-inspector-lane-detail-id") ?? ""),
       sequenceDetailIds: Array.from(inspector?.querySelectorAll("[data-rule-inspector-sequence-detail-id]") ?? [])
         .map((node) => node.getAttribute("data-rule-inspector-sequence-detail-id") ?? ""),
       sequenceRefCount: inspector?.querySelectorAll(".wire-rule-inspector-sequence [data-rule-object-ref]").length ?? 0,
@@ -1298,12 +1304,24 @@ async function runWireClickSelectionSmoke(cdp) {
   const ruleSequenceDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-sequence", ruleSequenceDetailTarget);
   await delay(150);
   const ruleSequenceDetailResult = await timelineDetailSummary(cdp);
+  const ruleLaneDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-lanes");
+  const ruleLaneDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-lanes", ruleLaneDetailTarget);
+  await delay(150);
+  const ruleLaneDetailResult = await timelineDetailSummary(cdp);
+  const ruleCoverageDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-coverage");
+  const ruleCoverageDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-coverage", ruleCoverageDetailTarget);
+  await delay(150);
+  const ruleCoverageDetailResult = await timelineDetailSummary(cdp);
   const ruleResponsibilityDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-responsibility");
   const ruleResponsibilityDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-responsibility", ruleResponsibilityDetailTarget);
   await delay(150);
   const ruleResponsibilityDetailResult = await timelineDetailSummary(cdp);
-  const ruleInspectorSequenceDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-inspector");
-  const ruleInspectorSequenceDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-inspector", ruleInspectorSequenceDetailTarget);
+  const ruleInspectorLaneDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-inspector-lanes");
+  const ruleInspectorLaneDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-inspector-lanes", ruleInspectorLaneDetailTarget);
+  await delay(150);
+  const ruleInspectorLaneDetailResult = await timelineDetailSummary(cdp);
+  const ruleInspectorSequenceDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-inspector-sequence");
+  const ruleInspectorSequenceDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-inspector-sequence", ruleInspectorSequenceDetailTarget);
   await delay(150);
   const ruleInspectorSequenceDetailResult = await timelineDetailSummary(cdp);
 
@@ -1792,6 +1810,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.ruleFlowText.includes("触发队列")) failures.push("wire rule queue trigger lane missing");
   if (!actionMapResult.ruleFlowText.includes("近期事件")) failures.push("wire rule queue resolution lane missing");
   if (!actionMapResult.ruleFlowText.includes("下一步")) failures.push("wire rule queue next step missing");
+  if (!actionMapResult.ruleLaneDetailIds.some(Boolean)) {
+    failures.push(`wire rule queue lane detail id missing: ${actionMapResult.ruleLaneDetailIds.join(",")}`);
+  }
+  if (!actionMapResult.ruleCoverageDetailIds.some(Boolean)) {
+    failures.push(`wire rule coverage detail id missing: ${actionMapResult.ruleCoverageDetailIds.join(",")}`);
+  }
   if (actionMapResult.ruleSequenceCount < 1) failures.push("wire rule queue sequence items missing");
   if (!actionMapResult.ruleSequenceDetailIds.some(Boolean)) {
     failures.push(`wire rule queue sequence detail id missing: ${actionMapResult.ruleSequenceDetailIds.join(",")}`);
@@ -1816,6 +1840,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!ruleInspectorResult.text.includes("活动")) failures.push("wire rule inspector active lane summary missing");
   if (!ruleInspectorResult.text.includes("下一步")) failures.push("wire rule inspector next step missing");
   if (ruleInspectorResult.laneCount !== 4) failures.push(`wire rule inspector lane count mismatch: ${ruleInspectorResult.laneCount}`);
+  if (!ruleInspectorResult.laneDetailIds.some(Boolean)) {
+    failures.push(`wire rule inspector lane detail id missing: ${ruleInspectorResult.laneDetailIds.join(",")}`);
+  }
   if (ruleInspectorResult.sequenceCount < 1) failures.push("wire rule inspector sequence items missing");
   if (!ruleInspectorResult.sequenceDetailIds.some(Boolean)) {
     failures.push(`wire rule inspector sequence detail id missing: ${ruleInspectorResult.sequenceDetailIds.join(",")}`);
@@ -1825,10 +1852,22 @@ async function runWireClickSelectionSmoke(cdp) {
   if (ruleSequenceDetailResult.detailId !== ruleSequenceDetailTarget) failures.push(`rule sequence detail panel unexpected: ${ruleSequenceDetailResult.detailId}`);
   if (ruleSequenceDetailResult.panelState !== "rule") failures.push(`rule sequence detail panel state unexpected: ${ruleSequenceDetailResult.panelState}`);
   if (!ruleSequenceDetailResult.text.includes("服务端")) failures.push("rule sequence detail authority text missing");
+  if (ruleLaneDetailClickId !== ruleLaneDetailTarget) failures.push(`rule lane detail click unexpected: ${ruleLaneDetailClickId}`);
+  if (ruleLaneDetailResult.detailId !== ruleLaneDetailTarget) failures.push(`rule lane detail panel unexpected: ${ruleLaneDetailResult.detailId}`);
+  if (ruleLaneDetailResult.panelState !== "rule") failures.push(`rule lane detail panel state unexpected: ${ruleLaneDetailResult.panelState}`);
+  if (!ruleLaneDetailResult.text.includes("服务端")) failures.push("rule lane detail authority text missing");
+  if (ruleCoverageDetailClickId !== ruleCoverageDetailTarget) failures.push(`rule coverage detail click unexpected: ${ruleCoverageDetailClickId}`);
+  if (ruleCoverageDetailResult.detailId !== ruleCoverageDetailTarget) failures.push(`rule coverage detail panel unexpected: ${ruleCoverageDetailResult.detailId}`);
+  if (ruleCoverageDetailResult.panelState !== "rule") failures.push(`rule coverage detail panel state unexpected: ${ruleCoverageDetailResult.panelState}`);
+  if (!ruleCoverageDetailResult.text.includes("服务端")) failures.push("rule coverage detail authority text missing");
   if (ruleResponsibilityDetailClickId !== ruleResponsibilityDetailTarget) failures.push(`rule responsibility detail click unexpected: ${ruleResponsibilityDetailClickId}`);
   if (ruleResponsibilityDetailResult.detailId !== ruleResponsibilityDetailTarget) failures.push(`rule responsibility detail panel unexpected: ${ruleResponsibilityDetailResult.detailId}`);
   if (ruleResponsibilityDetailResult.panelState !== "rule") failures.push(`rule responsibility detail panel state unexpected: ${ruleResponsibilityDetailResult.panelState}`);
   if (!ruleResponsibilityDetailResult.text.includes("服务端")) failures.push("rule responsibility detail authority text missing");
+  if (ruleInspectorLaneDetailClickId !== ruleInspectorLaneDetailTarget) failures.push(`rule inspector lane detail click unexpected: ${ruleInspectorLaneDetailClickId}`);
+  if (ruleInspectorLaneDetailResult.detailId !== ruleInspectorLaneDetailTarget) failures.push(`rule inspector lane detail panel unexpected: ${ruleInspectorLaneDetailResult.detailId}`);
+  if (ruleInspectorLaneDetailResult.panelState !== "rule") failures.push(`rule inspector lane detail panel state unexpected: ${ruleInspectorLaneDetailResult.panelState}`);
+  if (!ruleInspectorLaneDetailResult.text.includes("服务端")) failures.push("rule inspector lane detail authority text missing");
   if (ruleInspectorSequenceDetailClickId !== ruleInspectorSequenceDetailTarget) failures.push(`rule inspector sequence detail click unexpected: ${ruleInspectorSequenceDetailClickId}`);
   if (ruleInspectorSequenceDetailResult.detailId !== ruleInspectorSequenceDetailTarget) failures.push(`rule inspector sequence detail panel unexpected: ${ruleInspectorSequenceDetailResult.detailId}`);
   if (ruleInspectorSequenceDetailResult.panelState !== "rule") failures.push(`rule inspector sequence detail panel state unexpected: ${ruleInspectorSequenceDetailResult.panelState}`);
