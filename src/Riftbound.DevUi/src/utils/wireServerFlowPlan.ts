@@ -9,6 +9,7 @@ import type {
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import {
   buildPromptInteractionModel,
+  promptChoiceSummaryObjectIds,
   promptChoiceRoleLabel,
   type PromptInteractionModel,
   type PromptObjectSummary
@@ -58,6 +59,7 @@ export type WireServerFlowStep = {
 };
 
 export type WireServerFlowObjectRef = {
+  candidateActions?: string[];
   candidateBoundary?: string;
   candidateRoles?: string[];
   candidateSource?: string;
@@ -90,6 +92,7 @@ export type WireServerFlowDetail = {
 };
 
 export type WireServerFlowRelatedActionRow = {
+  candidateActionLabels: string[];
   actionRoleLabels: string[];
   disabledCandidateCount: number;
   enabledCandidateCount: number;
@@ -308,6 +311,7 @@ function serverFlowRelatedActionRows(
   return [...groupedRefs.entries()].map(([objectId, objectRefs]) => {
     const summary = interactionModel.objectById.get(objectId);
     const actionRoleLabels = serverFlowRelatedActionRoleLabels(objectRefs, summary);
+    const candidateActionLabels = serverFlowRelatedCandidateActionLabels(objectRefs, interactionModel, objectId);
     const enabledCandidateCount = firstFiniteNumber(objectRefs.map((ref) => ref.enabledCandidateCount))
       ?? summary?.enabledCandidateCount
       ?? 0;
@@ -324,6 +328,7 @@ function serverFlowRelatedActionRows(
 
     return {
       actionRoleLabels,
+      candidateActionLabels,
       disabledCandidateCount,
       enabledCandidateCount,
       key: `server-flow-action:${objectId}`,
@@ -335,6 +340,23 @@ function serverFlowRelatedActionRows(
       stepSummary
     };
   });
+}
+
+function serverFlowRelatedCandidateActionLabels(
+  objectRefs: WireServerFlowDetail["refs"],
+  interactionModel: PromptInteractionModel,
+  objectId: string
+): string[] {
+  const serverActions = uniqueStrings(objectRefs.flatMap((ref) => ref.candidateActions ?? []));
+  if (serverActions.length > 0) {
+    return serverActions;
+  }
+
+  return uniqueStrings(
+    interactionModel.candidates
+      .filter((candidate) => candidate.choices.some((choice) => promptChoiceSummaryObjectIds(choice).includes(objectId)))
+      .map((candidate) => candidate.action)
+  );
 }
 
 function serverFlowCandidateStepSummary(objectRefs: WireServerFlowDetail["refs"]): string {
@@ -469,6 +491,7 @@ function detailRelatedObjectRefs(detail?: WireServerFlowDetail): WireServerFlowD
 function serverFlowRelatedObjectRefs(serverFlow: ActionPromptServerFlowDto): WireServerFlowDetail["refs"] {
   const semanticRefs = visibleServerFlowObjectRefs(
     (serverFlow.relatedObjects ?? []).map((ref) => ({
+      candidateActions: ref.candidateActions ?? undefined,
       candidateBoundary: ref.candidateBoundary ?? undefined,
       candidateRoles: ref.candidateRoles ?? undefined,
       candidateSteps: normalizedServerFlowCandidateSteps(ref.candidateSteps),
@@ -520,6 +543,10 @@ function compactServerFlowObjectRef(ref: WireServerFlowObjectRef): WireServerFlo
 
   if (ref.candidateRoles?.length) {
     compactRef.candidateRoles = ref.candidateRoles;
+  }
+
+  if (ref.candidateActions?.length) {
+    compactRef.candidateActions = ref.candidateActions;
   }
 
   if (ref.candidateSource) {

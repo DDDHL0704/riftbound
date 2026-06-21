@@ -287,6 +287,7 @@ const serverFlowActionBridgePlan = buildWireServerFlowPlan({
 assert.equal(serverFlowActionBridgePlan.state, "selecting");
 assert.deepEqual(serverFlowActionBridgePlan.relatedActionRows.map((row) => ({
   actionRoleLabels: row.actionRoleLabels,
+  candidateActionLabels: row.candidateActionLabels,
   disabledCandidateCount: row.disabledCandidateCount,
   enabledCandidateCount: row.enabledCandidateCount,
   objectId: row.objectId,
@@ -295,6 +296,7 @@ assert.deepEqual(serverFlowActionBridgePlan.relatedActionRows.map((row) => ({
   stateLabel: row.stateLabel
 })), [{
   actionRoleLabels: ["来源"],
+  candidateActionLabels: ["PLAY_CARD"],
   disabledCandidateCount: 0,
   enabledCandidateCount: 1,
   objectId: "unit-1",
@@ -312,6 +314,7 @@ const serverFlowActionBridgeServerSummaryPlan = buildWireServerFlowPlan({
     serverFlow: {
       ...serverFlowFixture,
       relatedObjects: [{
+        candidateActions: ["PLAY_CARD", "TAP_RUNE"],
         candidateBoundary: "服务端对象上下文边界",
         candidateRoles: ["目标"],
         candidateSteps: [
@@ -333,6 +336,7 @@ const serverFlowActionBridgeServerSummaryPlan = buildWireServerFlowPlan({
 });
 assert.deepEqual(serverFlowActionBridgeServerSummaryPlan.relatedActionRows.map((row) => ({
   actionRoleLabels: row.actionRoleLabels,
+  candidateActionLabels: row.candidateActionLabels,
   disabledCandidateCount: row.disabledCandidateCount,
   enabledCandidateCount: row.enabledCandidateCount,
   objectId: row.objectId,
@@ -342,6 +346,7 @@ assert.deepEqual(serverFlowActionBridgeServerSummaryPlan.relatedActionRows.map((
   stepSummary: row.stepSummary
 })), [{
   actionRoleLabels: ["目标"],
+  candidateActionLabels: ["PLAY_CARD", "TAP_RUNE"],
   disabledCandidateCount: 1,
   enabledCandidateCount: 2,
   objectId: "unit-1",
@@ -351,6 +356,7 @@ assert.deepEqual(serverFlowActionBridgeServerSummaryPlan.relatedActionRows.map((
   stepSummary: "来源* 0/1 / 目标 1/2"
 }]);
 assert.equal(serverFlowActionBridgeServerSummaryPlan.relatedActionRows[0].nextStepLabel, "可作为 目标 进入 2 个候选。");
+assert.deepEqual(serverFlowActionBridgeServerSummaryPlan.detail?.refs[0].candidateActions, ["PLAY_CARD", "TAP_RUNE"]);
 assert.equal(serverFlowActionBridgeServerSummaryPlan.detail?.refs[0].candidateSource, "server-action-prompt");
 assert.equal(serverFlowActionBridgeServerSummaryPlan.detail?.refs[0].candidateStepSummary, "来源* 0/1 / 目标 1/2");
 

@@ -150,6 +150,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
             string.Equals(group.Key, "safe-boundary", StringComparison.Ordinal)
             && group.Rows.Any(row => row.Value.Contains("展示与提交", StringComparison.Ordinal)));
         var objectContexts = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptObjectContextDto>>(prompt.ObjectContexts);
+        var serverFlow = Assert.IsType<ActionPromptServerFlowDto>(prompt.ServerFlow);
 
         var sourceContext = Assert.Single(
             objectContexts,
@@ -210,6 +211,11 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Contains(sourceInspection.Groups, group =>
             string.Equals(group.Key, "safe-boundary", StringComparison.Ordinal)
             && group.Rows.Any(row => row.Value.Contains("前端不重算", StringComparison.Ordinal)));
+        var sourceServerFlowRef = Assert.Single(
+            Assert.IsAssignableFrom<IReadOnlyList<ActionPromptServerFlowObjectRefDto>>(serverFlow.RelatedObjects),
+            context => string.Equals(context.ObjectId, "P1-HAND-UNIT", StringComparison.Ordinal)
+                && context.CandidateActions is not null);
+        Assert.Contains(CommandTypes.PlayCard, sourceServerFlowRef.CandidateActions!);
 
         var battlefieldContext = Assert.Single(
             objectContexts,

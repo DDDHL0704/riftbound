@@ -1294,6 +1294,8 @@ async function runWireClickSelectionSmoke(cdp) {
       priorityRailText: priorityRail?.textContent ?? "",
       priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null,
       ruleFlowText: ruleFlow?.textContent ?? "",
+      serverFlowActionCandidates: Array.from(document.querySelectorAll("[data-server-flow-action-candidates]"))
+        .map((node) => node.getAttribute("data-server-flow-action-candidates") ?? ""),
       ruleFocusDetailId: ruleFocus?.getAttribute("data-rule-focus-detail-id") ?? null,
       ruleFocusLane: ruleFocus?.getAttribute("data-rule-focus-lane") ?? null,
       ruleFocusActionCount: document.querySelectorAll("[data-rule-focus-action-object-id]").length,
@@ -1852,6 +1854,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!["task-blocked", "task-open", "stack-response"].includes(actionMapResult.ruleQueueState)) failures.push(`wire rule queue state did not reflect server queue context: ${actionMapResult.ruleQueueState}`);
   if (actionMapResult.ruleLaneCount !== 4) failures.push(`wire rule queue lane count mismatch: ${actionMapResult.ruleLaneCount}`);
   if (!actionMapResult.ruleFlowText.includes("规则队列地图")) failures.push("wire rule queue flow header missing");
+  if (!actionMapResult.serverFlowActionCandidates.some((candidate) => candidate.includes("PLAY_CARD"))) {
+    failures.push(`server flow action candidates missing command name: ${actionMapResult.serverFlowActionCandidates.join(",")}`);
+  }
   if (actionMapResult.ruleFocusLane !== "task") failures.push(`wire rule focus lane unexpected: ${actionMapResult.ruleFocusLane}`);
   if (!actionMapResult.ruleFocusDetailId?.includes("rule:task:fixture-task-1")) failures.push("wire rule focus did not expose active task detail id");
   if (!actionMapResult.ruleFocusText.includes("当前规则焦点")) failures.push("wire rule focus heading missing");
@@ -2438,6 +2443,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
     const layer = document.querySelector(".wire-server-flow-layer");
     return {
       activeText: document.activeElement?.textContent ?? "",
+      actionCandidates: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-action-candidates]") ?? [])
+        .map((item) => item.getAttribute("data-wire-server-flow-layer-action-candidates") ?? ""),
       actionInspectableStates: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-action-inspectable]") ?? [])
         .map((item) => item.getAttribute("data-wire-server-flow-layer-action-inspectable") ?? ""),
       actionObjectIds: Array.from(layer?.querySelectorAll("[data-wire-server-flow-layer-action-object-id]") ?? [])
@@ -3143,6 +3150,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (serverFlowLayerResult.sourceRefCount < 1) failures.push("server flow layer source ref missing");
   if (serverFlowLayerResult.targetRefCount < 1) failures.push("server flow layer target ref missing");
   if (!serverFlowLayerResult.actionObjectIds.includes("p2-right-1")) failures.push("server flow layer action object missing");
+  if (!serverFlowLayerResult.actionCandidates.some((candidate) => candidate.includes("PLAY_CARD"))) {
+    failures.push(`server flow layer action candidates missing command name: ${serverFlowLayerResult.actionCandidates.join(",")}`);
+  }
   if (!serverFlowLayerResult.actionStates.includes("ready")) failures.push("server flow layer ready action state missing");
   if (!serverFlowLayerResult.actionInspectableStates.includes("true")) failures.push("server flow layer inspectable action missing");
   if (serverFlowLayerResult.authority !== "server") failures.push("server flow layer server authority attr missing");

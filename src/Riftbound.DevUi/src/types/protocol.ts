@@ -410,6 +410,7 @@ export type ActionPromptServerFlowObjectRefDto = {
   candidateSource?: string | null;
   candidateBoundary?: string | null;
   candidateSteps?: ActionPromptObjectCandidateStepDto[] | null;
+  candidateActions?: string[] | null;
 };
 
 export type ActionPromptServerFlowDto = {

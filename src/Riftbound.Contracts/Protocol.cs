@@ -367,7 +367,8 @@ public sealed record ActionPromptServerFlowObjectRefDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? DisabledCandidateCount = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CandidateSource = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CandidateBoundary = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectCandidateStepDto>? CandidateSteps = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectCandidateStepDto>? CandidateSteps = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? CandidateActions = null);
 
 public sealed record ActionPromptServerFlowDto(
     string State,

@@ -5504,6 +5504,7 @@ internal static class ActionPromptBuilder
                 }
 
                 var candidateRoles = ActionPromptObjectContextCandidateRoles(context);
+                var candidateActions = ActionPromptObjectContextCandidateActions(context);
 
                 return relatedObject with
                 {
@@ -5512,7 +5513,8 @@ internal static class ActionPromptBuilder
                     DisabledCandidateCount = context.DisabledCandidateCount,
                     CandidateSource = string.IsNullOrWhiteSpace(context.Source) ? null : context.Source,
                     CandidateBoundary = string.IsNullOrWhiteSpace(context.Boundary) ? null : context.Boundary,
-                    CandidateSteps = ActionPromptObjectContextCandidateSteps(context)
+                    CandidateSteps = ActionPromptObjectContextCandidateSteps(context),
+                    CandidateActions = candidateActions.Length == 0 ? null : candidateActions
                 };
             })
             .Concat(objectContexts
@@ -5521,6 +5523,7 @@ internal static class ActionPromptBuilder
                 {
                     var objectId = context.ObjectId.Trim();
                     var candidateRoles = ActionPromptObjectContextCandidateRoles(context);
+                    var candidateActions = ActionPromptObjectContextCandidateActions(context);
                     return new ActionPromptServerFlowObjectRefDto(
                         objectId,
                         ServerFlowCandidateRelatedObjectRole(candidateRoles),
@@ -5529,10 +5532,22 @@ internal static class ActionPromptBuilder
                         context.DisabledCandidateCount,
                         string.IsNullOrWhiteSpace(context.Source) ? null : context.Source,
                         string.IsNullOrWhiteSpace(context.Boundary) ? null : context.Boundary,
-                        ActionPromptObjectContextCandidateSteps(context));
+                        ActionPromptObjectContextCandidateSteps(context),
+                        candidateActions.Length == 0 ? null : candidateActions);
                 }))
             .GroupBy(item => $"{item.Role}\u001f{item.ObjectId}", StringComparer.Ordinal)
             .Select(group => group.First())
+            .ToArray();
+    }
+
+    private static string[] ActionPromptObjectContextCandidateActions(ActionPromptObjectContextDto context)
+    {
+        return context.Candidates
+            .Select(candidate => candidate.Action)
+            .Where(action => !string.IsNullOrWhiteSpace(action))
+            .Select(action => action.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(action => action, StringComparer.Ordinal)
             .ToArray();
     }
 

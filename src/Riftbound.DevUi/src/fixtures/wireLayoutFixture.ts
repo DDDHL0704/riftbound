@@ -526,6 +526,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
       relatedObjectIds: ["p1-hand-spell", "p2-right-1", "fixture-left-battlefield"],
       relatedObjects: [
         {
+          candidateActions: ["PLAY_CARD"],
           candidateBoundary: "服务端只公开当前行动提示中的对象候选、选择步骤和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
           candidateRoles: ["来源"],
           candidateSteps: [
@@ -541,6 +542,7 @@ export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): Actio
           role: "候选来源"
         },
         {
+          candidateActions: ["PLAY_CARD"],
           candidateBoundary: "服务端只公开当前行动提示中的对象候选、选择步骤和命令字段；隐藏 metadata 与未公开卡牌身份不进入检查摘要。",
           candidateRoles: ["目标"],
           candidateSteps: [

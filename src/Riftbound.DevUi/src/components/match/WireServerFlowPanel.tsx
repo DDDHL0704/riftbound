@@ -113,6 +113,9 @@ export function WireServerFlowPanel({
               <>
                 <span>{row.serverRoleLabel}</span>
                 <strong>{row.actionRoleLabels.join(" / ") || "无候选角色"}</strong>
+                {row.candidateActionLabels.length > 0 ? (
+                  <small data-server-flow-action-candidates-label>{row.candidateActionLabels.join(" / ")}</small>
+                ) : null}
                 <small>{row.enabledCandidateCount} 可 / {row.disabledCandidateCount} 阻</small>
                 {row.stepSummary && <small data-server-flow-action-step-summary>{row.stepSummary}</small>}
                 <em>{row.nextStepLabel}</em>
@@ -121,6 +124,7 @@ export function WireServerFlowPanel({
 
             return (
               <li
+                data-server-flow-action-candidates={row.candidateActionLabels.join("|")}
                 data-server-flow-action-object-id={row.objectId}
                 data-server-flow-action-state={row.state}
                 data-server-flow-action-step-summary={row.stepSummary ? "present" : "empty"}
@@ -424,6 +428,9 @@ function WireServerFlowLayerActions({
           <>
             <span>{row.serverRoleLabel}</span>
             <strong>{row.actionRoleLabels.join(" / ") || "无候选角色"}</strong>
+            {row.candidateActionLabels.length > 0 ? (
+              <small data-wire-server-flow-layer-action-candidates-label>{row.candidateActionLabels.join(" / ")}</small>
+            ) : null}
             <small>{row.enabledCandidateCount} 可 / {row.disabledCandidateCount} 阻</small>
             {row.stepSummary ? <small>{row.stepSummary}</small> : null}
             <em>{row.nextStepLabel}</em>
@@ -432,6 +439,7 @@ function WireServerFlowLayerActions({
 
         return (
           <li
+            data-wire-server-flow-layer-action-candidates={row.candidateActionLabels.join("|")}
             data-wire-server-flow-layer-action-inspectable={canInspect ? "true" : "false"}
             data-wire-server-flow-layer-action-object-id={row.objectId}
             data-wire-server-flow-layer-action-state={row.state}
