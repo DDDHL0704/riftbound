@@ -21,6 +21,7 @@ import { WireFocusedInteractionGrammar } from "./WireFocusedInteractionGrammar";
 import { WireFocusedLegalActionMatrix } from "./WireFocusedLegalActionMatrix";
 import { WireFocusedReadinessStrip } from "./WireFocusedReadinessStrip";
 import { WireFocusedSelectionGuide } from "./WireFocusedSelectionGuide";
+import { WireObjectRouteReview } from "./WireObjectRouteReview";
 import { WirePromptCandidateRow } from "./WirePromptCandidateRow";
 
 export function WireInteractionPanel({
@@ -164,6 +165,7 @@ function FocusedActionList({
       <p>只使用服务端当前候选；连接恢复前不会提交命令。</p>
       <WireFocusedActionSummary focusModel={plan.focusModel} />
       <WireFocusedInteractionGrammar plan={plan.grammarPlan} />
+      <WireObjectRouteReview onCommand={onCommand} review={plan.commandReview} route={plan.route} />
       {plan.sourceCandidates.length === 0 && <span className="empty-hint">当前服务端没有给该对象可提交操作。</span>}
       <WireFocusedSelectionGuide plan={plan} />
       <WireFocusedActionEntryList

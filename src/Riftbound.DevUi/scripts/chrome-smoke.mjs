@@ -1162,6 +1162,8 @@ async function runWireClickSelectionSmoke(cdp) {
     const candidatePlan = document.querySelector('[data-candidate-plan-action="PLAY_CARD"]');
     const route = document.querySelector("[data-action-route-state]");
     const commandReview = document.querySelector("[data-command-review-state]");
+    const objectRouteReview = document.querySelector(".wire-focused-actions .wire-object-route-review");
+    const trayRouteReview = document.querySelector(".wire-object-command-tray .wire-object-route-review");
     const sourceStep = candidatePlan?.querySelector('[data-step-role="source"]');
     const targetStep = candidatePlan?.querySelector('[data-step-role="target"]');
     const targetRouteStep = route?.querySelector('[data-route-step-role="target"]');
@@ -1170,12 +1172,27 @@ async function runWireClickSelectionSmoke(cdp) {
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
       draftText: document.querySelector(".wire-selection-draft")?.textContent ?? "",
       previewText: document.querySelector(".candidate-command-preview")?.textContent ?? "",
+      objectRouteCheckStates: Array.from(objectRouteReview?.querySelectorAll("[data-wire-object-route-check-state]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-route-check-state")),
+      objectRouteFieldStates: Array.from(objectRouteReview?.querySelectorAll("[data-wire-object-route-field-state]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-route-field-state")),
+      objectRouteReviewCount: document.querySelectorAll(".wire-object-route-review").length,
+      objectRouteReviewState: objectRouteReview?.getAttribute("data-wire-object-route-review-state") ?? null,
+      objectRouteState: objectRouteReview?.getAttribute("data-wire-object-route-state") ?? null,
+      objectRouteStepStates: Array.from(objectRouteReview?.querySelectorAll("[data-wire-object-route-step-state]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-route-step-state")),
+      objectRouteSubmitDisabled: objectRouteReview?.querySelector(".wire-object-route-review-submit")?.hasAttribute("disabled") ?? null,
+      objectRouteSubmitState: objectRouteReview?.querySelector(".wire-object-route-review-submit")?.getAttribute("data-wire-object-route-review-submit-state") ?? null,
+      objectRouteText: objectRouteReview?.textContent ?? "",
       commandReviewFieldStates: Array.from(commandReview?.querySelectorAll("[data-command-review-field-state]") ?? [])
         .map((node) => node.getAttribute("data-command-review-field-state")),
       commandReviewState: commandReview?.getAttribute("data-command-review-state") ?? null,
       commandReviewSubmitDisabled: commandReview?.querySelector(".wire-command-review-submit")?.hasAttribute("disabled") ?? null,
       commandReviewSubmitState: commandReview?.querySelector(".wire-command-review-submit")?.getAttribute("data-command-review-submit-state") ?? null,
       commandReviewText: commandReview?.textContent ?? "",
+      trayRouteReviewState: trayRouteReview?.getAttribute("data-wire-object-route-review-state") ?? null,
+      trayRouteState: trayRouteReview?.getAttribute("data-wire-object-route-state") ?? null,
+      trayRouteText: trayRouteReview?.textContent ?? "",
       routeState: route?.getAttribute("data-action-route-state") ?? null,
       routeText: route?.textContent ?? "",
       routeFieldStates: Array.from(route?.querySelectorAll("[data-route-field-state]") ?? [])
@@ -1623,6 +1640,22 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionFocusChoiceResult.commandReviewFieldStates.includes("server")) failures.push("action focus choice command review server field missing");
   if (actionFocusChoiceResult.commandReviewSubmitState !== "ready") failures.push(`action focus choice command review submit state unexpected: ${actionFocusChoiceResult.commandReviewSubmitState}`);
   if (actionFocusChoiceResult.commandReviewSubmitDisabled !== false) failures.push("action focus choice command review submit button should be enabled for ready route");
+  if (actionFocusChoiceResult.objectRouteReviewCount < 2) failures.push(`action focus choice object route review count too low: ${actionFocusChoiceResult.objectRouteReviewCount}`);
+  if (actionFocusChoiceResult.objectRouteReviewState !== "ready") failures.push(`action focus choice focused object review state unexpected: ${actionFocusChoiceResult.objectRouteReviewState}`);
+  if (actionFocusChoiceResult.objectRouteState !== "ready") failures.push(`action focus choice focused object route state unexpected: ${actionFocusChoiceResult.objectRouteState}`);
+  if (!actionFocusChoiceResult.objectRouteText.includes("打出手牌")) failures.push("action focus choice focused object route candidate missing");
+  if (!actionFocusChoiceResult.objectRouteText.includes("提交当前路线")) failures.push("action focus choice focused object route submit copy missing");
+  if (!actionFocusChoiceResult.objectRouteText.includes("可送服务端")) failures.push("action focus choice focused object route ready copy missing");
+  if (actionFocusChoiceResult.objectRouteSubmitState !== "ready") failures.push(`action focus choice focused object submit state unexpected: ${actionFocusChoiceResult.objectRouteSubmitState}`);
+  if (actionFocusChoiceResult.objectRouteSubmitDisabled !== false) failures.push("action focus choice focused object submit button should be enabled for ready route");
+  if (!actionFocusChoiceResult.objectRouteStepStates.includes("selected")) failures.push("action focus choice focused object selected step missing");
+  if (!actionFocusChoiceResult.objectRouteFieldStates.includes("covered")) failures.push("action focus choice focused object covered field missing");
+  if (!actionFocusChoiceResult.objectRouteFieldStates.includes("server")) failures.push("action focus choice focused object server field missing");
+  if (!actionFocusChoiceResult.objectRouteCheckStates.includes("ready")) failures.push("action focus choice focused object ready check missing");
+  if (actionFocusChoiceResult.trayRouteReviewState !== "ready") failures.push(`action focus choice tray object review state unexpected: ${actionFocusChoiceResult.trayRouteReviewState}`);
+  if (actionFocusChoiceResult.trayRouteState !== "ready") failures.push(`action focus choice tray object route state unexpected: ${actionFocusChoiceResult.trayRouteState}`);
+  if (!actionFocusChoiceResult.trayRouteText.includes("打出手牌")) failures.push("action focus choice tray object route candidate missing");
+  if (!actionFocusChoiceResult.trayRouteText.includes("提交当前路线")) failures.push("action focus choice tray object route submit copy missing");
   if (actionFocusChoiceResult.targetRouteStepState !== "selected") failures.push("action focus choice route target step missing selected state");
   if (actionFocusChoiceResult.sourceStepProgress !== "selected") failures.push("action focus choice did not mark source step selected");
   if (actionFocusChoiceResult.targetStepProgress !== "selected") failures.push("action focus choice did not mark target step selected");

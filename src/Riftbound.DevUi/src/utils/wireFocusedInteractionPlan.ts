@@ -22,6 +22,11 @@ import {
   type WireActionSubmissionGatePlan,
   type WireActionWindowGatePlan
 } from "./wireActionGates";
+import {
+  buildWireActionMapPlan,
+  type WireActionCommandReviewPlan,
+  type WireActionRoutePlan
+} from "./wireActionMapPlan";
 import { buildWirePromptCandidateListPlan, type WirePromptCandidateListPlan, type WirePromptCandidateRowPlan } from "./wirePromptCandidatePlan";
 
 export type WireFocusedActionEntryPlan = {
@@ -123,6 +128,7 @@ export type WireFocusedLegalActionRowPlan = {
 
 export type WireFocusedInteractionPlan = {
   actionEntries: WireFocusedActionEntryPlan[];
+  commandReview: WireActionCommandReviewPlan;
   draft?: WireFocusedSelectionDraftPlan;
   focusModel: FocusedActionModel;
   grammarPlan: FocusedInteractionGrammarPlan;
@@ -132,6 +138,7 @@ export type WireFocusedInteractionPlan = {
   promptCandidateList: WirePromptCandidateListPlan;
   readiness: WireFocusedReadinessPlan;
   relatedCandidateRows: WirePromptCandidateRowPlan[];
+  route?: WireActionRoutePlan;
   selectionRows: WireFocusedSelectionRowPlan[];
   sourceCandidatePaths: WireFocusedCandidatePathPlan[];
   sourceCandidates: ActionPromptCandidateDto[];
@@ -167,6 +174,15 @@ export function buildWireFocusedInteractionPlan({
   const model = buildPromptInteractionModel(prompt);
   const objectIndex = buildCardObjectIndex(snapshot);
   const submitGate = buildWireActionSubmissionGatePlan(submissionGate, !disabledByConnection);
+  const routeGate = submissionGate ?? fallbackSubmissionGateForRoute(disabledByConnection);
+  const routePlan = buildWireActionMapPlan({
+    playerId,
+    prompt,
+    selectedObjectId: sourceObjectId,
+    selectionDraft,
+    snapshot,
+    submissionGate: routeGate
+  });
   const windowGate = buildWireActionWindowGatePlan({ playerId, prompt });
   const blockedByAnyGate = !submitGate.canSubmit || !windowGate.canAct;
   const gateBlockReason = !submitGate.canSubmit ? submitGate.reason : !windowGate.canAct ? windowGate.reason : undefined;
@@ -219,6 +235,7 @@ export function buildWireFocusedInteractionPlan({
 
   return {
     actionEntries,
+    commandReview: routePlan.commandReview,
     draft: draftPlanFor(selectionDraft, sourceObjectId),
     focusModel,
     grammarPlan,
@@ -243,6 +260,7 @@ export function buildWireFocusedInteractionPlan({
     }),
     readiness,
     relatedCandidateRows,
+    route: routePlan.route,
     selectionRows: selectionRowsFor({
       model,
       objectIndex,
@@ -261,6 +279,19 @@ export function buildWireFocusedInteractionPlan({
     sourceObjectId,
     submissionGate: submitGate,
     windowGate
+  };
+}
+
+function fallbackSubmissionGateForRoute(disabledByConnection: boolean): ServerSubmissionGatePlan | undefined {
+  if (!disabledByConnection) {
+    return undefined;
+  }
+
+  return {
+    canSubmit: false,
+    reason: "行动入口未就绪，等待服务端窗口、连接或快照同步。",
+    state: "disconnected",
+    stateLabel: "入口未就绪"
   };
 }
 

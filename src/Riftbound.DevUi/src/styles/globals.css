@@ -12076,6 +12076,14 @@ button.card-face:hover {
 .wire-object-command-tray-selection li,
 .wire-object-command-tray-next,
 .wire-object-command-tray-empty,
+.wire-object-route-review,
+.wire-object-route-review-heading,
+.wire-object-route-review-metrics span,
+.wire-object-route-review-next,
+.wire-object-route-review-steps li,
+.wire-object-route-review-fields span,
+.wire-object-route-review-checks li,
+.wire-object-route-review-submit,
 .wire-object-context,
 .wire-object-context-grid span,
 .wire-object-contract-block,
@@ -14053,6 +14061,10 @@ button.card-face:hover {
 .wire-command-review small,
 .wire-command-review strong,
 .wire-command-review b,
+.wire-object-route-review span,
+.wire-object-route-review small,
+.wire-object-route-review strong,
+.wire-object-route-review b,
 .wire-command-submission-feedback span,
 .wire-command-submission-feedback small,
 .wire-command-submission-feedback strong,
@@ -14073,6 +14085,105 @@ button.card-face:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-object-route-review {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-object-route-review[data-wire-object-route-review-state="ready"],
+.wire-object-route-review[data-wire-object-route-state="ready"],
+.wire-object-route-review-steps li[data-wire-object-route-step-state="selected"],
+.wire-object-route-review-fields span[data-wire-object-route-field-state="covered"],
+.wire-object-route-review-fields span[data-wire-object-route-field-state="server"],
+.wire-object-route-review-checks li[data-wire-object-route-check-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-object-route-review[data-wire-object-route-review-state="blocked"],
+.wire-object-route-review-fields span[data-wire-object-route-field-state="missing"],
+.wire-object-route-review-checks li[data-wire-object-route-check-state="blocked"],
+.wire-object-route-review-checks li[data-wire-object-route-check-state="waiting"] {
+  border-style: dashed;
+}
+
+.wire-object-route-review-heading {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-object-route-review-heading > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border: 0;
+  border-bottom: 1px solid #000;
+  padding-bottom: 3px;
+}
+
+.wire-object-route-review-metrics,
+.wire-object-route-review-fields {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 3px;
+}
+
+.wire-object-route-review-metrics span,
+.wire-object-route-review-next,
+.wire-object-route-review-fields span {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 3px;
+}
+
+.wire-object-route-review-steps,
+.wire-object-route-review-checks {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-object-route-review-steps li,
+.wire-object-route-review-checks li {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 3px;
+}
+
+.wire-object-route-review-submit {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-weight: 700;
+  padding: 5px 6px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-object-route-review-submit:disabled {
+  cursor: not-allowed;
+}
+
+.wire-object-route-review-submit[data-wire-object-route-review-submit-state="ready"] {
+  border-width: 2px;
 }
 
 .wire-action-route-strip {
@@ -16655,6 +16766,14 @@ button.wire-object-ref {
 .wire-match-page .wire-object-command-tray-context div,
 .wire-match-page .wire-object-command-tray-next,
 .wire-match-page .wire-object-command-tray-empty,
+.wire-match-page .wire-object-route-review,
+.wire-match-page .wire-object-route-review-heading,
+.wire-match-page .wire-object-route-review-metrics span,
+.wire-match-page .wire-object-route-review-next,
+.wire-match-page .wire-object-route-review-steps li,
+.wire-match-page .wire-object-route-review-fields span,
+.wire-match-page .wire-object-route-review-checks li,
+.wire-match-page .wire-object-route-review-submit,
 .wire-match-page .wire-prompt-candidates,
 .wire-match-page .wire-prompt-contract,
 .wire-match-page .wire-candidate-row,

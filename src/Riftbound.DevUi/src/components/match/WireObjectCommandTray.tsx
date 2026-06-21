@@ -11,6 +11,7 @@ import type { WireFocusedInteractionPlan } from "../../utils/wireFocusedInteract
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { WireFocusedActionEntryList } from "./WireFocusedActionEntryList";
+import { WireObjectRouteReview } from "./WireObjectRouteReview";
 
 type WireObjectCommandTrayProps = {
   disabledByConnection: boolean;
@@ -68,6 +69,12 @@ export function WireObjectCommandTray({
         <SelectionRows plan={focusedPlan} />
         <strong className="wire-object-command-tray-next">{trayPlan.nextStepLabel}</strong>
         <ContextRows plan={trayPlan} />
+        <WireObjectRouteReview
+          className="wire-object-command-tray-route"
+          onCommand={onCommand}
+          review={focusedPlan.commandReview}
+          route={focusedPlan.route}
+        />
       </div>
 
       {trayPlan.canShowActions ? (

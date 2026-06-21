@@ -143,6 +143,37 @@ assert.equal(plan.readiness.canSubmit, true);
 assert.equal(plan.readiness.commandType, "PLAY_CARD");
 assert.equal(plan.readiness.enabledCount, 2);
 assert.equal(plan.readiness.missingRequiredCount, 0);
+assert.equal(plan.route?.state, "ready");
+assert.equal(plan.route?.candidateLabel, "打出手牌");
+assert.equal(plan.route?.commandType, "PLAY_CARD");
+assert.equal(plan.route?.selectedStepCount, 2);
+assert.equal(plan.route?.missingRequiredSelectionCount, 0);
+assert.equal(plan.route?.missingRequiredFieldCount, 0);
+assert.equal(plan.route?.serverInjectedFieldCount, 0);
+assert.equal(plan.route?.command?.cmdType, "PLAY_CARD");
+assert.deepEqual(plan.route?.fields.map((field) => `${field.field}:${field.state}:${field.stateLabel}`), [
+  "sourceObjectId:covered:已覆盖",
+  "targetObjectIds:covered:已覆盖"
+]);
+assert.deepEqual(plan.route?.checkRows.map((row) => `${row.key}:${row.state}`), [
+  "server-candidate:ready",
+  "submission-gate:ready",
+  "action-window:ready",
+  "required-selections:ready",
+  "command-fields:ready",
+  "command-assembled:ready",
+  "server-injected:ready"
+]);
+assert.equal(plan.commandReview.state, "ready");
+assert.equal(plan.commandReview.canSubmit, true);
+assert.equal(plan.commandReview.commandType, "PLAY_CARD");
+assert.equal(plan.commandReview.command?.cmdType, "PLAY_CARD");
+assert.equal(plan.commandReview.metrics.find((metric) => metric.key === "selection")?.value, "2");
+assert.equal(plan.commandReview.metrics.find((metric) => metric.key === "missing")?.value, "0 选择 / 0 字段");
+assert.deepEqual(plan.commandReview.commandPreview.map((field) => `${field.field}:${field.state}`), [
+  "sourceObjectId:covered",
+  "targetObjectIds:covered"
+]);
 assert.deepEqual(plan.legalActionRows.map((row) => `${row.label}:${row.state}:${row.stateLabel}`), [
   "打出手牌:ready:可提交",
   "横置符文:ready:可提交"
@@ -164,6 +195,8 @@ const noFocusPlan = buildWireFocusedInteractionPlan({
 });
 assert.equal(noFocusPlan.readiness.state, "no-focus");
 assert.equal(noFocusPlan.readiness.canSubmit, false);
+assert.equal(noFocusPlan.route, undefined);
+assert.equal(noFocusPlan.commandReview.state, "empty");
 assert.deepEqual(noFocusPlan.selectionRows, []);
 
 const notCandidatePlan = buildWireFocusedInteractionPlan({
