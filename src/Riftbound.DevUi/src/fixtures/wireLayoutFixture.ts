@@ -92,14 +92,25 @@ const fixtureBlockedAbilityComposer = {
   supported: false
 } satisfies ActionPromptComposerDto;
 
+export type WireLayoutFixtureCommandSubmissionMode = "rejected" | "timeline";
+
 export function isWireLayoutFixtureEnabled(search = window.location.search): boolean {
   const params = new URLSearchParams(search);
   return params.get("fixture") === "layout" || params.get("layoutFixture") === "cards";
 }
 
 export function isWireLayoutFixtureCommandSubmissionEnabled(search = window.location.search): boolean {
+  return wireLayoutFixtureCommandSubmissionMode(search) != null;
+}
+
+export function wireLayoutFixtureCommandSubmissionMode(search = window.location.search): WireLayoutFixtureCommandSubmissionMode | undefined {
+  if (!isWireLayoutFixtureEnabled(search)) {
+    return undefined;
+  }
+
   const params = new URLSearchParams(search);
-  return isWireLayoutFixtureEnabled(search) && params.get("fixtureSubmission") === "timeline";
+  const mode = params.get("fixtureSubmission");
+  return mode === "timeline" || mode === "rejected" ? mode : undefined;
 }
 
 export function buildWireLayoutFixturePrompt(perspectivePlayerId: string): ActionPromptDto {
@@ -656,6 +667,7 @@ export function buildWireLayoutFixtureEvents(perspectivePlayerId: string): GameE
 
 export function buildWireLayoutFixtureCommandSubmission({
   cmdType = "PLAY_CARD",
+  mode = wireLayoutFixtureCommandSubmissionMode() ?? "timeline",
   uiSource = {
     detailId: "rule:stack:fixture-stack-1",
     label: "规则与事件详情",
@@ -664,8 +676,34 @@ export function buildWireLayoutFixtureCommandSubmission({
   }
 }: {
   cmdType?: string;
+  mode?: WireLayoutFixtureCommandSubmissionMode;
   uiSource?: CommandSubmissionUiSource;
 } = {}): CommandSubmissionFeedback {
+  if (mode === "rejected") {
+    return {
+      clientIntentId: "fixture-rejected-play-card-timeline-detail",
+      cmdType,
+      errorCode: "RULE_REJECTED",
+      followup: {
+        eventCount: 0,
+        promptCount: 0,
+        serverTick: 7,
+        snapshotCount: 0,
+        state: "rejected",
+        summary: "fixture tick 7 命令被服务端规则拒绝，未广播事件或快照。"
+      },
+      message: "服务端规则拒绝 fixture 命令；前端保留当前桌面并等待重新选择合法候选。",
+      promptId: "fixture-main-action",
+      receiptState: "REJECTED",
+      serverTick: 7,
+      snapshotTick: 7,
+      state: "failed",
+      stateLabel: "服务端拒绝",
+      submittedAt: 0,
+      uiSource
+    };
+  }
+
   return {
     clientIntentId: "fixture-play-card-timeline-detail",
     cmdType,

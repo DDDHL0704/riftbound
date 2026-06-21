@@ -110,6 +110,11 @@ try {
   await waitForText(cdp, ["符文战场对战线框", "事件详情", "行动提示"]);
   await runWireTimelineCommandSubmitSmoke(cdp);
   console.log("Chrome smoke OK: wire timeline command submit");
+  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=rejected`);
+  await waitForText(cdp, ["符文战场对战线框", "服务端拒绝", "提交反馈"]);
+  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=rejected");
+  await runWireRejectedSubmissionSmoke(cdp);
+  console.log("Chrome smoke OK: wire rejected submission");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=timeline`);
   await waitForText(cdp, ["符文战场对战线框", "规则与事件详情", "服务端已接受", "后续事件"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=timeline");
@@ -2145,6 +2150,59 @@ async function runWireTimelineCommandSubmitSmoke(cdp) {
 
   if (failures.length > 0) {
     throw new Error(`Timeline submit smoke failed:\n${failures.join("\n")}\n${JSON.stringify(followup, null, 2)}`);
+  }
+}
+
+async function runWireRejectedSubmissionSmoke(cdp) {
+  const result = await evaluateJson(cdp, `(() => {
+    const feedback = document.querySelector(".wire-command-submission-feedback");
+    const followup = feedback?.querySelector("[data-command-followup-state]");
+    const bridge = followup?.querySelector("[data-command-followup-bridge-state]");
+    const layoutProjection = followup?.querySelector("[data-command-followup-layout-state]");
+    return {
+      command: feedback?.querySelector('[data-command-submission-metric="command"] strong')?.textContent?.trim() ?? "",
+      error: feedback?.querySelector('[data-command-submission-metric="error"] strong')?.textContent?.trim() ?? "",
+      eventButtonCount: followup?.querySelectorAll("[data-command-followup-event-action]").length ?? 0,
+      followupEventCount: Number(followup?.getAttribute("data-command-followup-event-count") ?? "-1"),
+      followupHiddenCount: Number(followup?.getAttribute("data-command-followup-hidden-count") ?? "-1"),
+      followupServerState: followup?.getAttribute("data-command-followup-server-state") ?? "",
+      followupState: followup?.getAttribute("data-command-followup-state") ?? "",
+      layoutProjectionState: layoutProjection?.getAttribute("data-command-followup-layout-state") ?? "",
+      receipt: feedback?.querySelector('[data-command-submission-metric="receipt"] strong')?.textContent?.trim() ?? "",
+      state: feedback?.getAttribute("data-command-submission-state") ?? "",
+      text: feedback?.textContent ?? "",
+      bridgeState: bridge?.getAttribute("data-command-followup-bridge-state") ?? ""
+    };
+  })()`);
+  const failures = [];
+  if (result.state !== "failed") failures.push(`feedback state ${result.state}`);
+  if (result.command !== "PLAY_CARD") failures.push(`command ${result.command}`);
+  if (result.receipt !== "REJECTED") failures.push(`receipt ${result.receipt}`);
+  if (result.error !== "RULE_REJECTED") failures.push(`error ${result.error}`);
+  if (result.followupState !== "failed") failures.push(`followup state ${result.followupState}`);
+  if (result.followupServerState !== "rejected") failures.push(`followup server state ${result.followupServerState}`);
+  if (result.bridgeState !== "failed") failures.push(`bridge state ${result.bridgeState}`);
+  if (result.layoutProjectionState !== "empty") failures.push(`layout projection state ${result.layoutProjectionState}`);
+  if (result.followupEventCount !== 0) failures.push(`event count ${result.followupEventCount}`);
+  if (result.followupHiddenCount !== 0) failures.push(`hidden event count ${result.followupHiddenCount}`);
+  if (result.eventButtonCount !== 0) failures.push(`event button count ${result.eventButtonCount}`);
+  if (!result.text.includes("命令被服务端规则拒绝")) failures.push("rejected summary missing");
+
+  const layer = await openCommandSubmissionLayer(cdp);
+  if (layer.state !== "open") failures.push(`layer state ${layer.state}`);
+  if (layer.cmdType !== "PLAY_CARD") failures.push(`layer command ${layer.cmdType}`);
+  if (layer.receiptState !== "REJECTED") failures.push(`layer receipt ${layer.receiptState}`);
+  if (layer.followupState !== "failed") failures.push(`layer followup state ${layer.followupState}`);
+  if (layer.serverState !== "rejected") failures.push(`layer server state ${layer.serverState}`);
+  if (layer.eventCount !== 0) failures.push(`layer event count ${layer.eventCount}`);
+  if (layer.hiddenCount !== 0) failures.push(`layer hidden count ${layer.hiddenCount}`);
+  if (layer.eventKinds.length !== 0) failures.push(`layer event kinds ${layer.eventKinds.join(",")}`);
+  if (layer.layoutObjects.length !== 0) failures.push(`layer layout objects ${layer.layoutObjects.join(",")}`);
+  if (layer.sourceSurface !== "timeline-detail") failures.push(`layer source surface ${layer.sourceSurface}`);
+  if (!layer.text.includes("命令被服务端规则拒绝")) failures.push("layer rejected summary missing");
+
+  if (failures.length > 0) {
+    throw new Error(`Rejected submission smoke failed:\n${failures.join("\n")}\n${JSON.stringify({ result, layer }, null, 2)}`);
   }
 }
 

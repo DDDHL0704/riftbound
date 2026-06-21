@@ -154,6 +154,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     if (layoutFixtureEnabled) {
       setFixtureSubmissionFeedback(buildWireLayoutFixtureCommandSubmission({
         cmdType: command.cmdType,
+        mode: "timeline",
         uiSource
       }));
       return;
