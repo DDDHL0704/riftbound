@@ -5942,7 +5942,8 @@ internal static class ActionPromptBuilder
                     CommandFieldLabels(candidate.CommandTemplate, requiredOnly: true),
                     CommandFieldLabels(candidate.CommandTemplate, requiredOnly: false),
                     candidate.Composer,
-                    ObjectCandidateSelectionSteps(candidate, objectId)));
+                    ObjectCandidateSelectionSteps(candidate, objectId),
+                    candidate.Presentation));
             }
         }
 
@@ -5957,6 +5958,7 @@ internal static class ActionPromptBuilder
             {
                 var rows = entry.Value
                     .OrderByDescending(candidate => candidate.Enabled)
+                    .ThenBy(candidate => candidate.Presentation?.Priority ?? 700)
                     .ThenBy(candidate => candidate.Action, StringComparer.Ordinal)
                     .ThenBy(candidate => candidate.Label, StringComparer.Ordinal)
                     .ToArray();

@@ -19,6 +19,7 @@ import {
   promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
   type PromptCandidateComposerSummary,
+  type PromptCandidatePresentationSummary,
   type PromptCandidateSummary,
   type PromptChoiceRole,
   type PromptCommandBindingSummary
@@ -53,17 +54,21 @@ export type TableObjectEventContext = {
 };
 
 export type TableObjectCandidateContext = {
+  category: string;
   commandFields: string[];
   commandType?: string;
   composerReason: string;
   composerState: PromptCandidateComposerSummary["state"];
   composerStateLabel: string;
   enabled: boolean;
+  intent: string;
   label: string;
+  priority: number;
   reason: string;
   requiredCommandFields: string[];
   roles: string[];
   selectionSteps: TableObjectCandidateStepContext[];
+  uiHint: string;
 };
 
 export type TableObjectCandidateStepContext = {
@@ -259,19 +264,24 @@ function objectContextBoundary(
 
 function candidateContextFromServerObjectCandidate(candidate: ActionPromptObjectCandidateDto): TableObjectCandidateContext {
   const composer = composerContextFromServerObjectCandidate(candidate);
+  const presentation = candidatePresentationFromServer(candidate);
 
   return {
+    category: presentation.category,
     commandFields: candidate.commandFields ?? [],
     commandType: candidate.commandType ?? candidate.action,
     composerReason: composer.reason,
     composerState: composer.state,
     composerStateLabel: composer.stateLabel,
     enabled: candidate.enabled,
+    intent: presentation.intent,
     label: candidate.label || candidate.action,
+    priority: presentation.priority,
     reason: promptReasonLabel(candidate.reason, candidate.enabled ? "可提交" : "暂不可提交"),
     requiredCommandFields: candidate.requiredCommandFields ?? [],
     roles: candidate.roles ?? [],
-    selectionSteps: objectCandidateStepsFromServer(candidate.selectionSteps)
+    selectionSteps: objectCandidateStepsFromServer(candidate.selectionSteps),
+    uiHint: presentation.uiHint
   };
 }
 
@@ -282,13 +292,16 @@ function candidateContextForObject(candidate: PromptCandidateSummary, objectId: 
   const composer = candidate.composer ?? composerContextFromCommand(Boolean(candidate.command));
 
   return {
+    category: candidate.presentation.category,
     commandFields: commandBindings.map(promptCommandBindingLabel),
     commandType: candidate.command?.cmdType,
     composerReason: composer.reason,
     composerState: composer.state,
     composerStateLabel: composer.stateLabel,
     enabled: candidate.enabled,
+    intent: candidate.presentation.intent,
     label: candidate.label,
+    priority: candidate.presentation.priority,
     reason: candidate.reason,
     requiredCommandFields: commandBindings.filter((binding) => binding.required).map(promptCommandBindingLabel),
     roles: uniqueStrings(linkedChoices.map((choice) => promptChoiceRoleLabel(choice.role))),
@@ -302,8 +315,26 @@ function candidateContextForObject(candidate: PromptCandidateSummary, objectId: 
         required: step.required,
         role: step.role
       };
-    })
+    }),
+    uiHint: candidate.presentation.uiHint
   };
+}
+
+function candidatePresentationFromServer(candidate: ActionPromptObjectCandidateDto): PromptCandidatePresentationSummary {
+  const presentation = candidate.presentation;
+  return {
+    category: normalizedPresentationText(presentation?.category, "custom"),
+    intent: normalizedPresentationText(presentation?.intent, candidate.action.toLowerCase().replaceAll("_", "-")),
+    priority: typeof presentation?.priority === "number" && Number.isFinite(presentation.priority)
+      ? presentation.priority
+      : 700,
+    uiHint: normalizedPresentationText(presentation?.uiHint, "card-action")
+  };
+}
+
+function normalizedPresentationText(value: string | null | undefined, fallback: string): string {
+  const trimmed = value?.trim();
+  return trimmed || fallback;
 }
 
 function objectCandidateStepsFromServer(

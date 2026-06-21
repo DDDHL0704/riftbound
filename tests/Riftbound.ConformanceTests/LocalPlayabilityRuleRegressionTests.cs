@@ -161,6 +161,11 @@ public sealed class LocalPlayabilityRuleRegressionTests
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Equal(["来源"], sourceCandidate.Roles);
         Assert.Equal(CommandTypes.PlayCard, sourceCandidate.CommandType);
+        var sourcePresentation = Assert.IsType<ActionPromptCandidatePresentationDto>(sourceCandidate.Presentation);
+        Assert.Equal("play", sourcePresentation.Category);
+        Assert.Equal("play-card", sourcePresentation.Intent);
+        Assert.Equal("card-action", sourcePresentation.UiHint);
+        Assert.Equal(100, sourcePresentation.Priority);
         Assert.True(sourceCandidate.Composer?.Supported);
         Assert.Contains("服务端", sourceCandidate.Composer?.Reason ?? string.Empty, StringComparison.Ordinal);
         Assert.Contains("source", sourceCandidate.Composer?.SelectionRoles ?? []);
@@ -216,6 +221,11 @@ public sealed class LocalPlayabilityRuleRegressionTests
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Equal(["位置"], battlefieldCandidate.Roles);
         Assert.Equal(CommandTypes.PlayCard, battlefieldCandidate.CommandType);
+        var battlefieldPresentation = Assert.IsType<ActionPromptCandidatePresentationDto>(battlefieldCandidate.Presentation);
+        Assert.Equal("play", battlefieldPresentation.Category);
+        Assert.Equal("play-card", battlefieldPresentation.Intent);
+        Assert.Equal("card-action", battlefieldPresentation.UiHint);
+        Assert.Equal(100, battlefieldPresentation.Priority);
         Assert.True(battlefieldCandidate.Composer?.Supported);
         var battlefieldCandidateSteps = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptObjectCandidateStepDto>>(
             battlefieldCandidate.SelectionSteps);

@@ -474,7 +474,8 @@ public sealed record ActionPromptObjectCandidateDto(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? RequiredCommandFields = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? CommandFields = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptComposerDto? Composer = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectCandidateStepDto>? SelectionSteps = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ActionPromptObjectCandidateStepDto>? SelectionSteps = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ActionPromptCandidatePresentationDto? Presentation = null);
 
 public sealed record ActionPromptSelectionChoiceDto(
     string Id,

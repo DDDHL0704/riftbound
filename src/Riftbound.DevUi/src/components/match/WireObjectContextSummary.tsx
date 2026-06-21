@@ -66,11 +66,16 @@ export function WireObjectContextSummary({
             {plan.commandRows.slice(0, 4).map((row) => (
               <li
                 className={row.enabled ? "is-enabled" : "is-disabled"}
+                data-wire-object-command-category={row.category}
                 data-wire-object-command-composer-state={row.composerState}
+                data-wire-object-command-intent={row.intent}
+                data-wire-object-command-priority={row.priority}
+                data-wire-object-command-ui-hint={row.uiHint}
                 key={row.key}
               >
                 <span>{row.enabled ? "可提交" : "阻断"}{row.roles.length > 0 ? ` / ${row.roles.join("/")}` : ""}</span>
                 <strong>{row.commandType ?? row.label}{row.requiredFields.length > 0 ? `：${row.requiredFields.join(" / ")}` : ""}</strong>
+                <small>语义：{row.category} / {row.intent} / {row.uiHint}</small>
                 {row.stepSummary && <small>步骤：{row.stepSummary}</small>}
                 <small title={row.composerReason}>组合：{row.composerStateLabel}</small>
                 {row.secondaryFields.length > 0 && <small>{row.secondaryFields.join(" / ")}</small>}

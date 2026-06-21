@@ -77,7 +77,7 @@ export function buildWireObjectCommandTrayPlan({
   const roleLabel = hidden ? "隐藏" : roleSummary(focusedPlan);
   const commandLabel = hidden ? "不公开" : focusedPlan.readiness.commandType ?? "无";
   const sourceLabel = objectContext ? tableObjectContextSourceLabel(objectContext) : "公开快照索引";
-  const semanticRows = hidden ? [] : semanticRowsFor(focusedPlan);
+  const semanticRows = hidden ? [] : semanticRowsFor(focusedPlan, objectContext);
   const semanticSummary = hidden ? "不公开" : semanticSummaryFor(semanticRows);
   const canShowActions = !hidden
     && focusedPlan.actionEntries.length > 0
@@ -215,31 +215,71 @@ function roleSummary(focusedPlan: WireFocusedInteractionPlan): string {
   return roles.length > 0 ? compactList(roles, 3) : "无";
 }
 
-function semanticRowsFor(focusedPlan: WireFocusedInteractionPlan): WireObjectCommandTraySemanticRow[] {
+function semanticRowsFor(
+  focusedPlan: WireFocusedInteractionPlan,
+  objectContext: TableObjectContext | undefined
+): WireObjectCommandTraySemanticRow[] {
   const byKey = new Map<string, WireObjectCommandTraySemanticRow>();
-  for (const row of focusedPlan.legalActionRows) {
-    const category = row.category?.trim() || "custom";
-    const intent = row.intent?.trim() || row.action.toLowerCase().replaceAll("_", "-");
-    const uiHint = row.uiHint?.trim() || "card-action";
-    const priority = typeof row.priority === "number" && Number.isFinite(row.priority) ? row.priority : 700;
-    const key = `${category}:${intent}:${uiHint}`;
-    const existing = byKey.get(key);
-    if (existing) {
-      existing.count += 1;
-      existing.priority = Math.min(existing.priority, priority);
-      continue;
+  if (objectContext?.candidateLinks.length) {
+    for (const candidate of objectContext.candidateLinks) {
+      addSemanticRow(byKey, {
+        action: candidate.commandType ?? candidate.label,
+        category: candidate.category,
+        intent: candidate.intent,
+        priority: candidate.priority,
+        uiHint: candidate.uiHint
+      });
     }
 
-    byKey.set(key, {
-      category,
-      count: 1,
-      intent,
-      key,
-      priority,
-      uiHint
+    return sortedSemanticRows(byKey);
+  }
+
+  for (const row of focusedPlan.legalActionRows) {
+    addSemanticRow(byKey, {
+      action: row.action,
+      category: row.category,
+      intent: row.intent,
+      priority: row.priority,
+      uiHint: row.uiHint
     });
   }
 
+  return sortedSemanticRows(byKey);
+}
+
+function addSemanticRow(
+  byKey: Map<string, WireObjectCommandTraySemanticRow>,
+  candidate: {
+    action: string;
+    category?: string;
+    intent?: string;
+    priority?: number;
+    uiHint?: string;
+  }
+): void {
+  const category = candidate.category?.trim() || "custom";
+  const intent = candidate.intent?.trim() || candidate.action.toLowerCase().replaceAll("_", "-");
+  const uiHint = candidate.uiHint?.trim() || "card-action";
+  const priority = typeof candidate.priority === "number" && Number.isFinite(candidate.priority) ? candidate.priority : 700;
+  const key = `${category}:${intent}:${uiHint}`;
+  const existing = byKey.get(key);
+  if (existing) {
+    existing.count += 1;
+    existing.priority = Math.min(existing.priority, priority);
+    return;
+  }
+
+  byKey.set(key, {
+    category,
+    count: 1,
+    intent,
+    key,
+    priority,
+    uiHint
+  });
+}
+
+function sortedSemanticRows(byKey: Map<string, WireObjectCommandTraySemanticRow>): WireObjectCommandTraySemanticRow[] {
   return [...byKey.values()].sort((left, right) =>
     left.priority - right.priority
     || left.category.localeCompare(right.category)

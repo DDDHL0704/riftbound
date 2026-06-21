@@ -57,35 +57,43 @@ const plan = buildFocusedObjectCommandPlan({
   context: {
     candidateLinks: [
       {
+        category: "play",
         commandFields: ["来源:sourceObjectId*", "服务端:cardNo*", "目标:targetObjectId"],
         commandType: "PLAY_CARD",
         composerReason: "服务端已公开组合提交。",
         composerState: "server",
         composerStateLabel: "服务端声明",
         enabled: true,
+        intent: "play-card",
         label: "打出卡牌",
+        priority: 100,
         reason: "可提交",
         requiredCommandFields: ["来源:sourceObjectId*", "服务端:cardNo*"],
         roles: ["来源"],
         selectionSteps: [
           { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" },
           { choiceCount: 2, index: 1, label: "目标", objectChoiceCount: 0, required: true, role: "target" }
-        ]
+        ],
+        uiHint: "card-action"
       },
       {
+        category: "ability",
         commandFields: ["来源:sourceObjectId*"],
         commandType: "ACTIVATE_ABILITY",
         composerReason: "服务端暂未开放组合提交。",
         composerState: "blocked",
         composerStateLabel: "服务端阻断",
         enabled: false,
+        intent: "activate-ability",
         label: "启动能力",
+        priority: 160,
         reason: "窗口不允许",
         requiredCommandFields: ["来源:sourceObjectId*"],
         roles: ["来源"],
         selectionSteps: [
           { choiceCount: 1, index: 0, label: "来源", objectChoiceCount: 1, required: true, role: "source" }
-        ]
+        ],
+        uiHint: "card-action"
       }
     ],
     candidateSource: "server",
@@ -160,12 +168,17 @@ assert.equal(plan.statusCards[3].value, "服务端对象上下文");
 assert.ok(plan.boundaryLabel.includes("服务端对象上下文"));
 assert.equal(plan.commandRows.length, 2);
 assert.equal(plan.commandRows[0].commandType, "PLAY_CARD");
+assert.equal(plan.commandRows[0].category, "play");
+assert.equal(plan.commandRows[0].intent, "play-card");
+assert.equal(plan.commandRows[0].priority, 100);
+assert.equal(plan.commandRows[0].uiHint, "card-action");
 assert.equal(plan.commandRows[0].composerState, "server");
 assert.equal(plan.commandRows[0].composerStateLabel, "服务端声明");
 assert.equal(plan.commandRows[0].stepSummary, "来源* 1/1 / 目标* 0/2");
 assert.deepEqual(plan.commandRows[0].requiredFields, ["来源:sourceObjectId*", "服务端字段*"]);
 assert.deepEqual(plan.commandRows[0].secondaryFields, ["目标:targetObjectId"]);
 assert.equal(plan.commandRows[1].enabled, false);
+assert.equal(plan.commandRows[1].category, "ability");
 assert.equal(plan.nextStepRows[0].nextStepLabel, "目标");
 assert.equal(plan.eventRows[0].kind, "OBJECT_EXHAUSTED");
 assert.equal(plan.contract.hiddenMetadataCount, 1);

@@ -264,6 +264,7 @@ export type ActionPromptObjectCandidateDto = {
   commandFields?: string[] | null;
   composer?: ActionPromptComposerDto | null;
   selectionSteps?: ActionPromptObjectCandidateStepDto[] | null;
+  presentation?: ActionPromptCandidatePresentationDto | null;
 };
 
 export type ActionPromptObjectInspectionRowDto = {

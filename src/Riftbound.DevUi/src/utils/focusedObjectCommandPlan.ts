@@ -14,19 +14,23 @@ export type FocusedObjectStatusCard = {
 };
 
 export type FocusedObjectCommandRow = {
+  category: string;
   commandType?: string;
   composerReason: string;
   composerState: TableObjectCandidateContext["composerState"];
   composerStateLabel: string;
   enabled: boolean;
   fields: string[];
+  intent: string;
   key: string;
   label: string;
+  priority: number;
   reason: string;
   requiredFields: string[];
   roles: string[];
   secondaryFields: string[];
   stepSummary: string;
+  uiHint: string;
 };
 
 export type FocusedObjectNextStepRow = {
@@ -142,19 +146,23 @@ function commandRowFromCandidate(candidate: TableObjectCandidateContext, index: 
   const { fields, requiredFields, secondaryFields } = commandFieldLabelsForCandidate(candidate);
 
   return {
+    category: candidate.category,
     commandType: candidate.commandType,
     composerReason: candidate.composerReason,
     composerState: candidate.composerState,
     composerStateLabel: candidate.composerStateLabel,
     enabled: candidate.enabled,
     fields,
+    intent: candidate.intent,
     key: `${candidate.commandType ?? "NO_COMMAND"}:${candidate.label}:${index}`,
     label: candidate.label,
+    priority: candidate.priority,
     reason: candidate.reason,
     requiredFields,
     roles: uniqueStrings(candidate.roles),
     secondaryFields,
-    stepSummary: objectCandidateStepSummary(candidate)
+    stepSummary: objectCandidateStepSummary(candidate),
+    uiHint: candidate.uiHint
   };
 }
 
@@ -175,6 +183,10 @@ function objectCandidateStepSummary(candidate: TableObjectCandidateContext): str
 function commandRowSort(left: FocusedObjectCommandRow, right: FocusedObjectCommandRow): number {
   if (left.enabled !== right.enabled) {
     return left.enabled ? -1 : 1;
+  }
+
+  if (left.priority !== right.priority) {
+    return left.priority - right.priority;
   }
 
   const leftCommand = left.commandType ?? "";

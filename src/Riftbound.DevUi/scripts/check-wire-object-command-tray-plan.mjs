@@ -166,10 +166,14 @@ function objectContext(overrides = {}) {
   return {
     candidateLinks: [
       {
+        category: "play",
         commandFields: ["来源:sourceObjectId*", "位置:destination"],
         enabled: true,
+        intent: "play-card",
+        priority: 100,
         reason: "可提交",
-        requiredCommandFields: ["来源:sourceObjectId*"]
+        requiredCommandFields: ["来源:sourceObjectId*"],
+        uiHint: "card-action"
       }
     ],
     candidateSource: "server",
