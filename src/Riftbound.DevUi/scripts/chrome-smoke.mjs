@@ -1076,8 +1076,11 @@ async function runWireClickSelectionSmoke(cdp) {
       actionCount: Number(actions?.querySelector("[data-card-detail-action-count]")?.getAttribute("data-card-detail-action-count") ?? "0"),
       actionModes: Array.from(actions?.querySelectorAll("[data-card-detail-action-mode]") ?? []).map((node) => node.getAttribute("data-card-detail-action-mode")),
       actionRouteCount: Number(actionRoutes?.getAttribute("data-card-detail-route-count") ?? "0"),
+      actionRouteEntryKeys: Array.from(actionRoutes?.querySelectorAll("[data-card-detail-action-route-entry]") ?? [])
+        .map((node) => node.getAttribute("data-card-detail-action-route-entry") ?? ""),
       actionRouteKeys: Array.from(actionRoutes?.querySelectorAll("[data-card-detail-action-route]") ?? [])
         .map((node) => node.getAttribute("data-card-detail-action-route") ?? ""),
+      actionRouteReviewButtonCount: actionRoutes?.querySelectorAll("[data-card-detail-action-route-review]").length ?? 0,
       actionRouteStates: Array.from(actionRoutes?.querySelectorAll("[data-card-detail-action-route-state]") ?? [])
         .map((node) => node.getAttribute("data-card-detail-action-route-state")),
       actionRouteText: actionRoutes?.textContent ?? "",
@@ -1104,6 +1107,31 @@ async function runWireClickSelectionSmoke(cdp) {
       summaryKeys: Array.from(inspector?.querySelectorAll("[data-card-detail-inspector-summary]") ?? []).map((node) => node.getAttribute("data-card-detail-inspector-summary")),
       text: detail?.textContent ?? "",
       open: Boolean(detail)
+    };
+  })()`);
+  const clickedDetailRouteReview = await evaluateJson(cdp, `(() => {
+    const element = document.querySelector("[data-card-detail-action-route-review]");
+    if (!(element instanceof HTMLButtonElement) || element.disabled) return false;
+    element.click();
+    return true;
+  })()`);
+  await delay(100);
+  const detailReviewResult = await evaluateJson(cdp, `(() => {
+    const detail = document.querySelector(".detail-layer");
+    const review = detail?.querySelector("[data-card-detail-action-review-state]");
+    const submit = review?.querySelector("[data-card-detail-action-review-submit-state]");
+    return {
+      command: review?.getAttribute("data-card-detail-action-review-command") ?? "",
+      clicked: ${JSON.stringify(Boolean(clickedDetailRouteReview))},
+      entry: review?.getAttribute("data-card-detail-action-review-entry") ?? "",
+      open: Boolean(review),
+      routeState: review?.getAttribute("data-card-detail-action-review-route-state") ?? "",
+      rows: Array.from(review?.querySelectorAll("[data-card-detail-action-review-row]") ?? [])
+        .map((node) => node.getAttribute("data-card-detail-action-review-row") ?? ""),
+      source: review?.getAttribute("data-card-detail-action-review-source") ?? "",
+      state: review?.getAttribute("data-card-detail-action-review-state") ?? "",
+      submitState: submit?.getAttribute("data-card-detail-action-review-submit-state") ?? "",
+      text: review?.textContent ?? ""
     };
   })()`);
   await pressEscape(cdp);
@@ -1648,6 +1676,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.actionSummaryKeys.includes("field")) failures.push("card detail action field summary missing");
   if (!detailContextResult.actionModes.includes("composer")) failures.push("card detail composer action entry missing");
   if (detailContextResult.actionRouteCount < 1) failures.push("card detail action route rows missing");
+  if (detailContextResult.actionRouteEntryKeys.some((entryKey) => !entryKey)) failures.push("card detail action route entry key missing");
+  if (detailContextResult.actionRouteReviewButtonCount < 1) failures.push("card detail action route review controls missing");
   if (!detailContextResult.actionRouteStates.includes("composer")) failures.push("card detail action route composer state missing");
   if (!detailContextResult.actionRouteText.includes("候选入口路线")) failures.push("card detail action route section title missing");
   if (!detailContextResult.actionRouteText.includes("打开组合入口")) failures.push("card detail action route next step missing");
@@ -1655,6 +1685,17 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.actionText.includes("组合")) failures.push("card detail action route summary text missing");
   if (!detailContextResult.actionText.includes("字段")) failures.push("card detail action field summary text missing");
   if (!detailContextResult.actionText.includes("提交服务端候选")) failures.push("card detail composer submit control missing");
+  if (!detailReviewResult.clicked) failures.push("card detail route review control could not be clicked");
+  if (!detailReviewResult.open) failures.push("card detail route review did not open");
+  if (detailReviewResult.state !== "open") failures.push(`card detail route review state unexpected: ${detailReviewResult.state}`);
+  if (detailReviewResult.routeState !== "composer") failures.push(`card detail route review route state unexpected: ${detailReviewResult.routeState}`);
+  if (detailReviewResult.command !== "PLAY_CARD") failures.push(`card detail route review command unexpected: ${detailReviewResult.command}`);
+  if (detailReviewResult.source !== "p1-hand-spell") failures.push(`card detail route review source unexpected: ${detailReviewResult.source}`);
+  if (detailReviewResult.submitState !== "blocked") failures.push(`card detail route review submit state unexpected: ${detailReviewResult.submitState}`);
+  if (!detailReviewResult.rows.includes("field")) failures.push("card detail route review field audit row missing");
+  if (!detailReviewResult.rows.includes("next-step")) failures.push("card detail route review next-step audit row missing");
+  if (!detailReviewResult.text.includes("只展示服务端候选")) failures.push("card detail route review authority copy missing");
+  if (!detailReviewResult.text.includes("打开组合入口")) failures.push("card detail route review next step missing");
   if (!detailContextResult.inspectorOpen) failures.push("card detail inspector missing");
   if (detailContextResult.inspectorAuthority !== "server-inspection") failures.push(`card detail inspector authority unexpected: ${detailContextResult.inspectorAuthority}`);
   if (detailContextResult.inspectorSource !== "服务端检查摘要") failures.push(`card detail inspector source unexpected: ${detailContextResult.inspectorSource}`);

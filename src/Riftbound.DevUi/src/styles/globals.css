@@ -2860,6 +2860,53 @@ button.card-face:hover {
   font-style: normal;
 }
 
+.detail-action-review {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.detail-action-review header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.detail-action-review header > div,
+.detail-action-review-grid div {
+  min-width: 0;
+}
+
+.detail-action-review header span,
+.detail-action-review-grid dt {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  opacity: 0.76;
+}
+
+.detail-action-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.detail-action-review-grid div {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.detail-action-review-grid dd {
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+}
+
 .play-card-composer {
   display: grid;
   gap: 10px;
@@ -17905,11 +17952,24 @@ button.wire-object-ref {
 }
 
 .wire-match-page .detail-action-summary div,
+.wire-match-page .detail-action-review,
+.wire-match-page .detail-action-review header,
+.wire-match-page .detail-action-review-grid div,
 .wire-match-page .detail-action-routes,
 .wire-match-page .detail-action-routes header,
 .wire-match-page .detail-action-routes li {
   border: 1px solid #000 !important;
   border-radius: 0 !important;
+}
+
+.wire-match-page .detail-action-review,
+.wire-match-page .detail-action-review-grid div {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+.wire-match-page .detail-action-review-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .wire-match-page .detail-action-routes li[data-card-detail-action-route-state="composer"],

@@ -53,6 +53,7 @@ assert.equal(readyPlan.entries.find((entry) => entry.candidate.action === "TAP_R
 assert.equal(readyPlan.entries.find((entry) => entry.candidate.action === "TAP_RUNE")?.actionPlan.command?.cmdType, "TAP_RUNE");
 assert.equal(new Set(readyPlan.entries.map((entry) => entry.key)).size, readyPlan.entries.length);
 assert.equal(readyPlan.routeRows.length, 2);
+assert.deepEqual(readyPlan.routeRows.map((row) => row.entryKey), readyPlan.entries.map((entry) => entry.key));
 assert.deepEqual(readyPlan.routeRows.map((row) => `${row.action}:${row.state}:${row.modeLabel}`), [
   "PLAY_CARD:composer:组合",
   "TAP_RUNE:direct:直接"
@@ -86,6 +87,7 @@ assert.equal(readOnlyPlan.stateLabel, "当前视图仅可查看");
 assert.equal(readOnlyPlan.entries[0].mode, "button");
 assert.equal(readOnlyPlan.entries[0].actionPlan.disabled, true);
 assert.equal(readOnlyPlan.routeRows[0].state, "readonly");
+assert.equal(readOnlyPlan.routeRows[0].entryKey, readOnlyPlan.entries[0].key);
 assert.equal(readOnlyPlan.routeRows[0].stateLabel, "只读检查");
 assert.equal(readOnlyPlan.routeRows[0].nextStepLabel, "当前视图只能查看，不能提交行动");
 assert.equal(readOnlyPlan.summaryRows.find((row) => row.key === "route")?.value, "0 组合 / 0 直接");

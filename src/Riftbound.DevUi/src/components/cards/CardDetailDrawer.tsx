@@ -1,12 +1,18 @@
 import { X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { buildCardDetailPlan, type CardDetailInspectorPlan, type CardDetailPlan } from "../../utils/cardDetailPlan";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { FocusedActionModel } from "../../utils/focusedActionModel";
+import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
-import { buildWireCardDetailActionPlan, type WireCardDetailActionPlan } from "../../utils/wireCardDetailActionPlan";
+import {
+  buildWireCardDetailActionPlan,
+  type WireCardDetailActionEntryPlan,
+  type WireCardDetailActionPlan,
+  type WireCardDetailActionRouteRow
+} from "../../utils/wireCardDetailActionPlan";
 import { buildWireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
 import { WireFocusedActionEntryList } from "../match/WireFocusedActionEntryList";
 import { WireFocusedActionSummary } from "../match/WireFocusedActionSummary";
@@ -47,6 +53,7 @@ export function CardDetailDrawer({
   snapshot,
   submissionGate
 }: CardDetailDrawerProps) {
+  const [reviewEntryKey, setReviewEntryKey] = useState<string | undefined>();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
@@ -86,6 +93,10 @@ export function CardDetailDrawer({
     };
   }, [card]);
 
+  useEffect(() => {
+    setReviewEntryKey(undefined);
+  }, [card?.objectId]);
+
   if (!card) {
     return null;
   }
@@ -112,6 +123,12 @@ export function CardDetailDrawer({
     detailPlan,
     disabledByConnection
   });
+  const reviewEntry = reviewEntryKey
+    ? detailActionPlan.entries.find((entry) => entry.key === reviewEntryKey)
+    : undefined;
+  const reviewRoute = reviewEntry
+    ? detailActionPlan.routeRows.find((row) => row.entryKey === reviewEntry.key)
+    : undefined;
 
   return (
     <div
@@ -185,7 +202,22 @@ export function CardDetailDrawer({
                   </div>
                 ))}
               </dl>
-              <DetailActionRoutes plan={detailActionPlan} />
+              <DetailActionRoutes
+                onReviewEntry={setReviewEntryKey}
+                plan={detailActionPlan}
+                selectedEntryKey={reviewEntry?.key}
+              />
+              {reviewEntry && reviewRoute ? (
+                <DetailActionReview
+                  entry={reviewEntry}
+                  onCloseDetail={onClose}
+                  onCloseReview={() => setReviewEntryKey(undefined)}
+                  onCommand={onCommand}
+                  prompt={prompt}
+                  route={reviewRoute}
+                  sourceObjectId={detailActionPlan.sourceObjectId}
+                />
+              ) : null}
               {detailActionPlan.entries.length === 0 ? (
                 <p className="detail-muted">{detailActionPlan.emptyLabel}</p>
               ) : (
@@ -242,10 +274,20 @@ function DetailCheckMap({ plan }: { plan: CardDetailPlan }) {
   );
 }
 
-function DetailActionRoutes({ plan }: { plan: WireCardDetailActionPlan }) {
+function DetailActionRoutes({
+  onReviewEntry,
+  plan,
+  selectedEntryKey
+}: {
+  onReviewEntry?: (entryKey: string) => void;
+  plan: WireCardDetailActionPlan;
+  selectedEntryKey?: string;
+}) {
   if (plan.routeRows.length === 0) {
     return null;
   }
+
+  const entryKeys = new Set(plan.entries.map((entry) => entry.key));
 
   return (
     <section
@@ -261,6 +303,8 @@ function DetailActionRoutes({ plan }: { plan: WireCardDetailActionPlan }) {
         {plan.routeRows.map((row) => (
           <li
             data-card-detail-action-route={row.key}
+            data-card-detail-action-route-entry={row.entryKey}
+            data-card-detail-action-route-selected={row.entryKey === selectedEntryKey ? "true" : "false"}
             data-card-detail-action-route-state={row.state}
             key={row.key}
           >
@@ -269,9 +313,103 @@ function DetailActionRoutes({ plan }: { plan: WireCardDetailActionPlan }) {
             <small>{row.commandType} / {row.stateLabel}</small>
             <small>{row.fieldSummary}</small>
             <em>{row.nextStepLabel}</em>
+            <Button
+              data-card-detail-action-route-review={row.entryKey}
+              disabled={!onReviewEntry || !entryKeys.has(row.entryKey)}
+              onClick={() => onReviewEntry?.(row.entryKey)}
+              variant="secondary"
+            >
+              审阅路线
+            </Button>
           </li>
         ))}
       </ol>
+    </section>
+  );
+}
+
+function DetailActionReview({
+  entry,
+  onCloseDetail,
+  onCloseReview,
+  onCommand,
+  prompt,
+  route,
+  sourceObjectId
+}: {
+  entry: WireCardDetailActionEntryPlan;
+  onCloseDetail: () => void;
+  onCloseReview: () => void;
+  onCommand?: (command: GameCommand) => void;
+  prompt?: ActionPromptDto;
+  route: WireCardDetailActionRouteRow;
+  sourceObjectId?: string;
+}) {
+  const command = entry.actionPlan.command;
+  const commandType = entry.candidate.commandTemplate?.cmdType?.trim() || entry.candidate.action;
+  const canSubmit = Boolean(command && onCommand && !entry.actionPlan.disabled);
+
+  return (
+    <section
+      aria-label="卡牌详情候选路线审阅"
+      className="detail-action-review"
+      data-card-detail-action-review-command={commandType}
+      data-card-detail-action-review-entry={entry.key}
+      data-card-detail-action-review-route-state={route.state}
+      data-card-detail-action-review-source={sourceObjectId ?? ""}
+      data-card-detail-action-review-state="open"
+    >
+      <header>
+        <div>
+          <strong>{route.label}</strong>
+          <span>{route.modeLabel} / {route.stateLabel}</span>
+        </div>
+        <Button onClick={onCloseReview} variant="ghost">关闭审阅</Button>
+      </header>
+      <p className="detail-muted">只展示服务端候选、命令模板和当前选择草稿，不在前端推导额外规则。</p>
+      <dl className="detail-action-review-grid" aria-label="卡牌详情候选路线审计">
+        <div data-card-detail-action-review-row="action">
+          <dt>动作</dt>
+          <dd>{entry.candidate.action}</dd>
+        </div>
+        <div data-card-detail-action-review-row="command">
+          <dt>命令</dt>
+          <dd>{commandType}</dd>
+        </div>
+        <div data-card-detail-action-review-row="source">
+          <dt>来源</dt>
+          <dd>{sourceObjectId ?? "未绑定"}</dd>
+        </div>
+        <div data-card-detail-action-review-row="field">
+          <dt>字段</dt>
+          <dd>{route.fieldSummary}</dd>
+        </div>
+        <div data-card-detail-action-review-row="reason">
+          <dt>原因</dt>
+          <dd>{route.reasonLabel}</dd>
+        </div>
+        <div data-card-detail-action-review-row="next-step">
+          <dt>下一步</dt>
+          <dd>{route.nextStepLabel}</dd>
+        </div>
+      </dl>
+      <Button
+        data-card-detail-action-review-submit-state={canSubmit ? "ready" : "blocked"}
+        disabled={!canSubmit}
+        onClick={() => {
+          if (!command || !onCommand) {
+            return;
+          }
+
+          onCommand(promptStampedCommand(command, prompt));
+          onCloseReview();
+          onCloseDetail();
+        }}
+        title={entry.actionPlan.title}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        提交这条服务端候选
+      </Button>
     </section>
   );
 }

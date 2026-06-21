@@ -22,6 +22,7 @@ export type WireCardDetailActionSummaryRow = {
 export type WireCardDetailActionRouteRow = {
   action: string;
   commandType: string;
+  entryKey: string;
   fieldSummary: string;
   key: string;
   label: string;
@@ -92,6 +93,7 @@ function routeRowsFor(
     return {
       action: entry.candidate.action,
       commandType: entry.candidate.commandTemplate?.cmdType?.trim() || entry.candidate.action,
+      entryKey: entry.key,
       fieldSummary: routeFieldSummary(entry.candidate),
       key: `route:${entry.key}`,
       label: entry.candidate.label?.trim() || entry.actionPlan.label,
