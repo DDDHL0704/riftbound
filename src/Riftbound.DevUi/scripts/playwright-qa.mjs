@@ -339,12 +339,15 @@ async function runCommandReceiptInteraction(report) {
 
     const route = await submitReceiptProbeCommand(page);
     const receipt = await waitForAcceptedSubmissionFeedback(page, "END_TURN");
+    const receiptLayer = await openCommandReceiptLayer(page, "END_TURN");
 
     report.interactions.push({
       name: "command-receipt-feedback",
       route,
       commandCenterFollowupState: receipt.commandCenterFollowupState,
       commandCenterServerState: receipt.commandCenterServerState,
+      layerFollowupState: receiptLayer.followupState,
+      layerServerState: receiptLayer.serverState,
       followupState: receipt.followupState,
       state: receipt.state
     });
@@ -567,6 +570,61 @@ async function waitForAcceptedSubmissionFeedback(page, cmdType) {
   }
 
   return receipt;
+}
+
+async function openCommandReceiptLayer(page, cmdType) {
+  const feedbackPanel = page.locator("[data-command-submission-state]").first();
+  const openLayerButton = feedbackPanel.getByRole("button", { name: "打开回执检查层" });
+  const openLayerState = await openLayerButton.getAttribute("data-command-submission-open-layer-state");
+  if (openLayerState !== "sent") {
+    throw new Error(`Command receipt layer entry should be sent after accepted command, got ${openLayerState}`);
+  }
+
+  await openLayerButton.click();
+  await page.waitForFunction(() => Boolean(document.querySelector(".wire-command-submission-layer")), { timeout: 5_000 });
+  const layerResult = await page.locator(".wire-command-submission-layer").first().evaluate((layer) => ({
+    activeText: document.activeElement?.textContent ?? "",
+    authority: layer.querySelector("[data-command-submission-layer-authority]")?.getAttribute("data-command-submission-layer-authority") ?? "",
+    cmdType: layer.getAttribute("data-command-submission-layer-cmd-type") ?? "",
+    followupState: layer.getAttribute("data-command-submission-layer-followup-state") ?? "",
+    hiddenCount: layer.querySelector("[data-command-submission-layer-hidden-count]")?.getAttribute("data-command-submission-layer-hidden-count") ?? "",
+    modal: layer.getAttribute("aria-modal") ?? "",
+    receiptState: layer.getAttribute("data-command-submission-layer-receipt-state") ?? "",
+    role: layer.getAttribute("role") ?? "",
+    sections: Array.from(layer.querySelectorAll("[data-command-submission-layer-section]"))
+      .map((item) => item.getAttribute("data-command-submission-layer-section") ?? ""),
+    serverState: layer.getAttribute("data-command-submission-layer-server-state") ?? "",
+    state: layer.getAttribute("data-command-submission-layer-state") ?? "",
+    text: layer.textContent ?? "",
+    title: layer.querySelector("#wire-command-submission-layer-title")?.textContent ?? ""
+  }));
+
+  const failures = [];
+  if (layerResult.role !== "dialog") failures.push(`role=${layerResult.role}`);
+  if (layerResult.modal !== "true") failures.push("modal missing");
+  if (layerResult.state !== "open") failures.push(`state=${layerResult.state}`);
+  if (layerResult.cmdType !== cmdType) failures.push(`cmdType=${layerResult.cmdType}`);
+  if (layerResult.title !== cmdType) failures.push(`title=${layerResult.title}`);
+  if (layerResult.receiptState !== "ACCEPTED") failures.push(`receipt=${layerResult.receiptState}`);
+  if (!["accepted-events", "accepted-snapshot"].includes(layerResult.followupState)) failures.push(`followup=${layerResult.followupState}`);
+  if (!["events", "snapshot-prompt"].includes(layerResult.serverState)) failures.push(`server=${layerResult.serverState}`);
+  if (layerResult.authority !== "server") failures.push(`authority=${layerResult.authority}`);
+  if (!layerResult.activeText.includes("关闭")) failures.push("close button not focused");
+  for (const section of ["receipt", "identity", "authority"]) {
+    if (!layerResult.sections.includes(section)) failures.push(`section missing: ${section}`);
+  }
+  if (!layerResult.text.includes("回执检查层")) failures.push("heading missing");
+  if (!layerResult.text.includes("服务端回执")) failures.push("receipt section missing");
+  if (!layerResult.text.includes("后续事件、快照和提示均以服务端广播为准")) failures.push("authority copy missing");
+  if (!layerResult.text.includes("后续事件")) failures.push("followup panel missing");
+  if (hiddenDebugTexts.some((text) => layerResult.text.includes(text))) failures.push("hidden debug text leaked");
+  if (failures.length > 0) {
+    throw new Error(`Command receipt layer check failed: ${failures.join("; ")}\n${layerResult.text}`);
+  }
+
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => !document.querySelector(".wire-command-submission-layer"), { timeout: 5_000 });
+  return layerResult;
 }
 
 async function commandProbeDebug(page) {

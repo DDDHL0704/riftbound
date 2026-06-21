@@ -1053,6 +1053,8 @@ async function runWireClickSelectionSmoke(cdp) {
       commandReviewSubmitDisabled: commandReview?.querySelector(".wire-command-review-submit")?.hasAttribute("disabled") ?? null,
       commandReviewSubmitState: commandReview?.querySelector(".wire-command-review-submit")?.getAttribute("data-command-review-submit-state") ?? null,
       commandReviewText: commandReview?.textContent ?? "",
+      commandSubmissionOpenLayerDisabled: commandSubmission?.querySelector(".wire-command-submission-open-layer")?.hasAttribute("disabled") ?? null,
+      commandSubmissionOpenLayerState: commandSubmission?.querySelector(".wire-command-submission-open-layer")?.getAttribute("data-command-submission-open-layer-state") ?? null,
       commandSubmissionState: commandSubmission?.getAttribute("data-command-submission-state") ?? null,
       commandSubmissionText: commandSubmission?.textContent ?? "",
       detailLayerOpen: Boolean(document.querySelector(".detail-layer")),
@@ -1401,6 +1403,9 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.commandSubmissionState !== "empty") failures.push(`action command submission initial state unexpected: ${actionMapResult.commandSubmissionState}`);
   if (!actionMapResult.commandSubmissionText.includes("提交反馈")) failures.push("action command submission feedback heading missing");
   if (!actionMapResult.commandSubmissionText.includes("尚未提交")) failures.push("action command submission feedback empty state missing");
+  if (!actionMapResult.commandSubmissionText.includes("打开回执检查层")) failures.push("action command submission receipt layer entry missing");
+  if (actionMapResult.commandSubmissionOpenLayerState !== "empty") failures.push(`action command submission receipt layer initial state unexpected: ${actionMapResult.commandSubmissionOpenLayerState}`);
+  if (actionMapResult.commandSubmissionOpenLayerDisabled !== true) failures.push("action command submission receipt layer entry should be disabled before submit");
   if (!actionMapResult.commandReviewText.includes("打出手牌")) failures.push("action command review candidate missing");
   if (!actionMapResult.commandReviewText.includes("PLAY_CARD")) failures.push("action command review command type missing");
   if (!actionMapResult.commandReviewText.includes("下一步")) failures.push("action command review next step missing");

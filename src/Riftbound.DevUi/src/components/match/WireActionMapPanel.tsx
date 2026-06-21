@@ -167,6 +167,7 @@ function CommandSubmissionFeedbackPanel({
   onInspectObject?: (objectId: string) => void;
   snapshot?: SnapshotDto;
 }) {
+  const [layerOpen, setLayerOpen] = useState(false);
   const followup = buildCommandSubmissionFollowupPlan({ events, feedback, snapshot });
 
   if (!feedback) {
@@ -178,9 +179,17 @@ function CommandSubmissionFeedbackPanel({
       >
         <div className="wire-command-submission-heading">
           <strong>提交反馈</strong>
-        <span>尚未提交</span>
-      </div>
-      <span>等待右侧路线或候选操作提交给服务端。</span>
+          <span>尚未提交</span>
+        </div>
+        <span>等待右侧路线或候选操作提交给服务端。</span>
+        <button
+          className="wire-command-submission-open-layer"
+          data-command-submission-open-layer-state="empty"
+          disabled
+          type="button"
+        >
+          打开回执检查层
+        </button>
         <WireCommandFollowupPanel
           ariaLabel="提交反馈服务端后续事件"
           onInspectObject={onInspectObject}
@@ -239,17 +248,135 @@ function CommandSubmissionFeedbackPanel({
           <strong>{shortIntentId(feedback.clientIntentId)}</strong>
         </span>
       </div>
+      <button
+        aria-controls="wire-command-submission-layer"
+        aria-expanded={layerOpen}
+        className="wire-command-submission-open-layer"
+        data-command-submission-open-layer-state={feedback.state}
+        onClick={() => setLayerOpen(true)}
+        type="button"
+      >
+        打开回执检查层
+      </button>
       <WireCommandFollowupPanel
         ariaLabel="提交反馈服务端后续事件"
         onInspectObject={onInspectObject}
         plan={followup}
       />
+      {layerOpen && (
+        <CommandSubmissionFeedbackLayer
+          feedback={feedback}
+          followup={followup}
+          onClose={() => setLayerOpen(false)}
+          onInspectObject={onInspectObject}
+        />
+      )}
     </section>
   );
 }
 
 function shortIntentId(clientIntentId: string): string {
   return clientIntentId.length > 8 ? clientIntentId.slice(-8) : clientIntentId;
+}
+
+function CommandSubmissionFeedbackLayer({
+  feedback,
+  followup,
+  onClose,
+  onInspectObject
+}: {
+  feedback: CommandSubmissionFeedback;
+  followup: ReturnType<typeof buildCommandSubmissionFollowupPlan>;
+  onClose: () => void;
+  onInspectObject?: (objectId: string) => void;
+}) {
+  const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);
+
+  return (
+    <div
+      aria-labelledby="wire-command-submission-layer-title"
+      aria-modal="true"
+      className="wire-command-submission-layer"
+      data-command-submission-layer-cmd-type={feedback.cmdType}
+      data-command-submission-layer-followup-state={followup.state}
+      data-command-submission-layer-receipt-state={feedback.receiptState ?? feedback.state}
+      data-command-submission-layer-server-state={followup.serverFollowupState}
+      data-command-submission-layer-state="open"
+      id="wire-command-submission-layer"
+      role="dialog"
+    >
+      <button aria-label="关闭回执检查层" className="wire-command-submission-layer-scrim" onClick={onClose} type="button" />
+      <aside className="wire-command-submission-dialog" ref={dialogRef} tabIndex={-1}>
+        <header className="wire-command-submission-layer-header">
+          <div>
+            <span>回执检查层</span>
+            <h2 id="wire-command-submission-layer-title">{feedback.cmdType}</h2>
+          </div>
+          <button className="wire-command-submission-layer-close" onClick={onClose} ref={closeButtonRef} type="button">
+            关闭检查层
+          </button>
+        </header>
+        <div className="wire-command-submission-layer-body">
+          <section data-command-submission-layer-section="receipt">
+            <strong>服务端回执</strong>
+            <span>{feedback.stateLabel}</span>
+            <small>{feedback.message}</small>
+          </section>
+          <section data-command-submission-layer-section="identity">
+            <strong>提交身份</strong>
+            <div className="wire-command-submission-layer-metrics">
+              <span data-command-submission-layer-metric="command">
+                <b>命令</b>
+                <small>{feedback.cmdType}</small>
+              </span>
+              <span data-command-submission-layer-metric="receipt">
+                <b>回执</b>
+                <small>{feedback.receiptState ?? feedback.state}</small>
+              </span>
+              <span data-command-submission-layer-metric="intent">
+                <b>追踪</b>
+                <small>{shortIntentId(feedback.clientIntentId)}</small>
+              </span>
+            </div>
+          </section>
+          <section data-command-submission-layer-section="authority">
+            <strong>服务端权威</strong>
+            <div className="wire-command-submission-layer-metrics">
+              <span data-command-submission-layer-metric="server">
+                <b>服务端 tick</b>
+                <small>{feedback.serverTick ?? "无"}</small>
+              </span>
+              <span data-command-submission-layer-metric="snapshot">
+                <b>命令快照</b>
+                <small>{feedback.snapshotTick ?? "无"}</small>
+              </span>
+              <span data-command-submission-layer-metric="prompt">
+                <b>提示</b>
+                <small>{feedback.promptId ?? "无"}</small>
+              </span>
+            </div>
+          </section>
+          {feedback.errorCode ? (
+            <section data-command-submission-layer-section="error">
+              <strong>错误</strong>
+              <span>{feedback.errorCode}</span>
+              <small>服务端拒绝或本地提交失败时显示。</small>
+            </section>
+          ) : null}
+          <WireCommandFollowupPanel
+            ariaLabel="回执检查层后续事件"
+            className="wire-command-submission-layer-followup"
+            onInspectObject={onInspectObject}
+            plan={followup}
+          />
+        </div>
+        <footer className="wire-command-submission-layer-footer">
+          <span data-command-submission-layer-authority="server">后续事件、快照和提示均以服务端广播为准</span>
+          <span data-command-submission-layer-hidden-count={followup.hiddenEventCount}>隐藏事件 {followup.hiddenEventCount}</span>
+        </footer>
+      </aside>
+    </div>
+  );
 }
 
 function CommandReviewPanel({ onCommand, review }: { onCommand?: (command: GameCommand) => void; review: WireActionCommandReviewPlan }) {
@@ -346,40 +473,7 @@ function CommandReviewLayer({
   onCommand?: (command: GameCommand) => void;
   review: WireActionCommandReviewPlan;
 }) {
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const dialogRef = useRef<HTMLElement | null>(null);
-  const onCloseRef = useRef(onClose);
-  const previousActiveElementRef = useRef<HTMLElement | null>(null);
-  onCloseRef.current = onClose;
-
-  useEffect(() => {
-    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onCloseRef.current();
-        return;
-      }
-
-      if (event.key === "Tab") {
-        trapCommandReviewFocus(event, dialogRef.current);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-      previousActiveElementRef.current?.focus();
-      previousActiveElementRef.current = null;
-    };
-  }, []);
+  const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);
 
   const submitFromLayer = () => {
     if (!canSubmit || !review.command || !onCommand) {
@@ -493,7 +587,46 @@ function CommandReviewLayer({
   );
 }
 
-function trapCommandReviewFocus(event: KeyboardEvent, root: HTMLElement | null) {
+function useWireDialogFocus(onClose: () => void) {
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        trapWireDialogFocus(event, dialogRef.current);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousActiveElementRef.current?.focus();
+      previousActiveElementRef.current = null;
+    };
+  }, []);
+
+  return { closeButtonRef, dialogRef };
+}
+
+function trapWireDialogFocus(event: KeyboardEvent, root: HTMLElement | null) {
   if (!root) {
     return;
   }
