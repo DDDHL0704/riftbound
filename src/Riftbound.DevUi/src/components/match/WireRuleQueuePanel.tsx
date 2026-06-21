@@ -423,12 +423,15 @@ function RuleResponsibilityLayer({
                   <li
                     data-rule-responsibility-layer-submit-item={item.key}
                     data-rule-responsibility-layer-submit-ready={item.submit.canSubmit ? "true" : "false"}
+                    data-rule-responsibility-layer-submit-semantic={item.submit.semanticSummary}
                     data-rule-responsibility-layer-submit-state={item.submit.state}
                     key={`submit:${item.key}`}
                   >
                     <span>{item.actionLabel}</span>
                     <strong>{item.submit.stateLabel}</strong>
                     <small>{item.submit.enabledCandidateCount}/{item.submit.candidateCount} 候选 / {item.submit.promptType}</small>
+                    <small>动作：{item.submit.semanticSummary}</small>
+                    <RuleSubmitSemanticRows item={item} layer />
                     <small>{item.submit.reason}</small>
                   </li>
                 ))}
@@ -515,6 +518,7 @@ function RuleResponsibilityItem({
       data-rule-responsibility-lane={item.lane}
       data-rule-responsibility-state={item.state}
       data-rule-responsibility-submit-ready={item.submit.canSubmit ? "true" : "false"}
+      data-rule-responsibility-submit-semantic={item.submit.semanticSummary}
       data-rule-responsibility-submit-state={item.submit.state}
     >
       <div>
@@ -529,6 +533,7 @@ function RuleResponsibilityItem({
       >
         {item.submit.stateLabel} / {item.submit.enabledCandidateCount}/{item.submit.candidateCount} 候选 / {item.submit.reason}
       </span>
+      <RuleSubmitSemanticRows item={item} />
       <small>{item.reason}</small>
       <WireObjectRefChips
         className="wire-rule-responsibility-object-refs"
@@ -539,6 +544,41 @@ function RuleResponsibilityItem({
         source="rule"
       />
     </li>
+  );
+}
+
+function RuleSubmitSemanticRows({
+  item,
+  layer = false
+}: {
+  item: WireRuleQueueResponsibilityItem;
+  layer?: boolean;
+}) {
+  if (item.submit.semanticRows.length === 0) {
+    return <small data-rule-responsibility-submit-semantic-empty="true">动作：无动作语义</small>;
+  }
+
+  return (
+    <ol
+      aria-label={`${item.label} 服务端候选动作语义`}
+      className="wire-rule-responsibility-semantics"
+      data-rule-responsibility-submit-semantic-list={layer ? "layer" : "timeline"}
+    >
+      {item.submit.semanticRows.map((row) => (
+        <li
+          data-rule-responsibility-submit-semantic-category={row.category}
+          data-rule-responsibility-submit-semantic-enabled-count={row.enabledCount}
+          data-rule-responsibility-submit-semantic-intent={row.intent}
+          data-rule-responsibility-submit-semantic-priority={row.priority}
+          data-rule-responsibility-submit-semantic-ui-hint={row.uiHint}
+          key={row.key}
+        >
+          <span>{row.category}</span>
+          <strong>{row.intent}</strong>
+          <small>{row.enabledCount}/{row.count}</small>
+        </li>
+      ))}
+    </ol>
   );
 }
 

@@ -256,6 +256,8 @@ assert.ok(stackResponse.responsibility.items[0].reason.includes("服务端 promp
 assert.equal(stackResponse.responsibility.submitReadyCount, 0);
 assert.equal(stackResponse.responsibility.items[0].submit.state, "waiting-prompt");
 assert.equal(stackResponse.responsibility.items[0].submit.canSubmit, false);
+assert.equal(stackResponse.responsibility.items[0].submit.semanticSummary, "无动作语义");
+assert.deepEqual(stackResponse.responsibility.items[0].submit.semanticRows, []);
 assert.ok(stackResponse.responsibility.items[0].submit.reason.includes("等待服务端 prompt"));
 assert.equal(stackResponse.inspector.activeLaneLabel, "结算链");
 assert.equal(stackResponse.inspector.sequence[0].laneLabel, "结算链");
@@ -300,8 +302,34 @@ const stackReadyPrompt = buildWireRuleQueuePlan({
     actionable: true,
     actions: ["RESPOND", "WAIT"],
     candidates: [
-      { action: "RESPOND", enabled: true, label: "响应结算链", reason: "服务端候选可用" },
-      { action: "WAIT", enabled: false, label: "不响应", reason: "等待确认" }
+      {
+        action: "PLAY_CARD",
+        enabled: true,
+        label: "打出反应",
+        presentation: { category: "play", intent: "play-card", priority: 100, uiHint: "card-action" },
+        reason: "服务端候选可用"
+      },
+      {
+        action: "TAP_RUNE",
+        enabled: true,
+        label: "横置符文",
+        presentation: { category: "resource", intent: "tap-rune", priority: 180, uiHint: "resource" },
+        reason: "服务端候选可用"
+      },
+      {
+        action: "RESPOND",
+        enabled: true,
+        label: "响应结算链",
+        presentation: { category: "tempo", intent: "respond", priority: 500, uiHint: "secondary" },
+        reason: "服务端候选可用"
+      },
+      {
+        action: "WAIT",
+        enabled: false,
+        label: "不响应",
+        presentation: { category: "tempo", intent: "pass-priority", priority: 510, uiHint: "secondary" },
+        reason: "等待确认"
+      }
     ],
     playerId: "P1",
     reason: "P1 可以响应",
@@ -317,6 +345,13 @@ assert.equal(stackReadyPrompt.responsibility.items[0].submit.canSubmit, true);
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.promptType, "STACK_PRIORITY");
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.candidateCount, 9);
 assert.equal(stackReadyPrompt.responsibility.items[0].submit.enabledCandidateCount, 4);
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.semanticSummary, "play/play-card / resource/tap-rune +1");
+assert.deepEqual(stackReadyPrompt.responsibility.items[0].submit.semanticRows.map((row) => `${row.category}:${row.intent}:${row.enabledCount}/${row.count}:${row.priority}:${row.uiHint}`), [
+  "play:play-card:1/1:100:card-action",
+  "resource:tap-rune:1/1:180:resource",
+  "tempo:respond:1/1:500:secondary",
+  "tempo:pass-priority:0/1:510:secondary"
+]);
 assert.ok(stackReadyPrompt.responsibility.items[0].submit.reason.includes("4/9"));
 assert.ok(stackReadyPrompt.responsibility.summary.includes("1 个可提交入口"));
 
@@ -336,6 +371,7 @@ const stackOpponentPrompt = buildWireRuleQueuePlan({
 assert.equal(stackOpponentPrompt.responsibility.submitReadyCount, 0);
 assert.equal(stackOpponentPrompt.responsibility.items[0].submit.state, "wrong-player");
 assert.equal(stackOpponentPrompt.responsibility.items[0].submit.canSubmit, false);
+assert.equal(stackOpponentPrompt.responsibility.items[0].submit.semanticSummary, "custom/respond");
 assert.ok(stackOpponentPrompt.responsibility.items[0].submit.reason.includes("P2"));
 
 const multiStackResponse = buildWireRuleQueuePlan({

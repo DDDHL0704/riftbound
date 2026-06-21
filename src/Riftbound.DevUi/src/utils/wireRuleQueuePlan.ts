@@ -62,12 +62,24 @@ export type WireRuleQueueResponsibilitySubmitState =
   | "waiting-prompt"
   | "wrong-player";
 
+export type WireRuleQueueResponsibilitySubmitSemanticRow = {
+  category: string;
+  count: number;
+  enabledCount: number;
+  intent: string;
+  key: string;
+  priority: number;
+  uiHint: string;
+};
+
 export type WireRuleQueueResponsibilitySubmitPlan = {
   canSubmit: boolean;
   candidateCount: number;
   enabledCandidateCount: number;
   promptType: string;
   reason: string;
+  semanticRows: WireRuleQueueResponsibilitySubmitSemanticRow[];
+  semanticSummary: string;
   state: WireRuleQueueResponsibilitySubmitState;
   stateLabel: string;
 };
@@ -447,6 +459,7 @@ function responsibilitySubmitPlanFor({
   const candidateCount = counts.candidateCount;
   const enabledCandidateCount = counts.enabledCandidateCount;
   const promptType = prompt?.view?.type ?? prompt?.serverFlow?.promptType ?? "无";
+  const semanticRows = responsibilitySubmitSemanticRows(prompt);
 
   if (state === "history" || item.lane === "resolution") {
     return responsibilitySubmitPlan({
@@ -454,6 +467,7 @@ function responsibilitySubmitPlanFor({
       enabledCandidateCount,
       promptType,
       reason: "历史规则事件只用于回看，不提供提交入口。",
+      semanticRows,
       state: "history"
     });
   }
@@ -464,6 +478,7 @@ function responsibilitySubmitPlanFor({
       enabledCandidateCount,
       promptType,
       reason: "等待前序结算、任务或触发先处理。",
+      semanticRows,
       state: "waiting-lane"
     });
   }
@@ -474,6 +489,7 @@ function responsibilitySubmitPlanFor({
       enabledCandidateCount,
       promptType,
       reason: "等待服务端 prompt 提供可提交候选。",
+      semanticRows,
       state: "waiting-prompt"
     });
   }
@@ -484,6 +500,7 @@ function responsibilitySubmitPlanFor({
       enabledCandidateCount,
       promptType,
       reason: `当前行动窗口属于 ${prompt.playerId || "未知玩家"}，本地玩家 ${playerId} 只读观察。`,
+      semanticRows,
       state: "wrong-player"
     });
   }
@@ -494,6 +511,7 @@ function responsibilitySubmitPlanFor({
       enabledCandidateCount,
       promptType,
       reason: prompt.reason?.trim() || "服务端提示当前只读，不能提交行动。",
+      semanticRows,
       state: "readonly"
     });
   }
@@ -504,6 +522,7 @@ function responsibilitySubmitPlanFor({
       enabledCandidateCount,
       promptType,
       reason: "服务端 prompt 已到达，但没有可用候选。",
+      semanticRows,
       state: "no-candidates"
     });
   }
@@ -513,6 +532,7 @@ function responsibilitySubmitPlanFor({
     enabledCandidateCount,
     promptType,
     reason: `服务端 prompt 提供 ${enabledCandidateCount}/${candidateCount} 个可用候选。`,
+    semanticRows,
     state: "ready"
   });
 }
@@ -522,12 +542,14 @@ function responsibilitySubmitPlan({
   enabledCandidateCount,
   promptType,
   reason,
+  semanticRows,
   state
 }: {
   candidateCount: number;
   enabledCandidateCount: number;
   promptType: string;
   reason: string;
+  semanticRows: WireRuleQueueResponsibilitySubmitSemanticRow[];
   state: WireRuleQueueResponsibilitySubmitState;
 }): WireRuleQueueResponsibilitySubmitPlan {
   return {
@@ -536,9 +558,64 @@ function responsibilitySubmitPlan({
     enabledCandidateCount,
     promptType,
     reason,
+    semanticRows,
+    semanticSummary: responsibilitySubmitSemanticSummary(semanticRows),
     state,
     stateLabel: responsibilitySubmitStateLabel(state)
   };
+}
+
+function responsibilitySubmitSemanticRows(prompt?: ActionPromptDto): WireRuleQueueResponsibilitySubmitSemanticRow[] {
+  const byKey = new Map<string, WireRuleQueueResponsibilitySubmitSemanticRow>();
+  for (const candidate of prompt?.candidates ?? []) {
+    const category = normalizedPresentationText(candidate.presentation?.category, "custom");
+    const intent = normalizedPresentationText(candidate.presentation?.intent, candidate.action.toLowerCase().replaceAll("_", "-"));
+    const priority = typeof candidate.presentation?.priority === "number" && Number.isFinite(candidate.presentation.priority)
+      ? candidate.presentation.priority
+      : 700;
+    const uiHint = normalizedPresentationText(candidate.presentation?.uiHint, "card-action");
+    const key = `${category}:${intent}:${uiHint}`;
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.count += 1;
+      existing.enabledCount += candidate.enabled ? 1 : 0;
+      existing.priority = Math.min(existing.priority, priority);
+      continue;
+    }
+
+    byKey.set(key, {
+      category,
+      count: 1,
+      enabledCount: candidate.enabled ? 1 : 0,
+      intent,
+      key,
+      priority,
+      uiHint
+    });
+  }
+
+  return [...byKey.values()].sort((left, right) =>
+    left.priority - right.priority
+    || left.category.localeCompare(right.category)
+    || left.intent.localeCompare(right.intent));
+}
+
+function responsibilitySubmitSemanticSummary(rows: WireRuleQueueResponsibilitySubmitSemanticRow[]): string {
+  if (rows.length === 0) {
+    return "无动作语义";
+  }
+
+  const enabledRows = rows.filter((row) => row.enabledCount > 0);
+  const summaryRows = enabledRows.length > 0 ? enabledRows : rows;
+  const values = summaryRows.map((row) =>
+    `${row.category}/${row.intent}${row.enabledCount > 0 && row.enabledCount !== row.count ? ` ${row.enabledCount}/${row.count}` : row.count > 1 ? ` x${row.count}` : ""}`);
+  const visible = values.slice(0, 2);
+  return values.length > 2 ? `${visible.join(" / ")} +${values.length - 2}` : visible.join(" / ");
+}
+
+function normalizedPresentationText(value: string | null | undefined, fallback: string): string {
+  const trimmed = value?.trim();
+  return trimmed || fallback;
 }
 
 function responsibilitySubmitStateLabel(state: WireRuleQueueResponsibilitySubmitState): string {
