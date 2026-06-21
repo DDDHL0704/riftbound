@@ -53,10 +53,74 @@ public static class GameEventObjectRefProjector
     public static IReadOnlyList<GameEvent> ProjectEvents(IReadOnlyList<GameEvent> events, MatchState state)
     {
         return events
-            .Select(gameEvent => gameEvent.ObjectRefs is { Count: > 0 }
-                ? gameEvent
-                : gameEvent with { ObjectRefs = BuildEventObjectRefs(gameEvent.Payload, state) })
+            .Select(gameEvent => gameEvent with
+            {
+                ObjectRefs = gameEvent.ObjectRefs is { Count: > 0 }
+                    ? EnrichEventObjectRefs(gameEvent.ObjectRefs, state)
+                    : BuildEventObjectRefs(gameEvent.Payload, state)
+            })
             .ToArray();
+    }
+
+    private static IReadOnlyList<GameEventObjectRef>? EnrichEventObjectRefs(
+        IReadOnlyList<GameEventObjectRef> sourceRefs,
+        MatchState state)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var refs = new List<GameEventObjectRef>();
+        foreach (var sourceRef in sourceRefs)
+        {
+            var objectId = NormalizeOptionalText(sourceRef.ObjectId);
+            if (objectId is null)
+            {
+                continue;
+            }
+
+            var role = NormalizeOptionalText(sourceRef.Role) ?? "对象";
+            if (!seen.Add($"{role}:{objectId}"))
+            {
+                continue;
+            }
+
+            refs.Add(EnrichEventObjectRef(sourceRef, objectId, role, state));
+        }
+
+        return refs.Count > 0 ? refs : null;
+    }
+
+    private static GameEventObjectRef EnrichEventObjectRef(
+        GameEventObjectRef sourceRef,
+        string objectId,
+        string role,
+        MatchState state)
+    {
+        if (sourceRef.IsHidden || string.Equals(objectId, "HIDDEN", StringComparison.Ordinal))
+        {
+            return new GameEventObjectRef(objectId, role, IsFaceDown: sourceRef.IsFaceDown, IsHidden: true);
+        }
+
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject))
+        {
+            return sourceRef with
+            {
+                ObjectId = objectId,
+                Role = role
+            };
+        }
+
+        state.ObjectLocations.TryGetValue(objectId, out var location);
+        var isFaceDown = sourceRef.IsFaceDown || cardObject.IsFaceDown;
+        var isHidden = sourceRef.IsHidden || isFaceDown;
+        return new GameEventObjectRef(
+            objectId,
+            role,
+            isHidden ? null : cardObject.CardNo ?? NormalizeOptionalText(sourceRef.CardNo),
+            cardObject.OwnerId ?? NormalizeOptionalText(sourceRef.OwnerId),
+            cardObject.ControllerId ?? NormalizeOptionalText(sourceRef.ControllerId),
+            location?.Zone ?? NormalizeOptionalText(sourceRef.Zone),
+            location?.BattlefieldObjectId ?? NormalizeOptionalText(sourceRef.BattlefieldObjectId),
+            isFaceDown,
+            isHidden);
     }
 
     public static IReadOnlyList<GameEventObjectRef>? BuildEventObjectRefs(

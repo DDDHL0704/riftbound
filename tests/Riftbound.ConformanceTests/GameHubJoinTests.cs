@@ -194,6 +194,66 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public void GameEventObjectRefProjectorEnrichesExplicitObjectRefs()
+    {
+        var state = new MatchState(
+            "object-ref-explicit-enrichment-room",
+            4,
+            2,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "connection-1",
+                ["P2"] = "connection-2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RUNE"] = new("P1-RUNE", cardNo: "RUNE-001", ownerId: "P1", controllerId: "P1"),
+                ["P2-HIDDEN"] = new("P2-HIDDEN", isFaceDown: true, cardNo: "SECRET-UNIT", ownerId: "P2", controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-RUNE"] = new("P1", "BASE"),
+                ["P2-HIDDEN"] = new("P2", "BATTLEFIELD", "BF-1")
+            });
+        var sourceEvent = new GameEvent(
+            "EXPLICIT_REFS",
+            "显式对象引用补全",
+            new Dictionary<string, object?>(StringComparer.Ordinal),
+            [
+                new GameEventObjectRef("P1-RUNE", "费用"),
+                new GameEventObjectRef("P2-HIDDEN", "来源", CardNo: "SECRET-UNIT"),
+                new GameEventObjectRef("MISSING-OBJECT", "对象", CardNo: "KNOWN-CARD", Zone: "HAND")
+            ]);
+
+        var projected = Assert.Single(GameEventObjectRefProjector.ProjectEvents([sourceEvent], state));
+
+        Assert.NotNull(projected.ObjectRefs);
+        var refs = projected.ObjectRefs!;
+        var rune = Assert.Single(refs, item => item.ObjectId == "P1-RUNE");
+        Assert.Equal("RUNE-001", rune.CardNo);
+        Assert.Equal("P1", rune.OwnerId);
+        Assert.Equal("P1", rune.ControllerId);
+        Assert.Equal("BASE", rune.Zone);
+
+        var hidden = Assert.Single(refs, item => item.ObjectId == "P2-HIDDEN");
+        Assert.Null(hidden.CardNo);
+        Assert.True(hidden.IsFaceDown);
+        Assert.True(hidden.IsHidden);
+        Assert.Equal("BATTLEFIELD", hidden.Zone);
+        Assert.Equal("BF-1", hidden.BattlefieldObjectId);
+
+        var missing = Assert.Single(refs, item => item.ObjectId == "MISSING-OBJECT");
+        Assert.Equal("KNOWN-CARD", missing.CardNo);
+        Assert.Equal("HAND", missing.Zone);
+    }
+
+    [Fact]
     public async Task JoinRoomSendsSnapshotPromptAndAddsRoomGroups()
     {
         var clients = new RecordingHubClients();
