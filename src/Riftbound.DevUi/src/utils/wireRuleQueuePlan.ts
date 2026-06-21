@@ -271,6 +271,7 @@ export type WireRuleQueueSelectedObjectRelationState =
 export type WireRuleQueueSelectedObjectRelation = {
   boundaryLabel?: string;
   candidateCount?: number;
+  detail?: WireRuleQueueDetailPlan;
   detailId?: string;
   detailLabel: string;
   disabledCandidateCount?: number;
@@ -600,6 +601,7 @@ function selectedObjectSectionRelations(
 
       return [{
         detailId: item.detail.id,
+        detail: item.detail,
         detailLabel: item.title,
         key: `selected:section:${item.key}:${roleLabel}`,
         laneKey: section.key,
@@ -1400,11 +1402,11 @@ function selectedObjectRelationSourceRank(source: WireRuleQueueSelectedObjectRel
       return 0;
     case "object-context":
       return 1;
-    case "responsibility":
-      return 2;
-    case "sequence":
-      return 3;
     case "section":
+      return 2;
+    case "responsibility":
+      return 3;
+    case "sequence":
       return 4;
   }
 }

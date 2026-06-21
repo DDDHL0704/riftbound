@@ -433,10 +433,14 @@ assert.deepEqual(
   stackResponse.selectedObject.relations.map((relation) =>
     `${relation.source}:${relation.laneKey ?? relation.laneLabel}:${relation.roleLabel}:${relation.state}:${relation.stateLabel}:${relation.detailId ?? ""}`),
   [
+    "section:stack:目标:referenced:规则引用:rule:stack:stack-1",
     "responsibility:stack:目标:candidate:响应候选:",
-    "sequence:stack:目标:referenced:规则引用:",
-    "section:stack:目标:referenced:规则引用:rule:stack:stack-1"
+    "sequence:stack:目标:referenced:规则引用:"
   ]
+);
+assert.equal(
+  stackResponse.selectedObject.relations.find((relation) => relation.source === "section")?.detail?.id,
+  "rule:stack:stack-1"
 );
 
 const stackReadyPrompt = buildWireRuleQueuePlan({
@@ -615,10 +619,14 @@ assert.deepEqual(
   [
     "server-flow:候选目标 / 目标:ready:2:目标 1/1 / 来源 0/1* +1",
     "object-context:目标:ready:2:目标 1/1 / 目标 1/1* +3",
+    "section:目标:referenced:无:法术",
     "responsibility:目标:candidate:无:服务端 prompt 提供 4/9 个可用候选。",
-    "sequence:目标:referenced:无:无",
-    "section:目标:referenced:无:法术"
+    "sequence:目标:referenced:无:无"
   ]
+);
+assert.equal(
+  stackReadyPrompt.selectedObject.relations.find((relation) => relation.source === "section")?.detail?.title,
+  "结算链项目"
 );
 
 const selectedObjectUnlinked = buildWireRuleQueuePlan({

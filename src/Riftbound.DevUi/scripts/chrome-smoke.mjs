@@ -1292,6 +1292,22 @@ async function runWireClickSelectionSmoke(cdp) {
     };
   })()`);
 
+  await clickSelectedProjectionDetail(cdp, "rule:stack:fixture-stack-1");
+  await delay(150);
+  const projectionDetailResult = await evaluateJson(cdp, `(() => {
+    const panel = document.querySelector(".wire-timeline-detail");
+    const selectedProjection = document.querySelector('[data-rule-selected-object="p2-right-1"]');
+    const trigger = selectedProjection?.querySelector('[data-wire-detail-id="rule:stack:fixture-stack-1"]');
+    return {
+      detailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
+      detailSource: panel?.getAttribute("data-wire-timeline-source") ?? "",
+      projectionTriggerPressed: trigger?.getAttribute("aria-pressed") ?? null,
+      projectionTriggerSelected: trigger?.getAttribute("data-detail-selected") ?? null,
+      text: panel?.textContent ?? "",
+      triggerLabel: trigger?.getAttribute("aria-label") ?? ""
+    };
+  })()`);
+
   const failures = [];
   if (earlyPreviewResult.exists) failures.push("card preview appeared before planned delay");
   if (!standardPreviewResult.exists) failures.push("standard card preview did not appear after delay");
@@ -1659,6 +1675,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.projectionSources.includes("responsibility")) failures.push("selected object projection responsibility source missing");
   if (!candidateRefResult.projectionText.includes("选中对象投影")) failures.push("selected object projection heading missing");
   if (!candidateRefResult.projectionText.includes("候选目标")) failures.push("selected object projection server role missing");
+  if (projectionDetailResult.detailId !== "rule:stack:fixture-stack-1") failures.push(`selected object projection detail id unexpected: ${projectionDetailResult.detailId}`);
+  if (projectionDetailResult.detailSource !== "rule") failures.push(`selected object projection detail source unexpected: ${projectionDetailResult.detailSource}`);
+  if (projectionDetailResult.projectionTriggerPressed !== "true") failures.push("selected object projection detail trigger did not reflect selected state");
+  if (projectionDetailResult.projectionTriggerSelected !== "true") failures.push("selected object projection detail trigger selected attr missing");
+  if (!projectionDetailResult.triggerLabel.includes("结算链项目")) failures.push("selected object projection detail accessible label missing");
+  if (!projectionDetailResult.text.includes("结算链项目")) failures.push("selected object projection did not open rule detail panel");
   if (candidateRefResult.detailLayerOpen) failures.push("candidate object ref opened detail");
 
   if (failures.length > 0) {
@@ -2806,6 +2828,32 @@ async function clickWireDetail(cdp, detailId) {
   });
   if (!result.result?.value) {
     throw new Error(`Wire detail trigger not found: ${detailId}`);
+  }
+}
+
+async function clickSelectedProjectionDetail(cdp, detailId) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const projection = document.querySelector("[data-rule-selected-object-state='linked']");
+      const element = projection?.querySelector(${JSON.stringify(`[data-wire-detail-id="${detailId}"]`)});
+      if (!element) {
+        return {
+          clicked: false,
+          relations: Array.from(projection?.querySelectorAll("[data-rule-selected-object-relation]") ?? []).map((node) => ({
+            detail: node.getAttribute("data-rule-selected-object-relation-detail"),
+            source: node.getAttribute("data-rule-selected-object-relation-source"),
+            text: node.textContent
+          }))
+        };
+      }
+      element.click();
+      return { clicked: true, relations: [] };
+    })()`,
+    returnByValue: true
+  });
+  const value = result.result?.value;
+  if (!value?.clicked) {
+    throw new Error(`Selected object projection detail trigger not found: ${detailId}; relations=${JSON.stringify(value?.relations ?? [])}`);
   }
 }
 

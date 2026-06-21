@@ -111,7 +111,11 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
         selectedObjectId={selectedObjectId}
       />
 
-      <RuleSelectedObjectProjection plan={plan.selectedObject} />
+      <RuleSelectedObjectProjection
+        onSelectDetail={onSelectDetail}
+        plan={plan.selectedObject}
+        selectedDetailId={selectedDetailId}
+      />
 
       <div className="wire-rule-state-grid">
         {plan.metrics.map((metric) => (
@@ -145,7 +149,15 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
   );
 }
 
-function RuleSelectedObjectProjection({ plan }: { plan: WireRuleQueueSelectedObjectPlan }) {
+function RuleSelectedObjectProjection({
+  onSelectDetail,
+  plan,
+  selectedDetailId
+}: {
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  plan: WireRuleQueueSelectedObjectPlan;
+  selectedDetailId?: string;
+}) {
   return (
     <section
       aria-label="选中对象规则投影"
@@ -162,7 +174,7 @@ function RuleSelectedObjectProjection({ plan }: { plan: WireRuleQueueSelectedObj
         <span className="empty-hint">{plan.summary}</span>
       ) : (
         <ol className="wire-rule-selected-object-relations" aria-label="选中对象关联规则线索">
-          {plan.relations.slice(0, 6).map((relation) => (
+          {plan.relations.slice(0, 8).map((relation) => (
             <li
               data-rule-selected-object-relation={relation.key}
               data-rule-selected-object-relation-detail={relation.detailId ?? ""}
@@ -178,6 +190,14 @@ function RuleSelectedObjectProjection({ plan }: { plan: WireRuleQueueSelectedObj
               <small>{relation.stepSummary ?? "无步骤摘要"}</small>
               {relation.candidateCount != null && (
                 <em>{relation.enabledCandidateCount ?? 0}/{relation.candidateCount} 候选</em>
+              )}
+              {relation.detail && (
+                <WireDetailTrigger
+                  detail={relation.detail}
+                  label="规则详情"
+                  onSelectDetail={onSelectDetail}
+                  selectedDetailId={selectedDetailId}
+                />
               )}
             </li>
           ))}

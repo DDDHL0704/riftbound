@@ -15447,7 +15447,7 @@ button.card-face:hover {
 .wire-rule-selected-object-relations li {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(72px, auto) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(72px, auto) minmax(0, 1fr) auto auto;
   gap: 3px 5px;
   align-items: center;
   padding: 4px;
@@ -15476,6 +15476,10 @@ button.card-face:hover {
 }
 
 .wire-rule-selected-object-relations em {
+  justify-self: end;
+}
+
+.wire-rule-selected-object-relations .wire-detail-trigger {
   justify-self: end;
 }
 
