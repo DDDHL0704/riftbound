@@ -14204,6 +14204,47 @@ button.card-face:hover {
   padding: 3px;
 }
 
+.wire-action-layout-projection {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+.wire-action-layout-projection-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wire-action-layout-projection ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-action-layout-projection li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  border: 1px solid #000;
+  padding: 3px;
+}
+
+.wire-action-layout-projection [data-action-layout-projection-selected="true"],
+.wire-action-layout-projection [data-action-layout-projection-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-action-layout-projection [data-action-layout-projection-state="blocked"],
+.wire-action-layout-projection [data-action-layout-projection-state="unknown"] {
+  border-style: dashed;
+}
+
 .wire-action-contract-strip {
   min-width: 0;
   display: grid;

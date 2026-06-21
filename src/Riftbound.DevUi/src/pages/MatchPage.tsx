@@ -471,6 +471,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           snapshot={tableSnapshot}
           submissionFeedback={controller.state.lastCommandSubmission}
           submissionGate={tableSubmissionGate}
+          table={tableView}
         />
       </section>
     ),

@@ -20,6 +20,8 @@ import {
 import type { WireActionSubmissionGatePlan, WireActionWindowGatePlan } from "../../utils/wireActionGates";
 import { StatusPill } from "../ui/StatusPill";
 import { WireCommandFollowupPanel } from "./WireCommandFollowupPanel";
+import { buildWireActionLayoutProjectionPlan, type WireActionLayoutProjectionPlan } from "./wireActionLayoutProjectionPlan";
+import type { WireTableViewModel } from "./wireTableViewModel";
 import { useWireDialogFocus } from "./useWireDialogFocus";
 
 type WireActionMapPanelProps = {
@@ -34,6 +36,7 @@ type WireActionMapPanelProps = {
   snapshot?: SnapshotDto;
   submissionFeedback?: CommandSubmissionFeedback;
   submissionGate?: ServerSubmissionGatePlan;
+  table: WireTableViewModel;
 };
 
 export function WireActionMapPanel({
@@ -47,9 +50,15 @@ export function WireActionMapPanel({
   selectionDraft,
   snapshot,
   submissionFeedback,
-  submissionGate
+  submissionGate,
+  table
 }: WireActionMapPanelProps) {
   const plan = buildWireActionMapPlan({ playerId, prompt, selectedObjectId, selectionDraft, snapshot, submissionGate });
+  const layoutProjection = buildWireActionLayoutProjectionPlan({
+    actionMap: plan,
+    selectedObjectId,
+    table
+  });
 
   return (
     <section className="wire-action-map" aria-label="服务端合法操作地图">
@@ -68,6 +77,7 @@ export function WireActionMapPanel({
       <SubmissionGateStrip gate={plan.submissionGate} />
       <WindowGateStrip gate={plan.windowGate} />
       <ActionCoveragePanel coverage={plan.coverage} />
+      <ActionLayoutProjectionPanel plan={layoutProjection} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
       <CommandSubmissionFeedbackPanel events={events} feedback={submissionFeedback} onInspectObject={onInspectObject} snapshot={snapshot} />
@@ -161,6 +171,50 @@ export function WireActionMapPanel({
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+function ActionLayoutProjectionPanel({ plan }: { plan: WireActionLayoutProjectionPlan }) {
+  return (
+    <section
+      aria-label="合法操作桌面区域投影"
+      className="wire-action-layout-projection"
+      data-action-layout-projection-located-count={plan.locatedCount}
+      data-action-layout-projection-ready-count={plan.readyCount}
+      data-action-layout-projection-state={plan.state}
+      data-action-layout-projection-total-count={plan.totalCount}
+    >
+      <div className="wire-action-layout-projection-heading">
+        <strong>桌面区域投影</strong>
+        <span>{plan.stateLabel}</span>
+      </div>
+      <small>{plan.summary}</small>
+      {plan.rows.length === 0 ? (
+        <span className="empty-hint">等待服务端候选对象。</span>
+      ) : (
+        <ol>
+          {plan.rows.map((row) => (
+            <li
+              data-action-layout-projection-capacity-row={row.capacityRowKey ?? ""}
+              data-action-layout-projection-kind={row.layoutKind}
+              data-action-layout-projection-object={row.objectId}
+              data-action-layout-projection-role={row.roleLabel}
+              data-action-layout-projection-row={row.key}
+              data-action-layout-projection-selected={row.selected ? "true" : "false"}
+              data-action-layout-projection-source={row.source}
+              data-action-layout-projection-state={row.actionState}
+              data-action-layout-projection-zone={row.zoneKey ?? ""}
+              key={row.key}
+            >
+              <span>{row.roleLabel} / {row.zoneLabel}</span>
+              <strong>{row.objectLabel}</strong>
+              <small>{row.sourceLabel} / {row.actionStateLabel} / {row.actionLabel}</small>
+            </li>
+          ))}
+        </ol>
+      )}
+      {plan.overflowCount > 0 && <em>另有 {plan.overflowCount} 个候选对象未展开。</em>}
     </section>
   );
 }

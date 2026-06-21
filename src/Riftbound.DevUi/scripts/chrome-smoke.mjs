@@ -1161,9 +1161,25 @@ async function runWireClickSelectionSmoke(cdp) {
     const commandReview = document.querySelector("[data-command-review-state]");
     const commandSubmission = document.querySelector("[data-command-submission-state]");
     const actionButtons = document.querySelector(".wire-action-panel .action-buttons");
+    const layoutProjection = document.querySelector("[data-action-layout-projection-state]");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       actionMapText: document.querySelector(".wire-action-map")?.textContent ?? "",
+      actionLayoutProjectionLocatedCount: Number(layoutProjection?.getAttribute("data-action-layout-projection-located-count") ?? "0"),
+      actionLayoutProjectionReadyCount: Number(layoutProjection?.getAttribute("data-action-layout-projection-ready-count") ?? "0"),
+      actionLayoutProjectionRows: Array.from(layoutProjection?.querySelectorAll("[data-action-layout-projection-row]") ?? []).map((node) => ({
+        capacityRow: node.getAttribute("data-action-layout-projection-capacity-row") ?? "",
+        kind: node.getAttribute("data-action-layout-projection-kind") ?? "",
+        objectId: node.getAttribute("data-action-layout-projection-object") ?? "",
+        role: node.getAttribute("data-action-layout-projection-role") ?? "",
+        selected: node.getAttribute("data-action-layout-projection-selected") ?? "",
+        source: node.getAttribute("data-action-layout-projection-source") ?? "",
+        state: node.getAttribute("data-action-layout-projection-state") ?? "",
+        zone: node.getAttribute("data-action-layout-projection-zone") ?? ""
+      })),
+      actionLayoutProjectionState: layoutProjection?.getAttribute("data-action-layout-projection-state") ?? null,
+      actionLayoutProjectionText: layoutProjection?.textContent ?? "",
+      actionLayoutProjectionTotalCount: Number(layoutProjection?.getAttribute("data-action-layout-projection-total-count") ?? "0"),
       actionRenderCount: Number(actionButtons?.getAttribute("data-action-render-count") ?? "0"),
       actionRenderKinds: Array.from(actionButtons?.querySelectorAll("[data-action-render-kind]") ?? [])
         .map((node) => node.getAttribute("data-action-render-kind")),
@@ -1658,6 +1674,17 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.focusBridgeText.includes("可选目标")) failures.push("action map focus bridge next step missing");
   if (!actionMapResult.focusBridgeText.includes("PLAY_CARD")) failures.push("action map focus bridge command type missing");
   if (!actionMapResult.focusBridgeText.includes("对方单位")) failures.push("action map focus bridge next object ref missing");
+  if (actionMapResult.actionLayoutProjectionState !== "ready") failures.push(`action layout projection state unexpected: ${actionMapResult.actionLayoutProjectionState}`);
+  if (actionMapResult.actionLayoutProjectionLocatedCount < 2) failures.push(`action layout projection located count too low: ${actionMapResult.actionLayoutProjectionLocatedCount}`);
+  if (actionMapResult.actionLayoutProjectionReadyCount < 2) failures.push(`action layout projection ready count too low: ${actionMapResult.actionLayoutProjectionReadyCount}`);
+  if (actionMapResult.actionLayoutProjectionTotalCount < 2) failures.push(`action layout projection total count too low: ${actionMapResult.actionLayoutProjectionTotalCount}`);
+  if (!actionMapResult.actionLayoutProjectionText.includes("桌面区域投影")) failures.push("action layout projection heading missing");
+  if (!actionMapResult.actionLayoutProjectionRows.some((row) => row.objectId === "p1-hand-spell" && row.zone === "self:hand" && row.state === "ready")) {
+    failures.push(`action layout projection did not map playable hand source: ${JSON.stringify(actionMapResult.actionLayoutProjectionRows)}`);
+  }
+  if (!actionMapResult.actionLayoutProjectionRows.some((row) => row.objectId === "p2-right-1" && row.zone === "battlefield:1:opponent" && row.kind === "battlefield-unit")) {
+    failures.push(`action layout projection did not map target unit: ${JSON.stringify(actionMapResult.actionLayoutProjectionRows)}`);
+  }
   if (!["resolving", "you-action"].includes(actionMapResult.windowState)) failures.push(`wire window plan did not show a server-derived active state: ${actionMapResult.windowState}`);
   if (!actionMapResult.windowText.includes("窗口总览")) failures.push("wire window plan header missing");
   if (!actionMapResult.windowText.includes("下一步")) failures.push("wire window plan next step missing");

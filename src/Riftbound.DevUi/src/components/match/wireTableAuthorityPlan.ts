@@ -216,6 +216,13 @@ export function buildWireTableAuthorityPlan(
   };
 }
 
+export function buildWireTableSelectedLayoutPlan(
+  table: WireTableViewModel,
+  selectedObjectId?: string
+): WireTableSelectedLayoutPlan {
+  return buildSelectedLayoutPlan(table, buildCapacityRows(table), selectedObjectId);
+}
+
 function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
   return [
     ...table.players.flatMap((player) => [
