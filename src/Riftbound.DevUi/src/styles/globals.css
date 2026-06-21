@@ -12073,6 +12073,7 @@ button.card-face:hover {
 .wire-object-command-tray-heading,
 .wire-object-command-tray-metrics span,
 .wire-object-command-tray-semantics span,
+.wire-object-command-tray-selection li,
 .wire-object-command-tray-next,
 .wire-object-command-tray-empty,
 .wire-object-context,
@@ -12084,6 +12085,7 @@ button.card-face:hover {
 .wire-object-event-list li,
 .wire-focused-candidate-plan li,
 .wire-selection-draft,
+.wire-selection-row-list li,
 .wire-focused-path,
 .wire-focused-path article,
 .wire-focused-path li,
@@ -13865,6 +13867,35 @@ button.card-face:hover {
   align-items: center;
   padding: 4px;
   font-size: 11px;
+}
+
+.wire-selection-row-list,
+.wire-object-command-tray-selection {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-selection-row-list li,
+.wire-object-command-tray-selection li {
+  display: grid;
+  grid-template-columns: minmax(42px, auto) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px;
+  align-items: center;
+  padding: 3px;
+  min-width: 0;
+}
+
+.wire-selection-row-list strong,
+.wire-selection-row-list small,
+.wire-object-command-tray-selection strong,
+.wire-object-command-tray-selection small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-focused-path {
@@ -16417,6 +16448,7 @@ button.wire-object-ref {
 .wire-match-page .wire-object-command-tray-heading,
 .wire-match-page .wire-object-command-tray-metrics span,
 .wire-match-page .wire-object-command-tray-semantics span,
+.wire-match-page .wire-object-command-tray-selection li,
 .wire-match-page .wire-object-command-tray-context div,
 .wire-match-page .wire-object-command-tray-next,
 .wire-match-page .wire-object-command-tray-empty,

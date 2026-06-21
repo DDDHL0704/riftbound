@@ -56,6 +56,16 @@ export type WireFocusedSelectionDraftPlan = {
   targetCount: number;
 };
 
+export type WireFocusedSelectionRowPlan = {
+  choiceId: string;
+  key: string;
+  label: string;
+  objectIds: string[];
+  objectLabel: string;
+  role: PromptChoiceRole;
+  roleLabel: string;
+};
+
 export type WireFocusedObjectPlan = {
   controllerLabel: string;
   objectId?: string;
@@ -122,6 +132,7 @@ export type WireFocusedInteractionPlan = {
   promptCandidateList: WirePromptCandidateListPlan;
   readiness: WireFocusedReadinessPlan;
   relatedCandidateRows: WirePromptCandidateRowPlan[];
+  selectionRows: WireFocusedSelectionRowPlan[];
   sourceCandidatePaths: WireFocusedCandidatePathPlan[];
   sourceCandidates: ActionPromptCandidateDto[];
   sourceObject: WireFocusedObjectPlan;
@@ -232,6 +243,12 @@ export function buildWireFocusedInteractionPlan({
     }),
     readiness,
     relatedCandidateRows,
+    selectionRows: selectionRowsFor({
+      model,
+      objectIndex,
+      selectionDraft,
+      sourceObjectId
+    }),
     sourceCandidatePaths: candidatePathsFor(sourceCandidateSummaries),
     sourceCandidates,
     sourceObject: {
@@ -729,5 +746,78 @@ function draftPlanFor(
     destinationSelected: Boolean(selectionDraft?.destinationId),
     optionalCostCount: selectionDraft?.optionalCostIds.length ?? 0,
     targetCount: selectionDraft?.targetChoiceIds.length ?? 0
+  };
+}
+
+function selectionRowsFor({
+  model,
+  objectIndex,
+  selectionDraft,
+  sourceObjectId
+}: {
+  model: PromptInteractionModel;
+  objectIndex: SnapshotObjectIndex;
+  selectionDraft?: CandidateSelectionDraft;
+  sourceObjectId?: string;
+}): WireFocusedSelectionRowPlan[] {
+  const rows: WireFocusedSelectionRowPlan[] = [];
+  const candidate = selectionDraft
+    ? model.candidates.find((item) => candidateComposerKey(item) === selectionDraft.candidateKey)
+    : undefined;
+  const selectedSourceId = sourceObjectId ?? selectionDraft?.sourceObjectId;
+  if (selectedSourceId) {
+    rows.push(selectionRowFor({
+      candidate,
+      choiceId: selectedSourceId,
+      objectIndex,
+      role: "source"
+    }));
+  }
+
+  for (const choiceId of selectionDraft?.targetChoiceIds ?? []) {
+    rows.push(selectionRowFor({ candidate, choiceId, objectIndex, role: "target" }));
+  }
+
+  if (selectionDraft?.destinationId) {
+    rows.push(selectionRowFor({ candidate, choiceId: selectionDraft.destinationId, objectIndex, role: "destination" }));
+  }
+
+  if (selectionDraft?.mode) {
+    rows.push(selectionRowFor({ candidate, choiceId: selectionDraft.mode, objectIndex, role: "mode" }));
+  }
+
+  for (const choiceId of selectionDraft?.optionalCostIds ?? []) {
+    rows.push(selectionRowFor({ candidate, choiceId, objectIndex, role: "optionalCost" }));
+  }
+
+  return rows;
+}
+
+function selectionRowFor({
+  candidate,
+  choiceId,
+  objectIndex,
+  role
+}: {
+  candidate?: PromptCandidateSummary;
+  choiceId: string;
+  objectIndex: SnapshotObjectIndex;
+  role: PromptChoiceRole;
+}): WireFocusedSelectionRowPlan {
+  const choice = candidate?.choices.find((item) =>
+    item.role === role
+    && (item.id === choiceId || promptChoiceSummaryObjectIds(item).includes(choiceId)));
+  const objectIds = choice ? promptChoiceSummaryObjectIds(choice) : [choiceId];
+  const objectLabels = objectIds.map((objectId) => objectIndex[objectId]?.cardNo?.trim() || objectId);
+  const roleLabel = promptChoiceRoleLabel(role);
+
+  return {
+    choiceId,
+    key: `${role}-${choiceId}`,
+    label: choice?.label ?? choiceId,
+    objectIds,
+    objectLabel: objectLabels.join(" / "),
+    role,
+    roleLabel
   };
 }

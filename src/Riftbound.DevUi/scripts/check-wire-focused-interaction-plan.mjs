@@ -130,6 +130,10 @@ assert.equal(plan.grammarPlan.commandType, "PLAY_CARD");
 assert.equal(plan.grammarPlan.steps.find((step) => step.role === "source")?.state, "locked");
 assert.equal(plan.grammarPlan.steps.find((step) => step.role === "target")?.state, "selected");
 assert.equal(plan.draft?.targetCount, 1);
+assert.deepEqual(plan.selectionRows.map((row) => `${row.role}:${row.label}:${row.objectLabel}`), [
+  "source:手牌法术:OGN-001/298",
+  "target:敌方单位:OGN-002/298"
+]);
 assert.equal(plan.promptCandidateList.versionLabel, "版本：prompt-1 / tick 42");
 assert.ok(plan.sourceCandidatePaths[0]?.steps.some((step) => step.label === "目标"));
 assert.equal(plan.submissionGate.state, "connected");
@@ -160,6 +164,7 @@ const noFocusPlan = buildWireFocusedInteractionPlan({
 });
 assert.equal(noFocusPlan.readiness.state, "no-focus");
 assert.equal(noFocusPlan.readiness.canSubmit, false);
+assert.deepEqual(noFocusPlan.selectionRows, []);
 
 const notCandidatePlan = buildWireFocusedInteractionPlan({
   canSubmitCommands: true,

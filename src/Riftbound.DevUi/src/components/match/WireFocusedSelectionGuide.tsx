@@ -1,7 +1,7 @@
 import type { WireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
 
 export function WireFocusedSelectionGuide({ plan }: { plan: WireFocusedInteractionPlan }) {
-  if (!plan.draft && plan.sourceCandidatePaths.length === 0) {
+  if (!plan.draft && plan.selectionRows.length === 0 && plan.sourceCandidatePaths.length === 0) {
     return null;
   }
 
@@ -18,6 +18,22 @@ export function WireFocusedSelectionGuide({ plan }: { plan: WireFocusedInteracti
           <span>目标 {plan.draft.targetCount}</span>
           <span>位置 {plan.draft.destinationSelected ? "已选" : "未选"}</span>
           <span>费用 {plan.draft.optionalCostCount}</span>
+          {plan.selectionRows.length > 0 && (
+            <ol className="wire-selection-row-list" aria-label="已点选对象明细">
+              {plan.selectionRows.map((row) => (
+                <li
+                  data-wire-selection-row={row.role}
+                  data-wire-selection-row-choice={row.choiceId}
+                  data-wire-selection-row-object-ids={row.objectIds.join("|")}
+                  key={row.key}
+                >
+                  <span>{row.roleLabel}</span>
+                  <strong>{row.label}</strong>
+                  <small>{row.objectLabel}</small>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
       )}
       {plan.sourceCandidatePaths.length > 0 && (

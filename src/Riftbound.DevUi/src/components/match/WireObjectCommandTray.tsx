@@ -65,6 +65,7 @@ export function WireObjectCommandTray({
         </header>
         <MetricGrid plan={trayPlan} />
         <SemanticRows plan={trayPlan} />
+        <SelectionRows plan={focusedPlan} />
         <strong className="wire-object-command-tray-next">{trayPlan.nextStepLabel}</strong>
         <ContextRows plan={trayPlan} />
       </div>
@@ -95,6 +96,29 @@ export function WireObjectCommandTray({
         <Button icon={<X size={16} />} onClick={onClear} variant="ghost">清除</Button>
       </div>
     </section>
+  );
+}
+
+function SelectionRows({ plan }: { plan: WireFocusedInteractionPlan }) {
+  if (plan.selectionRows.length === 0) {
+    return null;
+  }
+
+  return (
+    <ol className="wire-object-command-tray-selection" aria-label="桌面点选草稿明细">
+      {plan.selectionRows.map((row) => (
+        <li
+          data-wire-object-command-tray-selection={row.role}
+          data-wire-object-command-tray-selection-choice={row.choiceId}
+          data-wire-object-command-tray-selection-object-ids={row.objectIds.join("|")}
+          key={row.key}
+        >
+          <span>{row.roleLabel}</span>
+          <strong>{row.label}</strong>
+          <small>{row.objectLabel}</small>
+        </li>
+      ))}
+    </ol>
   );
 }
 
