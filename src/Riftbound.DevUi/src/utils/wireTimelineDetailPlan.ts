@@ -118,11 +118,19 @@ export type WireTimelineCommandBridgeRouteState = "blocked" | "inactive" | "read
 export type WireTimelineCommandBridgeFieldState = "covered" | "missing" | "optional" | "server";
 
 export type WireTimelineCommandBridgeFieldRow = {
+  candidateChoiceCount: number;
+  coverageLabel: string;
+  detailObjectCount: number;
+  detailObjectIds: string[];
+  detailObjectLabels: string[];
   field: string;
   key: string;
   label: string;
   required: boolean;
   roleLabel?: string;
+  selectedChoiceCount: number;
+  selectedChoiceLabels: string[];
+  selectedObjectIds: string[];
   sourceLabel: string;
   state: WireTimelineCommandBridgeFieldState;
   stateLabel: string;
@@ -184,6 +192,7 @@ export type WireTimelineCommandBridgeRow = {
   detailRoleLabel: string;
   draftActive: boolean;
   enabled: boolean;
+  fieldCoverageSummary: string;
   grammarState: FocusedInteractionGrammarState;
   grammarStateLabel: string;
   grammarSteps: WireTimelineCommandBridgeGrammarStep[];
@@ -813,7 +822,11 @@ function commandBridgeRowsForDetail(
       const draftState = commandBridgeDraftState(candidate, selectionDraft);
       const progressRoleLabels = draftState.draftActive ? draftState.selectedRoleLabels : roleLabels;
       const nextStep = nextStepForCommandBridge(candidate, progressRoleLabels);
-      const commandFields = commandBridgeFieldRows(candidate, draftState);
+      const commandFields = commandBridgeFieldRows(candidate, draftState, {
+        detailObjectIds: visibleRefs.map((item) => item.objectId),
+        objectIndex,
+        selectionDraft
+      });
       const grammar = buildFocusedInteractionGrammarPlan({
         candidates: [candidate],
         disabledByConnection,
@@ -850,6 +863,7 @@ function commandBridgeRowsForDetail(
         detailRoleLabel,
         draftActive: draftState.draftActive,
         enabled: candidate.enabled,
+        fieldCoverageSummary: commandBridgeFieldCoverageSummary(commandFields),
         grammarState: grammar.state,
         grammarStateLabel: grammar.stateLabel,
         grammarSteps: grammar.steps.map((step) => ({
@@ -1063,21 +1077,145 @@ function commandBridgeSubmitStateLabel(state: WireTimelineCommandBridgeSubmitSta
 
 function commandBridgeFieldRows(
   candidate: PromptCandidateSummary,
-  draftState: CommandBridgeDraftState
+  draftState: CommandBridgeDraftState,
+  context: CommandBridgeFieldCoverageContext
 ): WireTimelineCommandBridgeFieldRow[] {
   return (candidate.command?.bindings ?? []).map((binding, index) => {
     const state = commandBridgeFieldState(binding, draftState);
+    const coverage = commandBridgeFieldCoverage(binding, candidate, draftState, context, state);
     return {
+      candidateChoiceCount: coverage.candidateChoiceCount,
+      coverageLabel: coverage.coverageLabel,
+      detailObjectCount: coverage.detailObjectIds.length,
+      detailObjectIds: coverage.detailObjectIds,
+      detailObjectLabels: coverage.detailObjectLabels,
       field: binding.field,
       key: `${candidate.action}:${candidate.label}:${binding.field}:${index}`,
       label: promptCommandBindingLabel(binding),
       required: binding.required,
       roleLabel: binding.roleLabel,
+      selectedChoiceCount: coverage.selectedChoiceLabels.length,
+      selectedChoiceLabels: coverage.selectedChoiceLabels,
+      selectedObjectIds: coverage.selectedObjectIds,
       sourceLabel: promptCommandBindingSourceLabel(binding),
       state,
       stateLabel: commandBridgeFieldStateLabel(state)
     };
   });
+}
+
+type CommandBridgeFieldCoverageContext = {
+  detailObjectIds: string[];
+  objectIndex: Record<string, CardObjectView>;
+  selectionDraft?: CandidateSelectionDraft;
+};
+
+type CommandBridgeFieldCoverage = {
+  candidateChoiceCount: number;
+  coverageLabel: string;
+  detailObjectIds: string[];
+  detailObjectLabels: string[];
+  selectedChoiceLabels: string[];
+  selectedObjectIds: string[];
+};
+
+function commandBridgeFieldCoverage(
+  binding: PromptCommandBindingSummary,
+  candidate: PromptCandidateSummary,
+  draftState: CommandBridgeDraftState,
+  context: CommandBridgeFieldCoverageContext,
+  state: WireTimelineCommandBridgeFieldState
+): CommandBridgeFieldCoverage {
+  const roleChoices = binding.role
+    ? candidate.choices.filter((choice) => choice.role === binding.role)
+    : [];
+  const roleObjectIds = uniqueStrings(roleChoices.flatMap(promptChoiceSummaryObjectIds));
+  const detailObjectIds = uniqueStrings(roleObjectIds.filter((objectId) => context.detailObjectIds.includes(objectId)));
+  const selectionDraft = context.selectionDraft;
+  const selectedChoices = draftState.draftActive && selectionDraft
+    ? roleChoices.filter((choice) => choiceSelectedForDraft(choice, selectionDraft))
+    : [];
+  const selectedObjectIds = uniqueStrings(selectedChoices
+    .flatMap(promptChoiceSummaryObjectIds)
+    .filter((objectId) => Boolean(context.objectIndex[objectId])));
+  const detailObjectLabels = detailObjectIds.map((objectId) => commandBridgeObjectLabel(objectId, context.objectIndex));
+  const selectedChoiceLabels = uniqueStrings(selectedChoices.map((choice) => commandBridgeChoiceLabel(choice, context.objectIndex)));
+
+  return {
+    candidateChoiceCount: roleChoices.length,
+    coverageLabel: commandBridgeFieldCoverageLabel({
+      binding,
+      candidateChoiceCount: roleChoices.length,
+      detailObjectLabels,
+      selectedChoiceLabels,
+      state
+    }),
+    detailObjectIds,
+    detailObjectLabels,
+    selectedChoiceLabels,
+    selectedObjectIds
+  };
+}
+
+function commandBridgeFieldCoverageLabel({
+  binding,
+  candidateChoiceCount,
+  detailObjectLabels,
+  selectedChoiceLabels,
+  state
+}: {
+  binding: PromptCommandBindingSummary;
+  candidateChoiceCount: number;
+  detailObjectLabels: string[];
+  selectedChoiceLabels: string[];
+  state: WireTimelineCommandBridgeFieldState;
+}): string {
+  if (state === "server" || binding.source === "requirementMetadata") {
+    return "服务端根据候选元数据注入";
+  }
+
+  const roleLabel = binding.roleLabel ?? (binding.role ? promptChoiceRoleLabel(binding.role) : undefined);
+  if (!binding.role || !roleLabel) {
+    return "模板字段未绑定公开角色";
+  }
+
+  if (selectedChoiceLabels.length > 0) {
+    return `草稿已选${roleLabel}：${selectedChoiceLabels.join(" / ")}`;
+  }
+
+  if (detailObjectLabels.length > 0) {
+    return `详情引用可作为${roleLabel}：${detailObjectLabels.join(" / ")}`;
+  }
+
+  if (candidateChoiceCount > 0) {
+    return `候选提供 ${candidateChoiceCount} 个${roleLabel}选择`;
+  }
+
+  return binding.required ? "缺少服务端公开对象" : "可选字段暂未选择";
+}
+
+function commandBridgeFieldCoverageSummary(fields: WireTimelineCommandBridgeFieldRow[]): string {
+  if (fields.length === 0) {
+    return "字段覆盖未公开";
+  }
+
+  const detailCoveredCount = fields.filter((field) => field.detailObjectCount > 0).length;
+  const selectedCount = fields.filter((field) => field.selectedChoiceCount > 0).length;
+  const serverCount = fields.filter((field) => field.state === "server").length;
+  const missingCount = fields.filter((field) => field.state === "missing").length;
+  return `详情 ${detailCoveredCount}/${fields.length} / 草稿 ${selectedCount} / 服务端 ${serverCount} / 缺少 ${missingCount}`;
+}
+
+function commandBridgeObjectLabel(objectId: string, objectIndex: Record<string, CardObjectView>): string {
+  return objectIndex[objectId]?.cardNo || objectId;
+}
+
+function commandBridgeChoiceLabel(
+  choice: PromptCandidateSummary["choices"][number],
+  objectIndex: Record<string, CardObjectView>
+): string {
+  const objectId = promptChoiceSummaryObjectIds(choice).find((id) => objectIndex[id]);
+  return choice.label || (objectId ? commandBridgeObjectLabel(objectId, objectIndex) : undefined) || choice.id || "服务端选择";
 }
 
 function commandBridgeFieldState(

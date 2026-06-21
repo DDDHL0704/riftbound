@@ -16542,6 +16542,10 @@ button.card-face:hover {
   padding: 2px 4px;
 }
 
+.wire-timeline-command-field-coverage {
+  grid-column: 1 / -1;
+}
+
 .wire-timeline-command-bridge-fields li[data-timeline-command-field-state="covered"],
 .wire-timeline-command-bridge-fields li[data-timeline-command-field-state="server"] {
   border-width: 2px;

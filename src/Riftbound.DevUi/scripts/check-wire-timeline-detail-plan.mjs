@@ -315,7 +315,18 @@ assert.equal(plan.commandBridgeRows[0].enabled, true);
 assert.equal(plan.commandBridgeRows[0].routeState, "inactive");
 assert.equal(plan.commandBridgeRows[0].routeStateLabel, "未进入草稿");
 assert.equal(plan.commandBridgeRows[0].commandFieldSummary, "0 覆盖 / 1 缺少 / 1 服务端");
+assert.equal(plan.commandBridgeRows[0].fieldCoverageSummary, "详情 2/3 / 草稿 0 / 服务端 1 / 缺少 1");
 assert.deepEqual(plan.commandBridgeRows[0].commandFields.map((field) => field.state), ["missing", "optional", "server"]);
+assert.deepEqual(plan.commandBridgeRows[0].commandFields.map((field) => `${field.field}:${field.detailObjectCount}:${field.selectedChoiceCount}:${field.candidateChoiceCount}`), [
+  "sourceObjectId:1:0:1",
+  "targetObjectIds:1:0:1",
+  "cardNo:0:0:0"
+]);
+assert.deepEqual(plan.commandBridgeRows[0].commandFields.map((field) => field.coverageLabel), [
+  "详情引用可作为来源：OGN-001/298",
+  "详情引用可作为目标：SFD-001/221",
+  "服务端根据候选元数据注入"
+]);
 assert.equal(plan.commandBridgeRows[0].grammarState, "incomplete");
 assert.equal(plan.commandBridgeRows[0].grammarStateLabel, "待选择");
 assert.equal(plan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 待选择 / 仅有模板 / 选择来源");
@@ -448,7 +459,18 @@ assert.equal(draftPlan.commandBridgeRows[0].draftActive, true);
 assert.equal(draftPlan.commandBridgeRows[0].routeState, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].routeStateLabel, "可送服务端校验");
 assert.equal(draftPlan.commandBridgeRows[0].commandFieldSummary, "2 覆盖 / 0 缺少 / 1 服务端");
+assert.equal(draftPlan.commandBridgeRows[0].fieldCoverageSummary, "详情 2/3 / 草稿 2 / 服务端 1 / 缺少 0");
 assert.deepEqual(draftPlan.commandBridgeRows[0].commandFields.map((field) => field.state), ["covered", "covered", "server"]);
+assert.deepEqual(draftPlan.commandBridgeRows[0].commandFields.map((field) => `${field.field}:${field.detailObjectCount}:${field.selectedChoiceCount}:${field.candidateChoiceCount}`), [
+  "sourceObjectId:1:1:1",
+  "targetObjectIds:1:1:1",
+  "cardNo:0:0:0"
+]);
+assert.deepEqual(draftPlan.commandBridgeRows[0].commandFields.map((field) => field.coverageLabel), [
+  "草稿已选来源：手牌闪电",
+  "草稿已选目标：目标牌",
+  "服务端根据候选元数据注入"
+]);
 assert.equal(draftPlan.commandBridgeRows[0].grammarState, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].grammarStateLabel, "可提交");
 assert.equal(draftPlan.commandBridgeRows[0].grammarSummary, "打出卡牌 / 可提交 / 仅有模板 / 提交服务端候选");

@@ -412,6 +412,7 @@ function TimelineCommandBridge({
               <small>{row.roleLabels.join(" / ")} / {row.commandType ?? "未公开命令"} / {row.stateLabel}</small>
               <small>{row.selectionLabel} / {row.routeStateLabel} / {row.selectedStepCount}/{row.totalStepCount}</small>
               <small>{row.commandFieldSummary}</small>
+              <small>{row.fieldCoverageSummary}</small>
               <small>{row.grammarSummary}</small>
               <small>提交门禁 / {row.gateSummary}</small>
               {!row.enabled && <small>{row.reasonLabel}</small>}
@@ -464,12 +465,16 @@ function TimelineCommandBridge({
               <ol className="wire-timeline-command-bridge-fields" aria-label={`${row.label} 命令字段覆盖`}>
                 {row.commandFields.map((field) => (
                   <li
+                    data-timeline-command-field-candidate-choice-count={field.candidateChoiceCount}
+                    data-timeline-command-field-detail-count={field.detailObjectCount}
                     data-timeline-command-field={field.field}
+                    data-timeline-command-field-selected-count={field.selectedChoiceCount}
                     data-timeline-command-field-state={field.state}
                     key={field.key}
                   >
                     <span>{field.label}</span>
                     <small>{field.required ? "必需" : "可选"} / {field.sourceLabel} / {field.stateLabel}</small>
+                    <small className="wire-timeline-command-field-coverage">{field.coverageLabel}</small>
                   </li>
                 ))}
               </ol>
