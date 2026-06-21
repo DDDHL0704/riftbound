@@ -181,7 +181,11 @@ function CommandSubmissionFeedbackPanel({
         <span>尚未提交</span>
       </div>
       <span>等待右侧路线或候选操作提交给服务端。</span>
-        <WireCommandFollowupPanel onInspectObject={onInspectObject} plan={followup} />
+        <WireCommandFollowupPanel
+          ariaLabel="提交反馈服务端后续事件"
+          onInspectObject={onInspectObject}
+          plan={followup}
+        />
       </section>
     );
   }
@@ -235,7 +239,11 @@ function CommandSubmissionFeedbackPanel({
           <strong>{shortIntentId(feedback.clientIntentId)}</strong>
         </span>
       </div>
-      <WireCommandFollowupPanel onInspectObject={onInspectObject} plan={followup} />
+      <WireCommandFollowupPanel
+        ariaLabel="提交反馈服务端后续事件"
+        onInspectObject={onInspectObject}
+        plan={followup}
+      />
     </section>
   );
 }

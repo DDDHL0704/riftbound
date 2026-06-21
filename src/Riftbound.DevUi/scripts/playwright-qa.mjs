@@ -343,6 +343,8 @@ async function runCommandReceiptInteraction(report) {
     report.interactions.push({
       name: "command-receipt-feedback",
       route,
+      commandCenterFollowupState: receipt.commandCenterFollowupState,
+      commandCenterServerState: receipt.commandCenterServerState,
       followupState: receipt.followupState,
       state: receipt.state
     });
@@ -461,6 +463,8 @@ async function runReadyReceiptInteraction(report) {
     report.interactions.push({
       name: "ready-receipt-feedback",
       route,
+      commandCenterFollowupState: receipt.commandCenterFollowupState,
+      commandCenterServerState: receipt.commandCenterServerState,
       followupState: receipt.followupState,
       state: receipt.state
     });
@@ -528,20 +532,38 @@ async function waitForAcceptedSubmissionFeedback(page, cmdType) {
   await page.waitForFunction((expectedCmdType) => {
     const feedback = document.querySelector("[data-command-submission-state]");
     const followupState = feedback?.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "";
+    const commandCenter = document.querySelector(".wire-command-center");
+    const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
+    const commandCenterFollowupState = commandCenterFollowup?.getAttribute("data-command-followup-state") ?? "";
+    const commandCenterServerState = commandCenterFollowup?.getAttribute("data-command-followup-server-state") ?? "";
     const text = feedback?.textContent ?? "";
+    const acceptedFollowupStates = ["accepted-events", "accepted-snapshot"];
+    const acceptedServerStates = ["events", "snapshot-prompt"];
     return feedback?.getAttribute("data-command-submission-state") === "sent"
       && text.includes("服务端已接受")
       && text.includes("ACCEPTED")
       && text.includes(expectedCmdType)
-      && (followupState === "accepted-events" || followupState === "accepted-snapshot");
+      && acceptedFollowupStates.includes(followupState)
+      && acceptedFollowupStates.includes(commandCenterFollowupState)
+      && acceptedServerStates.includes(commandCenterServerState);
   }, cmdType, { timeout: 10_000 });
-  const receipt = await page.locator("[data-command-submission-state]").first().evaluate((node) => ({
-    followupState: node.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "",
-    state: node.getAttribute("data-command-submission-state"),
-    text: node.textContent ?? ""
-  }));
+  const receipt = await page.locator("[data-command-submission-state]").first().evaluate((node) => {
+    const commandCenter = document.querySelector(".wire-command-center");
+    const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
+    return {
+      commandCenterFollowupState: commandCenterFollowup?.getAttribute("data-command-followup-state") ?? "",
+      commandCenterServerState: commandCenterFollowup?.getAttribute("data-command-followup-server-state") ?? "",
+      commandCenterText: commandCenter?.textContent ?? "",
+      followupState: node.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "",
+      state: node.getAttribute("data-command-submission-state"),
+      text: node.textContent ?? ""
+    };
+  });
   if (hiddenDebugTexts.some((text) => receipt.text.includes(text))) {
     throw new Error(`Command receipt feedback leaked hidden debug text: ${receipt.text}`);
+  }
+  if (hiddenDebugTexts.some((text) => receipt.commandCenterText.includes(text))) {
+    throw new Error(`Command center followup leaked hidden debug text: ${receipt.commandCenterText}`);
   }
 
   return receipt;

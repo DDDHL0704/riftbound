@@ -4,17 +4,19 @@ import type {
 } from "../../utils/commandSubmissionFollowupPlan";
 
 export function WireCommandFollowupPanel({
+  ariaLabel = "服务端后续事件",
   className = "wire-command-followup",
   onInspectObject,
   plan
 }: {
+  ariaLabel?: string;
   className?: string;
   onInspectObject?: (objectId: string) => void;
   plan: CommandSubmissionFollowupPlan;
 }) {
   return (
     <section
-      aria-label="服务端后续事件"
+      aria-label={ariaLabel}
       className={className}
       data-command-followup-event-count={plan.events.length}
       data-command-followup-hidden-count={plan.hiddenEventCount}

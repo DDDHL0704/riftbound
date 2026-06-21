@@ -94,6 +94,7 @@ export function WireCommandCenterPanel({
       <CommandCenterRows plan={plan} />
       <CommandCenterActionRows rows={plan.actionRows} />
       <WireCommandFollowupPanel
+        ariaLabel="指挥中心服务端后续事件"
         className="wire-command-followup wire-command-center-followup"
         onInspectObject={onInspectObject}
         plan={plan.submissionFollowup}
