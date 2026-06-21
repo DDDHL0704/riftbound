@@ -1618,6 +1618,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
       detailSource: panel?.getAttribute("data-wire-timeline-source") ?? "",
       hiddenRefCount: Number(panel?.getAttribute("data-wire-timeline-hidden-ref-count") ?? "-1"),
       missingRefCount: Number(panel?.getAttribute("data-wire-timeline-missing-ref-count") ?? "-1"),
+      openLayerTriggerControls: panel?.querySelector("[data-wire-timeline-layer-open-trigger]")?.getAttribute("aria-controls") ?? "",
+      openLayerTriggerCount: panel?.querySelectorAll("[data-wire-timeline-layer-open-trigger]").length ?? 0,
+      openLayerTriggerText: panel?.querySelector("[data-wire-timeline-layer-open-trigger]")?.textContent ?? "",
       panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? null,
       visibleRefCount: Number(panel?.getAttribute("data-wire-timeline-visible-ref-count") ?? "-1"),
       bodyId: panel?.querySelector("#wire-timeline-detail-body")?.id ?? "",
@@ -1713,6 +1716,33 @@ async function runWireRuleObjectRefSmoke(cdp) {
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
   })()`);
+
+  await clickButtonByText(cdp, "打开检查层");
+  await delay(150);
+  const timelineLayerResult = await evaluateJson(cdp, `(() => {
+    const layer = document.querySelector(".wire-timeline-detail-layer");
+    const panel = layer?.querySelector(".wire-timeline-detail");
+    return {
+      activeText: document.activeElement?.textContent ?? "",
+      bodyId: layer?.querySelector("#wire-timeline-detail-layer-body")?.id ?? "",
+      cardDetailOpen: Boolean(document.querySelector(".detail-layer")),
+      detailId: layer?.getAttribute("data-wire-timeline-detail-layer-detail-id") ?? "",
+      modal: layer?.getAttribute("aria-modal") ?? "",
+      open: Boolean(layer),
+      panelDetailId: panel?.getAttribute("data-wire-timeline-detail-id") ?? "",
+      panelState: panel?.getAttribute("data-wire-timeline-detail-state") ?? "",
+      role: layer?.getAttribute("role") ?? "",
+      routeSummaryLabel: panel?.querySelector(".wire-timeline-route-summary")?.getAttribute("aria-label") ?? "",
+      routeSummaryState: panel?.querySelector(".wire-timeline-route-summary")?.getAttribute("data-timeline-route-summary-state") ?? "",
+      source: layer?.getAttribute("data-wire-timeline-detail-layer-source") ?? "",
+      state: layer?.getAttribute("data-wire-timeline-detail-layer-state") ?? "",
+      text: layer?.textContent ?? "",
+      title: layer?.querySelector("#wire-timeline-detail-layer-title")?.textContent ?? ""
+    };
+  })()`);
+  await pressEscape(cdp);
+  await delay(120);
+  const timelineLayerClosed = await evaluateJson(cdp, `(() => !document.querySelector(".wire-timeline-detail-layer"))()`);
 
   const commandBridgeDetailObjectId = await clickTimelineCommandBridgeDetail(cdp, "p1-hand-spell");
   await delay(150);
@@ -2017,6 +2047,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.text.includes("结算链项目")) failures.push("rule detail title missing");
   if (ruleDetailResult.panelState !== "rule") failures.push(`rule detail panel state unexpected: ${ruleDetailResult.panelState}`);
   if (ruleDetailResult.bodyId !== "wire-timeline-detail-body") failures.push("rule detail body id missing");
+  if (ruleDetailResult.openLayerTriggerCount !== 1) failures.push(`rule detail open layer trigger count unexpected: ${ruleDetailResult.openLayerTriggerCount}`);
+  if (ruleDetailResult.openLayerTriggerControls !== "wire-timeline-detail-layer") failures.push("rule detail open layer trigger aria-controls missing");
+  if (!ruleDetailResult.openLayerTriggerText.includes("打开检查层")) failures.push("rule detail open layer trigger text missing");
   if (ruleDetailResult.triggerAriaPressed !== "true") failures.push("rule detail trigger aria-pressed missing");
   if (ruleDetailResult.triggerControls !== "wire-timeline-detail-body") failures.push("rule detail trigger aria-controls missing");
   if (!ruleDetailResult.triggerLabel.includes("结算链项目")) failures.push("rule detail trigger accessible label missing");
@@ -2119,6 +2152,23 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.actionHintText.includes("可用")) failures.push("rule detail candidate hint state missing");
   if (!ruleDetailResult.actionHintText.includes("角色")) failures.push("rule detail candidate hint role labels missing");
   if (!ruleDetailResult.actionHintText.includes("必填")) failures.push("rule detail candidate hint required fields missing");
+  if (!timelineLayerResult.open) failures.push("timeline detail layer did not open");
+  if (timelineLayerResult.role !== "dialog") failures.push(`timeline detail layer role unexpected: ${timelineLayerResult.role}`);
+  if (timelineLayerResult.modal !== "true") failures.push("timeline detail layer aria-modal missing");
+  if (timelineLayerResult.state !== "open") failures.push(`timeline detail layer state unexpected: ${timelineLayerResult.state}`);
+  if (timelineLayerResult.source !== "rule") failures.push(`timeline detail layer source unexpected: ${timelineLayerResult.source}`);
+  if (timelineLayerResult.detailId !== "rule:stack:fixture-stack-1") failures.push(`timeline detail layer detail id missing: ${timelineLayerResult.detailId}`);
+  if (timelineLayerResult.panelDetailId !== "rule:stack:fixture-stack-1") failures.push("timeline detail layer panel did not reuse selected detail");
+  if (timelineLayerResult.panelState !== "rule") failures.push(`timeline detail layer panel state unexpected: ${timelineLayerResult.panelState}`);
+  if (timelineLayerResult.bodyId !== "wire-timeline-detail-layer-body") failures.push("timeline detail layer body id missing");
+  if (!timelineLayerResult.title.includes("结算链项目")) failures.push("timeline detail layer title missing");
+  if (!timelineLayerResult.text.includes("规则事件检查层")) failures.push("timeline detail layer heading missing");
+  if (timelineLayerResult.routeSummaryLabel !== "候选提交路线摘要") failures.push("timeline detail layer route summary label missing");
+  if (!["ready", "selecting", "inactive"].includes(timelineLayerResult.routeSummaryState)) failures.push(`timeline detail layer route summary state unexpected: ${timelineLayerResult.routeSummaryState}`);
+  if (!timelineLayerResult.text.includes("服务端规则")) failures.push("timeline detail layer server rule source missing");
+  if (!timelineLayerResult.activeText.includes("关闭检查层")) failures.push("timeline detail layer close button was not focused");
+  if (timelineLayerResult.cardDetailOpen) failures.push("timeline detail layer opened card detail layer");
+  if (!timelineLayerClosed) failures.push("timeline detail layer did not close on Escape");
   if (timelineInspectorResult.hidden) failures.push("timeline inspector did not open");
   if (timelineInspectorResult.toggleExpanded !== "true") failures.push("timeline inspector toggle aria state missing");
   if (!timelineInspectorResult.text.includes("事件检查")) failures.push("timeline inspector header missing");

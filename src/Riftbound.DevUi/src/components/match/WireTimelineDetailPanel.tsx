@@ -30,6 +30,7 @@ export type WireTimelineDetail = {
 };
 
 export function WireTimelineDetailPanel({
+  bodyId = "wire-timeline-detail-body",
   detail,
   disabledByConnection = false,
   objectContextById,
@@ -37,12 +38,14 @@ export function WireTimelineDetailPanel({
   onChooseObject,
   onClear,
   onInspectObject,
+  onOpenLayer,
   onOpenObjectDetail,
   prompt,
   selectionDraft,
   selectedObjectContext,
   selectedObjectId
 }: {
+  bodyId?: string;
   detail?: WireTimelineDetail;
   disabledByConnection?: boolean;
   objectContextById?: Record<string, TableObjectContext>;
@@ -50,6 +53,7 @@ export function WireTimelineDetailPanel({
   onChooseObject?: (objectId: string) => void;
   onClear: () => void;
   onInspectObject?: (objectId: string) => void;
+  onOpenLayer?: () => void;
   onOpenObjectDetail?: (objectId: string) => void;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
@@ -88,11 +92,24 @@ export function WireTimelineDetailPanel({
           <strong>{plan.headerTitle}</strong>
           <span>{plan.headerSubtitle}</span>
         </div>
-        {detail && (
-          <button aria-controls="wire-timeline-detail-body" className="wire-detail-clear" onClick={onClear} type="button">
-            清除
-          </button>
-        )}
+        <div className="wire-timeline-detail-actions">
+          {(detail || selectedObjectContext) && onOpenLayer && (
+            <button
+              aria-controls="wire-timeline-detail-layer"
+              className="wire-detail-open-layer"
+              data-wire-timeline-layer-open-trigger="true"
+              onClick={onOpenLayer}
+              type="button"
+            >
+              打开检查层
+            </button>
+          )}
+          {detail && (
+            <button aria-controls={bodyId} className="wire-detail-clear" onClick={onClear} type="button">
+              清除
+            </button>
+          )}
+        </div>
       </header>
       <div className="wire-timeline-detail-status-grid" aria-label="规则详情桌面投影摘要">
         {plan.statusCards.map((card) => (
@@ -104,7 +121,7 @@ export function WireTimelineDetailPanel({
       </div>
       <TimelineEvidenceRows rows={plan.evidenceRows} />
       <TimelineRouteSummary plan={plan.routeSummary} />
-      <div className="wire-timeline-detail-body" id="wire-timeline-detail-body">
+      <div className="wire-timeline-detail-body" id={bodyId}>
         {detail ? (
           <>
             <TimelineNextStep

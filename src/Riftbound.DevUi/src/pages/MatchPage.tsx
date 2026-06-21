@@ -16,6 +16,7 @@ import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
 import { WireServerFlowPanel } from "../components/match/WireServerFlowPanel";
 import { WireTableAuthorityPanel } from "../components/match/WireTableAuthorityPanel";
 import { WireTimelineDetailPanel, type WireTimelineDetail } from "../components/match/WireTimelineDetailPanel";
+import { WireTimelineDetailLayer } from "../components/match/WireTimelineDetailLayer";
 import { WireTurnWindowPanel } from "../components/match/WireTurnWindowPanel";
 import {
   WireCardFlow,
@@ -87,6 +88,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const [detailCard, setDetailCard] = useState<InspectedCard | undefined>();
   const [selectionDraft, setSelectionDraft] = useState<CandidateSelectionDraft | undefined>();
   const [timelineDetail, setTimelineDetail] = useState<WireTimelineDetail | undefined>();
+  const [timelineLayerOpen, setTimelineLayerOpen] = useState(false);
   const timelineDetailTriggerIdRef = useRef<string | undefined>(undefined);
   const { previewCard, queuePreviewCard } = useDelayedWireCardPreview();
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
@@ -312,6 +314,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
   useEffect(() => {
     setTimelineDetail(undefined);
+    setTimelineLayerOpen(false);
     timelineDetailTriggerIdRef.current = undefined;
   }, [tableSnapshot?.tick]);
 
@@ -323,6 +326,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const clearTimelineDetail = useCallback(() => {
     const triggerId = timelineDetailTriggerIdRef.current ?? timelineDetail?.id;
     setTimelineDetail(undefined);
+    setTimelineLayerOpen(false);
     if (!triggerId) {
       return;
     }
@@ -492,6 +496,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           onChooseObject={chooseObjectFromActionMap}
           onClear={clearTimelineDetail}
           onInspectObject={inspectObjectFromTable}
+          onOpenLayer={() => setTimelineLayerOpen(true)}
           onOpenObjectDetail={openObjectDetail}
           prompt={tablePrompt}
           selectionDraft={selectionDraft}
@@ -603,6 +608,22 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         selectionDraft={selectionDraft}
         snapshot={tableSnapshot}
         submissionGate={tableSubmissionGate}
+      />
+      <WireTimelineDetailLayer
+        detail={timelineDetail}
+        disabledByConnection={!tableSubmissionGate.canSubmit}
+        objectContextById={tableObjectContextModel.byId}
+        objectIndex={tableObjectIndex}
+        onChooseObject={chooseObjectFromActionMap}
+        onClear={clearTimelineDetail}
+        onClose={() => setTimelineLayerOpen(false)}
+        onInspectObject={inspectObjectFromTable}
+        onOpenObjectDetail={openObjectDetail}
+        open={timelineLayerOpen}
+        prompt={tablePrompt}
+        selectionDraft={selectionDraft}
+        selectedObjectContext={selectedObjectContext}
+        selectedObjectId={selectedObjectId}
       />
       <WireCardPreview card={previewCard} />
     </div>

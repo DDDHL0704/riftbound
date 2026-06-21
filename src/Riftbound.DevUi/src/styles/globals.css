@@ -15755,11 +15755,19 @@ button.card-face:hover {
 }
 
 .wire-detail-trigger,
-.wire-detail-clear {
+.wire-detail-clear,
+.wire-detail-open-layer {
   padding: 2px 5px;
   font: inherit;
   line-height: 1.15;
   cursor: pointer;
+}
+
+.wire-timeline-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 3px;
 }
 
 .wire-object-refs {
@@ -16005,12 +16013,16 @@ button.wire-object-ref {
 .wire-match-page .wire-timeline-detail-line,
 .wire-match-page .wire-timeline-projection-list,
 .wire-match-page .wire-timeline-projection-list li,
-.wire-match-page .wire-timeline-action-hint-list,
-.wire-match-page .wire-timeline-action-hint-list li,
-.wire-match-page .wire-selected-object-context,
-.wire-match-page .wire-detail-trigger,
-.wire-match-page .wire-detail-clear,
-.wire-match-page .wire-object-refs,
+  .wire-match-page .wire-timeline-action-hint-list,
+  .wire-match-page .wire-timeline-action-hint-list li,
+  .wire-match-page .wire-timeline-detail-layer,
+  .wire-match-page .wire-timeline-detail-dialog,
+  .wire-match-page .wire-timeline-detail-layer-header,
+  .wire-match-page .wire-selected-object-context,
+  .wire-match-page .wire-detail-trigger,
+  .wire-match-page .wire-detail-clear,
+  .wire-match-page .wire-detail-open-layer,
+  .wire-match-page .wire-object-refs,
 .wire-match-page .wire-object-ref,
 .wire-match-page .wire-rule-object-refs,
 .wire-match-page .wire-rule-object-ref,
@@ -16071,6 +16083,80 @@ button.wire-object-ref {
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
+}
+
+.wire-timeline-detail-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 58;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.wire-timeline-detail-layer-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0 !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  cursor: pointer;
+}
+
+.wire-timeline-detail-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(960px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 4px;
+  border: 2px solid #000 !important;
+  background: #fff !important;
+  color: #000 !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+.wire-timeline-detail-layer-header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px;
+  border-bottom: 1px solid #000;
+}
+
+.wire-timeline-detail-layer-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-timeline-detail-layer-header span,
+.wire-timeline-detail-layer-header h2 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-timeline-detail-layer-header span {
+  font-size: 11px;
+}
+
+.wire-timeline-detail-layer-header h2 {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.wire-timeline-detail-dialog > .wire-timeline-detail {
+  min-height: 0;
+  overflow: auto;
+  border: 0 !important;
 }
 
 .wire-match-page .detail-drawer {
