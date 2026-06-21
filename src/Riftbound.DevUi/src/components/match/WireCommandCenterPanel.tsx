@@ -17,6 +17,7 @@ import { buildWireResponseCoachPlan } from "../../utils/wireResponseCoachPlan";
 import type { WireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
+import { WireCommandFollowupPanel } from "./WireCommandFollowupPanel";
 import { WireFocusedActionEntryList } from "./WireFocusedActionEntryList";
 
 export function WireCommandCenterPanel({
@@ -27,6 +28,7 @@ export function WireCommandCenterPanel({
   objectContext,
   onClearFocus,
   onCommand,
+  onInspectObject,
   playerId,
   prompt,
   selectionDraft,
@@ -41,6 +43,7 @@ export function WireCommandCenterPanel({
   objectContext?: TableObjectContext;
   onClearFocus: () => void;
   onCommand?: (command: GameCommand) => void;
+  onInspectObject?: (objectId: string) => void;
   playerId: string;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
@@ -90,6 +93,11 @@ export function WireCommandCenterPanel({
 
       <CommandCenterRows plan={plan} />
       <CommandCenterActionRows rows={plan.actionRows} />
+      <WireCommandFollowupPanel
+        className="wire-command-followup wire-command-center-followup"
+        onInspectObject={onInspectObject}
+        plan={plan.submissionFollowup}
+      />
 
       {plan.canShowFocusedActions ? (
         <WireFocusedActionEntryList

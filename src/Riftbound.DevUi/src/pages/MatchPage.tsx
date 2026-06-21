@@ -372,6 +372,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           objectContext={selectedObjectContext}
           onClearFocus={clearInspectedCard}
           onCommand={(command) => void controller.submitCommand(command)}
+          onInspectObject={inspectObjectFromTable}
           playerId={settings.playerId}
           prompt={tablePrompt}
           selectionDraft={selectionDraft}

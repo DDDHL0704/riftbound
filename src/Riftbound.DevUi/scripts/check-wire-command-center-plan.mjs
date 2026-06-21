@@ -20,6 +20,8 @@ assert.equal(readyPlan.rows.find((row) => row.key === "focus")?.value, "hand-1")
 assert.equal(readyPlan.rows.find((row) => row.key === "submit")?.state, "ready");
 assert.equal(readyPlan.rows.find((row) => row.key === "feedback")?.state, "ready");
 assert.equal(readyPlan.rows.find((row) => row.key === "feedback")?.value, "已有后续事件");
+assert.equal(readyPlan.submissionFollowup.state, "accepted-events");
+assert.equal(readyPlan.submissionFollowup.summary, "accepted-events summary");
 assert.deepEqual(readyPlan.actionRows.map((row) => [row.action, row.state]), [["PLAY_CARD", "ready"]]);
 
 const selectingPlan = buildWireCommandCenterPlan({
@@ -39,6 +41,8 @@ const noFocusPlan = buildWireCommandCenterPlan({
 assert.equal(noFocusPlan.state, "no-focus");
 assert.equal(noFocusPlan.canShowFocusedActions, false);
 assert.equal(noFocusPlan.rows.find((row) => row.key === "focus")?.state, "empty");
+assert.equal(noFocusPlan.submissionFollowup.state, "empty");
+assert.equal(noFocusPlan.submissionFollowup.summary, "尚未提交命令。");
 
 const blockedPlan = buildWireCommandCenterPlan({
   coachPlan: coach("blocked", "sync"),
@@ -49,6 +53,7 @@ const blockedPlan = buildWireCommandCenterPlan({
 assert.equal(blockedPlan.state, "blocked");
 assert.equal(blockedPlan.rows.find((row) => row.key === "submit")?.state, "blocked");
 assert.equal(blockedPlan.rows.find((row) => row.key === "feedback")?.state, "blocked");
+assert.equal(blockedPlan.submissionFollowup.state, "failed");
 
 console.log("Wire command center plan check passed.");
 

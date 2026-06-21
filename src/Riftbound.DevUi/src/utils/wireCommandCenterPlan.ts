@@ -51,6 +51,7 @@ export type WireCommandCenterPlan = {
   state: WireCommandCenterState;
   stateLabel: string;
   stepRole: WireResponseCoachStepRole;
+  submissionFollowup: CommandSubmissionFollowupPlan;
   tone: WireFocusedReadinessTone;
 };
 
@@ -66,6 +67,7 @@ export function buildWireCommandCenterPlan({
   submissionFollowup?: CommandSubmissionFollowupPlan;
 }): WireCommandCenterPlan {
   const state = commandCenterState(focusedPlan, coachPlan);
+  const followup = submissionFollowup ?? emptySubmissionFollowupPlan();
   const actionRows = focusedPlan.legalActionRows.slice(0, 4).map((row): WireCommandCenterActionRow => ({
     action: row.action,
     commandType: row.commandType,
@@ -89,12 +91,23 @@ export function buildWireCommandCenterPlan({
       row("candidate", "候选", `${focusedPlan.readiness.enabledCount} 可用 / ${focusedPlan.readiness.blockedCount} 阻断`, focusedPlan.readiness.stateLabel, candidateRowState(focusedPlan)),
       row("command", "命令", focusedPlan.readiness.commandType ?? coachPlan.candidateLabel ?? "无", focusedPlan.readiness.nextStepLabel, commandRowState(state)),
       row("submit", "提交", focusedPlan.submissionGate.stateLabel, focusedPlan.submissionGate.reason, focusedPlan.submissionGate.canSubmit ? "ready" : "blocked"),
-      row("feedback", "回执", submissionFollowupStateLabel(submissionFollowup?.state), submissionFollowup?.summary ?? "尚未提交命令。", submissionFollowupRowState(submissionFollowup?.state))
+      row("feedback", "回执", submissionFollowupStateLabel(followup.state), followup.summary, submissionFollowupRowState(followup.state))
     ],
     state,
     stateLabel: stateLabelFor(state),
     stepRole: coachPlan.stepRole,
+    submissionFollowup: followup,
     tone: toneFor(state)
+  };
+}
+
+function emptySubmissionFollowupPlan(): CommandSubmissionFollowupPlan {
+  return {
+    events: [],
+    hiddenEventCount: 0,
+    metrics: [],
+    state: "empty",
+    summary: "尚未提交命令。"
   };
 }
 

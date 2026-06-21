@@ -701,6 +701,11 @@ async function runWireLayoutGeometrySmoke(cdp) {
         failures.push(\`wire command center row \${rowKey} is missing\`);
       }
     }
+    const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
+    const commandCenterFollowupState = commandCenterFollowup?.getAttribute("data-command-followup-state") ?? "missing";
+    if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(commandCenterFollowupState)) {
+      failures.push(\`wire command center followup state is unsupported: \${commandCenterFollowupState}\`);
+    }
 
     const responsibilitySource = document.querySelector("[data-wire-window-responsibility-source]")?.getAttribute("data-wire-window-responsibility-source") ?? "missing";
     if (responsibilitySource !== "server") {
@@ -750,6 +755,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       commandReviewState,
       commandSubmissionState,
       commandCenterState,
+      commandCenterFollowupState,
       informationBoundaryState,
       promptAuthorityState,
       quickActionCount: quickActions.size,
@@ -802,6 +808,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   if (!["blocked", "no-focus", "observe", "ready", "selecting"].includes(result.commandCenterState)) {
     throw new Error(`Wire layout geometry smoke did not find command center: ${result.commandCenterState}`);
   }
+  if (!["accepted-awaiting", "accepted-events", "accepted-snapshot", "empty", "failed", "pending", "unknown-tick"].includes(result.commandCenterFollowupState)) {
+    throw new Error(`Wire layout geometry smoke did not find command center followup: ${result.commandCenterFollowupState}`);
+  }
   if (result.ruleAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server rule authority: ${result.ruleAuthorityState}`);
   }
@@ -828,6 +837,8 @@ async function runWireClickSelectionSmoke(cdp) {
   const focusResult = await evaluateJson(cdp, `(() => {
     const summary = document.querySelector(".wire-focused-action-summary");
     const readiness = document.querySelector(".wire-focused-readiness");
+    const commandCenter = document.querySelector(".wire-command-center");
+    const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
     return {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
       text: summary?.textContent ?? "",
@@ -862,7 +873,10 @@ async function runWireClickSelectionSmoke(cdp) {
         (node.getAttribute("data-wire-command-center-row") ?? "") + ":" + (node.getAttribute("data-wire-command-center-row-state") ?? "")),
       commandCenterState: document.querySelector("[data-wire-command-center-state]")?.getAttribute("data-wire-command-center-state") ?? null,
       commandCenterStepRole: document.querySelector("[data-wire-command-center-step-role]")?.getAttribute("data-wire-command-center-step-role") ?? null,
-      commandCenterText: document.querySelector(".wire-command-center")?.textContent ?? "",
+      commandCenterFollowupState: commandCenterFollowup?.getAttribute("data-command-followup-state") ?? null,
+      commandCenterFollowupMetricCount: commandCenterFollowup?.querySelectorAll("[data-command-followup-metric]").length ?? 0,
+      commandCenterFollowupText: commandCenterFollowup?.textContent ?? "",
+      commandCenterText: commandCenter?.textContent ?? "",
       focusedActionButtonCount: document.querySelectorAll(".wire-focused-actions button").length,
       detailLayerOpen: Boolean(document.querySelector(".detail-layer"))
     };
@@ -1201,6 +1215,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.commandCenterRows.includes("candidate:ready")) failures.push(`command center candidate row missing ready state: ${focusResult.commandCenterRows.join(",")}`);
   if (focusResult.commandCenterActionCount < 1) failures.push("command center focused action entry missing");
   if (!focusResult.commandCenterText.includes("PLAY_CARD")) failures.push("command center did not expose command type");
+  if (focusResult.commandCenterFollowupState !== "empty") failures.push(`command center followup state unexpected before submit: ${focusResult.commandCenterFollowupState}`);
+  if (focusResult.commandCenterFollowupMetricCount < 4) failures.push("command center followup metric strip missing");
+  if (!focusResult.commandCenterFollowupText.includes("后续事件")) failures.push("command center followup heading missing");
+  if (!focusResult.commandCenterFollowupText.includes("尚未提交")) failures.push("command center followup empty summary missing");
   if (!focusResult.text.includes("服务端状态")) failures.push("focused action summary status missing");
   if (!focusResult.text.includes("可提交")) failures.push("focused action summary enabled count missing");
   if (!focusResult.contextText.includes("位置")) failures.push("object context position missing");
