@@ -1,4 +1,4 @@
-import type { ActionPromptDto } from "../../types/protocol";
+import type { ActionPromptDto, GameCommand } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { Button } from "../ui/Button";
@@ -12,6 +12,7 @@ type WireTimelineDetailLayerProps = {
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
   onChooseObject?: (objectId: string) => void;
+  onCommand?: (command: GameCommand) => void;
   onClear: () => void;
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
@@ -29,6 +30,7 @@ export function WireTimelineDetailLayer({
   objectContextById,
   objectIndex,
   onChooseObject,
+  onCommand,
   onClear,
   onClose,
   onInspectObject,
@@ -74,6 +76,7 @@ export function WireTimelineDetailLayer({
           objectContextById={objectContextById}
           objectIndex={objectIndex}
           onChooseObject={onChooseObject}
+          onCommand={onCommand}
           onClear={onClear}
           onInspectObject={onInspectObject}
           onOpenObjectDetail={onOpenObjectDetail}

@@ -56,25 +56,31 @@ const moduleShim = { exports: {} };
 new Function(
   "exports",
   "module",
+  "commandFromActionPromptTemplate",
   "buildFocusedInteractionGrammarPlan",
   "buildPromptInteractionModel",
   "candidateComposerKey",
+  "promptStampedCommand",
   "promptCommandBindingLabel",
   "promptCommandBindingSourceLabel",
   "promptChoiceRoleLabel",
   "promptChoiceSummaryObjectIds",
+  "sourceRequirementFor",
   "summarizePromptCandidateSemantics",
   output
 )(
   moduleShim.exports,
   moduleShim,
+  commandFromActionPromptTemplate,
   focusedGrammarModuleShim.exports.buildFocusedInteractionGrammarPlan,
   buildPromptInteractionModel,
   candidateComposerKey,
+  promptStampedCommand,
   promptCommandBindingLabel,
   promptCommandBindingSourceLabel,
   promptChoiceRoleLabel,
   promptChoiceSummaryObjectIds,
+  sourceRequirementFor,
   candidateSemanticsModuleShim.exports.summarizePromptCandidateSemantics
 );
 
@@ -98,6 +104,27 @@ const plan = buildWireTimelineDetailPlan({
     "target-1": { objectId: "target-1", cardNo: "SFD-001/221" }
   },
   prompt: {
+    promptId: "prompt-1",
+    snapshotTick: 99,
+    candidates: [
+      {
+        action: "PLAY_CARD",
+        commandTemplate: {
+          bindings: [
+            { field: "sourceObjectId", required: true, source: "selectedSource" },
+            { asArray: true, field: "targetObjectIds", required: false, source: "selectedTargets" },
+            { field: "cardNo", metadataKey: "cardNo", required: true, source: "requirementMetadata" }
+          ],
+          cmdType: "PLAY_CARD"
+        },
+        enabled: true,
+        label: "打出卡牌",
+        metadata: {
+          sourceRequirements: [{ cardNo: "OGN-001/298", sourceObjectId: "source-1" }]
+        },
+        reason: "可提交"
+      }
+    ],
     __model: {
       candidates: [
         {
@@ -338,6 +365,27 @@ const draftPlan = buildWireTimelineDetailPlan({
     "target-1": { objectId: "target-1", cardNo: "SFD-001/221" }
   },
   prompt: {
+    promptId: "prompt-1",
+    snapshotTick: 99,
+    candidates: [
+      {
+        action: "PLAY_CARD",
+        commandTemplate: {
+          bindings: [
+            { field: "sourceObjectId", required: true, source: "selectedSource" },
+            { asArray: true, field: "targetObjectIds", required: false, source: "selectedTargets" },
+            { field: "cardNo", metadataKey: "cardNo", required: true, source: "requirementMetadata" }
+          ],
+          cmdType: "PLAY_CARD"
+        },
+        enabled: true,
+        label: "打出卡牌",
+        metadata: {
+          sourceRequirements: [{ cardNo: "OGN-001/298", sourceObjectId: "source-1" }]
+        },
+        reason: "可提交"
+      }
+    ],
     __model: {
       candidates: [
         {
@@ -411,6 +459,14 @@ assert.deepEqual(draftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.stat
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.state, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.stateLabel, "可送服务端");
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.canSubmit, true);
+assert.deepEqual(draftPlan.commandBridgeRows[0].submitPlan.command, {
+  cardNo: "OGN-001/298",
+  cmdType: "PLAY_CARD",
+  promptId: "prompt-1",
+  snapshotTick: 99,
+  sourceObjectId: "source-1",
+  targetObjectIds: ["target-1"]
+});
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.commandType, "PLAY_CARD");
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.submitLabel, "提交 PLAY_CARD");
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.fieldSummary, "2 覆盖 / 0 缺少 / 1 服务端");
@@ -624,8 +680,59 @@ function buildPromptInteractionModel(prompt) {
   return prompt?.__model ?? { candidates: [] };
 }
 
+function commandFromActionPromptTemplate(template, selection, context) {
+  if (!template?.cmdType) {
+    return undefined;
+  }
+
+  const command = { cmdType: template.cmdType };
+  for (const binding of template.bindings ?? []) {
+    const value = commandTemplateValue(binding, selection, context);
+    const missing = value == null
+      || value === ""
+      || (Array.isArray(value) && value.length === 0);
+    if (missing && binding.required) {
+      return undefined;
+    }
+    if (missing && binding.omitEmpty !== false) {
+      continue;
+    }
+    command[binding.field] = value;
+  }
+
+  return command;
+}
+
+function commandTemplateValue(binding, selection, context) {
+  switch (binding.source) {
+    case "selectedSource":
+      return selection.sourceId;
+    case "selectedTargets":
+      return binding.asArray ? selection.targetObjectIds ?? [] : selection.targetObjectIds?.[0];
+    case "requirementMetadata":
+      return context?.requirement?.[binding.metadataKey];
+    default:
+      return undefined;
+  }
+}
+
 function candidateComposerKey(candidate) {
   return `${candidate.action}::${candidate.label}`;
+}
+
+function promptStampedCommand(command, prompt) {
+  return {
+    ...command,
+    promptId: command.promptId ?? prompt?.promptId ?? null,
+    snapshotTick: command.snapshotTick ?? prompt?.snapshotTick ?? null
+  };
+}
+
+function sourceRequirementFor(candidate, sourceObjectId) {
+  const requirements = candidate?.metadata?.sourceRequirements;
+  return Array.isArray(requirements)
+    ? requirements.find((item) => item?.sourceObjectId === sourceObjectId)
+    : undefined;
 }
 
 function promptCommandBindingLabel(binding) {

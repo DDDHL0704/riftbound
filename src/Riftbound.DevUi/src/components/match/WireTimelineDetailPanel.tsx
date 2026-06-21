@@ -1,6 +1,6 @@
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { useState } from "react";
-import type { ActionPromptDto } from "../../types/protocol";
+import type { ActionPromptDto, GameCommand } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
   buildWireTimelineDetailPlan,
@@ -36,6 +36,7 @@ export function WireTimelineDetailPanel({
   objectContextById,
   objectIndex,
   onChooseObject,
+  onCommand,
   onClear,
   onInspectObject,
   onOpenLayer,
@@ -51,6 +52,7 @@ export function WireTimelineDetailPanel({
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
   onChooseObject?: (objectId: string) => void;
+  onCommand?: (command: GameCommand) => void;
   onClear: () => void;
   onInspectObject?: (objectId: string) => void;
   onOpenLayer?: () => void;
@@ -142,6 +144,7 @@ export function WireTimelineDetailPanel({
               rows={plan.navigationRows}
             />
             <TimelineCommandBridge
+              onCommand={onCommand}
               onChooseObject={onChooseObject ?? onInspectObject}
               onOpenObjectDetail={onOpenObjectDetail}
               rows={plan.commandBridgeRows}
@@ -334,10 +337,12 @@ function TimelineEvidenceRows({ rows }: { rows: WireTimelineEvidenceRow[] }) {
 }
 
 function TimelineCommandBridge({
+  onCommand,
   onChooseObject,
   onOpenObjectDetail,
   rows
 }: {
+  onCommand?: (command: GameCommand) => void;
   onChooseObject?: (objectId: string) => void;
   onOpenObjectDetail?: (objectId: string) => void;
   rows: WireTimelineCommandBridgeRow[];
@@ -353,16 +358,18 @@ function TimelineCommandBridge({
         <span>{rows.length} 条服务端候选关联</span>
       </header>
       <ol>
-        {rows.map((row) => (
-          <li
-            data-timeline-command-bridge-draft-active={row.draftActive ? "true" : "false"}
-            data-timeline-command-bridge-enabled={row.enabled ? "true" : "false"}
-            data-timeline-command-bridge-detail-role={row.detailRoleLabel}
-            data-timeline-command-bridge-object-id={row.detailObjectId}
-            data-timeline-command-bridge-route-state={row.routeState}
-            data-timeline-command-bridge-server-role={row.serverRoleSummary}
-            key={row.key}
-          >
+        {rows.map((row) => {
+          const canSubmit = row.submitPlan.canSubmit && Boolean(row.submitPlan.command) && Boolean(onCommand);
+          return (
+            <li
+              data-timeline-command-bridge-draft-active={row.draftActive ? "true" : "false"}
+              data-timeline-command-bridge-enabled={row.enabled ? "true" : "false"}
+              data-timeline-command-bridge-detail-role={row.detailRoleLabel}
+              data-timeline-command-bridge-object-id={row.detailObjectId}
+              data-timeline-command-bridge-route-state={row.routeState}
+              data-timeline-command-bridge-server-role={row.serverRoleSummary}
+              key={row.key}
+            >
             <div className="wire-timeline-command-bridge-main">
               <span>{row.label}</span>
               <strong>{row.nextStepLabel}</strong>
@@ -435,6 +442,7 @@ function TimelineCommandBridge({
             <div
               className="wire-timeline-command-submit-plan"
               data-timeline-command-submit-can-submit={row.submitPlan.canSubmit ? "true" : "false"}
+              data-timeline-command-submit-command-ready={row.submitPlan.command ? "true" : "false"}
               data-timeline-command-submit-state={row.submitPlan.state}
               data-timeline-command-submit-type={row.submitPlan.commandType ?? ""}
             >
@@ -443,6 +451,21 @@ function TimelineCommandBridge({
               <small>{row.submitPlan.submitLabel}</small>
               <small>{row.submitPlan.fieldSummary}</small>
               <small>{row.submitPlan.reason}</small>
+              <button
+                data-timeline-command-submit="true"
+                data-timeline-command-submit-enabled={canSubmit ? "true" : "false"}
+                disabled={!canSubmit}
+                onClick={() => {
+                  if (!row.submitPlan.command || !onCommand) {
+                    return;
+                  }
+
+                  onCommand(row.submitPlan.command);
+                }}
+                type="button"
+              >
+                {row.submitPlan.submitLabel}
+              </button>
               {row.submitPlan.fields.length > 0 && (
                 <ol aria-label={`${row.label} 可提交命令字段`}>
                   {row.submitPlan.fields.map((field) => (
@@ -475,7 +498,8 @@ function TimelineCommandBridge({
               </div>
             )}
           </li>
-        ))}
+          );
+        })}
       </ol>
     </section>
   );

@@ -1,4 +1,6 @@
-import type { ActionPromptDto, CardObjectView } from "../types/protocol";
+import type { ActionPromptCandidateDto, ActionPromptDto, CardObjectView, GameCommand } from "../types/protocol";
+import { commandFromActionPromptTemplate } from "./actionPromptCommandTemplate";
+import { promptStampedCommand, sourceRequirementFor } from "./actionPromptCandidates";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import { candidateComposerKey } from "./candidateComposerModel";
 import {
@@ -159,6 +161,7 @@ export type WireTimelineCommandBridgeSubmitField = {
 
 export type WireTimelineCommandBridgeSubmitPlan = {
   canSubmit: boolean;
+  command?: GameCommand;
   commandType?: string;
   fieldCount: number;
   fieldSummary: string;
@@ -786,6 +789,7 @@ function commandBridgeRowsForDetail(
   disabledByConnection = false
 ): WireTimelineCommandBridgeRow[] {
   const promptModel = buildPromptInteractionModel(prompt);
+  const candidateDtoByKey = new Map((prompt?.candidates ?? []).map((candidate) => [candidateComposerKey(candidate), candidate]));
   const rows: WireTimelineCommandBridgeRow[] = [];
   const seen = new Set<string>();
   const visibleRefs = detail.refs
@@ -830,6 +834,13 @@ function commandBridgeRowsForDetail(
       const serverRoleSummary = roleLabels.join(" / ");
       const commandType = candidate.command?.cmdType ?? candidate.action;
       const nextStepLabel = nextStepLabelForCommandBridge(candidate, nextStep, draftState.draftActive);
+      const candidateDto = candidateDtoByKey.get(candidateComposerKey(candidate));
+      const command = commandForCommandBridge({
+        candidate: candidateDto,
+        prompt,
+        routeState,
+        selectionDraft
+      });
       rows.push({
         commandFieldSummary: commandFieldSummary(commandFields),
         commandFields,
@@ -869,6 +880,7 @@ function commandBridgeRowsForDetail(
         selectionLabel: selectionLabel(draftState.draftActive, draftState.selectedRoleLabels),
         stateLabel: candidate.enabled ? "可提交" : "暂不可提交",
         submitPlan: commandBridgeSubmitPlan({
+          command,
           commandFields,
           commandType,
           gateRows,
@@ -951,13 +963,44 @@ function commandBridgeGateSummary(rows: WireTimelineCommandBridgeGateRow[]): str
   return `${readyCount} 通过 / ${blockedCount} 阻断 / ${waitingCount} 等待`;
 }
 
+function commandForCommandBridge({
+  candidate,
+  prompt,
+  routeState,
+  selectionDraft
+}: {
+  candidate?: ActionPromptCandidateDto;
+  prompt?: ActionPromptDto;
+  routeState: WireTimelineCommandBridgeRouteState;
+  selectionDraft?: CandidateSelectionDraft;
+}): GameCommand | undefined {
+  if (!candidate || !selectionDraft || routeState !== "ready" || selectionDraft.candidateKey !== candidateComposerKey(candidate)) {
+    return undefined;
+  }
+
+  const command = commandFromActionPromptTemplate(
+    candidate.commandTemplate,
+    {
+      destinationId: selectionDraft.destinationId,
+      mode: selectionDraft.mode,
+      optionalCostIds: selectionDraft.optionalCostIds,
+      sourceId: selectionDraft.sourceObjectId,
+      targetObjectIds: selectionDraft.targetChoiceIds
+    },
+    { candidateMetadata: candidate.metadata, requirement: sourceRequirementFor(candidate, selectionDraft.sourceObjectId) }
+  );
+  return command ? promptStampedCommand(command, prompt) : undefined;
+}
+
 function commandBridgeSubmitPlan({
+  command,
   commandFields,
   commandType,
   gateRows,
   nextStepLabel,
   routeState
 }: {
+  command?: GameCommand;
   commandFields: WireTimelineCommandBridgeFieldRow[];
   commandType?: string;
   gateRows: WireTimelineCommandBridgeGateRow[];
@@ -966,7 +1009,7 @@ function commandBridgeSubmitPlan({
 }): WireTimelineCommandBridgeSubmitPlan {
   const firstBlockingGate = gateRows.find((row) => row.state === "blocked")
     ?? gateRows.find((row) => row.state === "waiting");
-  const canSubmit = routeState === "ready" && !firstBlockingGate;
+  const canSubmit = Boolean(command) && routeState === "ready" && !firstBlockingGate;
   const state: WireTimelineCommandBridgeSubmitState = canSubmit
     ? "ready"
     : routeState === "inactive"
@@ -976,6 +1019,7 @@ function commandBridgeSubmitPlan({
         : "blocked";
   return {
     canSubmit,
+    command,
     commandType,
     fieldCount: commandFields.length,
     fieldSummary: commandFieldSummary(commandFields),
@@ -993,7 +1037,9 @@ function commandBridgeSubmitPlan({
       ? "当前草稿已覆盖服务端模板所需字段，提交后仍由服务端规则校验。"
       : firstBlockingGate
         ? `${firstBlockingGate.label}：${firstBlockingGate.reason}`
-        : nextStepLabel,
+        : routeState === "ready"
+          ? "服务端候选已就绪，但当前模板还不能生成完整命令。"
+          : nextStepLabel,
     state,
     stateLabel: commandBridgeSubmitStateLabel(state),
     submitLabel: canSubmit

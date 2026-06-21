@@ -517,6 +517,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           objectContextById={tableObjectContextModel.byId}
           objectIndex={tableObjectIndex}
           onChooseObject={chooseObjectFromActionMap}
+          onCommand={(command) => void controller.submitCommand(command)}
           onClear={clearTimelineDetail}
           onInspectObject={inspectObjectFromTable}
           onOpenLayer={() => setTimelineLayerOpen(true)}
@@ -638,6 +639,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         objectContextById={tableObjectContextModel.byId}
         objectIndex={tableObjectIndex}
         onChooseObject={chooseObjectFromActionMap}
+        onCommand={(command) => void controller.submitCommand(command)}
         onClear={clearTimelineDetail}
         onClose={() => setTimelineLayerOpen(false)}
         onInspectObject={inspectObjectFromTable}
