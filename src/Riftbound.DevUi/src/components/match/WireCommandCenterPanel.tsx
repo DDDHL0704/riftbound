@@ -1,7 +1,8 @@
-import type { ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, ConnectionStatus, SnapshotDto } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
   buildCommandSubmissionFollowupPlan,
+  type CommandSubmitHandler,
   type CommandSubmissionFollowupEventRow,
   type CommandSubmissionFollowupFeedback,
   type CommandSubmissionFollowupServerEventKind,
@@ -48,7 +49,7 @@ export function WireCommandCenterPanel({
   focusedPlan: WireFocusedInteractionPlan;
   objectContext?: TableObjectContext;
   onClearFocus: () => void;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onInspectObject?: (objectId: string) => void;
   onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;

@@ -1,4 +1,4 @@
-import type { CommandReceiptEventRefDto, CommandReceiptFollowupDto, GameEvent, GameEventObjectRef, SnapshotDto } from "../types/protocol";
+import type { CommandReceiptEventRefDto, CommandReceiptFollowupDto, GameCommand, GameEvent, GameEventObjectRef, SnapshotDto } from "../types/protocol";
 import { eventDescriptionLabel, eventKindLabel } from "./eventLogPlan";
 
 export type ObservedGameEvent = GameEvent & {
@@ -63,6 +63,8 @@ export type CommandSubmissionUiSource = {
   objectId?: string;
   surface: string;
 };
+
+export type CommandSubmitHandler = (command: GameCommand, uiSource?: Partial<CommandSubmissionUiSource>) => void;
 
 export type CommandSubmissionFollowupEventRow = {
   description: string;

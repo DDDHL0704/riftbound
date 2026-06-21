@@ -1,5 +1,6 @@
 import type { ActionPromptCandidateDto, ActionPromptDto, CardObjectView, GameCommand } from "../types/protocol";
 import { commandFromActionPromptTemplate } from "./actionPromptCommandTemplate";
+import { commandSourceCopy, type ActionPanelCandidateCommandSource } from "./actionPanelCommandPlan";
 import { promptStampedCommand, sourceRequirementFor } from "./actionPromptCandidates";
 import type { CandidateSelectionDraft } from "./candidateSelectionDraft";
 import { candidateComposerKey } from "./candidateComposerModel";
@@ -170,6 +171,9 @@ export type WireTimelineCommandBridgeSubmitField = {
 export type WireTimelineCommandBridgeSubmitPlan = {
   canSubmit: boolean;
   command?: GameCommand;
+  commandSource: ActionPanelCandidateCommandSource;
+  commandSourceDetail: string;
+  commandSourceLabel: string;
   commandType?: string;
   fieldCount: number;
   fieldSummary: string;
@@ -1031,9 +1035,14 @@ function commandBridgeSubmitPlan({
       : routeState === "selecting"
         ? "selecting"
         : "blocked";
+  const commandSource: ActionPanelCandidateCommandSource = command ? "composer" : "unavailable";
+  const sourceCopy = commandSourceCopy(commandSource);
   return {
     canSubmit,
     command,
+    commandSource,
+    commandSourceDetail: sourceCopy.detail,
+    commandSourceLabel: sourceCopy.label,
     commandType,
     fieldCount: commandFields.length,
     fieldSummary: commandFieldSummary(commandFields),

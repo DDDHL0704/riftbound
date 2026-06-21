@@ -1,4 +1,4 @@
-import type { GameCommand } from "../../types/protocol";
+import type { CommandSubmitHandler, CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
 import type {
   WireActionCommandReviewPlan,
   WireActionRoutePlan
@@ -6,7 +6,7 @@ import type {
 
 type WireObjectRouteReviewProps = {
   className?: string;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   review: WireActionCommandReviewPlan;
   route?: WireActionRoutePlan;
 };
@@ -104,7 +104,7 @@ export function WireObjectRouteReview({
             return;
           }
 
-          onCommand(review.command);
+          onCommand(review.command, commandReviewUiSource(review));
         }}
         title={review.submitReason}
         type="button"
@@ -113,4 +113,14 @@ export function WireObjectRouteReview({
       </button>
     </section>
   );
+}
+
+function commandReviewUiSource(review: WireActionCommandReviewPlan): Partial<CommandSubmissionUiSource> {
+  return {
+    candidateLabel: review.candidateLabel,
+    commandSource: review.commandSource,
+    commandSourceDetail: review.commandSourceDetail,
+    commandSourceLabel: review.commandSourceLabel,
+    label: review.candidateLabel
+  };
 }

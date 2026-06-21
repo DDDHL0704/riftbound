@@ -1,6 +1,13 @@
 import type { ActionPromptCandidateDto, ActionPromptDto, GameCommand } from "../types/protocol";
 import { commandFromActionPromptTemplate } from "./actionPromptCommandTemplate";
 
+export type SourceCandidateCommandSource = "client-fallback" | "server-template" | "unavailable";
+
+export type SourceCandidateCommandPlan = {
+  command?: GameCommand;
+  commandSource: SourceCandidateCommandSource;
+};
+
 type SourceCandidateOptions = {
   enabledOnly?: boolean;
 };
@@ -29,8 +36,15 @@ export function commandForSourceCandidate(
   candidate: ActionPromptCandidateDto,
   sourceObjectId: string | undefined
 ): GameCommand | undefined {
+  return commandPlanForSourceCandidate(candidate, sourceObjectId).command;
+}
+
+export function commandPlanForSourceCandidate(
+  candidate: ActionPromptCandidateDto,
+  sourceObjectId: string | undefined
+): SourceCandidateCommandPlan {
   if (!sourceObjectId || !candidate.enabled) {
-    return undefined;
+    return { commandSource: "unavailable" };
   }
 
   const templatedCommand = commandFromActionPromptTemplate(
@@ -39,18 +53,18 @@ export function commandForSourceCandidate(
     { candidateMetadata: candidate.metadata, requirement: sourceRequirementFor(candidate, sourceObjectId) }
   );
   if (templatedCommand) {
-    return templatedCommand;
+    return { command: templatedCommand, commandSource: "server-template" };
   }
 
   if (candidate.action === "TAP_RUNE") {
-    return { cmdType: "TAP_RUNE", sourceObjectId };
+    return { command: { cmdType: "TAP_RUNE", sourceObjectId }, commandSource: "client-fallback" };
   }
 
   if (candidate.action === "RECYCLE_RUNE") {
-    return { cmdType: "RECYCLE_RUNE", sourceObjectId };
+    return { command: { cmdType: "RECYCLE_RUNE", sourceObjectId }, commandSource: "client-fallback" };
   }
 
-  return undefined;
+  return { commandSource: "unavailable" };
 }
 
 export function promptStampedCommand(command: GameCommand, prompt: ActionPromptDto | undefined): GameCommand {

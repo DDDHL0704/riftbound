@@ -494,11 +494,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           focusedPlan={selectedFocusPlan}
           objectContext={selectedObjectContext}
           onClearFocus={clearInspectedCard}
-          onCommand={(command) => submitTableCommand(command, {
+          onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
             label: "指挥中心",
             objectId: selectedObjectId,
             surface: "command-center"
-          })}
+          }, routeSource))}
           onInspectObject={inspectObjectFromTable}
           onSelectFollowupEvent={selectFollowupEvent}
           onSelectServerEventKind={selectServerEventKind}
@@ -565,11 +565,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         <WireActionMapPanel
           events={tableEvents}
           onChooseObject={chooseObjectFromActionMap}
-          onCommand={(command) => submitTableCommand(command, {
+          onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
             label: "右侧合法操作",
             objectId: selectedObjectId,
             surface: "action-map"
-          })}
+          }, routeSource))}
           onInspectObject={inspectObjectFromTable}
           onSelectFollowupEvent={selectFollowupEvent}
           onSelectServerEventKind={selectServerEventKind}
@@ -590,11 +590,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           disabledByConnection={!tableSubmissionGate.canSubmit}
           focusedPlan={selectedFocusPlan}
           inspectedCard={inspectedCard}
-          onCommand={(command) => submitTableCommand(command, {
+          onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
             label: "焦点卡牌和候选行动",
             objectId: selectedObjectId,
             surface: "interaction-panel"
-          })}
+          }, routeSource))}
           onClearInspectedCard={clearInspectedCard}
           onInspectObject={inspectObjectFromTable}
           onOpenDetail={openDetailCard}
@@ -632,12 +632,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           objectContextById={tableObjectContextModel.byId}
           objectIndex={tableObjectIndex}
           onChooseObject={chooseObjectFromActionMap}
-          onCommand={(command) => submitTableCommand(command, {
+          onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
             detailId: timelineDetail?.id,
             label: "规则与事件详情",
             objectId: selectedObjectId,
             surface: "timeline-detail"
-          })}
+          }, routeSource))}
           onClear={clearTimelineDetail}
           onInspectObject={inspectObjectFromTable}
           onOpenLayer={() => setTimelineLayerOpen(true)}
@@ -744,11 +744,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             inspectedCard={inspectedCard}
             objectContext={selectedObjectContext}
             onClear={clearInspectedCard}
-            onCommand={(command) => submitTableCommand(command, {
+            onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
               label: "桌面对象命令托盘",
               objectId: selectedObjectId,
               surface: "object-command-tray"
-            })}
+            }, routeSource))}
             onOpenDetail={openDetailCard}
             prompt={tablePrompt}
             snapshot={tableSnapshot}
@@ -766,11 +766,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         disabledByConnection={!tableSubmissionGate.canSubmit}
         objectContext={detailObjectContext}
         onClose={() => setDetailCard(undefined)}
-        onCommand={(command) => submitTableCommand(command, {
+        onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
           label: "卡牌详情抽屉",
           objectId: detailObjectId,
           surface: "card-detail"
-        })}
+        }, routeSource))}
         onInspectObject={inspectObjectFromDetail}
         playerId={settings.playerId}
         prompt={tablePrompt}
@@ -785,12 +785,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         objectContextById={tableObjectContextModel.byId}
         objectIndex={tableObjectIndex}
         onChooseObject={chooseObjectFromActionMap}
-        onCommand={(command) => submitTableCommand(command, {
+        onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
           detailId: timelineDetail?.id,
           label: "规则事件检查层",
           objectId: selectedObjectId,
           surface: "timeline-detail-layer"
-        })}
+        }, routeSource))}
         onClear={clearTimelineDetail}
         onClose={() => setTimelineLayerOpen(false)}
         onInspectObject={inspectObjectFromTable}

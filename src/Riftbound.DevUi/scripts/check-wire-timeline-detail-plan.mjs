@@ -60,6 +60,7 @@ new Function(
   "buildFocusedInteractionGrammarPlan",
   "buildPromptInteractionModel",
   "candidateComposerKey",
+  "commandSourceCopy",
   "promptStampedCommand",
   "promptCommandBindingLabel",
   "promptCommandBindingSourceLabel",
@@ -75,6 +76,7 @@ new Function(
   focusedGrammarModuleShim.exports.buildFocusedInteractionGrammarPlan,
   buildPromptInteractionModel,
   candidateComposerKey,
+  commandSourceCopy,
   promptStampedCommand,
   promptCommandBindingLabel,
   promptCommandBindingSourceLabel,
@@ -338,6 +340,8 @@ assert.deepEqual(plan.commandBridgeRows[0].gateRows.map((gate) => gate.state), [
 assert.equal(plan.commandBridgeRows[0].submitPlan.state, "inactive");
 assert.equal(plan.commandBridgeRows[0].submitPlan.stateLabel, "未进入草稿");
 assert.equal(plan.commandBridgeRows[0].submitPlan.canSubmit, false);
+assert.equal(plan.commandBridgeRows[0].submitPlan.commandSource, "unavailable");
+assert.equal(plan.commandBridgeRows[0].submitPlan.commandSourceLabel, "等待服务端");
 assert.equal(plan.commandBridgeRows[0].submitPlan.commandType, "PLAY_CARD");
 assert.equal(plan.commandBridgeRows[0].submitPlan.fieldSummary, "0 覆盖 / 1 缺少 / 1 服务端");
 assert.deepEqual(plan.commandBridgeRows[0].submitPlan.fields.map((field) => field.state), ["missing", "optional", "server"]);
@@ -481,6 +485,8 @@ assert.deepEqual(draftPlan.commandBridgeRows[0].gateRows.map((gate) => gate.stat
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.state, "ready");
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.stateLabel, "可送服务端");
 assert.equal(draftPlan.commandBridgeRows[0].submitPlan.canSubmit, true);
+assert.equal(draftPlan.commandBridgeRows[0].submitPlan.commandSource, "composer");
+assert.equal(draftPlan.commandBridgeRows[0].submitPlan.commandSourceLabel, "服务端组合");
 assert.deepEqual(draftPlan.commandBridgeRows[0].submitPlan.command, {
   cardNo: "OGN-001/298",
   cmdType: "PLAY_CARD",
@@ -755,6 +761,19 @@ function sourceRequirementFor(candidate, sourceObjectId) {
   return Array.isArray(requirements)
     ? requirements.find((item) => item?.sourceObjectId === sourceObjectId)
     : undefined;
+}
+
+function commandSourceCopy(source) {
+  return {
+    composer: {
+      detail: "先选择来源、目标或模式，再按服务端模板提交。",
+      label: "服务端组合"
+    },
+    unavailable: {
+      detail: "当前候选没有可提交命令或完整组合计划。",
+      label: "等待服务端"
+    }
+  }[source];
 }
 
 function promptCommandBindingLabel(binding) {

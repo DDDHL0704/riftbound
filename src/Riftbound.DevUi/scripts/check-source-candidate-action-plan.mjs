@@ -19,7 +19,8 @@ new Function(
   "exports",
   "module",
   "candidateRequiresFurtherChoice",
-  "commandForSourceCandidate",
+  "commandPlanForSourceCandidate",
+  "commandSourceCopy",
   "canComposeActionCandidate",
   "promptActionLabel",
   "promptReasonTitle",
@@ -28,7 +29,8 @@ new Function(
   moduleShim.exports,
   moduleShim,
   candidateRequiresFurtherChoice,
-  commandForSourceCandidate,
+  commandPlanForSourceCandidate,
+  commandSourceCopy,
   canComposeActionCandidate,
   promptActionLabel,
   promptReasonTitle
@@ -44,6 +46,8 @@ const tapRune = plan({
   sources: [{ id: "rune-1", label: "符文 1" }]
 });
 assert.deepEqual(tapRune.command, { cmdType: "TAP_RUNE", sourceObjectId: "rune-1" });
+assert.equal(tapRune.commandSource, "client-fallback");
+assert.equal(tapRune.commandSourceLabel, "前端内置");
 assert.equal(tapRune.disabled, false);
 assert.equal(tapRune.needsComposer, false);
 assert.equal(tapRune.label, "横置符文");
@@ -60,6 +64,8 @@ const sourcePlay = plan({
   targets: [{ id: "target-1", label: "目标" }]
 }, { sourceObjectId: "hand-1" });
 assert.equal(sourcePlay.command, undefined);
+assert.equal(sourcePlay.commandSource, "composer");
+assert.equal(sourcePlay.commandSourceLabel, "服务端组合");
 assert.equal(sourcePlay.needsComposer, true);
 assert.equal(sourcePlay.disabled, false);
 assert.equal(sourcePlay.labelSuffix, "");
@@ -74,6 +80,7 @@ const templatedWithTarget = plan({
   targets: [{ id: "target-1", label: "目标" }]
 }, { sourceObjectId: "unit-1" });
 assert.equal(templatedWithTarget.command, undefined);
+assert.equal(templatedWithTarget.commandSource, "composer");
 assert.equal(templatedWithTarget.needsComposer, true);
 assert.equal(templatedWithTarget.disabled, false);
 
@@ -86,6 +93,8 @@ const templatedDirect = plan({
   sources: [{ id: "unit-1", label: "单位" }]
 }, { sourceObjectId: "unit-1" });
 assert.deepEqual(templatedDirect.command, { cmdType: "ACTIVATE_ABILITY", sourceObjectId: "unit-1" });
+assert.equal(templatedDirect.commandSource, "server-template");
+assert.equal(templatedDirect.commandSourceLabel, "服务端模板");
 assert.equal(templatedDirect.needsComposer, false);
 
 const readOnly = plan({
@@ -129,6 +138,8 @@ const incomplete = plan({
   reason: "服务端未开放"
 });
 assert.equal(incomplete.command, undefined);
+assert.equal(incomplete.commandSource, "unavailable");
+assert.equal(incomplete.commandSourceLabel, "等待服务端");
 assert.equal(incomplete.needsComposer, false);
 assert.equal(incomplete.disabled, true);
 assert.equal(incomplete.labelSuffix, "（需选择）");
@@ -157,17 +168,38 @@ function plan(candidate, options = {}) {
   });
 }
 
-function commandForSourceCandidate(candidate, sourceObjectId) {
+function commandPlanForSourceCandidate(candidate, sourceObjectId) {
   if (!sourceObjectId || !candidate.enabled) {
-    return undefined;
-  }
-  if (candidate.action === "TAP_RUNE") {
-    return { cmdType: "TAP_RUNE", sourceObjectId };
+    return { commandSource: "unavailable" };
   }
   if (candidate.commandTemplate?.cmdType === "ACTIVATE_ABILITY") {
-    return { cmdType: "ACTIVATE_ABILITY", sourceObjectId };
+    return { command: { cmdType: "ACTIVATE_ABILITY", sourceObjectId }, commandSource: "server-template" };
   }
-  return undefined;
+  if (candidate.action === "TAP_RUNE") {
+    return { command: { cmdType: "TAP_RUNE", sourceObjectId }, commandSource: "client-fallback" };
+  }
+  return { commandSource: "unavailable" };
+}
+
+function commandSourceCopy(source) {
+  return {
+    "client-fallback": {
+      detail: "兼容旧候选的内置命令，提交后仍由规则引擎校验。",
+      label: "前端内置"
+    },
+    composer: {
+      detail: "先选择来源、目标或模式，再按服务端模板提交。",
+      label: "服务端组合"
+    },
+    "server-template": {
+      detail: "按服务端 commandTemplate 生成，提交后仍由规则引擎校验。",
+      label: "服务端模板"
+    },
+    unavailable: {
+      detail: "当前候选没有可提交命令或完整组合计划。",
+      label: "等待服务端"
+    }
+  }[source];
 }
 
 function candidateRequiresFurtherChoice(candidate) {

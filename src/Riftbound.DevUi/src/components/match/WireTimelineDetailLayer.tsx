@@ -1,6 +1,7 @@
-import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type {
+  CommandSubmitHandler,
   CommandSubmissionFollowupEventRow,
   CommandSubmissionFollowupFeedback,
   CommandSubmissionFollowupServerEventKind,
@@ -20,7 +21,7 @@ type WireTimelineDetailLayerProps = {
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
   onChooseObject?: (objectId: string) => void;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onClear: () => void;
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;

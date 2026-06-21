@@ -1,6 +1,7 @@
 import { Maximize2, X } from "lucide-react";
 import type { InspectedCard } from "../cards/CardFace";
-import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
+import type { CommandSubmitHandler } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import {
@@ -19,7 +20,7 @@ type WireObjectCommandTrayProps = {
   inspectedCard?: InspectedCard;
   objectContext?: TableObjectContext;
   onClear: () => void;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onOpenDetail: (card: InspectedCard) => void;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;

@@ -15,6 +15,7 @@ import {
   type CandidateInteractionStepPlan
 } from "./candidateInteractionPlan";
 import { commandBindingDisplayLabel, commandBindingFieldKey } from "./commandFieldDisplay";
+import { commandSourceCopy, type ActionPanelCandidateCommandSource } from "./actionPanelCommandPlan";
 import { promptActionLabel, promptReasonLabel } from "./formatters";
 import {
   buildPromptInteractionModel,
@@ -156,6 +157,9 @@ export type WireActionCommandReviewPlan = {
   candidateLabel: string;
   checkRows: WireActionRouteCheckPlan[];
   command?: GameCommand;
+  commandSource: ActionPanelCandidateCommandSource;
+  commandSourceDetail: string;
+  commandSourceLabel: string;
   commandPreview: WireActionCommandPreviewRow[];
   commandType: string;
   metrics: WireActionCommandReviewMetric[];
@@ -608,11 +612,15 @@ function wireActionRoutePlan(
 
 function commandReviewPlan(route: WireActionRoutePlan | undefined): WireActionCommandReviewPlan {
   if (!route) {
+    const sourceCopy = commandSourceCopy("unavailable");
     return {
       canSubmit: false,
       candidateLabel: "未选择候选",
       checkRows: [],
       command: undefined,
+      commandSource: "unavailable",
+      commandSourceDetail: sourceCopy.detail,
+      commandSourceLabel: sourceCopy.label,
       commandPreview: [],
       commandType: "无",
       metrics: [
@@ -634,11 +642,16 @@ function commandReviewPlan(route: WireActionRoutePlan | undefined): WireActionCo
     : route.state === "blocked"
       ? "blocked"
       : "drafting";
+  const commandSource: ActionPanelCandidateCommandSource = route.command ? "composer" : "unavailable";
+  const sourceCopy = commandSourceCopy(commandSource);
   return {
     canSubmit: route.state === "ready" && Boolean(route.command),
     candidateLabel: route.candidateLabel,
     checkRows: route.checkRows,
     command: route.command,
+    commandSource,
+    commandSourceDetail: sourceCopy.detail,
+    commandSourceLabel: sourceCopy.label,
     commandPreview: route.commandPreview,
     commandType: route.commandType ?? "未公开命令",
     metrics: [

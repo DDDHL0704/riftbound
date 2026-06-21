@@ -1,6 +1,7 @@
 import type { ActionPromptCandidateDto, GameCommand } from "../types/protocol";
 import { candidateRequiresFurtherChoice } from "./actionPromptCandidateShape";
-import { commandForSourceCandidate } from "./actionPromptCandidates";
+import { commandPlanForSourceCandidate } from "./actionPromptCandidates";
+import { commandSourceCopy, type ActionPanelCandidateCommandSource } from "./actionPanelCommandPlan";
 import { canComposeActionCandidate } from "./candidateComposerSupport";
 import { promptActionLabel, promptReasonTitle } from "./formatters";
 
@@ -8,6 +9,9 @@ export type SourceCandidateActionButtonVariant = "ghost" | "primary";
 
 export type SourceCandidateActionPlan = {
   command?: GameCommand;
+  commandSource: ActionPanelCandidateCommandSource;
+  commandSourceDetail: string;
+  commandSourceLabel: string;
   disabled: boolean;
   label: string;
   labelSuffix: string;
@@ -33,14 +37,27 @@ export function buildSourceCandidateActionPlan({
   disabledByConnection,
   sourceObjectId
 }: BuildSourceCandidateActionPlanOptions): SourceCandidateActionPlan {
-  const command = candidateRequiresFurtherChoice(candidate)
-    ? undefined
-    : commandForSourceCandidate(candidate, sourceObjectId);
+  const sourceCommandPlan: {
+    command?: GameCommand;
+    commandSource: ActionPanelCandidateCommandSource;
+  } = candidateRequiresFurtherChoice(candidate)
+    ? { commandSource: "unavailable" as const }
+    : commandPlanForSourceCandidate(candidate, sourceObjectId);
+  const command = sourceCommandPlan.command;
   const needsComposer = !command && canComposeActionCandidate(candidate);
+  const commandSource = command
+    ? sourceCommandPlan.commandSource
+    : needsComposer
+      ? "composer"
+      : "unavailable";
+  const sourceCopy = commandSourceCopy(commandSource);
   const actionable = Boolean(command) || needsComposer;
 
   return {
     command,
+    commandSource,
+    commandSourceDetail: sourceCopy.detail,
+    commandSourceLabel: sourceCopy.label,
     disabled: disabledByConnection || disabledByActionGate || !candidate.enabled || !actionable || !canSubmitCommands,
     label: promptActionLabel(candidate),
     labelSuffix: !actionable && candidate.action !== "WAIT" ? "（需选择）" : "",

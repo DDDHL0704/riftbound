@@ -29,6 +29,7 @@ const actionMapExports = loadTsModule(resolve(scriptDir, "../src/utils/wireActio
   commandBindingDisplayLabel: commandFieldDisplayExports.commandBindingDisplayLabel,
   commandBindingFieldKey: commandFieldDisplayExports.commandBindingFieldKey,
   commandFromActionPromptTemplate: commandTemplateExports.commandFromActionPromptTemplate,
+  commandSourceCopy,
   promptActionLabel,
   promptChoiceSummaryObjectIds: promptInteractionExports.promptChoiceSummaryObjectIds,
   promptChoiceRoleOrder: promptInteractionExports.promptChoiceRoleOrder,
@@ -198,6 +199,8 @@ assert.equal(plan.route, undefined);
 assert.equal(plan.commandReview.state, "empty");
 assert.equal(plan.commandReview.canSubmit, false);
 assert.equal(plan.commandReview.command, undefined);
+assert.equal(plan.commandReview.commandSource, "unavailable");
+assert.equal(plan.commandReview.commandSourceLabel, "等待服务端");
 assert.equal(plan.commandReview.nextStepLabel, "先点击服务端候选对象，建立提交路线。");
 assert.deepEqual(plan.commandReview.metrics.map((metric) => `${metric.key}:${metric.value}`), [
   "selection:0",
@@ -284,6 +287,8 @@ assert.equal(draftPlan.commandReview.stateLabel, "可送服务端");
 assert.equal(draftPlan.commandReview.canSubmit, true);
 assert.equal(draftPlan.commandReview.commandType, "PLAY_CARD");
 assert.deepEqual(draftPlan.commandReview.command, draftPlan.route.command);
+assert.equal(draftPlan.commandReview.commandSource, "composer");
+assert.equal(draftPlan.commandReview.commandSourceLabel, "服务端组合");
 assert.equal(draftPlan.commandReview.metrics.find((metric) => metric.key === "selection")?.value, "2");
 assert.equal(draftPlan.commandReview.metrics.find((metric) => metric.key === "server")?.value, "1");
 assert.deepEqual(draftPlan.commandReview.commandPreview.map((field) => `${field.field}:${field.state}`), [
@@ -401,6 +406,19 @@ function promptChoiceRoleLabel(role) {
     source: "来源",
     target: "目标"
   }[role] ?? role;
+}
+
+function commandSourceCopy(source) {
+  return {
+    composer: {
+      detail: "先选择来源、目标或模式，再按服务端模板提交。",
+      label: "服务端组合"
+    },
+    unavailable: {
+      detail: "当前候选没有可提交命令或完整组合计划。",
+      label: "等待服务端"
+    }
+  }[source];
 }
 
 function loadTsModule(sourcePath, injectedValues = {}) {

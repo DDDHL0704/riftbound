@@ -1,8 +1,9 @@
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { ActionPromptContractDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptContractDto, ActionPromptDto, SnapshotDto } from "../../types/protocol";
 import { buildCardDetailPlan, type CardDetailInspectorPlan, type CardDetailPlan } from "../../utils/cardDetailPlan";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
+import type { CommandSubmitHandler, CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
 import type { FocusedActionModel } from "../../utils/focusedActionModel";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -30,7 +31,7 @@ type CardDetailDrawerProps = {
   card?: InspectedCard;
   disabledByConnection?: boolean;
   onClose: () => void;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onInspectObject?: (objectId: string) => void;
   playerId?: string;
   objectContext?: TableObjectContext;
@@ -340,7 +341,7 @@ function DetailActionReview({
   entry: WireCardDetailActionEntryPlan;
   onCloseDetail: () => void;
   onCloseReview: () => void;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   prompt?: ActionPromptDto;
   route: WireCardDetailActionRouteRow;
   sourceObjectId?: string;
@@ -401,7 +402,7 @@ function DetailActionReview({
             return;
           }
 
-          onCommand(promptStampedCommand(command, prompt));
+          onCommand(promptStampedCommand(command, prompt), cardDetailActionUiSource(entry));
           onCloseReview();
           onCloseDetail();
         }}
@@ -412,6 +413,17 @@ function DetailActionReview({
       </Button>
     </section>
   );
+}
+
+function cardDetailActionUiSource(entry: WireCardDetailActionEntryPlan): Partial<CommandSubmissionUiSource> {
+  return {
+    candidateAction: entry.candidate.action,
+    candidateLabel: entry.actionPlan.label,
+    commandSource: entry.actionPlan.commandSource,
+    commandSourceDetail: entry.actionPlan.commandSourceDetail,
+    commandSourceLabel: entry.actionPlan.commandSourceLabel,
+    label: entry.actionPlan.label
+  };
 }
 
 function DetailRelatedCandidates({

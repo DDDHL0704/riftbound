@@ -1,11 +1,13 @@
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import { useState } from "react";
-import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import {
   buildCommandSubmissionFollowupPlan,
+  type CommandSubmitHandler,
   type CommandSubmissionFollowupEventRow,
   type CommandSubmissionFollowupFeedback,
+  type CommandSubmissionUiSource,
   type CommandSubmissionFollowupServerEventKind,
   type ObservedGameEvent
 } from "../../utils/commandSubmissionFollowupPlan";
@@ -69,7 +71,7 @@ export function WireTimelineDetailPanel({
   objectContextById?: Record<string, TableObjectContext>;
   objectIndex: WireObjectIndex;
   onChooseObject?: (objectId: string) => void;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onClear: () => void;
   onInspectObject?: (objectId: string) => void;
   onOpenLayer?: () => void;
@@ -382,7 +384,7 @@ function TimelineCommandBridge({
   onOpenObjectDetail,
   rows
 }: {
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onChooseObject?: (objectId: string) => void;
   onOpenObjectDetail?: (objectId: string) => void;
   rows: WireTimelineCommandBridgeRow[];
@@ -528,6 +530,8 @@ function TimelineCommandBridge({
               className="wire-timeline-command-submit-plan"
               data-timeline-command-submit-can-submit={row.submitPlan.canSubmit ? "true" : "false"}
               data-timeline-command-submit-command-ready={row.submitPlan.command ? "true" : "false"}
+              data-timeline-command-submit-command-source={row.submitPlan.commandSource}
+              data-timeline-command-submit-command-source-label={row.submitPlan.commandSourceLabel}
               data-timeline-command-submit-state={row.submitPlan.state}
               data-timeline-command-submit-type={row.submitPlan.commandType ?? ""}
             >
@@ -545,7 +549,7 @@ function TimelineCommandBridge({
                     return;
                   }
 
-                  onCommand(row.submitPlan.command);
+                  onCommand(row.submitPlan.command, timelineSubmitUiSource(row));
                 }}
                 type="button"
               >
@@ -588,6 +592,16 @@ function TimelineCommandBridge({
       </ol>
     </section>
   );
+}
+
+function timelineSubmitUiSource(row: WireTimelineCommandBridgeRow): Partial<CommandSubmissionUiSource> {
+  return {
+    candidateLabel: row.label,
+    commandSource: row.submitPlan.commandSource,
+    commandSourceDetail: row.submitPlan.commandSourceDetail,
+    commandSourceLabel: row.submitPlan.commandSourceLabel,
+    label: row.label
+  };
 }
 
 function TimelineNavigator({

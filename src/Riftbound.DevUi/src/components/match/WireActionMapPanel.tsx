@@ -1,10 +1,12 @@
-import type { ActionPromptDto, GameCommand, GameEvent, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protocol";
 import { useState } from "react";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { CommandSubmissionFeedback } from "../../stores/useMatchController";
 import {
   buildCommandSubmissionFollowupPlan,
+  type CommandSubmitHandler,
   type CommandSubmissionFollowupEventRow,
+  type CommandSubmissionUiSource,
   type CommandSubmissionFollowupServerEventKind
 } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -31,7 +33,7 @@ import { useWireDialogFocus } from "./useWireDialogFocus";
 type WireActionMapPanelProps = {
   events?: GameEvent[];
   onChooseObject?: (objectId: string) => void;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onInspectObject?: (objectId: string) => void;
   onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
@@ -487,7 +489,7 @@ function CommandSubmissionFeedbackLayer({
   );
 }
 
-function CommandReviewPanel({ onCommand, review }: { onCommand?: (command: GameCommand) => void; review: WireActionCommandReviewPlan }) {
+function CommandReviewPanel({ onCommand, review }: { onCommand?: CommandSubmitHandler; review: WireActionCommandReviewPlan }) {
   const [layerOpen, setLayerOpen] = useState(false);
   const canSubmit = review.canSubmit && Boolean(review.command) && Boolean(onCommand);
 
@@ -549,7 +551,7 @@ function CommandReviewPanel({ onCommand, review }: { onCommand?: (command: GameC
                 return;
               }
 
-              onCommand(review.command);
+              onCommand(review.command, commandReviewUiSource(review));
             }}
             title={review.submitReason}
             type="button"
@@ -578,7 +580,7 @@ function CommandReviewLayer({
 }: {
   canSubmit: boolean;
   onClose: () => void;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   review: WireActionCommandReviewPlan;
 }) {
   const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);
@@ -588,7 +590,7 @@ function CommandReviewLayer({
       return;
     }
 
-    onCommand(review.command);
+    onCommand(review.command, commandReviewUiSource(review));
     onClose();
   };
 
@@ -693,6 +695,16 @@ function CommandReviewLayer({
       </aside>
     </div>
   );
+}
+
+function commandReviewUiSource(review: WireActionCommandReviewPlan): Partial<CommandSubmissionUiSource> {
+  return {
+    candidateLabel: review.candidateLabel,
+    commandSource: review.commandSource,
+    commandSourceDetail: review.commandSourceDetail,
+    commandSourceLabel: review.commandSourceLabel,
+    label: review.candidateLabel
+  };
 }
 
 function ActionCoveragePanel({ coverage }: { coverage: WireActionCoveragePlan }) {

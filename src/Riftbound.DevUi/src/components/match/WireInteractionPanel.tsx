@@ -1,6 +1,7 @@
 import type { InspectedCard } from "../cards/CardFace";
 import { Maximize2 } from "lucide-react";
-import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
+import type { CommandSubmitHandler } from "../../utils/commandSubmissionFollowupPlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
 import type { CandidateSelectionDraft } from "../../utils/candidateSelectionDraft";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -45,7 +46,7 @@ export function WireInteractionPanel({
   disabledByConnection: boolean;
   focusedPlan?: WireFocusedInteractionPlan;
   inspectedCard?: InspectedCard;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onClearInspectedCard: () => void;
   onInspectObject?: (objectId: string) => void;
   onOpenDetail: (card: InspectedCard) => void;
@@ -157,7 +158,7 @@ function FocusedActionList({
 }: {
   disabledByConnection: boolean;
   inspectedCard?: InspectedCard;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   plan: WireFocusedInteractionPlan;
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;

@@ -1,8 +1,9 @@
 import { Play } from "lucide-react";
-import type { ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import type { ActionPromptDto, SnapshotDto } from "../../types/protocol";
 import { promptStampedCommand } from "../../utils/actionPromptCandidates";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
-import type { WireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
+import type { WireFocusedInteractionPlan, WireFocusedActionEntryPlan } from "../../utils/wireFocusedInteractionPlan";
+import type { CommandSubmitHandler, CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
 import { Button } from "../ui/Button";
 import { CandidateComposer } from "./CandidateComposer";
 
@@ -20,7 +21,7 @@ type WireFocusedActionEntryListProps = {
   disabledByConnection: boolean;
   entryClassName?: string;
   maxEntries?: number;
-  onCommand?: (command: GameCommand) => void;
+  onCommand?: CommandSubmitHandler;
   onSubmitted?: () => void;
   plan: WireFocusedInteractionPlan;
   prompt?: ActionPromptDto;
@@ -59,7 +60,8 @@ export function WireFocusedActionEntryList({
       data-wire-focused-action-entry-count={entries.length}
       {...countDataAttributes}
     >
-      {entries.map(({ actionGateReason, actionGateStateLabel, actionPlan, candidate, candidateDraft, category, disabledByActionGate, intent, key, mode, priority, uiHint }) => {
+      {entries.map((entry) => {
+        const { actionGateReason, actionGateStateLabel, actionPlan, candidate, candidateDraft, category, disabledByActionGate, intent, key, mode, priority, uiHint } = entry;
         const entryDataAttributes = {
           ...(dataAttributes?.entry ? { [dataAttributes.entry]: key } : {}),
           ...(dataAttributes?.mode ? { [dataAttributes.mode]: mode } : {})
@@ -98,7 +100,7 @@ export function WireFocusedActionEntryList({
                 icon={<Play size={16} />}
                 onClick={() => {
                   if (actionPlan.command && onCommand) {
-                    onCommand(promptStampedCommand(actionPlan.command, prompt));
+                    onCommand(promptStampedCommand(actionPlan.command, prompt), focusedActionUiSource(entry));
                     onSubmitted?.();
                   }
                 }}
@@ -114,6 +116,17 @@ export function WireFocusedActionEntryList({
       })}
     </div>
   );
+}
+
+function focusedActionUiSource(entry: WireFocusedActionEntryPlan): Partial<CommandSubmissionUiSource> {
+  return {
+    candidateAction: entry.candidate.action,
+    candidateLabel: entry.actionPlan.label,
+    commandSource: entry.actionPlan.commandSource,
+    commandSourceDetail: entry.actionPlan.commandSourceDetail,
+    commandSourceLabel: entry.actionPlan.commandSourceLabel,
+    label: entry.actionPlan.label
+  };
 }
 
 function joinClasses(...classes: Array<string | undefined>): string {
