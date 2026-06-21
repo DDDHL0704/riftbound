@@ -1609,6 +1609,16 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
       commandBridgeGateStates: Array.from(panel?.querySelectorAll("[data-timeline-command-gate-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-gate-state")),
+      commandBridgeSubmitCanSubmit: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-can-submit]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-can-submit")),
+      commandBridgeSubmitFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-field-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-field-state")),
+      commandBridgeSubmitStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-state")),
+      commandBridgeSubmitText: Array.from(panel?.querySelectorAll(".wire-timeline-command-submit-plan") ?? [])
+        .map((item) => item.textContent ?? "").join(" / "),
+      commandBridgeSubmitTypes: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-type]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-type") ?? ""),
       commandBridgeOpenDetailButtonCount: panel?.querySelectorAll("[data-timeline-command-open-detail-object-id]").length ?? 0,
       commandBridgeOpenDetailObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-open-detail-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-open-detail-object-id") ?? ""),
@@ -1727,6 +1737,16 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
       commandBridgeGateStates: Array.from(panel?.querySelectorAll("[data-timeline-command-gate-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-gate-state")),
+      commandBridgeSubmitCanSubmit: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-can-submit]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-can-submit")),
+      commandBridgeSubmitFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-field-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-field-state")),
+      commandBridgeSubmitStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-state")),
+      commandBridgeSubmitText: Array.from(panel?.querySelectorAll(".wire-timeline-command-submit-plan") ?? [])
+        .map((item) => item.textContent ?? "").join(" / "),
+      commandBridgeSubmitTypes: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-type]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-type") ?? ""),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeRouteStates: Array.from(panel?.querySelectorAll(".wire-timeline-command-bridge li") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-route-state")),
@@ -1857,6 +1877,16 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-timeline-command-grammar-step-state")),
       commandBridgeGateStates: Array.from(panel?.querySelectorAll("[data-timeline-command-gate-state]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-gate-state")),
+      commandBridgeSubmitCanSubmit: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-can-submit]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-can-submit")),
+      commandBridgeSubmitFieldStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-field-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-field-state")),
+      commandBridgeSubmitStates: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-state]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-state")),
+      commandBridgeSubmitText: Array.from(panel?.querySelectorAll(".wire-timeline-command-submit-plan") ?? [])
+        .map((item) => item.textContent ?? "").join(" / "),
+      commandBridgeSubmitTypes: Array.from(panel?.querySelectorAll("[data-timeline-command-submit-type]") ?? [])
+        .map((item) => item.getAttribute("data-timeline-command-submit-type") ?? ""),
       commandBridgeNextButtonCount: panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]").length ?? 0,
       commandBridgeNextObjectIds: Array.from(panel?.querySelectorAll("[data-timeline-command-bridge-next-object-id]") ?? [])
         .map((item) => item.getAttribute("data-timeline-command-bridge-next-object-id") ?? ""),
@@ -2010,6 +2040,13 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!ruleDetailResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("rule detail command bridge grammar submit ready missing");
   if (!ruleDetailResult.commandBridgeGateStates.includes("ready")) failures.push("rule detail command bridge gate ready state missing");
   if (!ruleDetailResult.commandBridgeText.includes("提交门禁")) failures.push("rule detail command bridge gate label missing");
+  if (!ruleDetailResult.commandBridgeSubmitStates.includes("ready")) failures.push("rule detail command submit plan ready state missing");
+  if (!ruleDetailResult.commandBridgeSubmitCanSubmit.includes("true")) failures.push("rule detail command submit plan can-submit missing");
+  if (!ruleDetailResult.commandBridgeSubmitTypes.includes("PLAY_CARD")) failures.push("rule detail command submit plan type missing");
+  if (!ruleDetailResult.commandBridgeSubmitFieldStates.includes("covered")) failures.push("rule detail command submit plan covered field missing");
+  if (!ruleDetailResult.commandBridgeSubmitFieldStates.includes("server")) failures.push("rule detail command submit plan server field missing");
+  if (!ruleDetailResult.commandBridgeSubmitText.includes("命令预览")) failures.push("rule detail command submit plan label missing");
+  if (!ruleDetailResult.commandBridgeSubmitText.includes("服务端规则校验")) failures.push("rule detail command submit plan authority note missing");
   if (ruleDetailResult.commandBridgeOpenDetailButtonCount < 1) failures.push("rule detail command bridge detail buttons missing");
   if (!ruleDetailResult.commandBridgeOpenDetailObjectIds.includes("p1-hand-spell")) failures.push("rule detail command bridge source detail button missing");
   if (commandBridgeDetailResult.objectId !== "p1-hand-spell") failures.push(`command bridge detail opened unexpected object: ${commandBridgeDetailResult.objectId}`);
@@ -2066,6 +2103,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!commandBridgeFocusResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("command bridge detail grammar submit ready missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeGateStates.includes("ready")) failures.push("command bridge detail gate ready state missing after target selection");
   if (!commandBridgeFocusResult.commandBridgeText.includes("提交门禁")) failures.push("command bridge detail gate label missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeSubmitStates.includes("ready")) failures.push("command bridge detail submit plan ready missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeSubmitCanSubmit.includes("true")) failures.push("command bridge detail submit plan can-submit missing after target selection");
+  if (!commandBridgeFocusResult.commandBridgeSubmitText.includes("提交 PLAY_CARD")) failures.push("command bridge detail submit plan label missing after target selection");
   if (!commandBridgeFocusResult.evidenceKeys.includes("path")) failures.push("command bridge detail evidence path missing after target selection");
   if (!commandBridgeFocusResult.evidenceStates.includes("ready")) failures.push("command bridge detail evidence ready state missing after target selection");
   if (!commandBridgeFocusResult.evidenceText.includes("可送")) failures.push("command bridge detail evidence route summary missing after target selection");
@@ -2157,6 +2197,9 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!eventDetailResult.commandBridgeGrammarStepStates.includes("ready")) failures.push("event detail command bridge grammar submit ready missing");
   if (!eventDetailResult.commandBridgeGateStates.includes("ready")) failures.push("event detail command bridge gate ready state missing");
   if (!eventDetailResult.commandBridgeText.includes("提交门禁")) failures.push("event detail command bridge gate label missing");
+  if (!eventDetailResult.commandBridgeSubmitStates.includes("ready")) failures.push("event detail command submit plan ready state missing");
+  if (!eventDetailResult.commandBridgeSubmitCanSubmit.includes("true")) failures.push("event detail command submit plan can-submit missing");
+  if (!eventDetailResult.commandBridgeSubmitText.includes("命令预览")) failures.push("event detail command submit plan label missing");
   if (eventDetailResult.actionHintCount < 1) failures.push("event detail candidate hint rows missing");
   if (!eventDetailResult.actionHintText.includes("PLAY_CARD")) failures.push("event detail candidate hint command type missing");
   if (!eventDetailResult.actionHintText.includes("必填")) failures.push("event detail candidate hint required fields missing");

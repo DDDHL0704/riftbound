@@ -15236,6 +15236,46 @@ button.card-face:hover {
   border-width: 2px;
 }
 
+.wire-timeline-command-submit-plan {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px;
+  gap: 2px 4px;
+  padding: 3px;
+}
+
+.wire-timeline-command-submit-plan[data-timeline-command-submit-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-timeline-command-submit-plan > small,
+.wire-timeline-command-submit-plan > ol {
+  grid-column: 1 / -1;
+}
+
+.wire-timeline-command-submit-plan ol {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-timeline-command-submit-plan li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  gap: 3px;
+  padding: 2px 4px;
+}
+
+.wire-timeline-command-submit-plan li[data-timeline-command-submit-field-state="covered"],
+.wire-timeline-command-submit-plan li[data-timeline-command-submit-field-state="server"] {
+  border-width: 2px;
+}
+
 .wire-timeline-command-bridge-gates {
   min-width: 0;
   display: grid;
@@ -15301,7 +15341,10 @@ button.card-face:hover {
 
 .wire-timeline-command-bridge span,
 .wire-timeline-command-bridge small,
-.wire-timeline-command-bridge strong {
+.wire-timeline-command-bridge strong,
+.wire-timeline-command-submit-plan span,
+.wire-timeline-command-submit-plan small,
+.wire-timeline-command-submit-plan strong {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;

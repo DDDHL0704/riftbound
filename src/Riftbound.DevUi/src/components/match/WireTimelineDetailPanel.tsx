@@ -415,6 +415,32 @@ function TimelineCommandBridge({
                 ))}
               </ol>
             )}
+            <div
+              className="wire-timeline-command-submit-plan"
+              data-timeline-command-submit-can-submit={row.submitPlan.canSubmit ? "true" : "false"}
+              data-timeline-command-submit-state={row.submitPlan.state}
+              data-timeline-command-submit-type={row.submitPlan.commandType ?? ""}
+            >
+              <span>命令预览</span>
+              <strong>{row.submitPlan.stateLabel}</strong>
+              <small>{row.submitPlan.submitLabel}</small>
+              <small>{row.submitPlan.fieldSummary}</small>
+              <small>{row.submitPlan.reason}</small>
+              {row.submitPlan.fields.length > 0 && (
+                <ol aria-label={`${row.label} 可提交命令字段`}>
+                  {row.submitPlan.fields.map((field) => (
+                    <li
+                      data-timeline-command-submit-field={field.field}
+                      data-timeline-command-submit-field-state={field.state}
+                      key={field.key}
+                    >
+                      <span>{field.label}</span>
+                      <small>{field.stateLabel}</small>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
             {row.nextObjectRefs.length > 0 && (
               <div className="wire-timeline-command-bridge-refs" role="group" aria-label={`${row.label} 下一步对象`}>
                 {row.nextObjectRefs.map((ref) => (

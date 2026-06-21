@@ -147,6 +147,31 @@ export type WireTimelineCommandBridgeGateRow = {
   stateLabel: string;
 };
 
+export type WireTimelineCommandBridgeSubmitState = "blocked" | "inactive" | "ready" | "selecting";
+
+export type WireTimelineCommandBridgeSubmitField = {
+  field: string;
+  key: string;
+  label: string;
+  state: WireTimelineCommandBridgeFieldState;
+  stateLabel: string;
+};
+
+export type WireTimelineCommandBridgeSubmitPlan = {
+  canSubmit: boolean;
+  commandType?: string;
+  fieldCount: number;
+  fieldSummary: string;
+  fields: WireTimelineCommandBridgeSubmitField[];
+  firstBlockingGate?: WireTimelineCommandBridgeGateRow;
+  key: string;
+  nextStepLabel: string;
+  reason: string;
+  state: WireTimelineCommandBridgeSubmitState;
+  stateLabel: string;
+  submitLabel: string;
+};
+
 export type WireTimelineCommandBridgeRow = {
   commandFieldSummary: string;
   commandFields: WireTimelineCommandBridgeFieldRow[];
@@ -176,6 +201,7 @@ export type WireTimelineCommandBridgeRow = {
   selectedStepCount: number;
   selectionLabel: string;
   stateLabel: string;
+  submitPlan: WireTimelineCommandBridgeSubmitPlan;
   totalStepCount: number;
 };
 
@@ -802,10 +828,12 @@ function commandBridgeRowsForDetail(
         ? "blocked"
         : draftState.routeState;
       const serverRoleSummary = roleLabels.join(" / ");
+      const commandType = candidate.command?.cmdType ?? candidate.action;
+      const nextStepLabel = nextStepLabelForCommandBridge(candidate, nextStep, draftState.draftActive);
       rows.push({
         commandFieldSummary: commandFieldSummary(commandFields),
         commandFields,
-        commandType: candidate.command?.cmdType ?? candidate.action,
+        commandType,
         detailLinkLabel: `详情${detailRoleLabel} / 候选${serverRoleSummary}`,
         detailObjectId: objectId,
         detailRoleLabel,
@@ -830,7 +858,7 @@ function commandBridgeRowsForDetail(
         label: candidate.label,
         missingRequiredCount: draftState.missingRequiredCount,
         nextObjectRefs: nextStep ? objectRefsForCommandBridge(candidate, nextStep.role, objectIndex) : [],
-        nextStepLabel: nextStepLabelForCommandBridge(candidate, nextStep, draftState.draftActive),
+        nextStepLabel,
         reasonLabel: candidate.reason,
         roleLabels,
         routeState,
@@ -840,6 +868,13 @@ function commandBridgeRowsForDetail(
         selectedStepCount: draftState.selectedStepCount,
         selectionLabel: selectionLabel(draftState.draftActive, draftState.selectedRoleLabels),
         stateLabel: candidate.enabled ? "可提交" : "暂不可提交",
+        submitPlan: commandBridgeSubmitPlan({
+          commandFields,
+          commandType,
+          gateRows,
+          nextStepLabel,
+          routeState
+        }),
         totalStepCount: candidate.steps.length
       });
     }
@@ -914,6 +949,70 @@ function commandBridgeGateSummary(rows: WireTimelineCommandBridgeGateRow[]): str
   const blockedCount = rows.filter((row) => row.state === "blocked").length;
   const waitingCount = rows.filter((row) => row.state === "waiting").length;
   return `${readyCount} 通过 / ${blockedCount} 阻断 / ${waitingCount} 等待`;
+}
+
+function commandBridgeSubmitPlan({
+  commandFields,
+  commandType,
+  gateRows,
+  nextStepLabel,
+  routeState
+}: {
+  commandFields: WireTimelineCommandBridgeFieldRow[];
+  commandType?: string;
+  gateRows: WireTimelineCommandBridgeGateRow[];
+  nextStepLabel: string;
+  routeState: WireTimelineCommandBridgeRouteState;
+}): WireTimelineCommandBridgeSubmitPlan {
+  const firstBlockingGate = gateRows.find((row) => row.state === "blocked")
+    ?? gateRows.find((row) => row.state === "waiting");
+  const canSubmit = routeState === "ready" && !firstBlockingGate;
+  const state: WireTimelineCommandBridgeSubmitState = canSubmit
+    ? "ready"
+    : routeState === "inactive"
+      ? "inactive"
+      : routeState === "selecting"
+        ? "selecting"
+        : "blocked";
+  return {
+    canSubmit,
+    commandType,
+    fieldCount: commandFields.length,
+    fieldSummary: commandFieldSummary(commandFields),
+    fields: commandFields.map((field) => ({
+      field: field.field,
+      key: `submit:${field.key}`,
+      label: field.label,
+      state: field.state,
+      stateLabel: field.stateLabel
+    })),
+    firstBlockingGate,
+    key: `submit:${commandType ?? "unknown"}:${state}`,
+    nextStepLabel,
+    reason: canSubmit
+      ? "当前草稿已覆盖服务端模板所需字段，提交后仍由服务端规则校验。"
+      : firstBlockingGate
+        ? `${firstBlockingGate.label}：${firstBlockingGate.reason}`
+        : nextStepLabel,
+    state,
+    stateLabel: commandBridgeSubmitStateLabel(state),
+    submitLabel: canSubmit
+      ? `提交 ${commandType ?? "服务端命令"}`
+      : nextStepLabel
+  };
+}
+
+function commandBridgeSubmitStateLabel(state: WireTimelineCommandBridgeSubmitState): string {
+  switch (state) {
+    case "blocked":
+      return "提交阻断";
+    case "inactive":
+      return "未进入草稿";
+    case "ready":
+      return "可送服务端";
+    case "selecting":
+      return "草稿未齐";
+  }
 }
 
 function commandBridgeFieldRows(
