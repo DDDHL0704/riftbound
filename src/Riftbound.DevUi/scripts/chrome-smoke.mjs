@@ -1380,6 +1380,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const actionButtons = document.querySelector(".wire-action-panel .action-buttons");
     const battleDeclaration = document.querySelector(".battle-declaration-panel");
     const unitMovement = document.querySelector(".unit-movement-panel");
+    const windowPass = document.querySelector(".window-pass-panel");
     const layoutProjection = document.querySelector("[data-action-layout-projection-state]");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
@@ -1424,6 +1425,12 @@ async function runWireClickSelectionSmoke(cdp) {
       unitMovementSourceCount: Number(unitMovement?.getAttribute("data-unit-movement-source-count") ?? "0"),
       unitMovementState: unitMovement?.getAttribute("data-unit-movement-state") ?? null,
       unitMovementText: unitMovement?.textContent ?? "",
+      windowPassCommandFieldCount: Number(windowPass?.getAttribute("data-window-pass-command-field-count") ?? "-1"),
+      windowPassMode: windowPass?.getAttribute("data-window-pass-mode") ?? null,
+      windowPassPassedCount: Number(windowPass?.getAttribute("data-window-pass-passed-count") ?? "-1"),
+      windowPassStackCount: Number(windowPass?.getAttribute("data-window-pass-stack-count") ?? "-1"),
+      windowPassState: windowPass?.getAttribute("data-window-pass-state") ?? null,
+      windowPassText: windowPass?.textContent ?? "",
       candidatePlanCount: document.querySelectorAll(".wire-action-candidate-plan-card").length,
       candidatePlanEnabled: candidatePlan?.getAttribute("data-candidate-plan-enabled") ?? null,
       candidatePlanNext: candidatePlan?.querySelector("[data-candidate-plan-next-step]")?.textContent ?? "",
@@ -2082,6 +2089,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.actionRenderKinds.includes("candidate-button")) failures.push("action panel render candidate button entry missing");
   if (!actionMapResult.actionRenderKinds.includes("battle-declaration")) failures.push("action panel render battle declaration entry missing");
   if (!actionMapResult.actionRenderKinds.includes("unit-movement")) failures.push("action panel render unit movement entry missing");
+  if (!actionMapResult.actionRenderKinds.includes("window-pass")) failures.push("action panel render pass window entry missing");
   if (actionMapResult.battleDeclarationState !== "ready") failures.push(`battle declaration panel state unexpected: ${actionMapResult.battleDeclarationState}`);
   if (actionMapResult.battleDeclarationSourceCount < 1) failures.push(`battle declaration source count missing: ${actionMapResult.battleDeclarationSourceCount}`);
   if (actionMapResult.battleDeclarationBattlefieldCount < 1) failures.push(`battle declaration battlefield count missing: ${actionMapResult.battleDeclarationBattlefieldCount}`);
@@ -2098,6 +2106,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.unitMovementText.includes("单位候选")) failures.push("unit movement source summary missing");
   if (!actionMapResult.unitMovementText.includes("位置候选")) failures.push("unit movement destination summary missing");
   if (!actionMapResult.unitMovementText.includes("服务端")) failures.push("unit movement server authority copy missing");
+  if (actionMapResult.windowPassState !== "ready") failures.push(`window pass panel state unexpected: ${actionMapResult.windowPassState}`);
+  if (actionMapResult.windowPassMode !== "main-window") failures.push(`window pass mode unexpected: ${actionMapResult.windowPassMode}`);
+  if (actionMapResult.windowPassCommandFieldCount < 0) failures.push("window pass command field count missing");
+  if (actionMapResult.windowPassPassedCount < 0) failures.push("window pass passed count missing");
+  if (actionMapResult.windowPassStackCount < 0) failures.push("window pass stack count missing");
+  if (!actionMapResult.windowPassText.includes("窗口")) failures.push("window pass summary missing window label");
+  if (!actionMapResult.windowPassText.includes("服务端")) failures.push("window pass server authority copy missing");
   if (!actionMapResult.actionCommandSources.includes("composer")) failures.push("action panel command source did not expose composer route");
   if (!actionMapResult.actionCommandSources.includes("server-template")) failures.push("action panel command source did not expose server template route");
   if (actionMapResult.actionCommandSources.includes("client-fallback")) failures.push("wire fixture still exposes client fallback command source");

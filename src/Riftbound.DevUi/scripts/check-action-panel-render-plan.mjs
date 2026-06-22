@@ -133,7 +133,7 @@ const disconnectedPlan = buildActionPanelRenderPlan({
 
 assert.equal(disconnectedPlan.state, "disabled");
 assert.equal(disconnectedPlan.entries.length, 1);
-assert.equal(disconnectedPlan.entries[0].kind, "candidate-button");
+assert.equal(disconnectedPlan.entries[0].kind, "window-pass");
 assert.equal(disconnectedPlan.entries[0].canAct, false);
 assert.equal(disconnectedPlan.entries[0].submitGate.state, "submission-gate-blocked");
 assert.equal(disconnectedPlan.entries[0].submitGate.stateLabel, "入口未就绪");
@@ -177,6 +177,7 @@ const staleSnapshotPlan = buildActionPanelRenderPlan({
 });
 
 assert.equal(staleSnapshotPlan.state, "disabled");
+assert.equal(staleSnapshotPlan.entries[0].kind, "window-pass");
 assert.equal(staleSnapshotPlan.entries[0].submitGate.state, "submission-gate-blocked");
 assert.equal(staleSnapshotPlan.entries[0].submitGate.reason, "行动提示属于 tick 12，当前桌面快照是 tick 11。");
 
@@ -194,6 +195,7 @@ const windowBlockedPlan = buildActionPanelRenderPlan({
 });
 
 assert.equal(windowBlockedPlan.state, "readonly");
+assert.equal(windowBlockedPlan.entries[0].kind, "window-pass");
 assert.equal(windowBlockedPlan.entries[0].submitGate.state, "window-blocked");
 assert.equal(windowBlockedPlan.entries[0].submitGate.reason, "当前行动窗口不能提交该候选。");
 

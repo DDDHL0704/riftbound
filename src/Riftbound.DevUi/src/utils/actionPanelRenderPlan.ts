@@ -9,7 +9,8 @@ export type ActionPanelRenderEntryKind =
   | "order-triggers"
   | "pay-cost"
   | "rune-resource"
-  | "unit-movement";
+  | "unit-movement"
+  | "window-pass";
 
 export type ActionPanelRenderState = "blocked" | "disabled" | "empty" | "ready" | "readonly";
 
@@ -257,6 +258,10 @@ function entryKindForAction(action: string): ActionPanelRenderEntryKind {
       return "order-triggers";
     case "PAY_COST":
       return "pay-cost";
+    case "PASS":
+    case "PASS_FOCUS":
+    case "PASS_PRIORITY":
+      return "window-pass";
     case "RECYCLE_RUNE":
     case "TAP_RUNE":
       return "rune-resource";

@@ -19,6 +19,7 @@ import {
 } from "../../utils/actionPanelCommandPlan";
 import { buildActionPanelBattleDeclarationPlan } from "../../utils/actionPanelBattleDeclarationPlan";
 import { buildActionPanelMovementPlan } from "../../utils/actionPanelMovementPlan";
+import { buildActionPanelPassPlan } from "../../utils/actionPanelPassPlan";
 import { buildActionPanelPromptPlan, type ActionPanelComplexPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { buildActionPanelResourcePlan } from "../../utils/actionPanelResourcePlan";
@@ -202,6 +203,21 @@ function ActionPanelRenderEntryView({
           submitGate={entry.submitGate}
         />
       );
+      break;
+    case "window-pass":
+      content = candidate ? (
+        <WindowPassCandidate
+          candidate={candidate}
+          disabledByConnection={disabledByConnection}
+          onCommand={onCommand}
+          onReady={onReady}
+          onSubmitStarterDeck={onSubmitStarterDeck}
+          prompt={prompt}
+          snapshot={snapshot}
+          submitGate={entry.submitGate}
+          submissionGate={submissionGate}
+        />
+      ) : null;
       break;
     case "rune-resource":
       content = candidate ? (
@@ -433,6 +449,69 @@ function RuneResourceCandidate({
         {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端符文资源候选")}
       </p>
       <small className="rune-resource-pool">{plan.poolLabel}</small>
+      <CandidateButton
+        candidate={candidate}
+        disabledByConnection={disabledByConnection}
+        onCommand={onCommand}
+        onReady={onReady}
+        onSubmitStarterDeck={onSubmitStarterDeck}
+        prompt={prompt}
+        snapshot={snapshot}
+        submitGate={submitGate}
+        submissionGate={submissionGate}
+      />
+    </div>
+  );
+}
+
+function WindowPassCandidate({
+  candidate,
+  disabledByConnection,
+  onCommand,
+  onReady,
+  onSubmitStarterDeck,
+  prompt,
+  snapshot,
+  submitGate,
+  submissionGate
+}: {
+  candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  onCommand: CommandSubmitHandler;
+  onReady: () => void;
+  onSubmitStarterDeck: () => void;
+  prompt?: ActionPromptDto;
+  snapshot?: SnapshotDto;
+  submitGate: ActionPanelSubmitGate;
+  submissionGate: ServerSubmissionGatePlan;
+}) {
+  const plan = buildActionPanelPassPlan(candidate, { prompt, snapshot });
+
+  return (
+    <div
+      className="window-pass-panel"
+      data-window-pass-command-field-count={plan.commandFieldCount}
+      data-window-pass-mode={plan.mode}
+      data-window-pass-passed-count={plan.passedCount}
+      data-window-pass-stack-count={plan.stackCount}
+      data-window-pass-state={plan.state}
+    >
+      <div className="window-pass-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
+      </div>
+      <dl className="window-pass-summary">
+        {plan.metricRows.map((metric) => (
+          <div data-window-pass-metric={metric.key} key={metric.key}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+            <small>{metric.detail}</small>
+          </div>
+        ))}
+      </dl>
+      <p className="window-pass-note">
+        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端让过候选")}
+      </p>
       <CandidateButton
         candidate={candidate}
         disabledByConnection={disabledByConnection}
