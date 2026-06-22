@@ -918,6 +918,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           <div
             aria-label="右侧控制台摘要堆栈"
             className="wire-side-panel-rail-stack"
+            data-wire-side-panel-rail-capacity-body-count={sidePanelStackPlan.renderedBodyCount}
+            data-wire-side-panel-rail-capacity-max-weight={sidePanelStackPlan.capacityMaxWeight}
+            data-wire-side-panel-rail-capacity-overflow={sidePanelStackPlan.capacityOverflow}
+            data-wire-side-panel-rail-capacity-weight={sidePanelStackPlan.capacityWeight}
+            data-wire-side-panel-rail-density={sidePanelStackPlan.density}
             data-wire-side-panel-rail-expanded-count={sidePanelStackPlan.expandedCount}
             data-wire-side-panel-rail-hidden-count={sidePanelStackPlan.hiddenCount}
             data-wire-side-panel-rail-stack
@@ -1002,7 +1007,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             data-wire-side-panel-rail-action-label={sidePanelStackPlan.byRail.main.actionLabel}
             data-wire-side-panel-rail-action-slot={sidePanelStackPlan.byRail.main.actionSlot ?? ""}
             data-wire-side-panel-rail-actionable={false}
+            data-wire-side-panel-rail-body-mode={sidePanelStackPlan.byRail.main.bodyMode}
+            data-wire-side-panel-rail-capacity-weight={sidePanelStackPlan.byRail.main.capacityWeight}
             data-wire-side-panel-rail-mode={sidePanelStackPlan.byRail.main.mode}
+            data-wire-side-panel-rail-priority={sidePanelStackPlan.byRail.main.priority}
             data-wire-side-panel-rail-reason={sidePanelStackPlan.byRail.main.reason}
             data-wire-side-panel-rail-state={sidePanelStackPlan.byRail.main.state}
             data-wire-side-panel-rail-target={sidePanelStackPlan.byRail.main.slot ?? ""}
@@ -1106,7 +1114,10 @@ function WireSidePanelRailEntry({
       data-wire-side-panel-rail-action-label={entry.actionLabel}
       data-wire-side-panel-rail-action-slot={entry.actionSlot ?? ""}
       data-wire-side-panel-rail-actionable={selectable}
+      data-wire-side-panel-rail-body-mode={entry.bodyMode}
+      data-wire-side-panel-rail-capacity-weight={entry.capacityWeight}
       data-wire-side-panel-rail-mode={entry.mode}
+      data-wire-side-panel-rail-priority={entry.priority}
       data-wire-side-panel-rail-reason={entry.reason}
       data-wire-side-panel-rail-state={entry.state}
       data-wire-side-panel-rail-target={entry.slot ?? ""}
@@ -1137,7 +1148,12 @@ function WireSidePanelRailEntry({
           </button>
         </div>
       ) : null}
-      <div className="wire-side-panel-rail-body" data-wire-side-panel-rail-body={entry.key}>
+      <div
+        aria-hidden={entry.bodyMode === "collapsed" ? true : undefined}
+        className="wire-side-panel-rail-body"
+        data-wire-side-panel-rail-body={entry.key}
+        data-wire-side-panel-rail-body-mode={entry.bodyMode}
+      >
         {children}
       </div>
     </div>

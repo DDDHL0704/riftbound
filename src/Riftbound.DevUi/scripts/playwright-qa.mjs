@@ -373,6 +373,7 @@ async function runCommandReceiptInteraction(report) {
 
     const route = await submitReceiptProbeCommand(page);
     const receipt = await waitForAcceptedSubmissionFeedback(page, "END_TURN");
+    await openSidePanelSlot(page, "commandCenter");
     const receiptLayer = await openCommandReceiptLayer(page, "END_TURN");
 
     report.interactions.push({
@@ -651,8 +652,7 @@ async function waitForAcceptedSubmissionFeedback(page, cmdType) {
 }
 
 async function openCommandReceiptLayer(page, cmdType) {
-  const feedbackPanel = page.locator("[data-command-submission-state]").first();
-  const openLayerButton = feedbackPanel.getByRole("button", { name: "打开回执检查层" });
+  const openLayerButton = page.getByRole("button", { name: "打开回执检查层" }).first();
   const openLayerState = await openLayerButton.getAttribute("data-command-submission-open-layer-state");
   if (openLayerState !== "sent") {
     throw new Error(`Command receipt layer entry should be sent after accepted command, got ${openLayerState}`);

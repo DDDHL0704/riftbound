@@ -12808,12 +12808,16 @@ button.card-face:hover {
   overflow: hidden;
 }
 
-.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="summary"] > .wire-side-panel-rail-body {
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-body-mode="collapsed"] > .wire-side-panel-rail-body {
+  display: none;
+}
+
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-body-mode="compact"] > .wire-side-panel-rail-body {
   max-height: 42px;
   overflow: hidden;
 }
 
-.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="expanded"] > .wire-side-panel-rail-body {
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-body-mode="full"] > .wire-side-panel-rail-body {
   max-height: clamp(76px, 16vh, 148px);
   overflow: auto;
 }
@@ -12824,7 +12828,7 @@ button.card-face:hover {
   outline-offset: -2px;
 }
 
-.wire-side-panel-rail-entry[data-wire-side-panel-rail="status"] > .wire-side-panel-rail-body {
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="status"][data-wire-side-panel-rail-body-mode="compact"] > .wire-side-panel-rail-body {
   max-height: none;
   overflow: hidden;
 }

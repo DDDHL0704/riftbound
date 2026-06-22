@@ -59,6 +59,13 @@ assert.equal(quietPlan.byRail.rules.mode, "hidden");
 assert.equal(quietPlan.byRail.receipt.mode, "hidden");
 assert.equal(quietPlan.byRail.main.mode, "expanded");
 assert.equal(quietPlan.byRail.main.actionSlot, "commandCenter");
+assert.equal(quietPlan.density, "quiet");
+assert.equal(quietPlan.capacityOverflow, false);
+assert.equal(quietPlan.renderedBodyCount, 2);
+assert.equal(quietPlan.byRail.status.bodyMode, "compact");
+assert.equal(quietPlan.byRail.status.priority, "urgent");
+assert.equal(quietPlan.byRail.main.bodyMode, "full");
+assert.equal(quietPlan.byRail.main.capacityWeight, 4);
 assert.deepEqual(quietPlan.visibleEntries.map((rail) => rail.key), ["status", "main"]);
 
 const focusedPlan = buildWireSidePanelStackPlan({
@@ -71,6 +78,10 @@ assert.equal(focusedPlan.byRail.focus.mode, "summary");
 assert.equal(focusedPlan.byRail.focus.state, "normal");
 assert.equal(focusedPlan.byRail.focus.actionSlot, "interaction");
 assert.equal(focusedPlan.byRail.focus.actionLabel, "焦点");
+assert.equal(focusedPlan.density, "balanced");
+assert.equal(focusedPlan.byRail.status.bodyMode, "compact");
+assert.equal(focusedPlan.byRail.focus.bodyMode, "collapsed");
+assert.equal(focusedPlan.renderedBodyCount, 2);
 
 const expandedFocusPlan = buildWireSidePanelStackPlan({
   activeSlot: "interaction",
@@ -80,6 +91,8 @@ const expandedFocusPlan = buildWireSidePanelStackPlan({
 });
 assert.equal(expandedFocusPlan.byRail.focus.mode, "expanded");
 assert.equal(expandedFocusPlan.byRail.focus.state, "primary");
+assert.equal(expandedFocusPlan.byRail.focus.bodyMode, "full");
+assert.equal(expandedFocusPlan.byRail.focus.priority, "primary");
 
 const rulesSummaryPlan = buildWireSidePanelStackPlan({
   activeSlot: "commandCenter",
@@ -90,6 +103,10 @@ const rulesSummaryPlan = buildWireSidePanelStackPlan({
 assert.equal(rulesSummaryPlan.byRail.rules.mode, "summary");
 assert.equal(rulesSummaryPlan.byRail.rules.state, "urgent");
 assert.equal(rulesSummaryPlan.byRail.rules.actionSlot, "ruleQueue");
+assert.equal(rulesSummaryPlan.density, "urgent");
+assert.equal(rulesSummaryPlan.byRail.rules.bodyMode, "compact");
+assert.equal(rulesSummaryPlan.byRail.rules.priority, "urgent");
+assert.equal(rulesSummaryPlan.capacityOverflow, false);
 
 const rulesExpandedPlan = buildWireSidePanelStackPlan({
   activeSlot: "ruleQueue",
@@ -99,6 +116,7 @@ const rulesExpandedPlan = buildWireSidePanelStackPlan({
 });
 assert.equal(rulesExpandedPlan.byRail.rules.mode, "expanded");
 assert.equal(rulesExpandedPlan.byRail.rules.state, "primary");
+assert.equal(rulesExpandedPlan.byRail.rules.bodyMode, "full");
 
 const receiptSummaryPlan = buildWireSidePanelStackPlan({
   activeSlot: "ruleQueue",
@@ -110,6 +128,9 @@ const receiptSummaryPlan = buildWireSidePanelStackPlan({
 assert.equal(receiptSummaryPlan.byRail.receipt.mode, "summary");
 assert.equal(receiptSummaryPlan.byRail.receipt.state, "normal");
 assert.equal(receiptSummaryPlan.byRail.receipt.actionSlot, "commandCenter");
+assert.equal(receiptSummaryPlan.density, "crowded");
+assert.equal(receiptSummaryPlan.byRail.receipt.bodyMode, "collapsed");
+assert.equal(receiptSummaryPlan.capacityOverflow, true);
 
 const receiptExpandedPlan = buildWireSidePanelStackPlan({
   activeSlot: "commandCenter",
@@ -120,6 +141,8 @@ const receiptExpandedPlan = buildWireSidePanelStackPlan({
 });
 assert.equal(receiptExpandedPlan.byRail.receipt.mode, "expanded");
 assert.equal(receiptExpandedPlan.byRail.receipt.state, "urgent");
+assert.equal(receiptExpandedPlan.byRail.receipt.bodyMode, "full");
+assert.equal(receiptExpandedPlan.byRail.receipt.priority, "urgent");
 assert.ok(receiptExpandedPlan.summary.includes("摘要"));
 
 console.log("Wire side panel stack plan check passed.");

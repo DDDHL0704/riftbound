@@ -954,11 +954,15 @@ async function runWireLayoutGeometrySmoke(cdp) {
       actionLabel: rail.getAttribute("data-wire-side-panel-rail-action-label") ?? "",
       actionSlot: rail.getAttribute("data-wire-side-panel-rail-action-slot") ?? "",
       actionable: rail.getAttribute("data-wire-side-panel-rail-actionable") ?? "",
+      bodyDisplay: rail.querySelector(":scope > [data-wire-side-panel-rail-body]") ? window.getComputedStyle(rail.querySelector(":scope > [data-wire-side-panel-rail-body]")).display : "",
+      bodyMode: rail.getAttribute("data-wire-side-panel-rail-body-mode") ?? "",
       buttonDisabled: rail.querySelector("[data-wire-side-panel-rail-action]")?.hasAttribute("disabled") ?? null,
       buttonText: rail.querySelector("[data-wire-side-panel-rail-action]")?.textContent?.trim() ?? "",
+      capacityWeight: Number(rail.getAttribute("data-wire-side-panel-rail-capacity-weight") ?? "NaN"),
       display: window.getComputedStyle(rail).display,
       key: rail.getAttribute("data-wire-side-panel-rail") ?? "",
       mode: rail.getAttribute("data-wire-side-panel-rail-mode") ?? "",
+      priority: rail.getAttribute("data-wire-side-panel-rail-priority") ?? "",
       reason: rail.getAttribute("data-wire-side-panel-rail-reason") ?? "",
       state: rail.getAttribute("data-wire-side-panel-rail-state") ?? "",
       target: rail.getAttribute("data-wire-side-panel-rail-target") ?? "",
@@ -985,6 +989,11 @@ async function runWireLayoutGeometrySmoke(cdp) {
     const sidePanelDirectoryHiddenCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-hidden-count") ?? "NaN");
     const sidePanelDirectoryVisibleCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-visible-count") ?? "NaN");
     const directoryState = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-state") ?? "";
+    const sidePanelRailBodyCount = Number(sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-capacity-body-count") ?? "NaN");
+    const sidePanelRailCapacityMaxWeight = Number(sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-capacity-max-weight") ?? "NaN");
+    const sidePanelRailCapacityOverflow = sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-capacity-overflow") ?? "";
+    const sidePanelRailCapacityWeight = Number(sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-capacity-weight") ?? "NaN");
+    const sidePanelRailDensity = sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-density") ?? "";
     if (!expectedSidePanelSlots.includes(primarySlot)) {
       failures.push(\`wire side panel directory primary slot invalid: \${primarySlot}\`);
     }
@@ -1043,9 +1052,25 @@ async function runWireLayoutGeometrySmoke(cdp) {
     const hiddenRails = sidePanelRails.filter((rail) => rail.mode === "hidden");
     const expandedRails = sidePanelRails.filter((rail) => rail.mode === "expanded");
     const summaryRails = sidePanelRails.filter((rail) => rail.mode === "summary");
+    const renderedBodyRails = sidePanelRails.filter((rail) => rail.mode !== "hidden" && rail.bodyMode !== "collapsed");
     const mainRail = sidePanelRails.find((rail) => rail.key === "main");
     if (!sidePanelRailStack) {
       failures.push("wire side panel rail stack missing");
+    }
+    if (!["balanced", "crowded", "quiet", "urgent"].includes(sidePanelRailDensity)) {
+      failures.push(\`wire side panel rail density invalid: \${sidePanelRailDensity}\`);
+    }
+    if (sidePanelRailBodyCount !== renderedBodyRails.length) {
+      failures.push(\`wire side panel rail rendered body count mismatch: \${sidePanelRailBodyCount} / \${renderedBodyRails.length}\`);
+    }
+    if (!Number.isFinite(sidePanelRailCapacityWeight) || !Number.isFinite(sidePanelRailCapacityMaxWeight)) {
+      failures.push(\`wire side panel rail capacity weights invalid: \${sidePanelRailCapacityWeight} / \${sidePanelRailCapacityMaxWeight}\`);
+    }
+    if (sidePanelRailCapacityWeight !== sidePanelRails.reduce((total, rail) => total + rail.capacityWeight, 0)) {
+      failures.push(\`wire side panel rail capacity weight mismatch: \${sidePanelRailCapacityWeight}\`);
+    }
+    if (!booleanAttribute(sidePanelRailCapacityOverflow)) {
+      failures.push(\`wire side panel rail capacity overflow flag invalid: \${sidePanelRailCapacityOverflow}\`);
     }
     if (sidePanelRailVisibleCount !== visibleRails.length) {
       failures.push(\`wire side panel rail visible count mismatch: \${sidePanelRailVisibleCount} / \${visibleRails.length}\`);
@@ -1072,8 +1097,20 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
     for (const rail of sidePanelRails) {
-      if (!rail.key || !rail.mode || !rail.state || !rail.reason || !rail.actionLabel) {
+      if (!rail.key || !rail.mode || !rail.state || !rail.reason || !rail.actionLabel || !rail.bodyMode || !rail.priority) {
         failures.push(\`wire side panel rail incomplete: \${JSON.stringify(rail)}\`);
+      }
+      if (!["collapsed", "compact", "full"].includes(rail.bodyMode)) {
+        failures.push(\`wire side panel rail body mode invalid: \${JSON.stringify(rail)}\`);
+      }
+      if (!["background", "context", "primary", "urgent"].includes(rail.priority)) {
+        failures.push(\`wire side panel rail priority invalid: \${JSON.stringify(rail)}\`);
+      }
+      if (!Number.isFinite(rail.capacityWeight)) {
+        failures.push(\`wire side panel rail capacity weight invalid: \${JSON.stringify(rail)}\`);
+      }
+      if (rail.bodyMode === "collapsed" && rail.bodyDisplay && rail.bodyDisplay !== "none") {
+        failures.push(\`wire side panel collapsed rail body still displayed: \${JSON.stringify(rail)}\`);
       }
       if (rail.mode === "hidden" && rail.display !== "none") {
         failures.push(\`wire side panel hidden rail still displayed: \${rail.key}\`);
