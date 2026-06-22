@@ -1028,6 +1028,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const commandCenter = document.querySelector(".wire-command-center");
     const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
     const commandCenterFollowupLayout = commandCenterFollowup?.querySelector("[data-command-followup-layout-state]");
+    const objectInspection = document.querySelector(".wire-focus-copy .wire-object-inspection");
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     return {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
@@ -1047,6 +1048,17 @@ async function runWireClickSelectionSmoke(cdp) {
         ].join(":")),
       objectCommandComposerStates: Array.from(document.querySelectorAll(".wire-object-context [data-wire-object-command-composer-state]"))
         .map((node) => node.getAttribute("data-wire-object-command-composer-state")),
+      objectInspectionAuthority: objectInspection?.getAttribute("data-wire-object-inspection-authority") ?? null,
+      objectInspectionGroups: Array.from(objectInspection?.querySelectorAll("[data-wire-object-inspection-group]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-group") ?? ""),
+      objectInspectionMetricStates: Array.from(objectInspection?.querySelectorAll("[data-wire-object-inspection-metric-state]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-metric-state") ?? ""),
+      objectInspectionRouteStates: Array.from(objectInspection?.querySelectorAll("[data-wire-object-inspection-route-state]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-route-state") ?? ""),
+      objectInspectionRoutes: Array.from(objectInspection?.querySelectorAll("[data-wire-object-inspection-route]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-route") ?? ""),
+      objectInspectionSource: objectInspection?.getAttribute("data-wire-object-inspection-source") ?? null,
+      objectInspectionText: objectInspection?.textContent ?? "",
       grammarComposerState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-composer-state") ?? null,
       grammarState: document.querySelector(".wire-focused-grammar")?.getAttribute("data-wire-focused-grammar-state") ?? null,
       grammarText: document.querySelector(".wire-focused-grammar")?.textContent ?? "",
@@ -1122,6 +1134,7 @@ async function runWireClickSelectionSmoke(cdp) {
   const detailContextResult = await evaluateJson(cdp, `(() => {
     const detail = document.querySelector(".detail-layer");
     const inspector = detail?.querySelector("[data-card-detail-inspector]");
+    const objectInspection = detail?.querySelector(".wire-object-inspection");
     const actions = detail?.querySelector("[data-card-detail-actions-state]");
     const actionRoutes = detail?.querySelector(".detail-action-routes");
     const checkMap = detail?.querySelector("[data-card-detail-check-map]");
@@ -1156,6 +1169,12 @@ async function runWireClickSelectionSmoke(cdp) {
       inspectorSource: inspector?.getAttribute("data-card-detail-inspector-source") ?? null,
       inspectorText: inspector?.textContent ?? "",
       labelledBy: detail?.getAttribute("aria-labelledby") ?? "",
+      objectInspectionAuthority: objectInspection?.getAttribute("data-wire-object-inspection-authority") ?? null,
+      objectInspectionGroups: Array.from(objectInspection?.querySelectorAll("[data-wire-object-inspection-group]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-group") ?? ""),
+      objectInspectionRoutes: Array.from(objectInspection?.querySelectorAll("[data-wire-object-inspection-route]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-route") ?? ""),
+      objectInspectionText: objectInspection?.textContent ?? "",
       state: detail?.getAttribute("data-detail-dialog-state") ?? null,
       summaryKeys: Array.from(inspector?.querySelectorAll("[data-card-detail-inspector-summary]") ?? []).map((node) => node.getAttribute("data-card-detail-inspector-summary")),
       text: detail?.textContent ?? "",
@@ -1596,6 +1615,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const selectedRef = document.querySelector('[data-candidate-object-ref="p2-right-1"][data-selected="true"]');
     const selectedObjectContext = document.querySelector('[data-wire-selected-object-context="p2-right-1"]');
     const objectContext = document.querySelector(".wire-object-context");
+    const objectInspection = selectedObjectContext?.querySelector(".wire-object-inspection");
     const selectedProjection = document.querySelector('[data-rule-selected-object="p2-right-1"]');
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
@@ -1616,6 +1636,12 @@ async function runWireClickSelectionSmoke(cdp) {
       objectSyntaxUsableCount: Number(objectContext?.querySelector("[data-wire-object-syntax-usable-count]")?.getAttribute("data-wire-object-syntax-usable-count") ?? 0),
       objectEventDetailIds: Array.from(objectContext?.querySelectorAll("[data-wire-object-event-detail]") ?? [])
         .map((node) => node.getAttribute("data-wire-object-event-detail") ?? ""),
+      objectInspectionAuthority: objectInspection?.getAttribute("data-wire-object-inspection-authority") ?? null,
+      objectInspectionGroups: Array.from(objectInspection?.querySelectorAll("[data-wire-object-inspection-group]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-group") ?? ""),
+      objectInspectionRoutes: Array.from(objectInspection?.querySelectorAll("[data-wire-object-inspection-route]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-route") ?? ""),
+      objectInspectionText: objectInspection?.textContent ?? "",
       projectionRelationCount: Number(selectedProjection?.getAttribute("data-rule-selected-object-relation-count") ?? 0),
       projectionRelationActions: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-relation-actions]") ?? [])
         .map((node) => node.getAttribute("data-rule-selected-object-relation-actions") ?? ""),
@@ -1762,6 +1788,24 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.objectCommandComposerStates.includes("server")) failures.push("object context composer state missing");
   if (!focusResult.contextText.includes("近期事件")) failures.push("object context event section missing");
   if (focusResult.contextText.includes("serverPaymentState")) failures.push("object context leaked hidden server state");
+  if (focusResult.objectInspectionAuthority !== "server") failures.push(`object inspection authority unexpected: ${focusResult.objectInspectionAuthority}`);
+  if (focusResult.objectInspectionSource !== "服务端对象上下文") failures.push(`object inspection source unexpected: ${focusResult.objectInspectionSource}`);
+  for (const routeKey of ["identity", "zone", "authority", "candidate", "syntax", "commands", "server-relations", "stack-events", "contract"]) {
+    if (!focusResult.objectInspectionRoutes.includes(routeKey)) {
+      failures.push(`object inspection route missing: ${routeKey}`);
+    }
+  }
+  for (const groupKey of ["identity", "candidates", "syntax", "commands", "relations", "events", "boundary"]) {
+    if (!focusResult.objectInspectionGroups.includes(groupKey)) {
+      failures.push(`object inspection group missing: ${groupKey}`);
+    }
+  }
+  if (!focusResult.objectInspectionMetricStates.includes("server")) failures.push("object inspection server metric state missing");
+  if (!focusResult.objectInspectionRouteStates.includes("server")) failures.push("object inspection server route state missing");
+  if (!focusResult.objectInspectionText.includes("对象检查摘要")) failures.push("object inspection heading missing");
+  if (!focusResult.objectInspectionText.includes("提示契约")) failures.push("object inspection prompt contract route missing");
+  if (!focusResult.objectInspectionText.includes("合法性、费用、时机")) failures.push("object inspection authority boundary missing");
+  if (focusResult.objectInspectionText.includes("serverPaymentState")) failures.push("object inspection leaked hidden server state");
   if (!detailContextResult.open) failures.push("card detail did not open");
   if (detailContextResult.state !== "open") failures.push("card detail dialog state missing");
   if (detailContextResult.labelledBy !== "card-detail-title") failures.push("card detail dialog label binding missing");
@@ -1797,6 +1841,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!detailContextResult.actionText.includes("组合")) failures.push("card detail action route summary text missing");
   if (!detailContextResult.actionText.includes("字段")) failures.push("card detail action field summary text missing");
   if (!detailContextResult.actionText.includes("提交服务端候选")) failures.push("card detail composer submit control missing");
+  if (detailContextResult.objectInspectionAuthority !== "server") failures.push(`card detail object inspection authority unexpected: ${detailContextResult.objectInspectionAuthority}`);
+  if (!detailContextResult.objectInspectionRoutes.includes("contract")) failures.push("card detail object inspection contract route missing");
+  if (!detailContextResult.objectInspectionGroups.includes("server-candidate")) failures.push("card detail object inspection server group missing");
+  if (!detailContextResult.objectInspectionGroups.includes("boundary")) failures.push("card detail object inspection boundary group missing");
+  if (!detailContextResult.objectInspectionText.includes("对象检查摘要")) failures.push("card detail object inspection heading missing");
+  if (!detailContextResult.objectInspectionText.includes("服务端检查摘要")) failures.push("card detail object inspection server source missing");
+  if (detailContextResult.objectInspectionText.includes("serverPaymentState")) failures.push("card detail object inspection leaked hidden server state");
   if (!detailReviewResult.clicked) failures.push("card detail route review control could not be clicked");
   if (!detailReviewResult.open) failures.push("card detail route review did not open");
   if (detailReviewResult.state !== "open") failures.push(`card detail route review state unexpected: ${detailReviewResult.state}`);
@@ -2181,6 +2232,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.detailContextText.includes("服务端字段")) failures.push("timeline selected object context command metadata summary missing");
   if (candidateRefResult.detailContextText.includes("服务端:cardNo*")) failures.push("timeline selected object context leaked raw metadata command field");
   if (!candidateRefResult.detailContextText.includes("近期事件")) failures.push("timeline selected object context event section missing");
+  if (candidateRefResult.objectInspectionAuthority !== "server") failures.push(`timeline selected object inspection authority unexpected: ${candidateRefResult.objectInspectionAuthority}`);
+  if (!candidateRefResult.objectInspectionRoutes.includes("candidate")) failures.push("timeline selected object inspection candidate route missing");
+  if (!candidateRefResult.objectInspectionRoutes.includes("contract")) failures.push("timeline selected object inspection contract route missing");
+  if (!candidateRefResult.objectInspectionGroups.includes("boundary")) failures.push("timeline selected object inspection boundary group missing");
+  if (!candidateRefResult.objectInspectionText.includes("对象检查摘要")) failures.push("timeline selected object inspection heading missing");
+  if (!candidateRefResult.objectInspectionText.includes("PLAY_CARD")) failures.push("timeline selected object inspection command missing");
+  if (candidateRefResult.objectInspectionText.includes("serverPaymentState")) failures.push("timeline selected object inspection leaked hidden server state");
   if (!candidateRefResult.objectEventDetailIds.some((id) => id.startsWith("object-event:"))) {
     failures.push(`focused object event detail id missing: ${candidateRefResult.objectEventDetailIds.join(",")}`);
   }

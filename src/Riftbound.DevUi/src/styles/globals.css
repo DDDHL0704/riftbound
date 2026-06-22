@@ -13921,6 +13921,13 @@ button.card-face:hover {
 
 .wire-object-context-grid span,
 .wire-object-section-map li,
+.wire-object-inspection,
+.wire-object-inspection-heading,
+.wire-object-inspection-metrics li,
+.wire-object-inspection-routes li,
+.wire-object-inspection-groups section,
+.wire-object-inspection-groups header,
+.wire-object-inspection-groups li,
 .wire-object-contract-block,
 .wire-object-syntax-list li,
 .wire-object-next-step-list li,
@@ -13969,6 +13976,8 @@ button.card-face:hover {
 }
 
 .wire-object-command-list,
+.wire-object-inspection-metrics,
+.wire-object-inspection-routes,
 .wire-object-next-step-list,
 .wire-object-section-map,
 .wire-object-syntax-list,
@@ -13994,6 +14003,101 @@ button.card-face:hover {
 
 .wire-object-section-map li[data-wire-object-section-state="warning"] {
   border-style: dashed;
+}
+
+.wire-object-inspection {
+  display: grid;
+  gap: 4px;
+  padding: 5px;
+}
+
+.wire-object-inspection-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px;
+}
+
+.wire-object-inspection-heading > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wire-object-inspection p {
+  margin: 0;
+  padding: 4px;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.wire-object-inspection-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wire-object-inspection-routes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wire-object-inspection-metrics li,
+.wire-object-inspection-routes li,
+.wire-object-inspection-groups section,
+.wire-object-inspection-groups header,
+.wire-object-inspection-groups li {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+}
+
+.wire-object-inspection-metrics li[data-wire-object-inspection-metric-state="warning"],
+.wire-object-inspection-routes li[data-wire-object-inspection-route-state="warning"],
+.wire-object-inspection-groups li[data-wire-object-inspection-row-tone="warn"] {
+  border-style: dashed;
+}
+
+.wire-object-inspection-metrics li[data-wire-object-inspection-metric-state="server"],
+.wire-object-inspection-routes li[data-wire-object-inspection-route-state="server"] {
+  border-width: 2px;
+}
+
+.wire-object-inspection-metrics span,
+.wire-object-inspection-metrics small,
+.wire-object-inspection-metrics strong,
+.wire-object-inspection-routes span,
+.wire-object-inspection-routes small,
+.wire-object-inspection-routes strong,
+.wire-object-inspection-groups span,
+.wire-object-inspection-groups small,
+.wire-object-inspection-groups strong,
+.wire-object-inspection-heading span,
+.wire-object-inspection-heading strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-object-inspection-groups {
+  display: grid;
+  gap: 4px;
+}
+
+.wire-object-inspection-groups section {
+  align-content: start;
+}
+
+.wire-object-inspection-groups header {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.wire-object-inspection-groups ol {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .wire-object-command-block,
@@ -17386,6 +17490,13 @@ button.wire-object-ref {
 .wire-match-page .wire-object-context,
 .wire-match-page .wire-object-context-grid span,
 .wire-match-page .wire-object-section-map li,
+.wire-match-page .wire-object-inspection,
+.wire-match-page .wire-object-inspection-heading,
+.wire-match-page .wire-object-inspection-metrics li,
+.wire-match-page .wire-object-inspection-routes li,
+.wire-match-page .wire-object-inspection-groups section,
+.wire-match-page .wire-object-inspection-groups header,
+.wire-match-page .wire-object-inspection-groups li,
 .wire-match-page .wire-object-contract-block,
 .wire-match-page .wire-object-contract-block small,
 .wire-match-page .wire-object-syntax-block,

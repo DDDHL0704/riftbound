@@ -15,6 +15,7 @@ import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import type { WireObjectIndex } from "./WireObjectRefChips";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
+import { WireObjectInspectionSummary } from "./WireObjectInspectionSummary";
 import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 import { WireEmpty } from "./wireCardFlow";
 import { WireFocusedActionSummary } from "./WireFocusedActionSummary";
@@ -97,6 +98,7 @@ export function WireInteractionPanel({
                   onSelectDetail={onSelectDetail}
                   selectedDetailId={selectedDetailId}
                 />
+                <WireObjectInspectionSummary context={objectContext} contract={prompt?.contract} />
                 <div className="wire-focus-actions">
                   <Button icon={<Maximize2 size={16} />} onClick={() => onOpenDetail(inspectedCard)} variant="secondary">查看详情</Button>
                   <Button onClick={onClearInspectedCard} variant="ghost">清除焦点</Button>

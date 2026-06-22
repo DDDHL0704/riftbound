@@ -22,6 +22,7 @@ import { WireFocusedLegalActionMatrix } from "../match/WireFocusedLegalActionMat
 import { WireFocusedReadinessStrip } from "../match/WireFocusedReadinessStrip";
 import { WireFocusedSelectionGuide } from "../match/WireFocusedSelectionGuide";
 import { WireObjectContextSummary } from "../match/WireObjectContextSummary";
+import { WireObjectInspectionSummary } from "../match/WireObjectInspectionSummary";
 import { WirePromptCandidateRow } from "../match/WirePromptCandidateRow";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -574,6 +575,7 @@ function DetailObjectContext({
     <section className="detail-section detail-context" aria-label="卡牌规则上下文">
       <strong>规则上下文</strong>
       <WireObjectContextSummary context={context} contract={contract} focusModel={focusModel} />
+      <WireObjectInspectionSummary context={context} contract={contract} />
     </section>
   );
 }

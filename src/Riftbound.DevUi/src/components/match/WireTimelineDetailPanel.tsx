@@ -22,6 +22,7 @@ import {
 } from "../../utils/wireTimelineDetailPlan";
 import { WireCommandFollowupPanel } from "./WireCommandFollowupPanel";
 import { WireObjectContextSummary } from "./WireObjectContextSummary";
+import { WireObjectInspectionSummary } from "./WireObjectInspectionSummary";
 import { WireObjectRefChips, type WireObjectIndex, type WireObjectRef } from "./WireObjectRefChips";
 import type { WireTableViewModel } from "./wireTableViewModel";
 
@@ -224,6 +225,7 @@ export function WireTimelineDetailPanel({
             />
             {selectedObjectContext && (
               <ObjectContextDetail
+                contract={prompt?.contract}
                 context={selectedObjectContext}
                 objectIndex={objectIndex}
                 onInspectObject={onInspectObject}
@@ -236,6 +238,7 @@ export function WireTimelineDetailPanel({
           </>
         ) : selectedObjectContext ? (
           <ObjectContextDetail
+            contract={prompt?.contract}
             context={selectedObjectContext}
             objectIndex={objectIndex}
             onInspectObject={onInspectObject}
@@ -773,6 +776,7 @@ function compactList(values: string[], limit: number): string {
 }
 
 function ObjectContextDetail({
+  contract,
   context,
   objectIndex,
   onInspectObject,
@@ -781,6 +785,7 @@ function ObjectContextDetail({
   selectedDetailId,
   title
 }: {
+  contract?: ActionPromptDto["contract"];
   context: TableObjectContext;
   objectIndex: WireObjectIndex;
   onInspectObject?: (objectId: string) => void;
@@ -799,7 +804,8 @@ function ObjectContextDetail({
         selectedObjectId={selectedObjectId}
         source="rule"
       />
-      <WireObjectContextSummary context={context} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
+      <WireObjectContextSummary context={context} contract={contract} onSelectDetail={onSelectDetail} selectedDetailId={selectedDetailId} />
+      <WireObjectInspectionSummary context={context} contract={contract} />
     </div>
   );
 }
