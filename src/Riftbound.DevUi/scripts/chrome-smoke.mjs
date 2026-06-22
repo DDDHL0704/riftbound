@@ -917,10 +917,22 @@ async function runWireLayoutGeometrySmoke(cdp) {
       tab: link.getAttribute("data-wire-side-panel-directory-tab") ?? "",
       tone: link.getAttribute("data-wire-side-panel-directory-tone") ?? ""
     }));
+    const sidePanelControlRoutes = Array.from(document.querySelectorAll("[data-wire-side-panel-control-route]")).map((route) => ({
+      action: route.querySelector("[data-wire-side-panel-control-route-action]")?.getAttribute("data-wire-side-panel-control-route-action") ?? "",
+      disabled: route.querySelector("button")?.hasAttribute("disabled") ?? null,
+      key: route.getAttribute("data-wire-side-panel-control-route") ?? "",
+      selectable: route.getAttribute("data-wire-side-panel-control-route-selectable") ?? "",
+      slot: route.getAttribute("data-wire-side-panel-control-route-slot") ?? "",
+      state: route.getAttribute("data-wire-side-panel-control-route-state") ?? "",
+      text: route.textContent?.trim() ?? "",
+      tone: route.getAttribute("data-wire-side-panel-control-route-tone") ?? ""
+    }));
     const sidePanelDirectory = document.querySelector("[data-wire-side-panel-directory]");
     const primarySlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-primary-slot") ?? "";
     const activeSlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-slot") ?? "";
     const activeTab = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-tab") ?? "";
+    const sidePanelControlRouteCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-control-route-count") ?? "NaN");
+    const sidePanelControlState = sidePanelDirectory?.getAttribute("data-wire-side-panel-control-state") ?? "";
     const sidePanelDirectoryDeclaredCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-count") ?? "NaN");
     const sidePanelDirectoryHiddenCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-hidden-count") ?? "NaN");
     const sidePanelDirectoryVisibleCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-visible-count") ?? "NaN");
@@ -942,8 +954,41 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (!directoryState) {
       failures.push("wire side panel directory state missing");
     }
+    if (sidePanelControlState !== directoryState) {
+      failures.push(\`wire side panel control state should match directory state: \${sidePanelControlState} / \${directoryState}\`);
+    }
     const sidePanelDirectoryLinkSlots = sidePanelDirectoryLinks.map((link) => link.slot);
     const expectedVisibleSidePanelSlots = expectedSidePanelVisibleSlotsByTab[activeTab] ?? [];
+    const controlRouteKeys = sidePanelControlRoutes.map((route) => route.key);
+    const activeControlRoute = sidePanelControlRoutes.find((route) => route.key === "active");
+    const primaryControlRoute = sidePanelControlRoutes.find((route) => route.key === "primary" || route.slot === primarySlot);
+    const hiddenControlRoute = sidePanelControlRoutes.find((route) => route.key === "hidden");
+    if (sidePanelControlRouteCount !== sidePanelControlRoutes.length) {
+      failures.push(\`wire side panel control route count mismatch: \${sidePanelControlRouteCount} / \${sidePanelControlRoutes.length}\`);
+    }
+    if (!controlRouteKeys.includes("active")) {
+      failures.push("wire side panel control active route missing");
+    }
+    if (activeControlRoute?.slot !== activeSlot) {
+      failures.push(\`wire side panel control active route mismatch: \${activeControlRoute?.slot} / \${activeSlot}\`);
+    }
+    if (!primaryControlRoute) {
+      failures.push(\`wire side panel control primary route missing for \${primarySlot}\`);
+    }
+    if (sidePanelDirectoryHiddenCount > 0 && !hiddenControlRoute) {
+      failures.push("wire side panel control hidden route missing despite hidden entries");
+    }
+    for (const route of sidePanelControlRoutes) {
+      if (!route.key || !route.state || !route.tone || !route.action || route.text.length === 0) {
+        failures.push(\`wire side panel control route incomplete: \${JSON.stringify(route)}\`);
+      }
+      if (route.selectable === "false" && route.disabled !== true) {
+        failures.push(\`wire side panel non-selectable route should be disabled: \${route.key}\`);
+      }
+      if (route.selectable === "true" && route.disabled !== false) {
+        failures.push(\`wire side panel selectable route should be enabled: \${route.key}\`);
+      }
+    }
     if (sidePanelDirectoryDeclaredCount !== expectedSidePanelSlots.length) {
       failures.push(\`wire side panel directory declared count drifted: \${sidePanelDirectoryDeclaredCount}\`);
     }
@@ -1018,6 +1063,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       sidePanelDirectoryDeclaredCount,
       sidePanelDirectoryHiddenCount,
       sidePanelDirectoryVisibleCount,
+      sidePanelControlRouteCount,
       sidePanelTabCount: sidePanelTabs.length,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length,
       tableAuthorityState

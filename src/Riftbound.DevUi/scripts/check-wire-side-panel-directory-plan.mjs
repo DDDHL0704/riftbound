@@ -8,6 +8,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const layout = JSON.parse(readFileSync(resolve(scriptDir, "../src/components/match/wireTableLayoutData.json"), "utf8"));
 const { buildWireSidePanelDirectoryPlan, wireSidePanelAnchorId } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryPlan.ts"));
 const { buildWireSidePanelDirectoryViewPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryViewPlan.ts"));
+const { buildWireSidePanelControlPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelControlPlan.ts"));
 const { buildWireSidePanelFramePlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelFramePlan.ts"));
 const { buildWireSidePanelOrchestrationPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelOrchestrationPlan.ts"));
 const { WIRE_SIDE_PANEL_TABS } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelTabPlan.ts"));
@@ -122,6 +123,20 @@ assert.equal(actionDirectoryView.currentTab.id, "action");
 assert.equal(actionDirectoryView.currentTab.active, true);
 assert.ok(actionDirectoryView.tabs.find((item) => item.id === "rules").count >= 1);
 
+const actionControlPlan = buildWireSidePanelControlPlan({
+  orchestration: readyOrchestration,
+  view: actionDirectoryView
+});
+assert.equal(actionControlPlan.activeRoute.slot, "commandCenter");
+assert.equal(actionControlPlan.primaryRoute.slot, "commandCenter");
+assert.equal(actionControlPlan.urgentRoute.slot, "commandCenter");
+assert.equal(actionControlPlan.hiddenRoute.slot, "responseCoach");
+assert.equal(actionControlPlan.routes[0].key, "active");
+assert.equal(actionControlPlan.routes[0].selectable, false);
+assert.deepEqual(actionControlPlan.routes.map((route) => route.slot), ["commandCenter", "responseCoach"]);
+assert.equal(actionControlPlan.routeCount, 2);
+assert.ok(actionControlPlan.summary.includes("另有隐藏入口"));
+
 const detailDirectoryView = buildWireSidePanelDirectoryViewPlan({
   activeSlot: "timelineDetail",
   activeTab: "detail",
@@ -137,6 +152,17 @@ assert.deepEqual(detailDirectoryView.visibleEntries.map((item) => item.slot), [
 ]);
 assert.equal(detailDirectoryView.activeEntry.slot, "timelineDetail");
 assert.equal(detailDirectoryView.primaryEntry.slot, "timelineDetail");
+
+const detailControlPlan = buildWireSidePanelControlPlan({
+  orchestration: readyOrchestration,
+  view: detailDirectoryView
+});
+assert.equal(detailControlPlan.activeRoute.slot, "timelineDetail");
+assert.equal(detailControlPlan.primaryRoute.slot, "commandCenter");
+assert.equal(detailControlPlan.urgentRoute.slot, "commandCenter");
+assert.equal(detailControlPlan.hiddenRoute.slot, "responseCoach");
+assert.deepEqual(detailControlPlan.routes.map((route) => route.slot), ["timelineDetail", "commandCenter", "responseCoach"]);
+assert.equal(detailControlPlan.routes.find((route) => route.key === "primary").selectable, true);
 
 assert.throws(
   () => buildWireSidePanelDirectoryViewPlan({

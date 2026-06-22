@@ -12469,6 +12469,70 @@ button.card-face:hover {
   line-height: 1.15;
 }
 
+.wire-side-panel-control-routes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-side-panel-control-routes li {
+  min-width: 0;
+}
+
+.wire-side-panel-control-routes button {
+  min-width: 0;
+  width: 100%;
+  min-height: 30px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  padding: 2px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.wire-side-panel-control-routes button:disabled {
+  cursor: default;
+}
+
+.wire-side-panel-control-routes span,
+.wire-side-panel-control-routes strong,
+.wire-side-panel-control-routes small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-side-panel-control-routes span,
+.wire-side-panel-control-routes small {
+  font-size: 8px;
+  line-height: 1.05;
+}
+
+.wire-side-panel-control-routes strong {
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.wire-side-panel-control-routes li[data-wire-side-panel-control-route-selectable="true"] button {
+  border-width: 2px;
+}
+
+.wire-side-panel-control-routes li[data-wire-side-panel-control-route-state="blocked"] button,
+.wire-side-panel-control-routes li[data-wire-side-panel-control-route-state="offline"] button {
+  outline: 2px solid #000;
+  outline-offset: -2px;
+}
+
 .wire-side-panel-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

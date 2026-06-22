@@ -95,6 +95,7 @@ import { buildWireObjectCommandTrayPlan } from "../utils/wireObjectCommandTrayPl
 import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
 import { buildWireSidePanelDirectoryPlan, type WireSidePanelDirectoryPlan } from "../utils/wireSidePanelDirectoryPlan";
 import { buildWireSidePanelDirectoryViewPlan } from "../utils/wireSidePanelDirectoryViewPlan";
+import { buildWireSidePanelControlPlan } from "../utils/wireSidePanelControlPlan";
 import { buildWireSidePanelFramePlan } from "../utils/wireSidePanelFramePlan";
 import { buildWireSidePanelFocusPlan } from "../utils/wireSidePanelFocusPlan";
 import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
@@ -1027,6 +1028,7 @@ function WireSidePanelDirectory({
     entries: orchestration.entries,
     tabs: WIRE_SIDE_PANEL_TABS
   });
+  const controlPlan = buildWireSidePanelControlPlan({ orchestration, view });
 
   return (
     <nav
@@ -1042,12 +1044,43 @@ function WireSidePanelDirectory({
       data-wire-side-panel-directory-state={orchestration.state}
       data-wire-side-panel-directory-urgent-count={orchestration.urgentCount}
       data-wire-side-panel-directory-visible-count={view.visibleEntries.length}
+      data-wire-side-panel-control-route-count={controlPlan.routeCount}
+      data-wire-side-panel-control-state={controlPlan.state}
     >
-      <div className="wire-side-panel-directory-summary">
+      <div className="wire-side-panel-directory-summary" data-wire-side-panel-control-summary={controlPlan.state}>
         <h2>控制台</h2>
         <strong>{view.activeEntry.label}</strong>
         <span>{view.activeEntry.stateLabel} / {view.activeEntry.count}</span>
       </div>
+      <ol className="wire-side-panel-control-routes" aria-label="右侧控制台路由摘要">
+        {controlPlan.routes.map((route) => (
+          <li
+            data-wire-side-panel-control-route={route.key}
+            data-wire-side-panel-control-route-selectable={route.selectable}
+            data-wire-side-panel-control-route-slot={route.slot ?? ""}
+            data-wire-side-panel-control-route-state={route.state}
+            data-wire-side-panel-control-route-tone={route.tone}
+            key={`${route.key}:${route.slot ?? "none"}`}
+          >
+            <button
+              aria-label={`${route.label}：${route.slotLabel}，${route.stateLabel}，${route.detail}`}
+              data-wire-side-panel-control-route-action={route.key}
+              disabled={!route.selectable || !route.slot}
+              onClick={() => {
+                if (route.slot) {
+                  onSelectSlot(route.slot);
+                }
+              }}
+              title={`${route.label} / ${route.slotLabel} / ${route.detail}`}
+              type="button"
+            >
+              <span>{route.label}</span>
+              <strong>{route.slotLabel}</strong>
+              <small>{route.stateLabel} / {route.count}</small>
+            </button>
+          </li>
+        ))}
+      </ol>
       <div className="wire-side-panel-tabs" role="tablist" aria-label="右侧主面板">
         {view.tabs.map((tab) => (
           <button
