@@ -901,9 +901,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
       count: link.getAttribute("data-wire-side-panel-directory-count-value") ?? "",
       href: link.getAttribute("href") ?? "",
       label: link.textContent?.trim() ?? "",
+      shortLabel: link.getAttribute("data-wire-side-panel-directory-short-label") ?? "",
       slot: link.getAttribute("data-wire-side-panel-directory-link") ?? "",
       state: link.getAttribute("data-wire-side-panel-directory-state") ?? "",
-      tone: link.getAttribute("data-wire-side-panel-directory-tone") ?? ""
+      tab: link.getAttribute("data-wire-side-panel-directory-tab") ?? "",
+      tone: link.getAttribute("data-wire-side-panel-directory-tone") ?? "",
+      visible: link.closest("[data-wire-side-panel-directory-item]")?.getAttribute("data-wire-side-panel-directory-tab-visible") ?? ""
     }));
     const sidePanelDirectory = document.querySelector("[data-wire-side-panel-directory]");
     const primarySlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-primary-slot") ?? "";
@@ -931,6 +934,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (sidePanelDirectoryLinkSlots.join("|") !== expectedSidePanelSlots.join("|")) {
       failures.push(\`wire side panel directory order drifted: \${sidePanelDirectoryLinkSlots.join(" -> ")}\`);
     }
+    const visibleSidePanelDirectoryLinks = sidePanelDirectoryLinks.filter((link) => link.visible === "true");
+    const visibleSidePanelDirectoryTabs = new Set(visibleSidePanelDirectoryLinks.map((link) => link.tab));
+    if (visibleSidePanelDirectoryLinks.length === 0) {
+      failures.push("wire side panel directory should expose active-tab entries");
+    }
+    if (visibleSidePanelDirectoryTabs.size !== 1 || !visibleSidePanelDirectoryTabs.has(activeTab)) {
+      failures.push(\`wire side panel directory visible entries should match active tab \${activeTab}: \${Array.from(visibleSidePanelDirectoryTabs).join(",")}\`);
+    }
     for (const link of sidePanelDirectoryLinks) {
       const expectedAnchorId = \`wire-side-panel-\${link.slot}\`;
       if (link.href !== \`#\${expectedAnchorId}\`) {
@@ -941,6 +952,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
       if (link.label.length === 0) {
         failures.push(\`wire side panel directory link label missing: \${link.slot}\`);
+      }
+      if (link.shortLabel.length === 0) {
+        failures.push(\`wire side panel directory short label missing: \${link.slot}\`);
       }
       if (!link.state || !link.tone) {
         failures.push(\`wire side panel directory link state missing: \${link.slot}\`);

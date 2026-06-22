@@ -131,6 +131,23 @@ const WIRE_SIDE_PANEL_TAB_BY_SLOT = WIRE_SIDE_PANEL_TABS.reduce((map, tab) => {
   return map;
 }, {} as Record<WireSidePanelSlot, WireSidePanelTab>);
 
+const WIRE_SIDE_PANEL_SHORT_LABELS: Record<WireSidePanelSlot, string> = {
+  actionMap: "地图",
+  actionPrompt: "提示",
+  commandCenter: "指挥",
+  informationBoundary: "边界",
+  interaction: "焦点",
+  log: "日志",
+  overview: "总览",
+  promptAuthority: "契约",
+  responseCoach: "响应",
+  ruleQueue: "队列",
+  serverFlow: "流程",
+  tableAuthority: "桌面",
+  timelineDetail: "事件",
+  turnWindow: "窗口"
+};
+
 function commandUiSource(
   base: CommandSubmissionUiSource,
   routeSource?: Partial<CommandSubmissionUiSource>
@@ -1004,36 +1021,44 @@ function WireSidePanelDirectory({
         ))}
       </div>
       <ol className="wire-side-panel-entry-grid">
-        {orchestration.entries.map((entry) => (
-          <li
-            data-wire-side-panel-directory-active={entry.slot === activeSlot}
-            data-wire-side-panel-directory-group={plan.bySlot[entry.slot].group}
-            data-wire-side-panel-directory-item={entry.slot}
-            data-wire-side-panel-directory-state={entry.state}
-            key={entry.slot}
-          >
-            <a
-              aria-label={`${entry.order}. ${entry.label}：${entry.stateLabel}，${entry.detail}`}
-              aria-current={entry.slot === activeSlot ? "page" : undefined}
-              data-wire-side-panel-directory-count-value={entry.count}
-              data-wire-side-panel-directory-link={entry.slot}
+        {orchestration.entries.map((entry) => {
+          const entryTab = WIRE_SIDE_PANEL_TAB_BY_SLOT[entry.slot];
+          const tabVisible = entryTab === activeTab;
+          const shortLabel = WIRE_SIDE_PANEL_SHORT_LABELS[entry.slot];
+          return (
+            <li
+              data-wire-side-panel-directory-active={entry.slot === activeSlot}
+              data-wire-side-panel-directory-group={plan.bySlot[entry.slot].group}
+              data-wire-side-panel-directory-item={entry.slot}
               data-wire-side-panel-directory-state={entry.state}
-              data-wire-side-panel-directory-tab={WIRE_SIDE_PANEL_TAB_BY_SLOT[entry.slot]}
-              data-wire-side-panel-directory-tone={entry.tone}
-              href={entry.href}
-              onClick={(event) => {
-                event.preventDefault();
-                onSelectSlot(entry.slot);
-              }}
-              title={`${entry.label} / ${entry.stateLabel} / ${entry.detail}`}
+              data-wire-side-panel-directory-tab-visible={tabVisible}
+              key={entry.slot}
             >
-              <span>{entry.order}</span>
-              <strong>{entry.label}</strong>
-              <em>{entry.stateLabel}</em>
-              <small>{entry.count}</small>
-            </a>
-          </li>
-        ))}
+              <a
+                aria-label={`${entry.order}. ${entry.label}：${entry.stateLabel}，${entry.detail}`}
+                aria-current={entry.slot === activeSlot ? "page" : undefined}
+                data-wire-side-panel-directory-count-value={entry.count}
+                data-wire-side-panel-directory-label={entry.label}
+                data-wire-side-panel-directory-link={entry.slot}
+                data-wire-side-panel-directory-short-label={shortLabel}
+                data-wire-side-panel-directory-state={entry.state}
+                data-wire-side-panel-directory-tab={entryTab}
+                data-wire-side-panel-directory-tone={entry.tone}
+                href={entry.href}
+                onClick={(event) => {
+                  event.preventDefault();
+                  onSelectSlot(entry.slot);
+                }}
+                title={`${entry.label} / ${entry.stateLabel} / ${entry.detail}`}
+              >
+                <span>{entry.order}</span>
+                <strong>{shortLabel}</strong>
+                <em>{entry.stateLabel}</em>
+                <small>{entry.count}</small>
+              </a>
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );

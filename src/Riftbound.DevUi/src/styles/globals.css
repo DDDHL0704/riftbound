@@ -12261,7 +12261,7 @@ button.card-face:hover {
 
 .wire-side-panel-entry-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
   gap: 3px;
   margin: 0;
   padding: 0;
@@ -12272,11 +12272,15 @@ button.card-face:hover {
   min-width: 0;
 }
 
+.wire-side-panel-directory li[data-wire-side-panel-directory-tab-visible="false"] {
+  display: none;
+}
+
 .wire-side-panel-directory a {
   min-width: 0;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 2px 3px;
   align-items: center;
   border: 1px solid #000;
   background: #fff;
@@ -12301,19 +12305,24 @@ button.card-face:hover {
 }
 
 .wire-side-panel-directory a strong {
-  display: none;
+  display: block;
   font-weight: 700;
 }
 
 .wire-side-panel-directory a em,
 .wire-side-panel-directory a small {
-  display: none;
   border-left: 0;
   padding-left: 0;
   font-style: normal;
   font-size: 9px;
   line-height: 1.1;
   text-align: center;
+}
+
+.wire-side-panel-directory a em {
+  display: none;
+  grid-column: 1 / -1;
+  text-align: left;
 }
 
 .wire-side-panel-directory li[data-wire-side-panel-directory-state="ready"] a,
@@ -12338,6 +12347,12 @@ button.card-face:hover {
 .wire-side-panel-directory a:hover strong,
 .wire-side-panel-directory a:focus-visible strong,
 .wire-side-panel-directory a[aria-current="page"] strong {
+  display: block;
+}
+
+.wire-side-panel-directory a:hover em,
+.wire-side-panel-directory a:focus-visible em,
+.wire-side-panel-directory a[aria-current="page"] em {
   display: block;
 }
 
