@@ -929,6 +929,11 @@ async function runWireLayoutGeometrySmoke(cdp) {
     }));
     const sidePanelRailStack = document.querySelector("[data-wire-side-panel-rail-stack]");
     const sidePanelRails = Array.from(document.querySelectorAll("[data-wire-side-panel-rail]")).map((rail) => ({
+      actionLabel: rail.getAttribute("data-wire-side-panel-rail-action-label") ?? "",
+      actionSlot: rail.getAttribute("data-wire-side-panel-rail-action-slot") ?? "",
+      actionable: rail.getAttribute("data-wire-side-panel-rail-actionable") ?? "",
+      buttonDisabled: rail.querySelector("[data-wire-side-panel-rail-action]")?.hasAttribute("disabled") ?? null,
+      buttonText: rail.querySelector("[data-wire-side-panel-rail-action]")?.textContent?.trim() ?? "",
       display: window.getComputedStyle(rail).display,
       key: rail.getAttribute("data-wire-side-panel-rail") ?? "",
       mode: rail.getAttribute("data-wire-side-panel-rail-mode") ?? "",
@@ -1008,7 +1013,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures.push(\`wire side panel main rail should track active slot: \${JSON.stringify(mainRail)} / \${activeSlot}\`);
     }
     for (const rail of sidePanelRails) {
-      if (!rail.key || !rail.mode || !rail.state || !rail.reason) {
+      if (!rail.key || !rail.mode || !rail.state || !rail.reason || !rail.actionLabel) {
         failures.push(\`wire side panel rail incomplete: \${JSON.stringify(rail)}\`);
       }
       if (rail.mode === "hidden" && rail.display !== "none") {
@@ -1016,6 +1021,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
       if (rail.mode !== "hidden" && rail.display === "none") {
         failures.push(\`wire side panel visible rail hidden by CSS: \${rail.key}\`);
+      }
+      if (rail.mode === "summary") {
+        if (!rail.actionSlot || rail.actionable !== "true" || rail.buttonDisabled !== false || rail.buttonText.length === 0) {
+          failures.push(\`wire side panel summary rail action incomplete: \${JSON.stringify(rail)}\`);
+        }
+      }
+      if (rail.mode !== "summary" && rail.actionable === "true") {
+        failures.push(\`wire side panel non-summary rail should not expose active action: \${JSON.stringify(rail)}\`);
       }
     }
     if (sidePanelControlRouteCount !== sidePanelControlRoutes.length) {

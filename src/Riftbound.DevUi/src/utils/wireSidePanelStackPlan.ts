@@ -15,6 +15,8 @@ export type WireSidePanelStackRailMode = "expanded" | "hidden" | "summary";
 export type WireSidePanelStackRailState = "empty" | "normal" | "primary" | "urgent";
 
 export type WireSidePanelStackRailEntry = {
+  actionLabel: string;
+  actionSlot?: WireSidePanelSlot;
   key: WireSidePanelStackRailKey;
   label: string;
   mode: WireSidePanelStackRailMode;
@@ -83,6 +85,8 @@ export function buildWireSidePanelStackPlan({
 
 function statusRail(orchestration: WireSidePanelOrchestrationPlan): WireSidePanelStackRailEntry {
   return {
+    actionLabel: "总览",
+    actionSlot: "overview",
     key: "status",
     label: "状态",
     mode: "summary",
@@ -101,6 +105,7 @@ function focusRail({
 }): WireSidePanelStackRailEntry {
   if (!focusPlan.visible) {
     return {
+      actionLabel: "选择",
       key: "focus",
       label: "焦点",
       mode: "hidden",
@@ -112,6 +117,8 @@ function focusRail({
 
   const expanded = activeSlot === "interaction";
   return {
+    actionLabel: expanded ? "已展开" : "焦点",
+    actionSlot: "interaction",
     key: "focus",
     label: "焦点",
     mode: expanded ? "expanded" : "summary",
@@ -133,6 +140,7 @@ function rulesRail({
   const idle = ruleChainPlan.state === "idle";
   if (idle && !expanded) {
     return {
+      actionLabel: "队列",
       key: "rules",
       label: "规则链",
       mode: "hidden",
@@ -143,6 +151,8 @@ function rulesRail({
   }
 
   return {
+    actionLabel: expanded ? "已展开" : "队列",
+    actionSlot: "ruleQueue",
     key: "rules",
     label: "规则链",
     mode: expanded ? "expanded" : "summary",
@@ -162,6 +172,7 @@ function receiptRail({
 }): WireSidePanelStackRailEntry {
   if (!submissionFeedback) {
     return {
+      actionLabel: "回执",
       key: "receipt",
       label: "回执",
       mode: "hidden",
@@ -174,6 +185,8 @@ function receiptRail({
   const urgent = submissionFeedback.state === "failed" || submissionFeedback.state === "submitting";
   const expanded = urgent || activeSlot === "commandCenter" || activeSlot === "actionMap" || activeSlot === "actionPrompt";
   return {
+    actionLabel: expanded ? "已展开" : "回执",
+    actionSlot: "commandCenter",
     key: "receipt",
     label: "回执",
     mode: expanded ? "expanded" : "summary",
@@ -186,6 +199,8 @@ function receiptRail({
 
 function mainRail(activeEntry?: WireSidePanelOrchestrationEntry): WireSidePanelStackRailEntry {
   return {
+    actionLabel: "当前",
+    actionSlot: activeEntry?.slot,
     key: "main",
     label: "主面板",
     mode: "expanded",

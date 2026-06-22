@@ -12746,6 +12746,7 @@ button.card-face:hover {
   min-width: 0;
   min-height: 0;
   display: grid;
+  gap: 2px;
   overflow: hidden;
 }
 
@@ -12753,23 +12754,77 @@ button.card-face:hover {
   display: none;
 }
 
-.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="summary"] > * {
-  max-height: 56px;
+.wire-side-panel-rail-action {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 3px;
+  align-items: center;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 2px;
+}
+
+.wire-side-panel-rail-action span,
+.wire-side-panel-rail-action strong,
+.wire-side-panel-rail-action button {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-side-panel-rail-action span {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.wire-side-panel-rail-action strong {
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.wire-side-panel-rail-action button {
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  padding: 2px 4px;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+.wire-side-panel-rail-action button:disabled {
+  cursor: default;
+}
+
+.wire-side-panel-rail-body {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
   overflow: hidden;
 }
 
-.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="expanded"] > * {
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="summary"] > .wire-side-panel-rail-body {
+  max-height: 42px;
+  overflow: hidden;
+}
+
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="expanded"] > .wire-side-panel-rail-body {
   max-height: clamp(76px, 16vh, 148px);
   overflow: auto;
 }
 
-.wire-side-panel-rail-entry[data-wire-side-panel-rail-state="primary"] > *,
-.wire-side-panel-rail-entry[data-wire-side-panel-rail-state="urgent"] > * {
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-state="primary"] > .wire-side-panel-rail-body,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-state="urgent"] > .wire-side-panel-rail-body {
   outline: 2px solid #000;
   outline-offset: -2px;
 }
 
-.wire-side-panel-rail-entry[data-wire-side-panel-rail="status"] > * {
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="status"] > .wire-side-panel-rail-body {
   max-height: none;
   overflow: hidden;
 }

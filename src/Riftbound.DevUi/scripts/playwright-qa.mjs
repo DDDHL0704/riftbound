@@ -397,6 +397,7 @@ async function runObjectCommandTrayInteraction(report) {
   try {
     await page.goto(`${frontendUrl}/matches/qa-layout?fixture=layout`, { waitUntil: "networkidle" });
     await assertTexts(page, ["符文战场对战线框", "焦点 / 候选 / 规则队列"]);
+    await assertRailAction(page, "rules", "ruleQueue");
     await openSidePanelSlot(page, "serverFlow");
     const serverFlow = page.locator("[data-wire-server-flow-related-count]").first();
     await serverFlow.waitFor({ timeout: 10_000 });
@@ -599,6 +600,13 @@ async function clickReadyQuickAction(page, actionId, expectedCandidate) {
 
   await action.click();
   return `quick-action:${actionId}:${candidate}`;
+}
+
+async function assertRailAction(page, rail, expectedSlot) {
+  const action = page.locator(`[data-wire-side-panel-rail="${rail}"][data-wire-side-panel-rail-mode="summary"] [data-wire-side-panel-rail-action="${rail}"]`).first();
+  await action.waitFor({ timeout: 10_000 });
+  await action.click();
+  await page.locator(`[data-wire-side-panel-directory][data-wire-side-panel-directory-active-slot="${expectedSlot}"]`).waitFor({ timeout: 5_000 });
 }
 
 async function waitForAcceptedSubmissionFeedback(page, cmdType) {

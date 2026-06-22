@@ -915,7 +915,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             data-wire-side-panel-rail-summary-count={sidePanelStackPlan.summaryCount}
             data-wire-side-panel-rail-visible-count={sidePanelStackPlan.visibleEntries.length}
           >
-            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.status}>
+            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.status} onSelectSlot={selectSidePanelSlot}>
               <WireSidePanelStatus
                 activeEntry={activeSidePanelEntry}
                 canAct={canAct}
@@ -926,7 +926,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 windowState={timingStateLabel(windowState)}
               />
             </WireSidePanelRailEntry>
-            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.focus}>
+            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.focus} onSelectSlot={selectSidePanelSlot}>
               <WireSidePanelFocusStrip
                 inspectedCard={inspectedCard}
                 onClear={clearInspectedCard}
@@ -936,14 +936,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 plan={sidePanelFocusPlan}
               />
             </WireSidePanelRailEntry>
-            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.rules}>
+            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.rules} onSelectSlot={selectSidePanelSlot}>
               <WireSidePanelRuleChainStrip
                 onSelectDetail={selectTimelineDetail}
                 onSelectSlot={selectSidePanelSlot}
                 plan={sidePanelRuleChainPlan}
               />
             </WireSidePanelRailEntry>
-            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.receipt}>
+            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.receipt} onSelectSlot={selectSidePanelSlot}>
               <div
                 aria-label="服务端提交回执常驻区"
                 className="wire-side-panel-receipt"
@@ -972,6 +972,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             data-wire-side-panel-active-tab={activeSidePanelTab}
             data-wire-side-panel-persistent-count={sidePanelFrame.persistentSlots.length}
             data-wire-side-panel-rail={sidePanelStackPlan.byRail.main.key}
+            data-wire-side-panel-rail-action-label={sidePanelStackPlan.byRail.main.actionLabel}
+            data-wire-side-panel-rail-action-slot={sidePanelStackPlan.byRail.main.actionSlot ?? ""}
+            data-wire-side-panel-rail-actionable={false}
             data-wire-side-panel-rail-mode={sidePanelStackPlan.byRail.main.mode}
             data-wire-side-panel-rail-reason={sidePanelStackPlan.byRail.main.reason}
             data-wire-side-panel-rail-state={sidePanelStackPlan.byRail.main.state}
@@ -1049,21 +1052,48 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
 function WireSidePanelRailEntry({
   children,
-  entry
+  entry,
+  onSelectSlot
 }: {
   children: ReactNode;
   entry: WireSidePanelStackRailEntry;
+  onSelectSlot: (slot: WireSidePanelSlot) => void;
 }) {
+  const selectable = entry.mode === "summary" && Boolean(entry.actionSlot);
+
   return (
     <div
       className="wire-side-panel-rail-entry"
       data-wire-side-panel-rail={entry.key}
+      data-wire-side-panel-rail-action-label={entry.actionLabel}
+      data-wire-side-panel-rail-action-slot={entry.actionSlot ?? ""}
+      data-wire-side-panel-rail-actionable={selectable}
       data-wire-side-panel-rail-mode={entry.mode}
       data-wire-side-panel-rail-reason={entry.reason}
       data-wire-side-panel-rail-state={entry.state}
       data-wire-side-panel-rail-target={entry.slot ?? ""}
     >
-      {children}
+      {entry.mode === "summary" ? (
+        <div className="wire-side-panel-rail-action">
+          <span>{entry.label}</span>
+          <strong>{entry.reason}</strong>
+          <button
+            data-wire-side-panel-rail-action={entry.key}
+            disabled={!selectable || !entry.actionSlot}
+            onClick={() => {
+              if (entry.actionSlot) {
+                onSelectSlot(entry.actionSlot);
+              }
+            }}
+            type="button"
+          >
+            {entry.actionLabel}
+          </button>
+        </div>
+      ) : null}
+      <div className="wire-side-panel-rail-body" data-wire-side-panel-rail-body={entry.key}>
+        {children}
+      </div>
     </div>
   );
 }
