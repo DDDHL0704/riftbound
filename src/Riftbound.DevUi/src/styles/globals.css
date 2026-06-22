@@ -12423,10 +12423,7 @@ button.card-face:hover {
   display: grid;
   grid-template-rows:
     auto
-    auto
-    minmax(0, clamp(92px, 13vh, 138px))
-    minmax(0, clamp(98px, 14vh, 148px))
-    minmax(0, clamp(72px, 11vh, 116px))
+    minmax(0, auto)
     minmax(0, 1fr);
   gap: 4px;
   overflow: hidden;
@@ -12738,6 +12735,61 @@ button.card-face:hover {
   line-height: 1.15;
 }
 
+.wire-side-panel-rail-stack {
+  min-height: 0;
+  display: grid;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.wire-side-panel-rail-entry {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  overflow: hidden;
+}
+
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="hidden"] {
+  display: none;
+}
+
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="summary"] > * {
+  max-height: 56px;
+  overflow: hidden;
+}
+
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-mode="expanded"] > * {
+  max-height: clamp(76px, 16vh, 148px);
+  overflow: auto;
+}
+
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-state="primary"] > *,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail-state="urgent"] > * {
+  outline: 2px solid #000;
+  outline-offset: -2px;
+}
+
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="status"] > * {
+  max-height: none;
+  overflow: hidden;
+}
+
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="focus"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-focus-metrics,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="focus"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-focus-context,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="focus"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-focus-relations,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="focus"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-focus-next,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="focus"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-focus-routes,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="rules"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-rule-chain-lanes,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="rules"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-rule-chain-metrics,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="rules"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-rule-chain-next,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="rules"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-rule-chain-routes,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="receipt"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-receipt-followup,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="receipt"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-receipt-source,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="receipt"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-receipt-layout-projection,
+.wire-side-panel-rail-entry[data-wire-side-panel-rail="receipt"][data-wire-side-panel-rail-mode="summary"] .wire-side-panel-receipt-events {
+  display: none;
+}
+
 .wire-side-panel-focus-strip {
   min-width: 0;
   min-height: 0;
@@ -13032,7 +13084,7 @@ button.card-face:hover {
 .wire-side-panel-stack {
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(72px, 0.42fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 4px;
   overflow: hidden;
 }
@@ -13045,7 +13097,7 @@ button.card-face:hover {
 
 .wire-side-panel-pane[data-wire-side-panel-pane-active="true"] {
   display: grid;
-  grid-row: 2;
+  grid-row: 1;
   min-height: 0;
 }
 

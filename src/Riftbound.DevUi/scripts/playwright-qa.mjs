@@ -62,6 +62,23 @@ const scenarioShots = [
   }
 ];
 
+const sidePanelTabBySlot = {
+  actionMap: "action",
+  actionPrompt: "action",
+  commandCenter: "action",
+  informationBoundary: "detail",
+  interaction: "action",
+  log: "log",
+  overview: "detail",
+  promptAuthority: "detail",
+  responseCoach: "response",
+  ruleQueue: "rules",
+  serverFlow: "rules",
+  tableAuthority: "detail",
+  timelineDetail: "detail",
+  turnWindow: "response"
+};
+
 const children = [];
 let browser;
 
@@ -167,6 +184,8 @@ async function captureAndAudit(page, shot, report) {
 }
 
 async function assertServerFlow(page) {
+  const activeSlot = await page.locator("[data-wire-side-panel-directory]").first().getAttribute("data-wire-side-panel-directory-active-slot");
+  await openSidePanelSlot(page, "serverFlow");
   const flow = page.locator("[data-wire-server-flow-state]").first();
   await flow.waitFor({ timeout: 10_000 });
   const state = await flow.getAttribute("data-wire-server-flow-state");
@@ -178,6 +197,21 @@ async function assertServerFlow(page) {
   if (!text.includes("下一步")) {
     throw new Error(`Server flow panel is missing next-step copy: ${text}`);
   }
+
+  if (activeSlot && activeSlot !== "serverFlow") {
+    await openSidePanelSlot(page, activeSlot);
+  }
+}
+
+async function openSidePanelSlot(page, slot) {
+  const tab = sidePanelTabBySlot[slot];
+  if (!tab) {
+    throw new Error(`Unknown side panel slot for QA: ${slot}`);
+  }
+
+  await page.locator(`[data-wire-side-panel-tab="${tab}"]`).click();
+  await page.locator(`[data-wire-side-panel-directory-link="${slot}"]`).click();
+  await page.locator(`[data-wire-side-panel-directory][data-wire-side-panel-directory-active-slot="${slot}"]`).waitFor({ timeout: 5_000 });
 }
 
 async function waitForCardImages(page) {
@@ -363,6 +397,7 @@ async function runObjectCommandTrayInteraction(report) {
   try {
     await page.goto(`${frontendUrl}/matches/qa-layout?fixture=layout`, { waitUntil: "networkidle" });
     await assertTexts(page, ["符文战场对战线框", "焦点 / 候选 / 规则队列"]);
+    await openSidePanelSlot(page, "serverFlow");
     const serverFlow = page.locator("[data-wire-server-flow-related-count]").first();
     await serverFlow.waitFor({ timeout: 10_000 });
     const relatedCount = await serverFlow.getAttribute("data-wire-server-flow-related-count");

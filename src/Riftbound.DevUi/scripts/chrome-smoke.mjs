@@ -927,12 +927,26 @@ async function runWireLayoutGeometrySmoke(cdp) {
       text: route.textContent?.trim() ?? "",
       tone: route.getAttribute("data-wire-side-panel-control-route-tone") ?? ""
     }));
+    const sidePanelRailStack = document.querySelector("[data-wire-side-panel-rail-stack]");
+    const sidePanelRails = Array.from(document.querySelectorAll("[data-wire-side-panel-rail]")).map((rail) => ({
+      display: window.getComputedStyle(rail).display,
+      key: rail.getAttribute("data-wire-side-panel-rail") ?? "",
+      mode: rail.getAttribute("data-wire-side-panel-rail-mode") ?? "",
+      reason: rail.getAttribute("data-wire-side-panel-rail-reason") ?? "",
+      state: rail.getAttribute("data-wire-side-panel-rail-state") ?? "",
+      target: rail.getAttribute("data-wire-side-panel-rail-target") ?? ""
+    }));
     const sidePanelDirectory = document.querySelector("[data-wire-side-panel-directory]");
     const primarySlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-primary-slot") ?? "";
     const activeSlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-slot") ?? "";
     const activeTab = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-tab") ?? "";
     const sidePanelControlRouteCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-control-route-count") ?? "NaN");
     const sidePanelControlState = sidePanelDirectory?.getAttribute("data-wire-side-panel-control-state") ?? "";
+    const sidePanelRailExpandedCount = Number(sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-expanded-count") ?? "NaN");
+    const sidePanelRailHiddenCount = Number(sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-hidden-count") ?? "NaN");
+    const sidePanelRailState = sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-state") ?? "";
+    const sidePanelRailSummaryCount = Number(sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-summary-count") ?? "NaN");
+    const sidePanelRailVisibleCount = Number(sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-visible-count") ?? "NaN");
     const sidePanelDirectoryDeclaredCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-count") ?? "NaN");
     const sidePanelDirectoryHiddenCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-hidden-count") ?? "NaN");
     const sidePanelDirectoryVisibleCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-visible-count") ?? "NaN");
@@ -957,12 +971,53 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (sidePanelControlState !== directoryState) {
       failures.push(\`wire side panel control state should match directory state: \${sidePanelControlState} / \${directoryState}\`);
     }
+    if (sidePanelRailState !== directoryState) {
+      failures.push(\`wire side panel rail state should match directory state: \${sidePanelRailState} / \${directoryState}\`);
+    }
     const sidePanelDirectoryLinkSlots = sidePanelDirectoryLinks.map((link) => link.slot);
     const expectedVisibleSidePanelSlots = expectedSidePanelVisibleSlotsByTab[activeTab] ?? [];
     const controlRouteKeys = sidePanelControlRoutes.map((route) => route.key);
     const activeControlRoute = sidePanelControlRoutes.find((route) => route.key === "active");
     const primaryControlRoute = sidePanelControlRoutes.find((route) => route.key === "primary" || route.slot === primarySlot);
     const hiddenControlRoute = sidePanelControlRoutes.find((route) => route.key === "hidden");
+    const railKeys = sidePanelRails.map((rail) => rail.key);
+    const visibleRails = sidePanelRails.filter((rail) => rail.mode !== "hidden");
+    const hiddenRails = sidePanelRails.filter((rail) => rail.mode === "hidden");
+    const expandedRails = sidePanelRails.filter((rail) => rail.mode === "expanded");
+    const summaryRails = sidePanelRails.filter((rail) => rail.mode === "summary");
+    const mainRail = sidePanelRails.find((rail) => rail.key === "main");
+    if (!sidePanelRailStack) {
+      failures.push("wire side panel rail stack missing");
+    }
+    if (sidePanelRailVisibleCount !== visibleRails.length) {
+      failures.push(\`wire side panel rail visible count mismatch: \${sidePanelRailVisibleCount} / \${visibleRails.length}\`);
+    }
+    if (sidePanelRailHiddenCount !== hiddenRails.length) {
+      failures.push(\`wire side panel rail hidden count mismatch: \${sidePanelRailHiddenCount} / \${hiddenRails.length}\`);
+    }
+    if (sidePanelRailExpandedCount !== expandedRails.length) {
+      failures.push(\`wire side panel rail expanded count mismatch: \${sidePanelRailExpandedCount} / \${expandedRails.length}\`);
+    }
+    if (sidePanelRailSummaryCount !== summaryRails.length) {
+      failures.push(\`wire side panel rail summary count mismatch: \${sidePanelRailSummaryCount} / \${summaryRails.length}\`);
+    }
+    if (railKeys.join("|") !== "status|focus|rules|receipt|main") {
+      failures.push(\`wire side panel rail order drifted: \${railKeys.join(" -> ")}\`);
+    }
+    if (mainRail?.mode !== "expanded" || mainRail.state !== "primary" || mainRail.target !== activeSlot) {
+      failures.push(\`wire side panel main rail should track active slot: \${JSON.stringify(mainRail)} / \${activeSlot}\`);
+    }
+    for (const rail of sidePanelRails) {
+      if (!rail.key || !rail.mode || !rail.state || !rail.reason) {
+        failures.push(\`wire side panel rail incomplete: \${JSON.stringify(rail)}\`);
+      }
+      if (rail.mode === "hidden" && rail.display !== "none") {
+        failures.push(\`wire side panel hidden rail still displayed: \${rail.key}\`);
+      }
+      if (rail.mode !== "hidden" && rail.display === "none") {
+        failures.push(\`wire side panel visible rail hidden by CSS: \${rail.key}\`);
+      }
+    }
     if (sidePanelControlRouteCount !== sidePanelControlRoutes.length) {
       failures.push(\`wire side panel control route count mismatch: \${sidePanelControlRouteCount} / \${sidePanelControlRoutes.length}\`);
     }
@@ -1064,6 +1119,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       sidePanelDirectoryHiddenCount,
       sidePanelDirectoryVisibleCount,
       sidePanelControlRouteCount,
+      sidePanelRailVisibleCount,
       sidePanelTabCount: sidePanelTabs.length,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length,
       tableAuthorityState
@@ -1098,6 +1154,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if ((result.sidePanelTabCount ?? 0) !== 5) {
     throw new Error(`Wire layout geometry smoke did not find the five side panel tabs: ${result.sidePanelTabCount}`);
+  }
+  if ((result.sidePanelRailVisibleCount ?? 0) < 2) {
+    throw new Error(`Wire layout geometry smoke did not find enough visible side panel rails: ${result.sidePanelRailVisibleCount}`);
   }
   if (result.tableAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server table authority: ${result.tableAuthorityState}`);

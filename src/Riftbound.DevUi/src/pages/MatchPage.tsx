@@ -100,6 +100,7 @@ import { buildWireSidePanelFramePlan } from "../utils/wireSidePanelFramePlan";
 import { buildWireSidePanelFocusPlan } from "../utils/wireSidePanelFocusPlan";
 import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
 import { buildWireSidePanelRuleChainPlan } from "../utils/wireSidePanelRuleChainPlan";
+import { buildWireSidePanelStackPlan, type WireSidePanelStackRailEntry } from "../utils/wireSidePanelStackPlan";
 import {
   WIRE_SIDE_PANEL_SHORT_LABELS,
   WIRE_SIDE_PANEL_TAB_BY_SLOT,
@@ -541,8 +542,22 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   ) as Record<WireSidePanelSlot, WireSidePanelOrchestrationPlan["entries"][number]>, [sidePanelOrchestration.entries]);
   const sidePanelFrame = useMemo(() => buildWireSidePanelFramePlan({
     activeSlot: activeSidePanelSlot,
+    persistentSlots: [],
     slots: WIRE_TABLE_LAYOUT.sidePanel.slots
   }), [activeSidePanelSlot]);
+  const sidePanelStackPlan = useMemo(() => buildWireSidePanelStackPlan({
+    activeSlot: activeSidePanelSlot,
+    focusPlan: sidePanelFocusPlan,
+    orchestration: sidePanelOrchestration,
+    ruleChainPlan: sidePanelRuleChainPlan,
+    submissionFeedback: tableSubmissionFeedback
+  }), [
+    activeSidePanelSlot,
+    sidePanelFocusPlan,
+    sidePanelOrchestration,
+    sidePanelRuleChainPlan,
+    tableSubmissionFeedback
+  ]);
   const activeSidePanelTab = WIRE_SIDE_PANEL_TAB_BY_SLOT[activeSidePanelSlot] ?? "action";
   const activeSidePanelEntry = sidePanelEntryBySlot[activeSidePanelSlot];
   const setActiveSidePanelTab = useCallback((tab: WireSidePanelTab) => {
@@ -889,53 +904,78 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             orchestration={sidePanelOrchestration}
             plan={sidePanelDirectory}
           />
-          <WireSidePanelStatus
-            activeEntry={activeSidePanelEntry}
-            canAct={canAct}
-            connectionStatus={connectionStatusLabel(tableConnectionStatus)}
-            orchestration={sidePanelOrchestration}
-            phase={matchPhaseLabel(phase)}
-            promptTitle={promptTitle}
-            windowState={timingStateLabel(windowState)}
-          />
-          <WireSidePanelFocusStrip
-            inspectedCard={inspectedCard}
-            onClear={clearInspectedCard}
-            onOpenDetail={openDetailCard}
-            onSelectDetail={selectTimelineDetail}
-            onSelectSlot={selectSidePanelSlot}
-            plan={sidePanelFocusPlan}
-          />
-          <WireSidePanelRuleChainStrip
-            onSelectDetail={selectTimelineDetail}
-            onSelectSlot={selectSidePanelSlot}
-            plan={sidePanelRuleChainPlan}
-          />
           <div
-            aria-label="服务端提交回执常驻区"
-            className="wire-side-panel-receipt"
-            data-wire-side-panel-receipt
-            tabIndex={0}
+            aria-label="右侧控制台摘要堆栈"
+            className="wire-side-panel-rail-stack"
+            data-wire-side-panel-rail-expanded-count={sidePanelStackPlan.expandedCount}
+            data-wire-side-panel-rail-hidden-count={sidePanelStackPlan.hiddenCount}
+            data-wire-side-panel-rail-stack
+            data-wire-side-panel-rail-state={sidePanelStackPlan.state}
+            data-wire-side-panel-rail-summary={sidePanelStackPlan.summary}
+            data-wire-side-panel-rail-summary-count={sidePanelStackPlan.summaryCount}
+            data-wire-side-panel-rail-visible-count={sidePanelStackPlan.visibleEntries.length}
           >
-            <CommandSubmissionFeedbackPanel
-              contract={tablePrompt?.contract}
-              events={tableEvents}
-              feedback={tableSubmissionFeedback}
-              objectContextById={tableObjectContextModel.byId}
-              onInspectObject={inspectObjectFromTable}
-              onSelectFollowupEvent={selectFollowupEvent}
-              onSelectServerEventKind={selectServerEventKind}
-              selectedObjectId={selectedObjectId}
-              snapshot={tableSnapshot}
-              table={tableView}
-              variant="compact"
-            />
+            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.status}>
+              <WireSidePanelStatus
+                activeEntry={activeSidePanelEntry}
+                canAct={canAct}
+                connectionStatus={connectionStatusLabel(tableConnectionStatus)}
+                orchestration={sidePanelOrchestration}
+                phase={matchPhaseLabel(phase)}
+                promptTitle={promptTitle}
+                windowState={timingStateLabel(windowState)}
+              />
+            </WireSidePanelRailEntry>
+            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.focus}>
+              <WireSidePanelFocusStrip
+                inspectedCard={inspectedCard}
+                onClear={clearInspectedCard}
+                onOpenDetail={openDetailCard}
+                onSelectDetail={selectTimelineDetail}
+                onSelectSlot={selectSidePanelSlot}
+                plan={sidePanelFocusPlan}
+              />
+            </WireSidePanelRailEntry>
+            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.rules}>
+              <WireSidePanelRuleChainStrip
+                onSelectDetail={selectTimelineDetail}
+                onSelectSlot={selectSidePanelSlot}
+                plan={sidePanelRuleChainPlan}
+              />
+            </WireSidePanelRailEntry>
+            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.receipt}>
+              <div
+                aria-label="服务端提交回执常驻区"
+                className="wire-side-panel-receipt"
+                data-wire-side-panel-receipt
+                tabIndex={0}
+              >
+                <CommandSubmissionFeedbackPanel
+                  contract={tablePrompt?.contract}
+                  events={tableEvents}
+                  feedback={tableSubmissionFeedback}
+                  objectContextById={tableObjectContextModel.byId}
+                  onInspectObject={inspectObjectFromTable}
+                  onSelectFollowupEvent={selectFollowupEvent}
+                  onSelectServerEventKind={selectServerEventKind}
+                  selectedObjectId={selectedObjectId}
+                  snapshot={tableSnapshot}
+                  table={tableView}
+                  variant="compact"
+                />
+              </div>
+            </WireSidePanelRailEntry>
           </div>
           <div
             className="wire-side-panel-stack"
             data-wire-side-panel-active-slot={activeSidePanelSlot}
             data-wire-side-panel-active-tab={activeSidePanelTab}
             data-wire-side-panel-persistent-count={sidePanelFrame.persistentSlots.length}
+            data-wire-side-panel-rail={sidePanelStackPlan.byRail.main.key}
+            data-wire-side-panel-rail-mode={sidePanelStackPlan.byRail.main.mode}
+            data-wire-side-panel-rail-reason={sidePanelStackPlan.byRail.main.reason}
+            data-wire-side-panel-rail-state={sidePanelStackPlan.byRail.main.state}
+            data-wire-side-panel-rail-target={sidePanelStackPlan.byRail.main.slot ?? ""}
             data-wire-side-panel-visible-count={sidePanelFrame.visibleSlots.length}
           >
             {sidePanelFrame.entries.map((entry) => (
@@ -1003,6 +1043,27 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         table={tableView}
       />
       <WireCardPreview card={previewCard} />
+    </div>
+  );
+}
+
+function WireSidePanelRailEntry({
+  children,
+  entry
+}: {
+  children: ReactNode;
+  entry: WireSidePanelStackRailEntry;
+}) {
+  return (
+    <div
+      className="wire-side-panel-rail-entry"
+      data-wire-side-panel-rail={entry.key}
+      data-wire-side-panel-rail-mode={entry.mode}
+      data-wire-side-panel-rail-reason={entry.reason}
+      data-wire-side-panel-rail-state={entry.state}
+      data-wire-side-panel-rail-target={entry.slot ?? ""}
+    >
+      {children}
     </div>
   );
 }
