@@ -1722,8 +1722,14 @@ async function runWireClickSelectionSmoke(cdp) {
         text: node.textContent ?? ""
       })),
       sideFocusRoutes: Array.from(sideFocus?.querySelectorAll("[data-wire-side-panel-focus-route]") ?? []).map((node) => ({
+        actionLabel: node.getAttribute("data-wire-side-panel-focus-route-action-label") ?? "",
         key: node.getAttribute("data-wire-side-panel-focus-route") ?? "",
+        reason: node.getAttribute("data-wire-side-panel-focus-route-reason") ?? "",
         state: node.getAttribute("data-wire-side-panel-focus-route-state") ?? "",
+        stateLabel: node.getAttribute("data-wire-side-panel-focus-route-state-label") ?? "",
+        targetKind: node.getAttribute("data-wire-side-panel-focus-route-target-kind") ?? "",
+        targetLabel: node.getAttribute("data-wire-side-panel-focus-route-target-label") ?? "",
+        targetSlot: node.getAttribute("data-wire-side-panel-focus-route-target-slot") ?? "",
         text: node.textContent ?? ""
       })),
       sideReceiptFollowupState: sideReceiptSubmission?.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "",
@@ -2479,6 +2485,26 @@ async function runWireClickSelectionSmoke(cdp) {
   }
   if (!actionMapResult.sideFocusRoutes.some((route) => route.key === "rules" && route.state === "available")) {
     failures.push("side panel focus rules route missing");
+  }
+  const expectedFocusRouteTargets = new Map([
+    ["actions", ["side-panel", "interaction"]],
+    ["map", ["side-panel", "actionMap"]],
+    ["rules", ["side-panel", "ruleQueue"]],
+    ["detail", ["drawer", ""]]
+  ]);
+  for (const route of actionMapResult.sideFocusRoutes) {
+    const expected = expectedFocusRouteTargets.get(route.key);
+    if (!expected) {
+      failures.push(`side panel focus route unexpected key: ${JSON.stringify(route)}`);
+      continue;
+    }
+    const [targetKind, targetSlot] = expected;
+    if (route.targetKind !== targetKind || route.targetSlot !== targetSlot) {
+      failures.push(`side panel focus route target mismatch: ${JSON.stringify(route)} / ${targetKind}:${targetSlot}`);
+    }
+    if (!route.actionLabel || !route.stateLabel || !route.reason || !route.targetLabel) {
+      failures.push(`side panel focus route contract incomplete: ${JSON.stringify(route)}`);
+    }
   }
   if (actionMapResult.sideFocusRelationCount < 1) {
     failures.push(`side panel focus relation count too low: ${actionMapResult.sideFocusRelationCount}`);

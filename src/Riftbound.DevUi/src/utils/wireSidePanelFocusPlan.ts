@@ -13,10 +13,15 @@ import type {
 } from "./wireRuleQueuePlan";
 
 export type WireSidePanelFocusRoute = {
+  actionLabel: string;
   key: "actions" | "detail" | "map" | "rules";
   label: string;
+  reason: string;
   slot?: WireSidePanelSlot;
   state: "available" | "disabled";
+  stateLabel: string;
+  targetKind: "drawer" | "side-panel";
+  targetLabel: string;
 };
 
 export type WireSidePanelFocusMetric = {
@@ -193,11 +198,51 @@ function focusRoutes({
   const actionState = canShowActions ? "available" : "disabled";
   const detailState = visible ? "available" : "disabled";
   const ruleState = visible && hasRuleProjection ? "available" : "disabled";
+  const noFocusReason = "未选择公开对象。";
   return [
-    { key: "actions", label: "操作", slot: "interaction", state: actionState },
-    { key: "map", label: "地图", slot: "actionMap", state: actionState },
-    { key: "rules", label: "规则", slot: "ruleQueue", state: ruleState },
-    { key: "detail", label: "详情", state: detailState }
+    {
+      actionLabel: actionState === "available" ? "查看操作" : "无操作",
+      key: "actions",
+      label: "操作",
+      reason: !visible ? noFocusReason : canShowActions ? "进入焦点候选面板，查看服务端公开的候选与提交路线。" : "该对象当前没有服务端可展示候选。",
+      slot: "interaction",
+      state: actionState,
+      stateLabel: actionState === "available" ? "可进入" : "不可用",
+      targetKind: "side-panel",
+      targetLabel: "焦点候选"
+    },
+    {
+      actionLabel: actionState === "available" ? "查看地图" : "无地图",
+      key: "map",
+      label: "地图",
+      reason: !visible ? noFocusReason : canShowActions ? "进入合法操作地图，查看对象在当前服务端候选中的位置。" : "该对象当前没有可映射到服务端候选的操作。",
+      slot: "actionMap",
+      state: actionState,
+      stateLabel: actionState === "available" ? "可进入" : "不可用",
+      targetKind: "side-panel",
+      targetLabel: "合法操作"
+    },
+    {
+      actionLabel: ruleState === "available" ? "查看规则" : "无规则",
+      key: "rules",
+      label: "规则",
+      reason: !visible ? noFocusReason : hasRuleProjection ? "进入规则队列，查看该对象的结算链、事件和服务端流程关联。" : "当前规则队列没有投影到该对象。",
+      slot: "ruleQueue",
+      state: ruleState,
+      stateLabel: ruleState === "available" ? "可进入" : "不可用",
+      targetKind: "side-panel",
+      targetLabel: "规则队列"
+    },
+    {
+      actionLabel: detailState === "available" ? "打开详情" : "无详情",
+      key: "detail",
+      label: "详情",
+      reason: visible ? "打开卡牌详情抽屉，查看对象上下文、服务端检查摘要和卡牌文本。" : noFocusReason,
+      state: detailState,
+      stateLabel: detailState === "available" ? "可打开" : "不可用",
+      targetKind: "drawer",
+      targetLabel: "卡牌详情"
+    }
   ];
 }
 

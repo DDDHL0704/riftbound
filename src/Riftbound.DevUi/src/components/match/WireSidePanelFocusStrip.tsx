@@ -111,19 +111,36 @@ export function WireSidePanelFocusStrip({
           const slot = route.slot;
           return slot ? (
             <button
+              aria-label={`${route.label}：${route.actionLabel}，${route.stateLabel}。${route.reason}`}
+              data-wire-side-panel-focus-route-action-label={route.actionLabel}
+              data-wire-side-panel-focus-route-reason={route.reason}
               data-wire-side-panel-focus-route={route.key}
+              data-wire-side-panel-focus-route-state-label={route.stateLabel}
               data-wire-side-panel-focus-route-state={route.state}
+              data-wire-side-panel-focus-route-target-kind={route.targetKind}
+              data-wire-side-panel-focus-route-target-label={route.targetLabel}
+              data-wire-side-panel-focus-route-target-slot={slot}
               disabled={route.state === "disabled"}
               key={route.key}
               onClick={() => onSelectSlot(slot)}
+              title={route.reason}
               type="button"
             >
-              {route.label}
+              <span>{route.label}</span>
+              <strong>{route.actionLabel}</strong>
+              <small>{route.stateLabel}</small>
             </button>
           ) : (
             <button
+              aria-label={`${route.label}：${route.actionLabel}，${route.stateLabel}。${route.reason}`}
+              data-wire-side-panel-focus-route-action-label={route.actionLabel}
+              data-wire-side-panel-focus-route-reason={route.reason}
               data-wire-side-panel-focus-route={route.key}
+              data-wire-side-panel-focus-route-state-label={route.stateLabel}
               data-wire-side-panel-focus-route-state={route.state}
+              data-wire-side-panel-focus-route-target-kind={route.targetKind}
+              data-wire-side-panel-focus-route-target-label={route.targetLabel}
+              data-wire-side-panel-focus-route-target-slot=""
               disabled={route.state === "disabled" || !inspectedCard}
               key={route.key}
               onClick={() => {
@@ -131,9 +148,12 @@ export function WireSidePanelFocusStrip({
                   onOpenDetail(inspectedCard);
                 }
               }}
+              title={route.reason}
               type="button"
             >
-              {route.label}
+              <span>{route.label}</span>
+              <strong>{route.actionLabel}</strong>
+              <small>{route.stateLabel}</small>
             </button>
           );
         })}

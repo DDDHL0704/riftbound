@@ -51,12 +51,13 @@ assert.equal(emptyPlan.state, "empty");
 const emptyFocusPlan = buildWireSidePanelFocusPlan({ trayPlan: emptyPlan });
 assert.equal(emptyFocusPlan.visible, false);
 assert.equal(emptyFocusPlan.state, "empty");
-assert.deepEqual(emptyFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
-  "actions:interaction:disabled",
-  "map:actionMap:disabled",
-  "rules:ruleQueue:disabled",
-  "detail:drawer:disabled"
+assert.deepEqual(routeContract(emptyFocusPlan.routes), [
+  "actions:side-panel:interaction:disabled:无操作:不可用",
+  "map:side-panel:actionMap:disabled:无地图:不可用",
+  "rules:side-panel:ruleQueue:disabled:无规则:不可用",
+  "detail:drawer:drawer:disabled:无详情:不可用"
 ]);
+assert.equal(emptyFocusPlan.routes[0].reason, "未选择公开对象。");
 
 const readyPlan = buildWireObjectCommandTrayPlan({
   card: card(),
@@ -117,12 +118,13 @@ assert.deepEqual(readyFocusPlan.relations.map((relation) => `${relation.sourceLa
   "近期事件:history:近期事件 / 来源"
 ]);
 assert.equal(readyFocusPlan.relations[1].detail?.id, "rule:resolution:card-played");
-assert.deepEqual(readyFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
-  "actions:interaction:available",
-  "map:actionMap:available",
-  "rules:ruleQueue:available",
-  "detail:drawer:available"
+assert.deepEqual(routeContract(readyFocusPlan.routes), [
+  "actions:side-panel:interaction:available:查看操作:可进入",
+  "map:side-panel:actionMap:available:查看地图:可进入",
+  "rules:side-panel:ruleQueue:available:查看规则:可进入",
+  "detail:drawer:drawer:available:打开详情:可打开"
 ]);
+assert.equal(readyFocusPlan.routes.find((route) => route.key === "rules")?.reason.includes("服务端流程关联"), true);
 
 const selectingPlan = buildWireObjectCommandTrayPlan({
   card: card(),
@@ -172,15 +174,19 @@ const hiddenFocusPlan = buildWireSidePanelFocusPlan({ trayPlan: hiddenPlan });
 assert.equal(hiddenFocusPlan.visible, true);
 assert.equal(hiddenFocusPlan.state, "readonly");
 assert.equal(hiddenFocusPlan.metrics.find((metric) => metric.key === "command")?.value, "不公开");
-assert.deepEqual(hiddenFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
-  "actions:interaction:disabled",
-  "map:actionMap:disabled",
-  "rules:ruleQueue:disabled",
-  "detail:drawer:available"
+assert.deepEqual(routeContract(hiddenFocusPlan.routes), [
+  "actions:side-panel:interaction:disabled:无操作:不可用",
+  "map:side-panel:actionMap:disabled:无地图:不可用",
+  "rules:side-panel:ruleQueue:disabled:无规则:不可用",
+  "detail:drawer:drawer:available:打开详情:可打开"
 ]);
 assert.equal(JSON.stringify(hiddenFocusPlan).includes("PLAY_CARD"), false);
 
 console.log("Wire object command tray plan check passed.");
+
+function routeContract(routes) {
+  return routes.map((route) => `${route.key}:${route.targetKind}:${route.slot ?? "drawer"}:${route.state}:${route.actionLabel}:${route.stateLabel}`);
+}
 
 function focusedPlan({
   commandType,
