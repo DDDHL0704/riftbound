@@ -547,7 +547,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   ) as Record<WireSidePanelSlot, WireSidePanelOrchestrationPlan["entries"][number]>, [sidePanelOrchestration.entries]);
   const sidePanelFrame = useMemo(() => buildWireSidePanelFramePlan({
     activeSlot: activeSidePanelSlot,
-    persistentSlots: [],
     slots: WIRE_TABLE_LAYOUT.sidePanel.slots
   }), [activeSidePanelSlot]);
   const sidePanelStackPlan = useMemo(() => buildWireSidePanelStackPlan({

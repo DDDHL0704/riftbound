@@ -13201,6 +13201,10 @@ button.card-face:hover {
   overflow: hidden;
 }
 
+.wire-side-panel-stack[data-wire-side-panel-persistent-count="1"] {
+  grid-template-rows: minmax(0, 1fr) minmax(112px, 0.42fr);
+}
+
 .wire-side-panel-pane {
   min-height: 0;
   min-width: 0;
@@ -13214,7 +13218,7 @@ button.card-face:hover {
 }
 
 .wire-side-panel-pane[data-wire-side-panel-pane-region="persistent"] {
-  grid-row: 1;
+  grid-row: 2;
   display: grid;
   min-height: 0;
   max-height: 100%;
@@ -13223,7 +13227,7 @@ button.card-face:hover {
 }
 
 .wire-side-panel-pane[data-wire-side-panel-pane-region="persistent"][data-wire-side-panel-pane-active="true"] {
-  grid-row: 1;
+  grid-row: 1 / -1;
   outline: 2px solid #000;
   outline-offset: -2px;
 }

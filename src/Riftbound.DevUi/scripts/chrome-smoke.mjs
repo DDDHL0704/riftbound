@@ -981,6 +981,21 @@ async function runWireLayoutGeometrySmoke(cdp) {
       transitionTargetTab: route.getAttribute("data-wire-side-panel-transition-target-tab") ?? ""
     }));
     const sidePanelRailStack = document.querySelector("[data-wire-side-panel-rail-stack]");
+    const sidePanelPaneStack = document.querySelector(".wire-side-panel-stack");
+    const sidePanelPersistentCount = Number(sidePanelPaneStack?.getAttribute("data-wire-side-panel-persistent-count") ?? "NaN");
+    const sidePanelPanes = Array.from(document.querySelectorAll("[data-wire-side-panel-pane]")).map((pane) => {
+      const rect = pane.getBoundingClientRect();
+      return {
+        active: pane.getAttribute("data-wire-side-panel-pane-active") ?? "",
+        display: window.getComputedStyle(pane).display,
+        height: Math.round(rect.height),
+        region: pane.getAttribute("data-wire-side-panel-pane-region") ?? "",
+        slot: pane.getAttribute("data-wire-side-panel-pane") ?? "",
+        top: Math.round(rect.top),
+        visible: pane.getAttribute("data-wire-side-panel-pane-visible") ?? "",
+        width: Math.round(rect.width)
+      };
+    });
     const sidePanelRails = Array.from(document.querySelectorAll("[data-wire-side-panel-rail]")).map((rail) => {
       const body = rail.querySelector(":scope > [data-wire-side-panel-rail-body]");
       return {
@@ -1074,6 +1089,30 @@ async function runWireLayoutGeometrySmoke(cdp) {
       .map((pane) => pane.getAttribute("data-wire-side-panel-pane") ?? "");
     if (activePanes.length !== 1 || activePanes[0] !== activeSlot) {
       failures.push(\`wire side panel should show one active pane matching active slot: \${activePanes.join(" -> ")} / \${activeSlot}\`);
+    }
+    const visiblePaneSlots = sidePanelPanes.filter((pane) => pane.visible === "true").map((pane) => pane.slot);
+    const activePane = sidePanelPanes.find((pane) => pane.slot === activeSlot);
+    const serverFlowPane = sidePanelPanes.find((pane) => pane.slot === "serverFlow");
+    if (sidePanelPersistentCount !== 1) {
+      failures.push("wire side panel persistent slot count drifted: " + sidePanelPersistentCount);
+    }
+    if (serverFlowPane?.region !== "persistent") {
+      failures.push("wire side panel server flow pane should be persistent: " + JSON.stringify(serverFlowPane));
+    }
+    if (activeSlot === "serverFlow") {
+      if (visiblePaneSlots.join("|") !== "serverFlow") {
+        failures.push("wire side panel active server flow should be the only visible pane: " + visiblePaneSlots.join(" -> "));
+      }
+    } else {
+      if (!visiblePaneSlots.includes(activeSlot) || !visiblePaneSlots.includes("serverFlow") || visiblePaneSlots.length !== 2) {
+        failures.push("wire side panel should show active pane plus persistent server flow: " + visiblePaneSlots.join(" -> ") + " / " + activeSlot);
+      }
+      if (!activePane || !serverFlowPane || activePane.display === "none" || serverFlowPane.display === "none") {
+        failures.push("wire side panel visible panes should render: " + JSON.stringify({ activePane, serverFlowPane }));
+      }
+      if (activePane && serverFlowPane && serverFlowPane.top < activePane.top + activePane.height - 2) {
+        failures.push("wire side panel persistent pane overlaps active pane: " + JSON.stringify({ activePane, serverFlowPane }));
+      }
     }
     if (!directoryState) {
       failures.push("wire side panel directory state missing");
