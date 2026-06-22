@@ -223,6 +223,17 @@ function complexPromptMetrics(
   metadata: Record<string, unknown>
 ): ActionPanelComplexPromptMetric[] {
   switch (type) {
+    case "BATTLE_DECLARATION": {
+      const declarationCandidate = primaryCandidateForPrompt(prompt);
+      return [
+        metric("attack-sources", "攻击来源", countLabel(countItems(metadata.sourceRequirements, declarationCandidate?.sources))),
+        metric("attacker-bounds", "攻击数量", countBoundsLabel(metadata, "attackerCountMin", "attackerCountMax", "个")),
+        metric("defender-bounds", "防守数量", countBoundsLabel(metadata, "defenderCountMin", "defenderCountMax", "个")),
+        metric("battlefields", "战场候选", countLabel(countItems(metadata.battlefieldChoices, metadata.battlefields, declarationCandidate?.destinations))),
+        metric("defenders", "防守候选", countLabel(countItems(metadata.targetChoicesByIndex, metadata.defenderChoices, declarationCandidate?.targets))),
+        metric("optional-costs", "额外费用", countLabel(countItems(metadata.optionalCostChoices, declarationCandidate?.optionalCosts)))
+      ];
+    }
     case "PAY_COST":
       return [
         metric("payment-window", "窗口", firstStringFromMetadata(metadata, ["paymentWindow"])),
@@ -599,6 +610,7 @@ const knownPromptTypes = new Set<string>([
 ]);
 
 const complexPromptTypes = new Set<string>([
+  "BATTLE_DECLARATION",
   "PAY_COST",
   "ORDER_TRIGGERS",
   "HAND_CHOICE",
@@ -671,6 +683,8 @@ function primaryActionForPromptType(type: string | undefined): string {
   switch (type) {
     case "ASSIGN_COMBAT_DAMAGE":
       return "ASSIGN_COMBAT_DAMAGE";
+    case "BATTLE_DECLARATION":
+      return "DECLARE_BATTLE";
     case "HAND_CHOICE":
       return "CHOOSE_HAND_CARDS";
     case "ORDER_TRIGGERS":
@@ -696,6 +710,8 @@ function complexPromptHeading(type: string): string {
   switch (type) {
     case "ASSIGN_COMBAT_DAMAGE":
       return "战斗伤害窗口";
+    case "BATTLE_DECLARATION":
+      return "声明战斗窗口";
     case "HAND_CHOICE":
       return "手牌选择窗口";
     case "ORDER_TRIGGERS":
@@ -711,6 +727,8 @@ function complexPromptNextStep(type: string): string {
   switch (type) {
     case "ASSIGN_COMBAT_DAMAGE":
       return "为服务端候选来源和目标填写伤害，提交后由服务端校验。";
+    case "BATTLE_DECLARATION":
+      return "选择服务端公开的攻击来源、战场、防守对象和额外费用，然后提交声明战斗。";
     case "HAND_CHOICE":
       return "选择服务端公开给你的手牌候选并提交；隐藏手牌不会在此展开。";
     case "ORDER_TRIGGERS":
@@ -808,6 +826,23 @@ function selectionBoundsLabel(prompt: ActionPromptDto, metadata: Record<string, 
     return `${required} 张`;
   }
   return `${required ?? 0}-${max ?? "不限"} 张`;
+}
+
+function countBoundsLabel(
+  metadata: Record<string, unknown>,
+  minKey: string,
+  maxKey: string,
+  unit: string
+): string | undefined {
+  const min = numberValue(metadata[minKey]);
+  const max = numberValue(metadata[maxKey]) ?? min;
+  if (min == null && max == null) {
+    return undefined;
+  }
+  if (min === max) {
+    return `${min} ${unit}`;
+  }
+  return `${min ?? 0}-${max ?? "不限"} ${unit}`;
 }
 
 function numberValue(value: unknown): number | undefined {

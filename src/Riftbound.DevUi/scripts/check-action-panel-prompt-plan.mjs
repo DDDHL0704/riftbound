@@ -304,6 +304,60 @@ assert.equal(damagePromptPlan.complexPrompt?.metrics.find((row) => row.key === "
 assert.equal(damagePromptPlan.complexPrompt?.metrics.find((row) => row.key === "assignment-choices")?.value, "1 项");
 assert.equal(damagePromptPlan.complexPrompt?.metrics.find((row) => row.key === "damage-pool")?.value, "3");
 
+const battleDeclarationPlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["DECLARE_BATTLE"],
+    candidates: [
+      {
+        action: "DECLARE_BATTLE",
+        destinations: [
+          { id: "bf-1", label: "左战场" },
+          { id: "bf-2", label: "右战场" }
+        ],
+        enabled: true,
+        label: "声明战斗",
+        metadata: {
+          attackerCountMax: 2,
+          attackerCountMin: 1,
+          defenderCountMax: 2,
+          defenderCountMin: 1,
+          optionalCostChoices: [{ id: "brush", label: "草丛费用" }],
+          sourceRequirements: [{ sourceObjectId: "unit-1" }, { sourceObjectId: "unit-2" }],
+          targetChoicesByIndex: { 0: ["defender-1"], 1: ["defender-2"] }
+        },
+        optionalCosts: [{ id: "brush", label: "草丛费用" }],
+        reason: "可声明",
+        sources: [
+          { id: "unit-1", label: "攻击者 A", objectIds: ["unit-1"] },
+          { id: "unit-2", label: "攻击者 B", objectIds: ["unit-2"] }
+        ],
+        targets: [{ id: "defender-1", label: "防守者", objectIds: ["defender-1"] }]
+      }
+    ],
+    playerId: "P1",
+    reason: "BATTLE_DECLARATION",
+    view: {
+      message: "声明一场战斗。",
+      relatedBattlefieldId: "bf-1",
+      title: "声明战斗",
+      type: "BATTLE_DECLARATION"
+    }
+  }
+});
+
+assert.equal(battleDeclarationPlan.genericPrompt, undefined);
+assert.equal(battleDeclarationPlan.complexPrompt?.heading, "声明战斗窗口");
+assert.equal(battleDeclarationPlan.complexPrompt?.nextStep, "选择服务端公开的攻击来源、战场、防守对象和额外费用，然后提交声明战斗。");
+assert.equal(battleDeclarationPlan.complexPrompt?.metrics.find((row) => row.key === "attack-sources")?.value, "2 项");
+assert.equal(battleDeclarationPlan.complexPrompt?.metrics.find((row) => row.key === "attacker-bounds")?.value, "1-2 个");
+assert.equal(battleDeclarationPlan.complexPrompt?.metrics.find((row) => row.key === "defender-bounds")?.value, "1-2 个");
+assert.equal(battleDeclarationPlan.complexPrompt?.metrics.find((row) => row.key === "battlefields")?.value, "2 项");
+assert.equal(battleDeclarationPlan.complexPrompt?.metrics.find((row) => row.key === "defenders")?.value, "2 项");
+assert.equal(battleDeclarationPlan.complexPrompt?.metrics.find((row) => row.key === "optional-costs")?.value, "1 项");
+
 const spellDuelPlan = buildActionPanelPromptPlan({
   connectionStatus: "connected",
   playerId: "P1",
