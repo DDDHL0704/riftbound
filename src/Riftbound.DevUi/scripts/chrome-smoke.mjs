@@ -1371,6 +1371,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const ruleQueue = document.querySelector(".wire-rule-queue");
     const ruleFocus = document.querySelector(".wire-rule-focus");
     const ruleFlow = document.querySelector(".wire-rule-flow");
+    const ruleEventSummary = document.querySelector(".wire-rule-event-summary");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector("[data-action-route-state]");
     const commandReview = document.querySelector("[data-command-review-state]");
@@ -1450,6 +1451,21 @@ async function runWireClickSelectionSmoke(cdp) {
       priorityMode: windowPlan?.getAttribute("data-wire-priority-mode") ?? null,
       priorityRailText: priorityRail?.textContent ?? "",
       priorityActiveStep: document.querySelector('[data-priority-step-state="active"]')?.getAttribute("data-priority-step") ?? null,
+      ruleEventSummaryActiveCount: Number(ruleEventSummary?.getAttribute("data-rule-event-summary-active-count") ?? "0"),
+      ruleEventSummaryDetailIds: Array.from(ruleEventSummary?.querySelectorAll("[data-rule-event-summary-detail-id]") ?? [])
+        .map((node) => node.getAttribute("data-rule-event-summary-detail-id") ?? ""),
+      ruleEventSummaryRows: Array.from(ruleEventSummary?.querySelectorAll("[data-rule-event-summary-row]") ?? [])
+        .map((node) => ({
+          hidden: Number(node.getAttribute("data-rule-event-summary-hidden-ref-count") ?? "0"),
+          key: node.getAttribute("data-rule-event-summary-row") ?? "",
+          missing: Number(node.getAttribute("data-rule-event-summary-missing-ref-count") ?? "0"),
+          refs: Number(node.getAttribute("data-rule-event-summary-object-ref-count") ?? "0"),
+          state: node.getAttribute("data-rule-event-summary-state") ?? "",
+          visible: Number(node.getAttribute("data-rule-event-summary-visible-ref-count") ?? "0")
+        })),
+      ruleEventSummaryState: ruleEventSummary?.getAttribute("data-rule-event-summary-state") ?? null,
+      ruleEventSummaryText: ruleEventSummary?.textContent ?? "",
+      ruleEventSummaryTotalCount: Number(ruleEventSummary?.getAttribute("data-rule-event-summary-total-count") ?? "0"),
       ruleFlowText: ruleFlow?.textContent ?? "",
       serverFlowActionCandidates: Array.from(document.querySelectorAll("[data-server-flow-action-candidates]"))
         .map((node) => node.getAttribute("data-server-flow-action-candidates") ?? ""),
@@ -1521,6 +1537,10 @@ async function runWireClickSelectionSmoke(cdp) {
   const ruleCoverageDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-coverage", ruleCoverageDetailTarget);
   await delay(150);
   const ruleCoverageDetailResult = await timelineDetailSummary(cdp);
+  const ruleEventSummaryDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-event-summary");
+  const ruleEventSummaryDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-event-summary", ruleEventSummaryDetailTarget);
+  await delay(150);
+  const ruleEventSummaryDetailResult = await timelineDetailSummary(cdp);
   const ruleResponsibilityDetailTarget = await firstScopedWireDetailId(cdp, ".wire-rule-responsibility");
   const ruleResponsibilityDetailClickId = await clickScopedWireDetail(cdp, ".wire-rule-responsibility", ruleResponsibilityDetailTarget);
   await delay(150);
@@ -2130,6 +2150,18 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.priorityRailText.includes("规则任务")) failures.push("wire priority rail task step missing");
   if (!actionMapResult.priorityRailText.includes("操作入口")) failures.push("wire priority rail entry step missing");
   if (!["task-blocked", "task-open", "stack-response"].includes(actionMapResult.ruleQueueState)) failures.push(`wire rule queue state did not reflect server queue context: ${actionMapResult.ruleQueueState}`);
+  if (!["empty", "history"].includes(actionMapResult.ruleEventSummaryState)) failures.push(`wire rule event summary state missing: ${actionMapResult.ruleEventSummaryState}`);
+  if (!actionMapResult.ruleEventSummaryText.includes("规则事件摘要")) failures.push("wire rule event summary header missing");
+  for (const key of ["battlefield", "score", "movement", "payment", "stack", "trigger"]) {
+    if (!actionMapResult.ruleEventSummaryRows.some((row) => row.key === key)) failures.push(`wire rule event summary row missing: ${key}`);
+  }
+  if (actionMapResult.ruleEventSummaryActiveCount < 1) failures.push("wire rule event summary should expose categorized server events");
+  if (!actionMapResult.ruleEventSummaryDetailIds.some(Boolean)) {
+    failures.push(`wire rule event summary detail id missing: ${actionMapResult.ruleEventSummaryDetailIds.join(",")}`);
+  }
+  if (!actionMapResult.ruleEventSummaryRows.some((row) => row.state === "history" && row.refs >= 1)) {
+    failures.push(`wire rule event summary object refs missing: ${JSON.stringify(actionMapResult.ruleEventSummaryRows)}`);
+  }
   if (actionMapResult.ruleLaneCount !== 4) failures.push(`wire rule queue lane count mismatch: ${actionMapResult.ruleLaneCount}`);
   if (!actionMapResult.ruleFlowText.includes("规则队列地图")) failures.push("wire rule queue flow header missing");
   if (!actionMapResult.serverFlowActionCandidates.some((candidate) => candidate.includes("PLAY_CARD"))) {
@@ -2206,6 +2238,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (ruleCoverageDetailResult.detailId !== ruleCoverageDetailTarget) failures.push(`rule coverage detail panel unexpected: ${ruleCoverageDetailResult.detailId}`);
   if (ruleCoverageDetailResult.panelState !== "rule") failures.push(`rule coverage detail panel state unexpected: ${ruleCoverageDetailResult.panelState}`);
   if (!ruleCoverageDetailResult.text.includes("服务端")) failures.push("rule coverage detail authority text missing");
+  if (ruleEventSummaryDetailClickId !== ruleEventSummaryDetailTarget) failures.push(`rule event summary detail click unexpected: ${ruleEventSummaryDetailClickId}`);
+  if (ruleEventSummaryDetailResult.detailId !== ruleEventSummaryDetailTarget) failures.push(`rule event summary detail panel unexpected: ${ruleEventSummaryDetailResult.detailId}`);
+  if (ruleEventSummaryDetailResult.panelState !== "rule") failures.push(`rule event summary detail panel state unexpected: ${ruleEventSummaryDetailResult.panelState}`);
+  if (!ruleEventSummaryDetailResult.text.includes("服务端事件")) failures.push("rule event summary detail event text missing");
   if (ruleResponsibilityDetailClickId !== ruleResponsibilityDetailTarget) failures.push(`rule responsibility detail click unexpected: ${ruleResponsibilityDetailClickId}`);
   if (ruleResponsibilityDetailResult.detailId !== ruleResponsibilityDetailTarget) failures.push(`rule responsibility detail panel unexpected: ${ruleResponsibilityDetailResult.detailId}`);
   if (ruleResponsibilityDetailResult.panelState !== "rule") failures.push(`rule responsibility detail panel state unexpected: ${ruleResponsibilityDetailResult.panelState}`);

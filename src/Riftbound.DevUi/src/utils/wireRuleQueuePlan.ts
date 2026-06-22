@@ -174,6 +174,40 @@ export type WireRuleQueueCoverageRow = {
   stateLabel: string;
 };
 
+export type WireRuleQueueEventSummaryKey =
+  | "battlefield"
+  | "movement"
+  | "payment"
+  | "score"
+  | "stack"
+  | "trigger";
+
+export type WireRuleQueueEventSummaryState = "empty" | "history";
+
+export type WireRuleQueueEventSummaryRow = {
+  detail?: WireRuleQueueDetailPlan;
+  eventCount: number;
+  hiddenObjectRefCount: number;
+  key: WireRuleQueueEventSummaryKey;
+  label: string;
+  latestDescription: string;
+  latestLabel: string;
+  missingObjectRefCount: number;
+  objectRefCount: number;
+  state: WireRuleQueueEventSummaryState;
+  stateLabel: string;
+  visibleObjectRefCount: number;
+};
+
+export type WireRuleQueueEventSummaryPlan = {
+  activeCount: number;
+  latestEventLabel: string;
+  rows: WireRuleQueueEventSummaryRow[];
+  state: WireRuleQueueEventSummaryState;
+  summary: string;
+  totalEventCount: number;
+};
+
 type ServerRuleQueueCoverageRow = {
   evidenceKeys: string[];
   liveCount: number;
@@ -328,6 +362,7 @@ export type WireRuleQueueSelectedObjectPlan = {
 export type WireRuleQueuePlan = {
   activeLaneKey: WireRuleQueueLaneKey | "none";
   coverage: WireRuleQueueCoverageRow[];
+  eventSummary: WireRuleQueueEventSummaryPlan;
   focus: WireRuleQueueFocusPlan;
   header: WireRuleQueueHeaderPlan;
   inspector: WireRuleQueueInspectorPlan;
@@ -396,6 +431,8 @@ export function buildWireRuleQueuePlan({
   const actingPlayerId = asString(turnWindow.actingPlayerId, asString(timing.priorityPlayerId, ""));
   const promptOwner = prompt?.playerId ?? asString(timing.promptPlayerId, "");
   const resolutionCount = counts.battlefieldResolutionCount + counts.battleResolutionCount + counts.ruleEventCount;
+  const objectIndex = buildCardObjectIndex(snapshot);
+  const eventSummary = ruleEventSummaryPlan(events, objectIndex);
 
   const baseLanes = [
     lane({
@@ -443,7 +480,6 @@ export function buildWireRuleQueuePlan({
     { key: "coverage", label: "事件覆盖", value: `${baseCoverage.filter((row) => row.state !== "empty").length} 类` }
   ];
   const nextStep = nextStepLabel(state);
-  const objectIndex = buildCardObjectIndex(snapshot);
   const interactionModel = buildPromptInteractionModel(prompt);
   const sections = ruleQueueSections({
     battleResolutions,
@@ -472,6 +508,7 @@ export function buildWireRuleQueuePlan({
   return {
     activeLaneKey,
     coverage,
+    eventSummary,
     focus,
     header: headerPlanFor({
       promptId: prompt?.promptId,
@@ -2496,6 +2533,216 @@ function ruleEventItemPlan(
     subtitle: eventDescriptionLabel(event),
     title: eventKindLabel(event.kind)
   };
+}
+
+type MutableRuleEventSummaryRow = {
+  eventCount: number;
+  hiddenObjectRefCount: number;
+  key: WireRuleQueueEventSummaryKey;
+  latestEvent?: GameEvent;
+  latestEventIndex: number;
+  missingObjectRefCount: number;
+  objectRefCount: number;
+  visibleObjectRefCount: number;
+};
+
+function ruleEventSummaryPlan(events: GameEvent[], objects: SnapshotObjectIndex): WireRuleQueueEventSummaryPlan {
+  const rows = new Map<WireRuleQueueEventSummaryKey, MutableRuleEventSummaryRow>(
+    eventSummaryKeys.map((key) => [key, emptyEventSummaryRow(key)])
+  );
+  const categorizedEventIndexes = new Set<number>();
+  let latestCategorizedEvent: GameEvent | undefined;
+
+  events.forEach((event, index) => {
+    const keys = eventSummaryKeysForEventKind(event.kind);
+    if (keys.length === 0) {
+      return;
+    }
+
+    categorizedEventIndexes.add(index);
+    latestCategorizedEvent = event;
+    const refCounts = eventSummaryObjectRefCounts(event, objects);
+    for (const key of keys) {
+      const row = rows.get(key);
+      if (!row) {
+        continue;
+      }
+
+      row.eventCount += 1;
+      row.objectRefCount += refCounts.total;
+      row.visibleObjectRefCount += refCounts.visible;
+      row.hiddenObjectRefCount += refCounts.hidden;
+      row.missingObjectRefCount += refCounts.missing;
+      row.latestEvent = event;
+      row.latestEventIndex = index;
+    }
+  });
+
+  const summaryRows = eventSummaryKeys.map((key) => eventSummaryRowPlan(rows.get(key) ?? emptyEventSummaryRow(key), objects));
+  const activeCount = summaryRows.filter((row) => row.state !== "empty").length;
+
+  return {
+    activeCount,
+    latestEventLabel: latestCategorizedEvent ? eventKindLabel(latestCategorizedEvent.kind) : "无服务端规则事件",
+    rows: summaryRows,
+    state: activeCount > 0 ? "history" : "empty",
+    summary: activeCount > 0
+      ? `服务端最近公开 ${categorizedEventIndexes.size} 个规则事件，覆盖 ${activeCount} 类规则面。`
+      : "暂无可归类的服务端规则事件。",
+    totalEventCount: categorizedEventIndexes.size
+  };
+}
+
+function emptyEventSummaryRow(key: WireRuleQueueEventSummaryKey): MutableRuleEventSummaryRow {
+  return {
+    eventCount: 0,
+    hiddenObjectRefCount: 0,
+    key,
+    latestEventIndex: -1,
+    missingObjectRefCount: 0,
+    objectRefCount: 0,
+    visibleObjectRefCount: 0
+  };
+}
+
+function eventSummaryRowPlan(
+  row: MutableRuleEventSummaryRow,
+  objects: SnapshotObjectIndex
+): WireRuleQueueEventSummaryRow {
+  const latestEvent = row.latestEvent;
+  return {
+    detail: latestEvent ? ruleEventItemPlan(latestEvent, row.latestEventIndex, objects).detail : undefined,
+    eventCount: row.eventCount,
+    hiddenObjectRefCount: row.hiddenObjectRefCount,
+    key: row.key,
+    label: eventSummaryLabel(row.key),
+    latestDescription: latestEvent ? eventDescriptionLabel(latestEvent) : "等待服务端事件",
+    latestLabel: latestEvent ? eventKindLabel(latestEvent.kind) : "无",
+    missingObjectRefCount: row.missingObjectRefCount,
+    objectRefCount: row.objectRefCount,
+    state: row.eventCount > 0 ? "history" : "empty",
+    stateLabel: row.eventCount > 0 ? "近期事件" : "未出现",
+    visibleObjectRefCount: row.visibleObjectRefCount
+  };
+}
+
+const eventSummaryKeys: WireRuleQueueEventSummaryKey[] = [
+  "battlefield",
+  "score",
+  "movement",
+  "payment",
+  "stack",
+  "trigger"
+];
+
+function eventSummaryKeysForEventKind(kind: string): WireRuleQueueEventSummaryKey[] {
+  const keys: WireRuleQueueEventSummaryKey[] = [];
+  if (
+    kind.includes("BATTLEFIELD")
+    || kind.startsWith("BATTLE")
+    || kind.startsWith("COMBAT")
+    || kind === "DAMAGE_APPLIED"
+    || kind === "DAMAGE_REMOVED"
+  ) {
+    keys.push("battlefield");
+  }
+  if (
+    kind.startsWith("SCORE")
+    || kind.includes("SCORE")
+    || kind === "BATTLEFIELD_CONQUERED"
+    || kind === "BATTLEFIELD_HELD"
+    || kind === "UNIT_CONQUEST_EFFECT_ACTIVATED"
+  ) {
+    keys.push("score");
+  }
+  if (
+    kind.startsWith("UNIT_MOVED")
+    || kind.startsWith("UNIT_PLAYED")
+    || kind.startsWith("UNIT_RECALLED")
+    || kind.startsWith("UNIT_RETURNED")
+    || kind === "UNIT_BANISHED"
+    || kind === "UNIT_CONTROL_GAINED"
+    || kind === "UNIT_CONTROL_RETURNED"
+    || kind === "UNIT_DESTROYED"
+    || kind === "UNIT_LOCATIONS_SWAPPED"
+    || kind === "UNIT_TOKEN_CREATED"
+  ) {
+    keys.push("movement");
+  }
+  if (
+    kind.startsWith("PAYMENT")
+    || kind.startsWith("RUNE")
+    || kind.startsWith("MANA")
+    || kind.startsWith("POWER")
+    || kind.startsWith("TEMPORARY_PAYMENT_RESOURCE")
+    || kind.startsWith("EXPERIENCE")
+    || kind === "COST_PAID"
+  ) {
+    keys.push("payment");
+  }
+  if (
+    kind.startsWith("STACK")
+    || kind.startsWith("SPELL_DUEL")
+    || kind === "FOCUS_PASSED"
+    || kind === "PRIORITY_PASSED"
+  ) {
+    keys.push("stack");
+  }
+  if (
+    kind.startsWith("ABILITY")
+    || kind.startsWith("LEGEND_ABILITY")
+    || kind.startsWith("TRIGGER")
+    || kind.startsWith("TRIGGERS")
+    || kind.endsWith("_TRIGGER_RESOLVED")
+    || kind === "UNIT_CONQUEST_EFFECT_ACTIVATED"
+  ) {
+    keys.push("trigger");
+  }
+
+  return keys;
+}
+
+function eventSummaryObjectRefCounts(event: GameEvent, objects: SnapshotObjectIndex): {
+  hidden: number;
+  missing: number;
+  total: number;
+  visible: number;
+} {
+  const counts = { hidden: 0, missing: 0, total: 0, visible: 0 };
+  for (const ref of gameEventObjectRefPlan(event).refs) {
+    const objectId = ref.objectId?.trim();
+    if (!objectId) {
+      continue;
+    }
+
+    counts.total += 1;
+    if (ref.isHidden || objectId === "HIDDEN") {
+      counts.hidden += 1;
+    } else if (objects[objectId]) {
+      counts.visible += 1;
+    } else {
+      counts.missing += 1;
+    }
+  }
+
+  return counts;
+}
+
+function eventSummaryLabel(key: WireRuleQueueEventSummaryKey): string {
+  switch (key) {
+    case "battlefield":
+      return "战场/战斗";
+    case "movement":
+      return "单位/区域";
+    case "payment":
+      return "费用/符文";
+    case "score":
+      return "得分";
+    case "stack":
+      return "结算链/法术对决";
+    case "trigger":
+      return "触发/技能";
+  }
 }
 
 function taskQueueNotes(queue: Record<string, unknown>): string[] {

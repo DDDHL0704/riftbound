@@ -1,7 +1,7 @@
 import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protocol";
 import { Children, type ReactNode, useState } from "react";
 import type { InspectedCard } from "../cards/CardFace";
-import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSelectedObjectPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
+import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueEventSummaryPlan, type WireRuleQueueEventSummaryRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSelectedObjectPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import type { CommandSubmitHandler } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -72,6 +72,11 @@ export function WireRuleQueuePanel({
       </header>
 
       <WireRuleAuthorityPanel events={events} snapshot={snapshot} />
+      <RuleEventSummary
+        onSelectDetail={onSelectDetail}
+        plan={plan.eventSummary}
+        selectedDetailId={selectedDetailId}
+      />
 
       <section className="wire-rule-flow" aria-label="服务端规则队列地图">
         <div className="wire-rule-flow-heading">
@@ -207,6 +212,76 @@ export function WireRuleQueuePanel({
         </RuleSection>
       ))}
     </section>
+  );
+}
+
+function RuleEventSummary({
+  onSelectDetail,
+  plan,
+  selectedDetailId
+}: {
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  plan: WireRuleQueueEventSummaryPlan;
+  selectedDetailId?: string;
+}) {
+  return (
+    <section
+      aria-label="规则事件摘要"
+      className="wire-rule-event-summary"
+      data-rule-event-summary-active-count={plan.activeCount}
+      data-rule-event-summary-state={plan.state}
+      data-rule-event-summary-total-count={plan.totalEventCount}
+    >
+      <header>
+        <strong>规则事件摘要</strong>
+        <span>{plan.summary}</span>
+      </header>
+      <ol>
+        {plan.rows.map((row) => (
+          <RuleEventSummaryRow
+            key={row.key}
+            onSelectDetail={onSelectDetail}
+            row={row}
+            selectedDetailId={selectedDetailId}
+          />
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function RuleEventSummaryRow({
+  onSelectDetail,
+  row,
+  selectedDetailId
+}: {
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  row: WireRuleQueueEventSummaryRow;
+  selectedDetailId?: string;
+}) {
+  return (
+    <li
+      data-rule-event-summary-detail-id={row.detail?.id ?? ""}
+      data-rule-event-summary-hidden-ref-count={row.hiddenObjectRefCount}
+      data-rule-event-summary-missing-ref-count={row.missingObjectRefCount}
+      data-rule-event-summary-object-ref-count={row.objectRefCount}
+      data-rule-event-summary-row={row.key}
+      data-rule-event-summary-state={row.state}
+      data-rule-event-summary-visible-ref-count={row.visibleObjectRefCount}
+    >
+      <small>{row.label}</small>
+      <strong>{row.eventCount} 件 / {row.stateLabel}</strong>
+      <span>{row.latestLabel}</span>
+      <em>{row.latestDescription}</em>
+      <small>对象 {row.visibleObjectRefCount} 可见 / {row.hiddenObjectRefCount} 隐藏 / {row.missingObjectRefCount} 缺失</small>
+      {row.detail ? (
+        <RuleDetailButton
+          detail={row.detail}
+          onSelectDetail={onSelectDetail}
+          selectedDetailId={selectedDetailId}
+        />
+      ) : null}
+    </li>
   );
 }
 

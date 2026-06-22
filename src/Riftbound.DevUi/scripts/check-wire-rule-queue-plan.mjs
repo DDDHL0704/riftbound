@@ -293,6 +293,12 @@ function coverageRow(plan, key) {
   return row;
 }
 
+function eventSummaryRow(plan, key) {
+  const row = plan.eventSummary.rows.find((item) => item.key === key);
+  assert.ok(row, `Missing event summary row: ${key}`);
+  return row;
+}
+
 const baseSnapshot = {
   activePlayerId: "P1",
   lanes: {},
@@ -364,6 +370,9 @@ assert.equal(taskBlocked.responsibility.items[0].detail?.id, "rule:task:task-1")
 assert.equal(taskBlocked.inspector.sequence[0].detail?.id, "rule:task:task-1");
 assert.equal(taskBlocked.metrics.find((metric) => metric.key === "task")?.value, "1 项");
 assert.equal(taskBlocked.metrics.find((metric) => metric.key === "coverage")?.value, "2 类");
+assert.equal(taskBlocked.eventSummary.state, "empty");
+assert.equal(taskBlocked.eventSummary.activeCount, 0);
+assert.equal(eventSummaryRow(taskBlocked, "battlefield").state, "empty");
 assert.equal(coverageRow(taskBlocked, "battle").state, "live");
 assert.equal(coverageRow(taskBlocked, "battle").liveCount, 1);
 assert.equal(coverageRow(taskBlocked, "battle").detail?.id, "rule:task:task-1");
@@ -953,6 +962,20 @@ assert.equal(eventResolutionHistory.lanes.find((lane) => lane.key === "resolutio
 assert.equal(eventResolutionHistory.lanes.find((lane) => lane.key === "resolution")?.headline, "触发排队");
 assert.equal(eventResolutionHistory.metrics.find((metric) => metric.key === "resolution")?.value, "2 项");
 assert.equal(eventResolutionHistory.metrics.find((metric) => metric.key === "coverage")?.value, "3 类");
+assert.equal(eventResolutionHistory.eventSummary.state, "history");
+assert.equal(eventResolutionHistory.eventSummary.activeCount, 3);
+assert.equal(eventResolutionHistory.eventSummary.totalEventCount, 2);
+assert.ok(eventResolutionHistory.eventSummary.summary.includes("2 个规则事件"));
+assert.equal(eventSummaryRow(eventResolutionHistory, "battlefield").eventCount, 1);
+assert.equal(eventSummaryRow(eventResolutionHistory, "battlefield").latestLabel, "征服战场");
+assert.equal(eventSummaryRow(eventResolutionHistory, "battlefield").visibleObjectRefCount, 2);
+assert.equal(eventSummaryRow(eventResolutionHistory, "score").eventCount, 1);
+assert.equal(eventSummaryRow(eventResolutionHistory, "score").latestDescription, "P1 征服左战场");
+assert.equal(eventSummaryRow(eventResolutionHistory, "trigger").eventCount, 1);
+assert.equal(eventSummaryRow(eventResolutionHistory, "trigger").latestLabel, "触发排队");
+assert.equal(eventSummaryRow(eventResolutionHistory, "trigger").hiddenObjectRefCount, 1);
+assert.equal(eventSummaryRow(eventResolutionHistory, "trigger").detail?.id, "rule:event:TRIGGER_QUEUED:2");
+assert.equal(eventSummaryRow(eventResolutionHistory, "payment").state, "empty");
 assert.equal(coverageRow(eventResolutionHistory, "trigger").state, "history");
 assert.equal(coverageRow(eventResolutionHistory, "trigger").eventCount, 1);
 assert.equal(coverageRow(eventResolutionHistory, "trigger").objectRefCount, 0);
@@ -1043,6 +1066,11 @@ assert.equal(coverageRow(serverCoverage, "payment").state, "mixed");
 assert.equal(coverageRow(serverCoverage, "payment").liveCount, 1);
 assert.equal(coverageRow(serverCoverage, "payment").eventCount, 1);
 assert.equal(coverageRow(serverCoverage, "payment").objectRefCount, 1);
+assert.equal(serverCoverage.eventSummary.activeCount, 1);
+assert.equal(eventSummaryRow(serverCoverage, "payment").state, "history");
+assert.equal(eventSummaryRow(serverCoverage, "payment").eventCount, 1);
+assert.equal(eventSummaryRow(serverCoverage, "payment").missingObjectRefCount, 1);
+assert.equal(eventSummaryRow(serverCoverage, "payment").detail?.id, "rule:event:COST_PAID:0");
 assert.ok(coverageRow(serverCoverage, "payment").hint.includes("pendingPayment"));
 assert.equal(coverageRow(serverCoverage, "battle").state, "live");
 assert.equal(coverageRow(serverCoverage, "battle").liveCount, 1);
@@ -1060,6 +1088,9 @@ assert.equal(idle.responsibility.stateLabel, "无待响应");
 assert.equal(idle.responsibility.activeCount, 0);
 assert.equal(idle.responsibility.items.length, 0);
 assert.equal(idle.responsibility.summary, "当前没有服务端结算链、规则任务、触发或近期规则事件。");
+assert.equal(idle.eventSummary.state, "empty");
+assert.equal(idle.eventSummary.rows.length, 6);
+assert.ok(idle.eventSummary.rows.every((row) => row.state === "empty"));
 assert.equal(idle.inspector.activeLaneLabel, "无活动通道");
 assert.equal(idle.sequence.length, 0);
 assert.ok(idle.lanes.every((lane) => lane.state === "empty"));
