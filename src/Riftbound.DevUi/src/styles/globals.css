@@ -16234,6 +16234,13 @@ button.card-face:hover {
   padding: 5px;
 }
 
+.wire-rule-selected-object-command {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+}
+
 .wire-rule-selected-object-heading {
   min-width: 0;
   display: grid;
@@ -17632,6 +17639,7 @@ button.wire-object-ref {
 .wire-match-page .wire-rule-focus-lines,
 .wire-match-page .wire-rule-selected-object,
 .wire-match-page .wire-rule-selected-object-heading,
+.wire-match-page .wire-rule-selected-object-command,
 .wire-match-page .wire-rule-selected-object-syntax,
 .wire-match-page .wire-rule-selected-object-syntax li,
 .wire-match-page .wire-object-syntax-block,

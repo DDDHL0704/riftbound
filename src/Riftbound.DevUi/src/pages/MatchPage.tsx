@@ -637,14 +637,25 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     ruleQueue: (
       <section aria-label="右侧规则队列区" className="wire-panel wire-rule-panel" data-wire-side-panel-slot="ruleQueue" id={sidePanelDirectory.bySlot.ruleQueue.anchorId} key="ruleQueue" tabIndex={0}>
         <WireRuleQueuePanel
+          disabledByConnection={!tableSubmissionGate.canSubmit}
           events={tableEvents}
+          focusedPlan={selectedFocusPlan}
+          inspectedCard={inspectedCard}
+          onClearInspectedCard={clearInspectedCard}
+          onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
+            label: "规则队列对象托盘",
+            objectId: selectedObjectId,
+            surface: "rule-queue"
+          }, routeSource))}
           onInspectObject={inspectObjectFromTable}
+          onOpenDetail={openDetailCard}
           onSelectDetail={selectTimelineDetail}
           playerId={settings.playerId}
           prompt={tablePrompt}
           selectedDetailId={timelineDetail?.id}
           selectedObjectId={selectedObjectId}
           snapshot={tableSnapshot}
+          submissionGate={tableSubmissionGate}
         />
       </section>
     ),

@@ -1029,6 +1029,9 @@ async function runWireClickSelectionSmoke(cdp) {
     const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
     const commandCenterFollowupLayout = commandCenterFollowup?.querySelector("[data-command-followup-layout-state]");
     const objectInspection = document.querySelector(".wire-focus-copy .wire-object-inspection");
+    const selectedProjection = document.querySelector('[data-rule-selected-object="p1-hand-spell"]');
+    const ruleProjectionCommand = selectedProjection?.querySelector("[data-rule-selected-object-command-state]");
+    const ruleProjectionTray = selectedProjection?.querySelector(".wire-object-command-tray");
     const sourceObject = document.querySelector('[data-object-id="p1-hand-spell"]');
     return {
       state: summary?.getAttribute("data-wire-focused-action-state") ?? null,
@@ -1098,6 +1101,22 @@ async function runWireClickSelectionSmoke(cdp) {
       commandCenterFollowupMetricCount: commandCenterFollowup?.querySelectorAll("[data-command-followup-metric]").length ?? 0,
       commandCenterFollowupText: commandCenterFollowup?.textContent ?? "",
       commandCenterText: commandCenter?.textContent ?? "",
+      ruleProjectionCommandObject: ruleProjectionCommand?.getAttribute("data-rule-selected-object-command-object") ?? null,
+      ruleProjectionCommandState: ruleProjectionCommand?.getAttribute("data-rule-selected-object-command-state") ?? null,
+      ruleProjectionTrayActionCount: Number(ruleProjectionTray?.querySelector("[data-wire-object-command-tray-action-count]")?.getAttribute("data-wire-object-command-tray-action-count") ?? "0"),
+      ruleProjectionTrayObject: ruleProjectionTray?.getAttribute("data-wire-object-command-tray-object") ?? null,
+      ruleProjectionTraySemantics: Array.from(ruleProjectionTray?.querySelectorAll("[data-wire-object-command-tray-semantic-intent]") ?? [])
+        .map((node) => [
+          node.getAttribute("data-wire-object-command-tray-semantic-category") ?? "",
+          node.getAttribute("data-wire-object-command-tray-semantic-intent") ?? ""
+        ].join(":")),
+      ruleProjectionTrayState: ruleProjectionTray?.getAttribute("data-wire-object-command-tray-state") ?? null,
+      ruleProjectionTraySubmitPreviewRows: Array.from(ruleProjectionTray?.querySelectorAll("[data-wire-object-command-tray-submit-preview]") ?? []).map((node) => ({
+        key: node.getAttribute("data-wire-object-command-tray-submit-preview") ?? "",
+        text: node.textContent ?? "",
+        tone: node.getAttribute("data-wire-object-command-tray-submit-preview-tone") ?? ""
+      })),
+      ruleProjectionTrayText: ruleProjectionTray?.textContent ?? "",
       selectedLayoutCapacityOverflow: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-capacity-overflow") ?? null,
       selectedLayoutCapacityOverflowCount: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-capacity-overflow-count") ?? null,
       selectedLayoutCapacityRow: document.querySelector("[data-wire-table-selected-layout-state]")?.getAttribute("data-wire-table-selected-layout-capacity-row") ?? null,
@@ -1733,6 +1752,27 @@ async function runWireClickSelectionSmoke(cdp) {
   }
   if (!focusResult.traySubmitPreviewRows.some((row) => row.key === "next" && row.tone === "good")) {
     failures.push(`object command tray did not expose ready next-step preview: ${JSON.stringify(focusResult.traySubmitPreviewRows)}`);
+  }
+  if (focusResult.ruleProjectionCommandObject !== "p1-hand-spell") {
+    failures.push(`rule projection command object unexpected: ${focusResult.ruleProjectionCommandObject}`);
+  }
+  if (focusResult.ruleProjectionCommandState !== "ready") {
+    failures.push(`rule projection command state unexpected: ${focusResult.ruleProjectionCommandState}`);
+  }
+  if (focusResult.ruleProjectionTrayObject !== "p1-hand-spell" || focusResult.ruleProjectionTrayState !== "ready") {
+    failures.push(`rule projection command tray did not mirror focused source: object=${focusResult.ruleProjectionTrayObject} state=${focusResult.ruleProjectionTrayState}`);
+  }
+  if (!focusResult.ruleProjectionTraySubmitPreviewRows.some((row) => row.key === "command" && row.text.includes("PLAY_CARD"))) {
+    failures.push(`rule projection command tray did not expose command preview: ${JSON.stringify(focusResult.ruleProjectionTraySubmitPreviewRows)}`);
+  }
+  if (!focusResult.ruleProjectionTraySubmitPreviewRows.some((row) => row.key === "route" && row.tone === "good")) {
+    failures.push(`rule projection command tray did not expose ready route preview: ${JSON.stringify(focusResult.ruleProjectionTraySubmitPreviewRows)}`);
+  }
+  if (!focusResult.ruleProjectionTraySemantics.some((row) => row.includes("play"))) {
+    failures.push(`rule projection command tray semantic rows missing play intent: ${JSON.stringify(focusResult.ruleProjectionTraySemantics)}`);
+  }
+  if (focusResult.ruleProjectionTrayActionCount < 1) {
+    failures.push("rule projection command tray action entry missing");
   }
   if (focusResult.readinessState !== "ready") failures.push(`focused readiness state unexpected: ${focusResult.readinessState}`);
   if (focusResult.readinessCanSubmit !== "true") failures.push("focused readiness did not allow submit");
@@ -4385,7 +4425,8 @@ function consoleArgs(args = []) {
 
 function isIgnorableResourceLog(text) {
   return text.includes("Failed to load resource: the server responded with a status of 404")
-    || (!startApi && text.includes("Failed to load resource: net::ERR_CONNECTION_REFUSED"));
+    || (!startApi && text.includes("Failed to load resource: net::ERR_CONNECTION_REFUSED"))
+    || (!startApi && text.includes("Failed to load resource: net::ERR_CONNECTION_CLOSED"));
 }
 
 function isIgnorableConsoleError(text) {

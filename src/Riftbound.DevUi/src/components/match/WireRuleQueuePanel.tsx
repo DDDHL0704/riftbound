@@ -1,10 +1,15 @@
 import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protocol";
 import { Children, type ReactNode, useState } from "react";
+import type { InspectedCard } from "../cards/CardFace";
 import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSelectedObjectPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
+import type { CommandSubmitHandler } from "../../utils/commandSubmissionFollowupPlan";
+import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import { buildTableObjectContextModel, type TableObjectContext } from "../../utils/tableObjectContext";
+import type { WireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
 import { StatusPill } from "../ui/StatusPill";
 import { WireDetailTrigger } from "./WireDetailTrigger";
+import { WireObjectCommandTray } from "./WireObjectCommandTray";
 import { WireObjectInspectionSummary } from "./WireObjectInspectionSummary";
 import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
 import { WireRuleAuthorityPanel } from "./WireRuleAuthorityPanel";
@@ -12,19 +17,42 @@ import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 import { useWireDialogFocus } from "./useWireDialogFocus";
 
 type WireRuleQueuePanelProps = {
+  disabledByConnection?: boolean;
   events?: GameEvent[];
-  onSelectDetail?: (detail: WireTimelineDetail) => void;
+  focusedPlan?: WireFocusedInteractionPlan;
+  inspectedCard?: InspectedCard;
+  onClearInspectedCard?: () => void;
+  onCommand?: CommandSubmitHandler;
   onInspectObject?: (objectId: string) => void;
+  onOpenDetail?: (card: InspectedCard) => void;
+  onSelectDetail?: (detail: WireTimelineDetail) => void;
   playerId: string;
   prompt?: ActionPromptDto;
   selectedDetailId?: string;
   selectedObjectId?: string;
   snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
 };
 
 type ObjectIndex = WireObjectIndex;
 
-export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, playerId, prompt, selectedDetailId, selectedObjectId, snapshot }: WireRuleQueuePanelProps) {
+export function WireRuleQueuePanel({
+  disabledByConnection = false,
+  events,
+  focusedPlan,
+  inspectedCard,
+  onClearInspectedCard,
+  onCommand,
+  onInspectObject,
+  onOpenDetail,
+  onSelectDetail,
+  playerId,
+  prompt,
+  selectedDetailId,
+  selectedObjectId,
+  snapshot,
+  submissionGate
+}: WireRuleQueuePanelProps) {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [responsibilityLayerOpen, setResponsibilityLayerOpen] = useState(false);
   const plan = buildWireRuleQueuePlan({ events, playerId, prompt, selectedObjectId, snapshot });
@@ -136,9 +164,18 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
       <RuleSelectedObjectProjection
         context={objectContext}
         contract={prompt?.contract}
+        disabledByConnection={disabledByConnection}
+        focusedPlan={focusedPlan}
+        inspectedCard={inspectedCard}
+        onClearInspectedCard={onClearInspectedCard}
+        onCommand={onCommand}
+        onOpenDetail={onOpenDetail}
         onSelectDetail={onSelectDetail}
         plan={plan.selectedObject}
+        prompt={prompt}
         selectedDetailId={selectedDetailId}
+        snapshot={snapshot}
+        submissionGate={submissionGate}
       />
 
       <div className="wire-rule-state-grid">
@@ -176,16 +213,44 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
 function RuleSelectedObjectProjection({
   context,
   contract,
+  disabledByConnection,
+  focusedPlan,
+  inspectedCard,
+  onClearInspectedCard,
+  onCommand,
+  onOpenDetail,
   onSelectDetail,
   plan,
-  selectedDetailId
+  prompt,
+  selectedDetailId,
+  snapshot,
+  submissionGate
 }: {
   context?: TableObjectContext;
   contract?: ActionPromptDto["contract"];
+  disabledByConnection: boolean;
+  focusedPlan?: WireFocusedInteractionPlan;
+  inspectedCard?: InspectedCard;
+  onClearInspectedCard?: () => void;
+  onCommand?: CommandSubmitHandler;
+  onOpenDetail?: (card: InspectedCard) => void;
   onSelectDetail?: (detail: WireTimelineDetail) => void;
   plan: WireRuleQueueSelectedObjectPlan;
+  prompt?: ActionPromptDto;
   selectedDetailId?: string;
+  snapshot?: SnapshotDto;
+  submissionGate?: ServerSubmissionGatePlan;
 }) {
+  const inspectedObjectId = inspectedCard?.objectId ?? inspectedCard?.object?.objectId;
+  const canRenderCommandTray = Boolean(
+    plan.objectId
+    && inspectedCard
+    && focusedPlan
+    && onClearInspectedCard
+    && onOpenDetail
+    && inspectedObjectId === plan.objectId
+  );
+
   return (
     <section
       aria-label="选中对象规则投影"
@@ -199,6 +264,27 @@ function RuleSelectedObjectProjection({
         <span>{plan.summary}</span>
       </div>
       {context && <WireObjectInspectionSummary context={context} contract={contract} />}
+      {canRenderCommandTray && focusedPlan && inspectedCard && onClearInspectedCard && onOpenDetail && (
+        <section
+          aria-label="选中对象规则命令托盘"
+          className="wire-rule-selected-object-command"
+          data-rule-selected-object-command-object={plan.objectId ?? ""}
+          data-rule-selected-object-command-state={focusedPlan.readiness.state}
+        >
+          <WireObjectCommandTray
+            disabledByConnection={disabledByConnection}
+            focusedPlan={focusedPlan}
+            inspectedCard={inspectedCard}
+            objectContext={context}
+            onClear={onClearInspectedCard}
+            onCommand={onCommand}
+            onOpenDetail={onOpenDetail}
+            prompt={prompt}
+            snapshot={snapshot}
+            submissionGate={submissionGate}
+          />
+        </section>
+      )}
       {plan.syntaxRows.length > 0 && (
         <section
           aria-label="选中对象候选语法"
