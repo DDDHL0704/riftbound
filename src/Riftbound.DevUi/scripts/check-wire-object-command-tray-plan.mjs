@@ -54,6 +54,7 @@ assert.equal(emptyFocusPlan.state, "empty");
 assert.deepEqual(emptyFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
   "actions:interaction:disabled",
   "map:actionMap:disabled",
+  "rules:ruleQueue:disabled",
   "detail:drawer:disabled"
 ]);
 
@@ -87,19 +88,39 @@ assert.deepEqual(readyPlan.submitPreviewRows.map((row) => `${row.key}:${row.tone
   "server:neutral:1",
   "next:good:可以提交服务端候选。"
 ]);
-const readyFocusPlan = buildWireSidePanelFocusPlan({ trayPlan: readyPlan });
+const readyFocusPlan = buildWireSidePanelFocusPlan({
+  objectContext: objectContext({
+    eventLinks: [{ description: "已打出手牌", kind: "CARD_PLAYED", role: "source" }]
+  }),
+  selectedObjectPlan: selectedObjectPlan(),
+  trayPlan: readyPlan
+});
 assert.equal(readyFocusPlan.visible, true);
 assert.equal(readyFocusPlan.objectId, "p1-hand-spell");
 assert.equal(readyFocusPlan.state, "ready");
+assert.equal(readyFocusPlan.relationCount, 2);
+assert.equal(readyFocusPlan.eventCount, 1);
 assert.deepEqual(readyFocusPlan.metrics.map((metric) => `${metric.key}:${metric.value}`), [
   "candidate:1 可用 / 0 阻断",
   "command:PLAY_CARD",
   "gate:可提交",
   "window:可行动"
 ]);
+assert.deepEqual(readyFocusPlan.contextMetrics.map((metric) => `${metric.key}:${metric.value}`), [
+  "relation:2",
+  "event:1",
+  "syntax:PLAY_CARD",
+  "source:服务端对象"
+]);
+assert.deepEqual(readyFocusPlan.relations.map((relation) => `${relation.sourceLabel}:${relation.state}:${relation.value}`), [
+  "服务端对象上下文:ready:服务端对象上下文 / 来源 / PLAY_CARD",
+  "近期事件:history:近期事件 / 来源"
+]);
+assert.equal(readyFocusPlan.relations[1].detail?.id, "rule:resolution:card-played");
 assert.deepEqual(readyFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
   "actions:interaction:available",
   "map:actionMap:available",
+  "rules:ruleQueue:available",
   "detail:drawer:available"
 ]);
 
@@ -154,6 +175,7 @@ assert.equal(hiddenFocusPlan.metrics.find((metric) => metric.key === "command")?
 assert.deepEqual(hiddenFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
   "actions:interaction:disabled",
   "map:actionMap:disabled",
+  "rules:ruleQueue:disabled",
   "detail:drawer:available"
 ]);
 assert.equal(JSON.stringify(hiddenFocusPlan).includes("PLAY_CARD"), false);
@@ -307,8 +329,57 @@ function objectContext(overrides = {}) {
     candidateSource: "server",
     contextBoundary: "服务端对象上下文只公开当前行动提示中的对象候选、选择角色和命令字段；隐藏 metadata、隐藏区内容和未公开卡牌身份不进入对象上下文。",
     contextSource: "server-action-prompt",
+    eventLinks: [],
     zone: { kind: "hand", label: "我方手牌", playerId: "P1" },
     ...overrides
+  };
+}
+
+function selectedObjectPlan() {
+  return {
+    candidateCount: 1,
+    disabledCandidateCount: 0,
+    enabledCandidateCount: 1,
+    missingRequiredSyntaxCount: 0,
+    objectId: "p1-hand-spell",
+    relationCount: 2,
+    relations: [
+      {
+        candidateActions: ["PLAY_CARD"],
+        detailLabel: "服务端对象上下文",
+        key: "selected:object-context:p1-hand-spell",
+        laneLabel: "服务端对象上下文",
+        roleLabel: "来源",
+        source: "object-context",
+        sourceLabel: "服务端对象上下文",
+        state: "ready",
+        stateLabel: "可提交"
+      },
+      {
+        candidateActions: [],
+        detail: {
+          id: "rule:resolution:card-played",
+          lines: [{ label: "事件", value: "CARD_PLAYED" }],
+          refs: [{ id: "p1-hand-spell", role: "source", visibility: "visible" }],
+          source: "rule",
+          title: "卡牌已打出"
+        },
+        detailId: "rule:resolution:card-played",
+        detailLabel: "卡牌已打出",
+        key: "selected:section:resolution:p1-hand-spell",
+        laneKey: "resolution",
+        laneLabel: "近期事件",
+        roleLabel: "来源",
+        source: "section",
+        sourceLabel: "近期事件",
+        state: "history",
+        stateLabel: "历史"
+      }
+    ],
+    state: "linked",
+    syntaxRows: [{ label: "命令", state: "ready", source: "server", value: "PLAY_CARD" }],
+    syntaxSummary: "PLAY_CARD",
+    usableSyntaxCount: 1
   };
 }
 

@@ -32,6 +32,7 @@ export function WireSidePanelRuleChainStrip({
       data-wire-side-panel-rule-chain-active-lane={plan.activeLaneKey}
       data-wire-side-panel-rule-chain-detail-id={plan.detail?.id ?? ""}
       data-wire-side-panel-rule-chain-state={plan.state}
+      tabIndex={0}
     >
       <header>
         <div>

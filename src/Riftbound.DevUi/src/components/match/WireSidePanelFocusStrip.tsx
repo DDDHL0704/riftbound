@@ -2,6 +2,7 @@ import { Maximize2, X } from "lucide-react";
 import type { InspectedCard } from "../cards/CardFace";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
+import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
 import type { WireSidePanelSlot } from "./wireTableLayout";
 import type { WireSidePanelFocusPlan } from "../../utils/wireSidePanelFocusPlan";
 
@@ -9,6 +10,7 @@ type WireSidePanelFocusStripProps = {
   inspectedCard?: InspectedCard;
   onClear: () => void;
   onOpenDetail: (card: InspectedCard) => void;
+  onSelectDetail: (detail: WireTimelineDetail) => void;
   onSelectSlot: (slot: WireSidePanelSlot) => void;
   plan: WireSidePanelFocusPlan;
 };
@@ -17,6 +19,7 @@ export function WireSidePanelFocusStrip({
   inspectedCard,
   onClear,
   onOpenDetail,
+  onSelectDetail,
   onSelectSlot,
   plan
 }: WireSidePanelFocusStripProps) {
@@ -24,9 +27,12 @@ export function WireSidePanelFocusStrip({
     <section
       aria-label="右侧焦点对象摘要"
       className="wire-side-panel-focus-strip"
+      data-wire-side-panel-focus-event-count={plan.eventCount}
       data-wire-side-panel-focus-object={plan.objectId ?? ""}
+      data-wire-side-panel-focus-relation-count={plan.relationCount}
       data-wire-side-panel-focus-state={plan.state}
       data-wire-side-panel-focus-visible={plan.visible ? "true" : "false"}
+      tabIndex={0}
     >
       <header>
         <div>
@@ -46,6 +52,53 @@ export function WireSidePanelFocusStrip({
             </div>
           ))}
         </dl>
+      )}
+
+      {plan.contextMetrics.length > 0 && (
+        <dl className="wire-side-panel-focus-context" aria-label="焦点对象规则上下文">
+          {plan.contextMetrics.map((metric) => (
+            <div data-wire-side-panel-focus-context-metric={metric.key} key={metric.key}>
+              <dt>{metric.label}</dt>
+              <dd>{metric.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {plan.relations.length > 0 && (
+        <ol className="wire-side-panel-focus-relations" aria-label="焦点对象规则关联">
+          {plan.relations.map((relation) => (
+            <li
+              data-wire-side-panel-focus-relation={relation.key}
+              data-wire-side-panel-focus-relation-source={relation.sourceLabel}
+              data-wire-side-panel-focus-relation-state={relation.state}
+              key={relation.key}
+            >
+              {relation.detail ? (
+                <button
+                  data-wire-side-panel-focus-relation-detail-id={relation.detail.id}
+                  onClick={() => {
+                    onSelectDetail(relation.detail!);
+                    onSelectSlot("timelineDetail");
+                  }}
+                  type="button"
+                >
+                  <span>{relation.sourceLabel}</span>
+                  <strong>{relation.label}</strong>
+                  <small>{relation.value}</small>
+                  <em>{relation.stateLabel}</em>
+                </button>
+              ) : (
+                <div data-wire-side-panel-focus-relation-detail-id="">
+                  <span>{relation.sourceLabel}</span>
+                  <strong>{relation.label}</strong>
+                  <small>{relation.value}</small>
+                  <em>{relation.stateLabel}</em>
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
       )}
 
       <div className="wire-side-panel-focus-next">

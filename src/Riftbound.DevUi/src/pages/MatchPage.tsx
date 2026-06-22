@@ -245,9 +245,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     focusedPlan: selectedFocusPlan,
     objectContext: selectedObjectContext
   }), [inspectedCard, selectedFocusPlan, selectedObjectContext]);
-  const sidePanelFocusPlan = useMemo(() => buildWireSidePanelFocusPlan({
-    trayPlan: selectedObjectCommandTrayPlan
-  }), [selectedObjectCommandTrayPlan]);
   const ruleQueuePlan = useMemo(() => buildWireRuleQueuePlan({
     events: tableEvents,
     playerId: settings.playerId,
@@ -255,6 +252,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     selectedObjectId,
     snapshot: tableSnapshot
   }), [selectedObjectId, settings.playerId, tableEvents, tablePrompt, tableSnapshot]);
+  const sidePanelFocusPlan = useMemo(() => buildWireSidePanelFocusPlan({
+    objectContext: selectedObjectContext,
+    selectedObjectPlan: ruleQueuePlan.selectedObject,
+    trayPlan: selectedObjectCommandTrayPlan
+  }), [ruleQueuePlan.selectedObject, selectedObjectCommandTrayPlan, selectedObjectContext]);
   const sidePanelRuleChainPlan = useMemo(() => buildWireSidePanelRuleChainPlan({
     ruleQueuePlan
   }), [ruleQueuePlan]);
@@ -899,6 +901,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             inspectedCard={inspectedCard}
             onClear={clearInspectedCard}
             onOpenDetail={openDetailCard}
+            onSelectDetail={selectTimelineDetail}
             onSelectSlot={selectSidePanelSlot}
             plan={sidePanelFocusPlan}
           />

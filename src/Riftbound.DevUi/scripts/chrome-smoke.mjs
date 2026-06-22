@@ -1502,7 +1502,20 @@ async function runWireClickSelectionSmoke(cdp) {
         key: node.getAttribute("data-wire-side-panel-focus-metric") ?? "",
         text: node.textContent ?? ""
       })),
+      sideFocusContextMetrics: Array.from(sideFocus?.querySelectorAll("[data-wire-side-panel-focus-context-metric]") ?? []).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-focus-context-metric") ?? "",
+        text: node.textContent ?? ""
+      })),
+      sideFocusEventCount: Number(sideFocus?.getAttribute("data-wire-side-panel-focus-event-count") ?? "0"),
       sideFocusObject: sideFocus?.getAttribute("data-wire-side-panel-focus-object") ?? null,
+      sideFocusRelationCount: Number(sideFocus?.getAttribute("data-wire-side-panel-focus-relation-count") ?? "0"),
+      sideFocusRelations: Array.from(sideFocus?.querySelectorAll("[data-wire-side-panel-focus-relation]") ?? []).map((node) => ({
+        detailId: node.querySelector("[data-wire-side-panel-focus-relation-detail-id]")?.getAttribute("data-wire-side-panel-focus-relation-detail-id") ?? "",
+        key: node.getAttribute("data-wire-side-panel-focus-relation") ?? "",
+        source: node.getAttribute("data-wire-side-panel-focus-relation-source") ?? "",
+        state: node.getAttribute("data-wire-side-panel-focus-relation-state") ?? "",
+        text: node.textContent ?? ""
+      })),
       sideFocusRoutes: Array.from(sideFocus?.querySelectorAll("[data-wire-side-panel-focus-route]") ?? []).map((node) => ({
         key: node.getAttribute("data-wire-side-panel-focus-route") ?? "",
         state: node.getAttribute("data-wire-side-panel-focus-route-state") ?? "",
@@ -2244,6 +2257,21 @@ async function runWireClickSelectionSmoke(cdp) {
   }
   if (!actionMapResult.sideFocusRoutes.some((route) => route.key === "detail" && route.state === "available")) {
     failures.push("side panel focus detail route missing");
+  }
+  if (!actionMapResult.sideFocusRoutes.some((route) => route.key === "rules" && route.state === "available")) {
+    failures.push("side panel focus rules route missing");
+  }
+  if (actionMapResult.sideFocusRelationCount < 1) {
+    failures.push(`side panel focus relation count too low: ${actionMapResult.sideFocusRelationCount}`);
+  }
+  if (!actionMapResult.sideFocusContextMetrics.some((metric) => metric.key === "relation" && /[1-9]/.test(metric.text))) {
+    failures.push(`side panel focus relation metric missing: ${JSON.stringify(actionMapResult.sideFocusContextMetrics)}`);
+  }
+  if (!actionMapResult.sideFocusContextMetrics.some((metric) => metric.key === "syntax")) {
+    failures.push("side panel focus syntax metric missing");
+  }
+  if (!actionMapResult.sideFocusRelations.some((relation) => relation.text.includes("服务端") || relation.text.includes("近期"))) {
+    failures.push(`side panel focus relation rows missing server/rule source: ${JSON.stringify(actionMapResult.sideFocusRelations)}`);
   }
   if (actionMapResult.actionLayoutProjectionState !== "ready") failures.push(`action layout projection state unexpected: ${actionMapResult.actionLayoutProjectionState}`);
   if (actionMapResult.actionLayoutProjectionLocatedCount < 2) failures.push(`action layout projection located count too low: ${actionMapResult.actionLayoutProjectionLocatedCount}`);
