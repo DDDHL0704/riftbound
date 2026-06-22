@@ -1,4 +1,4 @@
-import type { ActionPromptDto, ActionPromptObjectCandidateStepDto } from "../types/protocol";
+import type { ActionPromptDto, ActionPromptObjectCandidateStepDto, ActionPromptSelectionStepDto } from "../types/protocol";
 import {
   promptChoiceRoleFromString,
   promptChoiceRoleLabel
@@ -74,6 +74,26 @@ export function buildWireActionSyntaxPlanForObject({
   return buildWireActionSyntaxPlanFromRows([...serverFlowRows, ...objectContextRows]);
 }
 
+export function buildWireActionSyntaxPlanForPrompt({
+  prompt
+}: {
+  prompt?: ActionPromptDto;
+}): WireActionSyntaxPlan {
+  const rows = (prompt?.candidates ?? []).flatMap((candidate, candidateIndex) =>
+    wireActionSyntaxRowsFromPromptSteps({
+      candidateLabel: candidate.label?.trim() || candidate.action,
+      keyPrefix: `prompt:${candidateIndex}:${candidate.action}`,
+      source: "prompt-derived",
+      steps: candidate.selectionSteps
+    }));
+
+  const plan = buildWireActionSyntaxPlanFromRows(rows);
+  return {
+    ...plan,
+    summary: wirePromptActionSyntaxSummary(plan.rows)
+  };
+}
+
 export function buildWireActionSyntaxPlanFromTableContext(
   context?: TableObjectContext
 ): WireActionSyntaxPlan {
@@ -128,6 +148,46 @@ function wireActionSyntaxRowsFromSteps({
         choiceCount: finiteCountValue(step.choiceCount),
         key: `syntax:${keyPrefix}:${step.index}:${step.role}`,
         objectChoiceCount: finiteCountValue(step.objectChoiceCount),
+        required: Boolean(step.required),
+        role: step.role,
+        roleLabel,
+        source,
+        sourceLabel: wireActionSyntaxSourceLabel(source),
+        state,
+        stateLabel: wireActionSyntaxStateLabel(state)
+      };
+    });
+}
+
+function wireActionSyntaxRowsFromPromptSteps({
+  candidateLabel,
+  keyPrefix,
+  source,
+  steps
+}: {
+  candidateLabel: string;
+  keyPrefix: string;
+  source: WireActionSyntaxSource;
+  steps: readonly ActionPromptSelectionStepDto[] | null | undefined;
+}): WireActionSyntaxRow[] {
+  return (steps ?? [])
+    .filter((step) => step.required || uniqueChoiceCount(step) > 0)
+    .map((step, stepIndex) => {
+      const choiceCount = uniqueChoiceCount(step);
+      const state = wireActionSyntaxState({
+        choiceCount,
+        index: stepIndex,
+        label: step.label,
+        objectChoiceCount: choiceCount,
+        required: step.required,
+        role: step.role
+      });
+      const roleLabel = step.label?.trim() || wireActionSyntaxRoleLabel(step.role);
+      return {
+        candidateLabel,
+        choiceCount,
+        key: `syntax:${keyPrefix}:${stepIndex}:${step.role}`,
+        objectChoiceCount: choiceCount,
         required: Boolean(step.required),
         role: step.role,
         roleLabel,
@@ -223,8 +283,28 @@ function wireActionSyntaxSummary(rows: WireActionSyntaxRow[]): string {
   return `${usableLabel}；${missingLabel}`;
 }
 
+function wirePromptActionSyntaxSummary(rows: WireActionSyntaxRow[]): string {
+  if (rows.length === 0) {
+    return "服务端未公开当前 prompt 的选择语法。";
+  }
+
+  const usableRoles = uniqueStrings(rows
+    .filter((row) => row.state === "usable-optional" || row.state === "usable-required")
+    .map((row) => row.roleLabel));
+  const missingRoles = uniqueStrings(rows
+    .filter((row) => row.state === "missing-required")
+    .map((row) => row.roleLabel));
+  const usableLabel = usableRoles.length > 0 ? `可选择 ${usableRoles.join(" / ")}` : "当前 prompt 暂无可选步骤";
+  const missingLabel = missingRoles.length > 0 ? `还需 ${missingRoles.join(" / ")}` : "必选步骤已有服务端候选";
+  return `${usableLabel}；${missingLabel}`;
+}
+
 function finiteCountValue(value: number | null | undefined): number {
   return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+}
+
+function uniqueChoiceCount(step: ActionPromptSelectionStepDto): number {
+  return new Set((step.choices ?? []).map((choice) => choice.id).filter(Boolean)).size;
 }
 
 function uniqueStrings(values: string[]): string[] {

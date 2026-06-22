@@ -2650,6 +2650,10 @@ async function runWireRuleObjectRefSmoke(cdp) {
       .map((item) => item.getAttribute("data-rule-responsibility-submit-ready") ?? ""),
     responsibilitySubmitStates: Array.from(document.querySelectorAll("[data-rule-responsibility-submit-state]"))
       .map((item) => item.getAttribute("data-rule-responsibility-submit-state") ?? ""),
+    responsibilitySubmitSyntaxSummaries: Array.from(document.querySelectorAll("[data-rule-responsibility-submit-syntax-summary]"))
+      .map((item) => item.textContent ?? ""),
+    responsibilitySubmitSyntaxStates: Array.from(document.querySelectorAll("[data-rule-responsibility-submit-syntax-state]"))
+      .map((item) => item.getAttribute("data-rule-responsibility-submit-syntax-state") ?? ""),
     responsibilitySubmitText: document.querySelector(".wire-rule-responsibility")?.textContent ?? ""
   }))()`);
 
@@ -2675,6 +2679,17 @@ async function runWireRuleObjectRefSmoke(cdp) {
         .map((item) => item.getAttribute("data-rule-responsibility-layer-submit-ready") ?? ""),
       submitStates: Array.from(layer?.querySelectorAll("[data-rule-responsibility-layer-submit-state]") ?? [])
         .map((item) => item.getAttribute("data-rule-responsibility-layer-submit-state") ?? ""),
+      submitSyntaxMissingCounts: Array.from(layer?.querySelectorAll("[data-rule-responsibility-layer-submit-syntax-missing-count]") ?? [])
+        .map((item) => item.getAttribute("data-rule-responsibility-layer-submit-syntax-missing-count") ?? ""),
+      submitSyntaxRoles: Array.from(layer?.querySelectorAll("[data-rule-responsibility-submit-syntax-role]") ?? [])
+        .map((item) => item.getAttribute("data-rule-responsibility-submit-syntax-role") ?? ""),
+      submitSyntaxStates: Array.from(layer?.querySelectorAll("[data-rule-responsibility-submit-syntax-state]") ?? [])
+        .map((item) => item.getAttribute("data-rule-responsibility-submit-syntax-state") ?? ""),
+      submitSyntaxSummaries: Array.from(layer?.querySelectorAll("[data-rule-responsibility-layer-submit-syntax-summary]") ?? [])
+        .map((item) => item.textContent ?? ""),
+      submitSyntaxText: layer?.querySelector("[data-rule-responsibility-submit-syntax-list]")?.textContent ?? "",
+      submitSyntaxUsableCounts: Array.from(layer?.querySelectorAll("[data-rule-responsibility-layer-submit-syntax-usable-count]") ?? [])
+        .map((item) => item.getAttribute("data-rule-responsibility-layer-submit-syntax-usable-count") ?? ""),
       targetRefCount: layer?.querySelectorAll('[data-rule-object-ref="p2-right-1"]').length ?? 0,
       text: layer?.textContent ?? "",
       title: layer?.querySelector("#wire-rule-responsibility-layer-title")?.textContent ?? ""
@@ -3374,6 +3389,12 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (!initial.responsibilitySubmitStates.includes("ready")) failures.push("rule responsibility ready submit state missing");
   if (!initial.responsibilitySubmitReadyStates.includes("true")) failures.push("rule responsibility ready data attr missing");
   if (!initial.responsibilitySubmitText.includes("候选")) failures.push("rule responsibility submit candidate text missing");
+  if (!initial.responsibilitySubmitSyntaxSummaries.some((text) => text.includes("语法："))) {
+    failures.push("rule responsibility submit syntax summary missing");
+  }
+  if (!initial.responsibilitySubmitSyntaxStates.some((state) => state === "usable-required" || state === "usable-optional")) {
+    failures.push(`rule responsibility submit syntax usable state missing: ${initial.responsibilitySubmitSyntaxStates.join(",")}`);
+  }
   if (!responsibilityLayerResult.open) failures.push("rule responsibility layer did not open");
   if (responsibilityLayerResult.state !== "open") failures.push(`rule responsibility layer state unexpected: ${responsibilityLayerResult.state}`);
   if (responsibilityLayerResult.role !== "dialog") failures.push("rule responsibility layer role missing");
@@ -3383,6 +3404,21 @@ async function runWireRuleObjectRefSmoke(cdp) {
   if (Number(responsibilityLayerResult.readyCount) < 1) failures.push("rule responsibility layer ready count missing");
   if (!responsibilityLayerResult.submitStates.includes("ready")) failures.push("rule responsibility layer ready submit state missing");
   if (!responsibilityLayerResult.submitReadyStates.includes("true")) failures.push("rule responsibility layer ready submit attr missing");
+  if (!responsibilityLayerResult.submitSyntaxSummaries.some((text) => text.includes("语法："))) {
+    failures.push("rule responsibility layer submit syntax summary missing");
+  }
+  if (!responsibilityLayerResult.submitSyntaxRoles.includes("source")) {
+    failures.push(`rule responsibility layer submit source syntax missing: ${responsibilityLayerResult.submitSyntaxRoles.join(",")}`);
+  }
+  if (!responsibilityLayerResult.submitSyntaxStates.some((state) => state === "usable-required" || state === "usable-optional")) {
+    failures.push(`rule responsibility layer submit usable syntax missing: ${responsibilityLayerResult.submitSyntaxStates.join(",")}`);
+  }
+  if (!responsibilityLayerResult.submitSyntaxText.includes("选项")) {
+    failures.push("rule responsibility layer submit syntax choice text missing");
+  }
+  if (!responsibilityLayerResult.submitSyntaxUsableCounts.some((count) => Number(count) > 0)) {
+    failures.push(`rule responsibility layer submit syntax usable count missing: ${responsibilityLayerResult.submitSyntaxUsableCounts.join(",")}`);
+  }
   if (!responsibilityLayerResult.itemStates.some((state) => ["blocked", "respond", "watch"].includes(state))) {
     failures.push(`rule responsibility layer active item state missing: ${responsibilityLayerResult.itemStates.join(",")}`);
   }

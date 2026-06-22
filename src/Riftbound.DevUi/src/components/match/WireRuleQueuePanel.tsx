@@ -780,6 +780,8 @@ function RuleResponsibilityLayer({
                 {plan.items.map((item) => (
                   <li
                     data-rule-responsibility-layer-submit-item={item.key}
+                    data-rule-responsibility-layer-submit-syntax-missing-count={item.submit.missingRequiredSyntaxCount}
+                    data-rule-responsibility-layer-submit-syntax-usable-count={item.submit.usableSyntaxCount}
                     data-rule-responsibility-layer-submit-ready={item.submit.canSubmit ? "true" : "false"}
                     data-rule-responsibility-layer-submit-semantic={item.submit.semanticSummary}
                     data-rule-responsibility-layer-submit-state={item.submit.state}
@@ -790,6 +792,8 @@ function RuleResponsibilityLayer({
                     <small>{item.submit.enabledCandidateCount}/{item.submit.candidateCount} 候选 / {item.submit.promptType}</small>
                     <small>动作：{item.submit.semanticSummary}</small>
                     <RuleSubmitSemanticRows item={item} layer />
+                    <small data-rule-responsibility-layer-submit-syntax-summary>语法：{item.submit.syntaxSummary}</small>
+                    <RuleSubmitSyntaxRows item={item} layer />
                     <small>{item.submit.reason}</small>
                   </li>
                 ))}
@@ -897,6 +901,8 @@ function RuleResponsibilityItem({
       data-rule-responsibility-submit-ready={item.submit.canSubmit ? "true" : "false"}
       data-rule-responsibility-submit-semantic={item.submit.semanticSummary}
       data-rule-responsibility-submit-state={item.submit.state}
+      data-rule-responsibility-submit-syntax-missing-count={item.submit.missingRequiredSyntaxCount}
+      data-rule-responsibility-submit-syntax-usable-count={item.submit.usableSyntaxCount}
     >
       <div>
         <small>{item.label}</small>
@@ -918,6 +924,8 @@ function RuleResponsibilityItem({
         {item.submit.stateLabel} / {item.submit.enabledCandidateCount}/{item.submit.candidateCount} 候选 / {item.submit.reason}
       </span>
       <RuleSubmitSemanticRows item={item} />
+      <small data-rule-responsibility-submit-syntax-summary>语法：{item.submit.syntaxSummary}</small>
+      <RuleSubmitSyntaxRows item={item} />
       <small>{item.reason}</small>
       <WireObjectRefChips
         className="wire-rule-responsibility-object-refs"
@@ -928,6 +936,40 @@ function RuleResponsibilityItem({
         source="rule"
       />
     </li>
+  );
+}
+
+function RuleSubmitSyntaxRows({
+  item,
+  layer = false
+}: {
+  item: WireRuleQueueResponsibilityItem;
+  layer?: boolean;
+}) {
+  if (item.submit.syntaxRows.length === 0) {
+    return <small data-rule-responsibility-submit-syntax-empty="true">语法：{item.submit.syntaxSummary}</small>;
+  }
+
+  return (
+    <ol
+      aria-label={`${item.label} 服务端候选选择语法`}
+      className="wire-rule-responsibility-syntax"
+      data-rule-responsibility-submit-syntax-list={layer ? "layer" : "timeline"}
+    >
+      {item.submit.syntaxRows.slice(0, 8).map((row) => (
+        <li
+          data-rule-responsibility-submit-syntax-required={row.required ? "true" : "false"}
+          data-rule-responsibility-submit-syntax-role={row.role}
+          data-rule-responsibility-submit-syntax-source={row.source}
+          data-rule-responsibility-submit-syntax-state={row.state}
+          key={row.key}
+        >
+          <span>{row.sourceLabel}</span>
+          <strong>{row.roleLabel} / {row.stateLabel}</strong>
+          <small>{row.objectChoiceCount}/{row.choiceCount} 选项 / {row.candidateLabel}</small>
+        </li>
+      ))}
+    </ol>
   );
 }
 

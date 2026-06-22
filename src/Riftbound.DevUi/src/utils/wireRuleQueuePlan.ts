@@ -21,6 +21,7 @@ import { redactInternalText } from "./redaction";
 import { buildCardObjectIndex, type SnapshotObjectIndex } from "./snapshotObjectIndex";
 import {
   buildWireActionSyntaxPlanForObject,
+  buildWireActionSyntaxPlanForPrompt,
   buildWireActionSyntaxPlanFromRows,
   type WireActionSyntaxRow,
   type WireActionSyntaxSource,
@@ -98,12 +99,16 @@ export type WireRuleQueueResponsibilitySubmitPlan = {
   canSubmit: boolean;
   candidateCount: number;
   enabledCandidateCount: number;
+  missingRequiredSyntaxCount: number;
   promptType: string;
   reason: string;
   semanticRows: WireRuleQueueResponsibilitySubmitSemanticRow[];
   semanticSummary: string;
   state: WireRuleQueueResponsibilitySubmitState;
   stateLabel: string;
+  syntaxRows: WireActionSyntaxRow[];
+  syntaxSummary: string;
+  usableSyntaxCount: number;
 };
 
 export type WireRuleQueueResponsibilityItem = {
@@ -869,6 +874,7 @@ function responsibilitySubmitPlanFor({
   const enabledCandidateCount = counts.enabledCandidateCount;
   const promptType = prompt?.view?.type ?? prompt?.serverFlow?.promptType ?? "无";
   const semanticRows = responsibilitySubmitSemanticRows(prompt);
+  const syntaxPlan = buildWireActionSyntaxPlanForPrompt({ prompt });
 
   if (state === "history" || item.lane === "resolution") {
     return responsibilitySubmitPlan({
@@ -877,7 +883,11 @@ function responsibilitySubmitPlanFor({
       promptType,
       reason: "历史规则事件只用于回看，不提供提交入口。",
       semanticRows,
-      state: "history"
+      state: "history",
+      syntaxRows: syntaxPlan.rows,
+      syntaxSummary: syntaxPlan.summary,
+      missingRequiredSyntaxCount: syntaxPlan.missingRequiredCount,
+      usableSyntaxCount: syntaxPlan.usableCount
     });
   }
 
@@ -888,7 +898,11 @@ function responsibilitySubmitPlanFor({
       promptType,
       reason: "等待前序结算、任务或触发先处理。",
       semanticRows,
-      state: "waiting-lane"
+      state: "waiting-lane",
+      syntaxRows: syntaxPlan.rows,
+      syntaxSummary: syntaxPlan.summary,
+      missingRequiredSyntaxCount: syntaxPlan.missingRequiredCount,
+      usableSyntaxCount: syntaxPlan.usableCount
     });
   }
 
@@ -899,7 +913,11 @@ function responsibilitySubmitPlanFor({
       promptType,
       reason: "等待服务端 prompt 提供可提交候选。",
       semanticRows,
-      state: "waiting-prompt"
+      state: "waiting-prompt",
+      syntaxRows: syntaxPlan.rows,
+      syntaxSummary: syntaxPlan.summary,
+      missingRequiredSyntaxCount: syntaxPlan.missingRequiredCount,
+      usableSyntaxCount: syntaxPlan.usableCount
     });
   }
 
@@ -910,7 +928,11 @@ function responsibilitySubmitPlanFor({
       promptType,
       reason: `当前行动窗口属于 ${prompt.playerId || "未知玩家"}，本地玩家 ${playerId} 只读观察。`,
       semanticRows,
-      state: "wrong-player"
+      state: "wrong-player",
+      syntaxRows: syntaxPlan.rows,
+      syntaxSummary: syntaxPlan.summary,
+      missingRequiredSyntaxCount: syntaxPlan.missingRequiredCount,
+      usableSyntaxCount: syntaxPlan.usableCount
     });
   }
 
@@ -921,7 +943,11 @@ function responsibilitySubmitPlanFor({
       promptType,
       reason: prompt.reason?.trim() || "服务端提示当前只读，不能提交行动。",
       semanticRows,
-      state: "readonly"
+      state: "readonly",
+      syntaxRows: syntaxPlan.rows,
+      syntaxSummary: syntaxPlan.summary,
+      missingRequiredSyntaxCount: syntaxPlan.missingRequiredCount,
+      usableSyntaxCount: syntaxPlan.usableCount
     });
   }
 
@@ -932,7 +958,11 @@ function responsibilitySubmitPlanFor({
       promptType,
       reason: "服务端 prompt 已到达，但没有可用候选。",
       semanticRows,
-      state: "no-candidates"
+      state: "no-candidates",
+      syntaxRows: syntaxPlan.rows,
+      syntaxSummary: syntaxPlan.summary,
+      missingRequiredSyntaxCount: syntaxPlan.missingRequiredCount,
+      usableSyntaxCount: syntaxPlan.usableCount
     });
   }
 
@@ -942,35 +972,51 @@ function responsibilitySubmitPlanFor({
     promptType,
     reason: `服务端 prompt 提供 ${enabledCandidateCount}/${candidateCount} 个可用候选。`,
     semanticRows,
-    state: "ready"
+    state: "ready",
+    syntaxRows: syntaxPlan.rows,
+    syntaxSummary: syntaxPlan.summary,
+    missingRequiredSyntaxCount: syntaxPlan.missingRequiredCount,
+    usableSyntaxCount: syntaxPlan.usableCount
   });
 }
 
 function responsibilitySubmitPlan({
   candidateCount,
   enabledCandidateCount,
+  missingRequiredSyntaxCount,
   promptType,
   reason,
   semanticRows,
-  state
+  state,
+  syntaxRows,
+  syntaxSummary,
+  usableSyntaxCount
 }: {
   candidateCount: number;
   enabledCandidateCount: number;
+  missingRequiredSyntaxCount: number;
   promptType: string;
   reason: string;
   semanticRows: WireRuleQueueResponsibilitySubmitSemanticRow[];
   state: WireRuleQueueResponsibilitySubmitState;
+  syntaxRows: WireActionSyntaxRow[];
+  syntaxSummary: string;
+  usableSyntaxCount: number;
 }): WireRuleQueueResponsibilitySubmitPlan {
   return {
     canSubmit: state === "ready",
     candidateCount,
     enabledCandidateCount,
+    missingRequiredSyntaxCount,
     promptType,
     reason,
     semanticRows,
     semanticSummary: responsibilitySubmitSemanticSummary(semanticRows),
     state,
-    stateLabel: responsibilitySubmitStateLabel(state)
+    stateLabel: responsibilitySubmitStateLabel(state),
+    syntaxRows,
+    syntaxSummary,
+    usableSyntaxCount
   };
 }
 
