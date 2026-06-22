@@ -243,7 +243,6 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.True(battlefieldDestinationStep.ChoiceCount >= 2);
         Assert.Equal(1, battlefieldDestinationStep.ObjectChoiceCount);
 
-        var serverFlow = Assert.IsType<ActionPromptServerFlowDto>(prompt.ServerFlow);
         var promptCandidatesForFlow = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptCandidateDto>>(prompt.Candidates);
         Assert.Equal(promptCandidatesForFlow.Count, serverFlow.CandidateCount);
         Assert.Equal(promptCandidatesForFlow.Count(candidate => candidate.Enabled), serverFlow.EnabledCandidateCount);

@@ -553,6 +553,26 @@ export type BattlefieldSnapshotView = {
   scoreStatus?: string | null;
 };
 
+export type SnapshotTablePlayerView = {
+  playerId: string;
+  seat?: string;
+  perspective?: "self" | "opponent" | "spectator" | (string & {});
+  isViewer?: boolean;
+  zones?: ZoneView;
+};
+
+export type SnapshotTableBattlefieldView = BattlefieldSnapshotView & {
+  index?: number;
+};
+
+export type SnapshotTableView = {
+  source?: string;
+  viewerPlayerId?: string;
+  runeDeckSize?: number;
+  players?: SnapshotTablePlayerView[];
+  battlefields?: SnapshotTableBattlefieldView[];
+};
+
 export type SnapshotDto = {
   tick: number;
   turnNumber: number;
@@ -562,6 +582,7 @@ export type SnapshotDto = {
   stack: StackItemView[];
   timing: MatchTimingView;
   turnState: string;
+  table?: SnapshotTableView | null;
 };
 
 export type SubmitDeckCommand = {

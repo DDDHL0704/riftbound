@@ -207,6 +207,56 @@ assert.deepEqual(p2Perspective.lanes[0].ownOccupants, ["p2-left-1"]);
 assert.deepEqual(p2Perspective.lanes[0].opposingOccupants, ["p1-left-1", "p1-left-2"]);
 assert.deepEqual(p2Perspective.unitPlan, battlefield.unitPlan, "perspective flips ownership but not card sizing");
 
+const tableProjectionSnapshot = {
+  ...snapshot,
+  table: {
+    source: "server-snapshot",
+    viewerPlayerId: "P1",
+    runeDeckSize: 12,
+    players: [
+      {
+        isViewer: false,
+        perspective: "opponent",
+        playerId: "P2",
+        seat: "P2",
+        zones: {
+          ...snapshot.players.P2.zones,
+          base: ["p2-base-1", "p2-rune-1"],
+          baseCards: ["p2-base-1"],
+          baseRunes: ["p2-rune-1"],
+          handHidden: 2
+        }
+      },
+      {
+        isViewer: true,
+        perspective: "self",
+        playerId: "P1",
+        seat: "P1",
+        zones: {
+          ...snapshot.players.P1.zones,
+          hand: ["p1-hand-1", "p1-table-only-hand"],
+          handHidden: 0
+        }
+      }
+    ],
+    battlefields: [
+      {
+        ...snapshot.lanes.battlefields[1],
+        index: 0
+      },
+      {
+        ...snapshot.lanes.battlefields[0],
+        index: 1
+      }
+    ]
+  }
+};
+const tableProjection = buildWireTableViewModel({ perspectivePlayerId: "P1", snapshot: tableProjectionSnapshot, specs });
+assert.deepEqual(tableProjection.self.handIds, ["p1-hand-1", "p1-table-only-hand"], "table projection player zones must override legacy player zones");
+assert.deepEqual(tableProjection.opponent.hiddenHandIds, ["hidden-P2-0", "hidden-P2-1"], "table projection hidden hand count must drive opponent hand rail");
+assert.equal(tableProjection.battlefield.lanes[0].battlefieldId, "battlefield-right", "table projection battlefield index must override legacy lane order");
+assert.equal(tableProjection.battlefield.lanes[1].battlefieldId, "battlefield-left", "table projection battlefield index must preserve explicit server order");
+
 const legacySnapshot = {
   ...snapshot,
   lanes: {

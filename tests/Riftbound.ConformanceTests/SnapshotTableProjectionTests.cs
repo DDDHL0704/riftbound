@@ -11,6 +11,45 @@ public sealed class SnapshotTableProjectionTests
     {
         var snapshot = ResolutionResult.BuildSnapshots(TableProjectionState())["P1"];
 
+        Assert.NotNull(snapshot.Table);
+        var table = snapshot.Table!;
+        Assert.Equal("server-snapshot", table.Source);
+        Assert.Equal("P1", table.ViewerPlayerId);
+        Assert.Equal(OfficialDeckValidator.RuneDeckCount, table.RuneDeckSize);
+        Assert.Equal(2, table.Players.Count);
+
+        var tableP1 = table.Players.Single(player => player.PlayerId == "P1");
+        Assert.Equal("self", tableP1.Perspective);
+        Assert.True(tableP1.IsViewer);
+        Assert.Equal(["P1-HAND"], tableP1.Zones.Hand);
+        Assert.Equal(0, tableP1.Zones.HandHidden);
+        Assert.Equal(["P1-BASE-UNIT"], tableP1.Zones.BaseCards);
+        Assert.Equal(["P1-RUNE-1"], tableP1.Zones.BaseRunes);
+
+        var tableP2 = table.Players.Single(player => player.PlayerId == "P2");
+        Assert.Equal("opponent", tableP2.Perspective);
+        Assert.False(tableP2.IsViewer);
+        Assert.Empty(tableP2.Zones.Hand);
+        Assert.Equal(1, tableP2.Zones.HandHidden);
+        Assert.Equal(["P2-BASE-UNIT"], tableP2.Zones.BaseCards);
+        Assert.Equal(["P2-RUNE-1"], tableP2.Zones.BaseRunes);
+
+        var tableLeftBattlefield = table.Battlefields.Single(field => field.BattlefieldObjectId == "BF-LEFT");
+        Assert.Equal(0, tableLeftBattlefield.Index);
+        Assert.Equal(["P1-LEFT-UNIT", "P2-LEFT-UNIT"], tableLeftBattlefield.OccupantObjectIds);
+        Assert.Equal(["P1-LEFT-UNIT"], tableLeftBattlefield.UnitsBySide["P1"]);
+        Assert.Equal(["P2-LEFT-UNIT"], tableLeftBattlefield.UnitsBySide["P2"]);
+        Assert.Equal(["P1-STANDBY"], tableLeftBattlefield.StandbyObjectIds);
+        Assert.Equal(2, tableLeftBattlefield.StandbySlotCount);
+        Assert.Equal(1, tableLeftBattlefield.HiddenStandbyCount);
+        Assert.Equal(2, tableLeftBattlefield.StandbySlots.Count);
+        Assert.Equal("VISIBLE", tableLeftBattlefield.StandbySlots[0].State);
+        Assert.Equal("P1-STANDBY", tableLeftBattlefield.StandbySlots[0].ObjectId);
+        Assert.Equal("P1", tableLeftBattlefield.StandbySlots[0].SidePlayerId);
+        Assert.Equal("HIDDEN", tableLeftBattlefield.StandbySlots[1].State);
+        Assert.Null(tableLeftBattlefield.StandbySlots[1].ObjectId);
+        Assert.Equal("P2", tableLeftBattlefield.StandbySlots[1].SidePlayerId);
+
         var p1Zones = Zones(snapshot, "P1");
         Assert.Equal(["P1-HAND"], StringList(p1Zones["hand"]));
         Assert.Equal(0, IntValue(p1Zones["handHidden"]));

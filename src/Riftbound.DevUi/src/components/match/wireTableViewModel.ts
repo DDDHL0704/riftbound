@@ -5,6 +5,8 @@ import type {
   CardObjectView,
   PlayerSnapshotView,
   SnapshotDto,
+  SnapshotTableBattlefieldView,
+  SnapshotTablePlayerView,
   ZoneView
 } from "../../types/protocol";
 import { buildWireCardFlowPlan, type WireCardFlowPlan } from "./wireCardFlowPlan";
@@ -102,6 +104,19 @@ export function buildWirePlayerEntries(
   perspectivePlayerId: string,
   specs: Record<string, BehaviorSpec | undefined>
 ): WirePlayerEntry[] {
+  const tablePlayers = asArray<SnapshotTablePlayerView>(snapshot?.table?.players);
+  if (tablePlayers.length > 0) {
+    return tablePlayers
+      .map((tablePlayer) => buildWirePlayerEntry(
+        tablePlayer.playerId,
+        mergeTablePlayerSnapshot(tablePlayer, snapshot?.players?.[tablePlayer.playerId]),
+        perspectivePlayerId,
+        specs,
+        tablePlayer.perspective
+      ))
+      .sort((left, right) => sideOrder(left.side) - sideOrder(right.side));
+  }
+
   return Object.entries(snapshot?.players ?? {})
     .map(([id, player]) => buildWirePlayerEntry(id, player, perspectivePlayerId, specs))
     .sort((left, right) => sideOrder(left.side) - sideOrder(right.side));
@@ -111,7 +126,7 @@ export function buildWireBattlefieldModel(
   snapshot: SnapshotDto | undefined,
   perspectivePlayerId: string
 ): WireBattlefieldModel {
-  const battlefields = asArray<BattlefieldSnapshotView>(asRecord(snapshot?.lanes).battlefields);
+  const battlefields = tableBattlefields(snapshot) ?? asArray<BattlefieldSnapshotView>(asRecord(snapshot?.lanes).battlefields);
   const objects = buildWireObjectIndex(snapshot);
   const lanes = [0, 1].map((index) => buildWireBattlefieldLane(battlefields[index], index, objects, perspectivePlayerId));
   const maxOccupants = Math.max(...lanes.flatMap((lane) => [lane.ownOccupants.length, lane.opposingOccupants.length]), 0);
@@ -165,9 +180,10 @@ function buildWirePlayerEntry(
   id: string,
   player: PlayerSnapshotView,
   perspectivePlayerId: string,
-  specs: Record<string, BehaviorSpec | undefined>
+  specs: Record<string, BehaviorSpec | undefined>,
+  tablePerspective?: string
 ): WirePlayerEntry {
-  const side: WirePlayerSide = id === perspectivePlayerId ? "self" : "opponent";
+  const side = normalizeTablePerspective(tablePerspective) ?? (id === perspectivePlayerId ? "self" : "opponent");
   const zones = player.zones ?? {};
   const objects = player.objects ?? {};
   const baseIds = zones.base ?? [];
@@ -201,6 +217,39 @@ function buildWirePlayerEntry(
     ...entry,
     label: playerLabel(entry)
   };
+}
+
+function mergeTablePlayerSnapshot(
+  tablePlayer: SnapshotTablePlayerView,
+  player: PlayerSnapshotView | undefined
+): PlayerSnapshotView {
+  return {
+    ...(player ?? {}),
+    id: player?.id ?? tablePlayer.playerId,
+    name: player?.name ?? tablePlayer.playerId,
+    seat: tablePlayer.seat ?? player?.seat,
+    zones: {
+      ...(player?.zones ?? {}),
+      ...(tablePlayer.zones ?? {})
+    }
+  };
+}
+
+function tableBattlefields(snapshot: SnapshotDto | undefined): BattlefieldSnapshotView[] | undefined {
+  const battlefields = asArray<SnapshotTableBattlefieldView>(snapshot?.table?.battlefields);
+  return battlefields.length > 0
+    ? battlefields
+      .slice()
+      .sort((left, right) => nonNegativeNumber(left.index, 0) - nonNegativeNumber(right.index, 0))
+    : undefined;
+}
+
+function normalizeTablePerspective(perspective: string | undefined): WirePlayerSide | undefined {
+  if (perspective === "self" || perspective === "opponent") {
+    return perspective;
+  }
+
+  return undefined;
 }
 
 function buildWireBattlefieldLane(

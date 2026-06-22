@@ -234,6 +234,65 @@ public sealed record GameEvent(
     IReadOnlyDictionary<string, object?> Payload,
     IReadOnlyList<GameEventObjectRef>? ObjectRefs = null);
 
+public sealed record SnapshotTableStandbySlotDto(
+    string SlotId,
+    string BattlefieldObjectId,
+    string? SidePlayerId,
+    string? ControllerId,
+    bool Visible,
+    string State,
+    bool IsFaceDown,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ObjectId = null);
+
+public sealed record SnapshotTableBattlefieldDto(
+    int Index,
+    string BattlefieldObjectId,
+    string ZonePlayerId,
+    string? CardNo,
+    string? ControllerId,
+    string Status,
+    bool Contested,
+    IReadOnlyList<string> OccupantObjectIds,
+    IReadOnlyList<string> OccupantControllerIds,
+    IReadOnlyDictionary<string, IReadOnlyList<string>> UnitsBySide,
+    IReadOnlyList<string> StandbyObjectIds,
+    IReadOnlyList<SnapshotTableStandbySlotDto> StandbySlots,
+    int StandbySlotCount,
+    int FaceDownStandbyCount,
+    int HiddenStandbyCount,
+    bool ScoredThisTurn,
+    IReadOnlyList<string> ScoredThisTurnPlayerIds,
+    IReadOnlyList<string> PendingTaskKinds);
+
+public sealed record SnapshotTablePlayerZonesDto(
+    int MainDeckCount,
+    int RuneDeckCount,
+    IReadOnlyList<string> Hand,
+    int HandHidden,
+    IReadOnlyList<string> Base,
+    IReadOnlyList<string> BaseCards,
+    IReadOnlyList<string> BaseRunes,
+    IReadOnlyList<string> Battlefields,
+    int BattlefieldHiddenStandbyCount,
+    IReadOnlyList<string> Graveyard,
+    IReadOnlyList<string> Banished,
+    IReadOnlyList<string> LegendZone,
+    IReadOnlyList<string> ChampionZone);
+
+public sealed record SnapshotTablePlayerDto(
+    string PlayerId,
+    string Seat,
+    string Perspective,
+    bool IsViewer,
+    SnapshotTablePlayerZonesDto Zones);
+
+public sealed record SnapshotTableDto(
+    string Source,
+    string ViewerPlayerId,
+    int RuneDeckSize,
+    IReadOnlyList<SnapshotTablePlayerDto> Players,
+    IReadOnlyList<SnapshotTableBattlefieldDto> Battlefields);
+
 public sealed record SnapshotDto(
     long Tick,
     int TurnNumber,
@@ -242,7 +301,8 @@ public sealed record SnapshotDto(
     IReadOnlyDictionary<string, object?> Lanes,
     IReadOnlyList<object?> Stack,
     IReadOnlyDictionary<string, object?> Timing,
-    string TurnState);
+    string TurnState,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SnapshotTableDto? Table = null);
 
 public static class PromptTypes
 {

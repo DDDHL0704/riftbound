@@ -3119,7 +3119,155 @@ public sealed record ResolutionResult(
                 ["roomStatus"] = state.Status,
                 ["readyPlayerIds"] = state.ReadyPlayerIds
             },
-            state.TimingState);
+            state.TimingState,
+            BuildTableSnapshotView(state, viewerPlayerId));
+    }
+
+    private static SnapshotTableDto BuildTableSnapshotView(MatchState state, string viewerPlayerId)
+    {
+        var players = state.Seats
+            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => BuildTablePlayerSnapshotView(state, viewerPlayerId, entry.Key, entry.Value))
+            .ToArray();
+        var battlefields = state.BattlefieldStates.Values
+            .Select((battlefield, index) => BuildTableBattlefieldSnapshotView(state, battlefield, index, viewerPlayerId))
+            .ToArray();
+
+        return new SnapshotTableDto(
+            "server-snapshot",
+            viewerPlayerId,
+            OfficialDeckValidator.RuneDeckCount,
+            players,
+            battlefields);
+    }
+
+    private static SnapshotTablePlayerDto BuildTablePlayerSnapshotView(
+        MatchState state,
+        string viewerPlayerId,
+        string subjectPlayerId,
+        string seat)
+    {
+        var zones = state.PlayerZones.TryGetValue(subjectPlayerId, out var playerZones)
+            ? playerZones
+            : PlayerZones.Empty;
+        var isViewer = string.Equals(viewerPlayerId, subjectPlayerId, StringComparison.Ordinal);
+        var perspective = isViewer
+            ? "self"
+            : string.Equals(viewerPlayerId, "__spectator__", StringComparison.Ordinal)
+                ? "spectator"
+                : "opponent";
+        var visibleBattlefields = isViewer
+            ? zones.Battlefields
+            : zones.Battlefields
+                .Where(objectId => !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
+                .ToArray();
+        var hiddenBattlefieldStandbyCount = zones.Battlefields.Count(objectId =>
+            !isViewer && IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId));
+        var baseRunes = BaseRuneObjectIds(state, zones);
+        var baseRuneSet = baseRunes.ToHashSet(StringComparer.Ordinal);
+        var baseCards = zones.Base
+            .Where(objectId => !baseRuneSet.Contains(objectId))
+            .ToArray();
+
+        var tableZones = new SnapshotTablePlayerZonesDto(
+            zones.MainDeck.Count,
+            zones.RuneDeck.Count,
+            isViewer ? zones.Hand : [],
+            isViewer ? 0 : zones.Hand.Count,
+            zones.Base,
+            baseCards,
+            baseRunes,
+            visibleBattlefields,
+            hiddenBattlefieldStandbyCount,
+            zones.Graveyard,
+            zones.Banished,
+            zones.LegendZone,
+            zones.ChampionZone);
+
+        return new SnapshotTablePlayerDto(
+            subjectPlayerId,
+            seat,
+            perspective,
+            isViewer,
+            tableZones);
+    }
+
+    private static SnapshotTableBattlefieldDto BuildTableBattlefieldSnapshotView(
+        MatchState state,
+        BattlefieldState battlefield,
+        int index,
+        string viewerPlayerId)
+    {
+        var pendingTaskKinds = state.PendingCleanupTasks
+            .Where(task => string.Equals(task.BattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal))
+            .Select(task => task.Kind)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(kind => kind, StringComparer.Ordinal)
+            .ToArray();
+        var visibleStandbyObjectIds = battlefield.StandbyObjectIds
+            .Where(objectId => !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
+            .ToArray();
+        var standbySlots = battlefield.StandbyObjectIds
+            .Select((objectId, slotIndex) => BuildTableStandbySlotSnapshotView(state, battlefield, objectId, slotIndex, viewerPlayerId))
+            .ToArray();
+        var unitsBySide = battlefield.OccupantObjectIds
+            .Where(objectId => state.CardObjects.ContainsKey(objectId))
+            .GroupBy(
+                objectId => EffectiveFieldControllerId(state, objectId, state.CardObjects[objectId]),
+                StringComparer.Ordinal)
+            .Where(group => !string.IsNullOrWhiteSpace(group.Key))
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyList<string>)group.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
+                StringComparer.Ordinal);
+        var scoredByPlayerIds = BattlefieldScoredThisTurnByPlayers(state, battlefield.BattlefieldObjectId);
+
+        return new SnapshotTableBattlefieldDto(
+            index,
+            battlefield.BattlefieldObjectId,
+            battlefield.ZonePlayerId,
+            battlefield.CardNo,
+            battlefield.ControllerId,
+            battlefield.Status,
+            battlefield.Contested,
+            battlefield.OccupantObjectIds,
+            battlefield.OccupantControllerIds,
+            unitsBySide,
+            visibleStandbyObjectIds,
+            standbySlots,
+            battlefield.StandbyObjectIds.Count,
+            battlefield.FaceDownStandbyCount,
+            battlefield.StandbyObjectIds.Count - visibleStandbyObjectIds.Length,
+            scoredByPlayerIds.Count > 0,
+            scoredByPlayerIds,
+            pendingTaskKinds);
+    }
+
+    private static SnapshotTableStandbySlotDto BuildTableStandbySlotSnapshotView(
+        MatchState state,
+        BattlefieldState battlefield,
+        string objectId,
+        int index,
+        string viewerPlayerId)
+    {
+        state.CardObjects.TryGetValue(objectId, out var cardObject);
+        state.ObjectLocations.TryGetValue(objectId, out var location);
+        var visible = !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId);
+        var controllerId = cardObject is null
+            ? location?.PlayerId
+            : EffectiveFieldControllerId(state, objectId, cardObject);
+
+        return new SnapshotTableStandbySlotDto(
+            $"{battlefield.BattlefieldObjectId}:standby:{index + 1}",
+            battlefield.BattlefieldObjectId,
+            location?.PlayerId ?? controllerId,
+            controllerId,
+            visible,
+            visible ? "VISIBLE" : "HIDDEN",
+            cardObject?.IsFaceDown ?? false,
+            visible ? objectId : null);
     }
 
     private static int EffectiveWinningScore(MatchState state)
