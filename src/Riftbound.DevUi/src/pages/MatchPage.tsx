@@ -91,6 +91,7 @@ import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
 import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
 import { buildWireSidePanelDirectoryPlan, type WireSidePanelDirectoryPlan } from "../utils/wireSidePanelDirectoryPlan";
+import { buildWireSidePanelFramePlan } from "../utils/wireSidePanelFramePlan";
 import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
 
 type WireTableInteraction = {
@@ -548,6 +549,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const sidePanelEntryBySlot = useMemo(() => Object.fromEntries(
     sidePanelOrchestration.entries.map((entry) => [entry.slot, entry])
   ) as Record<WireSidePanelSlot, WireSidePanelOrchestrationPlan["entries"][number]>, [sidePanelOrchestration.entries]);
+  const sidePanelFrame = useMemo(() => buildWireSidePanelFramePlan({
+    activeSlot: activeSidePanelSlot,
+    slots: WIRE_TABLE_LAYOUT.sidePanel.slots
+  }), [activeSidePanelSlot]);
   const activeSidePanelTab = WIRE_SIDE_PANEL_TAB_BY_SLOT[activeSidePanelSlot] ?? "action";
   const activeSidePanelEntry = sidePanelEntryBySlot[activeSidePanelSlot];
   const setActiveSidePanelTab = useCallback((tab: WireSidePanelTab) => {
@@ -924,18 +929,22 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             className="wire-side-panel-stack"
             data-wire-side-panel-active-slot={activeSidePanelSlot}
             data-wire-side-panel-active-tab={activeSidePanelTab}
+            data-wire-side-panel-persistent-count={sidePanelFrame.persistentSlots.length}
+            data-wire-side-panel-visible-count={sidePanelFrame.visibleSlots.length}
           >
-            {WIRE_TABLE_LAYOUT.sidePanel.slots.map((slot) => (
+            {sidePanelFrame.entries.map((entry) => (
               <div
-                aria-hidden={slot !== activeSidePanelSlot && slot !== "serverFlow"}
+                aria-hidden={entry.ariaHidden}
                 className="wire-side-panel-pane"
-                data-wire-side-panel-pane={slot}
-                data-wire-side-panel-pane-active={slot === activeSidePanelSlot}
-                id={wireSidePanelTabPanelIdForSlot(slot)}
-                key={slot}
-                role={wireSidePanelTabPanelIdForSlot(slot) ? "tabpanel" : undefined}
+                data-wire-side-panel-pane={entry.slot}
+                data-wire-side-panel-pane-active={entry.active}
+                data-wire-side-panel-pane-region={entry.region}
+                data-wire-side-panel-pane-visible={entry.visible}
+                id={wireSidePanelTabPanelIdForSlot(entry.slot)}
+                key={entry.slot}
+                role={wireSidePanelTabPanelIdForSlot(entry.slot) ? "tabpanel" : undefined}
               >
-                {sidePanelSections[slot]}
+                {sidePanelSections[entry.slot]}
               </div>
             ))}
           </div>

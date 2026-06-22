@@ -7,6 +7,7 @@ import ts from "typescript";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const layout = JSON.parse(readFileSync(resolve(scriptDir, "../src/components/match/wireTableLayoutData.json"), "utf8"));
 const { buildWireSidePanelDirectoryPlan, wireSidePanelAnchorId } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryPlan.ts"));
+const { buildWireSidePanelFramePlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelFramePlan.ts"));
 const { buildWireSidePanelOrchestrationPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelOrchestrationPlan.ts"));
 
 const expectedSlots = [
@@ -103,6 +104,48 @@ assert.equal(entry(readyOrchestration, "timelineDetail").state, "review");
 assert.equal(entry(readyOrchestration, "log").state, "history");
 assert.ok(readyOrchestration.urgentCount >= 3);
 
+const commandFrame = buildWireSidePanelFramePlan({
+  activeSlot: "commandCenter",
+  slots: layout.sidePanel.slots
+});
+assert.deepEqual(commandFrame.entries.map((item) => item.slot), expectedSlots);
+assert.deepEqual(commandFrame.persistentSlots, ["serverFlow"]);
+assert.ok(commandFrame.mainSlots.includes("commandCenter"));
+assert.ok(!commandFrame.mainSlots.includes("serverFlow"));
+assert.deepEqual(commandFrame.visibleSlots, ["commandCenter", "serverFlow"]);
+assert.equal(frameEntry(commandFrame, "commandCenter").active, true);
+assert.equal(frameEntry(commandFrame, "commandCenter").region, "main");
+assert.equal(frameEntry(commandFrame, "commandCenter").ariaHidden, false);
+assert.equal(frameEntry(commandFrame, "serverFlow").active, false);
+assert.equal(frameEntry(commandFrame, "serverFlow").region, "persistent");
+assert.equal(frameEntry(commandFrame, "serverFlow").ariaHidden, false);
+assert.equal(frameEntry(commandFrame, "log").ariaHidden, true);
+
+const serverFlowFrame = buildWireSidePanelFramePlan({
+  activeSlot: "serverFlow",
+  slots: layout.sidePanel.slots
+});
+assert.deepEqual(serverFlowFrame.visibleSlots, ["serverFlow"]);
+assert.equal(frameEntry(serverFlowFrame, "serverFlow").active, true);
+assert.equal(frameEntry(serverFlowFrame, "serverFlow").ariaHidden, false);
+
+assert.throws(
+  () => buildWireSidePanelFramePlan({
+    activeSlot: "commandCenter",
+    persistentSlots: ["serverFlow", "serverFlow"],
+    slots: layout.sidePanel.slots
+  }),
+  /Duplicate persistent side panel slot/
+);
+assert.throws(
+  () => buildWireSidePanelFramePlan({
+    activeSlot: "commandCenter",
+    persistentSlots: ["missingSlot"],
+    slots: layout.sidePanel.slots
+  }),
+  /Persistent side panel slot is not in layout/
+);
+
 const offlineOrchestration = buildWireSidePanelOrchestrationPlan({
   connectionStatus: "disconnected",
   directory: plan,
@@ -119,6 +162,10 @@ console.log("Wire side panel directory plan check passed.");
 
 function entry(orchestration, slot) {
   return orchestration.entries.find((item) => item.slot === slot);
+}
+
+function frameEntry(plan, slot) {
+  return plan.entries.find((item) => item.slot === slot);
 }
 
 function loadTsModule(sourcePath) {

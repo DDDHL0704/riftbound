@@ -12680,7 +12680,7 @@ button.card-face:hover {
   min-height: 0;
 }
 
-.wire-side-panel-pane[data-wire-side-panel-pane="serverFlow"] {
+.wire-side-panel-pane[data-wire-side-panel-pane-region="persistent"] {
   grid-row: 1;
   display: grid;
   min-height: 0;
@@ -12689,13 +12689,13 @@ button.card-face:hover {
   border: 1px solid #000;
 }
 
-.wire-side-panel-pane[data-wire-side-panel-pane="serverFlow"][data-wire-side-panel-pane-active="true"] {
+.wire-side-panel-pane[data-wire-side-panel-pane-region="persistent"][data-wire-side-panel-pane-active="true"] {
   grid-row: 1;
   outline: 2px solid #000;
   outline-offset: -2px;
 }
 
-.wire-side-panel-pane[data-wire-side-panel-pane="serverFlow"] > .wire-panel {
+.wire-side-panel-pane[data-wire-side-panel-pane-region="persistent"] > .wire-panel {
   padding: 0;
 }
 
