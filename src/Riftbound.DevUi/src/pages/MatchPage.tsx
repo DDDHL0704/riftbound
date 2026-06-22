@@ -1207,7 +1207,9 @@ function WireSidePanelDirectory({
       data-wire-side-panel-directory-active-slot={activeSlot}
       data-wire-side-panel-directory-active-tab={activeTab}
       data-wire-side-panel-directory-count={plan.entries.length}
+      data-wire-side-panel-directory-density={view.density}
       data-wire-side-panel-directory-hidden-count={view.hiddenCount}
+      data-wire-side-panel-directory-index-mode={view.indexMode}
       data-wire-side-panel-directory-primary-slot={orchestration.primarySlot}
       data-wire-side-panel-directory-state={orchestration.state}
       data-wire-side-panel-directory-urgent-count={orchestration.urgentCount}
@@ -1292,7 +1294,7 @@ function WireSidePanelDirectory({
           );
         })}
       </div>
-      <ol className="wire-side-panel-entry-grid">
+      <ol className="wire-side-panel-entry-grid" data-wire-side-panel-directory-index-mode={view.indexMode}>
         {view.visibleEntries.map((entry) => {
           const shortLabel = WIRE_SIDE_PANEL_SHORT_LABELS[entry.slot];
           const transition = transitionForSlot(entry.slot, "directory");

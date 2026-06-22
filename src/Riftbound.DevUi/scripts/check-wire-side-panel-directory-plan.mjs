@@ -121,6 +121,8 @@ assert.equal(actionDirectoryView.hiddenCount, expectedSlots.length - 4);
 assert.deepEqual(actionDirectoryView.tabs.map((item) => item.id), ["action", "response", "rules", "log", "detail"]);
 assert.equal(actionDirectoryView.currentTab.id, "action");
 assert.equal(actionDirectoryView.currentTab.active, true);
+assert.equal(actionDirectoryView.density, "dense");
+assert.equal(actionDirectoryView.indexMode, "compact");
 assert.ok(actionDirectoryView.tabs.find((item) => item.id === "rules").count >= 1);
 
 const actionControlPlan = buildWireSidePanelControlPlan({
@@ -152,6 +154,8 @@ assert.deepEqual(detailDirectoryView.visibleEntries.map((item) => item.slot), [
 ]);
 assert.equal(detailDirectoryView.activeEntry.slot, "timelineDetail");
 assert.equal(detailDirectoryView.primaryEntry.slot, "timelineDetail");
+assert.equal(detailDirectoryView.density, "dense");
+assert.equal(detailDirectoryView.indexMode, "compact");
 
 const detailControlPlan = buildWireSidePanelControlPlan({
   orchestration: readyOrchestration,

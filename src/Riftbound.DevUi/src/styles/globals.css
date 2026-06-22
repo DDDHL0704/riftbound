@@ -12433,11 +12433,11 @@ button.card-face:hover {
 .wire-side-panel-directory {
   z-index: 4;
   display: grid;
-  gap: 3px;
+  gap: 2px;
   border: 1px solid #000;
   background: #fff;
   color: #000;
-  padding: 3px;
+  padding: 2px;
 }
 
 .wire-side-panel-directory h2 {
@@ -12449,10 +12449,10 @@ button.card-face:hover {
 .wire-side-panel-directory-summary {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 3px;
+  gap: 2px;
   align-items: center;
   border: 1px solid #000;
-  padding: 2px 3px;
+  padding: 2px;
   min-width: 0;
 }
 
@@ -12482,15 +12482,15 @@ button.card-face:hover {
 .wire-side-panel-control-routes button {
   min-width: 0;
   width: 100%;
-  min-height: 30px;
+  min-height: 24px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 1px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1px 2px;
   border: 1px solid #000;
   border-radius: 0;
   background: #fff;
   color: #000;
-  padding: 2px;
+  padding: 1px 2px;
   text-align: left;
   font: inherit;
   cursor: pointer;
@@ -12516,8 +12516,21 @@ button.card-face:hover {
 }
 
 .wire-side-panel-control-routes strong {
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.1;
+}
+
+.wire-side-panel-directory[data-wire-side-panel-directory-density="dense"] .wire-side-panel-control-routes span {
+  display: none;
+}
+
+.wire-side-panel-directory[data-wire-side-panel-directory-density="dense"] .wire-side-panel-control-routes strong {
+  grid-column: 1;
+}
+
+.wire-side-panel-directory[data-wire-side-panel-directory-density="dense"] .wire-side-panel-control-routes small {
+  grid-column: 2;
+  text-align: right;
 }
 
 .wire-side-panel-control-routes li[data-wire-side-panel-control-route-selectable="true"] button {
@@ -12538,13 +12551,13 @@ button.card-face:hover {
 
 .wire-side-panel-tabs button {
   min-width: 0;
-  min-height: 24px;
+  min-height: 20px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 2px;
   align-items: center;
-  padding: 3px 2px;
-  font-size: 11px;
+  padding: 2px;
+  font-size: 10px;
   line-height: 1.1;
   font-weight: 700;
 }
@@ -12624,6 +12637,25 @@ button.card-face:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wire-side-panel-entry-grid[data-wire-side-panel-directory-index-mode="compact"] {
+  grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+}
+
+.wire-side-panel-entry-grid[data-wire-side-panel-directory-index-mode="compact"] a {
+  min-height: 20px;
+  padding: 1px 2px;
+}
+
+.wire-side-panel-entry-grid[data-wire-side-panel-directory-index-mode="compact"] a strong {
+  font-size: 9px;
+  line-height: 1.05;
+}
+
+.wire-side-panel-entry-grid[data-wire-side-panel-directory-index-mode="compact"] a small {
+  font-size: 8px;
+  line-height: 1;
 }
 
 .wire-side-panel-directory a span,

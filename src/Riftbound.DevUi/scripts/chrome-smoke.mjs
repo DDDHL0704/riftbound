@@ -110,7 +110,7 @@ try {
   }
 
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "控制台", "行动", "响应", "规则", "日志", "详情", "当前页", "指挥中心"]);
+  await waitForText(cdp, ["符文战场对战线框", "控制台", "行动", "响应", "规则", "日志", "详情", "指挥中心"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
   await runWireLayoutGeometrySmoke(cdp);
   console.log("Chrome smoke OK: wire layout geometry");
@@ -984,6 +984,8 @@ async function runWireLayoutGeometrySmoke(cdp) {
     const primarySlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-primary-slot") ?? "";
     const activeSlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-slot") ?? "";
     const activeTab = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-tab") ?? "";
+    const sidePanelDirectoryDensity = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-density") ?? "";
+    const sidePanelDirectoryIndexMode = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-index-mode") ?? "";
     const sidePanelControlRouteCount = Number(sidePanelDirectory?.getAttribute("data-wire-side-panel-control-route-count") ?? "NaN");
     const sidePanelControlState = sidePanelDirectory?.getAttribute("data-wire-side-panel-control-state") ?? "";
     const sidePanelRailExpandedCount = Number(sidePanelRailStack?.getAttribute("data-wire-side-panel-rail-expanded-count") ?? "NaN");
@@ -1008,6 +1010,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
     }
     if (!expectedSidePanelTabs.includes(activeTab)) {
       failures.push(\`wire side panel active tab invalid: \${activeTab}\`);
+    }
+    if (!["quiet", "balanced", "dense"].includes(sidePanelDirectoryDensity)) {
+      failures.push(\`wire side panel directory density invalid: \${sidePanelDirectoryDensity}\`);
+    }
+    if (!["compact", "full"].includes(sidePanelDirectoryIndexMode)) {
+      failures.push(\`wire side panel directory index mode invalid: \${sidePanelDirectoryIndexMode}\`);
     }
     const booleanAttribute = (value) => value === "true" || value === "false";
     const validTransition = (item, source, label) => {
@@ -1182,6 +1190,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (sidePanelDirectoryVisibleCount !== expectedVisibleSidePanelSlots.length) {
       failures.push(\`wire side panel directory visible count drifted: \${sidePanelDirectoryVisibleCount} / \${expectedVisibleSidePanelSlots.length}\`);
     }
+    if (sidePanelDirectoryVisibleCount >= 4 && sidePanelDirectoryDensity !== "dense") {
+      failures.push(\`wire side panel directory should be dense for crowded tabs: \${sidePanelDirectoryDensity}\`);
+    }
+    if (sidePanelDirectoryDensity === "dense" && sidePanelDirectoryIndexMode !== "compact") {
+      failures.push(\`wire side panel dense directory should use compact index: \${sidePanelDirectoryIndexMode}\`);
+    }
     if (sidePanelDirectoryHiddenCount !== expectedSidePanelSlots.length - expectedVisibleSidePanelSlots.length) {
       failures.push(\`wire side panel directory hidden count drifted: \${sidePanelDirectoryHiddenCount}\`);
     }
@@ -1262,7 +1276,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
       sidePanelActiveSlot: activeSlot,
       sidePanelDirectoryCount: sidePanelDirectoryLinks.length,
       sidePanelDirectoryDeclaredCount,
+      sidePanelDirectoryDensity,
       sidePanelDirectoryHiddenCount,
+      sidePanelDirectoryIndexMode,
       sidePanelDirectoryVisibleCount,
       sidePanelControlRouteCount,
       sidePanelRailVisibleCount,

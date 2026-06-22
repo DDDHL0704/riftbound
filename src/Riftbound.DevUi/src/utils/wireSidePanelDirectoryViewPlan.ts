@@ -11,6 +11,10 @@ export type WireSidePanelDirectoryViewTabSpec<TTab extends string = string> = {
   slots: readonly WireSidePanelSlot[];
 };
 
+export type WireSidePanelDirectoryDensity = "balanced" | "dense" | "quiet";
+
+export type WireSidePanelDirectoryIndexMode = "compact" | "full";
+
 export type WireSidePanelDirectoryViewEntry<TTab extends string = string> =
   WireSidePanelOrchestrationEntry & {
     active: boolean;
@@ -32,8 +36,10 @@ export type WireSidePanelDirectoryViewTab<TTab extends string = string> = {
 export type WireSidePanelDirectoryViewPlan<TTab extends string = string> = {
   activeEntry: WireSidePanelDirectoryViewEntry<TTab>;
   currentTab: WireSidePanelDirectoryViewTab<TTab>;
+  density: WireSidePanelDirectoryDensity;
   hiddenCount: number;
   hiddenEntries: WireSidePanelDirectoryViewEntry<TTab>[];
+  indexMode: WireSidePanelDirectoryIndexMode;
   primaryEntry: WireSidePanelDirectoryViewEntry<TTab>;
   tabs: WireSidePanelDirectoryViewTab<TTab>[];
   visibleEntries: WireSidePanelDirectoryViewEntry<TTab>[];
@@ -104,6 +110,10 @@ export function buildWireSidePanelDirectoryViewPlan<TTab extends string>({
       tabId: activeTab
     });
   const tabsView = tabs.map((tab) => tabView(tab, activeTab, entryBySlot));
+  const density = directoryDensity({
+    tabCount: tabsView.length,
+    visibleCount: visibleEntries.length
+  });
 
   return {
     activeEntry: viewEntry({
@@ -113,8 +123,10 @@ export function buildWireSidePanelDirectoryViewPlan<TTab extends string>({
       tabId: activeTab
     }),
     currentTab: requiredTabView(tabsView, activeTab),
+    density,
     hiddenCount: hiddenEntries.length,
     hiddenEntries,
+    indexMode: density === "dense" ? "compact" : "full",
     primaryEntry,
     tabs: tabsView,
     visibleEntries
@@ -192,4 +204,22 @@ function requiredTabView<TTab extends string>(
     throw new Error(`Active wire side panel tab view is not registered: ${activeTab}`);
   }
   return tab;
+}
+
+function directoryDensity({
+  tabCount,
+  visibleCount
+}: {
+  tabCount: number;
+  visibleCount: number;
+}): WireSidePanelDirectoryDensity {
+  if (visibleCount >= 4 || tabCount >= 5) {
+    return "dense";
+  }
+
+  if (visibleCount >= 3 || tabCount >= 4) {
+    return "balanced";
+  }
+
+  return "quiet";
 }
