@@ -29,7 +29,8 @@ const orchestration = {
     entry("commandCenter", "指挥中心", "ready", "可提交", 2),
     entry("interaction", "焦点", "review", "焦点", 1),
     entry("ruleQueue", "规则队列", "active", "规则", 3),
-    entry("serverFlow", "结算链", "active", "服务端", 3)
+    entry("serverFlow", "结算链", "active", "服务端", 3),
+    entry("timelineDetail", "详情", "review", "详情", 1)
   ],
   nextStepLabel: "提交服务端候选。",
   primarySlot: "commandCenter",
@@ -56,17 +57,19 @@ assert.equal(quietPlan.byRail.status.actionSlot, "overview");
 assert.equal(quietPlan.byRail.focus.mode, "hidden");
 assert.equal(quietPlan.byRail.focus.actionSlot, undefined);
 assert.equal(quietPlan.byRail.rules.mode, "hidden");
-assert.equal(quietPlan.byRail.receipt.mode, "hidden");
+assert.equal(quietPlan.byRail.receipt.mode, "summary");
+assert.equal(quietPlan.byRail.receipt.state, "empty");
+assert.equal(quietPlan.byRail.receipt.bodyMode, "compact");
 assert.equal(quietPlan.byRail.main.mode, "expanded");
 assert.equal(quietPlan.byRail.main.actionSlot, "commandCenter");
-assert.equal(quietPlan.density, "quiet");
+assert.equal(quietPlan.density, "balanced");
 assert.equal(quietPlan.capacityOverflow, false);
-assert.equal(quietPlan.renderedBodyCount, 2);
+assert.equal(quietPlan.renderedBodyCount, 3);
 assert.equal(quietPlan.byRail.status.bodyMode, "compact");
 assert.equal(quietPlan.byRail.status.priority, "urgent");
 assert.equal(quietPlan.byRail.main.bodyMode, "full");
 assert.equal(quietPlan.byRail.main.capacityWeight, 4);
-assert.deepEqual(quietPlan.visibleEntries.map((rail) => rail.key), ["status", "main"]);
+assert.deepEqual(quietPlan.visibleEntries.map((rail) => rail.key), ["status", "receipt", "main"]);
 
 const focusedPlan = buildWireSidePanelStackPlan({
   activeSlot: "commandCenter",
@@ -78,10 +81,37 @@ assert.equal(focusedPlan.byRail.focus.mode, "summary");
 assert.equal(focusedPlan.byRail.focus.state, "normal");
 assert.equal(focusedPlan.byRail.focus.actionSlot, "interaction");
 assert.equal(focusedPlan.byRail.focus.actionLabel, "焦点");
-assert.equal(focusedPlan.density, "balanced");
-assert.equal(focusedPlan.byRail.status.bodyMode, "compact");
+assert.equal(focusedPlan.density, "crowded");
+assert.equal(focusedPlan.byRail.status.bodyMode, "collapsed");
 assert.equal(focusedPlan.byRail.focus.bodyMode, "collapsed");
 assert.equal(focusedPlan.renderedBodyCount, 2);
+
+const actionMapEmptyReceiptPlan = buildWireSidePanelStackPlan({
+  activeSlot: "actionMap",
+  focusPlan: visibleFocusPlan,
+  orchestration,
+  ruleChainPlan: idleRulePlan
+});
+assert.equal(actionMapEmptyReceiptPlan.byRail.focus.mode, "summary");
+assert.equal(actionMapEmptyReceiptPlan.byRail.focus.bodyMode, "compact");
+assert.equal(actionMapEmptyReceiptPlan.byRail.receipt.mode, "summary");
+assert.equal(actionMapEmptyReceiptPlan.byRail.receipt.state, "empty");
+assert.equal(actionMapEmptyReceiptPlan.byRail.receipt.bodyMode, "compact");
+assert.equal(actionMapEmptyReceiptPlan.byRail.receipt.reason, "尚未提交命令。");
+assert.equal(actionMapEmptyReceiptPlan.capacityOverflow, false);
+
+const timelineDetailReceiptPlan = buildWireSidePanelStackPlan({
+  activeSlot: "timelineDetail",
+  focusPlan: hiddenFocusPlan,
+  orchestration,
+  ruleChainPlan: activeRulePlan
+});
+assert.equal(timelineDetailReceiptPlan.byRail.rules.mode, "summary");
+assert.equal(timelineDetailReceiptPlan.byRail.rules.bodyMode, "compact");
+assert.equal(timelineDetailReceiptPlan.byRail.receipt.mode, "summary");
+assert.equal(timelineDetailReceiptPlan.byRail.receipt.bodyMode, "compact");
+assert.equal(timelineDetailReceiptPlan.byRail.main.actionSlot, "timelineDetail");
+assert.equal(timelineDetailReceiptPlan.capacityOverflow, false);
 
 const expandedFocusPlan = buildWireSidePanelStackPlan({
   activeSlot: "interaction",
@@ -130,7 +160,8 @@ assert.equal(receiptSummaryPlan.byRail.receipt.state, "normal");
 assert.equal(receiptSummaryPlan.byRail.receipt.actionSlot, "commandCenter");
 assert.equal(receiptSummaryPlan.density, "crowded");
 assert.equal(receiptSummaryPlan.byRail.receipt.bodyMode, "collapsed");
-assert.equal(receiptSummaryPlan.capacityOverflow, true);
+assert.equal(receiptSummaryPlan.byRail.status.bodyMode, "collapsed");
+assert.equal(receiptSummaryPlan.capacityOverflow, false);
 
 const receiptExpandedPlan = buildWireSidePanelStackPlan({
   activeSlot: "commandCenter",

@@ -23,6 +23,7 @@ export type WireSidePanelStackRailState = "empty" | "normal" | "primary" | "urge
 export type WireSidePanelStackRailEntry = {
   actionLabel: string;
   actionSlot?: WireSidePanelSlot;
+  bodyPreference?: WireSidePanelStackRailBodyMode;
   bodyMode: WireSidePanelStackRailBodyMode;
   capacityWeight: number;
   key: WireSidePanelStackRailKey;
@@ -143,9 +144,11 @@ function focusRail({
   }
 
   const expanded = activeSlot === "interaction";
+  const commandSurfaceCompact = activeSlot === "actionMap" || activeSlot === "actionPrompt";
   return {
     actionLabel: expanded ? "已展开" : "焦点",
     actionSlot: "interaction",
+    bodyPreference: commandSurfaceCompact && !expanded ? "compact" : undefined,
     bodyMode: "collapsed",
     capacityWeight: 0,
     key: "focus",
@@ -166,7 +169,7 @@ function rulesRail({
   activeSlot: WireSidePanelSlot;
   ruleChainPlan: WireSidePanelRuleChainPlan;
 }): WireSidePanelStackRailEntry {
-  const expanded = activeSlot === "ruleQueue" || activeSlot === "timelineDetail" || activeSlot === "serverFlow";
+  const expanded = activeSlot === "ruleQueue" || activeSlot === "serverFlow";
   const idle = ruleChainPlan.state === "idle";
   if (idle && !expanded) {
     return {
@@ -206,7 +209,8 @@ function receiptRail({
   activeSlot: WireSidePanelSlot;
   submissionFeedback?: CommandSubmissionFeedback;
 }): WireSidePanelStackRailEntry {
-  if (!submissionFeedback) {
+  const commandReceiptSurface = isReceiptSurface(activeSlot);
+  if (!submissionFeedback && !commandReceiptSurface) {
     return {
       actionLabel: "回执",
       bodyMode: "collapsed",
@@ -221,11 +225,12 @@ function receiptRail({
     };
   }
 
-  const urgent = submissionFeedback.state === "failed" || submissionFeedback.state === "submitting";
-  const expanded = urgent || activeSlot === "commandCenter" || activeSlot === "actionMap" || activeSlot === "actionPrompt";
+  const urgent = submissionFeedback?.state === "failed" || submissionFeedback?.state === "submitting";
+  const expanded = Boolean(submissionFeedback) && (urgent || commandReceiptSurface);
   return {
     actionLabel: expanded ? "已展开" : "回执",
     actionSlot: "commandCenter",
+    bodyPreference: !submissionFeedback && commandReceiptSurface ? "compact" : undefined,
     bodyMode: "collapsed",
     capacityWeight: 0,
     key: "receipt",
@@ -233,9 +238,9 @@ function receiptRail({
     mode: expanded ? "expanded" : "summary",
     order: 4,
     priority: urgent ? "urgent" : expanded ? "primary" : "context",
-    reason: submissionFeedback.message,
+    reason: submissionFeedback?.message ?? "尚未提交命令。",
     slot: "commandCenter",
-    state: urgent ? "urgent" : expanded ? "primary" : "normal"
+    state: urgent ? "urgent" : submissionFeedback ? expanded ? "primary" : "normal" : "empty"
   };
 }
 
@@ -319,15 +324,19 @@ function bodyModeForEntry(
     return "full";
   }
 
+  if (entry.bodyPreference) {
+    return entry.bodyPreference;
+  }
+
   if (entry.mode === "expanded") {
     return "full";
   }
 
-  if (entry.state === "urgent") {
-    return "compact";
+  if (entry.key === "status") {
+    return density === "quiet" || density === "balanced" && visibleCount <= 3 ? "compact" : "collapsed";
   }
 
-  if (entry.key === "status" && density === "quiet" && visibleCount <= 2) {
+  if (entry.state === "urgent") {
     return "compact";
   }
 
@@ -373,6 +382,10 @@ function entryBySlot(
   slot: WireSidePanelSlot
 ): WireSidePanelOrchestrationEntry | undefined {
   return entries.find((entry) => entry.slot === slot);
+}
+
+function isReceiptSurface(activeSlot: WireSidePanelSlot): boolean {
+  return activeSlot === "commandCenter" || activeSlot === "actionMap" || activeSlot === "actionPrompt" || activeSlot === "timelineDetail";
 }
 
 function urgentOrchestrationState(state: WireSidePanelOrchestrationState): boolean {

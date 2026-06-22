@@ -365,6 +365,7 @@ async function runCommandReceiptInteraction(report) {
   try {
     const page = await newPage();
     await openSeededMatch(page, seeded, "P1");
+    await openSidePanelSlot(page, "commandCenter");
     await assertTexts(page, ["提交反馈", "尚未提交"]);
     const initialState = await page.locator("[data-command-submission-state]").first().getAttribute("data-command-submission-state");
     if (initialState !== "empty") {
@@ -527,6 +528,7 @@ async function runReadyReceiptInteraction(report) {
   try {
     const page = await newPage();
     await openSeededMatch(page, joined, "P1");
+    await openSidePanelSlot(page, "commandCenter");
     await assertTexts(page, ["提交反馈", "尚未提交"]);
 
     await clickReadyQuickAction(page, "submitDeck", "SUBMIT_DECK");

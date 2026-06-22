@@ -1148,14 +1148,15 @@ function WireSidePanelRailEntry({
           </button>
         </div>
       ) : null}
-      <div
-        aria-hidden={entry.bodyMode === "collapsed" ? true : undefined}
-        className="wire-side-panel-rail-body"
-        data-wire-side-panel-rail-body={entry.key}
-        data-wire-side-panel-rail-body-mode={entry.bodyMode}
-      >
-        {children}
-      </div>
+      {entry.bodyMode === "collapsed" ? null : (
+        <div
+          className="wire-side-panel-rail-body"
+          data-wire-side-panel-rail-body={entry.key}
+          data-wire-side-panel-rail-body-mode={entry.bodyMode}
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 }

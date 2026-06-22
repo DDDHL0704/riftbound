@@ -385,6 +385,8 @@ async function runRoomLifecycleSmoke(cdp) {
 }
 
 async function runWireLayoutGeometrySmoke(cdp) {
+  await clickSidePanelSlot(cdp, "actionMap");
+  await delay(100);
   const result = await evaluateJson(cdp, `(() => {
     const failures = [];
     const validFollowupStates = ${JSON.stringify(validCommandFollowupStates)};
@@ -746,7 +748,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
 
     const commandSubmission = document.querySelector("[data-command-submission-state]");
     const commandSubmissionState = commandSubmission?.getAttribute("data-command-submission-state") ?? "missing";
-    if (!["empty", "failed", "sent", "submitting"].includes(commandSubmissionState)) {
+    if (commandSubmissionState !== "missing" && !["empty", "failed", "sent", "submitting"].includes(commandSubmissionState)) {
       failures.push(\`wire command submission state is unsupported: \${commandSubmissionState}\`);
     }
 
@@ -950,30 +952,34 @@ async function runWireLayoutGeometrySmoke(cdp) {
       transitionTargetTab: route.getAttribute("data-wire-side-panel-transition-target-tab") ?? ""
     }));
     const sidePanelRailStack = document.querySelector("[data-wire-side-panel-rail-stack]");
-    const sidePanelRails = Array.from(document.querySelectorAll("[data-wire-side-panel-rail]")).map((rail) => ({
-      actionLabel: rail.getAttribute("data-wire-side-panel-rail-action-label") ?? "",
-      actionSlot: rail.getAttribute("data-wire-side-panel-rail-action-slot") ?? "",
-      actionable: rail.getAttribute("data-wire-side-panel-rail-actionable") ?? "",
-      bodyDisplay: rail.querySelector(":scope > [data-wire-side-panel-rail-body]") ? window.getComputedStyle(rail.querySelector(":scope > [data-wire-side-panel-rail-body]")).display : "",
-      bodyMode: rail.getAttribute("data-wire-side-panel-rail-body-mode") ?? "",
-      buttonDisabled: rail.querySelector("[data-wire-side-panel-rail-action]")?.hasAttribute("disabled") ?? null,
-      buttonText: rail.querySelector("[data-wire-side-panel-rail-action]")?.textContent?.trim() ?? "",
-      capacityWeight: Number(rail.getAttribute("data-wire-side-panel-rail-capacity-weight") ?? "NaN"),
-      display: window.getComputedStyle(rail).display,
-      key: rail.getAttribute("data-wire-side-panel-rail") ?? "",
-      mode: rail.getAttribute("data-wire-side-panel-rail-mode") ?? "",
-      priority: rail.getAttribute("data-wire-side-panel-rail-priority") ?? "",
-      reason: rail.getAttribute("data-wire-side-panel-rail-reason") ?? "",
-      state: rail.getAttribute("data-wire-side-panel-rail-state") ?? "",
-      target: rail.getAttribute("data-wire-side-panel-rail-target") ?? "",
-      transitionFromSlot: rail.getAttribute("data-wire-side-panel-transition-from-slot") ?? "",
-      transitionFromTab: rail.getAttribute("data-wire-side-panel-transition-from-tab") ?? "",
-      transitionSelectable: rail.getAttribute("data-wire-side-panel-transition-selectable") ?? "",
-      transitionSource: rail.getAttribute("data-wire-side-panel-transition-source") ?? "",
-      transitionTabChange: rail.getAttribute("data-wire-side-panel-transition-tab-change") ?? "",
-      transitionTargetSlot: rail.getAttribute("data-wire-side-panel-transition-target-slot") ?? "",
-      transitionTargetTab: rail.getAttribute("data-wire-side-panel-transition-target-tab") ?? ""
-    }));
+    const sidePanelRails = Array.from(document.querySelectorAll("[data-wire-side-panel-rail]")).map((rail) => {
+      const body = rail.querySelector(":scope > [data-wire-side-panel-rail-body]");
+      return {
+        actionLabel: rail.getAttribute("data-wire-side-panel-rail-action-label") ?? "",
+        actionSlot: rail.getAttribute("data-wire-side-panel-rail-action-slot") ?? "",
+        actionable: rail.getAttribute("data-wire-side-panel-rail-actionable") ?? "",
+        bodyDisplay: body ? window.getComputedStyle(body).display : "",
+        bodyMode: rail.getAttribute("data-wire-side-panel-rail-body-mode") ?? "",
+        bodyPresent: Boolean(body),
+        buttonDisabled: rail.querySelector("[data-wire-side-panel-rail-action]")?.hasAttribute("disabled") ?? null,
+        buttonText: rail.querySelector("[data-wire-side-panel-rail-action]")?.textContent?.trim() ?? "",
+        capacityWeight: Number(rail.getAttribute("data-wire-side-panel-rail-capacity-weight") ?? "NaN"),
+        display: window.getComputedStyle(rail).display,
+        key: rail.getAttribute("data-wire-side-panel-rail") ?? "",
+        mode: rail.getAttribute("data-wire-side-panel-rail-mode") ?? "",
+        priority: rail.getAttribute("data-wire-side-panel-rail-priority") ?? "",
+        reason: rail.getAttribute("data-wire-side-panel-rail-reason") ?? "",
+        state: rail.getAttribute("data-wire-side-panel-rail-state") ?? "",
+        target: rail.getAttribute("data-wire-side-panel-rail-target") ?? "",
+        transitionFromSlot: rail.getAttribute("data-wire-side-panel-transition-from-slot") ?? "",
+        transitionFromTab: rail.getAttribute("data-wire-side-panel-transition-from-tab") ?? "",
+        transitionSelectable: rail.getAttribute("data-wire-side-panel-transition-selectable") ?? "",
+        transitionSource: rail.getAttribute("data-wire-side-panel-transition-source") ?? "",
+        transitionTabChange: rail.getAttribute("data-wire-side-panel-transition-tab-change") ?? "",
+        transitionTargetSlot: rail.getAttribute("data-wire-side-panel-transition-target-slot") ?? "",
+        transitionTargetTab: rail.getAttribute("data-wire-side-panel-transition-target-tab") ?? ""
+      };
+    });
     const sidePanelDirectory = document.querySelector("[data-wire-side-panel-directory]");
     const primarySlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-primary-slot") ?? "";
     const activeSlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-slot") ?? "";
@@ -1109,8 +1115,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
       if (!Number.isFinite(rail.capacityWeight)) {
         failures.push(\`wire side panel rail capacity weight invalid: \${JSON.stringify(rail)}\`);
       }
-      if (rail.bodyMode === "collapsed" && rail.bodyDisplay && rail.bodyDisplay !== "none") {
-        failures.push(\`wire side panel collapsed rail body still displayed: \${JSON.stringify(rail)}\`);
+      if (rail.key !== "main" && rail.bodyMode === "collapsed" && rail.bodyPresent) {
+        failures.push(\`wire side panel collapsed rail should not render body subtree: \${JSON.stringify(rail)}\`);
+      }
+      if (rail.key !== "main" && rail.mode !== "hidden" && rail.bodyMode !== "collapsed" && !rail.bodyPresent) {
+        failures.push(\`wire side panel visible rail body missing: \${JSON.stringify(rail)}\`);
+      }
+      if (rail.bodyPresent && rail.bodyDisplay === "none") {
+        failures.push(\`wire side panel rendered rail body hidden by CSS: \${JSON.stringify(rail)}\`);
       }
       if (rail.mode === "hidden" && rail.display !== "none") {
         failures.push(\`wire side panel hidden rail still displayed: \${rail.key}\`);
@@ -1191,7 +1203,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
       if (tab.targetSlot !== tab.transitionTargetSlot) {
         failures.push(\`wire side panel tab target mismatch: \${JSON.stringify(tab)}\`);
       }
-      if (tab.active === "true" && tab.transitionSelectable !== "false") {
+      if (tab.active === "true" && tab.transitionTargetSlot === activeSlot && tab.transitionSelectable !== "false") {
         failures.push(\`wire side panel active tab should not be selectable: \${JSON.stringify(tab)}\`);
       }
       if (!Number.isFinite(Number(tab.count))) {
@@ -1304,7 +1316,7 @@ async function runWireLayoutGeometrySmoke(cdp) {
   if (!["blocked", "drafting", "empty", "ready"].includes(result.commandReviewState)) {
     throw new Error(`Wire layout geometry smoke did not find command review: ${result.commandReviewState}`);
   }
-  if (!["empty", "failed", "sent", "submitting"].includes(result.commandSubmissionState)) {
+  if (result.commandSubmissionState !== "missing" && !["empty", "failed", "sent", "submitting"].includes(result.commandSubmissionState)) {
     throw new Error(`Wire layout geometry smoke did not find command submission feedback: ${result.commandSubmissionState}`);
   }
   if (result.responsibilitySource !== "server") {
