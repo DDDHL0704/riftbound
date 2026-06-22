@@ -91,6 +91,7 @@ import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
 import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
 import { buildWireSidePanelDirectoryPlan, type WireSidePanelDirectoryPlan } from "../utils/wireSidePanelDirectoryPlan";
+import { buildWireSidePanelDirectoryViewPlan } from "../utils/wireSidePanelDirectoryViewPlan";
 import { buildWireSidePanelFramePlan } from "../utils/wireSidePanelFramePlan";
 import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
 
@@ -1016,6 +1017,13 @@ function WireSidePanelDirectory({
   orchestration: WireSidePanelOrchestrationPlan;
   plan: WireSidePanelDirectoryPlan;
 }) {
+  const view = buildWireSidePanelDirectoryViewPlan({
+    activeSlot,
+    activeTab,
+    entries: orchestration.entries,
+    tabs: WIRE_SIDE_PANEL_TABS
+  });
+
   return (
     <nav
       aria-label="右侧面板目录"
@@ -1025,53 +1033,58 @@ function WireSidePanelDirectory({
       data-wire-side-panel-directory-active-slot={activeSlot}
       data-wire-side-panel-directory-active-tab={activeTab}
       data-wire-side-panel-directory-count={plan.entries.length}
+      data-wire-side-panel-directory-hidden-count={view.hiddenCount}
       data-wire-side-panel-directory-primary-slot={orchestration.primarySlot}
       data-wire-side-panel-directory-state={orchestration.state}
       data-wire-side-panel-directory-urgent-count={orchestration.urgentCount}
+      data-wire-side-panel-directory-visible-count={view.visibleEntries.length}
     >
       <div className="wire-side-panel-directory-summary">
         <h2>控制台</h2>
-        <strong>{orchestration.stateLabel}</strong>
-        <span>{orchestration.nextStepLabel}</span>
+        <strong>{view.activeEntry.label}</strong>
+        <span>{view.activeEntry.stateLabel} / {view.activeEntry.count}</span>
       </div>
       <div className="wire-side-panel-tabs" role="tablist" aria-label="右侧主面板">
-        {WIRE_SIDE_PANEL_TABS.map((tab) => (
+        {view.tabs.map((tab) => (
           <button
-            aria-selected={tab.id === activeTab}
+            aria-selected={tab.active}
             data-wire-side-panel-tab={tab.id}
-            data-wire-side-panel-tab-active={tab.id === activeTab}
+            data-wire-side-panel-tab-active={tab.active}
+            data-wire-side-panel-tab-count={tab.count}
+            data-wire-side-panel-tab-state={tab.state}
+            data-wire-side-panel-tab-urgent={tab.urgent}
             key={tab.id}
             onClick={() => onSelectTab(tab.id)}
             role="tab"
             type="button"
           >
-            {tab.label}
+            <span>{tab.label}</span>
+            <small>{tab.count}</small>
           </button>
         ))}
       </div>
       <ol className="wire-side-panel-entry-grid">
-        {orchestration.entries.map((entry) => {
-          const entryTab = WIRE_SIDE_PANEL_TAB_BY_SLOT[entry.slot];
-          const tabVisible = entryTab === activeTab;
+        {view.visibleEntries.map((entry) => {
           const shortLabel = WIRE_SIDE_PANEL_SHORT_LABELS[entry.slot];
           return (
             <li
-              data-wire-side-panel-directory-active={entry.slot === activeSlot}
+              data-wire-side-panel-directory-active={entry.active}
               data-wire-side-panel-directory-group={plan.bySlot[entry.slot].group}
               data-wire-side-panel-directory-item={entry.slot}
+              data-wire-side-panel-directory-primary={entry.primary}
               data-wire-side-panel-directory-state={entry.state}
-              data-wire-side-panel-directory-tab-visible={tabVisible}
+              data-wire-side-panel-directory-tab={entry.tabId}
               key={entry.slot}
             >
               <a
                 aria-label={`${entry.order}. ${entry.label}：${entry.stateLabel}，${entry.detail}`}
-                aria-current={entry.slot === activeSlot ? "page" : undefined}
+                aria-current={entry.active ? "page" : undefined}
                 data-wire-side-panel-directory-count-value={entry.count}
                 data-wire-side-panel-directory-label={entry.label}
                 data-wire-side-panel-directory-link={entry.slot}
                 data-wire-side-panel-directory-short-label={shortLabel}
                 data-wire-side-panel-directory-state={entry.state}
-                data-wire-side-panel-directory-tab={entryTab}
+                data-wire-side-panel-directory-tab={entry.tabId}
                 data-wire-side-panel-directory-tone={entry.tone}
                 href={entry.href}
                 onClick={(event) => {
@@ -1080,10 +1093,9 @@ function WireSidePanelDirectory({
                 }}
                 title={`${entry.label} / ${entry.stateLabel} / ${entry.detail}`}
               >
-                <span>{entry.order}</span>
                 <strong>{shortLabel}</strong>
-                <em>{entry.stateLabel}</em>
                 <small>{entry.count}</small>
+                <em>{entry.stateLabel}</em>
               </a>
             </li>
           );

@@ -12430,11 +12430,11 @@ button.card-face:hover {
 .wire-side-panel-directory {
   z-index: 4;
   display: grid;
-  gap: 4px;
+  gap: 3px;
   border: 1px solid #000;
   background: #fff;
   color: #000;
-  padding: 4px;
+  padding: 3px;
 }
 
 .wire-side-panel-directory h2 {
@@ -12445,11 +12445,11 @@ button.card-face:hover {
 
 .wire-side-panel-directory-summary {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr);
-  gap: 4px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 3px;
   align-items: center;
   border: 1px solid #000;
-  padding: 3px 4px;
+  padding: 2px 3px;
   min-width: 0;
 }
 
@@ -12466,16 +12466,34 @@ button.card-face:hover {
 .wire-side-panel-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 3px;
+  gap: 2px;
 }
 
 .wire-side-panel-tabs button {
   min-width: 0;
-  min-height: 30px;
-  padding: 4px 3px;
+  min-height: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px;
+  align-items: center;
+  padding: 3px 2px;
   font-size: 11px;
   line-height: 1.1;
   font-weight: 700;
+}
+
+.wire-side-panel-tabs button span,
+.wire-side-panel-tabs button small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-side-panel-tabs button small {
+  font-size: 9px;
+  font-weight: 400;
+  text-align: right;
 }
 
 .wire-side-panel-tabs button[data-wire-side-panel-tab-active="true"] {
@@ -12507,8 +12525,8 @@ button.card-face:hover {
 
 .wire-side-panel-entry-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
-  gap: 3px;
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -12525,13 +12543,14 @@ button.card-face:hover {
 .wire-side-panel-directory a {
   min-width: 0;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 2px 3px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px;
   align-items: center;
   border: 1px solid #000;
   background: #fff;
   color: #000;
-  padding: 3px 2px;
+  min-height: 26px;
+  padding: 2px 3px;
   font-size: 10px;
   line-height: 1.15;
   text-decoration: none;
@@ -12569,6 +12588,10 @@ button.card-face:hover {
   display: none;
   grid-column: 1 / -1;
   text-align: left;
+}
+
+.wire-side-panel-directory li[data-wire-side-panel-directory-primary="true"] a {
+  border-width: 2px;
 }
 
 .wire-side-panel-directory li[data-wire-side-panel-directory-state="ready"] a,

@@ -7,6 +7,7 @@ import ts from "typescript";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const layout = JSON.parse(readFileSync(resolve(scriptDir, "../src/components/match/wireTableLayoutData.json"), "utf8"));
 const { buildWireSidePanelDirectoryPlan, wireSidePanelAnchorId } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryPlan.ts"));
+const { buildWireSidePanelDirectoryViewPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryViewPlan.ts"));
 const { buildWireSidePanelFramePlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelFramePlan.ts"));
 const { buildWireSidePanelOrchestrationPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelOrchestrationPlan.ts"));
 
@@ -25,6 +26,18 @@ const expectedSlots = [
   "timelineDetail",
   "actionPrompt",
   "log"
+];
+const expectedTabs = [
+  { id: "action", label: "行动", primarySlot: "commandCenter", slots: ["commandCenter", "actionMap", "interaction", "actionPrompt"] },
+  { id: "response", label: "响应", primarySlot: "responseCoach", slots: ["responseCoach", "turnWindow"] },
+  { id: "rules", label: "规则", primarySlot: "ruleQueue", slots: ["ruleQueue", "serverFlow"] },
+  { id: "log", label: "日志", primarySlot: "log", slots: ["log"] },
+  {
+    id: "detail",
+    label: "详情",
+    primarySlot: "timelineDetail",
+    slots: ["timelineDetail", "overview", "tableAuthority", "informationBoundary", "promptAuthority"]
+  }
 ];
 
 const plan = buildWireSidePanelDirectoryPlan(layout.sidePanel.slots);
@@ -103,6 +116,61 @@ assert.equal(entry(readyOrchestration, "tableAuthority").state, "audit");
 assert.equal(entry(readyOrchestration, "timelineDetail").state, "review");
 assert.equal(entry(readyOrchestration, "log").state, "history");
 assert.ok(readyOrchestration.urgentCount >= 3);
+
+const actionDirectoryView = buildWireSidePanelDirectoryViewPlan({
+  activeSlot: "commandCenter",
+  activeTab: "action",
+  entries: readyOrchestration.entries,
+  tabs: expectedTabs
+});
+assert.equal(actionDirectoryView.activeEntry.slot, "commandCenter");
+assert.equal(actionDirectoryView.primaryEntry.slot, "commandCenter");
+assert.deepEqual(actionDirectoryView.visibleEntries.map((item) => item.slot), ["commandCenter", "actionMap", "interaction", "actionPrompt"]);
+assert.equal(actionDirectoryView.visibleEntries.find((item) => item.slot === "commandCenter").active, true);
+assert.equal(actionDirectoryView.visibleEntries.find((item) => item.slot === "commandCenter").primary, true);
+assert.equal(actionDirectoryView.hiddenCount, expectedSlots.length - 4);
+assert.deepEqual(actionDirectoryView.tabs.map((item) => item.id), ["action", "response", "rules", "log", "detail"]);
+assert.equal(actionDirectoryView.currentTab.id, "action");
+assert.equal(actionDirectoryView.currentTab.active, true);
+assert.ok(actionDirectoryView.tabs.find((item) => item.id === "rules").count >= 1);
+
+const detailDirectoryView = buildWireSidePanelDirectoryViewPlan({
+  activeSlot: "timelineDetail",
+  activeTab: "detail",
+  entries: readyOrchestration.entries,
+  tabs: expectedTabs
+});
+assert.deepEqual(detailDirectoryView.visibleEntries.map((item) => item.slot), [
+  "timelineDetail",
+  "overview",
+  "tableAuthority",
+  "informationBoundary",
+  "promptAuthority"
+]);
+assert.equal(detailDirectoryView.activeEntry.slot, "timelineDetail");
+assert.equal(detailDirectoryView.primaryEntry.slot, "timelineDetail");
+
+assert.throws(
+  () => buildWireSidePanelDirectoryViewPlan({
+    activeSlot: "commandCenter",
+    activeTab: "action",
+    entries: readyOrchestration.entries,
+    tabs: [
+      ...expectedTabs,
+      { id: "duplicate", label: "重复", primarySlot: "commandCenter", slots: ["commandCenter"] }
+    ]
+  }),
+  /Wire side panel slot appears in multiple tabs/
+);
+assert.throws(
+  () => buildWireSidePanelDirectoryViewPlan({
+    activeSlot: "commandCenter",
+    activeTab: "missing",
+    entries: readyOrchestration.entries,
+    tabs: expectedTabs
+  }),
+  /Active wire side panel tab is not registered/
+);
 
 const commandFrame = buildWireSidePanelFramePlan({
   activeSlot: "commandCenter",
