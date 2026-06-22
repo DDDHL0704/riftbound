@@ -892,6 +892,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
       id: tab.getAttribute("data-wire-side-panel-tab") ?? "",
       label: tab.textContent?.trim() ?? "",
       state: tab.getAttribute("data-wire-side-panel-tab-state") ?? "",
+      targetSlot: tab.getAttribute("data-wire-side-panel-tab-target-slot") ?? "",
+      transitionFromSlot: tab.getAttribute("data-wire-side-panel-transition-from-slot") ?? "",
+      transitionFromTab: tab.getAttribute("data-wire-side-panel-transition-from-tab") ?? "",
+      transitionSelectable: tab.getAttribute("data-wire-side-panel-transition-selectable") ?? "",
+      transitionSource: tab.getAttribute("data-wire-side-panel-transition-source") ?? "",
+      transitionTabChange: tab.getAttribute("data-wire-side-panel-transition-tab-change") ?? "",
+      transitionTargetSlot: tab.getAttribute("data-wire-side-panel-transition-target-slot") ?? "",
+      transitionTargetTab: tab.getAttribute("data-wire-side-panel-transition-target-tab") ?? "",
       urgent: tab.getAttribute("data-wire-side-panel-tab-urgent") ?? ""
     }));
     const sidePanelTabIds = sidePanelTabs.map((tab) => tab.id);
@@ -915,7 +923,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
       slot: link.getAttribute("data-wire-side-panel-directory-link") ?? "",
       state: link.getAttribute("data-wire-side-panel-directory-state") ?? "",
       tab: link.getAttribute("data-wire-side-panel-directory-tab") ?? "",
-      tone: link.getAttribute("data-wire-side-panel-directory-tone") ?? ""
+      tone: link.getAttribute("data-wire-side-panel-directory-tone") ?? "",
+      transitionFromSlot: link.getAttribute("data-wire-side-panel-transition-from-slot") ?? "",
+      transitionFromTab: link.getAttribute("data-wire-side-panel-transition-from-tab") ?? "",
+      transitionSelectable: link.getAttribute("data-wire-side-panel-transition-selectable") ?? "",
+      transitionSource: link.getAttribute("data-wire-side-panel-transition-source") ?? "",
+      transitionTabChange: link.getAttribute("data-wire-side-panel-transition-tab-change") ?? "",
+      transitionTargetSlot: link.getAttribute("data-wire-side-panel-transition-target-slot") ?? "",
+      transitionTargetTab: link.getAttribute("data-wire-side-panel-transition-target-tab") ?? ""
     }));
     const sidePanelControlRoutes = Array.from(document.querySelectorAll("[data-wire-side-panel-control-route]")).map((route) => ({
       action: route.querySelector("[data-wire-side-panel-control-route-action]")?.getAttribute("data-wire-side-panel-control-route-action") ?? "",
@@ -925,7 +940,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
       slot: route.getAttribute("data-wire-side-panel-control-route-slot") ?? "",
       state: route.getAttribute("data-wire-side-panel-control-route-state") ?? "",
       text: route.textContent?.trim() ?? "",
-      tone: route.getAttribute("data-wire-side-panel-control-route-tone") ?? ""
+      tone: route.getAttribute("data-wire-side-panel-control-route-tone") ?? "",
+      transitionFromSlot: route.getAttribute("data-wire-side-panel-transition-from-slot") ?? "",
+      transitionFromTab: route.getAttribute("data-wire-side-panel-transition-from-tab") ?? "",
+      transitionSelectable: route.getAttribute("data-wire-side-panel-transition-selectable") ?? "",
+      transitionSource: route.getAttribute("data-wire-side-panel-transition-source") ?? "",
+      transitionTabChange: route.getAttribute("data-wire-side-panel-transition-tab-change") ?? "",
+      transitionTargetSlot: route.getAttribute("data-wire-side-panel-transition-target-slot") ?? "",
+      transitionTargetTab: route.getAttribute("data-wire-side-panel-transition-target-tab") ?? ""
     }));
     const sidePanelRailStack = document.querySelector("[data-wire-side-panel-rail-stack]");
     const sidePanelRails = Array.from(document.querySelectorAll("[data-wire-side-panel-rail]")).map((rail) => ({
@@ -939,7 +961,14 @@ async function runWireLayoutGeometrySmoke(cdp) {
       mode: rail.getAttribute("data-wire-side-panel-rail-mode") ?? "",
       reason: rail.getAttribute("data-wire-side-panel-rail-reason") ?? "",
       state: rail.getAttribute("data-wire-side-panel-rail-state") ?? "",
-      target: rail.getAttribute("data-wire-side-panel-rail-target") ?? ""
+      target: rail.getAttribute("data-wire-side-panel-rail-target") ?? "",
+      transitionFromSlot: rail.getAttribute("data-wire-side-panel-transition-from-slot") ?? "",
+      transitionFromTab: rail.getAttribute("data-wire-side-panel-transition-from-tab") ?? "",
+      transitionSelectable: rail.getAttribute("data-wire-side-panel-transition-selectable") ?? "",
+      transitionSource: rail.getAttribute("data-wire-side-panel-transition-source") ?? "",
+      transitionTabChange: rail.getAttribute("data-wire-side-panel-transition-tab-change") ?? "",
+      transitionTargetSlot: rail.getAttribute("data-wire-side-panel-transition-target-slot") ?? "",
+      transitionTargetTab: rail.getAttribute("data-wire-side-panel-transition-target-tab") ?? ""
     }));
     const sidePanelDirectory = document.querySelector("[data-wire-side-panel-directory]");
     const primarySlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-primary-slot") ?? "";
@@ -965,6 +994,30 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (!expectedSidePanelTabs.includes(activeTab)) {
       failures.push(\`wire side panel active tab invalid: \${activeTab}\`);
     }
+    const booleanAttribute = (value) => value === "true" || value === "false";
+    const validTransition = (item, source, label) => {
+      if (item.transitionSource !== source) {
+        failures.push(\`wire side panel \${label} transition source mismatch: \${item.transitionSource} / \${source}\`);
+      }
+      if (item.transitionFromSlot !== activeSlot) {
+        failures.push(\`wire side panel \${label} transition from-slot mismatch: \${item.transitionFromSlot} / \${activeSlot}\`);
+      }
+      if (!expectedSidePanelTabs.includes(item.transitionFromTab)) {
+        failures.push(\`wire side panel \${label} transition from-tab invalid: \${item.transitionFromTab}\`);
+      }
+      if (!expectedSidePanelSlots.includes(item.transitionTargetSlot)) {
+        failures.push(\`wire side panel \${label} transition target-slot invalid: \${item.transitionTargetSlot}\`);
+      }
+      if (!expectedSidePanelTabs.includes(item.transitionTargetTab)) {
+        failures.push(\`wire side panel \${label} transition target-tab invalid: \${item.transitionTargetTab}\`);
+      }
+      if (!booleanAttribute(item.transitionSelectable)) {
+        failures.push(\`wire side panel \${label} transition selectable invalid: \${item.transitionSelectable}\`);
+      }
+      if (!booleanAttribute(item.transitionTabChange)) {
+        failures.push(\`wire side panel \${label} transition tab-change invalid: \${item.transitionTabChange}\`);
+      }
+    };
     const activePanes = Array.from(document.querySelectorAll('[data-wire-side-panel-pane-active="true"]'))
       .map((pane) => pane.getAttribute("data-wire-side-panel-pane") ?? "");
     if (activePanes.length !== 1 || activePanes[0] !== activeSlot) {
@@ -1012,6 +1065,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
     if (mainRail?.mode !== "expanded" || mainRail.state !== "primary" || mainRail.target !== activeSlot) {
       failures.push(\`wire side panel main rail should track active slot: \${JSON.stringify(mainRail)} / \${activeSlot}\`);
     }
+    if (mainRail) {
+      validTransition(mainRail, "auto", "main rail");
+      if (mainRail.transitionTargetSlot !== activeSlot || mainRail.transitionSelectable !== "false") {
+        failures.push(\`wire side panel main rail transition should stay on active slot: \${JSON.stringify(mainRail)}\`);
+      }
+    }
     for (const rail of sidePanelRails) {
       if (!rail.key || !rail.mode || !rail.state || !rail.reason || !rail.actionLabel) {
         failures.push(\`wire side panel rail incomplete: \${JSON.stringify(rail)}\`);
@@ -1023,8 +1082,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
         failures.push(\`wire side panel visible rail hidden by CSS: \${rail.key}\`);
       }
       if (rail.mode === "summary") {
+        validTransition(rail, "rail", \`summary rail \${rail.key}\`);
         if (!rail.actionSlot || rail.actionable !== "true" || rail.buttonDisabled !== false || rail.buttonText.length === 0) {
           failures.push(\`wire side panel summary rail action incomplete: \${JSON.stringify(rail)}\`);
+        }
+        if (rail.transitionTargetSlot !== rail.actionSlot || rail.transitionSelectable !== "true") {
+          failures.push(\`wire side panel summary rail transition mismatch: \${JSON.stringify(rail)}\`);
         }
       }
       if (rail.mode !== "summary" && rail.actionable === "true") {
@@ -1049,6 +1112,13 @@ async function runWireLayoutGeometrySmoke(cdp) {
     for (const route of sidePanelControlRoutes) {
       if (!route.key || !route.state || !route.tone || !route.action || route.text.length === 0) {
         failures.push(\`wire side panel control route incomplete: \${JSON.stringify(route)}\`);
+      }
+      validTransition(route, "control-route", \`control route \${route.key}\`);
+      if (route.slot && route.transitionTargetSlot !== route.slot) {
+        failures.push(\`wire side panel control route transition target mismatch: \${JSON.stringify(route)}\`);
+      }
+      if (route.selectable !== route.transitionSelectable) {
+        failures.push(\`wire side panel control route selectable mismatch: \${JSON.stringify(route)}\`);
       }
       if (route.selectable === "false" && route.disabled !== true) {
         failures.push(\`wire side panel non-selectable route should be disabled: \${route.key}\`);
@@ -1080,6 +1150,13 @@ async function runWireLayoutGeometrySmoke(cdp) {
       if (!tab.state) {
         failures.push(\`wire side panel tab state missing: \${tab.id}\`);
       }
+      validTransition(tab, "tab", \`tab \${tab.id}\`);
+      if (tab.targetSlot !== tab.transitionTargetSlot) {
+        failures.push(\`wire side panel tab target mismatch: \${JSON.stringify(tab)}\`);
+      }
+      if (tab.active === "true" && tab.transitionSelectable !== "false") {
+        failures.push(\`wire side panel active tab should not be selectable: \${JSON.stringify(tab)}\`);
+      }
       if (!Number.isFinite(Number(tab.count))) {
         failures.push(\`wire side panel tab count invalid: \${tab.id}=\${tab.count}\`);
       }
@@ -1088,6 +1165,13 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
     }
     for (const link of sidePanelDirectoryLinks) {
+      validTransition(link, "directory", \`directory link \${link.slot}\`);
+      if (link.transitionTargetSlot !== link.slot) {
+        failures.push(\`wire side panel directory link transition target mismatch: \${JSON.stringify(link)}\`);
+      }
+      if (link.transitionTargetTab !== activeTab) {
+        failures.push(\`wire side panel directory link transition tab mismatch: \${JSON.stringify(link)} / \${activeTab}\`);
+      }
       const expectedAnchorId = \`wire-side-panel-\${link.slot}\`;
       if (link.href !== \`#\${expectedAnchorId}\`) {
         failures.push(\`wire side panel directory link \${link.slot} has href \${link.href}\`);

@@ -102,12 +102,17 @@ import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPla
 import { buildWireSidePanelRuleChainPlan } from "../utils/wireSidePanelRuleChainPlan";
 import { buildWireSidePanelStackPlan, type WireSidePanelStackRailEntry } from "../utils/wireSidePanelStackPlan";
 import {
+  buildWireSidePanelTransitionPlan,
+  isStickyWireSidePanelState,
+  type WireSidePanelNavigationSource,
+  type WireSidePanelTransitionPlan
+} from "../utils/wireSidePanelNavigationPlan";
+import {
   WIRE_SIDE_PANEL_SHORT_LABELS,
   WIRE_SIDE_PANEL_TAB_BY_SLOT,
   WIRE_SIDE_PANEL_TABS,
   wireSidePanelTabPanelIdForSlot,
-  type WireSidePanelTab,
-  type WireSidePanelTabSpec
+  type WireSidePanelTab
 } from "../utils/wireSidePanelTabPlan";
 import { buildWireRuleQueuePlan } from "../utils/wireRuleQueuePlan";
 
@@ -560,11 +565,18 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   ]);
   const activeSidePanelTab = WIRE_SIDE_PANEL_TAB_BY_SLOT[activeSidePanelSlot] ?? "action";
   const activeSidePanelEntry = sidePanelEntryBySlot[activeSidePanelSlot];
-  const setActiveSidePanelTab = useCallback((tab: WireSidePanelTab) => {
-    const tabSpec = WIRE_SIDE_PANEL_TABS.find((item) => item.id === tab) ?? WIRE_SIDE_PANEL_TABS[0];
-    const preferredSlot = preferredSlotForTab(tabSpec, sidePanelEntryBySlot, sidePanelOrchestration.primarySlot);
-    selectSidePanelSlot(preferredSlot, "manual");
-  }, [selectSidePanelSlot, sidePanelEntryBySlot, sidePanelOrchestration.primarySlot]);
+  const sidePanelTransitionForSlot = useCallback((targetSlot: WireSidePanelSlot, source: WireSidePanelNavigationSource) => buildWireSidePanelTransitionPlan({
+    activeSlot: activeSidePanelSlot,
+    entries: sidePanelOrchestration.entries,
+    primarySlot: sidePanelOrchestration.primarySlot,
+    source,
+    tabs: WIRE_SIDE_PANEL_TABS,
+    targetSlot
+  }), [activeSidePanelSlot, sidePanelOrchestration.entries, sidePanelOrchestration.primarySlot]);
+  const sidePanelMainTransition = useMemo(
+    () => sidePanelTransitionForSlot(activeSidePanelSlot, "auto"),
+    [activeSidePanelSlot, sidePanelTransitionForSlot]
+  );
 
   useEffect(() => {
     setActiveSidePanelSlot((current) => {
@@ -572,7 +584,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       if (currentEntry && sidePanelSelectionIntentRef.current === "manual") {
         return current;
       }
-      if (currentEntry && isStickySidePanelState(currentEntry.state)) {
+      if (currentEntry && isStickyWireSidePanelState(currentEntry.state)) {
         return current;
       }
 
@@ -900,7 +912,6 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             activeSlot={activeSidePanelSlot}
             activeTab={activeSidePanelTab}
             onSelectSlot={selectSidePanelSlot}
-            onSelectTab={setActiveSidePanelTab}
             orchestration={sidePanelOrchestration}
             plan={sidePanelDirectory}
           />
@@ -915,7 +926,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             data-wire-side-panel-rail-summary-count={sidePanelStackPlan.summaryCount}
             data-wire-side-panel-rail-visible-count={sidePanelStackPlan.visibleEntries.length}
           >
-            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.status} onSelectSlot={selectSidePanelSlot}>
+            <WireSidePanelRailEntry
+              entry={sidePanelStackPlan.byRail.status}
+              onSelectSlot={selectSidePanelSlot}
+              transition={sidePanelStackPlan.byRail.status.actionSlot ? sidePanelTransitionForSlot(sidePanelStackPlan.byRail.status.actionSlot, "rail") : undefined}
+            >
               <WireSidePanelStatus
                 activeEntry={activeSidePanelEntry}
                 canAct={canAct}
@@ -926,7 +941,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 windowState={timingStateLabel(windowState)}
               />
             </WireSidePanelRailEntry>
-            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.focus} onSelectSlot={selectSidePanelSlot}>
+            <WireSidePanelRailEntry
+              entry={sidePanelStackPlan.byRail.focus}
+              onSelectSlot={selectSidePanelSlot}
+              transition={sidePanelStackPlan.byRail.focus.actionSlot ? sidePanelTransitionForSlot(sidePanelStackPlan.byRail.focus.actionSlot, "rail") : undefined}
+            >
               <WireSidePanelFocusStrip
                 inspectedCard={inspectedCard}
                 onClear={clearInspectedCard}
@@ -936,14 +955,22 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 plan={sidePanelFocusPlan}
               />
             </WireSidePanelRailEntry>
-            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.rules} onSelectSlot={selectSidePanelSlot}>
+            <WireSidePanelRailEntry
+              entry={sidePanelStackPlan.byRail.rules}
+              onSelectSlot={selectSidePanelSlot}
+              transition={sidePanelStackPlan.byRail.rules.actionSlot ? sidePanelTransitionForSlot(sidePanelStackPlan.byRail.rules.actionSlot, "rail") : undefined}
+            >
               <WireSidePanelRuleChainStrip
                 onSelectDetail={selectTimelineDetail}
                 onSelectSlot={selectSidePanelSlot}
                 plan={sidePanelRuleChainPlan}
               />
             </WireSidePanelRailEntry>
-            <WireSidePanelRailEntry entry={sidePanelStackPlan.byRail.receipt} onSelectSlot={selectSidePanelSlot}>
+            <WireSidePanelRailEntry
+              entry={sidePanelStackPlan.byRail.receipt}
+              onSelectSlot={selectSidePanelSlot}
+              transition={sidePanelStackPlan.byRail.receipt.actionSlot ? sidePanelTransitionForSlot(sidePanelStackPlan.byRail.receipt.actionSlot, "rail") : undefined}
+            >
               <div
                 aria-label="服务端提交回执常驻区"
                 className="wire-side-panel-receipt"
@@ -979,6 +1006,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             data-wire-side-panel-rail-reason={sidePanelStackPlan.byRail.main.reason}
             data-wire-side-panel-rail-state={sidePanelStackPlan.byRail.main.state}
             data-wire-side-panel-rail-target={sidePanelStackPlan.byRail.main.slot ?? ""}
+            data-wire-side-panel-transition-from-slot={sidePanelMainTransition.fromSlot}
+            data-wire-side-panel-transition-from-tab={sidePanelMainTransition.fromTab}
+            data-wire-side-panel-transition-reason={sidePanelMainTransition.reason}
+            data-wire-side-panel-transition-selectable={sidePanelMainTransition.selectable}
+            data-wire-side-panel-transition-source={sidePanelMainTransition.source}
+            data-wire-side-panel-transition-tab-change={sidePanelMainTransition.tabChanges}
+            data-wire-side-panel-transition-target-slot={sidePanelMainTransition.targetSlot}
+            data-wire-side-panel-transition-target-tab={sidePanelMainTransition.targetTab}
             data-wire-side-panel-visible-count={sidePanelFrame.visibleSlots.length}
           >
             {sidePanelFrame.entries.map((entry) => (
@@ -1053,13 +1088,16 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 function WireSidePanelRailEntry({
   children,
   entry,
-  onSelectSlot
+  onSelectSlot,
+  transition
 }: {
   children: ReactNode;
   entry: WireSidePanelStackRailEntry;
   onSelectSlot: (slot: WireSidePanelSlot) => void;
+  transition?: WireSidePanelTransitionPlan<WireSidePanelTab>;
 }) {
-  const selectable = entry.mode === "summary" && Boolean(entry.actionSlot);
+  const targetSlot = transition?.targetSlot ?? entry.actionSlot;
+  const selectable = entry.mode === "summary" && Boolean(targetSlot) && (transition?.selectable ?? true);
 
   return (
     <div
@@ -1072,6 +1110,14 @@ function WireSidePanelRailEntry({
       data-wire-side-panel-rail-reason={entry.reason}
       data-wire-side-panel-rail-state={entry.state}
       data-wire-side-panel-rail-target={entry.slot ?? ""}
+      data-wire-side-panel-transition-from-slot={transition?.fromSlot ?? ""}
+      data-wire-side-panel-transition-from-tab={transition?.fromTab ?? ""}
+      data-wire-side-panel-transition-reason={transition?.reason ?? ""}
+      data-wire-side-panel-transition-selectable={transition?.selectable ?? false}
+      data-wire-side-panel-transition-source={transition?.source ?? ""}
+      data-wire-side-panel-transition-tab-change={transition?.tabChanges ?? false}
+      data-wire-side-panel-transition-target-slot={transition?.targetSlot ?? ""}
+      data-wire-side-panel-transition-target-tab={transition?.targetTab ?? ""}
     >
       {entry.mode === "summary" ? (
         <div className="wire-side-panel-rail-action">
@@ -1079,10 +1125,10 @@ function WireSidePanelRailEntry({
           <strong>{entry.reason}</strong>
           <button
             data-wire-side-panel-rail-action={entry.key}
-            disabled={!selectable || !entry.actionSlot}
+            disabled={!selectable || !targetSlot}
             onClick={() => {
-              if (entry.actionSlot) {
-                onSelectSlot(entry.actionSlot);
+              if (targetSlot) {
+                onSelectSlot(targetSlot);
               }
             }}
             type="button"
@@ -1102,14 +1148,12 @@ function WireSidePanelDirectory({
   activeSlot,
   activeTab,
   onSelectSlot,
-  onSelectTab,
   orchestration,
   plan
 }: {
   activeSlot: WireSidePanelSlot;
   activeTab: WireSidePanelTab;
   onSelectSlot: (slot: WireSidePanelSlot) => void;
-  onSelectTab: (tab: WireSidePanelTab) => void;
   orchestration: WireSidePanelOrchestrationPlan;
   plan: WireSidePanelDirectoryPlan;
 }) {
@@ -1120,6 +1164,22 @@ function WireSidePanelDirectory({
     tabs: WIRE_SIDE_PANEL_TABS
   });
   const controlPlan = buildWireSidePanelControlPlan({ orchestration, view });
+  const transitionForSlot = (targetSlot: WireSidePanelSlot, source: WireSidePanelNavigationSource) => buildWireSidePanelTransitionPlan({
+    activeSlot,
+    entries: orchestration.entries,
+    primarySlot: orchestration.primarySlot,
+    source,
+    tabs: WIRE_SIDE_PANEL_TABS,
+    targetSlot
+  });
+  const transitionForTab = (targetTab: WireSidePanelTab) => buildWireSidePanelTransitionPlan({
+    activeSlot,
+    entries: orchestration.entries,
+    primarySlot: orchestration.primarySlot,
+    source: "tab",
+    tabs: WIRE_SIDE_PANEL_TABS,
+    targetTab
+  });
 
   return (
     <nav
@@ -1144,56 +1204,81 @@ function WireSidePanelDirectory({
         <span>{view.activeEntry.stateLabel} / {view.activeEntry.count}</span>
       </div>
       <ol className="wire-side-panel-control-routes" aria-label="右侧控制台路由摘要">
-        {controlPlan.routes.map((route) => (
-          <li
-            data-wire-side-panel-control-route={route.key}
-            data-wire-side-panel-control-route-selectable={route.selectable}
-            data-wire-side-panel-control-route-slot={route.slot ?? ""}
-            data-wire-side-panel-control-route-state={route.state}
-            data-wire-side-panel-control-route-tone={route.tone}
-            key={`${route.key}:${route.slot ?? "none"}`}
-          >
-            <button
-              aria-label={`${route.label}：${route.slotLabel}，${route.stateLabel}，${route.detail}`}
-              data-wire-side-panel-control-route-action={route.key}
-              disabled={!route.selectable || !route.slot}
-              onClick={() => {
-                if (route.slot) {
-                  onSelectSlot(route.slot);
-                }
-              }}
-              title={`${route.label} / ${route.slotLabel} / ${route.detail}`}
-              type="button"
+        {controlPlan.routes.map((route) => {
+          const transition = route.slot ? transitionForSlot(route.slot, "control-route") : undefined;
+          const selectable = Boolean(route.selectable && transition?.selectable);
+          return (
+            <li
+              data-wire-side-panel-control-route={route.key}
+              data-wire-side-panel-control-route-selectable={selectable}
+              data-wire-side-panel-control-route-slot={route.slot ?? ""}
+              data-wire-side-panel-control-route-state={route.state}
+              data-wire-side-panel-control-route-tone={route.tone}
+              data-wire-side-panel-transition-from-slot={transition?.fromSlot ?? ""}
+              data-wire-side-panel-transition-from-tab={transition?.fromTab ?? ""}
+              data-wire-side-panel-transition-reason={transition?.reason ?? ""}
+              data-wire-side-panel-transition-selectable={transition?.selectable ?? false}
+              data-wire-side-panel-transition-source={transition?.source ?? "control-route"}
+              data-wire-side-panel-transition-tab-change={transition?.tabChanges ?? false}
+              data-wire-side-panel-transition-target-slot={transition?.targetSlot ?? ""}
+              data-wire-side-panel-transition-target-tab={transition?.targetTab ?? ""}
+              key={`${route.key}:${route.slot ?? "none"}`}
             >
-              <span>{route.label}</span>
-              <strong>{route.slotLabel}</strong>
-              <small>{route.stateLabel} / {route.count}</small>
-            </button>
-          </li>
-        ))}
+              <button
+                aria-label={`${route.label}：${route.slotLabel}，${route.stateLabel}，${route.detail}`}
+                data-wire-side-panel-control-route-action={route.key}
+                disabled={!selectable || !transition}
+                onClick={() => {
+                  if (transition) {
+                    onSelectSlot(transition.targetSlot);
+                  }
+                }}
+                title={`${route.label} / ${route.slotLabel} / ${route.detail}`}
+                type="button"
+              >
+                <span>{route.label}</span>
+                <strong>{route.slotLabel}</strong>
+                <small>{route.stateLabel} / {route.count}</small>
+              </button>
+            </li>
+          );
+        })}
       </ol>
       <div className="wire-side-panel-tabs" role="tablist" aria-label="右侧主面板">
-        {view.tabs.map((tab) => (
-          <button
-            aria-selected={tab.active}
-            data-wire-side-panel-tab={tab.id}
-            data-wire-side-panel-tab-active={tab.active}
-            data-wire-side-panel-tab-count={tab.count}
-            data-wire-side-panel-tab-state={tab.state}
-            data-wire-side-panel-tab-urgent={tab.urgent}
-            key={tab.id}
-            onClick={() => onSelectTab(tab.id)}
-            role="tab"
-            type="button"
-          >
-            <span>{tab.label}</span>
-            <small>{tab.count}</small>
-          </button>
-        ))}
+        {view.tabs.map((tab) => {
+          const transition = transitionForTab(tab.id);
+          return (
+            <button
+              aria-selected={tab.active}
+              data-wire-side-panel-tab={tab.id}
+              data-wire-side-panel-tab-active={tab.active}
+              data-wire-side-panel-tab-count={tab.count}
+              data-wire-side-panel-tab-state={tab.state}
+              data-wire-side-panel-tab-target-slot={transition.targetSlot}
+              data-wire-side-panel-tab-urgent={tab.urgent}
+              data-wire-side-panel-transition-from-slot={transition.fromSlot}
+              data-wire-side-panel-transition-from-tab={transition.fromTab}
+              data-wire-side-panel-transition-reason={transition.reason}
+              data-wire-side-panel-transition-selectable={transition.selectable}
+              data-wire-side-panel-transition-source={transition.source}
+              data-wire-side-panel-transition-tab-change={transition.tabChanges}
+              data-wire-side-panel-transition-target-slot={transition.targetSlot}
+              data-wire-side-panel-transition-target-tab={transition.targetTab}
+              key={tab.id}
+              onClick={() => onSelectSlot(transition.targetSlot)}
+              role="tab"
+              type="button"
+            >
+              <span>{tab.label}</span>
+              <small>{tab.count}</small>
+            </button>
+          );
+        })}
       </div>
       <ol className="wire-side-panel-entry-grid">
         {view.visibleEntries.map((entry) => {
           const shortLabel = WIRE_SIDE_PANEL_SHORT_LABELS[entry.slot];
+          const transition = transitionForSlot(entry.slot, "directory");
           return (
             <li
               data-wire-side-panel-directory-active={entry.active}
@@ -1214,10 +1299,18 @@ function WireSidePanelDirectory({
                 data-wire-side-panel-directory-state={entry.state}
                 data-wire-side-panel-directory-tab={entry.tabId}
                 data-wire-side-panel-directory-tone={entry.tone}
+                data-wire-side-panel-transition-from-slot={transition.fromSlot}
+                data-wire-side-panel-transition-from-tab={transition.fromTab}
+                data-wire-side-panel-transition-reason={transition.reason}
+                data-wire-side-panel-transition-selectable={transition.selectable}
+                data-wire-side-panel-transition-source={transition.source}
+                data-wire-side-panel-transition-tab-change={transition.tabChanges}
+                data-wire-side-panel-transition-target-slot={transition.targetSlot}
+                data-wire-side-panel-transition-target-tab={transition.targetTab}
                 href={entry.href}
                 onClick={(event) => {
                   event.preventDefault();
-                  onSelectSlot(entry.slot);
+                  onSelectSlot(transition.targetSlot);
                 }}
                 title={`${entry.label} / ${entry.stateLabel} / ${entry.detail}`}
               >
@@ -1275,23 +1368,6 @@ function WireSidePanelStatus({
       </div>
     </section>
   );
-}
-
-function preferredSlotForTab(
-  tab: WireSidePanelTabSpec,
-  entryBySlot: Record<WireSidePanelSlot, WireSidePanelOrchestrationPlan["entries"][number]>,
-  primarySlot: WireSidePanelSlot
-): WireSidePanelSlot {
-  if (tab.slots.includes(primarySlot)) {
-    return primarySlot;
-  }
-
-  return tab.slots.find((slot) => isStickySidePanelState(entryBySlot[slot]?.state))
-    ?? tab.primarySlot;
-}
-
-function isStickySidePanelState(state: string | undefined): boolean {
-  return state === "active" || state === "blocked" || state === "ready" || state === "review";
 }
 
 function isVisibleElement(element: HTMLElement): boolean {
