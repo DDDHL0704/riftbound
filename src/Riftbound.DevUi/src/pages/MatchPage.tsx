@@ -91,6 +91,7 @@ import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
 import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
 import { buildWireSidePanelDirectoryPlan, type WireSidePanelDirectoryPlan } from "../utils/wireSidePanelDirectoryPlan";
+import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
 
 type WireTableInteraction = {
   hintByObjectId: Record<string, WireTableObjectHint | undefined>;
@@ -459,6 +460,27 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     }
   }, [controller, submitTableCommand]);
   const sidePanelDirectory = useMemo(() => buildWireSidePanelDirectoryPlan(WIRE_TABLE_LAYOUT.sidePanel.slots), []);
+  const sidePanelOrchestration = useMemo(() => buildWireSidePanelOrchestrationPlan({
+    connectionStatus: tableConnectionStatus,
+    directory: sidePanelDirectory,
+    events: tableEvents,
+    prompt: tablePrompt,
+    selectedObjectId,
+    selectionDraft,
+    snapshot: tableSnapshot,
+    submissionGate: tableSubmissionGate,
+    timelineDetail
+  }), [
+    selectedObjectId,
+    selectionDraft,
+    sidePanelDirectory,
+    tableConnectionStatus,
+    tableEvents,
+    tablePrompt,
+    tableSnapshot,
+    tableSubmissionGate,
+    timelineDetail
+  ]);
   const sidePanelSections = {
     overview: (
       <section aria-label="当前对局态势总览区" className="wire-panel wire-match-overview-panel" data-wire-side-panel-slot="overview" id={sidePanelDirectory.bySlot.overview.anchorId} key="overview" tabIndex={0}>
@@ -757,7 +779,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
-          <WireSidePanelDirectory plan={sidePanelDirectory} />
+          <WireSidePanelDirectory orchestration={sidePanelOrchestration} plan={sidePanelDirectory} />
           {WIRE_TABLE_LAYOUT.sidePanel.slots.map((slot) => sidePanelSections[slot])}
         </aside>
       </div>
@@ -812,16 +834,43 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   );
 }
 
-function WireSidePanelDirectory({ plan }: { plan: WireSidePanelDirectoryPlan }) {
+function WireSidePanelDirectory({ orchestration, plan }: { orchestration: WireSidePanelOrchestrationPlan; plan: WireSidePanelDirectoryPlan }) {
   return (
-    <nav aria-label="右侧面板目录" className="wire-side-panel-directory" data-wire-side-panel-directory data-wire-side-panel-directory-count={plan.entries.length}>
-      <h2>目录</h2>
+    <nav
+      aria-label="右侧面板目录"
+      className="wire-side-panel-directory"
+      data-wire-side-panel-directory
+      data-wire-side-panel-directory-active-count={orchestration.activeCount}
+      data-wire-side-panel-directory-count={plan.entries.length}
+      data-wire-side-panel-directory-primary-slot={orchestration.primarySlot}
+      data-wire-side-panel-directory-state={orchestration.state}
+      data-wire-side-panel-directory-urgent-count={orchestration.urgentCount}
+    >
+      <div className="wire-side-panel-directory-summary">
+        <h2>目录</h2>
+        <strong>{orchestration.stateLabel}</strong>
+        <span>{orchestration.nextStepLabel}</span>
+      </div>
       <ol>
-        {plan.entries.map((entry) => (
-          <li data-wire-side-panel-directory-group={entry.group} data-wire-side-panel-directory-item={entry.slot} key={entry.slot}>
-            <a data-wire-side-panel-directory-link={entry.slot} href={`#${entry.anchorId}`}>
+        {orchestration.entries.map((entry) => (
+          <li
+            data-wire-side-panel-directory-group={plan.bySlot[entry.slot].group}
+            data-wire-side-panel-directory-item={entry.slot}
+            data-wire-side-panel-directory-state={entry.state}
+            key={entry.slot}
+          >
+            <a
+              aria-label={`${entry.order}. ${entry.label}：${entry.stateLabel}，${entry.detail}`}
+              data-wire-side-panel-directory-count-value={entry.count}
+              data-wire-side-panel-directory-link={entry.slot}
+              data-wire-side-panel-directory-state={entry.state}
+              data-wire-side-panel-directory-tone={entry.tone}
+              href={entry.href}
+            >
               <span>{entry.groupLabel}</span>
               <strong>{entry.order}. {entry.label}</strong>
+              <em>{entry.stateLabel}</em>
+              <small>{entry.count}</small>
             </a>
           </li>
         ))}

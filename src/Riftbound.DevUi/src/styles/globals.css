@@ -12012,6 +12012,26 @@ button.card-face:hover {
   line-height: 1.2;
 }
 
+.wire-side-panel-directory-summary {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 4px;
+  align-items: center;
+  border: 1px solid #000;
+  padding: 3px 4px;
+  min-width: 0;
+}
+
+.wire-side-panel-directory-summary strong,
+.wire-side-panel-directory-summary span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 1.15;
+}
+
 .wire-side-panel-directory-group {
   min-width: 0;
   display: grid;
@@ -12050,7 +12070,7 @@ button.card-face:hover {
 .wire-side-panel-directory a {
   min-width: 0;
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-columns: 26px minmax(0, 1fr) 42px 22px;
   gap: 3px;
   align-items: center;
   border: 1px solid #000;
@@ -12066,7 +12086,9 @@ button.card-face:hover {
 }
 
 .wire-side-panel-directory a span,
-.wire-side-panel-directory a strong {
+.wire-side-panel-directory a strong,
+.wire-side-panel-directory a em,
+.wire-side-panel-directory a small {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -12075,6 +12097,24 @@ button.card-face:hover {
 
 .wire-side-panel-directory a strong {
   font-weight: 700;
+}
+
+.wire-side-panel-directory a em,
+.wire-side-panel-directory a small {
+  display: block;
+  border-left: 1px solid #000;
+  padding-left: 3px;
+  font-style: normal;
+  font-size: 9px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.wire-side-panel-directory li[data-wire-side-panel-directory-state="ready"] a,
+.wire-side-panel-directory li[data-wire-side-panel-directory-state="blocked"] a,
+.wire-side-panel-directory li[data-wire-side-panel-directory-state="offline"] a {
+  outline: 2px solid #000;
+  outline-offset: -2px;
 }
 
 .wire-side-panel-directory a:hover,

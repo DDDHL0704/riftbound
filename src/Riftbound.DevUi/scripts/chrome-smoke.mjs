@@ -884,10 +884,22 @@ async function runWireLayoutGeometrySmoke(cdp) {
       failures.push(\`wire side panel slot order drifted: \${sidePanelSlots.join(" -> ")}\`);
     }
     const sidePanelDirectoryLinks = Array.from(document.querySelectorAll("[data-wire-side-panel-directory-link]")).map((link) => ({
+      count: link.getAttribute("data-wire-side-panel-directory-count-value") ?? "",
       href: link.getAttribute("href") ?? "",
       label: link.textContent?.trim() ?? "",
-      slot: link.getAttribute("data-wire-side-panel-directory-link") ?? ""
+      slot: link.getAttribute("data-wire-side-panel-directory-link") ?? "",
+      state: link.getAttribute("data-wire-side-panel-directory-state") ?? "",
+      tone: link.getAttribute("data-wire-side-panel-directory-tone") ?? ""
     }));
+    const sidePanelDirectory = document.querySelector("[data-wire-side-panel-directory]");
+    const primarySlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-primary-slot") ?? "";
+    const directoryState = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-state") ?? "";
+    if (!expectedSidePanelSlots.includes(primarySlot)) {
+      failures.push(\`wire side panel directory primary slot invalid: \${primarySlot}\`);
+    }
+    if (!directoryState) {
+      failures.push("wire side panel directory state missing");
+    }
     const sidePanelDirectoryLinkSlots = sidePanelDirectoryLinks.map((link) => link.slot);
     if (sidePanelDirectoryLinkSlots.join("|") !== expectedSidePanelSlots.join("|")) {
       failures.push(\`wire side panel directory order drifted: \${sidePanelDirectoryLinkSlots.join(" -> ")}\`);
@@ -902,6 +914,12 @@ async function runWireLayoutGeometrySmoke(cdp) {
       }
       if (link.label.length === 0) {
         failures.push(\`wire side panel directory link label missing: \${link.slot}\`);
+      }
+      if (!link.state || !link.tone) {
+        failures.push(\`wire side panel directory link state missing: \${link.slot}\`);
+      }
+      if (!Number.isFinite(Number(link.count))) {
+        failures.push(\`wire side panel directory link count invalid: \${link.slot}=\${link.count}\`);
       }
     }
 

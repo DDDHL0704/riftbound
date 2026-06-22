@@ -7,6 +7,7 @@ import ts from "typescript";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const layout = JSON.parse(readFileSync(resolve(scriptDir, "../src/components/match/wireTableLayoutData.json"), "utf8"));
 const { buildWireSidePanelDirectoryPlan, wireSidePanelAnchorId } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryPlan.ts"));
+const { buildWireSidePanelOrchestrationPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelOrchestrationPlan.ts"));
 
 const expectedSlots = [
   "overview",
@@ -45,7 +46,80 @@ assert.throws(
   /Duplicate wire side panel slot/
 );
 
+const readyOrchestration = buildWireSidePanelOrchestrationPlan({
+  connectionStatus: "connected",
+  directory: plan,
+  events: [{ kind: "STACK_ITEM_ADDED", description: "加入结算链", payload: {} }],
+  prompt: {
+    actionable: true,
+    candidates: [{ action: "PASS", enabled: true }],
+    playerId: "P1",
+    reason: "test",
+    serverFlow: {
+      actionableForPromptPlayer: true,
+      candidateCount: 1,
+      disabledCandidateCount: 0,
+      enabledCandidateCount: 1,
+      isResponsiblePlayer: true,
+      lanes: [],
+      nextStep: "提交 PASS",
+      primaryLabel: "可行动",
+      promptPlayerId: "P1",
+      promptType: "MAIN_ACTION",
+      queueCounts: {},
+      reason: "服务端候选",
+      relatedObjectIds: [],
+      relatedObjects: [],
+      state: "ready",
+      stateLabel: "可行动",
+      steps: [],
+      summary: "可行动",
+      tone: "good"
+    },
+    view: { title: "主行动", type: "MAIN_ACTION" }
+  },
+  selectedObjectId: "unit-1",
+  snapshot: {
+    activePlayerId: "P1",
+    lanes: {},
+    players: {},
+    stack: [],
+    table: { source: "server-snapshot" },
+    tick: 7,
+    timing: {},
+    turnNumber: 1,
+    turnState: "MAIN"
+  },
+  submissionGate: { canSubmit: true, reason: "ok", state: "connected", stateLabel: "可提交" },
+  timelineDetail: { id: "event:1", source: "event" }
+});
+assert.equal(readyOrchestration.entries.length, expectedSlots.length);
+assert.equal(readyOrchestration.primarySlot, "commandCenter");
+assert.equal(entry(readyOrchestration, "commandCenter").state, "ready");
+assert.equal(entry(readyOrchestration, "actionMap").state, "ready");
+assert.equal(entry(readyOrchestration, "serverFlow").state, "active");
+assert.equal(entry(readyOrchestration, "tableAuthority").state, "audit");
+assert.equal(entry(readyOrchestration, "timelineDetail").state, "review");
+assert.equal(entry(readyOrchestration, "log").state, "history");
+assert.ok(readyOrchestration.urgentCount >= 3);
+
+const offlineOrchestration = buildWireSidePanelOrchestrationPlan({
+  connectionStatus: "disconnected",
+  directory: plan,
+  events: [],
+  prompt: undefined,
+  snapshot: undefined,
+  submissionGate: { canSubmit: false, reason: "offline", state: "disconnected", stateLabel: "未连接" }
+});
+assert.equal(offlineOrchestration.state, "offline");
+assert.equal(entry(offlineOrchestration, "commandCenter").state, "offline");
+assert.equal(entry(offlineOrchestration, "log").state, "offline");
+
 console.log("Wire side panel directory plan check passed.");
+
+function entry(orchestration, slot) {
+  return orchestration.entries.find((item) => item.slot === slot);
+}
 
 function loadTsModule(sourcePath) {
   const source = readFileSync(sourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
