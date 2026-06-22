@@ -15,7 +15,9 @@ import {
   buildWireCommandCenterPlan,
   type WireCommandCenterActionRow,
   type WireCommandCenterPlan,
-  type WireCommandCenterRow
+  type WireCommandCenterRow,
+  type WireCommandCenterRowGroup,
+  type WireCommandCenterWorkflowStep
 } from "../../utils/wireCommandCenterPlan";
 import { buildWireResponseCoachPlan } from "../../utils/wireResponseCoachPlan";
 import type { WireFocusedInteractionPlan } from "../../utils/wireFocusedInteractionPlan";
@@ -88,6 +90,8 @@ export function WireCommandCenterPanel({
     <section
       aria-label="当前行动指挥中心"
       className="wire-command-center"
+      data-wire-command-center-active-step={plan.activeStepKey}
+      data-wire-command-center-layout={plan.layoutMode}
       data-wire-command-center-state={plan.state}
       data-wire-command-center-step-role={plan.stepRole}
     >
@@ -105,7 +109,8 @@ export function WireCommandCenterPanel({
         <span>{plan.reason}</span>
       </div>
 
-      <CommandCenterRows plan={plan} />
+      <CommandCenterWorkflowRail steps={plan.workflowSteps} />
+      <CommandCenterRowGroups groups={plan.rowGroups} />
       <CommandCenterActionRows rows={plan.actionRows} />
       <WireCommandFollowupPanel
         ariaLabel="指挥中心服务端后续事件"
@@ -150,13 +155,46 @@ export function WireCommandCenterPanel({
   );
 }
 
-function CommandCenterRows({ plan }: { plan: WireCommandCenterPlan }) {
+function CommandCenterWorkflowRail({ steps }: { steps: WireCommandCenterWorkflowStep[] }) {
   return (
-    <dl className="wire-command-center-rows" aria-label="当前行动状态行">
-      {plan.rows.map((row) => (
-        <CommandCenterRow key={row.key} row={row} />
+    <ol className="wire-command-center-workflow" aria-label="指挥中心行动流程">
+      {steps.map((step) => (
+        <li
+          data-wire-command-center-workflow-active={step.active}
+          data-wire-command-center-workflow-step={step.key}
+          data-wire-command-center-workflow-step-state={step.state}
+          key={step.key}
+        >
+          <small>{step.order}</small>
+          <strong>{step.label}</strong>
+          <span>{step.value}</span>
+        </li>
       ))}
-    </dl>
+    </ol>
+  );
+}
+
+function CommandCenterRowGroups({ groups }: { groups: WireCommandCenterRowGroup[] }) {
+  return (
+    <div className="wire-command-center-row-groups" aria-label="当前行动状态分组">
+      {groups.map((group) => (
+        <section
+          data-wire-command-center-row-group={group.key}
+          data-wire-command-center-row-group-state={group.state}
+          key={group.key}
+        >
+          <header>
+            <strong>{group.label}</strong>
+            <span>{group.summary}</span>
+          </header>
+          <dl className="wire-command-center-rows" aria-label={`${group.label}状态行`}>
+            {group.rows.map((row) => (
+              <CommandCenterRow key={row.key} row={row} />
+            ))}
+          </dl>
+        </section>
+      ))}
+    </div>
   );
 }
 

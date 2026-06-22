@@ -15,11 +15,22 @@ const readyPlan = buildWireCommandCenterPlan({
 });
 assert.equal(readyPlan.state, "ready");
 assert.equal(readyPlan.stateLabel, "可提交");
+assert.equal(readyPlan.activeStepKey, "submit");
 assert.equal(readyPlan.canShowFocusedActions, true);
+assert.equal(readyPlan.layoutMode, "submit");
 assert.equal(readyPlan.rows.find((row) => row.key === "focus")?.value, "hand-1");
 assert.equal(readyPlan.rows.find((row) => row.key === "submit")?.state, "ready");
 assert.equal(readyPlan.rows.find((row) => row.key === "feedback")?.state, "ready");
 assert.equal(readyPlan.rows.find((row) => row.key === "feedback")?.value, "已有后续事件");
+assert.deepEqual(readyPlan.rowGroups.map((group) => group.key), ["authority", "focus", "submission"]);
+assert.deepEqual(readyPlan.workflowSteps.map((step) => [step.key, step.active]), [
+  ["window", false],
+  ["focus", false],
+  ["candidate", false],
+  ["command", false],
+  ["submit", true],
+  ["feedback", false]
+]);
 assert.equal(readyPlan.submissionFollowup.state, "accepted-events");
 assert.equal(readyPlan.submissionFollowup.summary, "accepted-events summary");
 assert.equal(readyPlan.submissionFollowup.bridge.state, "ready");
@@ -31,6 +42,8 @@ const selectingPlan = buildWireCommandCenterPlan({
   objectContext: context("战场")
 });
 assert.equal(selectingPlan.state, "selecting");
+assert.equal(selectingPlan.activeStepKey, "candidate");
+assert.equal(selectingPlan.layoutMode, "select");
 assert.equal(selectingPlan.stepRole, "target");
 assert.equal(selectingPlan.rows.find((row) => row.key === "candidate")?.state, "selecting");
 
@@ -40,7 +53,9 @@ const noFocusPlan = buildWireCommandCenterPlan({
   objectContext: undefined
 });
 assert.equal(noFocusPlan.state, "no-focus");
+assert.equal(noFocusPlan.activeStepKey, "focus");
 assert.equal(noFocusPlan.canShowFocusedActions, false);
+assert.equal(noFocusPlan.layoutMode, "inspect");
 assert.equal(noFocusPlan.rows.find((row) => row.key === "focus")?.state, "empty");
 assert.equal(noFocusPlan.submissionFollowup.state, "empty");
 assert.equal(noFocusPlan.submissionFollowup.summary, "尚未提交命令。");
@@ -53,6 +68,8 @@ const blockedPlan = buildWireCommandCenterPlan({
   submissionFollowup: followup("failed")
 });
 assert.equal(blockedPlan.state, "blocked");
+assert.equal(blockedPlan.activeStepKey, "window");
+assert.equal(blockedPlan.layoutMode, "resolve");
 assert.equal(blockedPlan.rows.find((row) => row.key === "submit")?.state, "blocked");
 assert.equal(blockedPlan.rows.find((row) => row.key === "feedback")?.state, "blocked");
 assert.equal(blockedPlan.submissionFollowup.state, "failed");

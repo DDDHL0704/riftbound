@@ -30,6 +30,30 @@ export type WireCommandCenterRow = {
   value: string;
 };
 
+export type WireCommandCenterLayoutMode =
+  | "inspect"
+  | "resolve"
+  | "select"
+  | "submit";
+
+export type WireCommandCenterRowGroupKey =
+  | "authority"
+  | "focus"
+  | "submission";
+
+export type WireCommandCenterRowGroup = {
+  key: WireCommandCenterRowGroupKey;
+  label: string;
+  rows: WireCommandCenterRow[];
+  state: WireCommandCenterRowState;
+  summary: string;
+};
+
+export type WireCommandCenterWorkflowStep = WireCommandCenterRow & {
+  active: boolean;
+  order: number;
+};
+
 export type WireCommandCenterActionRow = {
   action: string;
   commandType?: string;
@@ -43,16 +67,20 @@ export type WireCommandCenterActionRow = {
 
 export type WireCommandCenterPlan = {
   actionRows: WireCommandCenterActionRow[];
+  activeStepKey: string;
   canShowFocusedActions: boolean;
   headline: string;
+  layoutMode: WireCommandCenterLayoutMode;
   nextStepLabel: string;
   reason: string;
+  rowGroups: WireCommandCenterRowGroup[];
   rows: WireCommandCenterRow[];
   state: WireCommandCenterState;
   stateLabel: string;
   stepRole: WireResponseCoachStepRole;
   submissionFollowup: CommandSubmissionFollowupPlan;
   tone: WireFocusedReadinessTone;
+  workflowSteps: WireCommandCenterWorkflowStep[];
 };
 
 export function buildWireCommandCenterPlan({
@@ -68,6 +96,15 @@ export function buildWireCommandCenterPlan({
 }): WireCommandCenterPlan {
   const state = commandCenterState(focusedPlan, coachPlan);
   const followup = submissionFollowup ?? emptySubmissionFollowupPlan();
+  const rows = [
+    row("window", "窗口", coachPlan.primaryLabel, coachPlan.reason, coachRowState(coachPlan.state)),
+    row("focus", "焦点", focusValue(focusedPlan), focusDetail(focusedPlan, objectContext), focusedPlan.sourceObjectId ? "server" : "empty"),
+    row("candidate", "候选", `${focusedPlan.readiness.enabledCount} 可用 / ${focusedPlan.readiness.blockedCount} 阻断`, focusedPlan.readiness.stateLabel, candidateRowState(focusedPlan)),
+    row("command", "命令", focusedPlan.readiness.commandType ?? coachPlan.candidateLabel ?? "无", focusedPlan.readiness.nextStepLabel, commandRowState(state)),
+    row("submit", "提交", focusedPlan.submissionGate.stateLabel, focusedPlan.submissionGate.reason, focusedPlan.submissionGate.canSubmit ? "ready" : "blocked"),
+    row("feedback", "回执", submissionFollowupStateLabel(followup.state), followup.summary, submissionFollowupRowState(followup.state))
+  ];
+  const activeStepKey = activeStepFor(state, rows);
   const actionRows = focusedPlan.legalActionRows.slice(0, 4).map((row): WireCommandCenterActionRow => ({
     action: row.action,
     commandType: row.commandType,
@@ -80,24 +117,21 @@ export function buildWireCommandCenterPlan({
   }));
 
   return {
+    activeStepKey,
     actionRows,
     canShowFocusedActions: Boolean(focusedPlan.sourceObjectId) && focusedPlan.actionEntries.length > 0,
     headline: headlineFor(state, focusedPlan, coachPlan),
+    layoutMode: layoutModeFor(state),
     nextStepLabel: nextStepFor(state, focusedPlan, coachPlan),
     reason: reasonFor(state, focusedPlan, coachPlan),
-    rows: [
-      row("window", "窗口", coachPlan.primaryLabel, coachPlan.reason, coachRowState(coachPlan.state)),
-      row("focus", "焦点", focusValue(focusedPlan), focusDetail(focusedPlan, objectContext), focusedPlan.sourceObjectId ? "server" : "empty"),
-      row("candidate", "候选", `${focusedPlan.readiness.enabledCount} 可用 / ${focusedPlan.readiness.blockedCount} 阻断`, focusedPlan.readiness.stateLabel, candidateRowState(focusedPlan)),
-      row("command", "命令", focusedPlan.readiness.commandType ?? coachPlan.candidateLabel ?? "无", focusedPlan.readiness.nextStepLabel, commandRowState(state)),
-      row("submit", "提交", focusedPlan.submissionGate.stateLabel, focusedPlan.submissionGate.reason, focusedPlan.submissionGate.canSubmit ? "ready" : "blocked"),
-      row("feedback", "回执", submissionFollowupStateLabel(followup.state), followup.summary, submissionFollowupRowState(followup.state))
-    ],
+    rowGroups: rowGroupsFor(rows),
+    rows,
     state,
     stateLabel: stateLabelFor(state),
     stepRole: coachPlan.stepRole,
     submissionFollowup: followup,
-    tone: toneFor(state)
+    tone: toneFor(state),
+    workflowSteps: workflowStepsFor(rows, activeStepKey)
   };
 }
 
@@ -331,4 +365,85 @@ function row(
   state: WireCommandCenterRowState
 ): WireCommandCenterRow {
   return { detail, key, label, state, value };
+}
+
+function activeStepFor(
+  state: WireCommandCenterState,
+  rows: readonly WireCommandCenterRow[]
+): string {
+  if (state === "blocked") {
+    return rows.find((item) => item.state === "blocked")?.key ?? "submit";
+  }
+
+  switch (state) {
+    case "no-focus":
+      return "focus";
+    case "observe":
+      return "command";
+    case "ready":
+      return "submit";
+    case "selecting":
+      return "candidate";
+  }
+}
+
+function layoutModeFor(state: WireCommandCenterState): WireCommandCenterLayoutMode {
+  switch (state) {
+    case "blocked":
+      return "resolve";
+    case "no-focus":
+    case "observe":
+      return "inspect";
+    case "ready":
+      return "submit";
+    case "selecting":
+      return "select";
+  }
+}
+
+function workflowStepsFor(
+  rows: readonly WireCommandCenterRow[],
+  activeStepKey: string
+): WireCommandCenterWorkflowStep[] {
+  return rows.map((item, index) => ({
+    ...item,
+    active: item.key === activeStepKey,
+    order: index + 1
+  }));
+}
+
+function rowGroupsFor(rows: readonly WireCommandCenterRow[]): WireCommandCenterRowGroup[] {
+  return [
+    rowGroup("authority", "窗口与权威", rows, ["window", "submit"]),
+    rowGroup("focus", "焦点与候选", rows, ["focus", "candidate", "command"]),
+    rowGroup("submission", "提交与回执", rows, ["feedback"])
+  ];
+}
+
+function rowGroup(
+  key: WireCommandCenterRowGroupKey,
+  label: string,
+  rows: readonly WireCommandCenterRow[],
+  rowKeys: readonly string[]
+): WireCommandCenterRowGroup {
+  const groupRows = rowKeys
+    .map((rowKey) => rows.find((item) => item.key === rowKey))
+    .filter((item): item is WireCommandCenterRow => Boolean(item));
+  const state = groupState(groupRows);
+  return {
+    key,
+    label,
+    rows: groupRows,
+    state,
+    summary: groupRows.map((item) => `${item.label} ${item.value}`).join(" / ")
+  };
+}
+
+function groupState(rows: readonly WireCommandCenterRow[]): WireCommandCenterRowState {
+  return rows.find((item) => item.state === "blocked")?.state
+    ?? rows.find((item) => item.state === "selecting")?.state
+    ?? rows.find((item) => item.state === "ready")?.state
+    ?? rows.find((item) => item.state === "server")?.state
+    ?? rows.find((item) => item.state === "waiting")?.state
+    ?? "empty";
 }

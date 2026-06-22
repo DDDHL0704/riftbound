@@ -790,10 +790,15 @@ async function runWireLayoutGeometrySmoke(cdp) {
     }
 
     const commandCenter = document.querySelector("[data-wire-command-center-state]");
+    const commandCenterActiveStep = commandCenter?.getAttribute("data-wire-command-center-active-step") ?? "missing";
+    const commandCenterLayout = commandCenter?.getAttribute("data-wire-command-center-layout") ?? "missing";
     const commandCenterState = commandCenter?.getAttribute("data-wire-command-center-state") ?? "missing";
     const commandCenterStepRole = commandCenter?.getAttribute("data-wire-command-center-step-role") ?? "missing";
     if (!["blocked", "no-focus", "observe", "ready", "selecting"].includes(commandCenterState)) {
       failures.push(\`wire command center state is unsupported: \${commandCenterState}\`);
+    }
+    if (!["inspect", "resolve", "select", "submit"].includes(commandCenterLayout)) {
+      failures.push(\`wire command center layout is unsupported: \${commandCenterLayout}\`);
     }
     if (!["destination", "mode", "optionalCost", "source", "submit", "sync", "target", "wait", "window"].includes(commandCenterStepRole)) {
       failures.push(\`wire command center step role is unsupported: \${commandCenterStepRole}\`);
@@ -806,6 +811,30 @@ async function runWireLayoutGeometrySmoke(cdp) {
       if (!commandCenterRows.get(rowKey)) {
         failures.push(\`wire command center row \${rowKey} is missing\`);
       }
+    }
+    if (!commandCenterRows.has(commandCenterActiveStep)) {
+      failures.push(\`wire command center active step does not match a row: \${commandCenterActiveStep}\`);
+    }
+    const commandCenterWorkflowSteps = Array.from(document.querySelectorAll("[data-wire-command-center-workflow-step]")).map((step) => ({
+      active: step.getAttribute("data-wire-command-center-workflow-active") ?? "",
+      key: step.getAttribute("data-wire-command-center-workflow-step") ?? "",
+      state: step.getAttribute("data-wire-command-center-workflow-step-state") ?? ""
+    }));
+    if (commandCenterWorkflowSteps.length !== 6) {
+      failures.push(\`wire command center workflow step count drifted: \${commandCenterWorkflowSteps.length}\`);
+    }
+    if (commandCenterWorkflowSteps.filter((step) => step.active === "true").length !== 1) {
+      failures.push("wire command center workflow should expose exactly one active step");
+    }
+    if (!commandCenterWorkflowSteps.some((step) => step.key === commandCenterActiveStep && step.active === "true")) {
+      failures.push(\`wire command center workflow active step mismatch: \${commandCenterActiveStep}\`);
+    }
+    const commandCenterRowGroups = Array.from(document.querySelectorAll("[data-wire-command-center-row-group]")).map((group) => ({
+      key: group.getAttribute("data-wire-command-center-row-group") ?? "",
+      state: group.getAttribute("data-wire-command-center-row-group-state") ?? ""
+    }));
+    if (commandCenterRowGroups.map((group) => group.key).join("|") !== "authority|focus|submission") {
+      failures.push(\`wire command center row group order drifted: \${commandCenterRowGroups.map((group) => group.key).join(" -> ")}\`);
     }
     const commandCenterFollowup = commandCenter?.querySelector("[data-command-followup-state]");
     const commandCenterFollowupState = commandCenterFollowup?.getAttribute("data-command-followup-state") ?? "missing";
@@ -1438,6 +1467,12 @@ async function runWireClickSelectionSmoke(cdp) {
         .map((node) => node.getAttribute("data-candidate-composer-check-state")),
       composerGateText: document.querySelector(".wire-focused-actions .candidate-composer")?.textContent ?? "",
       commandCenterActionCount: Number(document.querySelector("[data-wire-command-center-action-count]")?.getAttribute("data-wire-command-center-action-count") ?? "0"),
+      commandCenterActiveStep: document.querySelector("[data-wire-command-center-active-step]")?.getAttribute("data-wire-command-center-active-step") ?? null,
+      commandCenterLayout: document.querySelector("[data-wire-command-center-layout]")?.getAttribute("data-wire-command-center-layout") ?? null,
+      commandCenterWorkflowSteps: Array.from(document.querySelectorAll("[data-wire-command-center-workflow-step]")).map((node) =>
+        (node.getAttribute("data-wire-command-center-workflow-step") ?? "") + ":" + (node.getAttribute("data-wire-command-center-workflow-active") ?? "")),
+      commandCenterRowGroups: Array.from(document.querySelectorAll("[data-wire-command-center-row-group]")).map((node) =>
+        (node.getAttribute("data-wire-command-center-row-group") ?? "") + ":" + (node.getAttribute("data-wire-command-center-row-group-state") ?? "")),
       commandCenterRows: Array.from(document.querySelectorAll("[data-wire-command-center-row]")).map((node) =>
         (node.getAttribute("data-wire-command-center-row") ?? "") + ":" + (node.getAttribute("data-wire-command-center-row-state") ?? "")),
       commandCenterState: document.querySelector("[data-wire-command-center-state]")?.getAttribute("data-wire-command-center-state") ?? null,
@@ -2257,6 +2292,10 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!focusResult.commandCenterRows.some((row) => row.startsWith("window:"))) failures.push(`command center window row missing: ${focusResult.commandCenterRows.join(",")}`);
   if (!focusResult.commandCenterRows.includes("focus:server")) failures.push(`command center focus row missing server state: ${focusResult.commandCenterRows.join(",")}`);
   if (!focusResult.commandCenterRows.includes("candidate:ready")) failures.push(`command center candidate row missing ready state: ${focusResult.commandCenterRows.join(",")}`);
+  if (focusResult.commandCenterActiveStep !== "submit") failures.push(`command center active step unexpected: ${focusResult.commandCenterActiveStep}`);
+  if (focusResult.commandCenterLayout !== "submit") failures.push(`command center layout unexpected: ${focusResult.commandCenterLayout}`);
+  if (!focusResult.commandCenterWorkflowSteps.includes("submit:true")) failures.push(`command center workflow active submit missing: ${focusResult.commandCenterWorkflowSteps.join(",")}`);
+  if (focusResult.commandCenterRowGroups.join("|") !== "authority:ready|focus:ready|submission:empty") failures.push(`command center row groups unexpected: ${focusResult.commandCenterRowGroups.join(",")}`);
   if (focusResult.commandCenterActionCount < 1) failures.push("command center focused action entry missing");
   if (!focusResult.commandCenterText.includes("PLAY_CARD")) failures.push("command center did not expose command type");
   if (focusResult.commandCenterFollowupState !== "empty") failures.push(`command center followup state unexpected before submit: ${focusResult.commandCenterFollowupState}`);

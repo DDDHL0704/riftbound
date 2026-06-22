@@ -14590,6 +14590,8 @@ button.card-face:hover {
 
 .wire-command-center-header,
 .wire-command-center-next,
+.wire-command-center-workflow li,
+.wire-command-center-row-groups > section,
 .wire-command-center-rows div,
 .wire-command-center-candidates li,
 .wire-command-center-empty,
@@ -14610,6 +14612,7 @@ button.card-face:hover {
 
 .wire-command-center-header > div,
 .wire-command-center-next,
+.wire-command-center-row-groups > section,
 .wire-command-center-rows dd,
 .wire-command-center-candidates li {
   min-width: 0;
@@ -14621,6 +14624,10 @@ button.card-face:hover {
 .wire-command-center-header span,
 .wire-command-center-next strong,
 .wire-command-center-next span,
+.wire-command-center-workflow strong,
+.wire-command-center-workflow span,
+.wire-command-center-row-groups header strong,
+.wire-command-center-row-groups header span,
 .wire-command-center-rows strong,
 .wire-command-center-rows span,
 .wire-command-center-candidates span,
@@ -14639,10 +14646,83 @@ button.card-face:hover {
   padding: 5px;
 }
 
+.wire-command-center-workflow {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-command-center-workflow li {
+  min-width: 0;
+  min-height: 36px;
+  padding: 3px;
+}
+
+.wire-command-center-workflow li[data-wire-command-center-workflow-active="true"] {
+  border-width: 2px;
+}
+
+.wire-command-center-workflow small {
+  width: 16px;
+  height: 16px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid #000;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.wire-command-center-workflow strong {
+  font-size: 10px;
+  line-height: 1.05;
+}
+
+.wire-command-center-workflow span {
+  font-size: 9px;
+  line-height: 1.05;
+}
+
+.wire-command-center-row-groups {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.wire-command-center-row-groups > section {
+  padding: 4px;
+}
+
+.wire-command-center-row-groups > section[data-wire-command-center-row-group-state="blocked"],
+.wire-command-center-row-groups > section[data-wire-command-center-row-group-state="selecting"] {
+  border-width: 2px;
+}
+
+.wire-command-center-row-groups header {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px;
+  align-items: center;
+}
+
+.wire-command-center-row-groups header strong {
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.wire-command-center-row-groups header span {
+  font-size: 9px;
+  line-height: 1.05;
+}
+
 .wire-command-center-rows {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 3px;
   margin: 0;
 }
 
@@ -14650,7 +14730,7 @@ button.card-face:hover {
   min-width: 0;
   display: grid;
   gap: 2px;
-  padding: 4px;
+  padding: 3px;
 }
 
 .wire-command-center-rows div[data-wire-command-center-row-state="blocked"],
