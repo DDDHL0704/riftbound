@@ -206,7 +206,7 @@ const promptChoiceGroupsForCheck = [
 ];
 
 function promptCandidateChoicesForCheck(candidate) {
-  return [
+  const choices = [
     ...(candidate.selectionSteps ?? []).flatMap((step) =>
       (step.choices ?? []).map((choice) => ({
         id: choice.id,
@@ -222,6 +222,13 @@ function promptCandidateChoicesForCheck(candidate) {
         role
       })))
   ].filter((choice) => choice.id);
+
+  const byKey = new Map();
+  for (const choice of choices) {
+    const objectKey = (choice.objectIds ?? []).join(",");
+    byKey.set(`${choice.role}:${choice.id}:${objectKey}`, choice);
+  }
+  return [...byKey.values()];
 }
 
 function promptChoiceObjectIdsForCheck(choiceId) {
@@ -497,7 +504,27 @@ const stackReadyPrompt = buildWireRuleQueuePlan({
         presentation: { category: "play", intent: "play-card", priority: 100, uiHint: "card-action" },
         reason: "服务端候选可用",
         sources: [{ id: "spell-1", label: "反应牌", objectIds: ["spell-1"] }],
-        targets: [{ id: "unit-1", label: "目标单位", objectIds: ["unit-1"] }]
+        targets: [{ id: "unit-1", label: "目标单位", objectIds: ["unit-1"] }],
+        selectionSteps: [
+          {
+            choices: [{ id: "spell-1", label: "反应牌", objectIds: ["spell-1"] }],
+            label: "来源",
+            required: true,
+            role: "source"
+          },
+          {
+            choices: [{ id: "unit-1", label: "目标单位", objectIds: ["unit-1"] }],
+            label: "目标",
+            required: false,
+            role: "target"
+          },
+          {
+            choices: [{ id: "BASE", label: "基地", objectIds: [] }],
+            label: "位置",
+            required: false,
+            role: "destination"
+          }
+        ]
       },
       {
         action: "TAP_RUNE",
@@ -647,6 +674,19 @@ assert.deepEqual(stackReadyPrompt.responsibility.items[0].submit.semanticRows.ma
   "tempo:respond:1/1:500:secondary",
   "tempo:pass-priority:0/1:510:secondary"
 ]);
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.syntaxRows.length, 3);
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.usableSyntaxCount, 3);
+assert.equal(stackReadyPrompt.responsibility.items[0].submit.missingRequiredSyntaxCount, 0);
+assert.ok(stackReadyPrompt.responsibility.items[0].submit.syntaxSummary.includes("可选择"));
+assert.deepEqual(
+  stackReadyPrompt.responsibility.items[0].submit.syntaxRows.map((row) =>
+    `${row.source}:${row.role}:${row.state}:${row.objectChoiceCount}/${row.choiceCount}:${row.required}:${row.candidateLabel}`),
+  [
+    "prompt-derived:source:usable-required:1/1:true:打出反应",
+    "prompt-derived:destination:usable-optional:1/1:false:打出反应",
+    "prompt-derived:target:usable-optional:1/1:false:打出反应"
+  ]
+);
 assert.ok(stackReadyPrompt.responsibility.items[0].submit.reason.includes("4/9"));
 assert.ok(stackReadyPrompt.responsibility.summary.includes("1 个可提交入口"));
 assert.equal(stackReadyPrompt.selectedObject.state, "linked");
