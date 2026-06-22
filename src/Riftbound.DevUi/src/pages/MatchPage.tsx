@@ -12,6 +12,7 @@ import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WireMatchOverviewPanel } from "../components/match/WireMatchOverviewPanel";
 import { WireObjectCommandTray } from "../components/match/WireObjectCommandTray";
 import { WireSidePanelFocusStrip } from "../components/match/WireSidePanelFocusStrip";
+import { WireSidePanelRuleChainStrip } from "../components/match/WireSidePanelRuleChainStrip";
 import { WirePromptAuthorityPanel } from "../components/match/WirePromptAuthorityPanel";
 import { WireResponseCoachPanel } from "../components/match/WireResponseCoachPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
@@ -97,6 +98,7 @@ import { buildWireSidePanelDirectoryViewPlan } from "../utils/wireSidePanelDirec
 import { buildWireSidePanelFramePlan } from "../utils/wireSidePanelFramePlan";
 import { buildWireSidePanelFocusPlan } from "../utils/wireSidePanelFocusPlan";
 import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
+import { buildWireSidePanelRuleChainPlan } from "../utils/wireSidePanelRuleChainPlan";
 import {
   WIRE_SIDE_PANEL_SHORT_LABELS,
   WIRE_SIDE_PANEL_TAB_BY_SLOT,
@@ -105,6 +107,7 @@ import {
   type WireSidePanelTab,
   type WireSidePanelTabSpec
 } from "../utils/wireSidePanelTabPlan";
+import { buildWireRuleQueuePlan } from "../utils/wireRuleQueuePlan";
 
 type WireTableInteraction = {
   hintByObjectId: Record<string, WireTableObjectHint | undefined>;
@@ -245,6 +248,16 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const sidePanelFocusPlan = useMemo(() => buildWireSidePanelFocusPlan({
     trayPlan: selectedObjectCommandTrayPlan
   }), [selectedObjectCommandTrayPlan]);
+  const ruleQueuePlan = useMemo(() => buildWireRuleQueuePlan({
+    events: tableEvents,
+    playerId: settings.playerId,
+    prompt: tablePrompt,
+    selectedObjectId,
+    snapshot: tableSnapshot
+  }), [selectedObjectId, settings.playerId, tableEvents, tablePrompt, tableSnapshot]);
+  const sidePanelRuleChainPlan = useMemo(() => buildWireSidePanelRuleChainPlan({
+    ruleQueuePlan
+  }), [ruleQueuePlan]);
   const serverFlowProjection = useMemo(
     () => buildWireServerFlowProjectionPlan(tablePrompt),
     [tablePrompt]
@@ -721,6 +734,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           onOpenDetail={openDetailCard}
           onSelectDetail={selectTimelineDetail}
           playerId={settings.playerId}
+          plan={ruleQueuePlan}
           prompt={tablePrompt}
           selectedDetailId={timelineDetail?.id}
           selectedObjectId={selectedObjectId}
@@ -887,6 +901,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             onOpenDetail={openDetailCard}
             onSelectSlot={selectSidePanelSlot}
             plan={sidePanelFocusPlan}
+          />
+          <WireSidePanelRuleChainStrip
+            onSelectDetail={selectTimelineDetail}
+            onSelectSlot={selectSidePanelSlot}
+            plan={sidePanelRuleChainPlan}
           />
           <div
             aria-label="服务端提交回执常驻区"

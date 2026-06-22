@@ -286,6 +286,19 @@ helperModules["./wireActionSyntaxPlan"] = loadTsModule(resolve(scriptDir, "../sr
 new Function("exports", "module", "require", output)(moduleShim.exports, moduleShim, requireShim);
 
 const { buildWireRuleQueuePlan } = moduleShim.exports;
+const sideRuleChainSourcePath = resolve(scriptDir, "../src/utils/wireSidePanelRuleChainPlan.ts");
+const sideRuleChainSource = readFileSync(sideRuleChainSourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
+const sideRuleChainOutput = ts.transpileModule(sideRuleChainSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022
+  }
+}).outputText;
+const sideRuleChainModuleShim = { exports: {} };
+
+new Function("exports", "module", sideRuleChainOutput)(sideRuleChainModuleShim.exports, sideRuleChainModuleShim);
+
+const { buildWireSidePanelRuleChainPlan } = sideRuleChainModuleShim.exports;
 
 function coverageRow(plan, key) {
   const row = plan.coverage.find((item) => item.key === key);
@@ -372,6 +385,22 @@ assert.equal(taskBlocked.metrics.find((metric) => metric.key === "task")?.value,
 assert.equal(taskBlocked.metrics.find((metric) => metric.key === "coverage")?.value, "2 类");
 assert.equal(taskBlocked.eventSummary.state, "empty");
 assert.equal(taskBlocked.eventSummary.activeCount, 0);
+const taskBlockedSideChain = buildWireSidePanelRuleChainPlan({ ruleQueuePlan: taskBlocked });
+assert.equal(taskBlockedSideChain.state, "task-blocked");
+assert.equal(taskBlockedSideChain.activeLaneKey, "task");
+assert.equal(taskBlockedSideChain.detail?.id, "rule:task:task-1");
+assert.deepEqual(taskBlockedSideChain.lanes.map((lane) => `${lane.key}:${lane.count}:${lane.state}:${lane.stateLabel}`), [
+  "stack:0:empty:空",
+  "task:1:blocked:阻塞",
+  "trigger:0:empty:空",
+  "resolution:0:empty:空"
+]);
+assert.deepEqual(taskBlockedSideChain.routes.map((route) => `${route.key}:${route.slot}:${route.state}`), [
+  "queue:ruleQueue:available",
+  "flow:serverFlow:available",
+  "detail:timelineDetail:available",
+  "log:log:disabled"
+]);
 assert.equal(eventSummaryRow(taskBlocked, "battlefield").state, "empty");
 assert.equal(coverageRow(taskBlocked, "battle").state, "live");
 assert.equal(coverageRow(taskBlocked, "battle").liveCount, 1);
@@ -403,6 +432,18 @@ const stackResponse = buildWireRuleQueuePlan({
 
 assert.equal(stackResponse.state, "stack-response");
 assert.equal(stackResponse.activeLaneKey, "stack");
+const stackResponseSideChain = buildWireSidePanelRuleChainPlan({ ruleQueuePlan: stackResponse });
+assert.equal(stackResponseSideChain.state, "stack-response");
+assert.equal(stackResponseSideChain.activeLaneLabel, "结算链");
+assert.equal(stackResponseSideChain.detail?.id, "rule:stack:stack-1");
+assert.equal(stackResponseSideChain.metrics.find((metric) => metric.key === "responsibility")?.value, "1 活动 / 0 可提交");
+assert.equal(stackResponseSideChain.metrics.find((metric) => metric.key === "detail")?.value, "结算链项目");
+assert.deepEqual(stackResponseSideChain.lanes.map((lane) => `${lane.key}:${lane.count}:${lane.state}`), [
+  "stack:1:active",
+  "task:0:empty",
+  "trigger:0:empty",
+  "resolution:0:empty"
+]);
 assert.equal(stackResponse.header.statusLabel, "等待响应");
 assert.equal(stackResponse.header.statusTone, "info");
 assert.equal(stackResponse.focus.laneKey, "stack");

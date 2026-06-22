@@ -1,7 +1,7 @@
 import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protocol";
 import { Children, type ReactNode, useState } from "react";
 import type { InspectedCard } from "../cards/CardFace";
-import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueEventSummaryPlan, type WireRuleQueueEventSummaryRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSelectedObjectPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
+import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueEventSummaryPlan, type WireRuleQueueEventSummaryRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueuePlan, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSelectedObjectPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
 import type { CommandSubmitHandler } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
@@ -27,6 +27,7 @@ type WireRuleQueuePanelProps = {
   onOpenDetail?: (card: InspectedCard) => void;
   onSelectDetail?: (detail: WireTimelineDetail) => void;
   playerId: string;
+  plan?: WireRuleQueuePlan;
   prompt?: ActionPromptDto;
   selectedDetailId?: string;
   selectedObjectId?: string;
@@ -47,6 +48,7 @@ export function WireRuleQueuePanel({
   onOpenDetail,
   onSelectDetail,
   playerId,
+  plan: providedPlan,
   prompt,
   selectedDetailId,
   selectedObjectId,
@@ -55,7 +57,7 @@ export function WireRuleQueuePanel({
 }: WireRuleQueuePanelProps) {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [responsibilityLayerOpen, setResponsibilityLayerOpen] = useState(false);
-  const plan = buildWireRuleQueuePlan({ events, playerId, prompt, selectedObjectId, snapshot });
+  const plan = providedPlan ?? buildWireRuleQueuePlan({ events, playerId, prompt, selectedObjectId, snapshot });
   const objects = buildCardObjectIndex(snapshot);
   const objectContext = selectedObjectId
     ? buildTableObjectContextModel({ events, perspectivePlayerId: playerId, prompt, snapshot }).byId[selectedObjectId]

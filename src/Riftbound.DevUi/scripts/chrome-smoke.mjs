@@ -1414,6 +1414,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const ruleFlow = document.querySelector(".wire-rule-flow");
     const ruleEventSummary = document.querySelector(".wire-rule-event-summary");
     const sideFocus = document.querySelector(".wire-side-panel-focus-strip");
+    const sideRuleChain = document.querySelector(".wire-side-panel-rule-chain-strip");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector("[data-action-route-state]");
     const commandReview = document.querySelector("[data-command-review-state]");
@@ -1510,6 +1511,26 @@ async function runWireClickSelectionSmoke(cdp) {
       sideFocusState: sideFocus?.getAttribute("data-wire-side-panel-focus-state") ?? null,
       sideFocusText: sideFocus?.textContent ?? "",
       sideFocusVisible: sideFocus?.getAttribute("data-wire-side-panel-focus-visible") ?? null,
+      sideRuleChainActiveLane: sideRuleChain?.getAttribute("data-wire-side-panel-rule-chain-active-lane") ?? null,
+      sideRuleChainDetailId: sideRuleChain?.getAttribute("data-wire-side-panel-rule-chain-detail-id") ?? null,
+      sideRuleChainLanes: Array.from(sideRuleChain?.querySelectorAll("[data-wire-side-panel-rule-chain-lane]") ?? []).map((node) => ({
+        count: Number(node.getAttribute("data-wire-side-panel-rule-chain-lane-count") ?? "0"),
+        detailId: node.getAttribute("data-wire-side-panel-rule-chain-lane-detail-id") ?? "",
+        key: node.getAttribute("data-wire-side-panel-rule-chain-lane") ?? "",
+        state: node.getAttribute("data-wire-side-panel-rule-chain-lane-state") ?? "",
+        text: node.textContent ?? ""
+      })),
+      sideRuleChainMetrics: Array.from(sideRuleChain?.querySelectorAll("[data-wire-side-panel-rule-chain-metric]") ?? []).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-rule-chain-metric") ?? "",
+        text: node.textContent ?? ""
+      })),
+      sideRuleChainRoutes: Array.from(sideRuleChain?.querySelectorAll("[data-wire-side-panel-rule-chain-route]") ?? []).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-rule-chain-route") ?? "",
+        state: node.getAttribute("data-wire-side-panel-rule-chain-route-state") ?? "",
+        text: node.textContent ?? ""
+      })),
+      sideRuleChainState: sideRuleChain?.getAttribute("data-wire-side-panel-rule-chain-state") ?? null,
+      sideRuleChainText: sideRuleChain?.textContent ?? "",
       windowState: windowPlan?.getAttribute("data-wire-window-state") ?? null,
       windowText: windowPlan?.textContent ?? "",
       promptInspectionGroups: Array.from(document.querySelectorAll("[data-wire-prompt-inspection-group]")).map((node) => node.getAttribute("data-wire-prompt-inspection-group")),
@@ -2288,6 +2309,34 @@ async function runWireClickSelectionSmoke(cdp) {
   }
   if (actionMapResult.ruleLaneCount !== 4) failures.push(`wire rule queue lane count mismatch: ${actionMapResult.ruleLaneCount}`);
   if (!actionMapResult.ruleFlowText.includes("规则队列地图")) failures.push("wire rule queue flow header missing");
+  if (!["task-blocked", "task-open", "stack-response"].includes(actionMapResult.sideRuleChainState)) {
+    failures.push(`side rule chain state did not reflect server queue context: ${actionMapResult.sideRuleChainState}`);
+  }
+  if (actionMapResult.sideRuleChainActiveLane !== "task") {
+    failures.push(`side rule chain active lane unexpected: ${actionMapResult.sideRuleChainActiveLane}`);
+  }
+  if (!actionMapResult.sideRuleChainDetailId?.includes("rule:task:fixture-task-1")) {
+    failures.push(`side rule chain detail id missing active task: ${actionMapResult.sideRuleChainDetailId}`);
+  }
+  if (!actionMapResult.sideRuleChainText.includes("规则链")) failures.push("side rule chain heading missing");
+  if (!actionMapResult.sideRuleChainText.includes("阻塞")) failures.push("side rule chain state label missing");
+  if (actionMapResult.sideRuleChainLanes.length !== 4) failures.push(`side rule chain lane count mismatch: ${actionMapResult.sideRuleChainLanes.length}`);
+  if (!actionMapResult.sideRuleChainLanes.some((lane) => lane.key === "task" && lane.state === "blocked" && lane.count >= 1)) {
+    failures.push(`side rule chain did not expose blocked task lane: ${JSON.stringify(actionMapResult.sideRuleChainLanes)}`);
+  }
+  for (const key of ["lane", "responsibility", "event", "detail"]) {
+    if (!actionMapResult.sideRuleChainMetrics.some((metric) => metric.key === key)) {
+      failures.push(`side rule chain metric missing: ${key}`);
+    }
+  }
+  for (const key of ["queue", "flow", "detail", "log"]) {
+    if (!actionMapResult.sideRuleChainRoutes.some((route) => route.key === key)) {
+      failures.push(`side rule chain route missing: ${key}`);
+    }
+  }
+  if (!actionMapResult.sideRuleChainRoutes.some((route) => route.key === "detail" && route.state === "available")) {
+    failures.push("side rule chain detail route should be available for active task");
+  }
   if (!actionMapResult.serverFlowActionCandidates.some((candidate) => candidate.includes("PLAY_CARD"))) {
     failures.push(`server flow action candidates missing command name: ${actionMapResult.serverFlowActionCandidates.join(",")}`);
   }

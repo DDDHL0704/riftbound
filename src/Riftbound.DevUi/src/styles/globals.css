@@ -12421,7 +12421,7 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: auto auto auto minmax(92px, auto) minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(82px, auto) minmax(0, 1fr);
   gap: 4px;
   overflow: hidden;
   padding: 4px;
@@ -12755,6 +12755,128 @@ button.card-face:hover {
 }
 
 .wire-side-panel-focus-routes button {
+  min-width: 0;
+  min-height: 24px;
+  padding: 2px;
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.wire-side-panel-rule-chain-strip {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+
+.wire-side-panel-rule-chain-strip > header {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: start;
+}
+
+.wire-side-panel-rule-chain-strip > header > div,
+.wire-side-panel-rule-chain-next {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.wire-side-panel-rule-chain-strip small,
+.wire-side-panel-rule-chain-strip strong,
+.wire-side-panel-rule-chain-strip span,
+.wire-side-panel-rule-chain-strip dd,
+.wire-side-panel-rule-chain-strip dt {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-side-panel-rule-chain-strip small,
+.wire-side-panel-rule-chain-strip dt {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.wire-side-panel-rule-chain-strip strong,
+.wire-side-panel-rule-chain-strip dd {
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.wire-side-panel-rule-chain-strip span {
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.wire-side-panel-rule-chain-lanes {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-side-panel-rule-chain-lanes li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1px 2px;
+  border: 1px solid #000;
+  padding: 2px;
+}
+
+.wire-side-panel-rule-chain-lanes li[data-wire-side-panel-rule-chain-lane-state="active"],
+.wire-side-panel-rule-chain-lanes li[data-wire-side-panel-rule-chain-lane-state="blocked"] {
+  border-width: 2px;
+}
+
+.wire-side-panel-rule-chain-lanes li small {
+  grid-column: 1 / -1;
+}
+
+.wire-side-panel-rule-chain-metrics {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  margin: 0;
+}
+
+.wire-side-panel-rule-chain-metrics div {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  border: 1px solid #000;
+  padding: 2px;
+}
+
+.wire-side-panel-rule-chain-metrics dt,
+.wire-side-panel-rule-chain-metrics dd {
+  margin: 0;
+}
+
+.wire-side-panel-rule-chain-next {
+  border: 1px solid #000;
+  padding: 2px 3px;
+}
+
+.wire-side-panel-rule-chain-routes {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.wire-side-panel-rule-chain-routes button {
   min-width: 0;
   min-height: 24px;
   padding: 2px;
