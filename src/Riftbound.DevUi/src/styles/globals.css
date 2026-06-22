@@ -1993,6 +1993,14 @@ button.card-face:hover {
   margin-top: 8px;
 }
 
+.action-prompt-inspection {
+  padding: 0;
+}
+
+.action-prompt-inspection[open] {
+  padding-bottom: 10px;
+}
+
 .generic-prompt-heading,
 .complex-prompt-heading,
 .spell-duel-prompt-heading,
@@ -2019,6 +2027,36 @@ button.card-face:hover {
 .generic-prompt-metadata > strong {
   color: var(--text-primary);
   font-size: 0.86rem;
+}
+
+.action-prompt-inspection-heading {
+  cursor: pointer;
+  list-style: none;
+  padding: 10px;
+}
+
+.action-prompt-inspection-heading::-webkit-details-marker {
+  display: none;
+}
+
+.action-prompt-inspection-heading::after {
+  content: "展开";
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.action-prompt-inspection[open] .action-prompt-inspection-heading {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.action-prompt-inspection[open] .action-prompt-inspection-heading::after {
+  content: "收起";
+}
+
+.action-prompt-inspection-body {
+  display: grid;
+  gap: 5px;
+  padding: 10px 10px 0;
 }
 
 .generic-prompt-note,
@@ -17673,6 +17711,7 @@ button.wire-object-ref {
 .wire-match-page .generic-prompt-contract,
 .wire-match-page .action-prompt-inspection,
 .wire-match-page .action-prompt-inspection-heading,
+.wire-match-page .action-prompt-inspection-body,
 .wire-match-page .action-prompt-inspection-summary div,
 .wire-match-page .action-prompt-inspection-groups section,
 .wire-match-page .action-prompt-inspection-groups li,
@@ -18016,6 +18055,10 @@ button.wire-object-ref {
 .wire-match-page .log-row,
 .wire-match-page .event-log,
 .wire-match-page .event-log * {
+  color: #000 !important;
+}
+
+.wire-match-page .action-prompt-inspection-heading::after {
   color: #000 !important;
 }
 

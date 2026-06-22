@@ -1350,6 +1350,9 @@ async function runWireClickSelectionSmoke(cdp) {
     const evidence = document.querySelector("[data-wire-window-evidence]");
     const promptInspection = document.querySelector("[data-wire-prompt-inspection]");
     const actionPromptInspection = document.querySelector("[data-action-prompt-inspection]");
+    const actionPromptInspectionDefaultOpen = actionPromptInspection?.hasAttribute("open") ?? null;
+    actionPromptInspection?.querySelector("summary")?.click();
+    const actionPromptInspectionAfterToggleOpen = actionPromptInspection?.hasAttribute("open") ?? null;
     const priorityRail = document.querySelector(".wire-priority-rail");
     const ruleQueue = document.querySelector(".wire-rule-queue");
     const ruleFocus = document.querySelector(".wire-rule-focus");
@@ -1422,6 +1425,8 @@ async function runWireClickSelectionSmoke(cdp) {
       promptInspectionSummaryKeys: Array.from(document.querySelectorAll("[data-wire-prompt-inspection-summary]")).map((node) => node.getAttribute("data-wire-prompt-inspection-summary")),
       promptInspectionText: promptInspection?.textContent ?? "",
       actionPromptInspectionGroups: Array.from(actionPromptInspection?.querySelectorAll("[data-action-prompt-inspection-group]") ?? []).map((node) => node.getAttribute("data-action-prompt-inspection-group")),
+      actionPromptInspectionDefaultOpen,
+      actionPromptInspectionAfterToggleOpen,
       actionPromptInspectionSummaryKeys: Array.from(actionPromptInspection?.querySelectorAll("[data-action-prompt-inspection-summary]") ?? []).map((node) => node.getAttribute("data-action-prompt-inspection-summary")),
       actionPromptInspectionText: actionPromptInspection?.textContent ?? "",
       evidenceKeys: Array.from(document.querySelectorAll("[data-window-evidence-key]")).map((node) => node.getAttribute("data-window-evidence-key")),
@@ -2090,6 +2095,8 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.actionPromptInspectionText.includes("服务端只公开")) failures.push("action panel prompt inspection boundary missing");
   if (!actionMapResult.actionPromptInspectionSummaryKeys.includes("candidate")) failures.push("action panel prompt inspection candidate summary missing");
   if (!actionMapResult.actionPromptInspectionGroups.includes("safe-boundary")) failures.push("action panel prompt inspection safe-boundary group missing");
+  if (actionMapResult.actionPromptInspectionDefaultOpen !== false) failures.push(`action panel prompt inspection should be collapsed by default: ${actionMapResult.actionPromptInspectionDefaultOpen}`);
+  if (actionMapResult.actionPromptInspectionAfterToggleOpen !== true) failures.push(`action panel prompt inspection did not open from summary entry: ${actionMapResult.actionPromptInspectionAfterToggleOpen}`);
   if (!actionMapResult.evidenceText.includes("证据摘要")) failures.push("wire window evidence header missing");
   if (!actionMapResult.evidenceText.includes("服务端结算链")) failures.push("wire window evidence stack source missing");
   if (!actionMapResult.evidenceText.includes("服务端规则任务")) failures.push("wire window evidence task source missing");

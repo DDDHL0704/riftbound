@@ -207,40 +207,47 @@ function ActionPanelRenderEntryView({
 
 function ActionPromptInspection({ plan }: { plan: PromptInspectionPlan }) {
   return (
-    <div className="action-prompt-inspection" aria-label="服务端行动提示检查" data-action-prompt-inspection="true">
-      <div className="action-prompt-inspection-heading">
+    <details
+      className="action-prompt-inspection"
+      aria-label="服务端行动提示检查"
+      data-action-prompt-inspection="collapsed"
+      data-action-prompt-inspection-default="collapsed"
+    >
+      <summary className="action-prompt-inspection-heading">
         <strong>提示检查</strong>
-        <span>{plan.sourceLabel}</span>
+        <span>{plan.sourceLabel} · {plan.summaryRows.length} 摘要 / {plan.groups.length} 组</span>
+      </summary>
+      <div className="action-prompt-inspection-body">
+        <p>{plan.boundaryLabel}</p>
+        <dl className="action-prompt-inspection-summary">
+          {plan.summaryRows.map((row) => (
+            <div data-action-prompt-inspection-summary={row.key} key={row.key}>
+              <dt>{row.label}</dt>
+              <dd>{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <div className="action-prompt-inspection-groups">
+          {plan.groups.map((group) => (
+            <section data-action-prompt-inspection-group={group.key} key={group.key}>
+              <strong>{group.title}</strong>
+              {group.rows.length === 0 ? (
+                <span>{group.emptyLabel ?? "当前没有公开记录。"}</span>
+              ) : (
+                <ol>
+                  {group.rows.slice(0, 4).map((row) => (
+                    <li data-action-prompt-inspection-row={`${group.key}:${row.key}`} key={row.key}>
+                      <small>{row.label}</small>
+                      <strong>{row.value}</strong>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+          ))}
+        </div>
       </div>
-      <p>{plan.boundaryLabel}</p>
-      <dl className="action-prompt-inspection-summary">
-        {plan.summaryRows.map((row) => (
-          <div data-action-prompt-inspection-summary={row.key} key={row.key}>
-            <dt>{row.label}</dt>
-            <dd>{row.value}</dd>
-          </div>
-        ))}
-      </dl>
-      <div className="action-prompt-inspection-groups">
-        {plan.groups.map((group) => (
-          <section data-action-prompt-inspection-group={group.key} key={group.key}>
-            <strong>{group.title}</strong>
-            {group.rows.length === 0 ? (
-              <span>{group.emptyLabel ?? "当前没有公开记录。"}</span>
-            ) : (
-              <ol>
-                {group.rows.slice(0, 4).map((row) => (
-                  <li data-action-prompt-inspection-row={`${group.key}:${row.key}`} key={row.key}>
-                    <small>{row.label}</small>
-                    <strong>{row.value}</strong>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </section>
-        ))}
-      </div>
-    </div>
+    </details>
   );
 }
 
