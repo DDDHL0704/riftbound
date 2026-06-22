@@ -18,6 +18,7 @@ import {
   type ActionPanelDirectActionKind
 } from "../../utils/actionPanelCommandPlan";
 import { buildActionPanelBattleDeclarationPlan } from "../../utils/actionPanelBattleDeclarationPlan";
+import { buildActionPanelMovementPlan } from "../../utils/actionPanelMovementPlan";
 import { buildActionPanelPromptPlan, type ActionPanelComplexPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
@@ -137,6 +138,21 @@ function ActionPanelRenderEntryView({
           onCommand={onCommand}
           prompt={prompt}
           submitGate={entry.submitGate}
+        />
+      ) : null;
+      break;
+    case "unit-movement":
+      content = candidate ? (
+        <UnitMovementCandidate
+          candidate={candidate}
+          disabledByConnection={disabledByConnection}
+          onCommand={onCommand}
+          onReady={onReady}
+          onSubmitStarterDeck={onSubmitStarterDeck}
+          prompt={prompt}
+          snapshot={snapshot}
+          submitGate={entry.submitGate}
+          submissionGate={submissionGate}
         />
       ) : null;
       break;
@@ -271,6 +287,71 @@ function BattleDeclarationCandidate({
       </dl>
       <p className="battle-declaration-note">
         {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端声明战斗候选")}
+      </p>
+      <CandidateButton
+        candidate={candidate}
+        disabledByConnection={disabledByConnection}
+        onCommand={onCommand}
+        onReady={onReady}
+        onSubmitStarterDeck={onSubmitStarterDeck}
+        prompt={prompt}
+        snapshot={snapshot}
+        submitGate={submitGate}
+        submissionGate={submissionGate}
+      />
+    </div>
+  );
+}
+
+function UnitMovementCandidate({
+  candidate,
+  disabledByConnection,
+  onCommand,
+  onReady,
+  onSubmitStarterDeck,
+  prompt,
+  snapshot,
+  submitGate,
+  submissionGate
+}: {
+  candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  onCommand: CommandSubmitHandler;
+  onReady: () => void;
+  onSubmitStarterDeck: () => void;
+  prompt?: ActionPromptDto;
+  snapshot?: SnapshotDto;
+  submitGate: ActionPanelSubmitGate;
+  submissionGate: ServerSubmissionGatePlan;
+}) {
+  const plan = buildActionPanelMovementPlan(candidate);
+
+  return (
+    <div
+      className="unit-movement-panel"
+      data-unit-movement-cost-count={plan.optionalCostChoiceCount}
+      data-unit-movement-destination-count={plan.destinationChoiceCount}
+      data-unit-movement-origin-count={plan.originCount}
+      data-unit-movement-requirement-count={plan.requirementCount}
+      data-unit-movement-source-count={plan.sourceChoiceCount}
+      data-unit-movement-state={plan.state}
+      data-unit-movement-template-field-count={plan.commandFieldCount}
+    >
+      <div className="unit-movement-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
+      </div>
+      <dl className="unit-movement-summary">
+        {plan.metricRows.map((metric) => (
+          <div data-unit-movement-metric={metric.key} key={metric.key}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+            <small>{metric.detail}</small>
+          </div>
+        ))}
+      </dl>
+      <p className="unit-movement-note">
+        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端移动候选")}
       </p>
       <CandidateButton
         candidate={candidate}

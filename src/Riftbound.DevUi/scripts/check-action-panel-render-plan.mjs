@@ -42,7 +42,8 @@ const mainPlan = buildActionPanelRenderPlan({
       { action: "PAY_COST", enabled: true, label: "支付费用", presentation: { category: "payment", intent: "pay-cost", priority: 35, uiHint: "payment" } },
       { action: "CHOOSE_HAND_CARDS", enabled: true, label: "选择手牌", presentation: { category: "choice", intent: "choose-hand", priority: 40, uiHint: "choice" } },
       { action: "ASSIGN_COMBAT_DAMAGE", enabled: true, label: "分配伤害", presentation: { category: "battle", intent: "assign-damage", priority: 50, uiHint: "battle" } },
-      { action: "DECLARE_BATTLE", enabled: true, label: "声明战斗", presentation: { category: "battle", intent: "declare-battle", priority: 55, uiHint: "battle" } }
+      { action: "DECLARE_BATTLE", enabled: true, label: "声明战斗", presentation: { category: "battle", intent: "declare-battle", priority: 55, uiHint: "battle" } },
+      { action: "MOVE_UNIT", enabled: true, label: "移动单位", presentation: { category: "movement", intent: "move-unit", priority: 57, uiHint: "movement" } }
     ],
     playerId: "P1",
     view: { type: "MAIN_ACTION" }
@@ -57,6 +58,7 @@ assert.deepEqual(mainPlan.entries.map((entry) => entry.kind), [
   "hand-choice",
   "damage-assignment",
   "battle-declaration",
+  "unit-movement",
   "order-triggers",
   "candidate-button",
   "candidate-button"
@@ -67,6 +69,7 @@ assert.deepEqual(mainPlan.entries.map((entry) => entry.candidate?.action), [
   "CHOOSE_HAND_CARDS",
   "ASSIGN_COMBAT_DAMAGE",
   "DECLARE_BATTLE",
+  "MOVE_UNIT",
   "ORDER_TRIGGERS",
   "TAP_RUNE",
   "ACTIVATE_ABILITY"
@@ -75,8 +78,8 @@ assert.equal(mainPlan.entries.some((entry) => entry.candidate?.action === "ACTIV
 assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.canAct, false);
 assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.submitGate.state, "server-blocked");
 assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.submitGate.stateLabel, "服务端阻断");
-assert.equal(mainPlan.entries.filter((entry) => entry.canAct).length, 7);
-assert.equal(mainPlan.entries.filter((entry) => entry.submitGate.state === "ready").length, 7);
+assert.equal(mainPlan.entries.filter((entry) => entry.canAct).length, 8);
+assert.equal(mainPlan.entries.filter((entry) => entry.submitGate.state === "ready").length, 8);
 
 const readonlyHandPlan = buildActionPanelRenderPlan({
   canAct: false,
@@ -151,7 +154,7 @@ const blockedPlan = buildActionPanelRenderPlan({
 
 assert.equal(blockedPlan.state, "blocked");
 assert.equal(blockedPlan.entries.length, 2);
-assert.equal(blockedPlan.entries.every((entry) => entry.kind === "candidate-button"), true);
+assert.deepEqual(blockedPlan.entries.map((entry) => entry.kind), ["candidate-button", "unit-movement"]);
 assert.equal(blockedPlan.entries.every((entry) => entry.canAct === false), true);
 assert.equal(blockedPlan.entries.every((entry) => entry.submitGate.state === "server-blocked"), true);
 assert.equal(blockedPlan.entries[0].submitGate.reason, "法力不足");

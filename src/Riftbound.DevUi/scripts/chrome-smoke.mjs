@@ -1379,6 +1379,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const commandSubmissionLayout = commandSubmission?.querySelector("[data-command-followup-layout-state]");
     const actionButtons = document.querySelector(".wire-action-panel .action-buttons");
     const battleDeclaration = document.querySelector(".battle-declaration-panel");
+    const unitMovement = document.querySelector(".unit-movement-panel");
     const layoutProjection = document.querySelector("[data-action-layout-projection-state]");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
@@ -1417,6 +1418,12 @@ async function runWireClickSelectionSmoke(cdp) {
       battleDeclarationSourceCount: Number(battleDeclaration?.getAttribute("data-battle-declaration-source-count") ?? "0"),
       battleDeclarationState: battleDeclaration?.getAttribute("data-battle-declaration-state") ?? null,
       battleDeclarationText: battleDeclaration?.textContent ?? "",
+      unitMovementCostCount: Number(unitMovement?.getAttribute("data-unit-movement-cost-count") ?? "0"),
+      unitMovementDestinationCount: Number(unitMovement?.getAttribute("data-unit-movement-destination-count") ?? "0"),
+      unitMovementOriginCount: Number(unitMovement?.getAttribute("data-unit-movement-origin-count") ?? "0"),
+      unitMovementSourceCount: Number(unitMovement?.getAttribute("data-unit-movement-source-count") ?? "0"),
+      unitMovementState: unitMovement?.getAttribute("data-unit-movement-state") ?? null,
+      unitMovementText: unitMovement?.textContent ?? "",
       candidatePlanCount: document.querySelectorAll(".wire-action-candidate-plan-card").length,
       candidatePlanEnabled: candidatePlan?.getAttribute("data-candidate-plan-enabled") ?? null,
       candidatePlanNext: candidatePlan?.querySelector("[data-candidate-plan-next-step]")?.textContent ?? "",
@@ -2069,6 +2076,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.actionRenderCount < 1) failures.push("action panel render entries missing");
   if (!actionMapResult.actionRenderKinds.includes("candidate-button")) failures.push("action panel render candidate button entry missing");
   if (!actionMapResult.actionRenderKinds.includes("battle-declaration")) failures.push("action panel render battle declaration entry missing");
+  if (!actionMapResult.actionRenderKinds.includes("unit-movement")) failures.push("action panel render unit movement entry missing");
   if (actionMapResult.battleDeclarationState !== "ready") failures.push(`battle declaration panel state unexpected: ${actionMapResult.battleDeclarationState}`);
   if (actionMapResult.battleDeclarationSourceCount < 1) failures.push(`battle declaration source count missing: ${actionMapResult.battleDeclarationSourceCount}`);
   if (actionMapResult.battleDeclarationBattlefieldCount < 1) failures.push(`battle declaration battlefield count missing: ${actionMapResult.battleDeclarationBattlefieldCount}`);
@@ -2077,6 +2085,14 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.battleDeclarationText.includes("攻击候选")) failures.push("battle declaration attacker summary missing");
   if (!actionMapResult.battleDeclarationText.includes("防守候选")) failures.push("battle declaration defender summary missing");
   if (!actionMapResult.battleDeclarationText.includes("服务端")) failures.push("battle declaration server authority copy missing");
+  if (actionMapResult.unitMovementState !== "ready") failures.push(`unit movement panel state unexpected: ${actionMapResult.unitMovementState}`);
+  if (actionMapResult.unitMovementSourceCount < 1) failures.push(`unit movement source count missing: ${actionMapResult.unitMovementSourceCount}`);
+  if (actionMapResult.unitMovementDestinationCount < 1) failures.push(`unit movement destination count missing: ${actionMapResult.unitMovementDestinationCount}`);
+  if (actionMapResult.unitMovementCostCount < 1) failures.push(`unit movement cost count missing: ${actionMapResult.unitMovementCostCount}`);
+  if (actionMapResult.unitMovementOriginCount < 1) failures.push(`unit movement origin count missing: ${actionMapResult.unitMovementOriginCount}`);
+  if (!actionMapResult.unitMovementText.includes("单位候选")) failures.push("unit movement source summary missing");
+  if (!actionMapResult.unitMovementText.includes("位置候选")) failures.push("unit movement destination summary missing");
+  if (!actionMapResult.unitMovementText.includes("服务端")) failures.push("unit movement server authority copy missing");
   if (!actionMapResult.actionCommandSources.includes("composer")) failures.push("action panel command source did not expose composer route");
   if (!actionMapResult.actionCommandSources.includes("server-template")) failures.push("action panel command source did not expose server template route");
   if (actionMapResult.actionCommandSources.includes("client-fallback")) failures.push("wire fixture still exposes client fallback command source");

@@ -7,7 +7,8 @@ export type ActionPanelRenderEntryKind =
   | "hand-choice"
   | "mulligan"
   | "order-triggers"
-  | "pay-cost";
+  | "pay-cost"
+  | "unit-movement";
 
 export type ActionPanelRenderState = "blocked" | "disabled" | "empty" | "ready" | "readonly";
 
@@ -249,6 +250,8 @@ function entryKindForAction(action: string): ActionPanelRenderEntryKind {
       return "hand-choice";
     case "MULLIGAN":
       return "mulligan";
+    case "MOVE_UNIT":
+      return "unit-movement";
     case "ORDER_TRIGGERS":
       return "order-triggers";
     case "PAY_COST":
