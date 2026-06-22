@@ -30,6 +30,7 @@ export function WireCommandCenterPanel({
   events,
   focusedPlan,
   objectContext,
+  objectContextById,
   onClearFocus,
   onCommand,
   onInspectObject,
@@ -38,6 +39,7 @@ export function WireCommandCenterPanel({
   playerId,
   prompt,
   selectionDraft,
+  selectedObjectId,
   snapshot,
   submissionFeedback,
   submissionGate,
@@ -48,6 +50,7 @@ export function WireCommandCenterPanel({
   events?: readonly ObservedGameEvent[];
   focusedPlan: WireFocusedInteractionPlan;
   objectContext?: TableObjectContext;
+  objectContextById?: Record<string, TableObjectContext>;
   onClearFocus: () => void;
   onCommand?: CommandSubmitHandler;
   onInspectObject?: (objectId: string) => void;
@@ -56,6 +59,7 @@ export function WireCommandCenterPanel({
   playerId: string;
   prompt?: ActionPromptDto;
   selectionDraft?: CandidateSelectionDraft;
+  selectedObjectId?: string;
   snapshot?: SnapshotDto;
   submissionFeedback?: CommandSubmissionFollowupFeedback;
   submissionGate?: ServerSubmissionGatePlan;
@@ -106,10 +110,13 @@ export function WireCommandCenterPanel({
       <WireCommandFollowupPanel
         ariaLabel="指挥中心服务端后续事件"
         className="wire-command-followup wire-command-center-followup"
+        contract={prompt?.contract}
+        objectContextById={objectContextById}
         onInspectObject={onInspectObject}
         onSelectFollowupEvent={onSelectFollowupEvent}
         onSelectServerEventKind={onSelectServerEventKind}
         plan={plan.submissionFollowup}
+        selectedObjectId={selectedObjectId ?? focusedPlan.sourceObjectId}
         table={table}
       />
 

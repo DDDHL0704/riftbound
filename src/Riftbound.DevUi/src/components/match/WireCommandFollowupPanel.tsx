@@ -1,9 +1,12 @@
+import type { ActionPromptContractDto } from "../../types/protocol";
 import type {
   CommandSubmissionFollowupEventRow,
   CommandSubmissionFollowupMetric,
   CommandSubmissionFollowupPlan,
   CommandSubmissionFollowupServerEventKind
 } from "../../utils/commandSubmissionFollowupPlan";
+import type { TableObjectContext } from "../../utils/tableObjectContext";
+import { WireObjectInspectionSummary } from "./WireObjectInspectionSummary";
 import {
   buildWireCommandFollowupLayoutProjectionPlan,
   type WireCommandFollowupLayoutProjectionPlan
@@ -13,23 +16,35 @@ import type { WireTableViewModel } from "./wireTableViewModel";
 export function WireCommandFollowupPanel({
   ariaLabel = "服务端后续事件",
   className = "wire-command-followup",
+  contract,
+  objectContextById,
   onInspectObject,
   onSelectFollowupEvent,
   onSelectServerEventKind,
   plan,
+  selectedObjectId,
   table
 }: {
   ariaLabel?: string;
   className?: string;
+  contract?: ActionPromptContractDto | null;
+  objectContextById?: Record<string, TableObjectContext>;
   onInspectObject?: (objectId: string) => void;
   onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
   plan: CommandSubmissionFollowupPlan;
+  selectedObjectId?: string;
   table?: WireTableViewModel;
 }) {
   const layoutProjection = table
     ? buildWireCommandFollowupLayoutProjectionPlan({ plan, table })
     : undefined;
+  const inspectionObjectId = chooseCommandFollowupInspectionObjectId({
+    layoutProjection,
+    objectContextById,
+    selectedObjectId
+  });
+  const inspectionContext = inspectionObjectId ? objectContextById?.[inspectionObjectId] : undefined;
 
   return (
     <section
@@ -137,6 +152,12 @@ export function WireCommandFollowupPanel({
       {layoutProjection && (
         <CommandFollowupLayoutProjectionPanel onInspectObject={onInspectObject} plan={layoutProjection} />
       )}
+      <CommandFollowupObjectInspectionSummary
+        context={inspectionContext}
+        contract={contract}
+        objectId={inspectionObjectId}
+        plan={layoutProjection}
+      />
       <div className="wire-command-followup-metrics">
         {plan.metrics.map((metric) => <CommandSubmissionFollowupMetricCell key={metric.key} metric={metric} />)}
       </div>
@@ -192,6 +213,66 @@ export function WireCommandFollowupPanel({
         </ol>
       )}
       {plan.hiddenEventCount > 0 && <small>另有 {plan.hiddenEventCount} 条同 tick 事件。</small>}
+    </section>
+  );
+}
+
+function chooseCommandFollowupInspectionObjectId({
+  layoutProjection,
+  objectContextById,
+  selectedObjectId
+}: {
+  layoutProjection?: WireCommandFollowupLayoutProjectionPlan;
+  objectContextById?: Record<string, TableObjectContext>;
+  selectedObjectId?: string;
+}): string | undefined {
+  if (!layoutProjection || layoutProjection.rows.length === 0) {
+    return undefined;
+  }
+
+  if (selectedObjectId) {
+    const selectedRow = layoutProjection.rows.find((row) => row.objectId === selectedObjectId);
+    if (selectedRow && objectContextById?.[selectedRow.objectId]) {
+      return selectedRow.objectId;
+    }
+  }
+
+  return layoutProjection.rows.find((row) => objectContextById?.[row.objectId])?.objectId
+    ?? layoutProjection.rows[0]?.objectId;
+}
+
+function CommandFollowupObjectInspectionSummary({
+  context,
+  contract,
+  objectId,
+  plan
+}: {
+  context?: TableObjectContext;
+  contract?: ActionPromptContractDto | null;
+  objectId?: string;
+  plan?: WireCommandFollowupLayoutProjectionPlan;
+}) {
+  if (!plan || plan.rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <section
+      aria-label="回执对象检查摘要"
+      className="wire-command-followup-object-inspection"
+      data-command-followup-selected-inspection-object={objectId ?? ""}
+      data-command-followup-selected-inspection-row-count={plan.rows.length}
+      data-command-followup-selected-inspection-state={context ? "ready" : "missing-context"}
+    >
+      <div className="wire-command-followup-object-inspection-heading">
+        <strong>回执对象检查</strong>
+        <span>{context ? "已接入对象上下文" : "公开引用未建立对象上下文"}</span>
+      </div>
+      {context ? (
+        <WireObjectInspectionSummary context={context} contract={contract} />
+      ) : (
+        <span className="empty-hint">回执公开引用存在，但当前快照或提示未提供可检查对象上下文。</span>
+      )}
     </section>
   );
 }

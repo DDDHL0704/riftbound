@@ -12286,6 +12286,8 @@ button.card-face:hover {
 .wire-command-followup-bridge-next,
 .wire-command-followup-bridge-rows li,
 .wire-command-followup-heading,
+.wire-command-followup-object-inspection,
+.wire-command-followup-object-inspection-heading,
 .wire-command-followup-metrics span,
 .wire-command-followup-events li,
 .wire-action-route-strip,
@@ -15070,6 +15072,32 @@ button.card-face:hover {
   cursor: not-allowed;
 }
 
+.wire-command-followup-object-inspection {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+.wire-command-followup-object-inspection[data-command-followup-selected-inspection-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-command-followup-object-inspection[data-command-followup-selected-inspection-state="missing-context"] {
+  border-style: dashed;
+}
+
+.wire-command-followup-object-inspection-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border: 1px solid #000;
+  padding: 3px 4px;
+}
+
 .wire-command-review-fields {
   display: grid;
   gap: 3px;
@@ -17536,6 +17564,8 @@ button.wire-object-ref {
 .wire-match-page .wire-command-followup-bridge-heading,
 .wire-match-page .wire-command-followup-bridge-next,
 .wire-match-page .wire-command-followup-bridge-rows li,
+.wire-match-page .wire-command-followup-object-inspection,
+.wire-match-page .wire-command-followup-object-inspection-heading,
 .wire-match-page .wire-command-submission-open-layer,
 .wire-match-page .wire-command-submission-layer,
 .wire-match-page .wire-command-submission-dialog,

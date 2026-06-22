@@ -2377,6 +2377,12 @@ async function runWireTimelineCommandSubmitSmoke(cdp) {
   if (!followup.timelineFollowupServerKindActions.includes("STACK_ITEM_ADDED")) failures.push("missing STACK_ITEM_ADDED server kind");
   if (!followup.timelineFollowupServerKindActions.includes("BATTLEFIELD_CONTROL_RESOLVED")) failures.push("missing BATTLEFIELD_CONTROL_RESOLVED server kind");
   if (!followup.timelineFollowupText.includes("后续事件")) failures.push("missing followup heading");
+  if (followup.timelineFollowupInspectionState !== "ready") failures.push(`timeline followup inspection state ${followup.timelineFollowupInspectionState}`);
+  if (!["p1-hand-spell", "p2-right-1"].includes(followup.timelineFollowupInspectionObject)) {
+    failures.push(`timeline followup inspection object ${followup.timelineFollowupInspectionObject}`);
+  }
+  if (!followup.timelineFollowupInspectionText.includes("对象检查摘要")) failures.push("timeline followup inspection summary missing");
+  if (!followup.timelineFollowupInspectionGroups.includes("identity")) failures.push("timeline followup inspection identity group missing");
   if (!followup.commandSubmissionText.includes("服务端已接受")) failures.push("missing accepted feedback copy");
 
   const layer = await openCommandSubmissionLayer(cdp);
@@ -2391,6 +2397,11 @@ async function runWireTimelineCommandSubmitSmoke(cdp) {
   if (!layer.layoutObjects.includes("p1-hand-spell") || !layer.layoutObjects.includes("p2-right-1")) {
     failures.push(`submission layer layout projection objects incomplete: ${layer.layoutObjects.join(",")}`);
   }
+  if (layer.inspectionState !== "ready") failures.push(`submission layer inspection state ${layer.inspectionState}`);
+  if (!layer.layoutObjects.includes(layer.inspectionObject)) {
+    failures.push(`submission layer inspection object is not in projection: ${layer.inspectionObject}`);
+  }
+  if (!layer.inspectionText.includes("对象检查摘要")) failures.push("submission layer inspection summary missing");
 
   const layerEventKind = await clickCommandSubmissionLayerFollowupEvent(cdp, "BATTLEFIELD_CONTROL_RESOLVED", 1);
   if (layerEventKind !== "BATTLEFIELD_CONTROL_RESOLVED") failures.push(`submission layer event click kind ${layerEventKind}`);
@@ -4138,11 +4149,19 @@ async function waitForTimelineCommandFollowup(cdp) {
       const panel = document.querySelector(".wire-timeline-detail");
       const feedback = document.querySelector("[data-command-submission-state]");
       const followup = panel?.querySelector(".wire-timeline-command-followup");
+      const inspection = followup?.querySelector("[data-command-followup-selected-inspection-state]");
+      const inspectionSummary = inspection?.querySelector(".wire-object-inspection");
       return {
         commandSubmissionCommand: feedback?.querySelector('[data-command-submission-metric="command"] strong')?.textContent?.trim() ?? "",
         commandSubmissionState: feedback?.getAttribute("data-command-submission-state") ?? "",
         commandSubmissionText: feedback?.textContent ?? "",
         timelineFollowupBridgeState: followup?.querySelector(".wire-command-followup-bridge")?.getAttribute("data-command-followup-bridge-state") ?? "",
+        timelineFollowupInspectionAuthority: inspectionSummary?.getAttribute("data-wire-object-inspection-authority") ?? "",
+        timelineFollowupInspectionGroups: Array.from(inspectionSummary?.querySelectorAll("[data-wire-object-inspection-group]") ?? [])
+          .map((item) => item.getAttribute("data-wire-object-inspection-group") ?? ""),
+        timelineFollowupInspectionObject: inspection?.getAttribute("data-command-followup-selected-inspection-object") ?? "",
+        timelineFollowupInspectionState: inspection?.getAttribute("data-command-followup-selected-inspection-state") ?? "",
+        timelineFollowupInspectionText: inspection?.textContent ?? "",
         timelineFollowupLayoutState: followup?.querySelector("[data-command-followup-layout-state]")?.getAttribute("data-command-followup-layout-state") ?? "",
         timelineFollowupServerKindActions: Array.from(followup?.querySelectorAll("[data-command-followup-server-event-kind-action]") ?? [])
           .map((item) => item.getAttribute("data-command-followup-server-event-kind-action") ?? ""),
@@ -4186,6 +4205,8 @@ async function openCommandSubmissionLayer(cdp) {
 async function commandSubmissionLayerSummary(cdp) {
   return evaluateJson(cdp, `(() => {
     const layer = document.querySelector(".wire-command-submission-layer");
+    const inspection = layer?.querySelector("[data-command-followup-selected-inspection-state]");
+    const inspectionSummary = inspection?.querySelector(".wire-object-inspection");
     return {
       cmdType: layer?.getAttribute("data-command-submission-layer-cmd-type") ?? "",
       eventCount: Number(layer?.getAttribute("data-command-submission-layer-event-count") ?? "0"),
@@ -4193,6 +4214,10 @@ async function commandSubmissionLayerSummary(cdp) {
         .map((item) => item.getAttribute("data-command-followup-event-action") ?? ""),
       followupState: layer?.getAttribute("data-command-submission-layer-followup-state") ?? "",
       hiddenCount: Number(layer?.getAttribute("data-command-submission-layer-hidden-count") ?? "0"),
+      inspectionAuthority: inspectionSummary?.getAttribute("data-wire-object-inspection-authority") ?? "",
+      inspectionObject: inspection?.getAttribute("data-command-followup-selected-inspection-object") ?? "",
+      inspectionState: inspection?.getAttribute("data-command-followup-selected-inspection-state") ?? "",
+      inspectionText: inspection?.textContent ?? "",
       layoutObjects: Array.from(layer?.querySelectorAll("[data-command-followup-layout-object]") ?? [])
         .map((item) => item.getAttribute("data-command-followup-layout-object") ?? ""),
       open: Boolean(layer),

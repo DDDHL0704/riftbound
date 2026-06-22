@@ -183,10 +183,13 @@ export function WireTimelineDetailPanel({
             <WireCommandFollowupPanel
               ariaLabel="规则详情服务端后续事件"
               className="wire-command-followup wire-timeline-command-followup"
+              contract={prompt?.contract}
+              objectContextById={objectContextById}
               onInspectObject={onInspectObject}
               onSelectFollowupEvent={onSelectFollowupEvent}
               onSelectServerEventKind={onSelectServerEventKind}
               plan={submissionFollowup}
+              selectedObjectId={selectedObjectId}
               table={table}
             />
             <TimelineInspector open={inspectorOpen} plan={plan.inspector} />

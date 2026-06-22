@@ -515,6 +515,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           events={tableEvents}
           focusedPlan={selectedFocusPlan}
           objectContext={selectedObjectContext}
+          objectContextById={tableObjectContextModel.byId}
           onClearFocus={clearInspectedCard}
           onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
             label: "指挥中心",
@@ -527,6 +528,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           playerId={settings.playerId}
           prompt={tablePrompt}
           selectionDraft={selectionDraft}
+          selectedObjectId={selectedObjectId}
           snapshot={tableSnapshot}
           submissionFeedback={tableSubmissionFeedback}
           submissionGate={tableSubmissionGate}
@@ -586,6 +588,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <section aria-label="右侧合法操作区" className="wire-panel wire-action-map-panel" data-wire-side-panel-slot="actionMap" id={sidePanelDirectory.bySlot.actionMap.anchorId} key="actionMap" tabIndex={0}>
         <WireActionMapPanel
           events={tableEvents}
+          objectContextById={tableObjectContextModel.byId}
           onChooseObject={chooseObjectFromActionMap}
           onCommand={(command, routeSource) => submitTableCommand(command, commandUiSource({
             label: "右侧合法操作",

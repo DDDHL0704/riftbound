@@ -10,6 +10,7 @@ import {
   type CommandSubmissionFollowupServerEventKind
 } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
+import type { TableObjectContext } from "../../utils/tableObjectContext";
 import {
   buildWireActionMapPlan,
   type WireActionBlockerPlan,
@@ -32,6 +33,7 @@ import { useWireDialogFocus } from "./useWireDialogFocus";
 
 type WireActionMapPanelProps = {
   events?: GameEvent[];
+  objectContextById?: Record<string, TableObjectContext>;
   onChooseObject?: (objectId: string) => void;
   onCommand?: CommandSubmitHandler;
   onInspectObject?: (objectId: string) => void;
@@ -49,6 +51,7 @@ type WireActionMapPanelProps = {
 
 export function WireActionMapPanel({
   events,
+  objectContextById,
   onChooseObject,
   onCommand,
   onInspectObject,
@@ -91,11 +94,14 @@ export function WireActionMapPanel({
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
       <CommandSubmissionFeedbackPanel
+        contract={prompt?.contract}
         events={events}
         feedback={submissionFeedback}
+        objectContextById={objectContextById}
         onInspectObject={onInspectObject}
         onSelectFollowupEvent={onSelectFollowupEvent}
         onSelectServerEventKind={onSelectServerEventKind}
+        selectedObjectId={selectedObjectId}
         snapshot={snapshot}
         table={table}
       />
@@ -238,19 +244,25 @@ function ActionLayoutProjectionPanel({ plan }: { plan: WireActionLayoutProjectio
 }
 
 function CommandSubmissionFeedbackPanel({
+  contract,
   events,
   feedback,
+  objectContextById,
   onInspectObject,
   onSelectFollowupEvent,
   onSelectServerEventKind,
+  selectedObjectId,
   snapshot,
   table
 }: {
+  contract?: ActionPromptDto["contract"];
   events?: GameEvent[];
   feedback?: CommandSubmissionFeedback;
+  objectContextById?: Record<string, TableObjectContext>;
   onInspectObject?: (objectId: string) => void;
   onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
+  selectedObjectId?: string;
   snapshot?: SnapshotDto;
   table: WireTableViewModel;
 }) {
@@ -279,10 +291,13 @@ function CommandSubmissionFeedbackPanel({
         </button>
         <WireCommandFollowupPanel
           ariaLabel="提交反馈服务端后续事件"
+          contract={contract}
+          objectContextById={objectContextById}
           onInspectObject={onInspectObject}
           onSelectFollowupEvent={onSelectFollowupEvent}
           onSelectServerEventKind={onSelectServerEventKind}
           plan={followup}
+          selectedObjectId={selectedObjectId}
           table={table}
         />
       </section>
@@ -350,20 +365,26 @@ function CommandSubmissionFeedbackPanel({
       </button>
       <WireCommandFollowupPanel
         ariaLabel="提交反馈服务端后续事件"
+        contract={contract}
+        objectContextById={objectContextById}
         onInspectObject={onInspectObject}
         onSelectFollowupEvent={onSelectFollowupEvent}
         onSelectServerEventKind={onSelectServerEventKind}
         plan={followup}
+        selectedObjectId={selectedObjectId}
         table={table}
       />
       {layerOpen && (
         <CommandSubmissionFeedbackLayer
+          contract={contract}
           feedback={feedback}
           followup={followup}
+          objectContextById={objectContextById}
           onClose={() => setLayerOpen(false)}
           onInspectObject={onInspectObject}
           onSelectFollowupEvent={onSelectFollowupEvent}
           onSelectServerEventKind={onSelectServerEventKind}
+          selectedObjectId={selectedObjectId}
           table={table}
         />
       )}
@@ -376,20 +397,26 @@ function shortIntentId(clientIntentId: string): string {
 }
 
 function CommandSubmissionFeedbackLayer({
+  contract,
   feedback,
   followup,
+  objectContextById,
   onClose,
   onInspectObject,
   onSelectFollowupEvent,
   onSelectServerEventKind,
+  selectedObjectId,
   table
 }: {
+  contract?: ActionPromptDto["contract"];
   feedback: CommandSubmissionFeedback;
   followup: ReturnType<typeof buildCommandSubmissionFollowupPlan>;
+  objectContextById?: Record<string, TableObjectContext>;
   onClose: () => void;
   onInspectObject?: (objectId: string) => void;
   onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
   onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
+  selectedObjectId?: string;
   table: WireTableViewModel;
 }) {
   const { closeButtonRef, dialogRef } = useWireDialogFocus(onClose);
@@ -473,10 +500,13 @@ function CommandSubmissionFeedbackLayer({
           <WireCommandFollowupPanel
             ariaLabel="回执检查层后续事件"
             className="wire-command-submission-layer-followup"
+            contract={contract}
+            objectContextById={objectContextById}
             onInspectObject={onInspectObject}
             onSelectFollowupEvent={onSelectFollowupEvent}
             onSelectServerEventKind={onSelectServerEventKind}
             plan={followup}
+            selectedObjectId={selectedObjectId}
             table={table}
           />
         </div>
