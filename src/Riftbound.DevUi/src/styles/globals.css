@@ -11297,7 +11297,7 @@ button.card-face:hover {
 .wire-match-body {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(1040px, 1fr) 280px;
+  grid-template-columns: minmax(860px, 1fr) clamp(360px, 28vw, 420px);
   gap: 4px;
   padding: 4px;
   background: #fff;
@@ -11988,15 +11988,13 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: auto minmax(248px, auto) minmax(150px, auto) minmax(150px, auto) minmax(170px, 0.55fr) minmax(250px, 1fr) minmax(210px, 0.75fr) minmax(120px, 0.35fr) minmax(120px, 0.35fr) minmax(150px, 0.45fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 4px;
-  overflow: auto;
+  overflow: hidden;
   padding: 4px;
 }
 
 .wire-side-panel-directory {
-  position: sticky;
-  top: 0;
   z-index: 4;
   display: grid;
   gap: 4px;
@@ -12032,6 +12030,26 @@ button.card-face:hover {
   line-height: 1.15;
 }
 
+.wire-side-panel-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.wire-side-panel-tabs button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 4px 3px;
+  font-size: 11px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.wire-side-panel-tabs button[data-wire-side-panel-tab-active="true"] {
+  outline: 2px solid #000 !important;
+  outline-offset: -2px !important;
+}
+
 .wire-side-panel-directory-group {
   min-width: 0;
   display: grid;
@@ -12054,9 +12072,9 @@ button.card-face:hover {
   white-space: nowrap;
 }
 
-.wire-side-panel-directory ol {
+.wire-side-panel-entry-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 3px;
   margin: 0;
   padding: 0;
@@ -12070,13 +12088,13 @@ button.card-face:hover {
 .wire-side-panel-directory a {
   min-width: 0;
   display: grid;
-  grid-template-columns: 26px minmax(0, 1fr) 42px 22px;
-  gap: 3px;
+  grid-template-columns: 1fr;
+  gap: 1px;
   align-items: center;
   border: 1px solid #000;
   background: #fff;
   color: #000;
-  padding: 3px 4px;
+  padding: 3px 2px;
   font-size: 10px;
   line-height: 1.15;
   text-decoration: none;
@@ -12096,14 +12114,15 @@ button.card-face:hover {
 }
 
 .wire-side-panel-directory a strong {
+  display: none;
   font-weight: 700;
 }
 
 .wire-side-panel-directory a em,
 .wire-side-panel-directory a small {
-  display: block;
-  border-left: 1px solid #000;
-  padding-left: 3px;
+  display: none;
+  border-left: 0;
+  padding-left: 0;
   font-style: normal;
   font-size: 9px;
   line-height: 1.1;
@@ -12117,10 +12136,82 @@ button.card-face:hover {
   outline-offset: -2px;
 }
 
+.wire-side-panel-directory li[data-wire-side-panel-directory-active="true"] a {
+  outline: 2px solid #000;
+  outline-offset: -2px;
+  font-weight: 700;
+}
+
 .wire-side-panel-directory a:hover,
 .wire-side-panel-directory a:focus-visible {
   outline: 2px solid #000;
   outline-offset: -2px;
+}
+
+.wire-side-panel-directory a:hover strong,
+.wire-side-panel-directory a:focus-visible strong,
+.wire-side-panel-directory a[aria-current="page"] strong {
+  display: block;
+}
+
+.wire-side-panel-status {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 4px;
+}
+
+.wire-side-panel-status div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+.wire-side-panel-status small,
+.wire-side-panel-status strong,
+.wire-side-panel-status span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-side-panel-status small {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.wire-side-panel-status strong {
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.wire-side-panel-status span {
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.wire-side-panel-stack {
+  min-height: 0;
+  display: grid;
+  overflow: hidden;
+}
+
+.wire-side-panel-pane {
+  min-height: 0;
+  min-width: 0;
+  display: none;
+}
+
+.wire-side-panel-pane[data-wire-side-panel-pane-active="true"] {
+  display: grid;
+  min-height: 0;
 }
 
 .wire-panel {

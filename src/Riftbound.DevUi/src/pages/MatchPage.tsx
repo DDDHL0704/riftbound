@@ -100,6 +100,37 @@ type WireTableInteraction = {
   timelineByObjectId: Record<string, WireTimelineObjectState | undefined>;
 };
 
+type WireSidePanelTab = "action" | "response" | "rules" | "log" | "detail";
+
+type WireSidePanelTabSpec = {
+  id: WireSidePanelTab;
+  label: string;
+  primarySlot: WireSidePanelSlot;
+  slots: WireSidePanelSlot[];
+};
+
+type WireSidePanelSelectionIntent = "auto" | "manual";
+
+const WIRE_SIDE_PANEL_TABS: WireSidePanelTabSpec[] = [
+  { id: "action", label: "行动", primarySlot: "commandCenter", slots: ["commandCenter", "actionMap", "interaction", "actionPrompt"] },
+  { id: "response", label: "响应", primarySlot: "responseCoach", slots: ["responseCoach", "turnWindow"] },
+  { id: "rules", label: "规则", primarySlot: "ruleQueue", slots: ["ruleQueue", "serverFlow"] },
+  { id: "log", label: "日志", primarySlot: "log", slots: ["log"] },
+  {
+    id: "detail",
+    label: "详情",
+    primarySlot: "timelineDetail",
+    slots: ["timelineDetail", "overview", "tableAuthority", "informationBoundary", "promptAuthority"]
+  }
+];
+
+const WIRE_SIDE_PANEL_TAB_BY_SLOT = WIRE_SIDE_PANEL_TABS.reduce((map, tab) => {
+  for (const slot of tab.slots) {
+    map[slot] = tab.id;
+  }
+  return map;
+}, {} as Record<WireSidePanelSlot, WireSidePanelTab>);
+
 function commandUiSource(
   base: CommandSubmissionUiSource,
   routeSource?: Partial<CommandSubmissionUiSource>
@@ -121,9 +152,15 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const [selectionDraft, setSelectionDraft] = useState<CandidateSelectionDraft | undefined>();
   const [timelineDetail, setTimelineDetail] = useState<WireTimelineDetail | undefined>();
   const [timelineLayerOpen, setTimelineLayerOpen] = useState(false);
+  const [activeSidePanelSlot, setActiveSidePanelSlot] = useState<WireSidePanelSlot>("commandCenter");
   const [fixtureSubmissionFeedback, setFixtureSubmissionFeedback] = useState<CommandSubmissionFeedback | undefined>();
   const timelineDetailTriggerIdRef = useRef<string | undefined>(undefined);
+  const sidePanelSelectionIntentRef = useRef<WireSidePanelSelectionIntent>("auto");
   const { previewCard, queuePreviewCard } = useDelayedWireCardPreview();
+  const selectSidePanelSlot = useCallback((slot: WireSidePanelSlot, intent: WireSidePanelSelectionIntent = "manual") => {
+    sidePanelSelectionIntentRef.current = intent;
+    setActiveSidePanelSlot(slot);
+  }, []);
   const layoutFixtureEnabled = useMemo(() => isWireLayoutFixtureEnabled(), []);
   const layoutFixtureCommandSubmissionEnabled = useMemo(() => isWireLayoutFixtureCommandSubmissionEnabled(), []);
   const tableSnapshot = useMemo(
@@ -380,8 +417,9 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
   const selectTimelineDetail = useCallback((detail: WireTimelineDetail) => {
     timelineDetailTriggerIdRef.current = detail.id;
+    selectSidePanelSlot("timelineDetail", "manual");
     setTimelineDetail(detail);
-  }, []);
+  }, [selectSidePanelSlot]);
   const selectTimelineEvent = useCallback((target: { kind: string; order?: number; serverTick?: number }) => {
     const eventPlan = buildEventLogPlan({
       errors: [],
@@ -416,18 +454,27 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
 
   const clearTimelineDetail = useCallback(() => {
     const triggerId = timelineDetailTriggerIdRef.current ?? timelineDetail?.id;
+    const restoreSlot = timelineDetail?.source === "event"
+      ? "log"
+      : timelineDetail?.source === "rule"
+        ? "ruleQueue"
+        : undefined;
     setTimelineDetail(undefined);
     setTimelineLayerOpen(false);
+    if (restoreSlot) {
+      selectSidePanelSlot(restoreSlot, "manual");
+    }
     if (!triggerId) {
       return;
     }
 
     window.setTimeout(() => {
-      const trigger = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-wire-detail-id]"))
-        .find((button) => button.getAttribute("data-wire-detail-id") === triggerId);
+      const triggers = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-wire-detail-id]"))
+        .filter((button) => button.getAttribute("data-wire-detail-id") === triggerId);
+      const trigger = triggers.find(isVisibleElement) ?? triggers[0];
       trigger?.focus();
     }, 0);
-  }, [timelineDetail?.id]);
+  }, [selectSidePanelSlot, timelineDetail?.id, timelineDetail?.source]);
   const runTopbarQuickAction = useCallback((entry: ServerQuickActionEntry) => {
     if (entry.disabled) {
       return;
@@ -481,6 +528,32 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     tableSubmissionGate,
     timelineDetail
   ]);
+  const sidePanelEntryBySlot = useMemo(() => Object.fromEntries(
+    sidePanelOrchestration.entries.map((entry) => [entry.slot, entry])
+  ) as Record<WireSidePanelSlot, WireSidePanelOrchestrationPlan["entries"][number]>, [sidePanelOrchestration.entries]);
+  const activeSidePanelTab = WIRE_SIDE_PANEL_TAB_BY_SLOT[activeSidePanelSlot] ?? "action";
+  const activeSidePanelEntry = sidePanelEntryBySlot[activeSidePanelSlot];
+  const setActiveSidePanelTab = useCallback((tab: WireSidePanelTab) => {
+    const tabSpec = WIRE_SIDE_PANEL_TABS.find((item) => item.id === tab) ?? WIRE_SIDE_PANEL_TABS[0];
+    const preferredSlot = preferredSlotForTab(tabSpec, sidePanelEntryBySlot, sidePanelOrchestration.primarySlot);
+    selectSidePanelSlot(preferredSlot, "manual");
+  }, [selectSidePanelSlot, sidePanelEntryBySlot, sidePanelOrchestration.primarySlot]);
+
+  useEffect(() => {
+    setActiveSidePanelSlot((current) => {
+      const currentEntry = sidePanelEntryBySlot[current];
+      if (currentEntry && sidePanelSelectionIntentRef.current === "manual") {
+        return current;
+      }
+      if (currentEntry && isStickySidePanelState(currentEntry.state)) {
+        return current;
+      }
+
+      sidePanelSelectionIntentRef.current = "auto";
+      return sidePanelOrchestration.primarySlot;
+    });
+  }, [sidePanelEntryBySlot, sidePanelOrchestration.primarySlot]);
+
   const sidePanelSections = {
     overview: (
       <section aria-label="当前对局态势总览区" className="wire-panel wire-match-overview-panel" data-wire-side-panel-slot="overview" id={sidePanelDirectory.bySlot.overview.anchorId} key="overview" tabIndex={0}>
@@ -793,8 +866,42 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </section>
 
         <aside className="wire-side-panel" aria-label="行动与日志">
-          <WireSidePanelDirectory orchestration={sidePanelOrchestration} plan={sidePanelDirectory} />
-          {WIRE_TABLE_LAYOUT.sidePanel.slots.map((slot) => sidePanelSections[slot])}
+          <WireSidePanelDirectory
+            activeSlot={activeSidePanelSlot}
+            activeTab={activeSidePanelTab}
+            onSelectSlot={selectSidePanelSlot}
+            onSelectTab={setActiveSidePanelTab}
+            orchestration={sidePanelOrchestration}
+            plan={sidePanelDirectory}
+          />
+          <WireSidePanelStatus
+            activeEntry={activeSidePanelEntry}
+            canAct={canAct}
+            connectionStatus={connectionStatusLabel(tableConnectionStatus)}
+            orchestration={sidePanelOrchestration}
+            phase={matchPhaseLabel(phase)}
+            promptTitle={promptTitle}
+            windowState={timingStateLabel(windowState)}
+          />
+          <div
+            className="wire-side-panel-stack"
+            data-wire-side-panel-active-slot={activeSidePanelSlot}
+            data-wire-side-panel-active-tab={activeSidePanelTab}
+          >
+            {WIRE_TABLE_LAYOUT.sidePanel.slots.map((slot) => (
+              <div
+                aria-hidden={slot !== activeSidePanelSlot}
+                className="wire-side-panel-pane"
+                data-wire-side-panel-pane={slot}
+                data-wire-side-panel-pane-active={slot === activeSidePanelSlot}
+                id={wireSidePanelTabPanelIdForSlot(slot)}
+                key={slot}
+                role={wireSidePanelTabPanelIdForSlot(slot) ? "tabpanel" : undefined}
+              >
+                {sidePanelSections[slot]}
+              </div>
+            ))}
+          </div>
         </aside>
       </div>
       <CardDetailDrawer
@@ -848,26 +955,58 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   );
 }
 
-function WireSidePanelDirectory({ orchestration, plan }: { orchestration: WireSidePanelOrchestrationPlan; plan: WireSidePanelDirectoryPlan }) {
+function WireSidePanelDirectory({
+  activeSlot,
+  activeTab,
+  onSelectSlot,
+  onSelectTab,
+  orchestration,
+  plan
+}: {
+  activeSlot: WireSidePanelSlot;
+  activeTab: WireSidePanelTab;
+  onSelectSlot: (slot: WireSidePanelSlot) => void;
+  onSelectTab: (tab: WireSidePanelTab) => void;
+  orchestration: WireSidePanelOrchestrationPlan;
+  plan: WireSidePanelDirectoryPlan;
+}) {
   return (
     <nav
       aria-label="右侧面板目录"
       className="wire-side-panel-directory"
       data-wire-side-panel-directory
       data-wire-side-panel-directory-active-count={orchestration.activeCount}
+      data-wire-side-panel-directory-active-slot={activeSlot}
+      data-wire-side-panel-directory-active-tab={activeTab}
       data-wire-side-panel-directory-count={plan.entries.length}
       data-wire-side-panel-directory-primary-slot={orchestration.primarySlot}
       data-wire-side-panel-directory-state={orchestration.state}
       data-wire-side-panel-directory-urgent-count={orchestration.urgentCount}
     >
       <div className="wire-side-panel-directory-summary">
-        <h2>目录</h2>
+        <h2>控制台</h2>
         <strong>{orchestration.stateLabel}</strong>
         <span>{orchestration.nextStepLabel}</span>
       </div>
-      <ol>
+      <div className="wire-side-panel-tabs" role="tablist" aria-label="右侧主面板">
+        {WIRE_SIDE_PANEL_TABS.map((tab) => (
+          <button
+            aria-selected={tab.id === activeTab}
+            data-wire-side-panel-tab={tab.id}
+            data-wire-side-panel-tab-active={tab.id === activeTab}
+            key={tab.id}
+            onClick={() => onSelectTab(tab.id)}
+            role="tab"
+            type="button"
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <ol className="wire-side-panel-entry-grid">
         {orchestration.entries.map((entry) => (
           <li
+            data-wire-side-panel-directory-active={entry.slot === activeSlot}
             data-wire-side-panel-directory-group={plan.bySlot[entry.slot].group}
             data-wire-side-panel-directory-item={entry.slot}
             data-wire-side-panel-directory-state={entry.state}
@@ -875,14 +1014,21 @@ function WireSidePanelDirectory({ orchestration, plan }: { orchestration: WireSi
           >
             <a
               aria-label={`${entry.order}. ${entry.label}：${entry.stateLabel}，${entry.detail}`}
+              aria-current={entry.slot === activeSlot ? "page" : undefined}
               data-wire-side-panel-directory-count-value={entry.count}
               data-wire-side-panel-directory-link={entry.slot}
               data-wire-side-panel-directory-state={entry.state}
+              data-wire-side-panel-directory-tab={WIRE_SIDE_PANEL_TAB_BY_SLOT[entry.slot]}
               data-wire-side-panel-directory-tone={entry.tone}
               href={entry.href}
+              onClick={(event) => {
+                event.preventDefault();
+                onSelectSlot(entry.slot);
+              }}
+              title={`${entry.label} / ${entry.stateLabel} / ${entry.detail}`}
             >
-              <span>{entry.groupLabel}</span>
-              <strong>{entry.order}. {entry.label}</strong>
+              <span>{entry.order}</span>
+              <strong>{entry.label}</strong>
               <em>{entry.stateLabel}</em>
               <small>{entry.count}</small>
             </a>
@@ -891,6 +1037,76 @@ function WireSidePanelDirectory({ orchestration, plan }: { orchestration: WireSi
       </ol>
     </nav>
   );
+}
+
+function WireSidePanelStatus({
+  activeEntry,
+  canAct,
+  connectionStatus,
+  orchestration,
+  phase,
+  promptTitle,
+  windowState
+}: {
+  activeEntry?: WireSidePanelOrchestrationPlan["entries"][number];
+  canAct: boolean;
+  connectionStatus: string;
+  orchestration: WireSidePanelOrchestrationPlan;
+  phase: string;
+  promptTitle: string;
+  windowState: string;
+}) {
+  return (
+    <section
+      aria-label="右侧行动状态摘要"
+      className="wire-side-panel-status"
+      data-wire-side-panel-status
+      data-wire-side-panel-status-active-slot={activeEntry?.slot ?? ""}
+      data-wire-side-panel-status-state={orchestration.state}
+    >
+      <div>
+        <small>窗口</small>
+        <strong>{promptTitle}</strong>
+        <span>{canAct ? "当前可操作" : `${phase} / ${windowState}`}</span>
+      </div>
+      <div>
+        <small>下一步</small>
+        <strong>{orchestration.stateLabel}</strong>
+        <span>{orchestration.nextStepLabel}</span>
+      </div>
+      <div>
+        <small>当前页</small>
+        <strong>{activeEntry?.label ?? "指挥中心"}</strong>
+        <span>{activeEntry?.detail ?? connectionStatus}</span>
+      </div>
+    </section>
+  );
+}
+
+function preferredSlotForTab(
+  tab: WireSidePanelTabSpec,
+  entryBySlot: Record<WireSidePanelSlot, WireSidePanelOrchestrationPlan["entries"][number]>,
+  primarySlot: WireSidePanelSlot
+): WireSidePanelSlot {
+  if (tab.slots.includes(primarySlot)) {
+    return primarySlot;
+  }
+
+  return tab.slots.find((slot) => isStickySidePanelState(entryBySlot[slot]?.state))
+    ?? tab.primarySlot;
+}
+
+function isStickySidePanelState(state: string | undefined): boolean {
+  return state === "active" || state === "blocked" || state === "ready" || state === "review";
+}
+
+function wireSidePanelTabPanelIdForSlot(slot: WireSidePanelSlot): string | undefined {
+  const tab = WIRE_SIDE_PANEL_TABS.find((item) => item.primarySlot === slot);
+  return tab ? `wire-side-panel-tab-${tab.id}` : undefined;
+}
+
+function isVisibleElement(element: HTMLElement): boolean {
+  return element.offsetParent !== null || element.getClientRects().length > 0;
 }
 
 function WirePlayerHome({

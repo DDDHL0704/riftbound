@@ -27,7 +27,7 @@ const routes = [
   { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
   {
     path: "/matches/stage3-smoke",
-    texts: ["符文战场对战线框", "等待开局", "窗口总览", "指挥中心", "优先权轨道", "合法操作地图", "候选覆盖审计", "提交审阅", "提交反馈", "候选步骤", "交互语法", "焦点 / 候选 / 规则队列", "规则队列地图", "响应责任时间线", "服务端行动提示", "结算链 / 规则事件", "日志"],
+    texts: ["符文战场对战线框", "等待开局", "控制台", "行动", "响应", "规则", "日志", "详情", "当前页", "态势总览"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
   { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
@@ -104,33 +104,33 @@ try {
   }
 
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "指挥中心", "合法操作地图", "候选覆盖审计", "提交审阅", "提交反馈", "响应责任时间线", "责任来源：服务端", "焦点 / 候选 / 规则队列"]);
+  await waitForText(cdp, ["符文战场对战线框", "控制台", "行动", "响应", "规则", "日志", "详情", "当前页", "指挥中心"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
   await runWireLayoutGeometrySmoke(cdp);
   console.log("Chrome smoke OK: wire layout geometry");
   await runWireClickSelectionSmoke(cdp);
   console.log("Chrome smoke OK: wire click selection");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "事件详情", "行动提示"]);
+  await waitForText(cdp, ["符文战场对战线框", "控制台", "行动", "响应", "规则", "日志", "详情"]);
   await runWireTimelineCommandSubmitSmoke(cdp);
   console.log("Chrome smoke OK: wire timeline command submit");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=snapshot`);
-  await waitForText(cdp, ["符文战场对战线框", "服务端已接受", "快照"]);
+  await waitForText(cdp, ["符文战场对战线框", "快照/提示已同步", "当前快照"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=snapshot");
   await runWireSnapshotSubmissionSmoke(cdp);
   console.log("Chrome smoke OK: wire snapshot submission");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=silent`);
-  await waitForText(cdp, ["符文战场对战线框", "服务端已接受", "静默接受"]);
+  await waitForText(cdp, ["符文战场对战线框", "静默接受", "命令已接受"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=silent");
   await runWireSilentSubmissionSmoke(cdp);
   console.log("Chrome smoke OK: wire silent submission");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=rejected`);
-  await waitForText(cdp, ["符文战场对战线框", "服务端拒绝", "提交反馈"]);
+  await waitForText(cdp, ["符文战场对战线框", "提交失败", "提交未成立", "拒绝"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=rejected");
   await runWireRejectedSubmissionSmoke(cdp);
   console.log("Chrome smoke OK: wire rejected submission");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout&fixtureSubmission=timeline`);
-  await waitForText(cdp, ["符文战场对战线框", "规则与事件详情", "服务端已接受", "后续事件"]);
+  await waitForText(cdp, ["符文战场对战线框", "规则与事件详情", "服务端后续", "后续事件"]);
   await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout&fixtureSubmission=timeline");
   await runWireRuleObjectRefSmoke(cdp);
   console.log("Chrome smoke OK: wire rule object refs");
@@ -878,6 +878,20 @@ async function runWireLayoutGeometrySmoke(cdp) {
       "actionPrompt",
       "log"
     ];
+    const expectedSidePanelTabs = ["action", "response", "rules", "log", "detail"];
+    const sidePanelTabs = Array.from(document.querySelectorAll("[data-wire-side-panel-tab]")).map((tab) => ({
+      active: tab.getAttribute("data-wire-side-panel-tab-active") ?? "",
+      id: tab.getAttribute("data-wire-side-panel-tab") ?? "",
+      label: tab.textContent?.trim() ?? ""
+    }));
+    const sidePanelTabIds = sidePanelTabs.map((tab) => tab.id);
+    if (sidePanelTabIds.join("|") !== expectedSidePanelTabs.join("|")) {
+      failures.push(\`wire side panel tabs drifted: \${sidePanelTabIds.join(" -> ")}\`);
+    }
+    const activeTabs = sidePanelTabs.filter((tab) => tab.active === "true");
+    if (activeTabs.length !== 1) {
+      failures.push(\`wire side panel should expose exactly one active tab, got \${activeTabs.length}\`);
+    }
     const sidePanelSlots = Array.from(document.querySelectorAll("[data-wire-side-panel-slot]"))
       .map((slot) => slot.getAttribute("data-wire-side-panel-slot") ?? "");
     if (sidePanelSlots.join("|") !== expectedSidePanelSlots.join("|")) {
@@ -893,9 +907,22 @@ async function runWireLayoutGeometrySmoke(cdp) {
     }));
     const sidePanelDirectory = document.querySelector("[data-wire-side-panel-directory]");
     const primarySlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-primary-slot") ?? "";
+    const activeSlot = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-slot") ?? "";
+    const activeTab = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-active-tab") ?? "";
     const directoryState = sidePanelDirectory?.getAttribute("data-wire-side-panel-directory-state") ?? "";
     if (!expectedSidePanelSlots.includes(primarySlot)) {
       failures.push(\`wire side panel directory primary slot invalid: \${primarySlot}\`);
+    }
+    if (!expectedSidePanelSlots.includes(activeSlot)) {
+      failures.push(\`wire side panel active slot invalid: \${activeSlot}\`);
+    }
+    if (!expectedSidePanelTabs.includes(activeTab)) {
+      failures.push(\`wire side panel active tab invalid: \${activeTab}\`);
+    }
+    const activePanes = Array.from(document.querySelectorAll('[data-wire-side-panel-pane-active="true"]'))
+      .map((pane) => pane.getAttribute("data-wire-side-panel-pane") ?? "");
+    if (activePanes.length !== 1 || activePanes[0] !== activeSlot) {
+      failures.push(\`wire side panel should show one active pane matching active slot: \${activePanes.join(" -> ")} / \${activeSlot}\`);
     }
     if (!directoryState) {
       failures.push("wire side panel directory state missing");
@@ -940,7 +967,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
       responsibilitySource,
       responseCoachState,
       ruleAuthorityState,
+      sidePanelActiveSlot: activeSlot,
       sidePanelDirectoryCount: sidePanelDirectoryLinks.length,
+      sidePanelTabCount: sidePanelTabs.length,
       siteCount: document.querySelectorAll(".wire-battlefield-site").length,
       tableAuthorityState
     };
@@ -965,6 +994,9 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
   if ((result.sidePanelDirectoryCount ?? 0) < 13) {
     throw new Error("Wire layout geometry smoke did not find side panel directory links");
+  }
+  if ((result.sidePanelTabCount ?? 0) !== 5) {
+    throw new Error(`Wire layout geometry smoke did not find the five side panel tabs: ${result.sidePanelTabCount}`);
   }
   if (result.tableAuthorityState !== "server") {
     throw new Error(`Wire layout geometry smoke did not find server table authority: ${result.tableAuthorityState}`);
@@ -1306,6 +1338,8 @@ async function runWireClickSelectionSmoke(cdp) {
     };
   })()`);
 
+  await clickSidePanelSlot(cdp, "actionMap");
+  await delay(100);
   await clickActionMapObject(cdp, "p1-hand-spell");
   await delay(150);
   const actionMapResult = await evaluateJson(cdp, `(() => {
@@ -1481,6 +1515,8 @@ async function runWireClickSelectionSmoke(cdp) {
   await delay(150);
   const ruleInspectorSequenceDetailResult = await timelineDetailSummary(cdp);
 
+  await clickSidePanelSlot(cdp, "actionMap");
+  await delay(100);
   await clickActionCandidateStepObject(cdp, "p1-hand-spell");
   await delay(150);
   const actionCandidateStepResult = await evaluateJson(cdp, `(() => {
@@ -2635,6 +2671,8 @@ async function runWireSilentSubmissionSmoke(cdp) {
 }
 
 async function runWireRuleObjectRefSmoke(cdp) {
+  await clickSidePanelSlot(cdp, "ruleQueue");
+  await delay(100);
   const initial = await evaluateJson(cdp, `(() => ({
     battlefieldRefs: document.querySelectorAll('[data-rule-object-ref="fixture-left-battlefield"]').length,
     eventRefs: document.querySelectorAll('[data-event-object-ref="p1-hand-spell"]').length,
@@ -2811,6 +2849,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
+  await clickSidePanelSlot(cdp, "log");
+  await delay(100);
   await clickEventObjectRef(cdp, "p1-hand-spell");
   await delay(150);
   const eventResult = await evaluateJson(cdp, `(() => {
@@ -2826,6 +2866,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
+  await clickSidePanelSlot(cdp, "ruleQueue");
+  await delay(100);
   await clickWireDetail(cdp, "rule:stack:fixture-stack-1");
   await delay(150);
   const ruleDetailResult = await evaluateJson(cdp, `(() => {
@@ -3175,6 +3217,8 @@ async function runWireRuleObjectRefSmoke(cdp) {
     };
   })()`);
 
+  await clickSidePanelSlot(cdp, "log");
+  await delay(100);
   await clickWireDetail(cdp, "event:STACK_ITEM_ADDED:0");
   await delay(150);
   const eventDetailResult = await evaluateJson(cdp, `(() => {
@@ -3928,7 +3972,8 @@ async function readWireCardPreview(cdp) {
 async function clickRuleObjectRef(cdp, objectId) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector(${JSON.stringify(`[data-rule-object-ref="${objectId}"]`)});
+      const candidates = Array.from(document.querySelectorAll(${JSON.stringify(`[data-rule-object-ref="${objectId}"]`)}));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!element) return false;
       element.click();
       return true;
@@ -3943,7 +3988,8 @@ async function clickRuleObjectRef(cdp, objectId) {
 async function clickEventObjectRef(cdp, objectId) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector(${JSON.stringify(`[data-event-object-ref="${objectId}"]`)});
+      const candidates = Array.from(document.querySelectorAll(${JSON.stringify(`[data-event-object-ref="${objectId}"]`)}));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!element) return false;
       element.click();
       return true;
@@ -4018,7 +4064,9 @@ async function clickCandidateObjectRef(cdp, objectId) {
 async function clickButtonByText(cdp, text) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = Array.from(document.querySelectorAll("button")).find((button) => button.textContent?.includes(${JSON.stringify(text)}));
+      const candidates = Array.from(document.querySelectorAll("button"))
+        .filter((button) => button.textContent?.includes(${JSON.stringify(text)}));
+      const element = candidates.find((button) => button.offsetParent !== null || button.getClientRects().length > 0) ?? candidates[0];
       if (!element) return false;
       element.click();
       return true;
@@ -4027,6 +4075,21 @@ async function clickButtonByText(cdp, text) {
   });
   if (!result.result?.value) {
     throw new Error(`Button not found: ${text}`);
+  }
+}
+
+async function clickSidePanelSlot(cdp, slot) {
+  const result = await cdp.send("Runtime.evaluate", {
+    expression: `(() => {
+      const element = document.querySelector(${JSON.stringify(`[data-wire-side-panel-directory-link="${slot}"]`)});
+      if (!element) return false;
+      element.click();
+      return true;
+    })()`,
+    returnByValue: true
+  });
+  if (!result.result?.value) {
+    throw new Error(`Side panel slot link not found: ${slot}`);
   }
 }
 
@@ -4050,7 +4113,8 @@ async function pressEscape(cdp) {
 async function clickWireDetail(cdp, detailId) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector(${JSON.stringify(`[data-wire-detail-id="${detailId}"]`)});
+      const candidates = Array.from(document.querySelectorAll(${JSON.stringify(`[data-wire-detail-id="${detailId}"]`)}));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!element) return false;
       element.click();
       return true;
@@ -4138,7 +4202,8 @@ async function clickSelectedProjectionDetail(cdp, detailId) {
 async function clickTimelineActionHint(cdp) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector(".wire-timeline-action-hint-button");
+      const candidates = Array.from(document.querySelectorAll(".wire-timeline-action-hint-button"));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!element) return "";
       element.click();
       return element.getAttribute("data-action-hint-object-id") ?? "";
@@ -4155,7 +4220,8 @@ async function clickTimelineActionHint(cdp) {
 async function clickTimelineCommandFieldChoose(cdp, objectId) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector(${JSON.stringify(`[data-timeline-command-field-choose-object-id="${objectId}"]`)});
+      const candidates = Array.from(document.querySelectorAll(${JSON.stringify(`[data-timeline-command-field-choose-object-id="${objectId}"]`)}));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
       element.click();
       return element.getAttribute("data-timeline-command-field-choose-object-id") ?? "";
@@ -4201,7 +4267,8 @@ async function timelineCommandSubmitSummary(cdp) {
 async function clickTimelineCommandSubmit(cdp) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector('[data-timeline-command-submit-enabled="true"]');
+      const candidates = Array.from(document.querySelectorAll('[data-timeline-command-submit-enabled="true"]'));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
       const plan = element.closest("[data-timeline-command-submit-type]");
       const commandType = plan?.getAttribute("data-timeline-command-submit-type") ?? "";
@@ -4349,7 +4416,8 @@ async function clickCommandSubmissionLayerLayoutObject(cdp, objectId) {
 async function clickTimelineCommandBridgeDetail(cdp, objectId) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector(${JSON.stringify(`[data-timeline-command-open-detail-object-id="${objectId}"]`)});
+      const candidates = Array.from(document.querySelectorAll(${JSON.stringify(`[data-timeline-command-open-detail-object-id="${objectId}"]`)}));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!element) return "";
       element.click();
       return element.getAttribute("data-timeline-command-open-detail-object-id") ?? "";
@@ -4369,7 +4437,8 @@ async function clickTimelineFollowupServerKind(cdp, kind, order) {
       const selector = ${JSON.stringify(
         `.wire-timeline-command-followup [data-command-followup-server-event-kind-action="${kind}"]${order == null ? "" : `[data-command-followup-server-event-order-action="${order}"]`}`
       )};
-      const element = document.querySelector(selector);
+      const candidates = Array.from(document.querySelectorAll(selector));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
       element.click();
       return element.getAttribute("data-command-followup-server-event-kind-action") ?? "";
@@ -4389,7 +4458,8 @@ async function clickTimelineFollowupEvent(cdp, kind, order) {
       const selector = ${JSON.stringify(
         `.wire-timeline-command-followup [data-command-followup-event-action="${kind}"]${order == null ? "" : `[data-command-followup-event-order-action="${order}"]`}`
       )};
-      const element = document.querySelector(selector);
+      const candidates = Array.from(document.querySelectorAll(selector));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!(element instanceof HTMLButtonElement) || element.disabled) return "";
       element.click();
       return element.getAttribute("data-command-followup-event-action") ?? "";
@@ -4406,7 +4476,8 @@ async function clickTimelineFollowupEvent(cdp, kind, order) {
 async function clickDetailClear(cdp) {
   const result = await cdp.send("Runtime.evaluate", {
     expression: `(() => {
-      const element = document.querySelector(".wire-detail-clear");
+      const candidates = Array.from(document.querySelectorAll(".wire-detail-clear"));
+      const element = candidates.find((node) => node.offsetParent !== null || node.getClientRects().length > 0) ?? candidates[0];
       if (!element) return false;
       element.click();
       return true;
