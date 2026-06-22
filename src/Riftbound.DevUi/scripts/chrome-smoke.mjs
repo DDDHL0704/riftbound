@@ -1617,6 +1617,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const objectContext = document.querySelector(".wire-object-context");
     const objectInspection = selectedObjectContext?.querySelector(".wire-object-inspection");
     const selectedProjection = document.querySelector('[data-rule-selected-object="p2-right-1"]');
+    const projectionInspection = selectedProjection?.querySelector(".wire-object-inspection");
     return {
       selected: tableObject?.getAttribute("data-selected") ?? null,
       selectedRef: Boolean(selectedRef),
@@ -1645,6 +1646,12 @@ async function runWireClickSelectionSmoke(cdp) {
       projectionRelationCount: Number(selectedProjection?.getAttribute("data-rule-selected-object-relation-count") ?? 0),
       projectionRelationActions: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-relation-actions]") ?? [])
         .map((node) => node.getAttribute("data-rule-selected-object-relation-actions") ?? ""),
+      projectionInspectionAuthority: projectionInspection?.getAttribute("data-wire-object-inspection-authority") ?? null,
+      projectionInspectionGroups: Array.from(projectionInspection?.querySelectorAll("[data-wire-object-inspection-group]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-group") ?? ""),
+      projectionInspectionRoutes: Array.from(projectionInspection?.querySelectorAll("[data-wire-object-inspection-route]") ?? [])
+        .map((node) => node.getAttribute("data-wire-object-inspection-route") ?? ""),
+      projectionInspectionText: projectionInspection?.textContent ?? "",
       projectionSources: Array.from(selectedProjection?.querySelectorAll("[data-rule-selected-object-relation-source]") ?? [])
         .map((node) => node.getAttribute("data-rule-selected-object-relation-source")),
       projectionState: selectedProjection?.getAttribute("data-rule-selected-object-state") ?? null,
@@ -2239,6 +2246,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!candidateRefResult.objectInspectionText.includes("对象检查摘要")) failures.push("timeline selected object inspection heading missing");
   if (!candidateRefResult.objectInspectionText.includes("PLAY_CARD")) failures.push("timeline selected object inspection command missing");
   if (candidateRefResult.objectInspectionText.includes("serverPaymentState")) failures.push("timeline selected object inspection leaked hidden server state");
+  if (candidateRefResult.projectionInspectionAuthority !== "server") failures.push(`rule selected object inspection authority unexpected: ${candidateRefResult.projectionInspectionAuthority}`);
+  if (!candidateRefResult.projectionInspectionRoutes.includes("candidate")) failures.push("rule selected object inspection candidate route missing");
+  if (!candidateRefResult.projectionInspectionRoutes.includes("server-relations")) failures.push("rule selected object inspection server relation route missing");
+  if (!candidateRefResult.projectionInspectionGroups.includes("boundary")) failures.push("rule selected object inspection boundary group missing");
+  if (!candidateRefResult.projectionInspectionText.includes("对象检查摘要")) failures.push("rule selected object inspection heading missing");
+  if (!candidateRefResult.projectionInspectionText.includes("PLAY_CARD")) failures.push("rule selected object inspection command missing");
+  if (candidateRefResult.projectionInspectionText.includes("serverPaymentState")) failures.push("rule selected object inspection leaked hidden server state");
   if (!candidateRefResult.objectEventDetailIds.some((id) => id.startsWith("object-event:"))) {
     failures.push(`focused object event detail id missing: ${candidateRefResult.objectEventDetailIds.join(",")}`);
   }

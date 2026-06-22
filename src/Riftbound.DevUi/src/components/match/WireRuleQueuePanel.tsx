@@ -2,8 +2,10 @@ import type { ActionPromptDto, GameEvent, SnapshotDto } from "../../types/protoc
 import { Children, type ReactNode, useState } from "react";
 import { buildWireRuleQueuePlan, type WireRuleQueueCoverageRow, type WireRuleQueueFocusPlan, type WireRuleQueueInspectorPlan, type WireRuleQueueItemPlan, type WireRuleQueueLane, type WireRuleQueueResponsibilityItem, type WireRuleQueueResponsibilityPlan, type WireRuleQueueSelectedObjectPlan, type WireRuleQueueSequenceItem } from "../../utils/wireRuleQueuePlan";
 import { buildCardObjectIndex } from "../../utils/snapshotObjectIndex";
+import { buildTableObjectContextModel, type TableObjectContext } from "../../utils/tableObjectContext";
 import { StatusPill } from "../ui/StatusPill";
 import { WireDetailTrigger } from "./WireDetailTrigger";
+import { WireObjectInspectionSummary } from "./WireObjectInspectionSummary";
 import { WireObjectRefChips, type WireObjectIndex } from "./WireObjectRefChips";
 import { WireRuleAuthorityPanel } from "./WireRuleAuthorityPanel";
 import type { WireTimelineDetail } from "./WireTimelineDetailPanel";
@@ -27,6 +29,9 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
   const [responsibilityLayerOpen, setResponsibilityLayerOpen] = useState(false);
   const plan = buildWireRuleQueuePlan({ events, playerId, prompt, selectedObjectId, snapshot });
   const objects = buildCardObjectIndex(snapshot);
+  const objectContext = selectedObjectId
+    ? buildTableObjectContextModel({ events, perspectivePlayerId: playerId, prompt, snapshot }).byId[selectedObjectId]
+    : undefined;
 
   return (
     <section className="wire-rule-queue" aria-label="服务端规则队列" data-wire-rule-queue-state={plan.state}>
@@ -129,6 +134,8 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
       />
 
       <RuleSelectedObjectProjection
+        context={objectContext}
+        contract={prompt?.contract}
         onSelectDetail={onSelectDetail}
         plan={plan.selectedObject}
         selectedDetailId={selectedDetailId}
@@ -167,10 +174,14 @@ export function WireRuleQueuePanel({ events, onInspectObject, onSelectDetail, pl
 }
 
 function RuleSelectedObjectProjection({
+  context,
+  contract,
   onSelectDetail,
   plan,
   selectedDetailId
 }: {
+  context?: TableObjectContext;
+  contract?: ActionPromptDto["contract"];
   onSelectDetail?: (detail: WireTimelineDetail) => void;
   plan: WireRuleQueueSelectedObjectPlan;
   selectedDetailId?: string;
@@ -187,6 +198,7 @@ function RuleSelectedObjectProjection({
         <strong>选中对象投影</strong>
         <span>{plan.summary}</span>
       </div>
+      {context && <WireObjectInspectionSummary context={context} contract={contract} />}
       {plan.syntaxRows.length > 0 && (
         <section
           aria-label="选中对象候选语法"
