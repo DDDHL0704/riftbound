@@ -17,23 +17,13 @@ const frontendUrl = `http://127.0.0.1:${frontendPort}`;
 const startApi = process.argv.includes("--start-api");
 const acceptedCommandFollowupStates = ["accepted-events", "accepted-silent", "accepted-snapshot"];
 const validCommandFollowupStates = ["accepted-awaiting", ...acceptedCommandFollowupStates, "empty", "failed", "pending", "unknown-tick"];
-const sidePanelTabBySlot = {
-  actionMap: "action",
-  actionPrompt: "action",
-  commandCenter: "action",
-  informationBoundary: "detail",
-  interaction: "action",
-  log: "log",
-  overview: "detail",
-  promptAuthority: "detail",
-  responseCoach: "response",
-  ruleQueue: "rules",
-  serverFlow: "rules",
-  tableAuthority: "detail",
-  timelineDetail: "detail",
-  turnWindow: "response"
-};
 const { WIRE_CARD_IMAGE_RATIO } = loadTsModule(path.resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
+const {
+  WIRE_SIDE_PANEL_TAB_BY_SLOT,
+  WIRE_SIDE_PANEL_TABS
+} = loadTsModule(path.resolve(scriptDir, "../src/utils/wireSidePanelTabPlan.ts"));
+const wireSidePanelTabIds = WIRE_SIDE_PANEL_TABS.map((tab) => tab.id);
+const wireSidePanelVisibleSlotsByTab = Object.fromEntries(WIRE_SIDE_PANEL_TABS.map((tab) => [tab.id, tab.slots]));
 
 const routes = [
   { path: "/", texts: ["符文战场", "进入大厅"] },
@@ -894,14 +884,8 @@ async function runWireLayoutGeometrySmoke(cdp) {
       "actionPrompt",
       "log"
     ];
-    const expectedSidePanelTabs = ["action", "response", "rules", "log", "detail"];
-    const expectedSidePanelVisibleSlotsByTab = {
-      action: ["commandCenter", "actionMap", "interaction", "actionPrompt"],
-      response: ["responseCoach", "turnWindow"],
-      rules: ["ruleQueue", "serverFlow"],
-      log: ["log"],
-      detail: ["timelineDetail", "overview", "tableAuthority", "informationBoundary", "promptAuthority"]
-    };
+    const expectedSidePanelTabs = ${JSON.stringify(wireSidePanelTabIds)};
+    const expectedSidePanelVisibleSlotsByTab = ${JSON.stringify(wireSidePanelVisibleSlotsByTab)};
     const sidePanelTabs = Array.from(document.querySelectorAll("[data-wire-side-panel-tab]")).map((tab) => ({
       active: tab.getAttribute("data-wire-side-panel-tab-active") ?? "",
       count: tab.getAttribute("data-wire-side-panel-tab-count") ?? "",
@@ -4251,7 +4235,7 @@ async function clickButtonByText(cdp, text) {
 }
 
 async function clickSidePanelSlot(cdp, slot) {
-  const tab = sidePanelTabBySlot[slot];
+  const tab = WIRE_SIDE_PANEL_TAB_BY_SLOT[slot];
   if (!tab) {
     throw new Error(`Side panel slot has no tab mapping: ${slot}`);
   }

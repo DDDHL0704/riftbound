@@ -10,6 +10,7 @@ const { buildWireSidePanelDirectoryPlan, wireSidePanelAnchorId } = loadTsModule(
 const { buildWireSidePanelDirectoryViewPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryViewPlan.ts"));
 const { buildWireSidePanelFramePlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelFramePlan.ts"));
 const { buildWireSidePanelOrchestrationPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelOrchestrationPlan.ts"));
+const { WIRE_SIDE_PANEL_TABS } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelTabPlan.ts"));
 
 const expectedSlots = [
   "overview",
@@ -27,19 +28,6 @@ const expectedSlots = [
   "actionPrompt",
   "log"
 ];
-const expectedTabs = [
-  { id: "action", label: "行动", primarySlot: "commandCenter", slots: ["commandCenter", "actionMap", "interaction", "actionPrompt"] },
-  { id: "response", label: "响应", primarySlot: "responseCoach", slots: ["responseCoach", "turnWindow"] },
-  { id: "rules", label: "规则", primarySlot: "ruleQueue", slots: ["ruleQueue", "serverFlow"] },
-  { id: "log", label: "日志", primarySlot: "log", slots: ["log"] },
-  {
-    id: "detail",
-    label: "详情",
-    primarySlot: "timelineDetail",
-    slots: ["timelineDetail", "overview", "tableAuthority", "informationBoundary", "promptAuthority"]
-  }
-];
-
 const plan = buildWireSidePanelDirectoryPlan(layout.sidePanel.slots);
 
 assert.deepEqual(plan.entries.map((entry) => entry.slot), expectedSlots);
@@ -121,7 +109,7 @@ const actionDirectoryView = buildWireSidePanelDirectoryViewPlan({
   activeSlot: "commandCenter",
   activeTab: "action",
   entries: readyOrchestration.entries,
-  tabs: expectedTabs
+  tabs: WIRE_SIDE_PANEL_TABS
 });
 assert.equal(actionDirectoryView.activeEntry.slot, "commandCenter");
 assert.equal(actionDirectoryView.primaryEntry.slot, "commandCenter");
@@ -138,7 +126,7 @@ const detailDirectoryView = buildWireSidePanelDirectoryViewPlan({
   activeSlot: "timelineDetail",
   activeTab: "detail",
   entries: readyOrchestration.entries,
-  tabs: expectedTabs
+  tabs: WIRE_SIDE_PANEL_TABS
 });
 assert.deepEqual(detailDirectoryView.visibleEntries.map((item) => item.slot), [
   "timelineDetail",
@@ -156,7 +144,7 @@ assert.throws(
     activeTab: "action",
     entries: readyOrchestration.entries,
     tabs: [
-      ...expectedTabs,
+      ...WIRE_SIDE_PANEL_TABS,
       { id: "duplicate", label: "重复", primarySlot: "commandCenter", slots: ["commandCenter"] }
     ]
   }),
@@ -167,7 +155,7 @@ assert.throws(
     activeSlot: "commandCenter",
     activeTab: "missing",
     entries: readyOrchestration.entries,
-    tabs: expectedTabs
+    tabs: WIRE_SIDE_PANEL_TABS
   }),
   /Active wire side panel tab is not registered/
 );
