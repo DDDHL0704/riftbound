@@ -22,6 +22,7 @@ import { buildActionPanelMovementPlan } from "../../utils/actionPanelMovementPla
 import { buildActionPanelPassPlan } from "../../utils/actionPanelPassPlan";
 import { buildActionPanelPromptPlan, type ActionPanelComplexPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
+import { buildActionPanelResponsePlan } from "../../utils/actionPanelResponsePlan";
 import { buildActionPanelResourcePlan } from "../../utils/actionPanelResourcePlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
@@ -207,6 +208,21 @@ function ActionPanelRenderEntryView({
     case "window-pass":
       content = candidate ? (
         <WindowPassCandidate
+          candidate={candidate}
+          disabledByConnection={disabledByConnection}
+          onCommand={onCommand}
+          onReady={onReady}
+          onSubmitStarterDeck={onSubmitStarterDeck}
+          prompt={prompt}
+          snapshot={snapshot}
+          submitGate={entry.submitGate}
+          submissionGate={submissionGate}
+        />
+      ) : null;
+      break;
+    case "response-window":
+      content = candidate ? (
+        <ResponseWindowCandidate
           candidate={candidate}
           disabledByConnection={disabledByConnection}
           onCommand={onCommand}
@@ -511,6 +527,69 @@ function WindowPassCandidate({
       </dl>
       <p className="window-pass-note">
         {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端让过候选")}
+      </p>
+      <CandidateButton
+        candidate={candidate}
+        disabledByConnection={disabledByConnection}
+        onCommand={onCommand}
+        onReady={onReady}
+        onSubmitStarterDeck={onSubmitStarterDeck}
+        prompt={prompt}
+        snapshot={snapshot}
+        submitGate={submitGate}
+        submissionGate={submissionGate}
+      />
+    </div>
+  );
+}
+
+function ResponseWindowCandidate({
+  candidate,
+  disabledByConnection,
+  onCommand,
+  onReady,
+  onSubmitStarterDeck,
+  prompt,
+  snapshot,
+  submitGate,
+  submissionGate
+}: {
+  candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  onCommand: CommandSubmitHandler;
+  onReady: () => void;
+  onSubmitStarterDeck: () => void;
+  prompt?: ActionPromptDto;
+  snapshot?: SnapshotDto;
+  submitGate: ActionPanelSubmitGate;
+  submissionGate: ServerSubmissionGatePlan;
+}) {
+  const plan = buildActionPanelResponsePlan(candidate, { prompt, snapshot });
+
+  return (
+    <div
+      className="response-window-panel"
+      data-response-window-command-field-count={plan.commandFieldCount}
+      data-response-window-mode={plan.mode}
+      data-response-window-selection-step-count={plan.selectionStepCount}
+      data-response-window-stack-count={plan.stackCount}
+      data-response-window-state={plan.state}
+    >
+      <div className="response-window-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
+      </div>
+      <dl className="response-window-summary">
+        {plan.metricRows.map((metric) => (
+          <div data-response-window-metric={metric.key} key={metric.key}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+            <small>{metric.detail}</small>
+          </div>
+        ))}
+      </dl>
+      <p className="response-window-note">
+        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端响应候选")}
       </p>
       <CandidateButton
         candidate={candidate}

@@ -8,6 +8,7 @@ export type ActionPanelRenderEntryKind =
   | "mulligan"
   | "order-triggers"
   | "pay-cost"
+  | "response-window"
   | "rune-resource"
   | "unit-movement"
   | "window-pass";
@@ -262,6 +263,9 @@ function entryKindForAction(action: string): ActionPanelRenderEntryKind {
     case "PASS_FOCUS":
     case "PASS_PRIORITY":
       return "window-pass";
+    case "RESPOND":
+    case "WAIT":
+      return "response-window";
     case "RECYCLE_RUNE":
     case "TAP_RUNE":
       return "rune-resource";

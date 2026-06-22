@@ -1857,6 +1857,7 @@ button.card-face:hover {
 .app-frame-match .unit-movement-panel,
 .app-frame-match .rune-resource-panel,
 .app-frame-match .window-pass-panel,
+.app-frame-match .response-window-panel,
 .app-frame-match .hand-choice-panel,
 .app-frame-match .damage-assignment-panel,
 .app-frame-match .trigger-order-panel,
@@ -1971,6 +1972,7 @@ button.card-face:hover {
 .unit-movement-panel,
 .rune-resource-panel,
 .window-pass-panel,
+.response-window-panel,
 .hand-choice-panel,
 .damage-assignment-panel,
 .pay-cost-panel,
@@ -2020,6 +2022,7 @@ button.card-face:hover {
 .unit-movement-heading,
 .rune-resource-heading,
 .window-pass-heading,
+.response-window-heading,
 .damage-assignment-heading,
 .pay-cost-heading,
 .trigger-order-heading,
@@ -2704,6 +2707,51 @@ button.card-face:hover {
 }
 
 .window-pass-note {
+  margin: 0;
+}
+
+.response-window-panel {
+  gap: 9px;
+}
+
+.response-window-heading > strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.response-window-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+
+.response-window-summary div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 7px;
+}
+
+.response-window-summary dt,
+.response-window-summary small,
+.response-window-note {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
+
+.response-window-summary dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.response-window-note {
   margin: 0;
 }
 
@@ -17975,6 +18023,8 @@ button.wire-object-ref {
 .wire-match-page .rune-resource-summary div,
 .wire-match-page .window-pass-panel,
 .wire-match-page .window-pass-summary div,
+.wire-match-page .response-window-panel,
+.wire-match-page .response-window-summary div,
 .wire-match-page .hand-choice-panel,
 .wire-match-page .damage-assignment-panel,
 .wire-match-page .pay-cost-panel,
@@ -18322,6 +18372,8 @@ button.wire-object-ref {
 .wire-match-page .rune-resource-pool,
 .wire-match-page .window-pass-summary *,
 .wire-match-page .window-pass-note,
+.wire-match-page .response-window-summary *,
+.wire-match-page .response-window-note,
 .wire-match-page .complex-prompt-details,
 .wire-match-page .complex-prompt-details *,
 .wire-match-page .generic-prompt-contract,

@@ -199,4 +199,24 @@ assert.equal(windowBlockedPlan.entries[0].kind, "window-pass");
 assert.equal(windowBlockedPlan.entries[0].submitGate.state, "window-blocked");
 assert.equal(windowBlockedPlan.entries[0].submitGate.reason, "当前行动窗口不能提交该候选。");
 
+const responseWindowPlan = buildActionPanelRenderPlan({
+  canAct: true,
+  connected: true,
+  prompt: {
+    actionable: true,
+    candidates: [
+      { action: "RESPOND", enabled: true, label: "响应结算链", reason: "可响应" },
+      { action: "WAIT", enabled: false, label: "等待", reason: "等待服务端" }
+    ],
+    playerId: "P1",
+    view: { type: "STACK_PRIORITY" }
+  }
+});
+
+assert.equal(responseWindowPlan.state, "ready");
+assert.deepEqual(responseWindowPlan.entries.map((entry) => entry.kind), ["response-window", "response-window"]);
+assert.equal(responseWindowPlan.entries[0].canAct, true);
+assert.equal(responseWindowPlan.entries[1].canAct, false);
+assert.equal(responseWindowPlan.entries[1].submitGate.state, "server-blocked");
+
 console.log("Action panel render plan check passed.");
