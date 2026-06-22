@@ -279,9 +279,14 @@ function entryState(
 }
 
 function primaryEntry(entries: WireSidePanelOrchestrationEntry[]): WireSidePanelOrchestrationEntry {
-  return entries
+  const mainPaneEntries = entries.filter((entry) => entry.slot !== "serverFlow");
+  // The server-flow pane is always visible in the right rail, so it should not steal the main work pane.
+  return mainPaneEntries
     .slice()
     .sort((left, right) => stateWeight(right.state) - stateWeight(left.state) || left.order - right.order)[0]
+    ?? entries
+      .slice()
+      .sort((left, right) => stateWeight(right.state) - stateWeight(left.state) || left.order - right.order)[0]
     ?? {
       count: 0,
       detail: "暂无右侧面板。",

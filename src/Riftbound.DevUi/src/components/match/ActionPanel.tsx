@@ -17,13 +17,8 @@ import {
   type ActionPanelCandidateCommandPlan,
   type ActionPanelDirectActionKind
 } from "../../utils/actionPanelCommandPlan";
-import { buildActionPanelBattleDeclarationPlan } from "../../utils/actionPanelBattleDeclarationPlan";
-import { buildActionPanelMovementPlan } from "../../utils/actionPanelMovementPlan";
-import { buildActionPanelPassPlan } from "../../utils/actionPanelPassPlan";
 import { buildActionPanelPromptPlan, type ActionPanelComplexPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
-import { buildActionPanelResponsePlan } from "../../utils/actionPanelResponsePlan";
-import { buildActionPanelResourcePlan } from "../../utils/actionPanelResourcePlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
 import type { CommandSubmitHandler, CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
@@ -31,6 +26,13 @@ import { buildServerSubmissionGatePlan, type ServerSubmissionGatePlan } from "..
 import { Button } from "../ui/Button";
 import { ScrollArea } from "../ui/ScrollArea";
 import { StatusPill } from "../ui/StatusPill";
+import {
+  BattleDeclarationCandidatePreview,
+  ResponseWindowCandidatePreview,
+  RuneResourceCandidatePreview,
+  UnitMovementCandidatePreview,
+  WindowPassCandidatePreview
+} from "./ActionPanelCandidatePreviews";
 import { CandidateComposer } from "./CandidateComposer";
 
 type ActionPanelProps = {
@@ -121,17 +123,22 @@ function ActionPanelRenderEntryView({
   switch (entry.kind) {
     case "battle-declaration":
       content = candidate ? (
-        <BattleDeclarationCandidate
+        <BattleDeclarationCandidatePreview
           candidate={candidate}
-          disabledByConnection={disabledByConnection}
-          onCommand={onCommand}
-          onReady={onReady}
-          onSubmitStarterDeck={onSubmitStarterDeck}
-          prompt={prompt}
-          snapshot={snapshot}
           submitGate={entry.submitGate}
-          submissionGate={submissionGate}
-        />
+        >
+          <CandidateButton
+            candidate={candidate}
+            disabledByConnection={disabledByConnection}
+            onCommand={onCommand}
+            onReady={onReady}
+            onSubmitStarterDeck={onSubmitStarterDeck}
+            prompt={prompt}
+            snapshot={snapshot}
+            submitGate={entry.submitGate}
+            submissionGate={submissionGate}
+          />
+        </BattleDeclarationCandidatePreview>
       ) : null;
       break;
     case "mulligan":
@@ -146,17 +153,22 @@ function ActionPanelRenderEntryView({
       break;
     case "unit-movement":
       content = candidate ? (
-        <UnitMovementCandidate
+        <UnitMovementCandidatePreview
           candidate={candidate}
-          disabledByConnection={disabledByConnection}
-          onCommand={onCommand}
-          onReady={onReady}
-          onSubmitStarterDeck={onSubmitStarterDeck}
-          prompt={prompt}
-          snapshot={snapshot}
           submitGate={entry.submitGate}
-          submissionGate={submissionGate}
-        />
+        >
+          <CandidateButton
+            candidate={candidate}
+            disabledByConnection={disabledByConnection}
+            onCommand={onCommand}
+            onReady={onReady}
+            onSubmitStarterDeck={onSubmitStarterDeck}
+            prompt={prompt}
+            snapshot={snapshot}
+            submitGate={entry.submitGate}
+            submissionGate={submissionGate}
+          />
+        </UnitMovementCandidatePreview>
       ) : null;
       break;
     case "hand-choice":
@@ -207,47 +219,68 @@ function ActionPanelRenderEntryView({
       break;
     case "window-pass":
       content = candidate ? (
-        <WindowPassCandidate
+        <WindowPassCandidatePreview
           candidate={candidate}
-          disabledByConnection={disabledByConnection}
-          onCommand={onCommand}
-          onReady={onReady}
-          onSubmitStarterDeck={onSubmitStarterDeck}
           prompt={prompt}
           snapshot={snapshot}
           submitGate={entry.submitGate}
-          submissionGate={submissionGate}
-        />
+        >
+          <CandidateButton
+            candidate={candidate}
+            disabledByConnection={disabledByConnection}
+            onCommand={onCommand}
+            onReady={onReady}
+            onSubmitStarterDeck={onSubmitStarterDeck}
+            prompt={prompt}
+            snapshot={snapshot}
+            submitGate={entry.submitGate}
+            submissionGate={submissionGate}
+          />
+        </WindowPassCandidatePreview>
       ) : null;
       break;
     case "response-window":
       content = candidate ? (
-        <ResponseWindowCandidate
+        <ResponseWindowCandidatePreview
           candidate={candidate}
-          disabledByConnection={disabledByConnection}
-          onCommand={onCommand}
-          onReady={onReady}
-          onSubmitStarterDeck={onSubmitStarterDeck}
           prompt={prompt}
           snapshot={snapshot}
           submitGate={entry.submitGate}
-          submissionGate={submissionGate}
-        />
+        >
+          <CandidateButton
+            candidate={candidate}
+            disabledByConnection={disabledByConnection}
+            onCommand={onCommand}
+            onReady={onReady}
+            onSubmitStarterDeck={onSubmitStarterDeck}
+            prompt={prompt}
+            snapshot={snapshot}
+            submitGate={entry.submitGate}
+            submissionGate={submissionGate}
+          />
+        </ResponseWindowCandidatePreview>
       ) : null;
       break;
     case "rune-resource":
       content = candidate ? (
-        <RuneResourceCandidate
+        <RuneResourceCandidatePreview
           candidate={candidate}
-          disabledByConnection={disabledByConnection}
-          onCommand={onCommand}
-          onReady={onReady}
-          onSubmitStarterDeck={onSubmitStarterDeck}
           prompt={prompt}
           snapshot={snapshot}
           submitGate={entry.submitGate}
-          submissionGate={submissionGate}
-        />
+        >
+          <CandidateButton
+            candidate={candidate}
+            disabledByConnection={disabledByConnection}
+            onCommand={onCommand}
+            onReady={onReady}
+            onSubmitStarterDeck={onSubmitStarterDeck}
+            prompt={prompt}
+            snapshot={snapshot}
+            submitGate={entry.submitGate}
+            submissionGate={submissionGate}
+          />
+        </RuneResourceCandidatePreview>
       ) : null;
       break;
     case "candidate-button":
@@ -281,327 +314,6 @@ function ActionPanelRenderEntryView({
       data-action-render-submit-state={entry.submitGate.state}
     >
       {content}
-    </div>
-  );
-}
-
-function BattleDeclarationCandidate({
-  candidate,
-  disabledByConnection,
-  onCommand,
-  onReady,
-  onSubmitStarterDeck,
-  prompt,
-  snapshot,
-  submitGate,
-  submissionGate
-}: {
-  candidate: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
-  onCommand: CommandSubmitHandler;
-  onReady: () => void;
-  onSubmitStarterDeck: () => void;
-  prompt?: ActionPromptDto;
-  snapshot?: SnapshotDto;
-  submitGate: ActionPanelSubmitGate;
-  submissionGate: ServerSubmissionGatePlan;
-}) {
-  const plan = buildActionPanelBattleDeclarationPlan(candidate);
-
-  return (
-    <div
-      className="battle-declaration-panel"
-      data-battle-declaration-battlefield-count={plan.battlefieldChoiceCount}
-      data-battle-declaration-cost-count={plan.optionalCostChoiceCount}
-      data-battle-declaration-defender-count={plan.defenderChoiceCount}
-      data-battle-declaration-payment-resource-count={plan.paymentResourceChoiceCount}
-      data-battle-declaration-requirement-count={plan.requirementCount}
-      data-battle-declaration-source-count={plan.sourceChoiceCount}
-      data-battle-declaration-state={plan.state}
-      data-battle-declaration-template-field-count={plan.commandFieldCount}
-    >
-      <div className="battle-declaration-heading">
-        <strong>{promptActionLabel(candidate)}</strong>
-        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
-      </div>
-      <dl className="battle-declaration-summary">
-        {plan.metricRows.map((metric) => (
-          <div data-battle-declaration-metric={metric.key} key={metric.key}>
-            <dt>{metric.label}</dt>
-            <dd>{metric.value}</dd>
-            <small>{metric.detail}</small>
-          </div>
-        ))}
-      </dl>
-      <p className="battle-declaration-note">
-        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端声明战斗候选")}
-      </p>
-      <CandidateButton
-        candidate={candidate}
-        disabledByConnection={disabledByConnection}
-        onCommand={onCommand}
-        onReady={onReady}
-        onSubmitStarterDeck={onSubmitStarterDeck}
-        prompt={prompt}
-        snapshot={snapshot}
-        submitGate={submitGate}
-        submissionGate={submissionGate}
-      />
-    </div>
-  );
-}
-
-function UnitMovementCandidate({
-  candidate,
-  disabledByConnection,
-  onCommand,
-  onReady,
-  onSubmitStarterDeck,
-  prompt,
-  snapshot,
-  submitGate,
-  submissionGate
-}: {
-  candidate: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
-  onCommand: CommandSubmitHandler;
-  onReady: () => void;
-  onSubmitStarterDeck: () => void;
-  prompt?: ActionPromptDto;
-  snapshot?: SnapshotDto;
-  submitGate: ActionPanelSubmitGate;
-  submissionGate: ServerSubmissionGatePlan;
-}) {
-  const plan = buildActionPanelMovementPlan(candidate);
-
-  return (
-    <div
-      className="unit-movement-panel"
-      data-unit-movement-cost-count={plan.optionalCostChoiceCount}
-      data-unit-movement-destination-count={plan.destinationChoiceCount}
-      data-unit-movement-origin-count={plan.originCount}
-      data-unit-movement-requirement-count={plan.requirementCount}
-      data-unit-movement-source-count={plan.sourceChoiceCount}
-      data-unit-movement-state={plan.state}
-      data-unit-movement-template-field-count={plan.commandFieldCount}
-    >
-      <div className="unit-movement-heading">
-        <strong>{promptActionLabel(candidate)}</strong>
-        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
-      </div>
-      <dl className="unit-movement-summary">
-        {plan.metricRows.map((metric) => (
-          <div data-unit-movement-metric={metric.key} key={metric.key}>
-            <dt>{metric.label}</dt>
-            <dd>{metric.value}</dd>
-            <small>{metric.detail}</small>
-          </div>
-        ))}
-      </dl>
-      <p className="unit-movement-note">
-        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端移动候选")}
-      </p>
-      <CandidateButton
-        candidate={candidate}
-        disabledByConnection={disabledByConnection}
-        onCommand={onCommand}
-        onReady={onReady}
-        onSubmitStarterDeck={onSubmitStarterDeck}
-        prompt={prompt}
-        snapshot={snapshot}
-        submitGate={submitGate}
-        submissionGate={submissionGate}
-      />
-    </div>
-  );
-}
-
-function RuneResourceCandidate({
-  candidate,
-  disabledByConnection,
-  onCommand,
-  onReady,
-  onSubmitStarterDeck,
-  prompt,
-  snapshot,
-  submitGate,
-  submissionGate
-}: {
-  candidate: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
-  onCommand: CommandSubmitHandler;
-  onReady: () => void;
-  onSubmitStarterDeck: () => void;
-  prompt?: ActionPromptDto;
-  snapshot?: SnapshotDto;
-  submitGate: ActionPanelSubmitGate;
-  submissionGate: ServerSubmissionGatePlan;
-}) {
-  const plan = buildActionPanelResourcePlan(candidate, { playerId: prompt?.playerId, snapshot });
-
-  return (
-    <div
-      className="rune-resource-panel"
-      data-rune-resource-command-field-count={plan.commandFieldCount}
-      data-rune-resource-power-trait-count={plan.powerTraitCount}
-      data-rune-resource-selection-step-count={plan.selectionStepCount}
-      data-rune-resource-source-count={plan.sourceChoiceCount}
-      data-rune-resource-state={plan.state}
-    >
-      <div className="rune-resource-heading">
-        <strong>{promptActionLabel(candidate)}</strong>
-        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
-      </div>
-      <dl className="rune-resource-summary">
-        {plan.metricRows.map((metric) => (
-          <div data-rune-resource-metric={metric.key} key={metric.key}>
-            <dt>{metric.label}</dt>
-            <dd>{metric.value}</dd>
-            <small>{metric.detail}</small>
-          </div>
-        ))}
-      </dl>
-      <p className="rune-resource-note">
-        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端符文资源候选")}
-      </p>
-      <small className="rune-resource-pool">{plan.poolLabel}</small>
-      <CandidateButton
-        candidate={candidate}
-        disabledByConnection={disabledByConnection}
-        onCommand={onCommand}
-        onReady={onReady}
-        onSubmitStarterDeck={onSubmitStarterDeck}
-        prompt={prompt}
-        snapshot={snapshot}
-        submitGate={submitGate}
-        submissionGate={submissionGate}
-      />
-    </div>
-  );
-}
-
-function WindowPassCandidate({
-  candidate,
-  disabledByConnection,
-  onCommand,
-  onReady,
-  onSubmitStarterDeck,
-  prompt,
-  snapshot,
-  submitGate,
-  submissionGate
-}: {
-  candidate: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
-  onCommand: CommandSubmitHandler;
-  onReady: () => void;
-  onSubmitStarterDeck: () => void;
-  prompt?: ActionPromptDto;
-  snapshot?: SnapshotDto;
-  submitGate: ActionPanelSubmitGate;
-  submissionGate: ServerSubmissionGatePlan;
-}) {
-  const plan = buildActionPanelPassPlan(candidate, { prompt, snapshot });
-
-  return (
-    <div
-      className="window-pass-panel"
-      data-window-pass-command-field-count={plan.commandFieldCount}
-      data-window-pass-mode={plan.mode}
-      data-window-pass-passed-count={plan.passedCount}
-      data-window-pass-stack-count={plan.stackCount}
-      data-window-pass-state={plan.state}
-    >
-      <div className="window-pass-heading">
-        <strong>{promptActionLabel(candidate)}</strong>
-        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
-      </div>
-      <dl className="window-pass-summary">
-        {plan.metricRows.map((metric) => (
-          <div data-window-pass-metric={metric.key} key={metric.key}>
-            <dt>{metric.label}</dt>
-            <dd>{metric.value}</dd>
-            <small>{metric.detail}</small>
-          </div>
-        ))}
-      </dl>
-      <p className="window-pass-note">
-        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端让过候选")}
-      </p>
-      <CandidateButton
-        candidate={candidate}
-        disabledByConnection={disabledByConnection}
-        onCommand={onCommand}
-        onReady={onReady}
-        onSubmitStarterDeck={onSubmitStarterDeck}
-        prompt={prompt}
-        snapshot={snapshot}
-        submitGate={submitGate}
-        submissionGate={submissionGate}
-      />
-    </div>
-  );
-}
-
-function ResponseWindowCandidate({
-  candidate,
-  disabledByConnection,
-  onCommand,
-  onReady,
-  onSubmitStarterDeck,
-  prompt,
-  snapshot,
-  submitGate,
-  submissionGate
-}: {
-  candidate: ActionPromptCandidateDto;
-  disabledByConnection: boolean;
-  onCommand: CommandSubmitHandler;
-  onReady: () => void;
-  onSubmitStarterDeck: () => void;
-  prompt?: ActionPromptDto;
-  snapshot?: SnapshotDto;
-  submitGate: ActionPanelSubmitGate;
-  submissionGate: ServerSubmissionGatePlan;
-}) {
-  const plan = buildActionPanelResponsePlan(candidate, { prompt, snapshot });
-
-  return (
-    <div
-      className="response-window-panel"
-      data-response-window-command-field-count={plan.commandFieldCount}
-      data-response-window-mode={plan.mode}
-      data-response-window-selection-step-count={plan.selectionStepCount}
-      data-response-window-stack-count={plan.stackCount}
-      data-response-window-state={plan.state}
-    >
-      <div className="response-window-heading">
-        <strong>{promptActionLabel(candidate)}</strong>
-        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
-      </div>
-      <dl className="response-window-summary">
-        {plan.metricRows.map((metric) => (
-          <div data-response-window-metric={metric.key} key={metric.key}>
-            <dt>{metric.label}</dt>
-            <dd>{metric.value}</dd>
-            <small>{metric.detail}</small>
-          </div>
-        ))}
-      </dl>
-      <p className="response-window-note">
-        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端响应候选")}
-      </p>
-      <CandidateButton
-        candidate={candidate}
-        disabledByConnection={disabledByConnection}
-        onCommand={onCommand}
-        onReady={onReady}
-        onSubmitStarterDeck={onSubmitStarterDeck}
-        prompt={prompt}
-        snapshot={snapshot}
-        submitGate={submitGate}
-        submissionGate={submissionGate}
-      />
     </div>
   );
 }

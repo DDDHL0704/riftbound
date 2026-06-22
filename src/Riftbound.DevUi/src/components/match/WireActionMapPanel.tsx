@@ -43,6 +43,7 @@ type WireActionMapPanelProps = {
   prompt?: ActionPromptDto;
   selectedObjectId?: string;
   selectionDraft?: CandidateSelectionDraft;
+  showSubmissionFeedback?: boolean;
   snapshot?: SnapshotDto;
   submissionFeedback?: CommandSubmissionFeedback;
   submissionGate?: ServerSubmissionGatePlan;
@@ -61,6 +62,7 @@ export function WireActionMapPanel({
   prompt,
   selectedObjectId,
   selectionDraft,
+  showSubmissionFeedback = true,
   snapshot,
   submissionFeedback,
   submissionGate,
@@ -93,18 +95,20 @@ export function WireActionMapPanel({
       <ActionLayoutProjectionPanel plan={layoutProjection} />
       {plan.contract && <PromptContractStrip contract={plan.contract} />}
       <CommandReviewPanel onCommand={onCommand} review={plan.commandReview} />
-      <CommandSubmissionFeedbackPanel
-        contract={prompt?.contract}
-        events={events}
-        feedback={submissionFeedback}
-        objectContextById={objectContextById}
-        onInspectObject={onInspectObject}
-        onSelectFollowupEvent={onSelectFollowupEvent}
-        onSelectServerEventKind={onSelectServerEventKind}
-        selectedObjectId={selectedObjectId}
-        snapshot={snapshot}
-        table={table}
-      />
+      {showSubmissionFeedback ? (
+        <CommandSubmissionFeedbackPanel
+          contract={prompt?.contract}
+          events={events}
+          feedback={submissionFeedback}
+          objectContextById={objectContextById}
+          onInspectObject={onInspectObject}
+          onSelectFollowupEvent={onSelectFollowupEvent}
+          onSelectServerEventKind={onSelectServerEventKind}
+          selectedObjectId={selectedObjectId}
+          snapshot={snapshot}
+          table={table}
+        />
+      ) : null}
       <CurrentRouteStrip route={plan.route} />
 
       <div aria-label="服务端可操作对象入口" className="wire-action-entry-strip" role="group" tabIndex={0}>
@@ -243,7 +247,7 @@ function ActionLayoutProjectionPanel({ plan }: { plan: WireActionLayoutProjectio
   );
 }
 
-function CommandSubmissionFeedbackPanel({
+export function CommandSubmissionFeedbackPanel({
   contract,
   events,
   feedback,

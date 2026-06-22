@@ -4,7 +4,7 @@ import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { EventLog } from "../components/match/EventLog";
-import { WireActionMapPanel } from "../components/match/WireActionMapPanel";
+import { CommandSubmissionFeedbackPanel, WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { WireCommandCenterPanel } from "../components/match/WireCommandCenterPanel";
 import { useDelayedWireCardPreview, WireCardPreview } from "../components/match/WireCardPreview";
 import { WireInformationBoundaryPanel } from "../components/match/WireInformationBoundaryPanel";
@@ -693,6 +693,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           selectedObjectId={selectedObjectId}
           selectionDraft={selectionDraft}
           snapshot={tableSnapshot}
+          showSubmissionFeedback={false}
           submissionFeedback={tableSubmissionFeedback}
           submissionGate={tableSubmissionGate}
           table={tableView}
@@ -901,13 +902,32 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             windowState={timingStateLabel(windowState)}
           />
           <div
+            aria-label="服务端提交回执常驻区"
+            className="wire-side-panel-receipt"
+            data-wire-side-panel-receipt
+            tabIndex={0}
+          >
+            <CommandSubmissionFeedbackPanel
+              contract={tablePrompt?.contract}
+              events={tableEvents}
+              feedback={tableSubmissionFeedback}
+              objectContextById={tableObjectContextModel.byId}
+              onInspectObject={inspectObjectFromTable}
+              onSelectFollowupEvent={selectFollowupEvent}
+              onSelectServerEventKind={selectServerEventKind}
+              selectedObjectId={selectedObjectId}
+              snapshot={tableSnapshot}
+              table={tableView}
+            />
+          </div>
+          <div
             className="wire-side-panel-stack"
             data-wire-side-panel-active-slot={activeSidePanelSlot}
             data-wire-side-panel-active-tab={activeSidePanelTab}
           >
             {WIRE_TABLE_LAYOUT.sidePanel.slots.map((slot) => (
               <div
-                aria-hidden={slot !== activeSidePanelSlot}
+                aria-hidden={slot !== activeSidePanelSlot && slot !== "serverFlow"}
                 className="wire-side-panel-pane"
                 data-wire-side-panel-pane={slot}
                 data-wire-side-panel-pane-active={slot === activeSidePanelSlot}

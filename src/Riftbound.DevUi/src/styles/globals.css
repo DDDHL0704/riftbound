@@ -12421,7 +12421,7 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(92px, auto) minmax(0, 1fr);
   gap: 4px;
   overflow: hidden;
   padding: 4px;
@@ -12645,9 +12645,26 @@ button.card-face:hover {
   line-height: 1.15;
 }
 
+.wire-side-panel-receipt {
+  min-width: 0;
+  min-height: 0;
+  max-height: clamp(92px, 17vh, 190px);
+  display: grid;
+  overflow: auto;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+.wire-side-panel-receipt > .wire-command-submission-feedback {
+  border: 0 !important;
+}
+
 .wire-side-panel-stack {
   min-height: 0;
   display: grid;
+  grid-template-rows: minmax(132px, auto) minmax(0, 1fr);
+  gap: 4px;
   overflow: hidden;
 }
 
@@ -12659,7 +12676,27 @@ button.card-face:hover {
 
 .wire-side-panel-pane[data-wire-side-panel-pane-active="true"] {
   display: grid;
+  grid-row: 2;
   min-height: 0;
+}
+
+.wire-side-panel-pane[data-wire-side-panel-pane="serverFlow"] {
+  grid-row: 1;
+  display: grid;
+  min-height: 0;
+  max-height: clamp(132px, 24vh, 260px);
+  overflow: auto;
+  border: 1px solid #000;
+}
+
+.wire-side-panel-pane[data-wire-side-panel-pane="serverFlow"][data-wire-side-panel-pane-active="true"] {
+  grid-row: 1;
+  outline: 2px solid #000;
+  outline-offset: -2px;
+}
+
+.wire-side-panel-pane[data-wire-side-panel-pane="serverFlow"] > .wire-panel {
+  padding: 0;
 }
 
 .wire-panel {
