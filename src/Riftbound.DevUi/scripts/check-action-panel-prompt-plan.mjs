@@ -194,6 +194,67 @@ assert.equal(complexPlan.inspection?.groups.find((group) => group.key === "safe-
 assert.equal(JSON.stringify(complexPlan).includes("serverPaymentState"), false);
 assert.equal(JSON.stringify(complexPlan).includes("never show this raw value"), false);
 
+const spellDuelPlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["PLAY_CARD", "ACTIVATE_ABILITY", "PASS_FOCUS"],
+    candidates: [
+      { action: "PLAY_CARD", enabled: true, label: "打出法术", reason: "可响应" },
+      { action: "ACTIVATE_ABILITY", enabled: false, label: "激活技能", reason: "资源不足" },
+      { action: "PASS_FOCUS", enabled: true, label: "让过焦点", reason: "可让过" }
+    ],
+    playerId: "P1",
+    reason: "SPELL_DUEL_FOCUS",
+    view: {
+      message: "处理法术对决焦点。",
+      relatedBattlefieldId: "bf-1",
+      relatedSpellDuelId: "spell-duel-1",
+      responsibility: {
+        actionableForPromptPlayer: true,
+        isResponsiblePlayer: true,
+        nextStep: "根据服务端候选处理法术对决。",
+        promptPlayerId: "P1",
+        promptType: "SPELL_DUEL_FOCUS",
+        queueCounts: { stack: 1 },
+        relatedObjectIds: ["spell-1"],
+        responsiblePlayerId: "P1",
+        state: "PLAYER_ACTION"
+      },
+      title: "法术对决",
+      type: "SPELL_DUEL_FOCUS"
+    }
+  },
+  snapshot: {
+    stack: [{ stackItemId: "stack-1" }],
+    tick: 10,
+    timing: {
+      focusPlayerId: "P1",
+      spellDuel: {
+        battlefieldObjectId: "bf-from-snapshot",
+        focusPlayerId: "P1",
+        isActive: true,
+        passedFocusPlayerIds: ["P2"],
+        spellDuelId: "spell-duel-from-snapshot",
+        stackControllerIds: ["P1"],
+        stackItemIds: ["stack-1"]
+      }
+    }
+  }
+});
+
+assert.equal(spellDuelPlan.genericPrompt, undefined);
+assert.equal(spellDuelPlan.spellDuel?.stateLabel, "轮到你处理焦点");
+assert.equal(spellDuelPlan.spellDuel?.nextStep, "根据服务端候选处理法术对决。");
+assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "spell-duel-id")?.value, "spell-duel-1");
+assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "battlefield")?.value, "bf-1");
+assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "focus")?.mine, true);
+assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "stack")?.value, "1 项");
+assert.equal(spellDuelPlan.spellDuel?.actionRows.find((row) => row.key === "responses")?.value, "打出法术");
+assert.equal(spellDuelPlan.spellDuel?.actionRows.find((row) => row.key === "pass")?.value, "可让过");
+assert.equal(spellDuelPlan.spellDuel?.actionRows.find((row) => row.key === "blocked")?.value, "1 项");
+
 const unknownPlan = buildActionPanelPromptPlan({
   connectionStatus: "connected",
   playerId: "P1",

@@ -47,6 +47,27 @@ export type ActionPanelGenericPromptPlan = {
   statusLabel: string;
 };
 
+export type ActionPanelSpellDuelMetric = {
+  key: string;
+  label: string;
+  mine?: boolean;
+  value: string;
+};
+
+export type ActionPanelSpellDuelActionRow = {
+  count: number;
+  key: string;
+  label: string;
+  value: string;
+};
+
+export type ActionPanelSpellDuelPlan = {
+  actionRows: ActionPanelSpellDuelActionRow[];
+  metrics: ActionPanelSpellDuelMetric[];
+  nextStep: string;
+  stateLabel: string;
+};
+
 export type ActionPanelPromptPlan = {
   canAct: boolean;
   genericPrompt?: ActionPanelGenericPromptPlan;
@@ -54,6 +75,7 @@ export type ActionPanelPromptPlan = {
   promptMessage: string;
   promptTitle: string;
   rows: ActionPanelPromptSummaryRow[];
+  spellDuel?: ActionPanelSpellDuelPlan;
   statusLabel: string;
   statusTone: "good" | "neutral";
 };
@@ -87,6 +109,7 @@ export function buildActionPanelPromptPlan({
     promptMessage,
     promptTitle,
     rows: promptSummaryRows(prompt, promptMessage, connectionStatus, gate),
+    spellDuel: prompt && isSpellDuelPromptType(prompt.view?.type) ? buildSpellDuelPlan({ playerId, prompt, snapshot }) : undefined,
     statusLabel: canAct ? "轮到你操作" : gate.canSubmit ? "等待服务端或对手" : gate.stateLabel,
     statusTone: canAct ? "good" : "neutral"
   };
@@ -158,6 +181,72 @@ function buildGenericPromptPlan(prompt: ActionPromptDto): ActionPanelGenericProm
     metadataRows,
     note: "该窗口需要服务端正式交互字段支持；当前只展示安全候选摘要，不在前端计算或模拟规则结果。",
     statusLabel: knownPromptTypes.has(type) ? "复杂窗口" : "未知窗口"
+  };
+}
+
+function buildSpellDuelPlan({
+  playerId,
+  prompt,
+  snapshot
+}: {
+  playerId: string;
+  prompt: ActionPromptDto;
+  snapshot?: SnapshotDto;
+}): ActionPanelSpellDuelPlan {
+  const timing = record(snapshot?.timing);
+  const spellDuel = record(timing.spellDuel);
+  const focusPlayerId = firstNonEmpty(
+    stringValue(spellDuel.focusPlayerId),
+    stringValue(timing.focusPlayerId),
+    prompt.view?.responsibility?.responsiblePlayerId,
+    prompt.playerId
+  );
+  const stackItemIds = array<string>(spellDuel.stackItemIds);
+  const stackControllerIds = array<string>(spellDuel.stackControllerIds);
+  const passedFocusPlayerIds = array<string>(spellDuel.passedFocusPlayerIds);
+  const responseActions = prompt.candidates?.filter((candidate) => candidate.enabled && isSpellDuelResponseAction(candidate.action)) ?? [];
+  const passFocus = prompt.candidates?.filter((candidate) => candidate.action === "PASS_FOCUS") ?? [];
+  const blockedActions = prompt.candidates?.filter((candidate) => !candidate.enabled && candidate.action !== "PASS_FOCUS") ?? [];
+  const canAct = Boolean(prompt.actionable && prompt.playerId === playerId);
+
+  return {
+    actionRows: [
+      {
+        count: responseActions.length,
+        key: "responses",
+        label: "可响应",
+        value: responseActions.length > 0
+          ? responseActions.slice(0, 3).map((candidate) => promptActionLabel(candidate)).join("、")
+          : "无"
+      },
+      {
+        count: passFocus.filter((candidate) => candidate.enabled).length,
+        key: "pass",
+        label: "让过焦点",
+        value: passFocus.length > 0
+          ? passFocus.map((candidate) => candidate.enabled ? "可让过" : promptReasonLabel(candidate.reason, "暂不可让过")).join("、")
+          : "服务端未提供"
+      },
+      {
+        count: blockedActions.length,
+        key: "blocked",
+        label: "阻断候选",
+        value: blockedActions.length > 0
+          ? `${blockedActions.length} 项`
+          : "无"
+      }
+    ],
+    metrics: [
+      { key: "spell-duel-id", label: "法术对决", value: firstNonEmpty(prompt.view?.relatedSpellDuelId, stringValue(spellDuel.spellDuelId), "服务端未提供") },
+      { key: "battlefield", label: "战场", value: firstNonEmpty(prompt.view?.relatedBattlefieldId, stringValue(spellDuel.battlefieldObjectId), "服务端未提供") },
+      { key: "focus", label: "焦点玩家", mine: focusPlayerId === playerId, value: focusPlayerId || "服务端未提供" },
+      { key: "stack", label: "对决结算链", value: stackItemIds.length > 0 ? `${stackItemIds.length} 项` : `${snapshot?.stack?.length ?? 0} 项` },
+      { key: "controllers", label: "结算控制者", value: summarizeIds(stackControllerIds) },
+      { key: "passed", label: "已让过", value: passedFocusPlayerIds.length > 0 ? summarizeIds(passedFocusPlayerIds) : "无" }
+    ],
+    nextStep: prompt.view?.responsibility?.nextStep
+      || (canAct ? "选择一个服务端响应候选，或让过当前法术对决焦点。" : `等待 ${focusPlayerId || prompt.playerId} 处理法术对决焦点。`),
+    stateLabel: canAct ? "轮到你处理焦点" : focusPlayerId === playerId ? "等待服务端入口" : "等待焦点玩家"
   };
 }
 
@@ -241,7 +330,7 @@ function shouldShowGenericPromptDetails(prompt: ActionPromptDto): boolean {
     return false;
   }
 
-  return complexPromptTypes.has(type) || !knownPromptTypes.has(type);
+  return !isSpellDuelPromptType(type) && (complexPromptTypes.has(type) || !knownPromptTypes.has(type));
 }
 
 function choiceLabel(choice: ActionPromptChoiceDto): string {
@@ -289,8 +378,7 @@ const complexPromptTypes = new Set<string>([
   "PAY_COST",
   "ORDER_TRIGGERS",
   "HAND_CHOICE",
-  "ASSIGN_COMBAT_DAMAGE",
-  "SPELL_DUEL_ACTION"
+  "ASSIGN_COMBAT_DAMAGE"
 ]);
 
 const safeStringMetadataKeys = new Set<string>([
@@ -303,3 +391,40 @@ const safeStringMetadataKeys = new Set<string>([
   "status",
   "window"
 ]);
+
+function isSpellDuelPromptType(type: string | undefined): boolean {
+  return type === "SPELL_DUEL_FOCUS" || type === "SPELL_DUEL_ACTION";
+}
+
+function isSpellDuelResponseAction(action: string): boolean {
+  return action === "PLAY_CARD"
+    || action === "ACTIVATE_ABILITY"
+    || action === "LEGEND_ACT"
+    || action === "REVEAL_CARD"
+    || action === "HIDE_CARD";
+}
+
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function array<T = unknown>(value: unknown): T[] {
+  return Array.isArray(value) ? value as T[] : [];
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function firstNonEmpty(...values: Array<string | null | undefined>): string {
+  return values.find((value): value is string => Boolean(value?.trim()))?.trim() ?? "";
+}
+
+function summarizeIds(ids: string[]): string {
+  const safeIds = ids.filter((id) => typeof id === "string" && id.trim().length > 0);
+  if (safeIds.length === 0) {
+    return "无";
+  }
+
+  return `${safeIds.slice(0, 2).join("、")}${safeIds.length > 2 ? ` 等 ${safeIds.length} 项` : ""}`;
+}

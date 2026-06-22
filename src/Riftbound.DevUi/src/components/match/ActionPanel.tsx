@@ -17,7 +17,7 @@ import {
   type ActionPanelCandidateCommandPlan,
   type ActionPanelDirectActionKind
 } from "../../utils/actionPanelCommandPlan";
-import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan } from "../../utils/actionPanelPromptPlan";
+import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
@@ -59,6 +59,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             <StatusPill tone={promptPlan.statusTone}>{promptPlan.statusLabel}</StatusPill>
             {promptPlan.rows.map((row) => <span key={row.key}>{row.text}</span>)}
           </div>
+          {promptPlan.spellDuel && <SpellDuelPromptDetails plan={promptPlan.spellDuel} />}
           {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
           {promptPlan.inspection && <ActionPromptInspection plan={promptPlan.inspection} />}
           <div
@@ -266,6 +267,34 @@ function GenericPromptDetails({ plan }: { plan: ActionPanelGenericPromptPlan }) 
         </div>
       )}
       {plan.contract && <PromptContractSummary contract={plan.contract} />}
+    </div>
+  );
+}
+
+function SpellDuelPromptDetails({ plan }: { plan: ActionPanelSpellDuelPlan }) {
+  return (
+    <div className="spell-duel-prompt-details" aria-label="法术对决焦点摘要" data-spell-duel-prompt-state={plan.stateLabel}>
+      <div className="spell-duel-prompt-heading">
+        <strong>法术对决焦点</strong>
+        <StatusPill tone="warn">{plan.stateLabel}</StatusPill>
+      </div>
+      <p className="spell-duel-prompt-note">{plan.nextStep}</p>
+      <dl className="spell-duel-prompt-grid">
+        {plan.metrics.map((metric) => (
+          <div data-spell-duel-prompt-metric={metric.key} data-spell-duel-prompt-mine={metric.mine ? "true" : "false"} key={metric.key}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="spell-duel-action-rows">
+        {plan.actionRows.map((row) => (
+          <span data-spell-duel-action-row={row.key} data-spell-duel-action-row-count={row.count} key={row.key}>
+            <strong>{row.label}</strong>
+            <small>{row.value}</small>
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

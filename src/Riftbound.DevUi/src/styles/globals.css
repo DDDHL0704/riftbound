@@ -1968,6 +1968,7 @@ button.card-face:hover {
 .pay-cost-panel,
 .trigger-order-panel,
 .generic-prompt-details,
+.spell-duel-prompt-details,
 .action-prompt-inspection,
 .candidate-composer,
 .log-row {
@@ -1991,6 +1992,7 @@ button.card-face:hover {
 }
 
 .generic-prompt-heading,
+.spell-duel-prompt-heading,
 .action-prompt-inspection-heading,
 .candidate-composer-heading,
 .hand-choice-heading,
@@ -2015,6 +2017,7 @@ button.card-face:hover {
 }
 
 .generic-prompt-note,
+.spell-duel-prompt-note,
 .action-prompt-inspection p,
 .candidate-composer-note,
 .hand-choice-note,
@@ -2031,6 +2034,7 @@ button.card-face:hover {
 .generic-prompt-option,
 .generic-prompt-metadata,
 .generic-prompt-contract,
+.spell-duel-action-rows,
 .action-prompt-inspection-groups section,
 .candidate-composer-field,
 .candidate-composer-costs,
@@ -2054,7 +2058,10 @@ button.card-face:hover {
 .action-prompt-inspection-groups span,
 .action-prompt-inspection-groups li small,
 .action-prompt-inspection-groups li strong,
-.generic-prompt-option span {
+.generic-prompt-option span,
+.spell-duel-prompt-grid dt,
+.spell-duel-prompt-grid dd,
+.spell-duel-action-rows span {
   color: var(--text-primary);
   font-size: 0.84rem;
 }
@@ -2174,6 +2181,7 @@ button.card-face:hover {
 .generic-prompt-option small,
 .generic-prompt-metadata span,
 .generic-prompt-contract span,
+.spell-duel-action-rows small,
 .candidate-composer-note,
 .hand-choice-summary span,
 .hand-choice-row small,
@@ -2197,6 +2205,48 @@ button.card-face:hover {
 .generic-prompt-contract {
   display: grid;
   gap: 4px;
+}
+
+.spell-duel-prompt-details {
+  margin-top: 8px;
+}
+
+.spell-duel-prompt-heading > strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.spell-duel-prompt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  margin: 0;
+}
+
+.spell-duel-prompt-grid div,
+.spell-duel-action-rows span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.spell-duel-prompt-grid dt,
+.spell-duel-prompt-grid dd {
+  min-width: 0;
+  margin: 0;
+}
+
+.spell-duel-prompt-grid dd,
+.spell-duel-action-rows small {
+  overflow-wrap: anywhere;
+}
+
+.spell-duel-prompt-grid [data-spell-duel-prompt-mine="true"] dd {
+  font-weight: 700;
+}
+
+.spell-duel-action-rows {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .generic-prompt-contract-heading,
@@ -17575,6 +17625,7 @@ button.wire-object-ref {
 .wire-match-page .action-command-plan,
 .wire-match-page .action-command-plan-source,
 .wire-match-page .generic-prompt-details,
+.wire-match-page .spell-duel-prompt-details,
 .wire-match-page .generic-prompt-contract,
 .wire-match-page .action-prompt-inspection,
 .wire-match-page .action-prompt-inspection-heading,
