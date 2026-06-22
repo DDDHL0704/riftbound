@@ -1413,6 +1413,7 @@ async function runWireClickSelectionSmoke(cdp) {
     const ruleFocus = document.querySelector(".wire-rule-focus");
     const ruleFlow = document.querySelector(".wire-rule-flow");
     const ruleEventSummary = document.querySelector(".wire-rule-event-summary");
+    const sideFocus = document.querySelector(".wire-side-panel-focus-strip");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector("[data-action-route-state]");
     const commandReview = document.querySelector("[data-command-review-state]");
@@ -1496,6 +1497,19 @@ async function runWireClickSelectionSmoke(cdp) {
       focusBridgeState: focusBridge?.getAttribute("data-action-focus-state") ?? null,
       focusBridgeText: focusBridge?.textContent ?? "",
       focusText: document.querySelector(".wire-focused-action-summary")?.textContent ?? "",
+      sideFocusMetrics: Array.from(sideFocus?.querySelectorAll("[data-wire-side-panel-focus-metric]") ?? []).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-focus-metric") ?? "",
+        text: node.textContent ?? ""
+      })),
+      sideFocusObject: sideFocus?.getAttribute("data-wire-side-panel-focus-object") ?? null,
+      sideFocusRoutes: Array.from(sideFocus?.querySelectorAll("[data-wire-side-panel-focus-route]") ?? []).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-focus-route") ?? "",
+        state: node.getAttribute("data-wire-side-panel-focus-route-state") ?? "",
+        text: node.textContent ?? ""
+      })),
+      sideFocusState: sideFocus?.getAttribute("data-wire-side-panel-focus-state") ?? null,
+      sideFocusText: sideFocus?.textContent ?? "",
+      sideFocusVisible: sideFocus?.getAttribute("data-wire-side-panel-focus-visible") ?? null,
       windowState: windowPlan?.getAttribute("data-wire-window-state") ?? null,
       windowText: windowPlan?.textContent ?? "",
       promptInspectionGroups: Array.from(document.querySelectorAll("[data-wire-prompt-inspection-group]")).map((node) => node.getAttribute("data-wire-prompt-inspection-group")),
@@ -2193,6 +2207,23 @@ async function runWireClickSelectionSmoke(cdp) {
   if (!actionMapResult.focusBridgeText.includes("可选目标")) failures.push("action map focus bridge next step missing");
   if (!actionMapResult.focusBridgeText.includes("PLAY_CARD")) failures.push("action map focus bridge command type missing");
   if (!actionMapResult.focusBridgeText.includes("对方单位")) failures.push("action map focus bridge next object ref missing");
+  if (actionMapResult.sideFocusVisible !== "true") failures.push(`side panel focus strip did not become visible: ${actionMapResult.sideFocusVisible}`);
+  if (actionMapResult.sideFocusObject !== "p1-hand-spell") failures.push(`side panel focus object unexpected: ${actionMapResult.sideFocusObject}`);
+  if (!["ready", "selecting"].includes(actionMapResult.sideFocusState)) failures.push(`side panel focus state unexpected: ${actionMapResult.sideFocusState}`);
+  if (!actionMapResult.sideFocusText.includes("焦点")) failures.push("side panel focus heading missing");
+  if (!actionMapResult.sideFocusText.includes("PLAY_CARD")) failures.push("side panel focus command summary missing");
+  if (!actionMapResult.sideFocusMetrics.some((metric) => metric.key === "command" && metric.text.includes("PLAY_CARD"))) {
+    failures.push("side panel focus command metric missing");
+  }
+  if (!actionMapResult.sideFocusRoutes.some((route) => route.key === "actions" && route.state === "available")) {
+    failures.push("side panel focus actions route missing");
+  }
+  if (!actionMapResult.sideFocusRoutes.some((route) => route.key === "map" && route.state === "available")) {
+    failures.push("side panel focus map route missing");
+  }
+  if (!actionMapResult.sideFocusRoutes.some((route) => route.key === "detail" && route.state === "available")) {
+    failures.push("side panel focus detail route missing");
+  }
   if (actionMapResult.actionLayoutProjectionState !== "ready") failures.push(`action layout projection state unexpected: ${actionMapResult.actionLayoutProjectionState}`);
   if (actionMapResult.actionLayoutProjectionLocatedCount < 2) failures.push(`action layout projection located count too low: ${actionMapResult.actionLayoutProjectionLocatedCount}`);
   if (actionMapResult.actionLayoutProjectionReadyCount < 2) failures.push(`action layout projection ready count too low: ${actionMapResult.actionLayoutProjectionReadyCount}`);

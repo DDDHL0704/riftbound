@@ -11,6 +11,7 @@ import { WireInformationBoundaryPanel } from "../components/match/WireInformatio
 import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WireMatchOverviewPanel } from "../components/match/WireMatchOverviewPanel";
 import { WireObjectCommandTray } from "../components/match/WireObjectCommandTray";
+import { WireSidePanelFocusStrip } from "../components/match/WireSidePanelFocusStrip";
 import { WirePromptAuthorityPanel } from "../components/match/WirePromptAuthorityPanel";
 import { WireResponseCoachPanel } from "../components/match/WireResponseCoachPanel";
 import { WireRuleQueuePanel } from "../components/match/WireRuleQueuePanel";
@@ -89,10 +90,12 @@ import { buildEventLogPlan } from "../utils/eventLogPlan";
 import { buildServerQuickActionPlan, quickActionCommandUiSource, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
+import { buildWireObjectCommandTrayPlan } from "../utils/wireObjectCommandTrayPlan";
 import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
 import { buildWireSidePanelDirectoryPlan, type WireSidePanelDirectoryPlan } from "../utils/wireSidePanelDirectoryPlan";
 import { buildWireSidePanelDirectoryViewPlan } from "../utils/wireSidePanelDirectoryViewPlan";
 import { buildWireSidePanelFramePlan } from "../utils/wireSidePanelFramePlan";
+import { buildWireSidePanelFocusPlan } from "../utils/wireSidePanelFocusPlan";
 import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
 import {
   WIRE_SIDE_PANEL_SHORT_LABELS,
@@ -234,6 +237,14 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     tableSnapshot,
     tableSubmissionGate
   ]);
+  const selectedObjectCommandTrayPlan = useMemo(() => buildWireObjectCommandTrayPlan({
+    card: inspectedCard,
+    focusedPlan: selectedFocusPlan,
+    objectContext: selectedObjectContext
+  }), [inspectedCard, selectedFocusPlan, selectedObjectContext]);
+  const sidePanelFocusPlan = useMemo(() => buildWireSidePanelFocusPlan({
+    trayPlan: selectedObjectCommandTrayPlan
+  }), [selectedObjectCommandTrayPlan]);
   const serverFlowProjection = useMemo(
     () => buildWireServerFlowProjectionPlan(tablePrompt),
     [tablePrompt]
@@ -848,6 +859,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             prompt={tablePrompt}
             snapshot={tableSnapshot}
             submissionGate={tableSubmissionGate}
+            trayPlan={selectedObjectCommandTrayPlan}
           />
         </section>
 
@@ -868,6 +880,13 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             phase={matchPhaseLabel(phase)}
             promptTitle={promptTitle}
             windowState={timingStateLabel(windowState)}
+          />
+          <WireSidePanelFocusStrip
+            inspectedCard={inspectedCard}
+            onClear={clearInspectedCard}
+            onOpenDetail={openDetailCard}
+            onSelectSlot={selectSidePanelSlot}
+            plan={sidePanelFocusPlan}
           />
           <div
             aria-label="服务端提交回执常驻区"

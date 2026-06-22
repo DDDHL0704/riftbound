@@ -29,12 +29,33 @@ new Function(
 );
 
 const { buildWireObjectCommandTrayPlan } = moduleShim.exports;
+const focusSourcePath = resolve(scriptDir, "../src/utils/wireSidePanelFocusPlan.ts");
+const focusSource = readFileSync(focusSourcePath, "utf8").replace(/^import[\s\S]*?;\n/gm, "");
+const focusOutput = ts.transpileModule(focusSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022
+  }
+}).outputText;
+const focusModuleShim = { exports: {} };
+
+new Function("exports", "module", focusOutput)(focusModuleShim.exports, focusModuleShim);
+
+const { buildWireSidePanelFocusPlan } = focusModuleShim.exports;
 
 const emptyPlan = buildWireObjectCommandTrayPlan({
   focusedPlan: focusedPlan({ readinessState: "no-focus" })
 });
 assert.equal(emptyPlan.visible, false);
 assert.equal(emptyPlan.state, "empty");
+const emptyFocusPlan = buildWireSidePanelFocusPlan({ trayPlan: emptyPlan });
+assert.equal(emptyFocusPlan.visible, false);
+assert.equal(emptyFocusPlan.state, "empty");
+assert.deepEqual(emptyFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
+  "actions:interaction:disabled",
+  "map:actionMap:disabled",
+  "detail:drawer:disabled"
+]);
 
 const readyPlan = buildWireObjectCommandTrayPlan({
   card: card(),
@@ -65,6 +86,21 @@ assert.deepEqual(readyPlan.submitPreviewRows.map((row) => `${row.key}:${row.tone
   "missing:good:0 选择 / 0 字段",
   "server:neutral:1",
   "next:good:可以提交服务端候选。"
+]);
+const readyFocusPlan = buildWireSidePanelFocusPlan({ trayPlan: readyPlan });
+assert.equal(readyFocusPlan.visible, true);
+assert.equal(readyFocusPlan.objectId, "p1-hand-spell");
+assert.equal(readyFocusPlan.state, "ready");
+assert.deepEqual(readyFocusPlan.metrics.map((metric) => `${metric.key}:${metric.value}`), [
+  "candidate:1 可用 / 0 阻断",
+  "command:PLAY_CARD",
+  "gate:可提交",
+  "window:可行动"
+]);
+assert.deepEqual(readyFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
+  "actions:interaction:available",
+  "map:actionMap:available",
+  "detail:drawer:available"
 ]);
 
 const selectingPlan = buildWireObjectCommandTrayPlan({
@@ -111,6 +147,16 @@ assert.equal(hiddenPlan.metrics.find((metric) => metric.key === "semantic")?.val
 assert.equal(hiddenPlan.semanticRows.length, 0);
 assert.equal(hiddenPlan.nextStepLabel.includes("不展示或提交前端推断操作"), true);
 assert.equal(hiddenPlan.submitPreviewRows.length, 0);
+const hiddenFocusPlan = buildWireSidePanelFocusPlan({ trayPlan: hiddenPlan });
+assert.equal(hiddenFocusPlan.visible, true);
+assert.equal(hiddenFocusPlan.state, "readonly");
+assert.equal(hiddenFocusPlan.metrics.find((metric) => metric.key === "command")?.value, "不公开");
+assert.deepEqual(hiddenFocusPlan.routes.map((route) => `${route.key}:${route.slot ?? "drawer"}:${route.state}`), [
+  "actions:interaction:disabled",
+  "map:actionMap:disabled",
+  "detail:drawer:available"
+]);
+assert.equal(JSON.stringify(hiddenFocusPlan).includes("PLAY_CARD"), false);
 
 console.log("Wire object command tray plan check passed.");
 

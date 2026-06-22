@@ -12421,7 +12421,7 @@ button.card-face:hover {
 
 .wire-side-panel {
   display: grid;
-  grid-template-rows: auto auto minmax(92px, auto) minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(92px, auto) minmax(0, 1fr);
   gap: 4px;
   overflow: hidden;
   padding: 4px;
@@ -12666,6 +12666,100 @@ button.card-face:hover {
 .wire-side-panel-status span {
   font-size: 10px;
   line-height: 1.15;
+}
+
+.wire-side-panel-focus-strip {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+}
+
+.wire-side-panel-focus-strip > header {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: start;
+}
+
+.wire-side-panel-focus-strip > header > div,
+.wire-side-panel-focus-next {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.wire-side-panel-focus-strip small,
+.wire-side-panel-focus-strip strong,
+.wire-side-panel-focus-strip span,
+.wire-side-panel-focus-strip dd,
+.wire-side-panel-focus-strip dt {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-side-panel-focus-strip small,
+.wire-side-panel-focus-strip dt {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.wire-side-panel-focus-strip strong,
+.wire-side-panel-focus-strip dd {
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.wire-side-panel-focus-strip span {
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.wire-side-panel-focus-metrics {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  margin: 0;
+}
+
+.wire-side-panel-focus-metrics div {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  border: 1px solid #000;
+  padding: 2px;
+}
+
+.wire-side-panel-focus-metrics dt,
+.wire-side-panel-focus-metrics dd {
+  margin: 0;
+}
+
+.wire-side-panel-focus-next {
+  border: 1px solid #000;
+  padding: 2px 3px;
+}
+
+.wire-side-panel-focus-routes {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.wire-side-panel-focus-routes button {
+  min-width: 0;
+  min-height: 24px;
+  padding: 2px;
+  font-size: 10px;
+  line-height: 1.1;
 }
 
 .wire-side-panel-receipt {

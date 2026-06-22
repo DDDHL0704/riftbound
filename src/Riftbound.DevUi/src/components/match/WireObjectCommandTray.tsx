@@ -25,6 +25,7 @@ type WireObjectCommandTrayProps = {
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
   submissionGate?: ServerSubmissionGatePlan;
+  trayPlan?: WireObjectCommandTrayPlan;
 };
 
 export function WireObjectCommandTray({
@@ -37,9 +38,10 @@ export function WireObjectCommandTray({
   onOpenDetail,
   prompt,
   snapshot,
-  submissionGate
+  submissionGate,
+  trayPlan: providedTrayPlan
 }: WireObjectCommandTrayProps) {
-  const trayPlan = buildWireObjectCommandTrayPlan({
+  const trayPlan = providedTrayPlan ?? buildWireObjectCommandTrayPlan({
     card: inspectedCard,
     focusedPlan,
     objectContext
