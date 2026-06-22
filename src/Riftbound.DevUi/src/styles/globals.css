@@ -15623,6 +15623,12 @@ button.card-face:hover {
   border-style: dashed;
 }
 
+.wire-command-submission-feedback-compact {
+  gap: 3px;
+  padding: 4px;
+  align-content: start;
+}
+
 .wire-command-submission-heading {
   min-width: 0;
   display: flex;
@@ -15645,6 +15651,14 @@ button.card-face:hover {
   display: grid;
   gap: 1px;
   padding: 3px;
+}
+
+.wire-side-panel-receipt-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wire-command-submission-feedback-compact .wire-command-submission-metrics span {
+  padding: 2px;
 }
 
 .wire-command-submission-open-layer {
@@ -15671,6 +15685,13 @@ button.card-face:hover {
   gap: 4px;
   border: 1px solid #000;
   padding: 4px;
+}
+
+.wire-side-panel-receipt-followup {
+  gap: 3px;
+  padding: 3px;
+  max-height: none;
+  overflow: hidden;
 }
 
 .wire-command-followup[data-command-followup-state="accepted-events"],
@@ -15715,6 +15736,18 @@ button.card-face:hover {
   margin: 0;
 }
 
+.wire-side-panel-receipt-bridge {
+  padding: 3px;
+}
+
+.wire-side-panel-receipt-bridge p,
+.wire-side-panel-receipt-layout-projection small {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .wire-command-followup-bridge-next {
   min-width: 0;
   padding: 3px;
@@ -15744,6 +15777,29 @@ button.card-face:hover {
 .wire-command-followup-bridge-rows li[data-command-followup-bridge-row-state="blocked"],
 .wire-command-followup-bridge-rows li[data-command-followup-bridge-row-state="waiting"] {
   border-style: dashed;
+}
+
+.wire-side-panel-receipt-bridge-rows {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wire-side-panel-receipt-bridge-rows li {
+  padding: 2px;
+}
+
+.wire-side-panel-receipt-source {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.wire-side-panel-receipt-source span {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  border: 1px solid #000;
+  padding: 2px;
 }
 
 .wire-command-followup-heading {
@@ -15939,6 +15995,18 @@ button.card-face:hover {
   border-style: dashed;
 }
 
+.wire-side-panel-receipt-layout-projection {
+  padding: 3px;
+}
+
+.wire-side-panel-receipt-layout-projection ol {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wire-side-panel-receipt-layout-projection li {
+  min-width: 0;
+}
+
 .wire-command-followup-layout-projection button {
   min-width: 0;
   display: grid;
@@ -15954,6 +16022,31 @@ button.card-face:hover {
 
 .wire-command-followup-layout-projection button:disabled {
   cursor: not-allowed;
+}
+
+.wire-side-panel-receipt-events {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wire-side-panel-receipt-events li {
+  min-width: 0;
+  display: grid;
+}
+
+.wire-side-panel-receipt-events button {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 2px;
+  text-align: left;
+  font: inherit;
 }
 
 .wire-command-followup-object-inspection {

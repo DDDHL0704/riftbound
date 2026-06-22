@@ -927,6 +927,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               selectedObjectId={selectedObjectId}
               snapshot={tableSnapshot}
               table={tableView}
+              variant="compact"
             />
           </div>
           <div

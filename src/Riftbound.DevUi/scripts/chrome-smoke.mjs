@@ -1415,6 +1415,9 @@ async function runWireClickSelectionSmoke(cdp) {
     const ruleEventSummary = document.querySelector(".wire-rule-event-summary");
     const sideFocus = document.querySelector(".wire-side-panel-focus-strip");
     const sideRuleChain = document.querySelector(".wire-side-panel-rule-chain-strip");
+    const sideReceipt = document.querySelector("[data-wire-side-panel-receipt]");
+    const sideReceiptSubmission = sideReceipt?.querySelector("[data-command-submission-state]");
+    const sideReceiptLayout = sideReceiptSubmission?.querySelector("[data-command-followup-layout-state]");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector("[data-action-route-state]");
     const commandReview = document.querySelector("[data-command-review-state]");
@@ -1521,6 +1524,13 @@ async function runWireClickSelectionSmoke(cdp) {
         state: node.getAttribute("data-wire-side-panel-focus-route-state") ?? "",
         text: node.textContent ?? ""
       })),
+      sideReceiptFollowupState: sideReceiptSubmission?.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "",
+      sideReceiptLayoutState: sideReceiptLayout?.getAttribute("data-command-followup-layout-state") ?? "",
+      sideReceiptMetricCount: sideReceipt?.querySelectorAll("[data-wire-side-panel-receipt-metric]").length ?? 0,
+      sideReceiptMode: sideReceiptSubmission?.getAttribute("data-command-submission-mode") ?? "",
+      sideReceiptOpenLayerState: sideReceiptSubmission?.querySelector(".wire-command-submission-open-layer")?.getAttribute("data-command-submission-open-layer-state") ?? "",
+      sideReceiptState: sideReceiptSubmission?.getAttribute("data-command-submission-state") ?? "",
+      sideReceiptText: sideReceipt?.textContent ?? "",
       sideFocusState: sideFocus?.getAttribute("data-wire-side-panel-focus-state") ?? null,
       sideFocusText: sideFocus?.textContent ?? "",
       sideFocusVisible: sideFocus?.getAttribute("data-wire-side-panel-focus-visible") ?? null,
@@ -2227,6 +2237,13 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.commandSubmissionLayoutState !== "empty") failures.push(`action command submission layout state unexpected before submit: ${actionMapResult.commandSubmissionLayoutState}`);
   if (actionMapResult.commandSubmissionLayoutTotalCount !== 0) failures.push(`action command submission layout should not project refs before submit: ${actionMapResult.commandSubmissionLayoutTotalCount}`);
   if (!actionMapResult.commandSubmissionLayoutText.includes("回执桌面投影")) failures.push("action command submission layout projection heading missing");
+  if (actionMapResult.sideReceiptMode !== "compact") failures.push(`side receipt should use compact command submission mode: ${actionMapResult.sideReceiptMode}`);
+  if (actionMapResult.sideReceiptState !== "empty") failures.push(`side receipt initial state unexpected: ${actionMapResult.sideReceiptState}`);
+  if (actionMapResult.sideReceiptFollowupState !== "empty") failures.push(`side receipt followup state unexpected: ${actionMapResult.sideReceiptFollowupState}`);
+  if (actionMapResult.sideReceiptLayoutState !== "empty") failures.push(`side receipt layout projection state unexpected: ${actionMapResult.sideReceiptLayoutState}`);
+  if (actionMapResult.sideReceiptMetricCount < 4) failures.push(`side receipt metric count too small: ${actionMapResult.sideReceiptMetricCount}`);
+  if (actionMapResult.sideReceiptOpenLayerState !== "empty") failures.push(`side receipt layer entry state unexpected: ${actionMapResult.sideReceiptOpenLayerState}`);
+  if (!actionMapResult.sideReceiptText.includes("回执桌面投影")) failures.push("side receipt layout projection summary missing");
   if (!actionMapResult.commandReviewText.includes("打出手牌")) failures.push("action command review candidate missing");
   if (!actionMapResult.commandReviewText.includes("PLAY_CARD")) failures.push("action command review command type missing");
   if (!actionMapResult.commandReviewText.includes("下一步")) failures.push("action command review next step missing");

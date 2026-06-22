@@ -11,6 +11,7 @@ import {
 } from "../../utils/commandSubmissionFollowupPlan";
 import type { ServerSubmissionGatePlan } from "../../utils/serverSubmissionGatePlan";
 import type { TableObjectContext } from "../../utils/tableObjectContext";
+import { buildWireSidePanelReceiptPlan } from "../../utils/wireSidePanelReceiptPlan";
 import {
   buildWireActionMapPlan,
   type WireActionBlockerPlan,
@@ -28,6 +29,7 @@ import type { WireActionSubmissionGatePlan, WireActionWindowGatePlan } from "../
 import { StatusPill } from "../ui/StatusPill";
 import { WireCommandFollowupPanel } from "./WireCommandFollowupPanel";
 import { buildWireActionLayoutProjectionPlan, type WireActionLayoutProjectionPlan } from "./wireActionLayoutProjectionPlan";
+import { buildWireCommandFollowupLayoutProjectionPlan } from "./wireCommandFollowupLayoutProjectionPlan";
 import type { WireTableViewModel } from "./wireTableViewModel";
 import { useWireDialogFocus } from "./useWireDialogFocus";
 
@@ -257,7 +259,8 @@ export function CommandSubmissionFeedbackPanel({
   onSelectServerEventKind,
   selectedObjectId,
   snapshot,
-  table
+  table,
+  variant = "full"
 }: {
   contract?: ActionPromptDto["contract"];
   events?: GameEvent[];
@@ -269,9 +272,28 @@ export function CommandSubmissionFeedbackPanel({
   selectedObjectId?: string;
   snapshot?: SnapshotDto;
   table: WireTableViewModel;
+  variant?: "compact" | "full";
 }) {
   const [layerOpen, setLayerOpen] = useState(false);
   const followup = buildCommandSubmissionFollowupPlan({ events, feedback, snapshot });
+
+  if (variant === "compact") {
+    return (
+      <CommandSubmissionFeedbackCompactPanel
+        contract={contract}
+        feedback={feedback}
+        followup={followup}
+        layerOpen={layerOpen}
+        objectContextById={objectContextById}
+        onInspectObject={onInspectObject}
+        onSelectFollowupEvent={onSelectFollowupEvent}
+        onSelectServerEventKind={onSelectServerEventKind}
+        onSetLayerOpen={setLayerOpen}
+        selectedObjectId={selectedObjectId}
+        table={table}
+      />
+    );
+  }
 
   if (!feedback) {
     return (
@@ -385,6 +407,228 @@ export function CommandSubmissionFeedbackPanel({
           followup={followup}
           objectContextById={objectContextById}
           onClose={() => setLayerOpen(false)}
+          onInspectObject={onInspectObject}
+          onSelectFollowupEvent={onSelectFollowupEvent}
+          onSelectServerEventKind={onSelectServerEventKind}
+          selectedObjectId={selectedObjectId}
+          table={table}
+        />
+      )}
+    </section>
+  );
+}
+
+function CommandSubmissionFeedbackCompactPanel({
+  contract,
+  feedback,
+  followup,
+  layerOpen,
+  objectContextById,
+  onInspectObject,
+  onSelectFollowupEvent,
+  onSelectServerEventKind,
+  onSetLayerOpen,
+  selectedObjectId,
+  table
+}: {
+  contract?: ActionPromptDto["contract"];
+  feedback?: CommandSubmissionFeedback;
+  followup: ReturnType<typeof buildCommandSubmissionFollowupPlan>;
+  layerOpen: boolean;
+  objectContextById?: Record<string, TableObjectContext>;
+  onInspectObject?: (objectId: string) => void;
+  onSelectFollowupEvent?: (event: CommandSubmissionFollowupEventRow) => void;
+  onSelectServerEventKind?: (eventKind: CommandSubmissionFollowupServerEventKind) => void;
+  onSetLayerOpen: (open: boolean) => void;
+  selectedObjectId?: string;
+  table: WireTableViewModel;
+}) {
+  const plan = buildWireSidePanelReceiptPlan({ feedback, followup });
+  const layoutProjection = buildWireCommandFollowupLayoutProjectionPlan({ maxRows: 3, plan: followup, table });
+
+  return (
+    <section
+      aria-label="服务端提交反馈"
+      className="wire-command-submission-feedback wire-command-submission-feedback-compact"
+      data-command-submission-mode="compact"
+      data-command-submission-state={plan.state}
+      data-wire-side-panel-receipt-mode={plan.mode}
+    >
+      <div className="wire-command-submission-heading">
+        <strong>{plan.title}</strong>
+        <span>{plan.stateLabel}</span>
+      </div>
+      <small>{plan.subtitle}</small>
+      <div className="wire-command-submission-metrics wire-side-panel-receipt-metrics">
+        {plan.metrics.map((metric) => (
+          <span
+            data-command-submission-metric={metric.key}
+            data-wire-side-panel-receipt-metric={metric.key}
+            data-wire-side-panel-receipt-metric-state={metric.state}
+            key={metric.key}
+          >
+            <b>{metric.label}</b>
+            <strong>{metric.value}</strong>
+          </span>
+        ))}
+        {feedback?.errorCode ? (
+          <span
+            data-command-submission-metric="error"
+            data-wire-side-panel-receipt-metric="error"
+            data-wire-side-panel-receipt-metric-state="failed"
+          >
+            <b>错误</b>
+            <strong>{feedback.errorCode}</strong>
+          </span>
+        ) : null}
+      </div>
+      <section
+        aria-label="提交反馈服务端后续事件摘要"
+        className="wire-command-followup wire-side-panel-receipt-followup"
+        data-command-followup-event-count={followup.events.length}
+        data-command-followup-hidden-count={followup.hiddenEventCount}
+        data-command-followup-server-state={followup.serverFollowupState}
+        data-command-followup-state={followup.state}
+      >
+        <div
+          className="wire-command-followup-bridge wire-side-panel-receipt-bridge"
+          data-command-followup-bridge-server-state={followup.serverFollowupState}
+          data-command-followup-bridge-state={plan.bridge.state}
+        >
+          <div className="wire-command-followup-bridge-heading">
+            <strong>{plan.bridge.headline}</strong>
+            <span>{plan.bridge.stateLabel}</span>
+            <small>{plan.bridge.serverStateLabel}</small>
+          </div>
+          <p>{plan.bridge.summary}</p>
+          <strong className="wire-command-followup-bridge-next">下一步：{plan.bridge.nextStepLabel}</strong>
+          <ol className="wire-command-followup-bridge-rows wire-side-panel-receipt-bridge-rows" aria-label="提交后续桥接状态摘要">
+            {plan.bridge.rows.map((row) => (
+              <li
+                data-command-followup-bridge-row={row.key}
+                data-command-followup-bridge-row-state={row.state}
+                key={row.key}
+              >
+                <span>{row.label}</span>
+                <strong>{row.value}</strong>
+                <small>{row.stateLabel}</small>
+              </li>
+            ))}
+          </ol>
+          {plan.bridge.hiddenRowCount > 0 && <small>另有 {plan.bridge.hiddenRowCount} 个桥接指标在检查层中展开。</small>}
+        </div>
+        {plan.sourceRows.length > 0 ? (
+          <div
+            aria-label="提交界面来源摘要"
+            className="wire-side-panel-receipt-source"
+            data-command-followup-source-candidate-action={followup.uiSource?.candidateAction ?? ""}
+            data-command-followup-source-candidate-label={followup.uiSource?.candidateLabel ?? ""}
+            data-command-followup-source-command-source={followup.uiSource?.commandSource ?? ""}
+            data-command-followup-source-command-source-label={followup.uiSource?.commandSourceLabel ?? ""}
+            data-command-followup-source-detail={followup.uiSource?.detailId ?? ""}
+            data-command-followup-source-object={followup.uiSource?.objectId ?? ""}
+            data-command-followup-source-surface={followup.uiSource?.surface ?? ""}
+          >
+            {plan.sourceRows.slice(0, 2).map((row) => (
+              <span data-command-followup-source-row={row.key} data-command-followup-source-row-state={row.state} key={row.key}>
+                <b>{row.label}</b>
+                <strong>{row.value}</strong>
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <section
+          aria-label="回执对象桌面投影摘要"
+          className="wire-command-followup-layout-projection wire-side-panel-receipt-layout-projection"
+          data-command-followup-layout-hidden-count={layoutProjection.hiddenRefCount}
+          data-command-followup-layout-located-count={layoutProjection.locatedCount}
+          data-command-followup-layout-public-count={layoutProjection.publicRefCount}
+          data-command-followup-layout-state={layoutProjection.state}
+          data-command-followup-layout-total-count={layoutProjection.totalRefCount}
+          data-command-followup-layout-unknown-count={layoutProjection.unknownCount}
+        >
+          <div className="wire-command-followup-layout-heading">
+            <strong>回执桌面投影</strong>
+            <span>{layoutProjection.stateLabel}</span>
+          </div>
+          <small>{layoutProjection.summary}</small>
+          {layoutProjection.rows.length > 0 ? (
+            <ol aria-label="回执公开对象区域投影摘要">
+              {layoutProjection.rows.map((row) => (
+                <li
+                  data-command-followup-layout-capacity-row={row.capacityRowKey ?? ""}
+                  data-command-followup-layout-event-kind={row.eventKind}
+                  data-command-followup-layout-kind={row.layoutKind}
+                  data-command-followup-layout-object={row.objectId}
+                  data-command-followup-layout-role={row.refRole}
+                  data-command-followup-layout-row=""
+                  data-command-followup-layout-state={row.state}
+                  data-command-followup-layout-zone={row.zoneKey ?? ""}
+                  key={row.key}
+                >
+                  <button
+                    disabled={!onInspectObject}
+                    onClick={() => onInspectObject?.(row.objectId)}
+                    title={`检查 ${row.objectId}`}
+                    type="button"
+                  >
+                    <strong>{row.zoneLabel}</strong>
+                    <small>{row.objectLabel}</small>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <span className="empty-hint">{layoutProjection.hiddenRefCount > 0 ? "仅有隐藏引用。" : "没有公开引用。"}</span>
+          )}
+        </section>
+        {plan.eventRows.length > 0 ? (
+          <ol className="wire-side-panel-receipt-events" aria-label="同 tick 服务端事件摘要">
+            {plan.eventRows.map((event) => (
+              <li
+                data-command-followup-event-kind={event.kind}
+                data-command-followup-event-order={event.order ?? ""}
+                data-command-followup-event-tick={event.serverTick ?? ""}
+                key={event.key}
+              >
+                <button
+                  className="wire-command-followup-event-open"
+                  data-command-followup-event-action={event.kind}
+                  data-command-followup-event-order-action={event.order ?? ""}
+                  data-command-followup-event-tick-action={event.serverTick ?? ""}
+                  disabled={!onSelectFollowupEvent}
+                  onClick={() => onSelectFollowupEvent?.(event)}
+                  type="button"
+                >
+                  <strong>{event.title}</strong>
+                  <small>{event.messageType ?? "EVENTS"}</small>
+                </button>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <span className="empty-hint">当前没有同 tick 的公开事件。</span>
+        )}
+        {plan.hiddenEventCount > 0 && <small>另有 {plan.hiddenEventCount} 条同 tick 事件在检查层中展开。</small>}
+      </section>
+      <button
+        aria-controls="wire-command-submission-layer"
+        aria-expanded={layerOpen}
+        className="wire-command-submission-open-layer"
+        data-command-submission-open-layer-state={plan.state}
+        disabled={!plan.canOpenLayer}
+        onClick={() => onSetLayerOpen(true)}
+        type="button"
+      >
+        {plan.detailButtonLabel}
+      </button>
+      {layerOpen && feedback && (
+        <CommandSubmissionFeedbackLayer
+          contract={contract}
+          feedback={feedback}
+          followup={followup}
+          objectContextById={objectContextById}
+          onClose={() => onSetLayerOpen(false)}
           onInspectObject={onInspectObject}
           onSelectFollowupEvent={onSelectFollowupEvent}
           onSelectServerEventKind={onSelectServerEventKind}
