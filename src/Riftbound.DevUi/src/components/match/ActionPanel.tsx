@@ -114,6 +114,21 @@ function ActionPanelRenderEntryView({
   let content: ReactNode = null;
 
   switch (entry.kind) {
+    case "battle-declaration":
+      content = candidate ? (
+        <CandidateButton
+          candidate={candidate}
+          disabledByConnection={disabledByConnection}
+          onCommand={onCommand}
+          onReady={onReady}
+          onSubmitStarterDeck={onSubmitStarterDeck}
+          prompt={prompt}
+          snapshot={snapshot}
+          submitGate={entry.submitGate}
+          submissionGate={submissionGate}
+        />
+      ) : null;
+      break;
     case "mulligan":
       content = candidate ? (
         <MulliganCandidate

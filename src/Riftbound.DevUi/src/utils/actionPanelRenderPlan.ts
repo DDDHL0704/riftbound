@@ -1,6 +1,7 @@
 import type { ActionPromptCandidateDto, ActionPromptDto } from "../types/protocol";
 
 export type ActionPanelRenderEntryKind =
+  | "battle-declaration"
   | "candidate-button"
   | "damage-assignment"
   | "hand-choice"
@@ -242,6 +243,8 @@ function entryKindForAction(action: string): ActionPanelRenderEntryKind {
   switch (action) {
     case "ASSIGN_COMBAT_DAMAGE":
       return "damage-assignment";
+    case "DECLARE_BATTLE":
+      return "battle-declaration";
     case "CHOOSE_HAND_CARDS":
       return "hand-choice";
     case "MULLIGAN":

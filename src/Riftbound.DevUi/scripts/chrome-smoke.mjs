@@ -2061,6 +2061,7 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.actionRenderPromptType !== "MAIN_ACTION") failures.push(`action panel render prompt type unexpected: ${actionMapResult.actionRenderPromptType}`);
   if (actionMapResult.actionRenderCount < 1) failures.push("action panel render entries missing");
   if (!actionMapResult.actionRenderKinds.includes("candidate-button")) failures.push("action panel render candidate button entry missing");
+  if (!actionMapResult.actionRenderKinds.includes("battle-declaration")) failures.push("action panel render battle declaration entry missing");
   if (!actionMapResult.actionCommandSources.includes("composer")) failures.push("action panel command source did not expose composer route");
   if (!actionMapResult.actionCommandSources.includes("server-template")) failures.push("action panel command source did not expose server template route");
   if (actionMapResult.actionCommandSources.includes("client-fallback")) failures.push("wire fixture still exposes client fallback command source");
