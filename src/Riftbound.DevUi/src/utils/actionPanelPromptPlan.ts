@@ -68,6 +68,27 @@ export type ActionPanelSpellDuelPlan = {
   stateLabel: string;
 };
 
+export type ActionPanelStackPriorityMetric = {
+  key: string;
+  label: string;
+  mine?: boolean;
+  value: string;
+};
+
+export type ActionPanelStackPriorityActionRow = {
+  count: number;
+  key: string;
+  label: string;
+  value: string;
+};
+
+export type ActionPanelStackPriorityPlan = {
+  actionRows: ActionPanelStackPriorityActionRow[];
+  metrics: ActionPanelStackPriorityMetric[];
+  nextStep: string;
+  stateLabel: string;
+};
+
 export type ActionPanelPromptPlan = {
   canAct: boolean;
   genericPrompt?: ActionPanelGenericPromptPlan;
@@ -76,6 +97,7 @@ export type ActionPanelPromptPlan = {
   promptTitle: string;
   rows: ActionPanelPromptSummaryRow[];
   spellDuel?: ActionPanelSpellDuelPlan;
+  stackPriority?: ActionPanelStackPriorityPlan;
   statusLabel: string;
   statusTone: "good" | "neutral";
 };
@@ -110,6 +132,7 @@ export function buildActionPanelPromptPlan({
     promptTitle,
     rows: promptSummaryRows(prompt, promptMessage, connectionStatus, gate),
     spellDuel: prompt && isSpellDuelPromptType(prompt.view?.type) ? buildSpellDuelPlan({ playerId, prompt, snapshot }) : undefined,
+    stackPriority: prompt?.view?.type === "STACK_PRIORITY" ? buildStackPriorityPlan({ playerId, prompt, snapshot }) : undefined,
     statusLabel: canAct ? "轮到你操作" : gate.canSubmit ? "等待服务端或对手" : gate.stateLabel,
     statusTone: canAct ? "good" : "neutral"
   };
@@ -247,6 +270,89 @@ function buildSpellDuelPlan({
     nextStep: prompt.view?.responsibility?.nextStep
       || (canAct ? "选择一个服务端响应候选，或让过当前法术对决焦点。" : `等待 ${focusPlayerId || prompt.playerId} 处理法术对决焦点。`),
     stateLabel: canAct ? "轮到你处理焦点" : focusPlayerId === playerId ? "等待服务端入口" : "等待焦点玩家"
+  };
+}
+
+function buildStackPriorityPlan({
+  playerId,
+  prompt,
+  snapshot
+}: {
+  playerId: string;
+  prompt: ActionPromptDto;
+  snapshot?: SnapshotDto;
+}): ActionPanelStackPriorityPlan {
+  const timing = record(snapshot?.timing);
+  const turnWindow = record(timing.turnWindow);
+  const priorityPlayerId = firstNonEmpty(
+    stringValue(turnWindow.actingPlayerId),
+    stringValue(timing.priorityPlayerId),
+    prompt.view?.responsibility?.responsiblePlayerId,
+    prompt.playerId
+  );
+  const stackItems = array<Record<string, unknown>>(snapshot?.stack);
+  const topStackItem = record(stackItems[stackItems.length - 1]);
+  const passedPriorityPlayerIds = array<string>(timing.passedPriorityPlayerIds);
+  const responseActions = prompt.candidates?.filter((candidate) => candidate.enabled && isStackResponseAction(candidate.action)) ?? [];
+  const passPriority = prompt.candidates?.filter((candidate) => candidate.action === "PASS_PRIORITY") ?? [];
+  const blockedActions = prompt.candidates?.filter((candidate) => !candidate.enabled && candidate.action !== "PASS_PRIORITY") ?? [];
+  const canAct = Boolean(prompt.actionable && prompt.playerId === playerId);
+  const topStackItemId = firstNonEmpty(
+    prompt.view?.relatedStackItemId,
+    stringValue(topStackItem.stackItemId),
+    stringValue(topStackItem.id),
+    "服务端未提供"
+  );
+  const topSource = firstNonEmpty(
+    stringValue(topStackItem.cardNo),
+    stringValue(topStackItem.sourceCardNo),
+    stringValue(topStackItem.sourceObjectId),
+    "服务端项目"
+  );
+  const topEffect = firstNonEmpty(
+    stringValue(topStackItem.effectKind),
+    stringValue(topStackItem.kind),
+    "服务端效果"
+  );
+  const targetCount = array(topStackItem.targetObjectIds).length;
+
+  return {
+    actionRows: [
+      {
+        count: responseActions.length,
+        key: "responses",
+        label: "可响应",
+        value: responseActions.length > 0
+          ? responseActions.slice(0, 3).map((candidate) => promptActionLabel(candidate)).join("、")
+          : "无"
+      },
+      {
+        count: passPriority.filter((candidate) => candidate.enabled).length,
+        key: "pass",
+        label: "让过优先权",
+        value: passPriority.length > 0
+          ? passPriority.map((candidate) => candidate.enabled ? "可让过" : promptReasonLabel(candidate.reason, "暂不可让过")).join("、")
+          : "服务端未提供"
+      },
+      {
+        count: blockedActions.length,
+        key: "blocked",
+        label: "阻断候选",
+        value: blockedActions.length > 0 ? `${blockedActions.length} 项` : "无"
+      }
+    ],
+    metrics: [
+      { key: "priority-player", label: "优先权玩家", mine: priorityPlayerId === playerId, value: priorityPlayerId || "服务端未提供" },
+      { key: "top-stack", label: "顶部项目", value: topStackItemId },
+      { key: "source", label: "来源", value: topSource },
+      { key: "effect", label: "效果", value: topEffect },
+      { key: "targets", label: "目标", value: targetCount > 0 ? `${targetCount} 项` : "无" },
+      { key: "stack", label: "结算链", value: `${stackItems.length} 项` },
+      { key: "passed", label: "已让过", value: passedPriorityPlayerIds.length > 0 ? summarizeIds(passedPriorityPlayerIds) : "无" }
+    ],
+    nextStep: prompt.view?.responsibility?.nextStep
+      || (canAct ? "选择一个服务端响应候选，或让过当前优先权。" : `等待 ${priorityPlayerId || prompt.playerId} 处理优先权。`),
+    stateLabel: canAct ? "轮到你响应" : priorityPlayerId === playerId ? "等待服务端入口" : "等待优先权玩家"
   };
 }
 
@@ -397,6 +503,14 @@ function isSpellDuelPromptType(type: string | undefined): boolean {
 }
 
 function isSpellDuelResponseAction(action: string): boolean {
+  return action === "PLAY_CARD"
+    || action === "ACTIVATE_ABILITY"
+    || action === "LEGEND_ACT"
+    || action === "REVEAL_CARD"
+    || action === "HIDE_CARD";
+}
+
+function isStackResponseAction(action: string): boolean {
   return action === "PLAY_CARD"
     || action === "ACTIVATE_ABILITY"
     || action === "LEGEND_ACT"

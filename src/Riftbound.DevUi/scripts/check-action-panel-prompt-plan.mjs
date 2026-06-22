@@ -255,6 +255,66 @@ assert.equal(spellDuelPlan.spellDuel?.actionRows.find((row) => row.key === "resp
 assert.equal(spellDuelPlan.spellDuel?.actionRows.find((row) => row.key === "pass")?.value, "可让过");
 assert.equal(spellDuelPlan.spellDuel?.actionRows.find((row) => row.key === "blocked")?.value, "1 项");
 
+const stackPriorityPlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P2",
+  prompt: {
+    actionable: true,
+    actions: ["PLAY_CARD", "LEGEND_ACT", "PASS_PRIORITY"],
+    candidates: [
+      { action: "PLAY_CARD", enabled: true, label: "响应法术", reason: "可响应" },
+      { action: "LEGEND_ACT", enabled: false, label: "传奇行动", reason: "时机不允许" },
+      { action: "PASS_PRIORITY", enabled: true, label: "让过优先权", reason: "可让过" }
+    ],
+    playerId: "P2",
+    reason: "STACK_PRIORITY",
+    view: {
+      message: "处理结算链响应。",
+      relatedStackItemId: "stack-2",
+      responsibility: {
+        actionableForPromptPlayer: true,
+        isResponsiblePlayer: true,
+        nextStep: "响应顶部结算项目或让过优先权。",
+        promptPlayerId: "P2",
+        promptType: "STACK_PRIORITY",
+        queueCounts: { stack: 2 },
+        relatedObjectIds: ["spell-2"],
+        responsiblePlayerId: "P2",
+        state: "PLAYER_ACTION"
+      },
+      title: "优先行动",
+      type: "STACK_PRIORITY"
+    }
+  },
+  snapshot: {
+    stack: [
+      { cardNo: "OGN-001/298", effectKind: "SPELL", sourceObjectId: "spell-1", stackItemId: "stack-1" },
+      { effectKind: "ABILITY", sourceObjectId: "unit-1", stackItemId: "stack-2", targetObjectIds: ["target-1", "target-2"] }
+    ],
+    tick: 12,
+    timing: {
+      passedPriorityPlayerIds: ["P1"],
+      priorityPlayerId: "P2",
+      turnWindow: {
+        actingPlayerId: "P2"
+      }
+    }
+  }
+});
+
+assert.equal(stackPriorityPlan.genericPrompt, undefined);
+assert.equal(stackPriorityPlan.stackPriority?.stateLabel, "轮到你响应");
+assert.equal(stackPriorityPlan.stackPriority?.nextStep, "响应顶部结算项目或让过优先权。");
+assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "priority-player")?.mine, true);
+assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "top-stack")?.value, "stack-2");
+assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "source")?.value, "unit-1");
+assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "effect")?.value, "ABILITY");
+assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "targets")?.value, "2 项");
+assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "passed")?.value, "P1");
+assert.equal(stackPriorityPlan.stackPriority?.actionRows.find((row) => row.key === "responses")?.value, "响应法术");
+assert.equal(stackPriorityPlan.stackPriority?.actionRows.find((row) => row.key === "pass")?.value, "可让过");
+assert.equal(stackPriorityPlan.stackPriority?.actionRows.find((row) => row.key === "blocked")?.value, "1 项");
+
 const unknownPlan = buildActionPanelPromptPlan({
   connectionStatus: "connected",
   playerId: "P1",

@@ -17,7 +17,7 @@ import {
   type ActionPanelCandidateCommandPlan,
   type ActionPanelDirectActionKind
 } from "../../utils/actionPanelCommandPlan";
-import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan } from "../../utils/actionPanelPromptPlan";
+import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
@@ -60,6 +60,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
             {promptPlan.rows.map((row) => <span key={row.key}>{row.text}</span>)}
           </div>
           {promptPlan.spellDuel && <SpellDuelPromptDetails plan={promptPlan.spellDuel} />}
+          {promptPlan.stackPriority && <StackPriorityPromptDetails plan={promptPlan.stackPriority} />}
           {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
           {promptPlan.inspection && <ActionPromptInspection plan={promptPlan.inspection} />}
           <div
@@ -290,6 +291,34 @@ function SpellDuelPromptDetails({ plan }: { plan: ActionPanelSpellDuelPlan }) {
       <div className="spell-duel-action-rows">
         {plan.actionRows.map((row) => (
           <span data-spell-duel-action-row={row.key} data-spell-duel-action-row-count={row.count} key={row.key}>
+            <strong>{row.label}</strong>
+            <small>{row.value}</small>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StackPriorityPromptDetails({ plan }: { plan: ActionPanelStackPriorityPlan }) {
+  return (
+    <div className="stack-priority-prompt-details" aria-label="结算链响应窗口摘要" data-stack-priority-prompt-state={plan.stateLabel}>
+      <div className="stack-priority-prompt-heading">
+        <strong>结算链响应</strong>
+        <StatusPill tone="warn">{plan.stateLabel}</StatusPill>
+      </div>
+      <p className="stack-priority-prompt-note">{plan.nextStep}</p>
+      <dl className="stack-priority-prompt-grid">
+        {plan.metrics.map((metric) => (
+          <div data-stack-priority-prompt-metric={metric.key} data-stack-priority-prompt-mine={metric.mine ? "true" : "false"} key={metric.key}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="stack-priority-action-rows">
+        {plan.actionRows.map((row) => (
+          <span data-stack-priority-action-row={row.key} data-stack-priority-action-row-count={row.count} key={row.key}>
             <strong>{row.label}</strong>
             <small>{row.value}</small>
           </span>
