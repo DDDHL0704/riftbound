@@ -6,7 +6,9 @@ import {
   buildDamageAssignmentModel,
   buildHandChoiceModel,
   buildOrderTriggersModel,
+  buildPayCostModel,
   clampDamageInput,
+  type PaymentChoiceItem,
   type TriggerOrderItem
 } from "../../utils/actionPanelChoiceModels";
 import {
@@ -150,6 +152,17 @@ function ActionPanelRenderEntryView({
           onCommand={onCommand}
           prompt={prompt}
           readOnly={entry.readOnly}
+          submitGate={entry.submitGate}
+        />
+      );
+      break;
+    case "pay-cost":
+      content = (
+        <PayCostCandidate
+          canAct={entry.canAct}
+          candidate={candidate}
+          onCommand={onCommand}
+          prompt={prompt}
           submitGate={entry.submitGate}
         />
       );
@@ -684,6 +697,134 @@ function OrderTriggersCandidate({
   );
 }
 
+function PayCostCandidate({
+  canAct,
+  candidate,
+  onCommand,
+  prompt,
+  submitGate
+}: {
+  canAct: boolean;
+  candidate?: ActionPromptCandidateDto;
+  onCommand: CommandSubmitHandler;
+  prompt?: ActionPromptDto;
+  submitGate: ActionPanelSubmitGate;
+}) {
+  const model = useMemo(() => buildPayCostModel(candidate, prompt), [candidate, prompt]);
+  const lockedSpendChoiceIds = useMemo(
+    () => model.choices.filter((choice) => choice.source === "spend").map((choice) => choice.id),
+    [model.choices]
+  );
+  const [selectedChoiceIds, setSelectedChoiceIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const allowed = new Set(model.choices.map((choice) => choice.id));
+    const defaultChoiceIds = uniqueStringList([
+      ...lockedSpendChoiceIds,
+      ...model.paymentChoiceIds
+    ]).filter((choiceId) => allowed.size === 0 || allowed.has(choiceId));
+    setSelectedChoiceIds(defaultChoiceIds);
+  }, [lockedSpendChoiceIds, model.paymentChoiceIds, model.resetKey, model.choices]);
+
+  const selectedChoiceIdSet = new Set(selectedChoiceIds);
+  const commandChoiceIds = model.choices.length > 0
+    ? model.choices.filter((choice) => selectedChoiceIdSet.has(choice.id)).map((choice) => choice.id)
+    : model.paymentChoiceIds;
+  const resourceCount = model.choices.filter((choice) => choice.source === "resource").length;
+  const spendCount = model.choices.filter((choice) => choice.source === "spend").length;
+  const canSubmit = canAct
+    && submitGate.canSubmit
+    && Boolean(candidate?.enabled)
+    && model.paymentId.length > 0
+    && model.paymentWindow.length > 0
+    && (model.choices.length === 0 || commandChoiceIds.length > 0);
+  const panelState = canSubmit
+    ? "ready"
+    : model.paymentId.length === 0 || model.paymentWindow.length === 0
+      ? "missing-contract"
+      : "waiting-selection";
+
+  const toggleChoice = (choice: PaymentChoiceItem) => {
+    if (choice.source === "spend") {
+      return;
+    }
+
+    setSelectedChoiceIds((current) => current.includes(choice.id)
+      ? current.filter((choiceId) => choiceId !== choice.id && !lockedSpendChoiceIds.includes(choiceId))
+      : uniqueStringList([...current, choice.id]));
+  };
+
+  return (
+    <div
+      className="pay-cost-panel"
+      data-pay-cost-choice-count={model.choices.length}
+      data-pay-cost-resource-count={resourceCount}
+      data-pay-cost-selected-count={commandChoiceIds.length}
+      data-pay-cost-spend-count={spendCount}
+      data-pay-cost-state={panelState}
+    >
+      <div className="pay-cost-heading">
+        <strong>{candidate ? promptActionLabel(candidate) : "支付费用"}</strong>
+        <StatusPill tone={canSubmit ? "warn" : "neutral"}>{canSubmit ? "待服务端校验" : "等待支付选择"}</StatusPill>
+      </div>
+      <div className="pay-cost-summary">
+        <span>窗口：{model.paymentWindow || "服务端未提供"}</span>
+        <span>支付 ID：{model.paymentId || "服务端未提供"}</span>
+        <span>费用：{model.costLabel ?? "服务端未提供"}</span>
+        <span>已提交项：{commandChoiceIds.length}</span>
+        <span>支付项：{spendCount}</span>
+        <span>资源动作：{resourceCount}</span>
+      </div>
+      <p className="pay-cost-note">
+        支付项和资源动作来自服务端候选；前端只提交所选 ID，费用满足性、非法资源和不必要资源都由服务端校验。
+      </p>
+      <div className="pay-cost-choice-list">
+        {model.choices.length === 0 && (
+          <span className="empty-hint">
+            服务端未公开可选支付项；将按服务端给定的支付组合提交。
+          </span>
+        )}
+        {model.choices.map((choice) => {
+          const selected = selectedChoiceIdSet.has(choice.id);
+          return (
+            <button
+              className={`pay-cost-choice-row ${selected ? "is-selected" : ""}`}
+              data-pay-cost-choice={choice.id}
+              data-pay-cost-choice-selected={selected ? "true" : "false"}
+              data-pay-cost-choice-source={choice.source}
+              disabled={!canAct || !submitGate.canSubmit || choice.source === "spend"}
+              key={`${choice.source}:${choice.id}`}
+              onClick={() => toggleChoice(choice)}
+              title={choice.reason ?? (choice.source === "spend" ? "服务端支付项" : "服务端资源动作")}
+              type="button"
+            >
+              <span>
+                <strong>{choice.label}</strong>
+                {choice.reason && <small>{choice.reason}</small>}
+              </span>
+              <small>{choice.source === "spend" ? "支付项" : selected ? "已选择资源" : "可选资源"}</small>
+            </button>
+          );
+        })}
+      </div>
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => onCommand(withPromptStamp({
+          cmdType: "PAY_COST",
+          paymentChoiceIds: commandChoiceIds,
+          paymentId: model.paymentId,
+          paymentWindow: model.paymentWindow
+        }, prompt))}
+        title={submitGate.title ?? promptReasonTitle(candidate?.reason)}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        提交支付
+      </Button>
+    </div>
+  );
+}
+
 function moveTriggerId(triggerIds: string[], triggerId: string, delta: number): string[] {
   const from = triggerIds.indexOf(triggerId);
   const to = from + delta;
@@ -695,6 +836,10 @@ function moveTriggerId(triggerIds: string[], triggerId: string, delta: number): 
   const [moved] = next.splice(from, 1);
   next.splice(to, 0, moved);
   return next;
+}
+
+function uniqueStringList(values: string[]): string[] {
+  return [...new Set(values.filter((value) => value.trim().length > 0))];
 }
 
 function CandidateButton({

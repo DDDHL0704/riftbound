@@ -39,6 +39,7 @@ const mainPlan = buildActionPanelRenderPlan({
       { action: "ACTIVATE_ABILITY", enabled: false, label: "禁用能力", presentation: { category: "ability", intent: "activate-ability", priority: 10, uiHint: "card-action" } },
       { action: "ORDER_TRIGGERS", enabled: true, label: "排列触发", presentation: { category: "choice", intent: "order-triggers", priority: 60, uiHint: "choice" } },
       { action: "MULLIGAN", enabled: true, label: "起手调整", presentation: { category: "setup", intent: "mulligan", priority: 30, uiHint: "primary" } },
+      { action: "PAY_COST", enabled: true, label: "支付费用", presentation: { category: "payment", intent: "pay-cost", priority: 35, uiHint: "payment" } },
       { action: "CHOOSE_HAND_CARDS", enabled: true, label: "选择手牌", presentation: { category: "choice", intent: "choose-hand", priority: 40, uiHint: "choice" } },
       { action: "ASSIGN_COMBAT_DAMAGE", enabled: true, label: "分配伤害", presentation: { category: "battle", intent: "assign-damage", priority: 50, uiHint: "battle" } }
     ],
@@ -51,6 +52,7 @@ assert.equal(mainPlan.state, "ready");
 assert.equal(mainPlan.promptType, "MAIN_ACTION");
 assert.deepEqual(mainPlan.entries.map((entry) => entry.kind), [
   "mulligan",
+  "pay-cost",
   "hand-choice",
   "damage-assignment",
   "order-triggers",
@@ -59,6 +61,7 @@ assert.deepEqual(mainPlan.entries.map((entry) => entry.kind), [
 ]);
 assert.deepEqual(mainPlan.entries.map((entry) => entry.candidate?.action), [
   "MULLIGAN",
+  "PAY_COST",
   "CHOOSE_HAND_CARDS",
   "ASSIGN_COMBAT_DAMAGE",
   "ORDER_TRIGGERS",
@@ -69,8 +72,8 @@ assert.equal(mainPlan.entries.some((entry) => entry.candidate?.action === "ACTIV
 assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.canAct, false);
 assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.submitGate.state, "server-blocked");
 assert.equal(mainPlan.entries.find((entry) => entry.candidate?.action === "ACTIVATE_ABILITY")?.submitGate.stateLabel, "服务端阻断");
-assert.equal(mainPlan.entries.filter((entry) => entry.canAct).length, 5);
-assert.equal(mainPlan.entries.filter((entry) => entry.submitGate.state === "ready").length, 5);
+assert.equal(mainPlan.entries.filter((entry) => entry.canAct).length, 6);
+assert.equal(mainPlan.entries.filter((entry) => entry.submitGate.state === "ready").length, 6);
 
 const readonlyHandPlan = buildActionPanelRenderPlan({
   canAct: false,

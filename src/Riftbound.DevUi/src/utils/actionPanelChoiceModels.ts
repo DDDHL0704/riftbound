@@ -54,6 +54,22 @@ export type OrderTriggersModel = {
   resetKey: string;
 };
 
+export type PaymentChoiceItem = {
+  id: string;
+  label: string;
+  reason?: string;
+  source: "resource" | "spend";
+};
+
+export type PayCostModel = {
+  choices: PaymentChoiceItem[];
+  costLabel?: string;
+  paymentChoiceIds: string[];
+  paymentId: string;
+  paymentWindow: string;
+  resetKey: string;
+};
+
 export function buildHandChoiceModel(candidate: ActionPromptCandidateDto | undefined, prompt: ActionPromptDto | undefined): HandChoiceModel {
   const metadata = candidate?.metadata ?? {};
   const requiredCount = numberMetadata(metadata, "requiredCount") ?? prompt?.view?.minSelection ?? undefined;
@@ -167,12 +183,95 @@ export function buildOrderTriggersModel(candidate: ActionPromptCandidateDto | un
   };
 }
 
+export function buildPayCostModel(candidate: ActionPromptCandidateDto | undefined, prompt: ActionPromptDto | undefined): PayCostModel {
+  const metadata = {
+    ...(prompt?.view?.metadata ?? {}),
+    ...(candidate?.metadata ?? {})
+  };
+  const resourceChoices = paymentChoiceItems(metadata.paymentResourceChoices, "resource");
+  const spendChoices = paymentChoiceItems(metadata.paymentChoices, "spend");
+  const choices = uniquePaymentChoices([...resourceChoices, ...spendChoices]);
+  const visibleChoiceIds = new Set(choices.map((choice) => choice.id));
+  const paymentChoiceIds = (firstStringArrayMetadata(metadata, ["paymentChoiceIds", "legalPaymentChoiceIds", "defaultPaymentChoiceIds"]) ?? [])
+    .filter((choiceId) => visibleChoiceIds.size === 0 || visibleChoiceIds.has(choiceId));
+
+  return {
+    choices,
+    costLabel: safePromptSummary(metadata.cost ?? metadata.costSummary ?? metadata.paymentCost),
+    paymentChoiceIds,
+    paymentId: stringMetadata(metadata, "paymentId") ?? "",
+    paymentWindow: stringMetadata(metadata, "paymentWindow") ?? "",
+    resetKey: [
+      stringMetadata(metadata, "paymentId") ?? "none",
+      stringMetadata(metadata, "paymentWindow") ?? "none",
+      paymentChoiceIds.join("|"),
+      choices.map((choice) => `${choice.source}:${choice.id}`).join("|")
+    ].join("::")
+  };
+}
+
 export function clampDamageInput(value: number): number {
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
 }
 
 export function findCardNo(snapshot: SnapshotDto | undefined, objectId: string): string | undefined {
   return findObject(snapshot, objectId)?.cardNo ?? undefined;
+}
+
+function paymentChoiceItems(value: unknown, source: PaymentChoiceItem["source"]): PaymentChoiceItem[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => paymentChoiceItem(item, source))
+      .filter((choice): choice is PaymentChoiceItem => choice != null);
+  }
+
+  const singleChoice = paymentChoiceItem(value, source);
+  if (singleChoice) {
+    return [singleChoice];
+  }
+
+  return recordArrayMetadata(value)
+    .map((record) => paymentChoiceItem(record, source))
+    .filter((choice): choice is PaymentChoiceItem => choice != null);
+}
+
+function paymentChoiceItem(value: unknown, source: PaymentChoiceItem["source"]): PaymentChoiceItem | undefined {
+  if (typeof value === "string" && value.trim().length > 0) {
+    const id = value.trim();
+    return {
+      id,
+      label: id,
+      source
+    };
+  }
+
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const id = firstStringFromRecord(value, ["id", "choiceId", "paymentChoiceId", "resourceChoiceId", "objectId", "actionId"]);
+  if (!id) {
+    return undefined;
+  }
+
+  return {
+    id,
+    label: safeOptionalText(firstStringFromRecord(value, ["label", "summary", "visibleText", "text", "title", "name"]))
+      ?? id,
+    reason: safeOptionalText(firstStringFromRecord(value, ["reason", "description"])),
+    source
+  };
+}
+
+function uniquePaymentChoices(choices: PaymentChoiceItem[]): PaymentChoiceItem[] {
+  const byId = new Map<string, PaymentChoiceItem>();
+  for (const choice of choices) {
+    if (!byId.has(choice.id)) {
+      byId.set(choice.id, choice);
+    }
+  }
+
+  return [...byId.values()];
 }
 
 function handChoiceItems(value: unknown): HandChoiceItem[] {

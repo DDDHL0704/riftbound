@@ -25,6 +25,7 @@ const {
   buildDamageAssignmentModel,
   buildHandChoiceModel,
   buildOrderTriggersModel,
+  buildPayCostModel,
   clampDamageInput,
   findCardNo
 } = moduleShim.exports;
@@ -146,6 +147,35 @@ assert.equal(triggerModel.triggers[0].summary, "第一触发");
 assert.equal(triggerModel.triggers[1].label, "第二触发");
 assert.equal(triggerModel.constraints[0], "先结算同一玩家触发");
 assert.equal(triggerModel.triggeredByEventKind, "UNIT_ENTERS_BATTLEFIELD");
+
+const payCostModel = buildPayCostModel({
+  action: "PAY_COST",
+  enabled: true,
+  label: "支付费用",
+  metadata: {
+    cost: { mana: 1, power: 2 },
+    paymentChoices: [
+      { id: "SPEND_MANA:1", label: "支付 1 法力", reason: "服务端支付候选" }
+    ],
+    paymentChoiceIds: ["RECYCLE_RUNE:rune-1", "SPEND_MANA:1"],
+    paymentId: "payment-1",
+    paymentResourceChoices: [
+      "RECYCLE_RUNE:rune-1",
+      { id: "TEMP_RESOURCE:boost-1", label: "临时资源", description: "服务端资源动作" }
+    ],
+    paymentWindow: "PLAY_CARD",
+    resourceLedgerBeforePayment: { mana: 1 },
+    serverPaymentState: "PENDING"
+  }
+}, undefined);
+
+assert.equal(payCostModel.paymentId, "payment-1");
+assert.equal(payCostModel.paymentWindow, "PLAY_CARD");
+assert.deepEqual(payCostModel.choices.map((choice) => choice.id), ["RECYCLE_RUNE:rune-1", "TEMP_RESOURCE:boost-1", "SPEND_MANA:1"]);
+assert.deepEqual(payCostModel.choices.map((choice) => choice.source), ["resource", "resource", "spend"]);
+assert.deepEqual(payCostModel.paymentChoiceIds, ["RECYCLE_RUNE:rune-1", "SPEND_MANA:1"]);
+assert.equal(payCostModel.choices[1].reason, "服务端资源动作");
+assert.ok(!String(payCostModel.costLabel).includes("serverPaymentState"));
 
 assert.equal(clampDamageInput(2.8), 2);
 assert.equal(clampDamageInput(-1), 0);

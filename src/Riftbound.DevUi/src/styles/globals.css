@@ -1965,6 +1965,7 @@ button.card-face:hover {
 .prompt-summary,
 .hand-choice-panel,
 .damage-assignment-panel,
+.pay-cost-panel,
 .trigger-order-panel,
 .generic-prompt-details,
 .action-prompt-inspection,
@@ -1994,6 +1995,7 @@ button.card-face:hover {
 .candidate-composer-heading,
 .hand-choice-heading,
 .damage-assignment-heading,
+.pay-cost-heading,
 .trigger-order-heading,
 .lifecycle-card header,
 .score-track header,
@@ -2017,6 +2019,7 @@ button.card-face:hover {
 .candidate-composer-note,
 .hand-choice-note,
 .damage-assignment-note,
+.pay-cost-note,
 .trigger-order-note,
 .snapshot-debug-note {
   margin: 0;
@@ -2176,6 +2179,8 @@ button.card-face:hover {
 .hand-choice-row small,
 .damage-assignment-summary span,
 .damage-assignment-row small,
+.pay-cost-summary span,
+.pay-cost-choice-row small,
 .trigger-order-summary span,
 .trigger-order-constraints span,
 .trigger-order-row small,
@@ -2370,6 +2375,58 @@ button.card-face:hover {
 }
 
 .hand-choice-row.is-selected {
+  border-color: rgba(215, 173, 85, 0.68);
+  background: rgba(215, 173, 85, 0.16);
+}
+
+.pay-cost-panel {
+  gap: 9px;
+}
+
+.pay-cost-heading > strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.pay-cost-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+
+.pay-cost-choice-list {
+  display: grid;
+  gap: 6px;
+}
+
+.pay-cost-choice-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  padding: 8px;
+  text-align: left;
+}
+
+.pay-cost-choice-row > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pay-cost-choice-row strong {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.pay-cost-choice-row.is-selected {
   border-color: rgba(215, 173, 85, 0.68);
   background: rgba(215, 173, 85, 0.16);
 }
@@ -17513,6 +17570,7 @@ button.wire-object-ref {
 .wire-match-page .task-queue,
 .wire-match-page .hand-choice-panel,
 .wire-match-page .damage-assignment-panel,
+.wire-match-page .pay-cost-panel,
 .wire-match-page .trigger-order-panel,
 .wire-match-page .action-command-plan,
 .wire-match-page .action-command-plan-source,
