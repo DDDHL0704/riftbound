@@ -1853,6 +1853,7 @@ button.card-face:hover {
 .app-frame-match .mulligan-selector,
 .app-frame-match .stack-item,
 .app-frame-match .task-queue,
+.app-frame-match .battle-declaration-panel,
 .app-frame-match .hand-choice-panel,
 .app-frame-match .damage-assignment-panel,
 .app-frame-match .trigger-order-panel,
@@ -1963,6 +1964,7 @@ button.card-face:hover {
 .stack-item,
 .task-queue,
 .prompt-summary,
+.battle-declaration-panel,
 .hand-choice-panel,
 .damage-assignment-panel,
 .pay-cost-panel,
@@ -2008,6 +2010,7 @@ button.card-face:hover {
 .action-prompt-inspection-heading,
 .candidate-composer-heading,
 .hand-choice-heading,
+.battle-declaration-heading,
 .damage-assignment-heading,
 .pay-cost-heading,
 .trigger-order-heading,
@@ -2507,6 +2510,51 @@ button.card-face:hover {
 .hand-choice-row.is-selected {
   border-color: rgba(215, 173, 85, 0.68);
   background: rgba(215, 173, 85, 0.16);
+}
+
+.battle-declaration-panel {
+  gap: 9px;
+}
+
+.battle-declaration-heading > strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.battle-declaration-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+
+.battle-declaration-summary div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 7px;
+}
+
+.battle-declaration-summary dt,
+.battle-declaration-summary small,
+.battle-declaration-note {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
+
+.battle-declaration-summary dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.battle-declaration-note {
+  margin: 0;
 }
 
 .pay-cost-panel {
@@ -17769,6 +17817,8 @@ button.wire-object-ref {
 .wire-match-page .mulligan-selector,
 .wire-match-page .stack-item,
 .wire-match-page .task-queue,
+.wire-match-page .battle-declaration-panel,
+.wire-match-page .battle-declaration-summary div,
 .wire-match-page .hand-choice-panel,
 .wire-match-page .damage-assignment-panel,
 .wire-match-page .pay-cost-panel,
@@ -18107,6 +18157,8 @@ button.wire-object-ref {
 .wire-match-page .eyebrow,
 .wire-match-page .empty-hint,
 .wire-match-page .prompt-summary span,
+.wire-match-page .battle-declaration-summary *,
+.wire-match-page .battle-declaration-note,
 .wire-match-page .complex-prompt-details,
 .wire-match-page .complex-prompt-details *,
 .wire-match-page .generic-prompt-contract,

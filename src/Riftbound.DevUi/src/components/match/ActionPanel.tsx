@@ -17,6 +17,7 @@ import {
   type ActionPanelCandidateCommandPlan,
   type ActionPanelDirectActionKind
 } from "../../utils/actionPanelCommandPlan";
+import { buildActionPanelBattleDeclarationPlan } from "../../utils/actionPanelBattleDeclarationPlan";
 import { buildActionPanelPromptPlan, type ActionPanelComplexPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
@@ -116,7 +117,7 @@ function ActionPanelRenderEntryView({
   switch (entry.kind) {
     case "battle-declaration":
       content = candidate ? (
-        <CandidateButton
+        <BattleDeclarationCandidate
           candidate={candidate}
           disabledByConnection={disabledByConnection}
           onCommand={onCommand}
@@ -216,6 +217,72 @@ function ActionPanelRenderEntryView({
       data-action-render-submit-state={entry.submitGate.state}
     >
       {content}
+    </div>
+  );
+}
+
+function BattleDeclarationCandidate({
+  candidate,
+  disabledByConnection,
+  onCommand,
+  onReady,
+  onSubmitStarterDeck,
+  prompt,
+  snapshot,
+  submitGate,
+  submissionGate
+}: {
+  candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  onCommand: CommandSubmitHandler;
+  onReady: () => void;
+  onSubmitStarterDeck: () => void;
+  prompt?: ActionPromptDto;
+  snapshot?: SnapshotDto;
+  submitGate: ActionPanelSubmitGate;
+  submissionGate: ServerSubmissionGatePlan;
+}) {
+  const plan = buildActionPanelBattleDeclarationPlan(candidate);
+
+  return (
+    <div
+      className="battle-declaration-panel"
+      data-battle-declaration-battlefield-count={plan.battlefieldChoiceCount}
+      data-battle-declaration-cost-count={plan.optionalCostChoiceCount}
+      data-battle-declaration-defender-count={plan.defenderChoiceCount}
+      data-battle-declaration-payment-resource-count={plan.paymentResourceChoiceCount}
+      data-battle-declaration-requirement-count={plan.requirementCount}
+      data-battle-declaration-source-count={plan.sourceChoiceCount}
+      data-battle-declaration-state={plan.state}
+      data-battle-declaration-template-field-count={plan.commandFieldCount}
+    >
+      <div className="battle-declaration-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
+      </div>
+      <dl className="battle-declaration-summary">
+        {plan.metricRows.map((metric) => (
+          <div data-battle-declaration-metric={metric.key} key={metric.key}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+            <small>{metric.detail}</small>
+          </div>
+        ))}
+      </dl>
+      <p className="battle-declaration-note">
+        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端声明战斗候选")}
+      </p>
+      <CandidateButton
+        candidate={candidate}
+        disabledByConnection={disabledByConnection}
+        onCommand={onCommand}
+        onReady={onReady}
+        onSubmitStarterDeck={onSubmitStarterDeck}
+        prompt={prompt}
+        snapshot={snapshot}
+        submitGate={submitGate}
+        submissionGate={submissionGate}
+      />
     </div>
   );
 }
