@@ -60,7 +60,7 @@ assert.deepEqual(mainPlan.entries.map((entry) => entry.kind), [
   "battle-declaration",
   "unit-movement",
   "order-triggers",
-  "candidate-button",
+  "rune-resource",
   "candidate-button"
 ]);
 assert.deepEqual(mainPlan.entries.map((entry) => entry.candidate?.action), [

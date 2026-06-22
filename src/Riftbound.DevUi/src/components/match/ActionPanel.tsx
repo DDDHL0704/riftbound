@@ -21,6 +21,7 @@ import { buildActionPanelBattleDeclarationPlan } from "../../utils/actionPanelBa
 import { buildActionPanelMovementPlan } from "../../utils/actionPanelMovementPlan";
 import { buildActionPanelPromptPlan, type ActionPanelComplexPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
+import { buildActionPanelResourcePlan } from "../../utils/actionPanelResourcePlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
 import type { CommandSubmitHandler, CommandSubmissionUiSource } from "../../utils/commandSubmissionFollowupPlan";
@@ -202,6 +203,21 @@ function ActionPanelRenderEntryView({
         />
       );
       break;
+    case "rune-resource":
+      content = candidate ? (
+        <RuneResourceCandidate
+          candidate={candidate}
+          disabledByConnection={disabledByConnection}
+          onCommand={onCommand}
+          onReady={onReady}
+          onSubmitStarterDeck={onSubmitStarterDeck}
+          prompt={prompt}
+          snapshot={snapshot}
+          submitGate={entry.submitGate}
+          submissionGate={submissionGate}
+        />
+      ) : null;
+      break;
     case "candidate-button":
       content = candidate ? (
         <CandidateButton
@@ -353,6 +369,70 @@ function UnitMovementCandidate({
       <p className="unit-movement-note">
         {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端移动候选")}
       </p>
+      <CandidateButton
+        candidate={candidate}
+        disabledByConnection={disabledByConnection}
+        onCommand={onCommand}
+        onReady={onReady}
+        onSubmitStarterDeck={onSubmitStarterDeck}
+        prompt={prompt}
+        snapshot={snapshot}
+        submitGate={submitGate}
+        submissionGate={submissionGate}
+      />
+    </div>
+  );
+}
+
+function RuneResourceCandidate({
+  candidate,
+  disabledByConnection,
+  onCommand,
+  onReady,
+  onSubmitStarterDeck,
+  prompt,
+  snapshot,
+  submitGate,
+  submissionGate
+}: {
+  candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
+  onCommand: CommandSubmitHandler;
+  onReady: () => void;
+  onSubmitStarterDeck: () => void;
+  prompt?: ActionPromptDto;
+  snapshot?: SnapshotDto;
+  submitGate: ActionPanelSubmitGate;
+  submissionGate: ServerSubmissionGatePlan;
+}) {
+  const plan = buildActionPanelResourcePlan(candidate, { playerId: prompt?.playerId, snapshot });
+
+  return (
+    <div
+      className="rune-resource-panel"
+      data-rune-resource-command-field-count={plan.commandFieldCount}
+      data-rune-resource-power-trait-count={plan.powerTraitCount}
+      data-rune-resource-selection-step-count={plan.selectionStepCount}
+      data-rune-resource-source-count={plan.sourceChoiceCount}
+      data-rune-resource-state={plan.state}
+    >
+      <div className="rune-resource-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <StatusPill tone={submitGate.canSubmit ? "good" : "neutral"}>{submitGate.canSubmit ? plan.statusLabel : submitGate.stateLabel}</StatusPill>
+      </div>
+      <dl className="rune-resource-summary">
+        {plan.metricRows.map((metric) => (
+          <div data-rune-resource-metric={metric.key} key={metric.key}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+            <small>{metric.detail}</small>
+          </div>
+        ))}
+      </dl>
+      <p className="rune-resource-note">
+        {plan.authorityLabel} {promptReasonLabel(candidate.reason, "服务端符文资源候选")}
+      </p>
+      <small className="rune-resource-pool">{plan.poolLabel}</small>
       <CandidateButton
         candidate={candidate}
         disabledByConnection={disabledByConnection}

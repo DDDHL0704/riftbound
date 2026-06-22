@@ -1855,6 +1855,7 @@ button.card-face:hover {
 .app-frame-match .task-queue,
 .app-frame-match .battle-declaration-panel,
 .app-frame-match .unit-movement-panel,
+.app-frame-match .rune-resource-panel,
 .app-frame-match .hand-choice-panel,
 .app-frame-match .damage-assignment-panel,
 .app-frame-match .trigger-order-panel,
@@ -1967,6 +1968,7 @@ button.card-face:hover {
 .prompt-summary,
 .battle-declaration-panel,
 .unit-movement-panel,
+.rune-resource-panel,
 .hand-choice-panel,
 .damage-assignment-panel,
 .pay-cost-panel,
@@ -2014,6 +2016,7 @@ button.card-face:hover {
 .hand-choice-heading,
 .battle-declaration-heading,
 .unit-movement-heading,
+.rune-resource-heading,
 .damage-assignment-heading,
 .pay-cost-heading,
 .trigger-order-heading,
@@ -2603,6 +2606,57 @@ button.card-face:hover {
 
 .unit-movement-note {
   margin: 0;
+}
+
+.rune-resource-panel {
+  gap: 9px;
+}
+
+.rune-resource-heading > strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.rune-resource-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+
+.rune-resource-summary div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 7px;
+}
+
+.rune-resource-summary dt,
+.rune-resource-summary small,
+.rune-resource-note,
+.rune-resource-pool {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
+
+.rune-resource-summary dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.rune-resource-note {
+  margin: 0;
+}
+
+.rune-resource-pool {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .pay-cost-panel {
@@ -17869,6 +17923,8 @@ button.wire-object-ref {
 .wire-match-page .battle-declaration-summary div,
 .wire-match-page .unit-movement-panel,
 .wire-match-page .unit-movement-summary div,
+.wire-match-page .rune-resource-panel,
+.wire-match-page .rune-resource-summary div,
 .wire-match-page .hand-choice-panel,
 .wire-match-page .damage-assignment-panel,
 .wire-match-page .pay-cost-panel,
@@ -18211,6 +18267,9 @@ button.wire-object-ref {
 .wire-match-page .battle-declaration-note,
 .wire-match-page .unit-movement-summary *,
 .wire-match-page .unit-movement-note,
+.wire-match-page .rune-resource-summary *,
+.wire-match-page .rune-resource-note,
+.wire-match-page .rune-resource-pool,
 .wire-match-page .complex-prompt-details,
 .wire-match-page .complex-prompt-details *,
 .wire-match-page .generic-prompt-contract,

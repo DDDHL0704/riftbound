@@ -1703,11 +1703,16 @@ async function runWireClickSelectionSmoke(cdp) {
     const actionButton = Array.from(document.querySelectorAll(".wire-action-panel button"))
       .find((button) => button.textContent?.includes("横置符文样例"));
     const actionCommandPlan = actionButton?.closest("[data-action-command-source]");
+    const runeResource = document.querySelector(".rune-resource-panel");
     const selectedObjectContext = document.querySelector('[data-wire-selected-object-context="p1-rune-3"]');
     return {
       actionButtonText: actionButton?.textContent ?? "",
       actionButtonSource: actionCommandPlan?.getAttribute("data-action-command-source") ?? null,
       actionButtonSourceText: actionCommandPlan?.textContent ?? "",
+      runeResourceCommandFieldCount: Number(runeResource?.getAttribute("data-rune-resource-command-field-count") ?? "0"),
+      runeResourceSourceCount: Number(runeResource?.getAttribute("data-rune-resource-source-count") ?? "0"),
+      runeResourceState: runeResource?.getAttribute("data-rune-resource-state") ?? null,
+      runeResourceText: runeResource?.textContent ?? "",
       selected: tableObject?.getAttribute("data-selected") ?? null,
       chipSelected: actionChip?.getAttribute("data-selected") ?? null,
       detailContextText: selectedObjectContext?.textContent ?? "",
@@ -2391,6 +2396,12 @@ async function runWireClickSelectionSmoke(cdp) {
   if (runeActionMapResult.actionButtonText.includes("需选择")) failures.push("rune action panel did not build direct command from server template");
   if (runeActionMapResult.actionButtonSource !== "server-template") failures.push(`rune action command source unexpected: ${runeActionMapResult.actionButtonSource}`);
   if (!runeActionMapResult.actionButtonSourceText.includes("服务端模板")) failures.push("rune action command source label missing");
+  if (runeActionMapResult.runeResourceState !== "ready") failures.push(`rune resource panel state unexpected: ${runeActionMapResult.runeResourceState}`);
+  if (runeActionMapResult.runeResourceSourceCount < 1) failures.push(`rune resource source count missing: ${runeActionMapResult.runeResourceSourceCount}`);
+  if (runeActionMapResult.runeResourceCommandFieldCount < 1) failures.push(`rune resource command field count missing: ${runeActionMapResult.runeResourceCommandFieldCount}`);
+  if (!runeActionMapResult.runeResourceText.includes("符文候选")) failures.push("rune resource source summary missing");
+  if (!runeActionMapResult.runeResourceText.includes("资源池")) failures.push("rune resource pool summary missing");
+  if (!runeActionMapResult.runeResourceText.includes("服务端")) failures.push("rune resource server authority copy missing");
   if (!runeActionMapResult.focusText.includes("服务端状态")) failures.push("rune action map focus did not refresh focused action summary");
   if (candidateRefResult.hasCandidateRefs < 1) failures.push("candidate object refs missing");
   if (candidateRefResult.selected !== "true") failures.push("candidate object ref did not focus table object");

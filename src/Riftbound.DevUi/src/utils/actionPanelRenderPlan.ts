@@ -8,6 +8,7 @@ export type ActionPanelRenderEntryKind =
   | "mulligan"
   | "order-triggers"
   | "pay-cost"
+  | "rune-resource"
   | "unit-movement";
 
 export type ActionPanelRenderState = "blocked" | "disabled" | "empty" | "ready" | "readonly";
@@ -256,6 +257,9 @@ function entryKindForAction(action: string): ActionPanelRenderEntryKind {
       return "order-triggers";
     case "PAY_COST":
       return "pay-cost";
+    case "RECYCLE_RUNE":
+    case "TAP_RUNE":
+      return "rune-resource";
     default:
       return "candidate-button";
   }
