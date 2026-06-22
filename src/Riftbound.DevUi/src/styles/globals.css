@@ -1967,6 +1967,7 @@ button.card-face:hover {
 .damage-assignment-panel,
 .pay-cost-panel,
 .trigger-order-panel,
+.complex-prompt-details,
 .generic-prompt-details,
 .spell-duel-prompt-details,
 .stack-priority-prompt-details,
@@ -1993,6 +1994,7 @@ button.card-face:hover {
 }
 
 .generic-prompt-heading,
+.complex-prompt-heading,
 .spell-duel-prompt-heading,
 .stack-priority-prompt-heading,
 .action-prompt-inspection-heading,
@@ -2012,6 +2014,7 @@ button.card-face:hover {
 
 .generic-prompt-details > strong,
 .generic-prompt-heading > strong,
+.complex-prompt-heading > strong,
 .action-prompt-inspection-heading > strong,
 .generic-prompt-metadata > strong {
   color: var(--text-primary);
@@ -2019,6 +2022,7 @@ button.card-face:hover {
 }
 
 .generic-prompt-note,
+.complex-prompt-note,
 .spell-duel-prompt-note,
 .stack-priority-prompt-note,
 .action-prompt-inspection p,
@@ -2037,6 +2041,7 @@ button.card-face:hover {
 .generic-prompt-option,
 .generic-prompt-metadata,
 .generic-prompt-contract,
+.complex-prompt-action-rows,
 .spell-duel-action-rows,
 .stack-priority-action-rows,
 .action-prompt-inspection-groups section,
@@ -2063,6 +2068,9 @@ button.card-face:hover {
 .action-prompt-inspection-groups li small,
 .action-prompt-inspection-groups li strong,
 .generic-prompt-option span,
+.complex-prompt-grid dt,
+.complex-prompt-grid dd,
+.complex-prompt-action-rows span,
 .spell-duel-prompt-grid dt,
 .spell-duel-prompt-grid dd,
 .spell-duel-action-rows span,
@@ -2188,6 +2196,7 @@ button.card-face:hover {
 .generic-prompt-option small,
 .generic-prompt-metadata span,
 .generic-prompt-contract span,
+.complex-prompt-action-rows small,
 .spell-duel-action-rows small,
 .stack-priority-action-rows small,
 .candidate-composer-note,
@@ -2215,16 +2224,19 @@ button.card-face:hover {
   gap: 4px;
 }
 
+.complex-prompt-details,
 .spell-duel-prompt-details {
   margin-top: 8px;
 }
 
+.complex-prompt-heading > strong,
 .spell-duel-prompt-heading > strong,
 .stack-priority-prompt-heading > strong {
   color: var(--text-primary);
   font-size: 0.86rem;
 }
 
+.complex-prompt-grid,
 .spell-duel-prompt-grid,
 .stack-priority-prompt-grid {
   display: grid;
@@ -2233,6 +2245,8 @@ button.card-face:hover {
   margin: 0;
 }
 
+.complex-prompt-grid div,
+.complex-prompt-action-rows span,
 .spell-duel-prompt-grid div,
 .spell-duel-action-rows span,
 .stack-priority-prompt-grid div,
@@ -2242,6 +2256,8 @@ button.card-face:hover {
   min-width: 0;
 }
 
+.complex-prompt-grid dt,
+.complex-prompt-grid dd,
 .spell-duel-prompt-grid dt,
 .spell-duel-prompt-grid dd,
 .stack-priority-prompt-grid dt,
@@ -2250,6 +2266,8 @@ button.card-face:hover {
   margin: 0;
 }
 
+.complex-prompt-grid dd,
+.complex-prompt-action-rows small,
 .spell-duel-prompt-grid dd,
 .spell-duel-action-rows small,
 .stack-priority-prompt-grid dd,
@@ -2257,11 +2275,13 @@ button.card-face:hover {
   overflow-wrap: anywhere;
 }
 
+.complex-prompt-grid [data-complex-prompt-mine="true"] dd,
 .spell-duel-prompt-grid [data-spell-duel-prompt-mine="true"] dd,
 .stack-priority-prompt-grid [data-stack-priority-prompt-mine="true"] dd {
   font-weight: 700;
 }
 
+.complex-prompt-action-rows,
 .spell-duel-action-rows,
 .stack-priority-action-rows {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -17646,6 +17666,7 @@ button.wire-object-ref {
 .wire-match-page .trigger-order-panel,
 .wire-match-page .action-command-plan,
 .wire-match-page .action-command-plan-source,
+.wire-match-page .complex-prompt-details,
 .wire-match-page .generic-prompt-details,
 .wire-match-page .spell-duel-prompt-details,
 .wire-match-page .stack-priority-prompt-details,
@@ -17973,6 +17994,8 @@ button.wire-object-ref {
 .wire-match-page .eyebrow,
 .wire-match-page .empty-hint,
 .wire-match-page .prompt-summary span,
+.wire-match-page .complex-prompt-details,
+.wire-match-page .complex-prompt-details *,
 .wire-match-page .generic-prompt-contract,
 .wire-match-page .generic-prompt-contract *,
 .wire-match-page .candidate-composer-field span,

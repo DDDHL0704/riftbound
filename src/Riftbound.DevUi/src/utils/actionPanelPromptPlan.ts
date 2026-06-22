@@ -89,8 +89,31 @@ export type ActionPanelStackPriorityPlan = {
   stateLabel: string;
 };
 
+export type ActionPanelComplexPromptMetric = {
+  key: string;
+  label: string;
+  mine?: boolean;
+  value: string;
+};
+
+export type ActionPanelComplexPromptActionRow = {
+  count: number;
+  key: string;
+  label: string;
+  value: string;
+};
+
+export type ActionPanelComplexPromptPlan = {
+  actionRows: ActionPanelComplexPromptActionRow[];
+  heading: string;
+  metrics: ActionPanelComplexPromptMetric[];
+  nextStep: string;
+  stateLabel: string;
+};
+
 export type ActionPanelPromptPlan = {
   canAct: boolean;
+  complexPrompt?: ActionPanelComplexPromptPlan;
   genericPrompt?: ActionPanelGenericPromptPlan;
   inspection?: PromptInspectionPlan;
   promptMessage: string;
@@ -126,6 +149,7 @@ export function buildActionPanelPromptPlan({
 
   return {
     canAct,
+    complexPrompt: prompt && isComplexPromptType(prompt.view?.type) ? buildComplexPromptPlan({ playerId, prompt }) : undefined,
     genericPrompt: prompt && shouldShowGenericPromptDetails(prompt) ? buildGenericPromptPlan(prompt) : undefined,
     inspection: prompt ? buildPromptInspectionPlan({ prompt }) : undefined,
     promptMessage,
@@ -136,6 +160,100 @@ export function buildActionPanelPromptPlan({
     statusLabel: canAct ? "轮到你操作" : gate.canSubmit ? "等待服务端或对手" : gate.stateLabel,
     statusTone: canAct ? "good" : "neutral"
   };
+}
+
+function buildComplexPromptPlan({
+  playerId,
+  prompt
+}: {
+  playerId: string;
+  prompt: ActionPromptDto;
+}): ActionPanelComplexPromptPlan {
+  const type = prompt.view?.type?.trim() ?? "";
+  const canAct = Boolean(prompt.actionable && prompt.playerId === playerId);
+  const enabledCandidates = prompt.candidates?.filter((candidate) => candidate.enabled) ?? [];
+  const blockedCandidates = prompt.candidates?.filter((candidate) => !candidate.enabled) ?? [];
+  const primaryCandidate = primaryCandidateForPrompt(prompt);
+  const metadata = mergedPromptMetadata(prompt, primaryCandidate);
+  const heading = complexPromptHeading(type);
+  const contract = prompt.contract;
+  const requiredPayloadCount = contract?.requiredPayload?.length ?? 0;
+  const legalChoicesCount = contract?.legalChoices?.length ?? 0;
+
+  return {
+    actionRows: [
+      {
+        count: enabledCandidates.length,
+        key: "enabled",
+        label: "可提交",
+        value: enabledCandidates.length > 0
+          ? enabledCandidates.slice(0, 3).map((candidate) => promptActionLabel(candidate)).join("、")
+          : "无"
+      },
+      {
+        count: blockedCandidates.length,
+        key: "blocked",
+        label: "阻断",
+        value: blockedCandidates.length > 0 ? `${blockedCandidates.length} 项` : "无"
+      },
+      {
+        count: requiredPayloadCount + legalChoicesCount,
+        key: "contract",
+        label: "契约",
+        value: contract
+          ? `${requiredPayloadCount} 字段 / ${legalChoicesCount} 选项`
+          : "服务端未提供"
+      }
+    ],
+    heading,
+    metrics: [
+      { key: "responsible", label: "负责玩家", mine: prompt.playerId === playerId, value: prompt.playerId || "服务端未提供" },
+      { key: "candidate", label: "候选", value: `${enabledCandidates.length} 可提交 / ${blockedCandidates.length} 阻断` },
+      ...complexPromptMetrics(type, prompt, metadata)
+    ].slice(0, 8),
+    nextStep: prompt.view?.responsibility?.nextStep
+      || (canAct ? complexPromptNextStep(type) : `等待 ${prompt.playerId || "负责玩家"} 处理${heading}。`),
+    stateLabel: canAct ? "待你处理" : prompt.playerId === playerId ? "等待服务端入口" : "等待负责玩家"
+  };
+}
+
+function complexPromptMetrics(
+  type: string,
+  prompt: ActionPromptDto,
+  metadata: Record<string, unknown>
+): ActionPanelComplexPromptMetric[] {
+  switch (type) {
+    case "PAY_COST":
+      return [
+        metric("payment-window", "窗口", firstStringFromMetadata(metadata, ["paymentWindow"])),
+        metric("payment-id", "支付 ID", firstStringFromMetadata(metadata, ["paymentId"])),
+        metric("payment-choices", "支付项", countLabel(countItems(metadata.paymentChoices, metadata.legalPaymentChoiceIds, metadata.paymentChoiceIds))),
+        metric("resource-choices", "资源动作", countLabel(countItems(metadata.paymentResourceChoices)))
+      ];
+    case "ORDER_TRIGGERS":
+      return [
+        metric("trigger-count", "触发", countLabel(countItems(metadata.triggers, metadata.triggerChoices, metadata.orderedTriggerIds, metadata.triggerIds))),
+        metric("constraints", "排序约束", countLabel(countItems(metadata.legalOrderingConstraints, metadata.orderingConstraints, metadata.constraints))),
+        metric("trigger-event", "来源事件", firstStringFromMetadata(metadata, ["triggeredByEventKind"])),
+        metric("related", "关联对象", countLabel(prompt.view?.responsibility?.relatedObjectIds?.length))
+      ];
+    case "HAND_CHOICE":
+      return [
+        metric("choice-window", "窗口", firstStringFromMetadata(metadata, ["choiceWindow"])),
+        metric("choice-id", "选择 ID", firstStringFromMetadata(metadata, ["choiceId"])),
+        metric("hand-choices", "手牌候选", countLabel(countItems(metadata.handChoices, metadata.legalObjectIds))),
+        metric("bounds", "选择数量", selectionBoundsLabel(prompt, metadata))
+      ];
+    case "ASSIGN_COMBAT_DAMAGE":
+      return [
+        metric("battle", "战斗", firstStringFromMetadata(metadata, ["battleId"]) || prompt.view?.relatedBattleId),
+        metric("battlefield", "战场", firstStringFromMetadata(metadata, ["battlefieldId", "battlefieldObjectId"]) || prompt.view?.relatedBattlefieldId),
+        metric("assignment-choices", "分配候选", countLabel(countItems(metadata.assignmentChoices, metadata.legalTargets, metadata.legalTargetsBySource))),
+        metric("damage-pool", "伤害池", visibleScalarLabel(firstValueFromMetadata(metadata, ["damagePool", "totalDamage", "assignableDamage"])))
+      ];
+    default:
+      return [];
+  }
 }
 
 function promptSummaryRows(
@@ -436,7 +554,7 @@ function shouldShowGenericPromptDetails(prompt: ActionPromptDto): boolean {
     return false;
   }
 
-  return !isSpellDuelPromptType(type) && (complexPromptTypes.has(type) || !knownPromptTypes.has(type));
+  return !isSpellDuelPromptType(type) && !isStackPriorityPromptType(type) && !isComplexPromptType(type) && !knownPromptTypes.has(type);
 }
 
 function choiceLabel(choice: ActionPromptChoiceDto): string {
@@ -502,6 +620,14 @@ function isSpellDuelPromptType(type: string | undefined): boolean {
   return type === "SPELL_DUEL_FOCUS" || type === "SPELL_DUEL_ACTION";
 }
 
+function isStackPriorityPromptType(type: string | undefined): boolean {
+  return type === "STACK_PRIORITY";
+}
+
+function isComplexPromptType(type: string | undefined): boolean {
+  return Boolean(type && complexPromptTypes.has(type));
+}
+
 function isSpellDuelResponseAction(action: string): boolean {
   return action === "PLAY_CARD"
     || action === "ACTIVATE_ABILITY"
@@ -532,6 +658,160 @@ function stringValue(value: unknown): string | undefined {
 
 function firstNonEmpty(...values: Array<string | null | undefined>): string {
   return values.find((value): value is string => Boolean(value?.trim()))?.trim() ?? "";
+}
+
+function primaryCandidateForPrompt(prompt: ActionPromptDto): ActionPromptCandidateDto | undefined {
+  const action = primaryActionForPromptType(prompt.view?.type);
+  return prompt.candidates?.find((candidate) => candidate.action === action)
+    ?? prompt.candidates?.find((candidate) => candidate.enabled)
+    ?? prompt.candidates?.[0];
+}
+
+function primaryActionForPromptType(type: string | undefined): string {
+  switch (type) {
+    case "ASSIGN_COMBAT_DAMAGE":
+      return "ASSIGN_COMBAT_DAMAGE";
+    case "HAND_CHOICE":
+      return "CHOOSE_HAND_CARDS";
+    case "ORDER_TRIGGERS":
+      return "ORDER_TRIGGERS";
+    case "PAY_COST":
+      return "PAY_COST";
+    default:
+      return "";
+  }
+}
+
+function mergedPromptMetadata(
+  prompt: ActionPromptDto,
+  candidate: ActionPromptCandidateDto | undefined
+): Record<string, unknown> {
+  return {
+    ...record(prompt.view?.metadata),
+    ...record(candidate?.metadata)
+  };
+}
+
+function complexPromptHeading(type: string): string {
+  switch (type) {
+    case "ASSIGN_COMBAT_DAMAGE":
+      return "战斗伤害窗口";
+    case "HAND_CHOICE":
+      return "手牌选择窗口";
+    case "ORDER_TRIGGERS":
+      return "触发排序窗口";
+    case "PAY_COST":
+      return "支付费用窗口";
+    default:
+      return "复杂服务端窗口";
+  }
+}
+
+function complexPromptNextStep(type: string): string {
+  switch (type) {
+    case "ASSIGN_COMBAT_DAMAGE":
+      return "为服务端候选来源和目标填写伤害，提交后由服务端校验。";
+    case "HAND_CHOICE":
+      return "选择服务端公开给你的手牌候选并提交；隐藏手牌不会在此展开。";
+    case "ORDER_TRIGGERS":
+      return "排列服务端触发候选的结算顺序，然后提交给服务端校验。";
+    case "PAY_COST":
+      return "选择服务端给出的支付项或资源动作，然后提交支付。";
+    default:
+      return "根据服务端候选完成当前窗口。";
+  }
+}
+
+function metric(
+  key: string,
+  label: string,
+  value: string | number | null | undefined
+): ActionPanelComplexPromptMetric {
+  return {
+    key,
+    label,
+    value: value == null || value === "" ? "服务端未提供" : String(value)
+  };
+}
+
+function countLabel(count: number | undefined): string | undefined {
+  return count == null ? undefined : `${count} 项`;
+}
+
+function countItems(...values: unknown[]): number | undefined {
+  for (const value of values) {
+    const count = valueCount(value);
+    if (count != null) {
+      return count;
+    }
+  }
+
+  return undefined;
+}
+
+function valueCount(value: unknown): number | undefined {
+  if (Array.isArray(value)) {
+    return value.length;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.max(0, Math.floor(value));
+  }
+  if (typeof value === "string" && value.trim().length > 0) {
+    return 1;
+  }
+  if (value && typeof value === "object") {
+    return Object.keys(value).length;
+  }
+
+  return undefined;
+}
+
+function firstStringFromMetadata(metadata: Record<string, unknown>, keys: string[]): string | undefined {
+  for (const key of keys) {
+    const value = stringValue(metadata[key]);
+    if (value) {
+      return redactInternalText(value);
+    }
+  }
+
+  return undefined;
+}
+
+function firstValueFromMetadata(metadata: Record<string, unknown>, keys: string[]): unknown {
+  for (const key of keys) {
+    if (metadata[key] != null) {
+      return metadata[key];
+    }
+  }
+
+  return undefined;
+}
+
+function visibleScalarLabel(value: unknown): string | undefined {
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  if (typeof value === "string") {
+    return redactInternalText(value);
+  }
+  const count = valueCount(value);
+  return count == null ? undefined : `${count} 项`;
+}
+
+function selectionBoundsLabel(prompt: ActionPromptDto, metadata: Record<string, unknown>): string {
+  const required = numberValue(metadata.requiredCount) ?? prompt.view?.minSelection ?? undefined;
+  const max = numberValue(metadata.maxCount) ?? prompt.view?.maxSelection ?? required;
+  if (required == null && max == null) {
+    return "服务端未提供";
+  }
+  if (required === max) {
+    return `${required} 张`;
+  }
+  return `${required ?? 0}-${max ?? "不限"} 张`;
+}
+
+function numberValue(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 function summarizeIds(ids: string[]): string {

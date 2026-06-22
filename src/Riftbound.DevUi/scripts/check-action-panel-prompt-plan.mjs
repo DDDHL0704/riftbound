@@ -180,19 +180,129 @@ const complexPlan = buildActionPanelPromptPlan({
 
 assert.equal(complexPlan.promptMessage, "PAY_COST");
 assert.ok(complexPlan.rows.some((row) => row.text === "关联结算链：stack-1"));
-assert.equal(complexPlan.genericPrompt?.statusLabel, "复杂窗口");
-assert.equal(complexPlan.genericPrompt?.candidateRows.length, 1);
-assert.equal(complexPlan.genericPrompt.candidateRows[0].previews[0].text, "来源：火符文、风符文、土符文、水符文 等 5 项");
-assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "phase")?.value, "MAIN");
-assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "privateNote")?.value, "文本");
-assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "selectableIds")?.value, "3 项");
-assert.equal(complexPlan.genericPrompt.metadataRows.find((row) => row.key === "requirementGraph")?.value, "2 项");
-assert.equal(complexPlan.genericPrompt.contract?.lines.find((line) => line.key === "hiddenMetadata")?.value, "2 项由服务端保留，不向客户端展开。");
+assert.equal(complexPlan.genericPrompt, undefined);
+assert.equal(complexPlan.complexPrompt?.heading, "支付费用窗口");
+assert.equal(complexPlan.complexPrompt?.stateLabel, "待你处理");
+assert.equal(complexPlan.complexPrompt?.nextStep, "选择服务端给出的支付项或资源动作，然后提交支付。");
+assert.equal(complexPlan.complexPrompt?.metrics.find((row) => row.key === "responsible")?.mine, true);
+assert.equal(complexPlan.complexPrompt?.metrics.find((row) => row.key === "candidate")?.value, "1 可提交 / 0 阻断");
+assert.equal(complexPlan.complexPrompt?.metrics.find((row) => row.key === "payment-choices")?.value, "服务端未提供");
+assert.equal(complexPlan.complexPrompt?.actionRows.find((row) => row.key === "enabled")?.value, "支付费用");
+assert.equal(complexPlan.complexPrompt?.actionRows.find((row) => row.key === "contract")?.value, "2 字段 / 2 选项");
 assert.equal(complexPlan.inspection?.sourceLabel, "服务端提示检查");
 assert.equal(complexPlan.inspection?.summaryRows.find((row) => row.key === "candidate")?.value, "1 可提交 / 0 阻断");
 assert.equal(complexPlan.inspection?.groups.find((group) => group.key === "safe-boundary")?.rows[0]?.value, "展示与提交，不重算规则");
 assert.equal(JSON.stringify(complexPlan).includes("serverPaymentState"), false);
 assert.equal(JSON.stringify(complexPlan).includes("never show this raw value"), false);
+
+const orderTriggersPlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["ORDER_TRIGGERS"],
+    candidates: [
+      {
+        action: "ORDER_TRIGGERS",
+        enabled: true,
+        label: "排列触发",
+        metadata: {
+          legalOrderingConstraints: ["同控制者触发保持相对顺序"],
+          triggerChoices: [{ id: "trig-1", label: "触发 A" }, { id: "trig-2", label: "触发 B" }],
+          triggeredByEventKind: "UNIT_ENTERED"
+        },
+        reason: "可排序"
+      }
+    ],
+    playerId: "P1",
+    reason: "ORDER_TRIGGERS",
+    view: {
+      message: "排列触发。",
+      title: "触发排序",
+      type: "ORDER_TRIGGERS"
+    }
+  }
+});
+
+assert.equal(orderTriggersPlan.genericPrompt, undefined);
+assert.equal(orderTriggersPlan.complexPrompt?.heading, "触发排序窗口");
+assert.equal(orderTriggersPlan.complexPrompt?.metrics.find((row) => row.key === "trigger-count")?.value, "2 项");
+assert.equal(orderTriggersPlan.complexPrompt?.metrics.find((row) => row.key === "constraints")?.value, "1 项");
+assert.equal(orderTriggersPlan.complexPrompt?.metrics.find((row) => row.key === "trigger-event")?.value, "UNIT_ENTERED");
+
+const handChoicePlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["CHOOSE_HAND_CARDS"],
+    candidates: [
+      {
+        action: "CHOOSE_HAND_CARDS",
+        enabled: true,
+        label: "选择手牌",
+        metadata: {
+          choiceId: "choice-1",
+          choiceWindow: "discard-window",
+          handChoices: [{ objectId: "hand-1", label: "公开候选" }],
+          maxCount: 2,
+          requiredCount: 1
+        },
+        reason: "可选择"
+      }
+    ],
+    playerId: "P1",
+    reason: "HAND_CHOICE",
+    view: {
+      message: "选择手牌。",
+      title: "手牌选择",
+      type: "HAND_CHOICE"
+    }
+  }
+});
+
+assert.equal(handChoicePlan.genericPrompt, undefined);
+assert.equal(handChoicePlan.complexPrompt?.heading, "手牌选择窗口");
+assert.equal(handChoicePlan.complexPrompt?.metrics.find((row) => row.key === "choice-window")?.value, "discard-window");
+assert.equal(handChoicePlan.complexPrompt?.metrics.find((row) => row.key === "hand-choices")?.value, "1 项");
+assert.equal(handChoicePlan.complexPrompt?.metrics.find((row) => row.key === "bounds")?.value, "1-2 张");
+
+const damagePromptPlan = buildActionPanelPromptPlan({
+  connectionStatus: "connected",
+  playerId: "P1",
+  prompt: {
+    actionable: true,
+    actions: ["ASSIGN_COMBAT_DAMAGE"],
+    candidates: [
+      {
+        action: "ASSIGN_COMBAT_DAMAGE",
+        enabled: true,
+        label: "分配伤害",
+        metadata: {
+          assignmentChoices: [{ sourceObjectId: "unit-1", targetObjectId: "unit-2" }],
+          battleId: "battle-1",
+          battlefieldId: "bf-1",
+          damagePool: 3
+        },
+        reason: "可分配"
+      }
+    ],
+    playerId: "P1",
+    reason: "ASSIGN_COMBAT_DAMAGE",
+    view: {
+      message: "分配战斗伤害。",
+      title: "战斗伤害",
+      type: "ASSIGN_COMBAT_DAMAGE"
+    }
+  }
+});
+
+assert.equal(damagePromptPlan.genericPrompt, undefined);
+assert.equal(damagePromptPlan.complexPrompt?.heading, "战斗伤害窗口");
+assert.equal(damagePromptPlan.complexPrompt?.metrics.find((row) => row.key === "battle")?.value, "battle-1");
+assert.equal(damagePromptPlan.complexPrompt?.metrics.find((row) => row.key === "battlefield")?.value, "bf-1");
+assert.equal(damagePromptPlan.complexPrompt?.metrics.find((row) => row.key === "assignment-choices")?.value, "1 项");
+assert.equal(damagePromptPlan.complexPrompt?.metrics.find((row) => row.key === "damage-pool")?.value, "3");
 
 const spellDuelPlan = buildActionPanelPromptPlan({
   connectionStatus: "connected",

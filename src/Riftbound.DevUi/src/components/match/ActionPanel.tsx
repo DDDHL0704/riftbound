@@ -17,7 +17,7 @@ import {
   type ActionPanelCandidateCommandPlan,
   type ActionPanelDirectActionKind
 } from "../../utils/actionPanelCommandPlan";
-import { buildActionPanelPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
+import { buildActionPanelPromptPlan, type ActionPanelComplexPromptPlan, type ActionPanelGenericPromptPlan, type ActionPanelSpellDuelPlan, type ActionPanelStackPriorityPlan } from "../../utils/actionPanelPromptPlan";
 import { buildActionPanelRenderPlan, type ActionPanelRenderEntry, type ActionPanelSubmitGate } from "../../utils/actionPanelRenderPlan";
 import { promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import type { PromptInspectionPlan } from "../../utils/promptInspectionPlan";
@@ -61,6 +61,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
           </div>
           {promptPlan.spellDuel && <SpellDuelPromptDetails plan={promptPlan.spellDuel} />}
           {promptPlan.stackPriority && <StackPriorityPromptDetails plan={promptPlan.stackPriority} />}
+          {promptPlan.complexPrompt && <ComplexPromptDetails plan={promptPlan.complexPrompt} />}
           {promptPlan.genericPrompt && <GenericPromptDetails plan={promptPlan.genericPrompt} />}
           {promptPlan.inspection && <ActionPromptInspection plan={promptPlan.inspection} />}
           <div
@@ -319,6 +320,34 @@ function StackPriorityPromptDetails({ plan }: { plan: ActionPanelStackPriorityPl
       <div className="stack-priority-action-rows">
         {plan.actionRows.map((row) => (
           <span data-stack-priority-action-row={row.key} data-stack-priority-action-row-count={row.count} key={row.key}>
+            <strong>{row.label}</strong>
+            <small>{row.value}</small>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ComplexPromptDetails({ plan }: { plan: ActionPanelComplexPromptPlan }) {
+  return (
+    <div className="complex-prompt-details" aria-label={`${plan.heading}摘要`} data-complex-prompt-state={plan.stateLabel}>
+      <div className="complex-prompt-heading">
+        <strong>{plan.heading}</strong>
+        <StatusPill tone="warn">{plan.stateLabel}</StatusPill>
+      </div>
+      <p className="complex-prompt-note">{plan.nextStep}</p>
+      <dl className="complex-prompt-grid">
+        {plan.metrics.map((metric) => (
+          <div data-complex-prompt-metric={metric.key} data-complex-prompt-mine={metric.mine ? "true" : "false"} key={metric.key}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="complex-prompt-action-rows">
+        {plan.actionRows.map((row) => (
+          <span data-complex-prompt-action-row={row.key} data-complex-prompt-action-row-count={row.count} key={row.key}>
             <strong>{row.label}</strong>
             <small>{row.value}</small>
           </span>
