@@ -7,6 +7,7 @@ import ts from "typescript";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const starterDeckSourcePath = resolve(scriptDir, "../src/utils/starterDeck.ts");
 const decksPageSourcePath = resolve(scriptDir, "../src/pages/DecksPage.tsx");
+const deckImportFlowPlanSourcePath = resolve(scriptDir, "../src/utils/deckImportFlowPlan.ts");
 const starterDeckSource = readFileSync(starterDeckSourcePath, "utf8");
 const output = ts.transpileModule(starterDeckSource, {
   compilerOptions: {
@@ -134,8 +135,9 @@ assert.ok(!starterDeckSource.includes("useCatalog"));
 assert.ok(!starterDeckSource.includes("conformance"));
 
 const decksPageSource = readFileSync(decksPageSourcePath, "utf8");
+const deckImportFlowPlanSource = readFileSync(deckImportFlowPlanSourcePath, "utf8");
 assert.ok(decksPageSource.includes("服务端权威"));
-assert.ok(decksPageSource.includes("这里不判定卡牌数量、同名上限、颜色或规则合法性。"));
+assert.ok(deckImportFlowPlanSource.includes("前端不判定卡牌数量、同名上限、颜色或规则合法性。"));
 assert.ok(decksPageSource.includes("前端不本地判定卡组是否合法，只展示待提交内容。"));
 
 console.log("Starter deck import contract check passed.");

@@ -9,6 +9,7 @@ import { StatusPill } from "../components/ui/StatusPill";
 import { buildStarterDeck } from "../services/starterDeck";
 import { useCatalog } from "../stores/catalogStore";
 import { SubmitDeckCommand } from "../types/protocol";
+import { buildDeckImportFlowPlan } from "../utils/deckImportFlowPlan";
 import { conformanceLabel, statusLabel } from "../utils/formatters";
 import {
   countDeckCards,
@@ -30,10 +31,13 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
   const [inspectedCard, setInspectedCard] = useState<InspectedCard | undefined>();
   const importPreview = useMemo(() => (importText.trim() ? parseDeckImport(importText) : undefined), [importText]);
   const validImportPreview = importPreview?.ok ? importPreview : undefined;
-  const importIssues = importPreview && !importPreview.ok ? importPreview.issues : [];
   const previewSummary = useMemo(
     () => (validImportPreview ? summarizeStarterDeck(validImportPreview.deck) : undefined),
     [validImportPreview]
+  );
+  const importFlowPlan = useMemo(
+    () => buildDeckImportFlowPlan({ importResult: importPreview, previewSummary }),
+    [importPreview, previewSummary]
   );
   const currentSummary = useMemo(() => summarizeStarterDeck(deck), [deck]);
   const currentCommandPreview = useMemo(() => JSON.stringify(deck, null, 2), [deck]);
@@ -48,8 +52,6 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
     [deck]
   );
   const normalizedQuery = query.trim().toLowerCase();
-  const importTone = importPreview ? (importPreview.ok ? "good" : "bad") : "neutral";
-  const importStatusLabel = importPreview ? (importPreview.ok ? "结构可导入" : "结构无效") : "等待粘贴";
 
   function applyImport() {
     const result = parseDeckImport(importText);
@@ -91,18 +93,12 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
         </Button>
       </section>
       <section aria-label="导入流程" style={deckWireStyles.flow}>
-        <article style={deckWireStyles.flowStep}>
-          <strong>01</strong>
-          <span>粘贴 JSON 或分区文本</span>
-        </article>
-        <article style={deckWireStyles.flowStep}>
-          <strong>02</strong>
-          <span>前端只做结构反馈</span>
-        </article>
-        <article style={deckWireStyles.flowStep}>
-          <strong>03</strong>
-          <span>提交时以服务端为准</span>
-        </article>
+        {importFlowPlan.steps.map((step) => (
+          <article data-deck-import-flow-step={step.id} data-deck-import-flow-step-state={step.state} key={step.id} style={deckWireStyles.flowStep}>
+            <strong>{step.label}</strong>
+            <span>{step.detail}</span>
+          </article>
+        ))}
       </section>
       <section style={deckWireStyles.importShell}>
         <div style={deckWireStyles.importEditor}>
@@ -111,7 +107,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
               <span style={deckWireStyles.eyebrow}>PASTE</span>
               <h2 style={deckWireStyles.h2}>导入入口</h2>
             </div>
-            <StatusPill tone={importTone}>{importStatusLabel}</StatusPill>
+            <StatusPill tone={importFlowPlan.statusTone}>{importFlowPlan.statusLabel}</StatusPill>
           </header>
           <textarea
             aria-label="粘贴构筑"
@@ -131,7 +127,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
             value={importText}
           />
           <div style={deckWireStyles.actionRow}>
-            <Button disabled={!validImportPreview} icon={<ClipboardPaste size={16} />} onClick={applyImport} style={deckWireStyles.primaryButton}>
+            <Button disabled={!importFlowPlan.canApplyImport} icon={<ClipboardPaste size={16} />} onClick={applyImport} style={deckWireStyles.primaryButton}>
               导入为当前构筑
             </Button>
             <Button icon={<FileText size={16} />} onClick={loadCurrentDeckIntoEditor} style={deckWireStyles.secondaryButton} variant="secondary">
@@ -148,27 +144,25 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
               <span style={deckWireStyles.eyebrow}>FEEDBACK</span>
               <h2 style={deckWireStyles.h2}>导入反馈</h2>
             </div>
-            {validImportPreview ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
+            {importFlowPlan.feedbackIcon === "valid" ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
           </header>
           <p style={deckWireStyles.bodyCopy}>{importMessage}</p>
-          {previewSummary ? (
-            <div style={deckWireStyles.previewGrid}>
-              <span style={deckWireStyles.previewCell}>主牌堆 {previewSummary.mainDeck} 张 / {previewSummary.distinctMainDeck} 种</span>
-              <span style={deckWireStyles.previewCell}>符文 {previewSummary.runeDeck} 张 / {previewSummary.distinctRuneDeck} 种</span>
-              <span style={deckWireStyles.previewCell}>战场 {previewSummary.battlefields} 张 / {previewSummary.distinctBattlefields} 种</span>
-              <span style={deckWireStyles.previewCell}>格式 {validImportPreview?.format.toUpperCase() ?? "TEXT"}</span>
-            </div>
-          ) : (
+          <p style={deckWireStyles.nextStep}>{importFlowPlan.nextStep}</p>
+          <div data-deck-import-flow-state={importFlowPlan.state} style={deckWireStyles.previewGrid}>
+            {importFlowPlan.metrics.map((metric) => (
+              <span key={metric.label} style={deckWireStyles.previewCell}>{metric.label} {metric.value}</span>
+            ))}
+          </div>
+          {importFlowPlan.issueRows.length > 0 && (
             <ul style={deckWireStyles.issueList}>
-              {importIssues.length === 0 && <li>粘贴后会在这里显示结构校验结果。</li>}
-              {importIssues.map((issue, index) => (
-                <li key={`${issue.field}-${index}`}>{issue.message}</li>
+              {importFlowPlan.issueRows.map((issue, index) => (
+                <li data-deck-import-issue-field={issue.field} key={`${issue.field}-${index}`}>{issue.message}</li>
               ))}
             </ul>
           )}
           <div style={deckWireStyles.authorityNote}>
             <StatusPill tone="warn">服务端权威</StatusPill>
-            <span>这里不判定卡牌数量、同名上限、颜色或规则合法性。</span>
+            <span>{importFlowPlan.authorityBoundary}</span>
           </div>
         </aside>
       </section>
@@ -444,6 +438,14 @@ const deckWireStyles = {
   },
   legalityNote: {
     color: "#111"
+  },
+  nextStep: {
+    background: "#fff",
+    border: "1px solid #111",
+    color: "#111",
+    lineHeight: 1.45,
+    margin: 0,
+    padding: 10
   },
   page: {
     background: "#fff",
