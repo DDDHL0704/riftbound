@@ -9,12 +9,14 @@ import { StatusPill } from "../components/ui/StatusPill";
 import { buildStarterDeck } from "../services/starterDeck";
 import { useCatalog } from "../stores/catalogStore";
 import { SubmitDeckCommand } from "../types/protocol";
+import { buildDeckImportHandoffPlan, type DeckImportHandoffPlan, type DeckImportHandoffState, type DeckSource } from "../utils/deckImportHandoffPlan";
 import { buildDeckImportFlowPlan } from "../utils/deckImportFlowPlan";
 import { conformanceLabel, statusLabel } from "../utils/formatters";
 import {
   countDeckCards,
   deckToImportText,
   defaultStarterDeck,
+  parseStarterDeckOverride,
   parseDeckImport,
   serializeStarterDeck,
   starterDeckOverrideKey,
@@ -25,6 +27,7 @@ import {
 export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => void }) {
   const { specByNo } = useCatalog();
   const [deck, setDeck] = useState(() => buildStarterDeck());
+  const [deckSource, setDeckSource] = useState<DeckSource>(() => initialDeckSource());
   const [importText, setImportText] = useState(() => deckToImportText(buildStarterDeck()));
   const [importMessage, setImportMessage] = useState("当前摘要来自本地 starter 或已缓存的导入构筑。");
   const [query, setQuery] = useState("");
@@ -41,6 +44,21 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
   );
   const currentSummary = useMemo(() => summarizeStarterDeck(deck), [deck]);
   const currentCommandPreview = useMemo(() => JSON.stringify(deck, null, 2), [deck]);
+  const importHandoffPlan = useMemo(() => buildDeckImportHandoffPlan({
+    canApplyImport: importFlowPlan.canApplyImport,
+    commandPreviewLength: currentCommandPreview.length,
+    currentSummary,
+    deckSource,
+    importState: importFlowPlan.state,
+    previewSummary
+  }), [
+    currentCommandPreview.length,
+    currentSummary,
+    deckSource,
+    importFlowPlan.canApplyImport,
+    importFlowPlan.state,
+    previewSummary
+  ]);
   const sections = useMemo(
     () => [
       { title: "传奇", entries: countDeckCards([deck.legendCardNo]) },
@@ -62,6 +80,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
 
     setDeck(result.deck);
     persistStarterDeckOverride(result.deck);
+    setDeckSource("storage");
     setImportText(deckToImportText(result.deck));
     const summary = summarizeStarterDeck(result.deck);
     setImportMessage(`已更新当前待提交构筑：主牌堆 ${summary.mainDeck} 张，符文 ${summary.runeDeck} 张，战场 ${summary.battlefields} 张。`);
@@ -71,6 +90,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
     const nextDeck = defaultStarterDeck();
     clearStarterDeckOverride();
     setDeck(nextDeck);
+    setDeckSource("starter");
     setImportText(deckToImportText(nextDeck));
     setImportMessage("已恢复本地默认 starter 构筑。");
   }
@@ -100,6 +120,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
           </article>
         ))}
       </section>
+      <DeckImportHandoffSurface deckSource={deckSource} plan={importHandoffPlan} />
       <section style={deckWireStyles.importShell}>
         <div style={deckWireStyles.importEditor}>
           <header style={deckWireStyles.panelHeader}>
@@ -237,6 +258,59 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
   );
 }
 
+function DeckImportHandoffSurface({ deckSource, plan }: { deckSource: DeckSource; plan: DeckImportHandoffPlan }) {
+  return (
+    <section
+      aria-label="构筑导入交接"
+      data-deck-import-handoff
+      data-deck-import-handoff-active-section={plan.activeSectionId}
+      data-deck-import-handoff-summary={plan.summary}
+      data-deck-import-source={deckSource}
+      style={deckWireStyles.handoffSurface}
+    >
+      <header style={deckWireStyles.panelHeader}>
+        <div>
+          <span style={deckWireStyles.eyebrow}>HANDOFF</span>
+          <h2 style={deckWireStyles.h2}>导入到服务端提交的交接</h2>
+        </div>
+        <StatusPill tone="neutral">{plan.activeSectionId}</StatusPill>
+      </header>
+      <p style={deckWireStyles.bodyCopy}>{plan.summary}</p>
+      <div style={deckWireStyles.handoffGrid}>
+        {plan.sections.map((section) => (
+          <article
+            data-deck-import-handoff-section={section.id}
+            data-deck-import-handoff-source={section.source}
+            data-deck-import-handoff-state={section.state}
+            key={section.id}
+            style={deckWireStyles.handoffSection}
+          >
+            <div style={deckWireStyles.handoffSectionHeader}>
+              <strong>{section.label}</strong>
+              <StatusPill tone={toneForDeckHandoff(section.state)}>{section.value}</StatusPill>
+            </div>
+            <span style={deckWireStyles.handoffMeta}>{section.source}</span>
+            <p style={deckWireStyles.bodyCopy}>{section.nextStep}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function toneForDeckHandoff(state: DeckImportHandoffState) {
+  switch (state) {
+    case "authority":
+      return "warn";
+    case "blocking":
+      return "bad";
+    case "ready":
+      return "good";
+    case "waiting":
+      return "neutral";
+  }
+}
+
 function matchesDeckQuery(cardNo: string, spec: { cardName?: string; cardCategoryName?: string } | undefined, query: string): boolean {
   if (!query) {
     return true;
@@ -275,6 +349,24 @@ function removeStarterDeckOverrideQuery(): void {
 
   url.searchParams.delete(starterDeckOverrideQueryKey);
   window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+function initialDeckSource(): DeckSource {
+  if (typeof window === "undefined") {
+    return "starter";
+  }
+
+  const queryValue = new URLSearchParams(window.location.search).get(starterDeckOverrideQueryKey);
+  if (queryValue && parseStarterDeckOverride(queryValue)) {
+    return "query";
+  }
+
+  const storageValue = window.localStorage.getItem(starterDeckOverrideKey);
+  if (storageValue && parseStarterDeckOverride(storageValue)) {
+    return "storage";
+  }
+
+  return "starter";
 }
 
 const deckWireStyles = {
@@ -409,6 +501,43 @@ const deckWireStyles = {
     gap: 16,
     justifyContent: "space-between",
     padding: 18
+  },
+  handoffGrid: {
+    display: "grid",
+    gap: 10,
+    gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))"
+  },
+  handoffMeta: {
+    color: "#111",
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    fontSize: 11,
+    fontWeight: 800,
+    overflowWrap: "anywhere",
+    textTransform: "uppercase"
+  },
+  handoffSection: {
+    background: "#fff",
+    border: "1px solid #111",
+    color: "#111",
+    display: "grid",
+    gap: 8,
+    minWidth: 0,
+    padding: 10
+  },
+  handoffSectionHeader: {
+    alignItems: "center",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  handoffSurface: {
+    background: "#fff",
+    border: "1px solid #111",
+    color: "#111",
+    display: "grid",
+    gap: 12,
+    padding: 16
   },
   importEditor: {
     background: "#fff",

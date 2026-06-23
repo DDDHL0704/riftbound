@@ -33,7 +33,7 @@ const wireSidePanelVisibleSlotsByTab = Object.fromEntries(WIRE_SIDE_PANEL_TABS.m
 const routes = [
   { path: "/", texts: ["符文战场", "进入大厅"] },
   { path: "/lobby", texts: ["创建或加入", "玩家名称", "房间码"] },
-  { path: "/decks", texts: ["构筑导入工作台", "导入入口", "等待服务端验证", "服务端权威"] },
+  { path: "/decks", texts: ["构筑导入工作台", "导入到服务端提交的交接", "导入入口", "等待服务端验证", "服务端权威"] },
   { path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
   { path: "/rooms/stage3-smoke", texts: ["房间", "流程总览", "连接/重连并入座", "卡组提交", "提交回执"] },
   {
@@ -112,6 +112,9 @@ try {
     await waitForText(cdp, route.texts);
     await expectAbsentText(cdp, route.absentTexts ?? []);
     await runAccessibilitySmoke(cdp, route.path);
+    if (route.path === "/decks") {
+      await runDeckImportHandoffSmoke(cdp);
+    }
     if (route.path === "/rooms/stage3-smoke") {
       await runRoomLifecycleSmoke(cdp);
     }
@@ -498,6 +501,46 @@ async function runRoomLifecycleSmoke(cdp) {
   }
   if (byId.submitDeck?.commandSource !== "unavailable" || byId.ready?.commandSource !== "unavailable") {
     throw new Error(`Room missing quick actions should expose unavailable command source: ${JSON.stringify(byId)}`);
+  }
+}
+
+async function runDeckImportHandoffSmoke(cdp) {
+  const result = await evaluateJson(cdp, `(() => {
+    const handoff = document.querySelector("[data-deck-import-handoff]");
+    const sections = Array.from(document.querySelectorAll("[data-deck-import-handoff-section]")).map((section) => ({
+      id: section.getAttribute("data-deck-import-handoff-section") ?? "",
+      source: section.getAttribute("data-deck-import-handoff-source") ?? "",
+      state: section.getAttribute("data-deck-import-handoff-state") ?? "",
+      text: section.textContent ?? ""
+    }));
+    return {
+      activeSection: handoff?.getAttribute("data-deck-import-handoff-active-section") ?? "",
+      deckSource: handoff?.getAttribute("data-deck-import-source") ?? "",
+      sections,
+      summary: handoff?.getAttribute("data-deck-import-handoff-summary") ?? ""
+    };
+  })()`);
+
+  const sections = result.sections ?? [];
+  const sectionIds = sections.map((section) => section.id);
+  const sources = new Set(sections.map((section) => section.source));
+  const expectedSectionIds = ["intake", "recovery", "current", "command", "server"];
+  if (sections.length !== expectedSectionIds.length || expectedSectionIds.some((id) => !sectionIds.includes(id))) {
+    throw new Error(`Deck import handoff smoke did not find all sections: ${JSON.stringify(sections)}`);
+  }
+  for (const source of ["local-editor", "local-cache", "local-state", "generated-command", "server-authority"]) {
+    if (!sources.has(source)) {
+      throw new Error(`Deck import handoff smoke missing source ${source}: ${JSON.stringify(sections)}`);
+    }
+  }
+  if (result.activeSection !== "command") {
+    throw new Error(`Deck import handoff smoke expected command active for default valid starter text: ${result.activeSection}`);
+  }
+  if (result.deckSource !== "starter") {
+    throw new Error(`Deck import handoff smoke expected starter deck source: ${result.deckSource}`);
+  }
+  if (!String(result.summary ?? "").includes("命令：40/12/3")) {
+    throw new Error(`Deck import handoff smoke missing command summary: ${result.summary}`);
   }
 }
 
