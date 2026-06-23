@@ -172,8 +172,10 @@ const receiptExpandedPlan = buildWireSidePanelStackPlan({
 });
 assert.equal(receiptExpandedPlan.byRail.receipt.mode, "expanded");
 assert.equal(receiptExpandedPlan.byRail.receipt.state, "urgent");
-assert.equal(receiptExpandedPlan.byRail.receipt.bodyMode, "full");
+assert.equal(receiptExpandedPlan.byRail.receipt.bodyMode, "compact");
 assert.equal(receiptExpandedPlan.byRail.receipt.priority, "urgent");
+assert.equal(receiptExpandedPlan.byRail.receipt.capacityWeight, 2);
+assert.equal(receiptExpandedPlan.capacityOverflow, false);
 assert.ok(receiptExpandedPlan.summary.includes("摘要"));
 
 console.log("Wire side panel stack plan check passed.");

@@ -9,7 +9,8 @@ public sealed class SnapshotTableProjectionTests
     [Fact]
     public void SnapshotForViewerProjectsTabletopAuthorityFields()
     {
-        var snapshot = ResolutionResult.BuildSnapshots(TableProjectionState())["P1"];
+        var snapshots = ResolutionResult.BuildSnapshots(TableProjectionState());
+        var snapshot = snapshots["P1"];
 
         Assert.NotNull(snapshot.Table);
         var table = snapshot.Table!;
@@ -34,9 +35,16 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(["P2-BASE-UNIT"], tableP2.Zones.BaseCards);
         Assert.Equal(["P2-RUNE-1"], tableP2.Zones.BaseRunes);
 
+        Assert.Equal(["BF-LEFT", "BF-RIGHT"], table.Battlefields.Select(field => field.BattlefieldObjectId).ToArray());
         var tableLeftBattlefield = table.Battlefields.Single(field => field.BattlefieldObjectId == "BF-LEFT");
         Assert.Equal(0, tableLeftBattlefield.Index);
+        Assert.Equal("P1", tableLeftBattlefield.ZonePlayerId);
+        Assert.Equal("UNL-205/219", tableLeftBattlefield.CardNo);
+        Assert.Equal("P1", tableLeftBattlefield.ControllerId);
+        Assert.Equal("CONTESTED", tableLeftBattlefield.Status);
+        Assert.True(tableLeftBattlefield.Contested);
         Assert.Equal(["P1-LEFT-UNIT", "P2-LEFT-UNIT"], tableLeftBattlefield.OccupantObjectIds);
+        Assert.Equal(["P1", "P2"], tableLeftBattlefield.OccupantControllerIds);
         Assert.Equal(["P1-LEFT-UNIT"], tableLeftBattlefield.UnitsBySide["P1"]);
         Assert.Equal(["P2-LEFT-UNIT"], tableLeftBattlefield.UnitsBySide["P2"]);
         Assert.Equal(["P1-STANDBY"], tableLeftBattlefield.StandbyObjectIds);
@@ -49,6 +57,25 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal("HIDDEN", tableLeftBattlefield.StandbySlots[1].State);
         Assert.Null(tableLeftBattlefield.StandbySlots[1].ObjectId);
         Assert.Equal("P2", tableLeftBattlefield.StandbySlots[1].SidePlayerId);
+
+        var tableRightBattlefield = table.Battlefields.Single(field => field.BattlefieldObjectId == "BF-RIGHT");
+        Assert.Equal(1, tableRightBattlefield.Index);
+        Assert.Equal("P2", tableRightBattlefield.ZonePlayerId);
+        Assert.Equal("UNL-206/219", tableRightBattlefield.CardNo);
+        Assert.Equal("P2", tableRightBattlefield.ControllerId);
+        Assert.Equal("CONTESTED", tableRightBattlefield.Status);
+        Assert.True(tableRightBattlefield.Contested);
+        Assert.Equal(["P1-RIGHT-UNIT", "P2-RIGHT-UNIT"], tableRightBattlefield.OccupantObjectIds);
+        Assert.Equal(["P1", "P2"], tableRightBattlefield.OccupantControllerIds);
+        Assert.Equal(["P1-RIGHT-UNIT"], tableRightBattlefield.UnitsBySide["P1"]);
+        Assert.Equal(["P2-RIGHT-UNIT"], tableRightBattlefield.UnitsBySide["P2"]);
+        Assert.Equal(["P2-RIGHT-STANDBY"], tableRightBattlefield.StandbyObjectIds);
+        Assert.Equal(1, tableRightBattlefield.StandbySlotCount);
+        Assert.Equal(0, tableRightBattlefield.HiddenStandbyCount);
+        Assert.Single(tableRightBattlefield.StandbySlots);
+        Assert.Equal("VISIBLE", tableRightBattlefield.StandbySlots[0].State);
+        Assert.Equal("P2-RIGHT-STANDBY", tableRightBattlefield.StandbySlots[0].ObjectId);
+        Assert.Equal("P2", tableRightBattlefield.StandbySlots[0].SidePlayerId);
 
         var p1Zones = Zones(snapshot, "P1");
         Assert.Equal(["P1-HAND"], StringList(p1Zones["hand"]));
@@ -67,7 +94,13 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(["P2-RUNE-1"], StringList(p2Zones["baseRunes"]));
 
         var leftBattlefield = Battlefield(snapshot, "BF-LEFT");
+        Assert.Equal("P1", StringValue(leftBattlefield["zonePlayerId"]));
+        Assert.Equal("UNL-205/219", StringValue(leftBattlefield["cardNo"]));
+        Assert.Equal("P1", StringValue(leftBattlefield["controllerId"]));
+        Assert.Equal("CONTESTED", StringValue(leftBattlefield["status"]));
+        Assert.True(BoolValue(leftBattlefield["contested"]));
         Assert.Equal(["P1-LEFT-UNIT", "P2-LEFT-UNIT"], StringList(leftBattlefield["occupantObjectIds"]));
+        Assert.Equal(["P1", "P2"], StringList(leftBattlefield["occupantControllerIds"]));
         Assert.Equal(["P1-LEFT-UNIT"], StringListMap(leftBattlefield["unitsBySide"])["P1"]);
         Assert.Equal(["P2-LEFT-UNIT"], StringListMap(leftBattlefield["unitsBySide"])["P2"]);
         Assert.Equal(["P1-STANDBY"], StringList(leftBattlefield["standbyObjectIds"]));
@@ -83,9 +116,56 @@ public sealed class SnapshotTableProjectionTests
         Assert.False(standbySlots[1].ContainsKey("objectId"));
         Assert.Equal("P2", StringValue(standbySlots[1]["sidePlayerId"]));
 
+        var rightBattlefield = Battlefield(snapshot, "BF-RIGHT");
+        Assert.Equal("P2", StringValue(rightBattlefield["zonePlayerId"]));
+        Assert.Equal("UNL-206/219", StringValue(rightBattlefield["cardNo"]));
+        Assert.Equal("P2", StringValue(rightBattlefield["controllerId"]));
+        Assert.Equal("CONTESTED", StringValue(rightBattlefield["status"]));
+        Assert.True(BoolValue(rightBattlefield["contested"]));
+        Assert.Equal(["P1-RIGHT-UNIT", "P2-RIGHT-UNIT"], StringList(rightBattlefield["occupantObjectIds"]));
+        Assert.Equal(["P1", "P2"], StringList(rightBattlefield["occupantControllerIds"]));
+        Assert.Equal(["P1-RIGHT-UNIT"], StringListMap(rightBattlefield["unitsBySide"])["P1"]);
+        Assert.Equal(["P2-RIGHT-UNIT"], StringListMap(rightBattlefield["unitsBySide"])["P2"]);
+        Assert.Equal(["P2-RIGHT-STANDBY"], StringList(rightBattlefield["standbyObjectIds"]));
+        Assert.Equal(1, IntValue(rightBattlefield["standbySlotCount"]));
+        Assert.Equal(0, IntValue(rightBattlefield["hiddenStandbyCount"]));
+        var rightStandbySlots = ObjectList(rightBattlefield["standbySlots"]);
+        Assert.Single(rightStandbySlots);
+        Assert.Equal("VISIBLE", StringValue(rightStandbySlots[0]["state"]));
+        Assert.Equal("P2-RIGHT-STANDBY", StringValue(rightStandbySlots[0]["objectId"]));
+        Assert.Equal("P2", StringValue(rightStandbySlots[0]["sidePlayerId"]));
+
         var p2Objects = Objects(snapshot, "P2");
         Assert.DoesNotContain("P2-HAND", p2Objects.Keys);
         Assert.DoesNotContain("P2-HIDDEN-STANDBY", p2Objects.Keys);
+        Assert.Contains("P2-RIGHT-STANDBY", p2Objects.Keys);
+
+        var p2Snapshot = snapshots["P2"];
+        var p2Table = p2Snapshot.Table!;
+        Assert.Equal("P2", p2Table.ViewerPlayerId);
+        Assert.Equal("opponent", p2Table.Players.Single(player => player.PlayerId == "P1").Perspective);
+        Assert.Equal("self", p2Table.Players.Single(player => player.PlayerId == "P2").Perspective);
+
+        var p2LeftBattlefield = p2Table.Battlefields.Single(field => field.BattlefieldObjectId == "BF-LEFT");
+        Assert.Equal(2, p2LeftBattlefield.StandbySlots.Count);
+        Assert.Equal("HIDDEN", p2LeftBattlefield.StandbySlots[0].State);
+        Assert.Null(p2LeftBattlefield.StandbySlots[0].ObjectId);
+        Assert.Equal("P1", p2LeftBattlefield.StandbySlots[0].SidePlayerId);
+        Assert.Equal("VISIBLE", p2LeftBattlefield.StandbySlots[1].State);
+        Assert.Equal("P2-HIDDEN-STANDBY", p2LeftBattlefield.StandbySlots[1].ObjectId);
+        Assert.Equal("P2", p2LeftBattlefield.StandbySlots[1].SidePlayerId);
+
+        var p2RightBattlefield = p2Table.Battlefields.Single(field => field.BattlefieldObjectId == "BF-RIGHT");
+        Assert.Equal(["P1-RIGHT-UNIT"], p2RightBattlefield.UnitsBySide["P1"]);
+        Assert.Equal(["P2-RIGHT-UNIT"], p2RightBattlefield.UnitsBySide["P2"]);
+        Assert.Single(p2RightBattlefield.StandbySlots);
+        Assert.Equal("P2-RIGHT-STANDBY", p2RightBattlefield.StandbySlots[0].ObjectId);
+
+        var p1ObjectsFromP2 = Objects(p2Snapshot, "P1");
+        Assert.DoesNotContain("P1-HAND", p1ObjectsFromP2.Keys);
+        Assert.DoesNotContain("P1-STANDBY", p1ObjectsFromP2.Keys);
+        var p2ObjectsFromP2 = Objects(p2Snapshot, "P2");
+        Assert.Contains("P2-HIDDEN-STANDBY", p2ObjectsFromP2.Keys);
     }
 
     private static MatchState TableProjectionState()
@@ -111,7 +191,7 @@ public sealed class SnapshotTableProjectionTests
                     RuneDeck: ["P1-RUNE-DECK"],
                     Hand: ["P1-HAND"],
                     Base: ["P1-BASE-UNIT", "P1-RUNE-1"],
-                    Battlefields: ["BF-LEFT", "P1-LEFT-UNIT", "P1-STANDBY"],
+                    Battlefields: ["BF-LEFT", "P1-LEFT-UNIT", "P1-STANDBY", "P1-RIGHT-UNIT"],
                     Graveyard: [],
                     Banished: [],
                     LegendZone: ["P1-LEGEND"],
@@ -121,7 +201,7 @@ public sealed class SnapshotTableProjectionTests
                     RuneDeck: ["P2-RUNE-DECK"],
                     Hand: ["P2-HAND"],
                     Base: ["P2-BASE-UNIT", "P2-RUNE-1"],
-                    Battlefields: ["BF-RIGHT", "P2-LEFT-UNIT", "P2-HIDDEN-STANDBY"],
+                    Battlefields: ["BF-RIGHT", "P2-LEFT-UNIT", "P2-HIDDEN-STANDBY", "P2-RIGHT-UNIT", "P2-RIGHT-STANDBY"],
                     Graveyard: [],
                     Banished: [],
                     LegendZone: ["P2-LEGEND"],
@@ -149,8 +229,11 @@ public sealed class SnapshotTableProjectionTests
             ["BF-RIGHT"] = Battlefield("BF-RIGHT", "P2", "UNL-206/219"),
             ["P1-LEFT-UNIT"] = Unit("P1-LEFT-UNIT", "P1"),
             ["P2-LEFT-UNIT"] = Unit("P2-LEFT-UNIT", "P2"),
+            ["P1-RIGHT-UNIT"] = Unit("P1-RIGHT-UNIT", "P1"),
+            ["P2-RIGHT-UNIT"] = Unit("P2-RIGHT-UNIT", "P2"),
             ["P1-STANDBY"] = Standby("P1-STANDBY", "P1", isFaceDown: true),
-            ["P2-HIDDEN-STANDBY"] = Standby("P2-HIDDEN-STANDBY", "P2", isFaceDown: true)
+            ["P2-HIDDEN-STANDBY"] = Standby("P2-HIDDEN-STANDBY", "P2", isFaceDown: true),
+            ["P2-RIGHT-STANDBY"] = Standby("P2-RIGHT-STANDBY", "P2", isFaceDown: false)
         };
     }
 
@@ -173,7 +256,10 @@ public sealed class SnapshotTableProjectionTests
             ["P1-LEFT-UNIT"] = new("P1", "BATTLEFIELD", "BF-LEFT"),
             ["P2-LEFT-UNIT"] = new("P2", "BATTLEFIELD", "BF-LEFT"),
             ["P1-STANDBY"] = new("P1", "BATTLEFIELD", "BF-LEFT"),
-            ["P2-HIDDEN-STANDBY"] = new("P2", "BATTLEFIELD", "BF-LEFT")
+            ["P2-HIDDEN-STANDBY"] = new("P2", "BATTLEFIELD", "BF-LEFT"),
+            ["P1-RIGHT-UNIT"] = new("P1", "BATTLEFIELD", "BF-RIGHT"),
+            ["P2-RIGHT-UNIT"] = new("P2", "BATTLEFIELD", "BF-RIGHT"),
+            ["P2-RIGHT-STANDBY"] = new("P2", "BATTLEFIELD", "BF-RIGHT")
         };
     }
 
@@ -270,5 +356,10 @@ public sealed class SnapshotTableProjectionTests
     private static string StringValue(object? value)
     {
         return Assert.IsType<string>(value);
+    }
+
+    private static bool BoolValue(object? value)
+    {
+        return Assert.IsType<bool>(value);
     }
 }

@@ -1591,15 +1591,20 @@ function WireBattlefieldTable({
   const renderUnitZone = (zone: typeof layout.unitZones[number]) => {
     const lane = lanes[zone.laneIndex];
     const ids = zone.side === "self" ? lane.ownOccupants : lane.opposingOccupants;
+    const standbySlots = lane.standbySlotsBySide[zone.side];
     return (
       <WireBattlefieldUnitZone
         ids={ids}
         interaction={interaction}
         key={zone.id}
+        lane={lane}
         objects={objects}
         onInspectCard={onInspectCard}
         onPreviewCard={onPreviewCard}
         plan={unitPlan}
+        side={zone.side}
+        standbyPlan={standbyPlan}
+        standbySlots={standbySlots}
         splitSource={lane.occupantSplitSource}
         specs={specs}
         title={battlefieldUnitZoneLabel(zone.laneIndex, zone.side)}
@@ -1625,15 +1630,6 @@ function WireBattlefieldTable({
               style={wireGridTemplateStyle(["minmax(0, 1fr)"], layout.laneRows)}
             >
               {opponentZone ? renderUnitZone(opponentZone) : null}
-              <WireBattlefieldStandbyZone
-                interaction={interaction}
-                lane={lanes[zone.laneIndex]}
-                objects={objects}
-                onInspectCard={onInspectCard}
-                onPreviewCard={onPreviewCard}
-                plan={standbyPlan}
-                specs={specs}
-              />
               {selfZone ? renderUnitZone(selfZone) : null}
             </section>
           );
@@ -1668,6 +1664,8 @@ function WireBattlefieldStandbyZone({
   onInspectCard,
   onPreviewCard,
   plan,
+  side,
+  slots,
   specs
 }: {
   interaction: WireTableInteraction;
@@ -1676,9 +1674,10 @@ function WireBattlefieldStandbyZone({
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard: (card?: InspectedCard) => void;
   plan: WireCardFlowPlan;
+  side: "opponent" | "self";
+  slots: WireBattlefieldStandbySlot[];
   specs: Record<string, BehaviorSpec>;
 }) {
-  const slots = lane.standbySlots;
   const slotCount = Math.max(slots.length, plan.minSlots);
   const flowPlan = resolveWireCardFlowRenderPlan({
     itemCount: slots.length,
@@ -1690,8 +1689,9 @@ function WireBattlefieldStandbyZone({
 
   return (
     <section
-      aria-label={`${lane.index === 0 ? "左战场" : "右战场"} 待命子轨`}
+      aria-label={`${lane.index === 0 ? "左战场" : "右战场"} ${side === "self" ? "我方" : "对方"}待命槽`}
       className="wire-battlefield-standby-zone"
+      data-wire-battlefield-side={side}
       data-wire-battlefield-hidden-standby-count={lane.hiddenStandbyCount}
       data-wire-battlefield-standby-count={slots.length}
       data-wire-battlefield-standby-source={lane.standbySlotSource}
@@ -1809,27 +1809,38 @@ function WireBattlefieldSite({
 function WireBattlefieldUnitZone({
   ids,
   interaction,
+  lane,
   objects,
   onInspectCard,
   onPreviewCard,
   plan,
+  side,
+  standbyPlan,
+  standbySlots,
   splitSource,
   specs,
   title
 }: {
   ids: string[];
   interaction: WireTableInteraction;
+  lane: WireBattlefieldLane;
   objects: WireZoneObjects;
   onInspectCard: (card: InspectedCard) => void;
   onPreviewCard: (card?: InspectedCard) => void;
   plan: WireCardFlowPlan;
+  side: "opponent" | "self";
+  standbyPlan: WireCardFlowPlan;
+  standbySlots: WireBattlefieldStandbySlot[];
   splitSource: WireBattlefieldLane["occupantSplitSource"];
   specs: Record<string, BehaviorSpec>;
   title: string;
 }) {
   return (
-    <section className="wire-battlefield-unit-zone" aria-label={title} data-wire-battlefield-split-source={splitSource}>
-      <WireCardFlow hintByObjectId={interaction.hintByObjectId} ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="battlefield-unit" minSlots={3} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={plan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+    <section className="wire-battlefield-unit-zone" aria-label={title} data-wire-battlefield-side={side} data-wire-battlefield-split-source={splitSource}>
+      <div className="wire-battlefield-unit-zone-body">
+        <WireCardFlow hintByObjectId={interaction.hintByObjectId} ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="battlefield-unit" minSlots={3} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={plan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
+        <WireBattlefieldStandbyZone interaction={interaction} lane={lane} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={standbyPlan} side={side} slots={standbySlots} specs={specs} />
+      </div>
     </section>
   );
 }

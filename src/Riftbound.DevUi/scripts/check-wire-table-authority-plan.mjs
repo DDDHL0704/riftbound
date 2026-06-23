@@ -61,6 +61,8 @@ assert.deepEqual(
 );
 assert.equal(serverCapacityRows.get("battlefield:0:self")?.cardWidth, serverCapacityRows.get("battlefield:1:opponent")?.cardWidth);
 assert.equal(serverCapacityRows.get("battlefield:0:self")?.slotCount, 3);
+assert.equal(serverCapacityRows.get("battlefield:0:standby")?.itemCount, 1);
+assert.equal(serverCapacityRows.get("battlefield:0:standby")?.slotCount, 1);
 assert.equal(serverCapacityRows.get("opponent:hand")?.state, "empty");
 assert.equal(serverPlan.selectedLayout.state, "empty");
 
@@ -97,6 +99,7 @@ assert.equal(selectedStandbyPlan.selectedLayout.state, "located");
 assert.equal(selectedStandbyPlan.selectedLayout.kind, "standby");
 assert.equal(selectedStandbyPlan.selectedLayout.capacityRowKey, "battlefield:0:standby");
 assert.equal(selectedStandbyPlan.selectedLayout.capacity?.state, "stable");
+assert.equal(selectedStandbyPlan.selectedLayout.capacity?.slotCount, 1);
 
 const serverLocationUnitPlan = buildWireTableAuthorityPlan(table({
   laneSources: ["server-unitsBySide", "server-unitsBySide"],
@@ -232,12 +235,12 @@ const scrollPlan = buildWireTableAuthorityPlan(table({
     0: {
       own: range("p1-left", 14),
       opposing: range("p2-left", 14),
-      standby: range("left-standby", 9)
+      standbySelf: range("left-standby", 9)
     },
     1: {
       own: range("p1-right", 2),
       opposing: range("p2-right", 2),
-      standby: range("right-standby", 2)
+      standbySelf: range("right-standby", 2)
     }
   },
   plans: {
@@ -260,12 +263,12 @@ const selectedScrollPlan = buildWireTableAuthorityPlan(table({
     0: {
       own: range("p1-left", 14),
       opposing: range("p2-left", 14),
-      standby: range("left-standby", 9)
+      standbySelf: range("left-standby", 9)
     },
     1: {
       own: range("p1-right", 2),
       opposing: range("p2-right", 2),
-      standby: range("right-standby", 2)
+      standbySelf: range("right-standby", 2)
     }
   },
   plans: {
@@ -284,21 +287,25 @@ console.log("Wire table authority plan check passed.");
 function table({ laneObjects = {}, laneSources, objects = {}, playerSources, standbySources, plans = {} }) {
   return {
     battlefield: {
-      lanes: laneSources.map((source, index) => ({
-        battlefieldId: `battlefield-${index}`,
-        cardNo: `SITE-${index}`,
-        controllerId: index === 0 ? "P1" : "P2",
-        hiddenStandbyCount: index,
-        index,
-        occupantSplitSource: source,
-        opposingOccupants: laneObjects[index]?.opposing ?? (index === 0 ? ["p2-unit-1"] : ["p2-unit-2", "p2-unit-3"]),
-        ownOccupants: laneObjects[index]?.own ?? (index === 0 ? ["p1-unit-1", "p1-unit-2"] : ["p1-unit-3"]),
-        scoredThisTurnPlayerIds: [],
-        standbySlotCount: 2,
-        standbySlotSource: standbySources[index],
-        standbySlots: (laneObjects[index]?.standby ?? [`standby-${index}-1`, `standby-${index}-2`]).map((slotId) => ({ slotId })),
-        zonePlayerId: index === 0 ? "P1" : "P2"
-      })),
+      lanes: laneSources.map((source, index) => {
+        const standby = standbySlotsForLane(laneObjects[index], index);
+        return {
+          battlefieldId: `battlefield-${index}`,
+          cardNo: `SITE-${index}`,
+          controllerId: index === 0 ? "P1" : "P2",
+          hiddenStandbyCount: index,
+          index,
+          occupantSplitSource: source,
+          opposingOccupants: laneObjects[index]?.opposing ?? (index === 0 ? ["p2-unit-1"] : ["p2-unit-2", "p2-unit-3"]),
+          ownOccupants: laneObjects[index]?.own ?? (index === 0 ? ["p1-unit-1", "p1-unit-2"] : ["p1-unit-3"]),
+          scoredThisTurnPlayerIds: [],
+          standbySlotCount: standby.slots.length,
+          standbySlotSource: standbySources[index],
+          standbySlots: standby.slots,
+          standbySlotsBySide: standby.bySide,
+          zonePlayerId: index === 0 ? "P1" : "P2"
+        };
+      }),
       objects,
       standbyPlan: plans.standbyPlan ?? plan("standby", 2),
       unitPlan: plans.unitPlan ?? plan("battlefield-unit", 3)
@@ -320,6 +327,30 @@ function table({ laneObjects = {}, laneSources, objects = {}, playerSources, sta
       basePlan: plans.basePlan ?? plan("base", 1, 1, 1, 86),
       handPlan: plans.handPlan ?? plan("hand", 2)
     }
+  };
+}
+
+function standbySlotsForLane(laneObject, index) {
+  const fallback = laneObject?.standby ?? [`standby-${index}-1`, `standby-${index}-2`];
+  const self = laneObject?.standbySelf ?? fallback.slice(0, Math.ceil(fallback.length / 2));
+  const opponent = laneObject?.standbyOpponent ?? fallback.slice(Math.ceil(fallback.length / 2));
+  const selfSlots = self.map((slotId) => standbySlot(slotId, "self"));
+  const opponentSlots = opponent.map((slotId) => standbySlot(slotId, "opponent"));
+  return {
+    bySide: {
+      opponent: opponentSlots,
+      self: selfSlots
+    },
+    slots: [...selfSlots, ...opponentSlots]
+  };
+}
+
+function standbySlot(slotId, side) {
+  return {
+    objectId: slotId,
+    side,
+    slotId,
+    visible: true
   };
 }
 

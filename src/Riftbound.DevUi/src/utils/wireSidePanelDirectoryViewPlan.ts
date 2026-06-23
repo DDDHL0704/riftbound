@@ -99,33 +99,37 @@ export function buildWireSidePanelDirectoryViewPlan<TTab extends string>({
     throw new Error(`Active wire side panel slot is not in orchestration entries: ${activeSlot}`);
   }
 
-  const visibleEntries = currentTabSpec.slots.map((slot) => viewEntry({
+  const tabEntries = currentTabSpec.slots.map((slot) => viewEntry({
     activeSlot,
     entry: requiredEntry(entryBySlot, slot),
     primarySlot: currentTabSpec.primarySlot,
     tabId: activeTab
   }));
+  const tabsView = tabs.map((tab) => tabView(tab, activeTab, entryBySlot));
+  const density = directoryDensity({
+    tabCount: tabsView.length,
+    visibleCount: tabEntries.length
+  });
+  const visibleEntries = density === "dense"
+    ? compactVisibleEntries(tabEntries)
+    : tabEntries;
+  const visibleSlotSet = new Set(visibleEntries.map((entry) => entry.slot));
   const hiddenEntries = entries
-    .filter((entry) => slotToTab.get(entry.slot) !== activeTab)
+    .filter((entry) => !visibleSlotSet.has(entry.slot))
     .map((entry) => viewEntry({
       activeSlot,
       entry,
       primarySlot: currentTabSpec.primarySlot,
       tabId: requiredTabId(slotToTab, entry.slot)
     }));
-  const primaryEntry = visibleEntries.find((entry) => entry.slot === currentTabSpec.primarySlot)
-    ?? visibleEntries[0]
+  const primaryEntry = tabEntries.find((entry) => entry.slot === currentTabSpec.primarySlot)
+    ?? tabEntries[0]
     ?? viewEntry({
       activeSlot,
       entry: activeBaseEntry,
       primarySlot: activeBaseEntry.slot,
       tabId: activeTab
     });
-  const tabsView = tabs.map((tab) => tabView(tab, activeTab, entryBySlot));
-  const density = directoryDensity({
-    tabCount: tabsView.length,
-    visibleCount: visibleEntries.length
-  });
 
   return {
     activeEntry: viewEntry({
@@ -192,6 +196,49 @@ function viewEntry<TTab extends string>({
     primary: entry.slot === primarySlot,
     tabId
   };
+}
+
+function compactVisibleEntries<TTab extends string>(
+  entries: readonly WireSidePanelDirectoryViewEntry<TTab>[]
+): WireSidePanelDirectoryViewEntry<TTab>[] {
+  const maxVisibleEntries = 3;
+  if (entries.length <= maxVisibleEntries) {
+    return [...entries];
+  }
+
+  const keep = new Set<WireSidePanelSlot>();
+  const addEntry = (entry: WireSidePanelDirectoryViewEntry<TTab> | undefined) => {
+    if (entry && keep.size < maxVisibleEntries) {
+      keep.add(entry.slot);
+    }
+  };
+
+  entries.filter((entry) => entry.active || entry.primary).forEach(addEntry);
+  entries
+    .filter((entry) => urgentDirectoryEntry(entry))
+    .slice()
+    .sort((left, right) => directoryUrgencyWeight(right.state) - directoryUrgencyWeight(left.state) || left.order - right.order)
+    .forEach(addEntry);
+  entries.forEach(addEntry);
+
+  return entries.filter((entry) => keep.has(entry.slot));
+}
+
+function urgentDirectoryEntry(entry: WireSidePanelDirectoryViewEntry<string>): boolean {
+  return entry.state === "blocked" || entry.state === "offline" || entry.state === "ready";
+}
+
+function directoryUrgencyWeight(state: WireSidePanelOrchestrationState): number {
+  switch (state) {
+    case "offline":
+      return 4;
+    case "blocked":
+      return 3;
+    case "ready":
+      return 2;
+    default:
+      return 1;
+  }
 }
 
 function tabView<TTab extends string>(

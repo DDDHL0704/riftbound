@@ -45,6 +45,7 @@ export type WireBattlefieldLane = {
   standbySlotCount: number;
   standbySlotSource: WireBattlefieldStandbySlotSource;
   standbySlots: WireBattlefieldStandbySlot[];
+  standbySlotsBySide: Record<WirePlayerSide, WireBattlefieldStandbySlot[]>;
   zonePlayerId: string;
 };
 
@@ -130,7 +131,7 @@ export function buildWireBattlefieldModel(
   const objects = buildWireObjectIndex(snapshot);
   const lanes = [0, 1].map((index) => buildWireBattlefieldLane(battlefields[index], index, objects, perspectivePlayerId));
   const maxOccupants = Math.max(...lanes.flatMap((lane) => [lane.ownOccupants.length, lane.opposingOccupants.length]), 0);
-  const maxStandbySlots = Math.max(...lanes.map((lane) => lane.standbySlots.length), 0);
+  const maxStandbySlots = Math.max(...lanes.flatMap((lane) => [lane.standbySlotsBySide.self.length, lane.standbySlotsBySide.opponent.length]), 0);
 
   return {
     lanes,
@@ -223,15 +224,13 @@ function mergeTablePlayerSnapshot(
   tablePlayer: SnapshotTablePlayerView,
   player: PlayerSnapshotView | undefined
 ): PlayerSnapshotView {
+  const tableZones = tablePlayer.zones ?? {};
   return {
     ...(player ?? {}),
     id: player?.id ?? tablePlayer.playerId,
     name: player?.name ?? tablePlayer.playerId,
     seat: tablePlayer.seat ?? player?.seat,
-    zones: {
-      ...(player?.zones ?? {}),
-      ...(tablePlayer.zones ?? {})
-    }
+    zones: tableZones
   };
 }
 
@@ -262,6 +261,7 @@ function buildWireBattlefieldLane(
   const battlefieldId = asString(battlefield?.battlefieldObjectId, `empty-battlefield-${index}`);
   const splitOccupants = splitBattlefieldOccupants(battlefield?.unitsBySide, occupants, objects, perspectivePlayerId);
   const standbySlots = buildBattlefieldStandbySlots(battlefield, battlefieldId, objects, perspectivePlayerId);
+  const standbySlotsBySide = partitionStandbySlotsBySide(standbySlots.slots);
   return {
     battlefield,
     battlefieldId,
@@ -276,6 +276,7 @@ function buildWireBattlefieldLane(
     standbySlotCount: nonNegativeNumber(battlefield?.standbySlotCount, standbySlots.slots.length),
     standbySlotSource: standbySlots.source,
     standbySlots: standbySlots.slots,
+    standbySlotsBySide,
     zonePlayerId: asString(battlefield?.zonePlayerId, "")
   };
 }
@@ -341,6 +342,18 @@ function buildBattlefieldStandbySlots(
     ),
     source: "standbyObjectIds-fallback"
   };
+}
+
+function partitionStandbySlotsBySide(slots: WireBattlefieldStandbySlot[]): Record<WirePlayerSide, WireBattlefieldStandbySlot[]> {
+  const result: Record<WirePlayerSide, WireBattlefieldStandbySlot[]> = {
+    opponent: [],
+    self: []
+  };
+  for (const slot of slots) {
+    result[slot.side === "opponent" ? "opponent" : "self"].push(slot);
+  }
+
+  return result;
 }
 
 function normalizeStandbySlot(

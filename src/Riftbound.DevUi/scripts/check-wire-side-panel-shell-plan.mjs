@@ -27,7 +27,7 @@ assert.match(sidePanelSource, /data-wire-side-panel-pane-visible=/);
 assert.match(sidePanelSource, /data-wire-side-panel-pane-region=/);
 
 assertStyleBlock(".wire-side-panel", [
-  /grid-template-rows:[\s\S]*auto[\s\S]*auto[\s\S]*minmax\(0, auto\)[\s\S]*minmax\(0, 1fr\)/,
+  /grid-template-rows:[\s\S]*auto[\s\S]*auto[\s\S]*minmax\(0, min-content\)[\s\S]*minmax\(0, 1fr\)/,
   /overflow: hidden/
 ]);
 assertStyleBlock(".wire-side-panel-directory", [
@@ -35,8 +35,8 @@ assertStyleBlock(".wire-side-panel-directory", [
   /border: 1px solid #000/
 ]);
 assertStyleBlock(".wire-side-panel-operation-sections", [
-  /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/,
-  /max-height: 190px/,
+  /grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/,
+  /max-height: clamp\(72px, 10vh, 112px\)/,
   /overflow: auto/
 ]);
 assertStyleBlock(".wire-side-panel-rail-stack", [
@@ -44,11 +44,11 @@ assertStyleBlock(".wire-side-panel-rail-stack", [
   /overflow: hidden/
 ]);
 assertStyleBlock('.wire-side-panel-rail-entry[data-wire-side-panel-rail-body-mode="compact"] > .wire-side-panel-rail-body', [
-  /max-height: 42px/,
+  /max-height: 36px/,
   /overflow: hidden/
 ]);
 assertStyleBlock('.wire-side-panel-rail-entry[data-wire-side-panel-rail-body-mode="full"] > .wire-side-panel-rail-body', [
-  /max-height: clamp\(76px, 16vh, 148px\)/,
+  /max-height: clamp\(64px, 12vh, 116px\)/,
   /overflow: auto/
 ]);
 assertStyleBlock(".wire-side-panel-stack", [

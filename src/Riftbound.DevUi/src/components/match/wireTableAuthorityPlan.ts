@@ -282,15 +282,24 @@ function buildCapacityRows(table: WireTableViewModel): WireTableCapacityRow[] {
         sizingPlan: table.battlefield.unitPlan
       }),
       capacityRow({
-        itemCount: lane.standbySlots.length,
+        itemCount: standbyHalfRailCapacityCount(lane),
         key: wireTableCapacityRowKey(lane.index, "standby"),
         kind: "standby",
-        label: `${lane.index === 0 ? "左战场" : "右战场"} 待命槽`,
+        label: `${lane.index === 0 ? "左战场" : "右战场"} 待命半轨`,
         minSlots: 1,
         sizingPlan: table.battlefield.standbyPlan
       })
     ])
   ];
+}
+
+function standbyHalfRailCapacityCount(lane: WireTableViewModel["battlefield"]["lanes"][number]): number {
+  const bySide = lane.standbySlotsBySide;
+  if (bySide) {
+    return Math.max(bySide.self?.length ?? 0, bySide.opponent?.length ?? 0);
+  }
+
+  return lane.standbySlots.length;
 }
 
 function capacityRow({
@@ -485,7 +494,7 @@ function buildSelectedLayoutPlan(
         source: "battlefield-standby-flow",
         state: "located",
         zoneKey: standbyRowKey,
-        zoneLabel: `${laneLabel}待命槽`
+        zoneLabel: `${laneLabel}待命半轨`
       });
     }
   }

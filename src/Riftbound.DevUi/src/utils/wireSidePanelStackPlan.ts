@@ -328,6 +328,10 @@ function bodyModeForEntry(
     return entry.bodyPreference;
   }
 
+  if (entry.key !== "status" && entry.state === "urgent" && density === "urgent") {
+    return "compact";
+  }
+
   if (entry.mode === "expanded") {
     return "full";
   }

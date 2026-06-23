@@ -195,6 +195,16 @@ assert.deepEqual(
     ["battlefield-left:standby:2", "hidden", "opponent", false]
   ]
 );
+assert.deepEqual(
+  battlefield.lanes[0].standbySlotsBySide.self.map((slot) => slot.slotId),
+  ["battlefield-left:standby:1"],
+  "left battlefield self standby rail must be model-partitioned from sidePlayerId"
+);
+assert.deepEqual(
+  battlefield.lanes[0].standbySlotsBySide.opponent.map((slot) => slot.slotId),
+  ["battlefield-left:standby:2"],
+  "left battlefield opponent standby rail must be model-partitioned from sidePlayerId"
+);
 assert.equal(battlefield.lanes[0].standbySlots[0].isFaceDown, true, "visible own standby may remain face-down but must keep its real object id");
 assert.equal(battlefield.lanes[0].standbySlots[0].objectId, "p1-left-standby");
 assert.equal(battlefield.lanes[0].standbySlots[1].objectId, undefined, "hidden opponent standby must not leak its real object id");
@@ -218,14 +228,24 @@ assert.deepEqual(
     ["battlefield-right:standby:2", "hidden", "self", false]
   ]
 );
+assert.deepEqual(
+  battlefield.lanes[1].standbySlotsBySide.self.map((slot) => slot.slotId),
+  ["battlefield-right:standby:2"],
+  "right battlefield self standby rail must keep hidden self-side public slot"
+);
+assert.deepEqual(
+  battlefield.lanes[1].standbySlotsBySide.opponent.map((slot) => slot.slotId),
+  ["battlefield-right:standby:1"],
+  "right battlefield opponent standby rail must keep visible opponent-side slot"
+);
 assert.deepEqual(battlefield.lanes[1].ownOccupants, ["p1-right-1"]);
 assert.deepEqual(battlefield.lanes[1].opposingOccupants, ["p2-right-1", "p2-right-2"]);
 assert.deepEqual(table.battlefield.unitPlan, battlefield.unitPlan, "table and battlefield builders must share one unit plan");
 assert.deepEqual(table.battlefield.standbyPlan, battlefield.standbyPlan, "table and battlefield builders must share one standby plan");
 assert.equal(table.battlefield.unitPlan.itemCount, 2, "same max occupancy should drive every battlefield quadrant size");
 assert.equal(table.battlefield.unitPlan.slotCount, 3, "empty space should remain visible for low-count unit zones");
-assert.equal(table.battlefield.standbyPlan.itemCount, 2, "same max standby count should drive every battlefield standby rail");
-assert.equal(table.battlefield.standbyPlan.slotCount, 2, "multi-standby lanes should share a two-slot standby sizing plan");
+assert.equal(table.battlefield.standbyPlan.itemCount, 1, "same per-side max standby count should drive every battlefield standby rail");
+assert.equal(table.battlefield.standbyPlan.slotCount, 1, "single-standby half-zones should not reserve the opposite half-zone slot");
 assert.equal(table.battlefield.standbyPlan.kind, "standby");
 assert.equal(table.battlefield.unitPlan.kind, "battlefield-unit");
 
@@ -247,14 +267,22 @@ assert.equal(unitRenderPlansByCount.get(1)?.size, 1, "same one-unit battlefield 
 assert.equal(unitRenderPlansByCount.get(2)?.size, 1, "same two-unit battlefield zones must reuse the same render plan");
 
 const standbyRenderPlansByCount = groupRenderPlans(
-  battlefield.lanes.map((lane) => ({
-    count: lane.standbySlots.length,
-    minSlots: battlefield.standbyPlan.minSlots,
-    plan: battlefield.standbyPlan,
-    renderEmptySlots: false
-  }))
+  battlefield.lanes.flatMap((lane) => [
+    {
+      count: lane.standbySlotsBySide.self.length,
+      minSlots: battlefield.standbyPlan.minSlots,
+      plan: battlefield.standbyPlan,
+      renderEmptySlots: false
+    },
+    {
+      count: lane.standbySlotsBySide.opponent.length,
+      minSlots: battlefield.standbyPlan.minSlots,
+      plan: battlefield.standbyPlan,
+      renderEmptySlots: false
+    }
+  ])
 );
-assert.equal(standbyRenderPlansByCount.get(2)?.size, 1, "same two-card standby rails must reuse the same render plan");
+assert.equal(standbyRenderPlansByCount.get(1)?.size, 1, "same one-card standby half-rails must reuse the same render plan");
 
 const p2Perspective = buildWireBattlefieldModel(snapshot, "P2");
 assert.deepEqual(p2Perspective.lanes[0].ownOccupants, ["p2-left-1"]);
@@ -311,6 +339,77 @@ assert.deepEqual(tableProjection.opponent.hiddenHandIds, ["hidden-P2-0", "hidden
 assert.equal(tableProjection.battlefield.lanes[0].battlefieldId, "battlefield-right", "table projection battlefield index must override legacy lane order");
 assert.equal(tableProjection.battlefield.lanes[1].battlefieldId, "battlefield-left", "table projection battlefield index must preserve explicit server order");
 
+const tableAuthorityNoLegacyZoneLeakSnapshot = {
+  ...tableProjectionSnapshot,
+  players: {
+    ...tableProjectionSnapshot.players,
+    P2: {
+      ...tableProjectionSnapshot.players.P2,
+      zones: {
+        ...tableProjectionSnapshot.players.P2.zones,
+        base: ["legacy-wrong-base"],
+        baseCards: ["legacy-wrong-base"],
+        baseRunes: ["legacy-wrong-rune"],
+        hand: ["legacy-secret-hand"],
+        handHidden: 99,
+        mainDeck: ["legacy-secret-main"],
+        runeDeck: ["legacy-secret-rune"]
+      }
+    }
+  },
+  table: {
+    ...tableProjectionSnapshot.table,
+    players: tableProjectionSnapshot.table.players.map((player) => player.playerId === "P2"
+      ? {
+        ...player,
+        zones: {
+          base: ["p2-rune-1", "p2-base-1"],
+          baseCards: ["p2-base-1"],
+          baseRunes: ["p2-rune-1"],
+          handHidden: 2,
+          mainDeckCount: 28,
+          runeDeckCount: 10
+        }
+      }
+      : player)
+  }
+};
+const tableAuthorityNoLegacyZoneLeak = buildWireTableViewModel({
+  perspectivePlayerId: "P1",
+  snapshot: tableAuthorityNoLegacyZoneLeakSnapshot,
+  specs
+});
+assert.deepEqual(
+  tableAuthorityNoLegacyZoneLeak.opponent.handIds,
+  [],
+  "server table projection must not inherit legacy opponent hand zone"
+);
+assert.deepEqual(
+  tableAuthorityNoLegacyZoneLeak.opponent.hiddenHandIds,
+  ["hidden-P2-0", "hidden-P2-1"],
+  "server table projection handHidden must beat legacy handHidden"
+);
+assert.deepEqual(
+  tableAuthorityNoLegacyZoneLeak.opponent.baseObjectIds,
+  ["p2-base-1"],
+  "server table projection baseCards must beat legacy base zone"
+);
+assert.deepEqual(
+  tableAuthorityNoLegacyZoneLeak.opponent.runeIds,
+  ["p2-rune-1"],
+  "server table projection baseRunes must beat legacy rune zone"
+);
+assert.equal(
+  JSON.stringify(tableAuthorityNoLegacyZoneLeak).includes("legacy-secret-hand"),
+  false,
+  "wire table model must not retain leaked legacy hand ids when table projection is present"
+);
+assert.equal(
+  JSON.stringify(tableAuthorityNoLegacyZoneLeak).includes("legacy-secret-main"),
+  false,
+  "wire table model must not retain leaked legacy deck ids when table projection is present"
+);
+
 const legacySnapshot = {
   ...snapshot,
   lanes: {
@@ -358,6 +457,7 @@ const fallbackStandbySnapshot = {
 const fallbackStandby = buildWireBattlefieldModel(fallbackStandbySnapshot, "P1");
 assert.equal(fallbackStandby.lanes[0].standbySlotSource, "standbyObjectIds-fallback");
 assert.deepEqual(fallbackStandby.lanes[0].standbySlots.map((slot) => slot.objectId), ["p1-left-standby"]);
+assert.deepEqual(fallbackStandby.lanes[0].standbySlotsBySide.self.map((slot) => slot.objectId), ["p1-left-standby"]);
 
 const locationPartitionSnapshot = {
   ...legacySnapshot,

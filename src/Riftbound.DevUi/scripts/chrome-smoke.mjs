@@ -33,15 +33,15 @@ const wireSidePanelVisibleSlotsByTab = Object.fromEntries(WIRE_SIDE_PANEL_TABS.m
 const routes = [
   { path: "/", texts: ["符文战场", "进入大厅"] },
   { path: "/lobby", texts: ["创建或加入", "玩家名称", "房间码"] },
-  { path: "/decks", texts: ["本地测试卡组", "等待服务端验证"] },
+  { path: "/decks", texts: ["构筑导入工作台", "导入入口", "等待服务端验证", "服务端权威"] },
   { path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
-  { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "选择卡组"] },
+  { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "卡组提交", "提交回执"] },
   {
     path: "/matches/stage3-smoke",
     texts: ["符文战场对战线框", "等待开局", "控制台", "行动", "响应", "规则", "日志", "详情", "当前页", "态势总览"],
     absentTexts: ["mainDeck", "runeDeck", "handHidden", "stackItemId", "reconnectToken", "battleState", "damageLedger", "participantControllerIds", "serverPaymentState", "resourceLedgerBeforePayment", "triggerQueue", "handChoices", "legalObjectIds", "serverHandChoiceState"]
   },
-  { path: "/matches/stage3-smoke/result", texts: ["结算", "结果只读取服务端权威快照"] }
+  { path: "/matches/stage3-smoke/result", texts: ["结算", "最终状态", "事件 / 错误", "结果只读取服务端权威快照"] }
 ];
 
 const children = [];
@@ -405,7 +405,12 @@ async function runAccessibilitySmoke(cdp, label) {
           .map((node) => Array.isArray(node.target) ? node.target.join(" ") : String(node.target ?? "unknown"))
           .slice(0, 3)
           .join(", ");
-        return `${violation.id}: ${targets}`;
+        const details = (violation.nodes ?? [])
+          .map((node) => node.failureSummary || node.html || "")
+          .filter(Boolean)
+          .slice(0, 2)
+          .join(" | ");
+        return `${violation.id}: ${targets}${details ? ` :: ${details}` : ""}`;
       })
       .join("\n");
     throw new Error(`Accessibility smoke failed for ${label}:\n${summary}`);
@@ -489,11 +494,22 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
       flow?.getAttribute("data-flow-scroll-after") ?? "",
       flow?.getAttribute("data-flow-min-slots") ?? ""
     ].join("|");
+    const orderedSubset = (actual, expected) => {
+      let cursor = 0;
+      for (const item of actual) {
+        cursor = expected.indexOf(item, cursor);
+        if (cursor === -1) return false;
+        cursor += 1;
+      }
+      return true;
+    };
     const laneTopology = Array.from(document.querySelectorAll(".wire-battlefield-lane")).map((lane) => {
       const unitZones = Array.from(lane.querySelectorAll(":scope > .wire-battlefield-unit-zone"));
-      const standbyZones = Array.from(lane.querySelectorAll(":scope > .wire-battlefield-standby-zone"));
+      const directStandbyZones = Array.from(lane.querySelectorAll(":scope > .wire-battlefield-standby-zone"));
+      const standbyZones = Array.from(lane.querySelectorAll(":scope > .wire-battlefield-unit-zone > .wire-battlefield-unit-zone-body > .wire-battlefield-standby-zone"));
       return {
         centerChildTag: lane.parentElement === centerGrid ? lane.tagName.toLowerCase() : "",
+        directStandbyZoneCount: directStandbyZones.length,
         laneIndex: lane.getAttribute("data-wire-battlefield-lane-index") ?? "",
         laneZoneId: lane.getAttribute("data-wire-battlefield-lane-zone-id") ?? "",
         standbyFlowPlans: standbyZones.map((zone) => {
@@ -501,7 +517,8 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
           return {
             count: Number(flow?.getAttribute("data-flow-count") ?? "-1"),
             kind: flow?.getAttribute("data-flow-kind") ?? "",
-            planKey: flowPlanKey(flow)
+            planKey: flowPlanKey(flow),
+            side: zone.getAttribute("data-wire-battlefield-side") ?? ""
           };
         }),
         standbyZoneId: lane.getAttribute("data-wire-battlefield-standby-zone-id") ?? "",
@@ -539,6 +556,9 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
     if (document.querySelectorAll(".wire-battlefield-standby-zone:not(.wire-battlefield-lane .wire-battlefield-standby-zone)").length > 0) {
       failures.push("wire standby zones must be contained by battlefield lanes");
     }
+    if (document.querySelectorAll(".wire-battlefield-lane > .wire-battlefield-standby-zone").length > 0) {
+      failures.push("wire standby zones must be nested inside a player unit zone, not between opponent/self rows");
+    }
     if (laneTopology.length !== 2) {
       failures.push("wire battlefield should render exactly two lane regions, got " + laneTopology.length);
     }
@@ -561,8 +581,11 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
       if (lane.unitZoneCount !== 2) {
         failures.push("wire battlefield lane " + laneZoneId + " should contain two unit zones, got " + lane.unitZoneCount);
       }
-      if (lane.standbyZoneCount !== 1) {
-        failures.push("wire battlefield lane " + laneZoneId + " should contain one standby zone, got " + lane.standbyZoneCount);
+      if (lane.directStandbyZoneCount !== 0) {
+        failures.push("wire battlefield lane " + laneZoneId + " should not directly contain standby zones, got " + lane.directStandbyZoneCount);
+      }
+      if (lane.standbyZoneCount !== 2) {
+        failures.push("wire battlefield lane " + laneZoneId + " should contain one per-side standby zone inside unit zones, got " + lane.standbyZoneCount);
       }
       if (lane.centerChildTag !== "section") {
         failures.push("wire battlefield lane " + laneZoneId + " should be a direct center grid section, got " + (lane.centerChildTag || "detached"));
@@ -576,8 +599,12 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
       if (lane.standbyFlowPlans.some((plan) => plan.kind !== "standby")) {
         failures.push("wire battlefield lane " + laneZoneId + " standby zone must use standby flow: " + JSON.stringify(lane.standbyFlowPlans));
       }
+      const standbySides = lane.standbyFlowPlans.map((plan) => plan.side).sort().join(",");
+      if (standbySides !== "opponent,self") {
+        failures.push("wire battlefield lane " + laneZoneId + " standby zones must bind to opponent/self halves: " + standbySides);
+      }
     }
-    for (const zone of Array.from(document.querySelectorAll(".wire-battlefield-lane > .wire-battlefield-unit-zone, .wire-battlefield-lane > .wire-battlefield-standby-zone"))) {
+    for (const zone of Array.from(document.querySelectorAll(".wire-battlefield-lane > .wire-battlefield-unit-zone, .wire-battlefield-lane > .wire-battlefield-unit-zone > .wire-battlefield-unit-zone-body > .wire-battlefield-standby-zone"))) {
       const flow = zone.querySelector(":scope .wire-card-flow");
       const zoneRect = rectOf(zone);
       if (!flow) {
@@ -1343,7 +1370,11 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
       failures.push(\`wire side panel rail state should match directory state: \${sidePanelRailState} / \${directoryState}\`);
     }
     const sidePanelDirectoryLinkSlots = sidePanelDirectoryLinks.map((link) => link.slot);
-    const expectedVisibleSidePanelSlots = expectedSidePanelVisibleSlotsByTab[activeTab] ?? [];
+    const expectedActiveTabSidePanelSlots = expectedSidePanelVisibleSlotsByTab[activeTab] ?? [];
+    const expectedDenseVisibleCount = Math.min(3, expectedActiveTabSidePanelSlots.length);
+    const expectedVisibleSidePanelUpperBound = sidePanelDirectoryDensity === "dense"
+      ? expectedDenseVisibleCount
+      : expectedActiveTabSidePanelSlots.length;
     const controlRouteKeys = sidePanelControlRoutes.map((route) => route.key);
     const activeControlRoute = sidePanelControlRoutes.find((route) => route.key === "active");
     const primaryControlRoute = sidePanelControlRoutes.find((route) => route.key === "primary" || route.slot === primarySlot);
@@ -1372,6 +1403,12 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
     }
     if (!booleanAttribute(sidePanelRailCapacityOverflow)) {
       failures.push(\`wire side panel rail capacity overflow flag invalid: \${sidePanelRailCapacityOverflow}\`);
+    }
+    if (sidePanelRailCapacityOverflow !== "false") {
+      failures.push(\`wire side panel rail capacity overflow at \${viewportLabel}: \${sidePanelRailCapacityWeight} / \${sidePanelRailCapacityMaxWeight}\`);
+    }
+    if (Number.isFinite(sidePanelRailCapacityWeight) && Number.isFinite(sidePanelRailCapacityMaxWeight) && sidePanelRailCapacityWeight > sidePanelRailCapacityMaxWeight) {
+      failures.push(\`wire side panel rail capacity weight exceeds max at \${viewportLabel}: \${sidePanelRailCapacityWeight} / \${sidePanelRailCapacityMaxWeight}\`);
     }
     if (sidePanelRailVisibleCount !== visibleRails.length) {
       failures.push(\`wire side panel rail visible count mismatch: \${sidePanelRailVisibleCount} / \${visibleRails.length}\`);
@@ -1474,20 +1511,32 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
     if (sidePanelDirectoryDeclaredCount !== expectedSidePanelSlots.length) {
       failures.push(\`wire side panel directory declared count drifted: \${sidePanelDirectoryDeclaredCount}\`);
     }
-    if (sidePanelDirectoryVisibleCount !== expectedVisibleSidePanelSlots.length) {
-      failures.push(\`wire side panel directory visible count drifted: \${sidePanelDirectoryVisibleCount} / \${expectedVisibleSidePanelSlots.length}\`);
+    if (sidePanelDirectoryVisibleCount !== sidePanelDirectoryLinks.length) {
+      failures.push(\`wire side panel directory visible count mismatch: \${sidePanelDirectoryVisibleCount} / \${sidePanelDirectoryLinks.length}\`);
     }
-    if (sidePanelDirectoryVisibleCount >= 4 && sidePanelDirectoryDensity !== "dense") {
+    if (expectedActiveTabSidePanelSlots.length >= 4 && sidePanelDirectoryDensity !== "dense") {
       failures.push(\`wire side panel directory should be dense for crowded tabs: \${sidePanelDirectoryDensity}\`);
     }
     if (sidePanelDirectoryDensity === "dense" && sidePanelDirectoryIndexMode !== "compact") {
       failures.push(\`wire side panel dense directory should use compact index: \${sidePanelDirectoryIndexMode}\`);
     }
-    if (sidePanelDirectoryHiddenCount !== expectedSidePanelSlots.length - expectedVisibleSidePanelSlots.length) {
+    if (sidePanelDirectoryDensity === "dense" && sidePanelDirectoryVisibleCount !== expectedDenseVisibleCount) {
+      failures.push(\`wire side panel dense directory visible count drifted: \${sidePanelDirectoryVisibleCount} / \${expectedDenseVisibleCount}\`);
+    }
+    if (sidePanelDirectoryVisibleCount > expectedVisibleSidePanelUpperBound) {
+      failures.push(\`wire side panel directory visible count exceeds active-tab capacity: \${sidePanelDirectoryVisibleCount} / \${expectedVisibleSidePanelUpperBound}\`);
+    }
+    if (sidePanelDirectoryHiddenCount !== expectedSidePanelSlots.length - sidePanelDirectoryVisibleCount) {
       failures.push(\`wire side panel directory hidden count drifted: \${sidePanelDirectoryHiddenCount}\`);
     }
-    if (sidePanelDirectoryLinkSlots.join("|") !== expectedVisibleSidePanelSlots.join("|")) {
+    if (!orderedSubset(sidePanelDirectoryLinkSlots, expectedActiveTabSidePanelSlots)) {
       failures.push(\`wire side panel directory visible order drifted: \${sidePanelDirectoryLinkSlots.join(" -> ")}\`);
+    }
+    if (expectedActiveTabSidePanelSlots.includes(activeSlot) && !sidePanelDirectoryLinkSlots.includes(activeSlot)) {
+      failures.push(\`wire side panel directory should keep active slot visible: \${activeSlot}\`);
+    }
+    if (expectedActiveTabSidePanelSlots.includes(primarySlot) && !sidePanelDirectoryLinkSlots.includes(primarySlot)) {
+      failures.push(\`wire side panel directory should keep primary slot visible: \${primarySlot}\`);
     }
     const sidePanelDirectoryTabs = new Set(sidePanelDirectoryLinks.map((link) => link.tab));
     if (sidePanelDirectoryLinks.length === 0) {
@@ -1795,11 +1844,16 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
     if (operationBoundary.exists && operationBoundary.clientHeight <= 0) {
       failures.push("wire side panel operation list has no visible height at " + viewportLabel + ": " + JSON.stringify(operationBoundary));
     }
+    const operationMaxHeight = Math.min(132, Math.round(window.innerHeight * 0.16));
+    if (operationBoundary.exists && operationBoundary.clientHeight > operationMaxHeight) {
+      failures.push("wire side panel operation list is consuming too much vertical space at " + viewportLabel + ": max " + operationMaxHeight + " got " + JSON.stringify(operationBoundary));
+    }
     const activePanelBoundary = scrollBoundary(activePanel);
     if (!activePanelBoundary.exists || !activePanelBoundary.canScrollY) {
       failures.push("wire side panel active detail pane missing overflow:auto boundary at " + viewportLabel + ": " + JSON.stringify(activePanelBoundary));
     }
-    if (activePanelBoundary.exists && activePanelBoundary.clientHeight < 80) {
+    const activePanelMinHeight = Math.max(96, Math.round(window.innerHeight * 0.12));
+    if (activePanelBoundary.exists && activePanelBoundary.clientHeight < activePanelMinHeight) {
       failures.push("wire side panel active detail pane is too compressed at " + viewportLabel + ": " + JSON.stringify(activePanelBoundary));
     }
     if (activePaneRect && paneStackRect && !containedBy(activePaneRect, paneStackRect, 3)) {

@@ -110,26 +110,27 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
   }, []);
 
   const join = useCallback(async () => {
-    const stored = loadSession(roomId, playerId);
-    await socket.connect();
-    if (stored?.reconnectToken) {
-      try {
-        await socket.reconnect(roomId, playerId, stored.reconnectToken);
-        return;
-      } catch {
-        forgetSession(roomId, playerId);
-        setState((current) => ({
-          ...current,
-          lastSystemMessage: "重连凭据已过期，正在重新入座"
-        }));
-      }
-    }
-
     try {
+      const stored = loadSession(roomId, playerId);
+      await socket.connect();
+      if (stored?.reconnectToken) {
+        try {
+          await socket.reconnect(roomId, playerId, stored.reconnectToken);
+          return;
+        } catch {
+          forgetSession(roomId, playerId);
+          setState((current) => ({
+            ...current,
+            lastSystemMessage: "重连凭据已过期，正在重新入座"
+          }));
+        }
+      }
+
       await socket.joinRoom(roomId, playerId);
     } catch (error) {
       setState((current) => ({
         ...current,
+        status: "error",
         lastSystemMessage: isErrorDto(error) ? errorMessageLabel(error) : "入座失败，请稍后重试。"
       }));
     }
@@ -146,7 +147,6 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
         status: "error",
         lastSystemMessage: error instanceof Error ? error.message : "重新同步失败"
       }));
-      throw error;
     }
   }, [playerId, roomId, socket]);
 
@@ -199,6 +199,7 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
         const failed = commandSubmissionFeedback({
           clientIntentId,
           command: stampedCommand,
+          errorCode: isErrorDto(error) ? error.code : undefined,
           message,
           state: "failed",
           stateLabel: "提交失败",
@@ -209,7 +210,6 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
           lastCommandSubmission: current.lastCommandSubmission?.clientIntentId === clientIntentId ? failed : current.lastCommandSubmission,
           lastSystemMessage: message
         }));
-        throw error;
       }
     },
     [playerId, state.prompt]
@@ -239,8 +239,16 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
   }, [submitCommand]);
 
   const disconnect = useCallback(async () => {
-    await socket.disconnect();
-    setState((current) => ({ ...current, status: "disconnected" }));
+    try {
+      await socket.disconnect();
+      setState((current) => ({ ...current, status: "disconnected" }));
+    } catch (error) {
+      setState((current) => ({
+        ...current,
+        status: "error",
+        lastSystemMessage: error instanceof Error ? error.message : "断开连接失败。"
+      }));
+    }
   }, [socket]);
 
   return {
@@ -273,6 +281,7 @@ function withCurrentPromptStamp(command: GameCommand, prompt: ActionPromptDto | 
 function commandSubmissionFeedback({
   clientIntentId,
   command,
+  errorCode,
   message,
   state,
   stateLabel,
@@ -280,6 +289,7 @@ function commandSubmissionFeedback({
 }: {
   clientIntentId: string;
   command: GameCommand;
+  errorCode?: string | null;
   message: string;
   state: CommandSubmissionState;
   stateLabel: string;
@@ -288,6 +298,7 @@ function commandSubmissionFeedback({
   return {
     clientIntentId,
     cmdType: command.cmdType,
+    errorCode,
     followup: undefined,
     message,
     promptId: typeof command.promptId === "string" ? command.promptId : command.promptId ?? undefined,

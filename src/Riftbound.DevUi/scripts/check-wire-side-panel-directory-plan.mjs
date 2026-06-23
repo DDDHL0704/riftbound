@@ -117,10 +117,10 @@ const actionDirectoryView = buildWireSidePanelDirectoryViewPlan({
 });
 assert.equal(actionDirectoryView.activeEntry.slot, "commandCenter");
 assert.equal(actionDirectoryView.primaryEntry.slot, "commandCenter");
-assert.deepEqual(actionDirectoryView.visibleEntries.map((item) => item.slot), ["commandCenter", "actionMap", "interaction", "actionPrompt"]);
+assert.deepEqual(actionDirectoryView.visibleEntries.map((item) => item.slot), ["commandCenter", "actionMap", "actionPrompt"]);
 assert.equal(actionDirectoryView.visibleEntries.find((item) => item.slot === "commandCenter").active, true);
 assert.equal(actionDirectoryView.visibleEntries.find((item) => item.slot === "commandCenter").primary, true);
-assert.equal(actionDirectoryView.hiddenCount, expectedSlots.length - 4);
+assert.equal(actionDirectoryView.hiddenCount, expectedSlots.length - 3);
 assert.deepEqual(actionDirectoryView.tabs.map((item) => item.id), ["action", "response", "rules", "log", "detail"]);
 assert.equal(actionDirectoryView.currentTab.id, "action");
 assert.equal(actionDirectoryView.currentTab.active, true);
@@ -128,7 +128,7 @@ assert.equal(actionDirectoryView.density, "dense");
 assert.equal(actionDirectoryView.indexMode, "compact");
 assert.ok(actionDirectoryView.tabs.find((item) => item.id === "rules").count >= 1);
 const actionLayers = buildWireSidePanelDirectoryLayerPlan({ directory: plan, view: actionDirectoryView });
-assert.deepEqual(actionLayers.map((layer) => `${layer.group}:${layer.count}`), ["command:4"]);
+assert.deepEqual(actionLayers.map((layer) => `${layer.group}:${layer.count}`), ["command:3"]);
 
 const actionControlPlan = buildWireSidePanelControlPlan({
   orchestration: readyOrchestration,
@@ -153,9 +153,7 @@ const detailDirectoryView = buildWireSidePanelDirectoryViewPlan({
 assert.deepEqual(detailDirectoryView.visibleEntries.map((item) => item.slot), [
   "timelineDetail",
   "overview",
-  "tableAuthority",
-  "informationBoundary",
-  "promptAuthority"
+  "tableAuthority"
 ]);
 assert.equal(detailDirectoryView.activeEntry.slot, "timelineDetail");
 assert.equal(detailDirectoryView.primaryEntry.slot, "timelineDetail");
@@ -168,7 +166,7 @@ assert.deepEqual(
   [
     ["timelineDetail"],
     ["overview"],
-    ["tableAuthority", "informationBoundary", "promptAuthority"]
+    ["tableAuthority"]
   ]
 );
 

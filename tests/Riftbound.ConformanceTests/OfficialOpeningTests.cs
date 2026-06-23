@@ -198,6 +198,95 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialTwoPlayerOpeningAndFirstEndTurnProjectFrontendTableAuthorityWithoutHiddenLeakage()
+    {
+        var context = await BuildFirstMulliganFirstTurnAuditContext(
+            "official-two-player-opening-frontend-table-authority-room");
+        var result = context.Accepted;
+        var activePlayerId = context.ActivePlayerId;
+        var secondPlayerId = context.SecondPlayerId;
+
+        AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
+            result,
+            activePlayerId,
+            secondPlayerId,
+            context.ActiveSelectedObjectIds,
+            context.ActiveDrawnObjectIds,
+            context.SecondSelectedObjectIds,
+            context.SecondDrawnObjectIds,
+            context.CalledRuneObjectIds,
+            context.TurnDrawnObjectIds);
+
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(result, activePlayerId, secondPlayerId);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(result, secondPlayerId, activePlayerId);
+
+        var activePrompt = result.Prompts[activePlayerId];
+        Assert.True(activePrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
+        Assert.Contains(CommandTypes.EndTurn, activePrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, activePrompt.Actions);
+
+        var waitingPrompt = result.Prompts[secondPlayerId];
+        Assert.False(waitingPrompt.Actionable);
+        Assert.Equal(PromptTypes.Wait, waitingPrompt.View?.Type);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], waitingPrompt.Actions);
+
+        var nextTurnCalledRuneObjectIds = result.State.PlayerZones[secondPlayerId].RuneDeck
+            .Take(3)
+            .ToArray();
+        var nextTurnDrawnObjectIds = result.State.PlayerZones[secondPlayerId].MainDeck
+            .Take(1)
+            .ToArray();
+        var nextTurn = await context.Session.SubmitAsync(
+            activePlayerId,
+            "frontend-table-authority-first-end-turn",
+            new EndTurnCommand(),
+            PromptScopedBasicRawCommand(CommandTypes.EndTurn, activePrompt),
+            CancellationToken.None);
+
+        Assert.True(nextTurn.Accepted, nextTurn.ErrorMessage);
+        Assert.Equal(MatchStatuses.InProgress, nextTurn.State.Status);
+        Assert.Equal(MatchPhases.Main, nextTurn.State.Phase);
+        Assert.Equal(TimingStates.NeutralOpen, nextTurn.State.TimingState);
+        Assert.Equal(secondPlayerId, nextTurn.State.ActivePlayerId);
+        Assert.Equal(secondPlayerId, nextTurn.State.TurnPlayerId);
+        Assert.Equal(
+            [
+                "TURN_END_DECLARED",
+                "TURN_END_CLEANUP_STARTED",
+                "RUNE_POOL_CLEARED",
+                "TURN_PLAYER_ADVANCED",
+                "TURN_START_BEGAN",
+                "RUNES_CALLED",
+                "CARD_DRAWN",
+                "RUNE_POOL_CLEARED",
+                "MAIN_PHASE_BEGAN"
+            ],
+            nextTurn.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(nextTurnCalledRuneObjectIds, nextTurn.State.PlayerZones[secondPlayerId].Base);
+        Assert.Equal(
+            result.State.PlayerZones[secondPlayerId].Hand.Concat(nextTurnDrawnObjectIds).ToArray(),
+            nextTurn.State.PlayerZones[secondPlayerId].Hand);
+        Assert.Equal(
+            result.State.PlayerZones[secondPlayerId].RuneDeck.Skip(nextTurnCalledRuneObjectIds.Length).ToArray(),
+            nextTurn.State.PlayerZones[secondPlayerId].RuneDeck);
+
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(nextTurn, activePlayerId, secondPlayerId);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(nextTurn, secondPlayerId, activePlayerId);
+
+        var oldTurnPrompt = nextTurn.Prompts[activePlayerId];
+        Assert.False(oldTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.Wait, oldTurnPrompt.View?.Type);
+        Assert.Equal([PromptTypes.Wait, CommandTypes.Surrender], oldTurnPrompt.Actions);
+
+        var nextTurnPrompt = nextTurn.Prompts[secondPlayerId];
+        Assert.True(nextTurnPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, nextTurnPrompt.View?.Type);
+        Assert.Contains(CommandTypes.EndTurn, nextTurnPrompt.Actions);
+        Assert.Contains(CommandTypes.Surrender, nextTurnPrompt.Actions);
+    }
+
+    [Fact]
     public async Task InvalidPromptScopedSubmitDeckKeepsRoomPromptReusable()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -10081,6 +10170,8 @@ public sealed class OfficialOpeningTests
             assertEvents: false);
         Assert.Equal(1, accepted.State.RunePools[context.ActivePlayerId].Mana);
         Assert.True(accepted.State.CardObjects[sourceId].IsExhausted);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(accepted, context.ActivePlayerId, context.SecondPlayerId);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(accepted, context.SecondPlayerId, context.ActivePlayerId);
         var acceptedHash = MatchStateHasher.Hash(accepted.State);
         var acceptedEvents = JsonSerializer.Serialize(accepted.Events);
         var acceptedPrompts = JsonSerializer.Serialize(accepted.Prompts);
@@ -10113,6 +10204,8 @@ public sealed class OfficialOpeningTests
             assertEvents: false);
         Assert.Equal(1, replay.State.RunePools[context.ActivePlayerId].Mana);
         Assert.True(replay.State.CardObjects[sourceId].IsExhausted);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(replay, context.ActivePlayerId, context.SecondPlayerId);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(replay, context.SecondPlayerId, context.ActivePlayerId);
         Assert.Equal(journalEntryCountBeforeTapRune + 1, journal.Entries.Count);
 
         var p1SnapshotBeforeConflict = SnapshotSignature(context.Session, "P1");
@@ -10151,6 +10244,8 @@ public sealed class OfficialOpeningTests
             assertEvents: false);
         Assert.Equal(1, conflict.State.RunePools[context.ActivePlayerId].Mana);
         Assert.True(conflict.State.CardObjects[sourceId].IsExhausted);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(conflict, context.ActivePlayerId, context.SecondPlayerId);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(conflict, context.SecondPlayerId, context.ActivePlayerId);
         Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(context.Session, "P1"));
         Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(context.Session, "P2"));
         Assert.Equal(journalEntryCountBeforeTapRune + 1, journal.Entries.Count);
@@ -10242,6 +10337,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal(context.ActivePlayerId, accepted.State.ObjectLocations[sourceId].PlayerId);
         Assert.Equal("RUNE_DECK", accepted.State.ObjectLocations[sourceId].Zone);
         Assert.False(accepted.State.CardObjects[sourceId].IsExhausted);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(accepted, context.ActivePlayerId, context.SecondPlayerId);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(accepted, context.SecondPlayerId, context.ActivePlayerId);
         var recycleEntry = Assert.Single(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "first-turn-recycle-rune-raw-intent", StringComparison.Ordinal));
         Assert.Equal(context.ActivePlayerId, recycleEntry.PlayerId);
@@ -10275,6 +10372,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal(acceptedPool, replay.State.RunePools[context.ActivePlayerId]);
         Assert.DoesNotContain(sourceId, replay.State.PlayerZones[context.ActivePlayerId].Base);
         Assert.Contains(sourceId, replay.State.PlayerZones[context.ActivePlayerId].RuneDeck);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(replay, context.ActivePlayerId, context.SecondPlayerId);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(replay, context.SecondPlayerId, context.ActivePlayerId);
         Assert.Equal(journalEntryCountBeforeRecycleRune + 1, journal.Entries.Count);
 
         var p1SnapshotBeforeConflict = SnapshotSignature(context.Session, "P1");
@@ -10303,6 +10402,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal(acceptedPool, conflict.State.RunePools[context.ActivePlayerId]);
         Assert.DoesNotContain(sourceId, conflict.State.PlayerZones[context.ActivePlayerId].Base);
         Assert.Contains(sourceId, conflict.State.PlayerZones[context.ActivePlayerId].RuneDeck);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(conflict, context.ActivePlayerId, context.SecondPlayerId);
+        AssertTableAuthorityForViewerWithoutHiddenLeakage(conflict, context.SecondPlayerId, context.ActivePlayerId);
         Assert.Equal(p1SnapshotBeforeConflict, SnapshotSignature(context.Session, "P1"));
         Assert.Equal(p2SnapshotBeforeConflict, SnapshotSignature(context.Session, "P2"));
         Assert.Equal(journalEntryCountBeforeRecycleRune + 1, journal.Entries.Count);
@@ -19663,6 +19764,65 @@ public sealed class OfficialOpeningTests
         Assert.Equal(result.State.PlayerZones[waitingPlayerId].Hand, sourceIds);
         Assert.DoesNotContain(sourceIds, sourceId => selectedObjectIds.Contains(sourceId, StringComparer.Ordinal));
         Assert.DoesNotContain(sourceIds, sourceId => drawnObjectIds.Contains(sourceId, StringComparer.Ordinal));
+    }
+
+    private static void AssertTableAuthorityForViewerWithoutHiddenLeakage(
+        ResolutionResult result,
+        string viewerPlayerId,
+        string opponentPlayerId)
+    {
+        var snapshot = result.Snapshots[viewerPlayerId];
+        var table = Assert.IsType<SnapshotTableDto>(snapshot.Table);
+        Assert.Equal("server-snapshot", table.Source);
+        Assert.Equal(viewerPlayerId, table.ViewerPlayerId);
+        Assert.Equal(OfficialDeckValidator.RuneDeckCount, table.RuneDeckSize);
+        Assert.Equal(2, table.Players.Count);
+        Assert.Equal(2, table.Battlefields.Count);
+
+        var viewer = table.Players.Single(player => string.Equals(player.PlayerId, viewerPlayerId, StringComparison.Ordinal));
+        Assert.True(viewer.IsViewer);
+        Assert.Equal("self", viewer.Perspective);
+        Assert.Single(viewer.Zones.LegendZone);
+        Assert.Single(viewer.Zones.ChampionZone);
+        Assert.Single(viewer.Zones.Battlefields);
+        Assert.Equal(result.State.PlayerZones[viewerPlayerId].Hand, viewer.Zones.Hand);
+        Assert.Equal(0, viewer.Zones.HandHidden);
+        Assert.Equal(result.State.PlayerZones[viewerPlayerId].MainDeck.Count, viewer.Zones.MainDeckCount);
+        Assert.Equal(result.State.PlayerZones[viewerPlayerId].RuneDeck.Count, viewer.Zones.RuneDeckCount);
+        Assert.Equal(result.State.PlayerZones[viewerPlayerId].Base, viewer.Zones.Base);
+        Assert.Empty(viewer.Zones.BaseCards);
+        Assert.Equal(result.State.PlayerZones[viewerPlayerId].Base, viewer.Zones.BaseRunes);
+
+        var opponent = table.Players.Single(player => string.Equals(player.PlayerId, opponentPlayerId, StringComparison.Ordinal));
+        Assert.False(opponent.IsViewer);
+        Assert.Equal("opponent", opponent.Perspective);
+        Assert.Single(opponent.Zones.LegendZone);
+        Assert.Single(opponent.Zones.ChampionZone);
+        Assert.Single(opponent.Zones.Battlefields);
+        Assert.Empty(opponent.Zones.Hand);
+        Assert.Equal(result.State.PlayerZones[opponentPlayerId].Hand.Count, opponent.Zones.HandHidden);
+        Assert.Equal(result.State.PlayerZones[opponentPlayerId].MainDeck.Count, opponent.Zones.MainDeckCount);
+        Assert.Equal(result.State.PlayerZones[opponentPlayerId].RuneDeck.Count, opponent.Zones.RuneDeckCount);
+        Assert.Equal(result.State.PlayerZones[opponentPlayerId].Base, opponent.Zones.Base);
+        Assert.Empty(opponent.Zones.BaseCards);
+        Assert.Equal(result.State.PlayerZones[opponentPlayerId].Base, opponent.Zones.BaseRunes);
+
+        foreach (var battlefield in table.Battlefields)
+        {
+            Assert.False(string.IsNullOrWhiteSpace(battlefield.BattlefieldObjectId));
+            Assert.False(string.IsNullOrWhiteSpace(battlefield.CardNo));
+            Assert.Empty(battlefield.OccupantObjectIds);
+            Assert.Empty(battlefield.StandbyObjectIds);
+            Assert.Empty(battlefield.StandbySlots);
+            Assert.Equal(0, battlefield.StandbySlotCount);
+            Assert.Equal(0, battlefield.HiddenStandbyCount);
+        }
+
+        var serializedSnapshot = JsonSerializer.Serialize(snapshot);
+        foreach (var hiddenHandObjectId in result.State.PlayerZones[opponentPlayerId].Hand)
+        {
+            Assert.DoesNotContain(hiddenHandObjectId, serializedSnapshot, StringComparison.Ordinal);
+        }
     }
 
     private static void AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(

@@ -139,21 +139,21 @@ function validateBattlefield() {
   expectAllowedSet("battlefield.slots", battlefield.slots, battlefieldSlots);
   expectLength("battlefield.columns", battlefield.columns, battlefield.slots?.length ?? 0);
   expectLength("battlefield.centerColumns", battlefield.centerColumns, 2);
-  expectLength("battlefield.laneRows", battlefield.laneRows, 3);
+  expectLength("battlefield.laneRows", battlefield.laneRows, 2);
   if ("centerRows" in battlefield) {
-    errors.push("battlefield.centerRows must not carry standby cards; use battlefield.laneRows inside each lane");
+    errors.push("battlefield.centerRows must not carry standby cards; embed standby inside each player half");
   }
   if ("standbyZones" in battlefield) {
-    errors.push("battlefield.standbyZones must not be a central public rail; use battlefield.laneZones standbyZoneId");
+    errors.push("battlefield.standbyZones must not be a central public rail; use per-side standby inside unit zones");
   }
-  if (Array.isArray(battlefield.laneRows) && battlefield.laneRows[0] !== battlefield.laneRows[2]) {
+  if (Array.isArray(battlefield.laneRows) && battlefield.laneRows[0] !== battlefield.laneRows[1]) {
     errors.push("battlefield.laneRows must keep opponent/self unit zones symmetrical");
+  }
+  if (Array.isArray(battlefield.laneRows) && battlefield.laneRows.some((row) => String(row).includes("--wire-standby-track"))) {
+    errors.push("battlefield.laneRows must not reserve a central standby row between players");
   }
   if (Array.isArray(battlefield.laneRows) && !String(battlefield.laneRows[0]).includes("--wire-card-h")) {
     errors.push("battlefield lane unit rows must reserve card-height space through --wire-card-h");
-  }
-  if (Array.isArray(battlefield.laneRows) && !String(battlefield.laneRows[1]).includes("--wire-standby-track")) {
-    errors.push("battlefield.laneRows[1] must reserve the standby sub-rail inside each lane");
   }
 
   const zones = battlefield.unitZones;
