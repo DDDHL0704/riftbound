@@ -78,6 +78,7 @@ export function WireSidePanelRuleChainStrip({
           <button
             data-wire-side-panel-rule-chain-route={route.key}
             data-wire-side-panel-rule-chain-route-state={route.state}
+            data-wire-side-panel-rule-chain-route-slot={route.slot}
             disabled={route.state === "disabled"}
             key={route.key}
             onClick={() => {

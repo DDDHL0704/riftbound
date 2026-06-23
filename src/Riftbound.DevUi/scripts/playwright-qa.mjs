@@ -481,9 +481,11 @@ async function assertMatchStateSurface(page, shot) {
       recoveryState: recoverySurface?.getAttribute("data-match-recovery-state") ?? "",
       recoverySummary: recoverySurface?.getAttribute("data-match-recovery-summary") ?? "",
       recoveryText: textOf(recoverySurface),
+      ruleChainActiveLane: ruleChain?.getAttribute("data-wire-side-panel-rule-chain-active-lane") ?? "",
       ruleChainAria: ruleChain?.getAttribute("aria-label") ?? "",
       ruleChainLanes: Array.from(document.querySelectorAll("[data-wire-side-panel-rule-chain-lane]")).map((node) => ({
         count: node.getAttribute("data-wire-side-panel-rule-chain-lane-count") ?? "",
+        detailId: node.getAttribute("data-wire-side-panel-rule-chain-lane-detail-id") ?? "",
         key: node.getAttribute("data-wire-side-panel-rule-chain-lane") ?? "",
         state: node.getAttribute("data-wire-side-panel-rule-chain-lane-state") ?? "",
         text: textOf(node)
@@ -494,6 +496,7 @@ async function assertMatchStateSurface(page, shot) {
       })),
       ruleChainRoutes: Array.from(document.querySelectorAll("[data-wire-side-panel-rule-chain-route]")).map((node) => ({
         key: node.getAttribute("data-wire-side-panel-rule-chain-route") ?? "",
+        slot: node.getAttribute("data-wire-side-panel-rule-chain-route-slot") ?? "",
         state: node.getAttribute("data-wire-side-panel-rule-chain-route-state") ?? "",
         text: textOf(node)
       })),
@@ -557,6 +560,7 @@ async function assertMatchStateSurface(page, shot) {
   if (!surface.ruleChainState) {
     failures.push("rule chain strip is missing state.");
   }
+  failures.push(...await assertRuleChainBrowserSurface(surface, shot));
   if (surface.stateRailMetrics.length < 10) {
     failures.push(`state rail must expose ten server boundary metrics, got ${surface.stateRailMetrics.length}`);
   }
@@ -570,21 +574,6 @@ async function assertMatchStateSurface(page, shot) {
   }
   if (!surface.stateRailText.includes("快照") || !surface.stateRailText.includes("候选")) {
     failures.push(`state rail must render readable snapshot/candidate labels: ${surface.stateRailText}`);
-  }
-  if (!surface.ruleChainAria.includes("规则链")) {
-    failures.push(`rule chain strip is missing aria label: ${surface.ruleChainAria}`);
-  }
-  if (surface.ruleChainLanes.length === 0) {
-    failures.push("rule chain strip is missing lanes.");
-  }
-  if (surface.ruleChainMetrics.length === 0) {
-    failures.push("rule chain strip is missing metrics.");
-  }
-  if (surface.ruleChainRoutes.length === 0) {
-    failures.push("rule chain strip is missing routes.");
-  }
-  if (!surface.ruleChainText.includes("下一步")) {
-    failures.push(`rule chain strip is missing next-step text: ${surface.ruleChainText}`);
   }
   if (!surface.operationState || !surface.operationActive || !surface.operationReadyCount) {
     failures.push(`operation panel missing state/active/ready metrics: ${JSON.stringify({
@@ -614,6 +603,50 @@ async function assertMatchStateSurface(page, shot) {
   if (failures.length > 0) {
     throw new Error(`Seeded match state surface failed for ${shot.name}: ${failures.join("; ")}`);
   }
+}
+
+async function assertRuleChainBrowserSurface(surface, shot) {
+  const failures = [];
+  if (!surface.ruleChainActiveLane) {
+    failures.push(`rule chain strip must expose an active lane: ${surface.ruleChainActiveLane}`);
+  }
+  if (!surface.ruleChainAria.includes("规则链")) {
+    failures.push(`rule chain strip is missing aria label: ${surface.ruleChainAria}`);
+  }
+  if (!surface.ruleChainText.includes("下一步")) {
+    failures.push(`rule chain strip is missing next-step text: ${surface.ruleChainText}`);
+  }
+  for (const requiredText of ["结算链", "规则任务", "触发队列", "近期事件"]) {
+    if (!surface.ruleChainText.includes(requiredText)) {
+      failures.push(`rule chain strip for ${shot.name} must render ${requiredText}: ${surface.ruleChainText}`);
+    }
+  }
+  const lanesByKey = Object.fromEntries(surface.ruleChainLanes.map((lane) => [lane.key, lane]));
+  for (const laneKey of ["stack", "task", "trigger", "resolution"]) {
+    const lane = lanesByKey[laneKey];
+    if (!lane?.state || lane.count === "" || !lane.text) {
+      failures.push(`rule chain lane ${laneKey} must expose state/count/text: ${JSON.stringify(lane)}`);
+    }
+  }
+  const metricKeys = new Set(surface.ruleChainMetrics.map((metric) => metric.key));
+  for (const metricKey of ["lane", "responsibility", "event", "detail"]) {
+    if (!metricKeys.has(metricKey)) {
+      failures.push(`rule chain metric ${metricKey} missing: ${JSON.stringify(surface.ruleChainMetrics)}`);
+    }
+  }
+  const routesByKey = Object.fromEntries(surface.ruleChainRoutes.map((route) => [route.key, route]));
+  for (const [routeKey, routeSlot] of Object.entries({
+    detail: "timelineDetail",
+    flow: "serverFlow",
+    log: "log",
+    queue: "ruleQueue"
+  })) {
+    const route = routesByKey[routeKey];
+    if (route?.slot !== routeSlot || !route.state || !route.text) {
+      failures.push(`rule chain route ${routeKey} must expose slot ${routeSlot}, state, and text: ${JSON.stringify(route)}`);
+    }
+  }
+  return failures;
 }
 
 async function assertConnectionRecoveryPanelSurface(page, expectedSurface) {
