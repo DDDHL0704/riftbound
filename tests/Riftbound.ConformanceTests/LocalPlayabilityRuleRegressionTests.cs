@@ -1173,7 +1173,9 @@ public sealed class LocalPlayabilityRuleRegressionTests
         var p1TableOpponent = p1Table.Players.Single(player => string.Equals(player.PlayerId, "P2", StringComparison.Ordinal));
         Assert.True(p1TableSelf.IsViewer);
         Assert.Equal("self", p1TableSelf.Perspective);
+        AssertLocalTwoPlayerTableZoneAuthority(result.State, p1TableSelf, "P1", expectHandVisible: true);
         Assert.Equal("opponent", p1TableOpponent.Perspective);
+        AssertLocalTwoPlayerTableZoneAuthority(result.State, p1TableOpponent, "P2", expectHandVisible: false);
         Assert.Empty(p1TableOpponent.Zones.Hand);
         Assert.True(p1TableOpponent.Zones.HandHidden >= 1);
 
@@ -1181,7 +1183,9 @@ public sealed class LocalPlayabilityRuleRegressionTests
         var p2TableOpponent = p2Table.Players.Single(player => string.Equals(player.PlayerId, "P1", StringComparison.Ordinal));
         Assert.True(p2TableSelf.IsViewer);
         Assert.Equal("self", p2TableSelf.Perspective);
+        AssertLocalTwoPlayerTableZoneAuthority(result.State, p2TableSelf, "P2", expectHandVisible: true);
         Assert.Equal("opponent", p2TableOpponent.Perspective);
+        AssertLocalTwoPlayerTableZoneAuthority(result.State, p2TableOpponent, "P1", expectHandVisible: false);
         Assert.Empty(p2TableOpponent.Zones.Hand);
         Assert.True(p2TableOpponent.Zones.HandHidden >= 1);
 
@@ -1193,6 +1197,43 @@ public sealed class LocalPlayabilityRuleRegressionTests
         var rawBattlefield = BattlefieldView(p1Snapshot, "BF-1");
         Assert.Equal(battlefieldScoredThisTurn, Assert.IsType<bool>(rawBattlefield["scoredThisTurn"]));
         Assert.Equal(battlefieldScoredThisTurn ? ["P1"] : [], StringList(rawBattlefield["scoredThisTurnPlayerIds"]));
+    }
+
+    private static void AssertLocalTwoPlayerTableZoneAuthority(
+        MatchState state,
+        SnapshotTablePlayerDto tablePlayer,
+        string playerId,
+        bool expectHandVisible)
+    {
+        var zones = state.PlayerZones[playerId];
+        Assert.Equal(playerId, tablePlayer.PlayerId);
+        Assert.Equal(zones.MainDeck.Count, tablePlayer.Zones.MainDeckCount);
+        Assert.Equal(zones.RuneDeck.Count, tablePlayer.Zones.RuneDeckCount);
+        Assert.Equal(expectHandVisible ? zones.Hand : [], tablePlayer.Zones.Hand);
+        Assert.Equal(expectHandVisible ? 0 : zones.Hand.Count, tablePlayer.Zones.HandHidden);
+        Assert.Equal(zones.Base, tablePlayer.Zones.Base);
+        Assert.Equal(ExpectedBaseCards(state, zones), tablePlayer.Zones.BaseCards);
+        Assert.Equal(ExpectedBaseRunes(state, zones), tablePlayer.Zones.BaseRunes);
+        Assert.Equal(zones.Battlefields, tablePlayer.Zones.Battlefields);
+        Assert.Equal(0, tablePlayer.Zones.BattlefieldHiddenStandbyCount);
+        Assert.Equal(zones.Graveyard, tablePlayer.Zones.Graveyard);
+        Assert.Equal(zones.Banished, tablePlayer.Zones.Banished);
+    }
+
+    private static IReadOnlyList<string> ExpectedBaseCards(MatchState state, PlayerZones zones)
+    {
+        var runeObjectIds = ExpectedBaseRunes(state, zones).ToHashSet(StringComparer.Ordinal);
+        return zones.Base
+            .Where(objectId => !runeObjectIds.Contains(objectId))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ExpectedBaseRunes(MatchState state, PlayerZones zones)
+    {
+        return zones.Base
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+            .ToArray();
     }
 
     private static OfficialCard Card(OfficialCardCatalog catalog, string cardNo)

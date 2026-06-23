@@ -38,6 +38,13 @@ for (const requiredSnippet of [
   "AssertLocalTwoPlayerTableAuthority",
   "P2-RUNE-DECK",
   "P2-DRAW",
+  "MainDeckCount",
+  "RuneDeckCount",
+  "Zones.Base",
+  "Zones.BaseCards",
+  "Zones.BaseRunes",
+  "Zones.Battlefields",
+  "BattlefieldHiddenStandbyCount",
   "scoredThisTurn",
   "scoredThisTurnPlayerIds",
   "RunePool.Empty"
