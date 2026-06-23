@@ -1076,7 +1076,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
               <div
                 aria-label="服务端提交回执常驻区"
                 className="wire-side-panel-receipt"
-                data-wire-side-panel-receipt
+                data-wire-side-panel-receipt-shell
                 tabIndex={0}
               >
                 <CommandSubmissionFeedbackPanel

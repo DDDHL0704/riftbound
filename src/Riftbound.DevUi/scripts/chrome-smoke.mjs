@@ -1908,6 +1908,10 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
     const directory = document.querySelector("[data-wire-side-panel-directory]");
     const operation = document.querySelector("[data-wire-side-panel-operation-state]");
     const operationList = document.querySelector(".wire-side-panel-operation-sections");
+    const receipt = document.querySelector("[data-wire-side-panel-receipt]");
+    const receiptSubmission = receipt?.matches("[data-command-submission-state]")
+      ? receipt
+      : receipt?.querySelector("[data-command-submission-state]");
     const railStack = document.querySelector("[data-wire-side-panel-rail-stack]");
     const paneStack = document.querySelector(".wire-side-panel-stack");
     const activeSlot = paneStack?.getAttribute("data-wire-side-panel-active-slot") ?? "";
@@ -1988,6 +1992,14 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
     const operationState = operation?.getAttribute("data-wire-side-panel-operation-state") ?? "";
     const operationActive = operation?.getAttribute("data-wire-side-panel-operation-active") ?? "";
     const operationReadyCount = Number(operation?.getAttribute("data-wire-side-panel-operation-ready-count") ?? "NaN");
+    const receiptBridgeState = receipt?.getAttribute("data-wire-side-panel-receipt-bridge-state") ?? "";
+    const receiptCanOpenLayer = receipt?.getAttribute("data-wire-side-panel-receipt-can-open-layer") ?? "";
+    const receiptEventCount = receipt?.getAttribute("data-wire-side-panel-receipt-event-count") ?? "";
+    const receiptHiddenCount = receipt?.getAttribute("data-wire-side-panel-receipt-hidden-count") ?? "";
+    const receiptMode = receipt?.getAttribute("data-wire-side-panel-receipt-mode") ?? "";
+    const receiptState = receipt?.getAttribute("data-wire-side-panel-receipt-state") ?? "";
+    const receiptSubmissionMode = receiptSubmission?.getAttribute("data-command-submission-mode") ?? "";
+    const receiptText = receipt?.textContent?.trim().replace(/\\s+/g, " ") ?? "";
     const operationSections = Array.from(document.querySelectorAll("[data-wire-side-panel-operation-section]")).map((section) => ({
       count: Number(section.getAttribute("data-wire-side-panel-operation-section-count") ?? "NaN"),
       key: section.getAttribute("data-wire-side-panel-operation-section") ?? "",
@@ -2007,6 +2019,26 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
         readyCount: operationReadyCount,
         state: operationState
       }));
+    }
+    if (!receiptMode || !receiptState || !receiptBridgeState || !receiptSubmissionMode) {
+      failures.push("wire side panel receipt missing mode/state/bridge/submission contract at " + viewportLabel + ": " + JSON.stringify({
+        bridgeState: receiptBridgeState,
+        mode: receiptMode,
+        state: receiptState,
+        submissionMode: receiptSubmissionMode
+      }));
+    }
+    if (!["true", "false"].includes(receiptCanOpenLayer)) {
+      failures.push("wire side panel receipt can-open-layer must be boolean text at " + viewportLabel + ": " + receiptCanOpenLayer);
+    }
+    if (Number.isNaN(Number(receiptEventCount)) || Number.isNaN(Number(receiptHiddenCount))) {
+      failures.push("wire side panel receipt event/hidden counts must be numeric at " + viewportLabel + ": " + JSON.stringify({
+        eventCount: receiptEventCount,
+        hiddenCount: receiptHiddenCount
+      }));
+    }
+    if (!receiptText.includes("提交反馈") || !receiptText.includes("后续")) {
+      failures.push("wire side panel receipt feedback/followup copy missing at " + viewportLabel + ": " + receiptText);
     }
     for (const sectionKey of ["focus", "prompt", "rules", "commands"]) {
       if (!operationSections.some((section) => section.key === sectionKey && section.state && section.primarySlot)) {
@@ -2088,6 +2120,9 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
       operationSectionCount: operationSections.length,
       operationState,
       railSummaryCount,
+      receiptBridgeState,
+      receiptMode,
+      receiptState,
       summaryRailCount: summaryRails.length,
       visiblePaneCount: visiblePanes.length,
       visibleRailCount: visibleRails.length
@@ -2554,7 +2589,9 @@ async function runWireClickSelectionSmoke(cdp) {
     const sideFocus = document.querySelector(".wire-side-panel-focus-strip");
     const sideRuleChain = document.querySelector(".wire-side-panel-rule-chain-strip");
     const sideReceipt = document.querySelector("[data-wire-side-panel-receipt]");
-    const sideReceiptSubmission = sideReceipt?.querySelector("[data-command-submission-state]");
+    const sideReceiptSubmission = sideReceipt?.matches("[data-command-submission-state]")
+      ? sideReceipt
+      : sideReceipt?.querySelector("[data-command-submission-state]");
     const sideReceiptLayout = sideReceiptSubmission?.querySelector("[data-command-followup-layout-state]");
     const focusBridge = document.querySelector(".wire-action-focus-bridge");
     const route = document.querySelector("[data-action-route-state]");
@@ -2668,6 +2705,12 @@ async function runWireClickSelectionSmoke(cdp) {
         targetSlot: node.getAttribute("data-wire-side-panel-focus-route-target-slot") ?? "",
         text: node.textContent ?? ""
       })),
+      sideReceiptRailBridgeState: sideReceipt?.getAttribute("data-wire-side-panel-receipt-bridge-state") ?? "",
+      sideReceiptRailCanOpenLayer: sideReceipt?.getAttribute("data-wire-side-panel-receipt-can-open-layer") ?? "",
+      sideReceiptRailEventCount: sideReceipt?.getAttribute("data-wire-side-panel-receipt-event-count") ?? "",
+      sideReceiptRailHiddenCount: sideReceipt?.getAttribute("data-wire-side-panel-receipt-hidden-count") ?? "",
+      sideReceiptRailMode: sideReceipt?.getAttribute("data-wire-side-panel-receipt-mode") ?? "",
+      sideReceiptRailState: sideReceipt?.getAttribute("data-wire-side-panel-receipt-state") ?? "",
       sideReceiptFollowupState: sideReceiptSubmission?.querySelector("[data-command-followup-state]")?.getAttribute("data-command-followup-state") ?? "",
       sideReceiptLayoutState: sideReceiptLayout?.getAttribute("data-command-followup-layout-state") ?? "",
       sideReceiptMetricCount: sideReceipt?.querySelectorAll("[data-wire-side-panel-receipt-metric]").length ?? 0,
@@ -3398,6 +3441,25 @@ async function runWireClickSelectionSmoke(cdp) {
   if (actionMapResult.sideReceiptLayoutState !== "empty") failures.push(`side receipt layout projection state unexpected: ${actionMapResult.sideReceiptLayoutState}`);
   if (actionMapResult.sideReceiptMetricCount < 4) failures.push(`side receipt metric count too small: ${actionMapResult.sideReceiptMetricCount}`);
   if (actionMapResult.sideReceiptOpenLayerState !== "empty") failures.push(`side receipt layer entry state unexpected: ${actionMapResult.sideReceiptOpenLayerState}`);
+  if (!actionMapResult.sideReceiptRailMode || !actionMapResult.sideReceiptRailState || !actionMapResult.sideReceiptRailBridgeState) {
+    failures.push(`side receipt rail missing mode/state/bridge contract: ${JSON.stringify({
+      bridgeState: actionMapResult.sideReceiptRailBridgeState,
+      mode: actionMapResult.sideReceiptRailMode,
+      state: actionMapResult.sideReceiptRailState
+    })}`);
+  }
+  if (!["true", "false"].includes(actionMapResult.sideReceiptRailCanOpenLayer)) {
+    failures.push(`side receipt rail can-open-layer must be boolean text: ${actionMapResult.sideReceiptRailCanOpenLayer}`);
+  }
+  if (Number.isNaN(Number(actionMapResult.sideReceiptRailEventCount)) || Number.isNaN(Number(actionMapResult.sideReceiptRailHiddenCount))) {
+    failures.push(`side receipt rail event/hidden counts must be numeric: ${JSON.stringify({
+      eventCount: actionMapResult.sideReceiptRailEventCount,
+      hiddenCount: actionMapResult.sideReceiptRailHiddenCount
+    })}`);
+  }
+  if (!actionMapResult.sideReceiptText.includes("提交反馈") || !actionMapResult.sideReceiptText.includes("后续")) {
+    failures.push("side receipt rail feedback/followup copy missing");
+  }
   if (!actionMapResult.sideReceiptText.includes("回执桌面投影")) failures.push("side receipt layout projection summary missing");
   if (!actionMapResult.commandReviewText.includes("打出手牌")) failures.push("action command review candidate missing");
   if (!actionMapResult.commandReviewText.includes("PLAY_CARD")) failures.push("action command review command type missing");

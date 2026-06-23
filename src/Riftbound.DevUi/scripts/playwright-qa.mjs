@@ -483,6 +483,21 @@ async function assertMatchStateSurface(page, shot) {
   await assertConnectionRecoveryPanelSurface(page, "match");
 
   const activeSlot = await page.locator("[data-wire-side-panel-directory]").first().getAttribute("data-wire-side-panel-directory-active-slot");
+  await openSidePanelSlot(page, "commandCenter");
+  const receiptSurface = await page.evaluate(() => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\s+/g, " ") ?? "";
+    const receipt = document.querySelector("[data-wire-side-panel-receipt]");
+    return {
+      bridgeState: receipt?.getAttribute("data-wire-side-panel-receipt-bridge-state") ?? "",
+      canOpenLayer: receipt?.getAttribute("data-wire-side-panel-receipt-can-open-layer") ?? "",
+      eventCount: receipt?.getAttribute("data-wire-side-panel-receipt-event-count") ?? "",
+      hiddenCount: receipt?.getAttribute("data-wire-side-panel-receipt-hidden-count") ?? "",
+      mode: receipt?.getAttribute("data-wire-side-panel-receipt-mode") ?? "",
+      state: receipt?.getAttribute("data-wire-side-panel-receipt-state") ?? "",
+      text: textOf(receipt)
+    };
+  });
+
   await openSidePanelSlot(page, "ruleQueue");
   const surface = await page.evaluate(() => {
     const textOf = (node) => node?.textContent?.trim().replace(/\s+/g, " ") ?? "";
@@ -623,6 +638,25 @@ async function assertMatchStateSurface(page, shot) {
   }
   if (!surface.stateRailText.includes("快照") || !surface.stateRailText.includes("候选")) {
     failures.push(`state rail must render readable snapshot/candidate labels: ${surface.stateRailText}`);
+  }
+  if (!receiptSurface.mode || !receiptSurface.state || !receiptSurface.bridgeState) {
+    failures.push(`receipt rail missing mode/state/bridge contract: ${JSON.stringify({
+      bridgeState: receiptSurface.bridgeState,
+      mode: receiptSurface.mode,
+      state: receiptSurface.state
+    })}`);
+  }
+  if (!["true", "false"].includes(receiptSurface.canOpenLayer)) {
+    failures.push(`receipt rail must expose can-open-layer as a boolean string: ${receiptSurface.canOpenLayer}`);
+  }
+  if (Number.isNaN(Number(receiptSurface.eventCount)) || Number.isNaN(Number(receiptSurface.hiddenCount))) {
+    failures.push(`receipt rail must expose numeric event/hidden counts: ${JSON.stringify({
+      eventCount: receiptSurface.eventCount,
+      hiddenCount: receiptSurface.hiddenCount
+    })}`);
+  }
+  if (!receiptSurface.text.includes("提交反馈") || !receiptSurface.text.includes("后续")) {
+    failures.push(`receipt rail must render readable feedback/followup copy: ${receiptSurface.text}`);
   }
   if (!surface.operationState || !surface.operationActive || !surface.operationReadyCount) {
     failures.push(`operation panel missing state/active/ready metrics: ${JSON.stringify({

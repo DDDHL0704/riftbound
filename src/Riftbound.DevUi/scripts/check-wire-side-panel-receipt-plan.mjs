@@ -165,7 +165,7 @@ for (const snippet of [
 }
 
 for (const snippet of [
-  "data-wire-side-panel-receipt",
+  "data-wire-side-panel-receipt-shell",
   "aria-label=\"服务端提交回执常驻区\"",
   "variant=\"compact\""
 ]) {

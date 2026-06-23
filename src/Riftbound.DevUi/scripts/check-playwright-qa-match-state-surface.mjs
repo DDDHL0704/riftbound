@@ -32,6 +32,7 @@ for (const requiredSelector of [
   "[data-wire-side-panel-operation-state]",
   "[data-wire-side-panel-operation-section]",
   "[data-wire-side-panel-operation-route]",
+  "[data-wire-side-panel-receipt]",
   "[data-match-recovery-surface]",
   "[data-match-recovery-region]"
 ]) {
@@ -50,6 +51,12 @@ for (const requiredAttribute of [
   "data-wire-side-panel-operation-section-primary",
   "data-wire-side-panel-operation-route-state",
   "data-wire-side-panel-operation-route-slot",
+  "data-wire-side-panel-receipt-mode",
+  "data-wire-side-panel-receipt-state",
+  "data-wire-side-panel-receipt-bridge-state",
+  "data-wire-side-panel-receipt-can-open-layer",
+  "data-wire-side-panel-receipt-event-count",
+  "data-wire-side-panel-receipt-hidden-count",
   "data-match-recovery-active-region",
   "data-match-recovery-state",
   "data-match-recovery-summary",
@@ -73,16 +80,23 @@ assert.match(
   "Chrome smoke must keep match recovery surface checks in a named helper."
 );
 
+assert.match(
+  chromeSmokeSource,
+  /async\s+function\s+runWireSidePanelBrowserAcceptanceSmoke\(cdp,\s*viewportLabel\)/,
+  "Chrome smoke must keep wire side-panel state, operation, and receipt checks in a named helper."
+);
+
 for (const requiredChromeSelector of [
   "[data-wire-side-panel-operation-state]",
   "[data-wire-side-panel-operation-section]",
   "[data-wire-side-panel-operation-route]",
+  "[data-wire-side-panel-receipt]",
   "[data-match-recovery-surface]",
   "[data-match-recovery-region]"
 ]) {
   assert.ok(
     chromeSmokeSource.includes(requiredChromeSelector),
-    `Chrome smoke match recovery helper must inspect ${requiredChromeSelector}.`
+    `Chrome smoke match-state browser checks must inspect ${requiredChromeSelector}.`
   );
 }
 
@@ -93,6 +107,12 @@ for (const requiredChromeAttribute of [
   "data-wire-side-panel-operation-section-primary",
   "data-wire-side-panel-operation-route-state",
   "data-wire-side-panel-operation-route-slot",
+  "data-wire-side-panel-receipt-mode",
+  "data-wire-side-panel-receipt-state",
+  "data-wire-side-panel-receipt-bridge-state",
+  "data-wire-side-panel-receipt-can-open-layer",
+  "data-wire-side-panel-receipt-event-count",
+  "data-wire-side-panel-receipt-hidden-count",
   "data-match-recovery-active-region",
   "data-match-recovery-state",
   "data-match-recovery-summary",
@@ -100,7 +120,7 @@ for (const requiredChromeAttribute of [
 ]) {
   assert.ok(
     chromeSmokeSource.includes(requiredChromeAttribute),
-    `Chrome smoke match recovery helper must inspect ${requiredChromeAttribute}.`
+    `Chrome smoke match-state browser checks must inspect ${requiredChromeAttribute}.`
   );
 }
 
