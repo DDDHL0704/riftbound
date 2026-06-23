@@ -680,6 +680,14 @@ public sealed class LocalPlayabilityRuleRegressionTests
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-RUNE-DECK");
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P2"], "P1-HIDDEN-HAND");
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P2"], "P1-RUNE-BOTTOM");
+        AssertLocalTwoPlayerTableAuthority(p2FocusPass, battlefieldScoredThisTurn: true);
+
+        var p2CalledRuneObjectIds = p2FocusPass.State.PlayerZones["P2"].RuneDeck
+            .Take(3)
+            .ToArray();
+        var p2DrawnObjectIds = p2FocusPass.State.PlayerZones["P2"].MainDeck
+            .Take(1)
+            .ToArray();
 
         var p1EndsTurn = await engine.ResolveAsync(
             p2FocusPass.State,
@@ -692,7 +700,8 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal("P2", p1EndsTurn.State.TurnPlayerId);
         Assert.Equal(MatchPhases.Main, p1EndsTurn.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, p1EndsTurn.State.TimingState);
-        Assert.Contains(p1EndsTurn.Events, gameEvent => string.Equals(gameEvent.Kind, "MAIN_PHASE_BEGAN", StringComparison.Ordinal));
+        AssertLocalTwoPlayerEndTurnAuthority(p1EndsTurn, p2CalledRuneObjectIds, p2DrawnObjectIds);
+        AssertLocalTwoPlayerTableAuthority(p1EndsTurn, battlefieldScoredThisTurn: false);
         AssertSnapshotDoesNotExposeObjectId(p1EndsTurn.Snapshots["P1"], "P2-HIDDEN-HAND");
         AssertSnapshotDoesNotExposeObjectId(p1EndsTurn.Snapshots["P2"], "P1-HIDDEN-HAND");
     }
@@ -1119,6 +1128,73 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.DoesNotContain(hiddenObjectId, serializedSnapshot, StringComparison.Ordinal);
     }
 
+    private static void AssertLocalTwoPlayerEndTurnAuthority(
+        ResolutionResult result,
+        IReadOnlyList<string> p2CalledRuneObjectIds,
+        IReadOnlyList<string> p2DrawnObjectIds)
+    {
+        Assert.Equal(
+            [
+                "TURN_END_DECLARED",
+                "TURN_END_CLEANUP_STARTED",
+                "UNTIL_END_OF_TURN_EXPIRED",
+                "RUNE_POOL_CLEARED",
+                "CLEANUP_REPEATED",
+                "TURN_PLAYER_ADVANCED",
+                "TURN_START_BEGAN",
+                "RUNES_CALLED",
+                "CARD_DRAWN",
+                "RUNE_POOL_CLEARED",
+                "MAIN_PHASE_BEGAN"
+            ],
+            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["P2-RUNE-DECK"], p2CalledRuneObjectIds);
+        Assert.Equal(["P2-DRAW"], p2DrawnObjectIds);
+        Assert.Equal(p2CalledRuneObjectIds, result.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-HIDDEN-HAND", "P2-DRAW"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.PlayerZones["P2"].MainDeck);
+        Assert.Empty(result.State.PlayerZones["P2"].RuneDeck);
+        Assert.Equal(new ObjectLocationState("P2", "BASE"), result.State.ObjectLocations["P2-RUNE-DECK"]);
+        Assert.Equal(new ObjectLocationState("P2", "HAND"), result.State.ObjectLocations["P2-DRAW"]);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P2"]);
+    }
+
+    private static void AssertLocalTwoPlayerTableAuthority(ResolutionResult result, bool battlefieldScoredThisTurn)
+    {
+        var p1Snapshot = result.Snapshots["P1"];
+        var p2Snapshot = result.Snapshots["P2"];
+        Assert.Equal(1, Assert.IsType<int>(PlayerView(p1Snapshot, "P1")["score"]));
+        Assert.Equal(1, Assert.IsType<int>(PlayerView(p2Snapshot, "P1")["score"]));
+
+        var p1Table = Assert.IsType<SnapshotTableDto>(p1Snapshot.Table);
+        var p2Table = Assert.IsType<SnapshotTableDto>(p2Snapshot.Table);
+        var p1TableSelf = p1Table.Players.Single(player => string.Equals(player.PlayerId, "P1", StringComparison.Ordinal));
+        var p1TableOpponent = p1Table.Players.Single(player => string.Equals(player.PlayerId, "P2", StringComparison.Ordinal));
+        Assert.True(p1TableSelf.IsViewer);
+        Assert.Equal("self", p1TableSelf.Perspective);
+        Assert.Equal("opponent", p1TableOpponent.Perspective);
+        Assert.Empty(p1TableOpponent.Zones.Hand);
+        Assert.True(p1TableOpponent.Zones.HandHidden >= 1);
+
+        var p2TableSelf = p2Table.Players.Single(player => string.Equals(player.PlayerId, "P2", StringComparison.Ordinal));
+        var p2TableOpponent = p2Table.Players.Single(player => string.Equals(player.PlayerId, "P1", StringComparison.Ordinal));
+        Assert.True(p2TableSelf.IsViewer);
+        Assert.Equal("self", p2TableSelf.Perspective);
+        Assert.Equal("opponent", p2TableOpponent.Perspective);
+        Assert.Empty(p2TableOpponent.Zones.Hand);
+        Assert.True(p2TableOpponent.Zones.HandHidden >= 1);
+
+        var battlefield = p1Table.Battlefields.Single(field => string.Equals(field.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        Assert.Equal("P1", battlefield.ControllerId);
+        Assert.Equal(battlefieldScoredThisTurn, battlefield.ScoredThisTurn);
+        Assert.Equal(battlefieldScoredThisTurn ? ["P1"] : [], battlefield.ScoredThisTurnPlayerIds);
+
+        var rawBattlefield = BattlefieldView(p1Snapshot, "BF-1");
+        Assert.Equal(battlefieldScoredThisTurn, Assert.IsType<bool>(rawBattlefield["scoredThisTurn"]));
+        Assert.Equal(battlefieldScoredThisTurn ? ["P1"] : [], StringList(rawBattlefield["scoredThisTurnPlayerIds"]));
+    }
+
     private static OfficialCard Card(OfficialCardCatalog catalog, string cardNo)
     {
         return catalog.Cards.Single(card => string.Equals(card.CardNo, cardNo, StringComparison.Ordinal));
@@ -1137,6 +1213,12 @@ public sealed class LocalPlayabilityRuleRegressionTests
     private static IReadOnlyList<string> StringList(object? value)
     {
         return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
+    }
+
+    private static Dictionary<string, object?> BattlefieldView(SnapshotDto snapshot, string battlefieldObjectId)
+    {
+        return Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Lanes["battlefields"])
+            .Single(item => string.Equals(item["battlefieldObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal
