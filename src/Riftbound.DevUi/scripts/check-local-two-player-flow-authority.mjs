@@ -16,6 +16,13 @@ assert.ok(
 );
 
 for (const requiredEvent of [
+  "UNIT_PLAYED_TO_BATTLEFIELD",
+  "BATTLEFIELD_CONTESTED",
+  "SPELL_DUEL_STARTED",
+  "SPELL_DUEL_CLOSED",
+  "BATTLEFIELD_CONTROL_RESOLVED",
+  "BATTLEFIELD_CONQUERED",
+  "SCORE_GAINED",
   "TURN_END_DECLARED",
   "TURN_END_CLEANUP_STARTED",
   "UNTIL_END_OF_TURN_EXPIRED",
@@ -34,8 +41,11 @@ for (const requiredEvent of [
 }
 
 for (const requiredSnippet of [
+  "AssertLocalTwoPlayerSpellDuelAuthority",
   "AssertLocalTwoPlayerEndTurnAuthority",
   "AssertLocalTwoPlayerTableAuthority",
+  "p2PriorityPass.Events.Select",
+  "p2FocusPass.Events.Select",
   "P2-RUNE-DECK",
   "P2-DRAW",
   "MainDeckCount",

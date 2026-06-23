@@ -675,6 +675,7 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Contains(p2FocusPass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_SCORE", StringComparison.Ordinal));
+        AssertLocalTwoPlayerSpellDuelAuthority(p2PriorityPass, p2FocusPass);
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-HIDDEN-HAND");
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-DRAW");
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-RUNE-DECK");
@@ -1128,6 +1129,43 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.DoesNotContain(hiddenObjectId, serializedSnapshot, StringComparison.Ordinal);
     }
 
+    private static void AssertLocalTwoPlayerSpellDuelAuthority(
+        ResolutionResult p2PriorityPass,
+        ResolutionResult p2FocusPass)
+    {
+        Assert.Equal(TimingStates.SpellDuelOpen, p2PriorityPass.State.TimingState);
+        Assert.Equal("P1", p2PriorityPass.State.FocusPlayerId);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF-1"), p2PriorityPass.State.ObjectLocations["P1-HAND-UNIT"]);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL"],
+            p2PriorityPass.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+
+        var priorityEventKinds = p2PriorityPass.Events.Select(gameEvent => gameEvent.Kind).ToArray();
+        AssertEventOrder(
+            priorityEventKinds,
+            "UNIT_PLAYED_TO_BATTLEFIELD",
+            "BATTLEFIELD_CONTESTED",
+            "SPELL_DUEL_STARTED");
+
+        Assert.Equal(TimingStates.NeutralOpen, p2FocusPass.State.TimingState);
+        Assert.Equal("P1", p2FocusPass.State.CardObjects["BF-1"].ControllerId);
+        Assert.Equal(1, p2FocusPass.State.PlayerScores["P1"]);
+        Assert.Empty(p2FocusPass.State.PendingTaskQueue.Tasks);
+
+        var focusEventKinds = p2FocusPass.Events.Select(gameEvent => gameEvent.Kind).ToArray();
+        AssertEventOrder(
+            focusEventKinds,
+            "SPELL_DUEL_CLOSED",
+            "BATTLEFIELD_CONTROL_RESOLVED",
+            "BATTLEFIELD_CONQUERED",
+            "SCORE_GAINED");
+
+        var scoreEvent = Assert.Single(p2FocusPass.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P1", scoreEvent.Payload["playerId"]);
+        Assert.Equal(1, scoreEvent.Payload["amount"]);
+        Assert.Equal("BATTLEFIELD_CONQUERED_SCORE", scoreEvent.Payload["reason"]);
+    }
+
     private static void AssertLocalTwoPlayerEndTurnAuthority(
         ResolutionResult result,
         IReadOnlyList<string> p2CalledRuneObjectIds,
@@ -1158,6 +1196,24 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(new ObjectLocationState("P2", "HAND"), result.State.ObjectLocations["P2-DRAW"]);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P2"]);
+    }
+
+    private static void AssertEventOrder(IReadOnlyList<string> actualKinds, params string[] expectedKinds)
+    {
+        var previousIndex = -1;
+        foreach (var expectedKind in expectedKinds)
+        {
+            var currentIndex = actualKinds
+                .Select((kind, index) => (kind, index))
+                .Where(item => string.Equals(item.kind, expectedKind, StringComparison.Ordinal))
+                .Select(item => item.index)
+                .FirstOrDefault(-1);
+            Assert.True(currentIndex >= 0, $"Expected event {expectedKind} in [{string.Join(", ", actualKinds)}].");
+            Assert.True(
+                currentIndex > previousIndex,
+                $"Expected event {expectedKind} after index {previousIndex} in [{string.Join(", ", actualKinds)}].");
+            previousIndex = currentIndex;
+        }
     }
 
     private static void AssertLocalTwoPlayerTableAuthority(ResolutionResult result, bool battlefieldScoredThisTurn)
