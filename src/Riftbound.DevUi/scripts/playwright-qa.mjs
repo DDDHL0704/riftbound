@@ -117,6 +117,9 @@ try {
     if (shot.name === "decks") {
       await assertDeckImportSurface(page);
     }
+    if (shot.name === "room") {
+      await assertRoomWorkflowSurface(page);
+    }
     await captureAndAudit(page, shot, report);
     await page.close();
   }
@@ -304,6 +307,104 @@ async function assertDeckImportSurface(page) {
   }
   if (failures.length > 0) {
     throw new Error(`Deck import surface assertions failed:\n${failures.join("\n")}`);
+  }
+}
+
+async function assertRoomWorkflowSurface(page) {
+  const surface = await page.evaluate(() => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\s+/g, " ") ?? "";
+    const workflow = document.querySelector("[data-room-workflow-surface]");
+    const errors = document.querySelector("[data-room-errors-region]");
+    const submission = document.querySelector("[data-room-submission-region]");
+    return {
+      activeRegion: workflow?.getAttribute("data-room-workflow-active-region") ?? "",
+      errorsState: errors?.getAttribute("data-error-resolution-state") ?? "",
+      errorsText: textOf(errors),
+      hasActionRegion: Boolean(document.querySelector("[data-room-actions-region]")),
+      hasErrorRegion: Boolean(errors),
+      hasLogRegion: Boolean(document.querySelector("[data-room-log-region]")),
+      hasRecoveryRegion: Boolean(document.querySelector("[data-room-recovery-region]")),
+      hasSetupRegion: Boolean(document.querySelector("[data-room-setup-region]")),
+      hasSubmissionRegion: Boolean(submission),
+      quickActions: Array.from(document.querySelectorAll("[data-room-quick-action]")).map((node) => ({
+        commandSource: node.getAttribute("data-room-quick-action-command-source") ?? "",
+        commandSourceLabel: node.getAttribute("data-room-quick-action-command-source-label") ?? "",
+        disabled: node.hasAttribute("disabled"),
+        id: node.getAttribute("data-room-quick-action") ?? "",
+        state: node.getAttribute("data-room-quick-action-state") ?? "",
+        text: textOf(node)
+      })),
+      regions: Array.from(document.querySelectorAll("[data-room-workflow-region]")).map((node) => ({
+        id: node.getAttribute("data-room-workflow-region") ?? "",
+        source: node.getAttribute("data-room-workflow-source") ?? "",
+        state: node.getAttribute("data-room-workflow-state") ?? "",
+        text: textOf(node)
+      })),
+      setupSteps: Array.from(document.querySelectorAll("[data-room-setup-step]")).map((node) => ({
+        id: node.getAttribute("data-room-setup-step") ?? "",
+        text: textOf(node)
+      })),
+      submissionState: submission?.getAttribute("data-room-submission-state") ?? "",
+      submissionText: textOf(submission),
+      summary: workflow?.getAttribute("data-room-workflow-summary") ?? "",
+      text: textOf(document.body)
+    };
+  });
+
+  const failures = [];
+  const expectedRegions = ["recovery", "setup", "actions", "submission", "errors", "log"];
+  const regionIds = surface.regions.map((region) => region.id);
+  if (surface.regions.length !== expectedRegions.length || expectedRegions.some((id) => !regionIds.includes(id))) {
+    failures.push(`room workflow must expose all workflow regions: ${JSON.stringify(surface.regions)}`);
+  }
+  for (const source of ["server-connection", "server-snapshot", "server-prompt", "server-receipt", "server-events"]) {
+    if (!surface.regions.some((region) => region.source === source && region.state)) {
+      failures.push(`room workflow missing sourced region ${source}: ${JSON.stringify(surface.regions)}`);
+    }
+  }
+  if (surface.activeRegion !== "recovery") {
+    failures.push(`room workflow should start in recovery before connection, got ${surface.activeRegion}`);
+  }
+  if (!surface.summary.includes("连接：") || !surface.summary.includes("行动：")) {
+    failures.push(`room workflow summary must expose connection and action counts: ${surface.summary}`);
+  }
+  for (const flag of ["hasRecoveryRegion", "hasSetupRegion", "hasActionRegion", "hasSubmissionRegion", "hasErrorRegion", "hasLogRegion"]) {
+    if (!surface[flag]) {
+      failures.push(`room workflow missing marked page region ${flag}`);
+    }
+  }
+  const actionsById = Object.fromEntries(surface.quickActions.map((action) => [action.id, action]));
+  if (surface.quickActions.length !== 2) {
+    failures.push(`room workflow should expose submitDeck and ready quick actions: ${JSON.stringify(surface.quickActions)}`);
+  }
+  for (const actionId of ["submitDeck", "ready"]) {
+    const action = actionsById[actionId];
+    if (action?.state !== "missing" || action?.commandSource !== "unavailable" || action?.disabled !== true) {
+      failures.push(`room quick action ${actionId} must be unavailable before connection: ${JSON.stringify(action)}`);
+    }
+  }
+  if (surface.setupSteps.length < 3 || surface.setupSteps.some((step) => !step.id || !step.text.includes("下一步"))) {
+    failures.push(`room setup steps must expose ids and next steps: ${JSON.stringify(surface.setupSteps)}`);
+  }
+  if (surface.submissionState !== "empty" || !surface.submissionText.includes("提交回执")) {
+    failures.push(`room submission receipt should start empty and readable: ${JSON.stringify({
+      state: surface.submissionState,
+      text: surface.submissionText
+    })}`);
+  }
+  if (!surface.errorsState || !surface.errorsText.includes("错误处理")) {
+    failures.push(`room error resolution surface must expose state and copy: ${JSON.stringify({
+      state: surface.errorsState,
+      text: surface.errorsText
+    })}`);
+  }
+  for (const copy of ["连接/重连", "卡组提交", "提交回执", "错误处理", "服务端消息"]) {
+    if (!surface.text.includes(copy)) {
+      failures.push(`room workflow page missing ${copy} copy: ${surface.text}`);
+    }
+  }
+  if (failures.length > 0) {
+    throw new Error(`Room workflow surface assertions failed:\n${failures.join("\n")}`);
   }
 }
 
