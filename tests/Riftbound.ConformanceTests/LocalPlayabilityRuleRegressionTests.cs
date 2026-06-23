@@ -1311,13 +1311,24 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Empty(p2TableOpponent.Zones.Hand);
         Assert.True(p2TableOpponent.Zones.HandHidden >= 1);
 
-        var battlefield = p1Table.Battlefields.Single(field => string.Equals(field.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        var p1Battlefield = p1Table.Battlefields.Single(field => string.Equals(field.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        var p2Battlefield = p2Table.Battlefields.Single(field => string.Equals(field.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        AssertLocalTwoPlayerBattlefieldProjectionAuthority(p1Snapshot, p1Battlefield, battlefieldScoredThisTurn);
+        AssertLocalTwoPlayerBattlefieldProjectionAuthority(p2Snapshot, p2Battlefield, battlefieldScoredThisTurn);
+    }
+
+    private static void AssertLocalTwoPlayerBattlefieldProjectionAuthority(
+        SnapshotDto snapshot,
+        SnapshotTableBattlefieldDto battlefield,
+        bool battlefieldScoredThisTurn)
+    {
         Assert.Equal("P1", battlefield.ControllerId);
         Assert.Equal(battlefieldScoredThisTurn, battlefield.ScoredThisTurn);
         Assert.Equal(battlefieldScoredThisTurn ? ["P1"] : [], battlefield.ScoredThisTurnPlayerIds);
 
-        var rawBattlefield = BattlefieldView(p1Snapshot, "BF-1");
-        Assert.Equal(battlefieldScoredThisTurn, Assert.IsType<bool>(rawBattlefield["scoredThisTurn"]));
+        var rawBattlefield = BattlefieldView(snapshot, battlefield.BattlefieldObjectId);
+        Assert.Equal("P1", StringValue(rawBattlefield["controllerId"]));
+        Assert.Equal(battlefieldScoredThisTurn, BoolValue(rawBattlefield["scoredThisTurn"]));
         Assert.Equal(battlefieldScoredThisTurn ? ["P1"] : [], StringList(rawBattlefield["scoredThisTurnPlayerIds"]));
     }
 
@@ -1402,6 +1413,16 @@ public sealed class LocalPlayabilityRuleRegressionTests
     private static IReadOnlyList<string> StringList(object? value)
     {
         return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
+    }
+
+    private static string StringValue(object? value)
+    {
+        return Assert.IsType<string>(value);
+    }
+
+    private static bool BoolValue(object? value)
+    {
+        return Assert.IsType<bool>(value);
     }
 
     private static Dictionary<string, object?> BattlefieldView(SnapshotDto snapshot, string battlefieldObjectId)

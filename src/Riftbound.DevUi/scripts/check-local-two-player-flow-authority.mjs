@@ -44,6 +44,7 @@ for (const requiredSnippet of [
   "AssertLocalTwoPlayerSpellDuelAuthority",
   "AssertLocalTwoPlayerEndTurnAuthority",
   "AssertLocalTwoPlayerTableAuthority",
+  "AssertLocalTwoPlayerBattlefieldProjectionAuthority",
   "p2PriorityPass.Events.Select",
   "p2FocusPass.Events.Select",
   "P2-RUNE-DECK",
@@ -57,6 +58,7 @@ for (const requiredSnippet of [
   "Zones.Battlefields",
   "BattlefieldHiddenStandbyCount",
   "ExpectedHiddenStandbyCount",
+  "p2Table.Battlefields.Single",
   "scoredThisTurn",
   "scoredThisTurnPlayerIds",
   "RunePool.Empty"
