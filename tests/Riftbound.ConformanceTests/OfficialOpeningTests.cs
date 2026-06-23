@@ -19778,6 +19778,8 @@ public sealed class OfficialOpeningTests
         Assert.Equal(OfficialDeckValidator.RuneDeckCount, table.RuneDeckSize);
         Assert.Equal(2, table.Players.Count);
         Assert.Equal(2, table.Battlefields.Count);
+        AssertOpeningRawZoneAuthority(snapshot, result.State, viewerPlayerId, expectHandVisible: true);
+        AssertOpeningRawZoneAuthority(snapshot, result.State, opponentPlayerId, expectHandVisible: false);
 
         var viewer = table.Players.Single(player => string.Equals(player.PlayerId, viewerPlayerId, StringComparison.Ordinal));
         Assert.True(viewer.IsViewer);
@@ -19823,6 +19825,54 @@ public sealed class OfficialOpeningTests
         {
             Assert.DoesNotContain(hiddenHandObjectId, serializedSnapshot, StringComparison.Ordinal);
         }
+        AssertHiddenDeckObjectsDoNotLeakToOpponentTableSnapshot(result, snapshot, opponentPlayerId);
+    }
+
+    private static void AssertOpeningRawZoneAuthority(
+        SnapshotDto snapshot,
+        MatchState state,
+        string playerId,
+        bool expectHandVisible)
+    {
+        var playerView = Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
+        var zonesView = Assert.IsType<Dictionary<string, object?>>(playerView["zones"]);
+        var zones = state.PlayerZones[playerId];
+
+        Assert.Equal(zones.MainDeck.Count, Assert.IsType<int>(zonesView["mainDeckCount"]));
+        Assert.Equal(zones.RuneDeck.Count, Assert.IsType<int>(zonesView["runeDeckCount"]));
+        Assert.Equal(expectHandVisible ? zones.Hand : [], StringList(zonesView["hand"]));
+        Assert.Equal(expectHandVisible ? 0 : zones.Hand.Count, Assert.IsType<int>(zonesView["handHidden"]));
+        Assert.Equal(zones.Base, StringList(zonesView["base"]));
+        Assert.Empty(StringList(zonesView["baseCards"]));
+        Assert.Equal(zones.Base, StringList(zonesView["baseRunes"]));
+        Assert.Equal(zones.Battlefields, StringList(zonesView["battlefields"]));
+        Assert.Equal(0, Assert.IsType<int>(zonesView["battlefieldHiddenStandbyCount"]));
+        Assert.Equal(zones.Graveyard, StringList(zonesView["graveyard"]));
+        Assert.Equal(zones.Banished, StringList(zonesView["banished"]));
+        Assert.Equal(zones.LegendZone, StringList(zonesView["legendZone"]));
+        Assert.Equal(zones.ChampionZone, StringList(zonesView["championZone"]));
+    }
+
+    private static void AssertHiddenDeckObjectsDoNotLeakToOpponentTableSnapshot(
+        ResolutionResult result,
+        SnapshotDto snapshot,
+        string opponentPlayerId)
+    {
+        var serializedSnapshot = JsonSerializer.Serialize(snapshot);
+        foreach (var hiddenMainDeckObjectId in result.State.PlayerZones[opponentPlayerId].MainDeck)
+        {
+            Assert.DoesNotContain(hiddenMainDeckObjectId, serializedSnapshot, StringComparison.Ordinal);
+        }
+
+        foreach (var hiddenRuneDeckObjectId in result.State.PlayerZones[opponentPlayerId].RuneDeck)
+        {
+            Assert.DoesNotContain(hiddenRuneDeckObjectId, serializedSnapshot, StringComparison.Ordinal);
+        }
+    }
+
+    private static IReadOnlyList<string> StringList(object? value)
+    {
+        return Assert.IsAssignableFrom<IEnumerable<string>>(value).ToArray();
     }
 
     private static void AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
