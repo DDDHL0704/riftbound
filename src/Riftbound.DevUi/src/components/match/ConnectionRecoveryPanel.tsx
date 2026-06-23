@@ -64,20 +64,25 @@ export function ConnectionRecoveryPanel({
         {density === "full" && <small>{plan.nextStep}</small>}
       </div>
       <div className="connection-recovery-actions" role="group" aria-label="连接恢复操作">
-        {plan.actions.map((action) => (
-          <Button
-            data-connection-recovery-action={action.id}
-            data-connection-recovery-action-state={action.state}
-            disabled={action.disabled || actionsDisabled}
-            icon={iconForAction(action.id)}
-            key={action.id}
-            onClick={handlerForAction(action.id, { onConnect, onDisconnect, onResync })}
-            title={actionsDisabled ? "前端样例模式不操作实时连接" : action.title}
-            variant={action.state === "primary" ? "secondary" : "ghost"}
-          >
-            {action.label}
-          </Button>
-        ))}
+        {plan.actions.map((action) => {
+          const disabled = action.disabled || actionsDisabled;
+
+          return (
+            <Button
+              data-connection-recovery-action={action.id}
+              data-connection-recovery-action-disabled={disabled ? "true" : "false"}
+              data-connection-recovery-action-state={action.state}
+              disabled={disabled}
+              icon={iconForAction(action.id)}
+              key={action.id}
+              onClick={handlerForAction(action.id, { onConnect, onDisconnect, onResync })}
+              title={actionsDisabled ? "前端样例模式不操作实时连接" : action.title}
+              variant={action.state === "primary" ? "secondary" : "ghost"}
+            >
+              {action.label}
+            </Button>
+          );
+        })}
       </div>
     </section>
   );

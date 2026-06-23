@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const qaSource = readFileSync(resolve(scriptDir, "playwright-qa.mjs"), "utf8");
+const chromeSmokeSource = readFileSync(resolve(scriptDir, "chrome-smoke.mjs"), "utf8");
 const panelSource = readFileSync(resolve(scriptDir, "../src/components/match/ConnectionRecoveryPanel.tsx"), "utf8");
 
 assert.match(
@@ -39,11 +40,16 @@ for (const requiredAttribute of [
   "data-connection-recovery-surface",
   "data-connection-recovery-tick-label",
   "data-connection-recovery-action",
+  "data-connection-recovery-action-disabled",
   "data-connection-recovery-action-state"
 ]) {
   assert.ok(
     qaSource.includes(requiredAttribute),
     `Playwright QA connection recovery helper must inspect ${requiredAttribute}.`
+  );
+  assert.ok(
+    chromeSmokeSource.includes(requiredAttribute),
+    `Chrome smoke must inspect ${requiredAttribute}.`
   );
   assert.ok(
     panelSource.includes(requiredAttribute),

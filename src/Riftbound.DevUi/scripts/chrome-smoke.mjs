@@ -117,9 +117,11 @@ try {
     }
     if (route.path === "/rooms/stage3-smoke") {
       await runRoomLifecycleSmoke(cdp);
+      await runConnectionRecoveryPanelSmoke(cdp, "room");
     }
     if (route.path === "/matches/stage3-smoke") {
       await runMatchRecoverySurfaceSmoke(cdp);
+      await runConnectionRecoveryPanelSmoke(cdp, "match", "offline");
     }
     console.log(`Chrome smoke OK: ${route.path}`);
   }
@@ -2136,6 +2138,82 @@ async function runMatchRecoverySurfaceSmoke(cdp) {
   }
   if (failures.length > 0) {
     throw new Error(`Match recovery surface smoke failed:\n${failures.join("\n")}`);
+  }
+}
+
+async function runConnectionRecoveryPanelSmoke(cdp, expectedSurface, expectedState = "offline") {
+  const result = await evaluateJson(cdp, `((surfaceName) => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\\s+/g, " ") ?? "";
+    const panel = Array.from(document.querySelectorAll("[data-connection-recovery-panel]"))
+      .find((node) => node.getAttribute("data-connection-recovery-surface") === surfaceName);
+    const actions = Array.from(panel?.querySelectorAll("[data-connection-recovery-action]") ?? []).map((button) => ({
+      disabled: button.hasAttribute("disabled"),
+      disabledAttr: button.getAttribute("data-connection-recovery-action-disabled") ?? "",
+      id: button.getAttribute("data-connection-recovery-action") ?? "",
+      state: button.getAttribute("data-connection-recovery-action-state") ?? "",
+      text: textOf(button),
+      title: button.getAttribute("title") ?? ""
+    }));
+
+    return {
+      actionGroupLabel: panel?.querySelector(".connection-recovery-actions")?.getAttribute("aria-label") ?? "",
+      actions,
+      state: panel?.getAttribute("data-connection-recovery-state") ?? "",
+      surface: panel?.getAttribute("data-connection-recovery-surface") ?? "",
+      text: textOf(panel),
+      tickLabel: panel?.getAttribute("data-connection-recovery-tick-label") ?? ""
+    };
+  })(${JSON.stringify(expectedSurface)})`);
+  const failures = [];
+  if (result.surface !== expectedSurface) {
+    failures.push(`connection recovery panel must expose ${expectedSurface} surface: ${JSON.stringify(result)}`);
+  }
+  if (!result.state || !result.text.includes("连接恢复") || result.actionGroupLabel !== "连接恢复操作") {
+    failures.push(`connection recovery panel must expose state, readable copy, and action group: ${JSON.stringify(result)}`);
+  }
+
+  const actions = result.actions ?? [];
+  const actionsById = Object.fromEntries(actions.map((action) => [action.id, action]));
+  if (actions.length !== 3) {
+    failures.push(`connection recovery panel must expose connect/resync/disconnect actions: ${JSON.stringify(actions)}`);
+  }
+  for (const actionId of ["connect", "resync", "disconnect"]) {
+    const action = actionsById[actionId];
+    if (!action?.state || !action.text || !action.title || !["true", "false"].includes(action.disabledAttr)) {
+      failures.push(`connection recovery action ${actionId} must expose state, label, title, and disabled flag: ${JSON.stringify(action)}`);
+      continue;
+    }
+    if (action.disabled !== (action.disabledAttr === "true")) {
+      failures.push(`connection recovery action ${actionId} disabled attribute must match DOM disabled: ${JSON.stringify(action)}`);
+    }
+  }
+
+  if (expectedState === "offline") {
+    if (result.state !== "offline" || !String(result.tickLabel ?? "").includes("无")) {
+      failures.push(`${expectedSurface} recovery panel should start offline with no snapshot: ${JSON.stringify(result)}`);
+    }
+    if (actionsById.connect?.state !== "primary" || actionsById.connect?.disabled !== false) {
+      failures.push(`${expectedSurface} recovery connect action must be primary and enabled: ${JSON.stringify(actionsById.connect)}`);
+    }
+    if (actionsById.resync?.disabled !== true || actionsById.disconnect?.disabled !== true) {
+      failures.push(`${expectedSurface} recovery resync/disconnect actions must be disabled before connection: ${JSON.stringify(actions)}`);
+    }
+  } else if (expectedState === "online") {
+    if (result.state !== "online" || !String(result.tickLabel ?? "").includes("快照 tick")) {
+      failures.push(`${expectedSurface} recovery panel should be online after seeded connection: ${JSON.stringify(result)}`);
+    }
+    if (actionsById.connect?.disabled !== true) {
+      failures.push(`${expectedSurface} recovery connect action must be disabled after connection: ${JSON.stringify(actionsById.connect)}`);
+    }
+    if (actionsById.resync?.disabled !== false || actionsById.disconnect?.disabled !== false) {
+      failures.push(`${expectedSurface} recovery resync/disconnect actions must remain available after connection: ${JSON.stringify(actions)}`);
+    }
+  } else {
+    failures.push(`Unsupported connection recovery expected state: ${expectedState}`);
+  }
+
+  if (failures.length > 0) {
+    throw new Error(`Connection recovery panel smoke failed:\n${failures.join("\n")}`);
   }
 }
 

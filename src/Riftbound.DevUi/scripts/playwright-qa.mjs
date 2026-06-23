@@ -706,6 +706,7 @@ async function assertConnectionRecoveryPanelSurface(page, expectedSurface) {
     return {
       actions: Array.from(panel?.querySelectorAll("[data-connection-recovery-action]") ?? []).map((node) => ({
         disabled: node.hasAttribute("disabled"),
+        disabledAttr: node.getAttribute("data-connection-recovery-action-disabled") ?? "",
         id: node.getAttribute("data-connection-recovery-action") ?? "",
         state: node.getAttribute("data-connection-recovery-action-state") ?? "",
         text: textOf(node),
@@ -735,8 +736,12 @@ async function assertConnectionRecoveryPanelSurface(page, expectedSurface) {
   }
   for (const actionId of ["connect", "resync", "disconnect"]) {
     const action = actionsById[actionId];
-    if (!action?.state || !action.text) {
-      failures.push(`connection recovery action ${actionId} must expose state and label: ${JSON.stringify(action)}`);
+    if (!action?.state || !action.text || !action.title || !["true", "false"].includes(action.disabledAttr)) {
+      failures.push(`connection recovery action ${actionId} must expose state, label, title, and disabled flag: ${JSON.stringify(action)}`);
+      continue;
+    }
+    if (action.disabled !== (action.disabledAttr === "true")) {
+      failures.push(`connection recovery action ${actionId} disabled attribute must match DOM disabled: ${JSON.stringify(action)}`);
     }
   }
   if (expectedSurface === "room") {
