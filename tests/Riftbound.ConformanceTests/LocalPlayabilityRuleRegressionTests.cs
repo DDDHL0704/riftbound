@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -581,6 +582,121 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Empty(p1Pass.State.PendingTaskQueue.Tasks);
     }
 
+    [Fact]
+    public async Task LocalTwoPlayerFlowTapsRecyclesPlaysResolvesScoresAdvancesTurnAndKeepsHiddenInfoSafe()
+    {
+        var engine = new CoreRuleEngine();
+        var state = LocalTwoPlayerIntegratedFlowState();
+
+        var tapped = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-local-2p-tap-rune", "P1", CommandTypes.TapRune),
+            new TapRuneCommand("P1-RUNE-MANA"),
+            CancellationToken.None);
+
+        Assert.True(tapped.Accepted, tapped.ErrorMessage);
+        Assert.True(tapped.State.CardObjects["P1-RUNE-MANA"].IsExhausted);
+        Assert.Equal(4, tapped.State.RunePools["P1"].Mana);
+        Assert.Contains(tapped.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_TAPPED", StringComparison.Ordinal));
+        Assert.Contains(tapped.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+
+        var recycled = await engine.ResolveAsync(
+            tapped.State,
+            new PlayerIntent("intent-local-2p-recycle-rune", "P1", CommandTypes.RecycleRune),
+            new RecycleRuneCommand("P1-RUNE-POWER"),
+            CancellationToken.None);
+
+        Assert.True(recycled.Accepted, recycled.ErrorMessage);
+        Assert.Equal(["P1-RUNE-MANA"], recycled.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM", "P1-RUNE-POWER"], recycled.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(1, recycled.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(new ObjectLocationState("P1", "RUNE_DECK"), recycled.State.ObjectLocations["P1-RUNE-POWER"]);
+        Assert.Contains(recycled.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.Contains(recycled.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+
+        var played = await engine.ResolveAsync(
+            recycled.State,
+            new PlayerIntent("intent-local-2p-play-unit-to-controlled-empty-battlefield", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(
+                "P1-HAND-UNIT",
+                "SFD·125/221",
+                [],
+                Destination: "BATTLEFIELD:BF-1"),
+            CancellationToken.None);
+
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralClosed, played.State.TimingState);
+        Assert.Equal(new ObjectLocationState("P1", "STACK"), played.State.ObjectLocations["P1-HAND-UNIT"]);
+        Assert.Contains(played.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(played.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(played.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        var p1PriorityPass = await engine.ResolveAsync(
+            played.State,
+            new PlayerIntent("intent-local-2p-p1-pass-priority", "P1", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1PriorityPass.Accepted, p1PriorityPass.ErrorMessage);
+
+        var p2PriorityPass = await engine.ResolveAsync(
+            p1PriorityPass.State,
+            new PlayerIntent("intent-local-2p-p2-pass-priority", "P2", CommandTypes.PassPriority),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2PriorityPass.Accepted, p2PriorityPass.ErrorMessage);
+        Assert.Equal(TimingStates.SpellDuelOpen, p2PriorityPass.State.TimingState);
+        Assert.Equal("P1", p2PriorityPass.State.FocusPlayerId);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", "BF-1"), p2PriorityPass.State.ObjectLocations["P1-HAND-UNIT"]);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL"],
+            p2PriorityPass.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+
+        var p1FocusPass = await engine.ResolveAsync(
+            p2PriorityPass.State,
+            new PlayerIntent("intent-local-2p-p1-pass-focus", "P1", CommandTypes.PassFocus),
+            new PassFocusCommand(),
+            CancellationToken.None);
+        Assert.True(p1FocusPass.Accepted, p1FocusPass.ErrorMessage);
+
+        var p2FocusPass = await engine.ResolveAsync(
+            p1FocusPass.State,
+            new PlayerIntent("intent-local-2p-p2-pass-focus", "P2", CommandTypes.PassFocus),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2FocusPass.Accepted, p2FocusPass.ErrorMessage);
+        Assert.Equal(TimingStates.NeutralOpen, p2FocusPass.State.TimingState);
+        Assert.Equal("P1", p2FocusPass.State.CardObjects["BF-1"].ControllerId);
+        Assert.Equal(1, p2FocusPass.State.PlayerScores["P1"]);
+        Assert.Contains(p2FocusPass.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(p2FocusPass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(p2FocusPass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(p2FocusPass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_SCORE", StringComparison.Ordinal));
+        AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-HIDDEN-HAND");
+        AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-DRAW");
+        AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-RUNE-DECK");
+        AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P2"], "P1-HIDDEN-HAND");
+        AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P2"], "P1-RUNE-BOTTOM");
+
+        var p1EndsTurn = await engine.ResolveAsync(
+            p2FocusPass.State,
+            new PlayerIntent("intent-local-2p-p1-end-turn", "P1", CommandTypes.EndTurn),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1EndsTurn.Accepted, p1EndsTurn.ErrorMessage);
+        Assert.Equal("P2", p1EndsTurn.State.ActivePlayerId);
+        Assert.Equal("P2", p1EndsTurn.State.TurnPlayerId);
+        Assert.Equal(MatchPhases.Main, p1EndsTurn.State.Phase);
+        Assert.Equal(TimingStates.NeutralOpen, p1EndsTurn.State.TimingState);
+        Assert.Contains(p1EndsTurn.Events, gameEvent => string.Equals(gameEvent.Kind, "MAIN_PHASE_BEGAN", StringComparison.Ordinal));
+        AssertSnapshotDoesNotExposeObjectId(p1EndsTurn.Snapshots["P1"], "P2-HIDDEN-HAND");
+        AssertSnapshotDoesNotExposeObjectId(p1EndsTurn.Snapshots["P2"], "P1-HIDDEN-HAND");
+    }
+
     private static MatchState PlayUnitToContestedBattlefieldState()
     {
         return new MatchState(
@@ -882,6 +998,67 @@ public sealed class LocalPlayabilityRuleRegressionTests
             });
     }
 
+    private static MatchState LocalTwoPlayerIntegratedFlowState()
+    {
+        return new MatchState(
+            roomId: "local-playability-integrated-2p-flow",
+            tick: 0,
+            turnNumber: 3,
+            activePlayerId: "P1",
+            seats: Seats(),
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNIT", "P1-HIDDEN-HAND"],
+                    Base = ["P1-RUNE-MANA", "P1-RUNE-POWER"],
+                    RuneDeck = ["P1-RUNE-BOTTOM"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-HIDDEN-HAND"],
+                    MainDeck = ["P2-DRAW"],
+                    RuneDeck = ["P2-RUNE-DECK"],
+                    Battlefields = ["BF-1"]
+                }
+            },
+            playerScores: Scores(),
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = Battlefield("BF-1", "P2", "OGN·276/298"),
+                ["P1-HAND-UNIT"] = Unit("P1-HAND-UNIT", "P1", power: 2),
+                ["P1-HIDDEN-HAND"] = Unit("P1-HIDDEN-HAND", "P1", power: 2),
+                ["P1-RUNE-MANA"] = Rune("P1-RUNE-MANA", "P1"),
+                ["P1-RUNE-POWER"] = Rune("P1-RUNE-POWER", "P1"),
+                ["P1-RUNE-BOTTOM"] = Rune("P1-RUNE-BOTTOM", "P1"),
+                ["P2-HIDDEN-HAND"] = Unit("P2-HIDDEN-HAND", "P2", power: 2),
+                ["P2-DRAW"] = Unit("P2-DRAW", "P2", power: 2),
+                ["P2-RUNE-DECK"] = Rune("P2-RUNE-DECK", "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P2", "BATTLEFIELD", "BF-1"),
+                ["P1-HAND-UNIT"] = new("P1", "HAND"),
+                ["P1-HIDDEN-HAND"] = new("P1", "HAND"),
+                ["P1-RUNE-MANA"] = new("P1", "BASE"),
+                ["P1-RUNE-POWER"] = new("P1", "BASE"),
+                ["P1-RUNE-BOTTOM"] = new("P1", "RUNE_DECK"),
+                ["P2-HIDDEN-HAND"] = new("P2", "HAND"),
+                ["P2-DRAW"] = new("P2", "MAIN_DECK"),
+                ["P2-RUNE-DECK"] = new("P2", "RUNE_DECK")
+            });
+    }
+
     private static Dictionary<string, string> Seats()
     {
         return new Dictionary<string, string>(StringComparer.Ordinal)
@@ -931,9 +1108,15 @@ public sealed class LocalPlayabilityRuleRegressionTests
         return new CardObjectState(
             objectId,
             cardNo: "SFD·001/221",
-            tags: [CardObjectTags.RuneCard],
+            tags: [CardObjectTags.RuneCard, $"COLOR:{RuneTrait.Red}"],
             ownerId: playerId,
             controllerId: playerId);
+    }
+
+    private static void AssertSnapshotDoesNotExposeObjectId(SnapshotDto snapshot, string hiddenObjectId)
+    {
+        var serializedSnapshot = JsonSerializer.Serialize(snapshot);
+        Assert.DoesNotContain(hiddenObjectId, serializedSnapshot, StringComparison.Ordinal);
     }
 
     private static OfficialCard Card(OfficialCardCatalog catalog, string cardNo)
