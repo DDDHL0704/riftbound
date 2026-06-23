@@ -1,4 +1,4 @@
-import { Check, Send, Swords } from "lucide-react";
+import { Check, FileText, RefreshCcw, Send, Swords, Wifi } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
@@ -10,6 +10,7 @@ import { candidateListLabel } from "../components/match/ActionPanel";
 import { ConnectionRecoveryPanel } from "../components/match/ConnectionRecoveryPanel";
 import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
 import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
+import { buildErrorResolutionPlan, type ErrorResolutionAction, type ErrorResolutionPlan } from "../utils/errorResolutionPlan";
 import { connectionStatusLabel, connectionStatusTone } from "../utils/formatters";
 import { buildRoomSetupFlowPlan } from "../utils/roomSetupFlowPlan";
 import { buildServerQuickActionPlan, quickActionCommandUiSource, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
@@ -38,6 +39,18 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
     submissionGate,
     snapshot
   }), [canAct, connected, prompt, snapshot, submissionGate]);
+  const errorResolutionPlan = useMemo(() => buildErrorResolutionPlan({
+    connectionStatus: controller.state.status,
+    errors: controller.state.errors,
+    hasSnapshot: Boolean(snapshot),
+    lastCommandSubmission: controller.state.lastCommandSubmission,
+    surface: "room"
+  }), [
+    controller.state.errors,
+    controller.state.lastCommandSubmission,
+    controller.state.status,
+    snapshot
+  ]);
   const runRoomQuickAction = useCallback((entry: ServerQuickActionEntry) => {
     if (entry.disabled) {
       return;
@@ -69,6 +82,28 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
       });
     }
   }, [controller]);
+  const runErrorResolutionAction = useCallback((action: ErrorResolutionAction) => {
+    if (action.disabled) {
+      return;
+    }
+
+    switch (action.id) {
+      case "connect":
+        void controller.join();
+        return;
+      case "openDecks":
+        onNavigate({ name: "decks" });
+        return;
+      case "resync":
+        void controller.requestSnapshot();
+        return;
+      case "reviewPrompt":
+        document.getElementById("room-current-actions")?.focus();
+        return;
+      case "waitServer":
+        return;
+    }
+  }, [controller, onNavigate]);
 
   return (
     <div className="page-grid">
@@ -124,10 +159,15 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         {!snapshot && <div className="empty-panel">尚未收到房间快照，请先连接。</div>}
       </section>
       <section className="audit-banner">
+        <span id="room-current-actions" tabIndex={-1} />
         <strong>当前可提交行动：</strong>
         <span>{candidateListLabel(controller.state.prompt)}</span>
       </section>
       <RoomSubmissionReceipt feedback={controller.state.lastCommandSubmission} />
+      <RoomErrorResolutionPanel
+        onRunAction={runErrorResolutionAction}
+        plan={errorResolutionPlan}
+      />
       <section className="room-log-panel">
         <header>
           <div>
@@ -157,6 +197,72 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
       </section>
     </div>
   );
+}
+
+function RoomErrorResolutionPanel({
+  onRunAction,
+  plan
+}: {
+  onRunAction: (action: ErrorResolutionAction) => void;
+  plan: ErrorResolutionPlan;
+}) {
+  if (plan.state === "clear") {
+    return null;
+  }
+
+  return (
+    <section className="room-error-resolution-panel" data-error-resolution-state={plan.state}>
+      <header>
+        <div>
+          <span className="eyebrow">错误处理</span>
+          <h2>{plan.headline}</h2>
+        </div>
+        <StatusPill tone={plan.tone}>{plan.statusLabel}</StatusPill>
+      </header>
+      <p>{plan.detail}</p>
+      <dl>
+        {plan.evidenceRows.map((row) => (
+          <div key={row.label}>
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="room-error-next-step">
+        <strong>下一步</strong>
+        <span>{plan.nextStep}</span>
+      </div>
+      <div className="room-error-actions">
+        {plan.actions.map((action) => (
+          <Button
+            disabled={action.disabled}
+            icon={errorResolutionActionIcon(action.id)}
+            key={action.id}
+            onClick={() => onRunAction(action)}
+            title={action.title}
+            variant={action.state === "primary" ? "primary" : action.state === "secondary" ? "secondary" : "ghost"}
+          >
+            {action.label}
+          </Button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function errorResolutionActionIcon(actionId: ErrorResolutionAction["id"]) {
+  switch (actionId) {
+    case "connect":
+      return <Wifi size={16} />;
+    case "openDecks":
+      return <FileText size={16} />;
+    case "resync":
+      return <RefreshCcw size={16} />;
+    case "reviewPrompt":
+      return <Check size={16} />;
+    case "waitServer":
+      return <Send size={16} />;
+  }
 }
 
 function RoomSetupChecklist({

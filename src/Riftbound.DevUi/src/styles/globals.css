@@ -629,6 +629,65 @@ h3 {
   overflow-wrap: anywhere;
 }
 
+.room-error-resolution-panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  padding: 18px;
+}
+
+.room-error-resolution-panel header,
+.room-error-next-step,
+.room-error-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.room-error-resolution-panel p,
+.room-error-next-step span {
+  color: #000;
+  line-height: 1.45;
+}
+
+.room-error-resolution-panel dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.room-error-resolution-panel dl div,
+.room-error-next-step {
+  min-width: 0;
+  border: 1px solid #000;
+  border-radius: 0;
+  padding: 10px;
+}
+
+.room-error-resolution-panel dt {
+  color: #000;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.room-error-resolution-panel dd {
+  margin: 4px 0 0;
+  color: #000;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.room-error-actions {
+  justify-content: flex-start;
+}
+
 .card-face {
   display: grid;
   grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
