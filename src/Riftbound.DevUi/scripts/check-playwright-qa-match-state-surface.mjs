@@ -22,6 +22,8 @@ assert.match(
 for (const requiredSelector of [
   ".tabletop-score-token",
   "[data-wire-battlefield-score-state]",
+  "[data-wire-side-panel-state-rail]",
+  "[data-wire-side-panel-state-metric]",
   "[data-wire-side-panel-rule-chain-state]",
   "[data-wire-side-panel-rule-chain-lane]",
   "[data-wire-side-panel-rule-chain-metric]",
@@ -30,6 +32,16 @@ for (const requiredSelector of [
   assert.ok(
     source.includes(requiredSelector),
     `Playwright QA match-state surface helper must inspect ${requiredSelector}.`
+  );
+}
+
+for (const requiredAttribute of [
+  "data-wire-side-panel-state-key",
+  "data-wire-side-panel-state-source"
+]) {
+  assert.ok(
+    source.includes(requiredAttribute),
+    `Playwright QA match-state surface helper must inspect ${requiredAttribute}.`
   );
 }
 
@@ -53,6 +65,8 @@ assert.match(
 for (const requiredText of [
   "本回合",
   "得分",
+  "候选",
+  "快照",
   "规则链"
 ]) {
   assert.ok(

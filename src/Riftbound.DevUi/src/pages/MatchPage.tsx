@@ -106,6 +106,7 @@ import { buildWireSidePanelFocusPlan } from "../utils/wireSidePanelFocusPlan";
 import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
 import { buildWireSidePanelRuleChainPlan } from "../utils/wireSidePanelRuleChainPlan";
 import { buildWireSidePanelStackPlan, type WireSidePanelStackRailEntry } from "../utils/wireSidePanelStackPlan";
+import { buildWireSidePanelStateRailPlan, type WireSidePanelStateRailPlan } from "../utils/wireSidePanelStateRailPlan";
 import { buildWireSidePanelOperationPlan } from "../utils/wireSidePanelOperationPlan";
 import {
   buildWireSidePanelTransitionPlan,
@@ -568,6 +569,27 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     sidePanelRuleChainPlan,
     tableSubmissionFeedback
   ]);
+  const sidePanelStateRailPlan = useMemo(() => buildWireSidePanelStateRailPlan({
+    activeSlot: activeSidePanelSlot,
+    connectionStatus: tableConnectionStatus,
+    events: tableEvents,
+    orchestration: sidePanelOrchestration,
+    prompt: tablePrompt,
+    ruleChainPlan: sidePanelRuleChainPlan,
+    snapshot: tableSnapshot,
+    submissionFeedback: tableSubmissionFeedback,
+    submissionGate: tableSubmissionGate
+  }), [
+    activeSidePanelSlot,
+    sidePanelOrchestration,
+    sidePanelRuleChainPlan,
+    tableConnectionStatus,
+    tableEvents,
+    tablePrompt,
+    tableSnapshot,
+    tableSubmissionFeedback,
+    tableSubmissionGate
+  ]);
   const activeSidePanelTab = WIRE_SIDE_PANEL_TAB_BY_SLOT[activeSidePanelSlot] ?? "action";
   const activeSidePanelEntry = sidePanelEntryBySlot[activeSidePanelSlot];
   const sidePanelTransitionForSlot = useCallback((targetSlot: WireSidePanelSlot, source: WireSidePanelNavigationSource) => buildWireSidePanelTransitionPlan({
@@ -951,6 +973,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             onSelectSlot={selectSidePanelSlot}
             plan={sidePanelOperationPlan}
           />
+          <WireSidePanelStateRail plan={sidePanelStateRailPlan} />
           <div
             aria-label="右侧控制台摘要堆栈"
             className="wire-side-panel-rail-stack"
@@ -1194,6 +1217,37 @@ function WireSidePanelRailEntry({
         </div>
       )}
     </div>
+  );
+}
+
+function WireSidePanelStateRail({ plan }: { plan: WireSidePanelStateRailPlan }) {
+  return (
+    <section
+      aria-label="右侧服务端状态摘要"
+      className="wire-side-panel-state-rail"
+      data-wire-side-panel-state-rail
+      data-wire-side-panel-state-active-slot={plan.activeSlot}
+      data-wire-side-panel-state-count={plan.entries.length}
+      data-wire-side-panel-state-summary={plan.summary}
+      data-wire-side-panel-state={plan.state}
+      tabIndex={0}
+    >
+      {plan.entries.map((entry) => (
+        <div
+          className="wire-side-panel-state-metric"
+          data-wire-side-panel-state-key={entry.key}
+          data-wire-side-panel-state-metric
+          data-wire-side-panel-state-source={entry.source}
+          data-wire-side-panel-state-value={entry.value}
+          data-wire-side-panel-state={entry.state}
+          key={entry.key}
+          title={entry.detail}
+        >
+          <small>{entry.label}</small>
+          <strong>{entry.value}</strong>
+        </div>
+      ))}
+    </section>
   );
 }
 

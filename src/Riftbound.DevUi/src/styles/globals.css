@@ -12885,6 +12885,7 @@ button.card-face:hover {
   grid-template-rows:
     auto
     auto
+    auto
     minmax(0, min-content)
     minmax(0, 1fr);
   gap: 3px;
@@ -13337,6 +13338,45 @@ button.card-face:hover {
 
 .wire-side-panel-operation-routes button[data-wire-side-panel-operation-route-state="available"] {
   border-width: 2px;
+}
+
+.wire-side-panel-state-rail {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 1px;
+}
+
+.wire-side-panel-state-metric {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 2px;
+}
+
+.wire-side-panel-state-metric small,
+.wire-side-panel-state-metric strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-side-panel-state-metric small {
+  font-size: 8px;
+  line-height: 1;
+}
+
+.wire-side-panel-state-metric strong {
+  font-size: 10px;
+  line-height: 1.1;
 }
 
 .wire-side-panel-status {
@@ -20537,6 +20577,7 @@ button.wire-object-ref {
       auto
       auto
       auto
+      auto
       minmax(122px, 1fr);
   }
 
@@ -20651,11 +20692,11 @@ button.wire-object-ref {
 
   .wire-side-panel-stack {
     gap: 0;
-    min-height: 150px;
+    min-height: 0;
   }
 
   .wire-side-panel-stack[data-wire-side-panel-persistent-count="1"] {
-    grid-template-rows: minmax(120px, 1fr) minmax(30px, 0.16fr);
+    grid-template-rows: minmax(96px, 1fr) minmax(22px, 0.12fr);
   }
 
   .wire-panel {

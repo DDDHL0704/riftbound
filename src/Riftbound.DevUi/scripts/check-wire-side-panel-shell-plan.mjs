@@ -27,8 +27,17 @@ assert.match(sidePanelSource, /data-wire-side-panel-pane-visible=/);
 assert.match(sidePanelSource, /data-wire-side-panel-pane-region=/);
 
 assertStyleBlock(".wire-side-panel", [
-  /grid-template-rows:[\s\S]*auto[\s\S]*auto[\s\S]*minmax\(0, min-content\)[\s\S]*minmax\(0, 1fr\)/,
+  /grid-template-rows:[\s\S]*auto[\s\S]*auto[\s\S]*auto[\s\S]*minmax\(0, min-content\)[\s\S]*minmax\(0, 1fr\)/,
   /overflow: hidden/
+]);
+assertMediaStyleBlock("@media (max-width: 1280px)", ".wire-side-panel", [
+  /grid-template-rows:[\s\S]*auto[\s\S]*auto[\s\S]*auto[\s\S]*auto[\s\S]*minmax\(122px, 1fr\)/
+]);
+assertMediaStyleBlock("@media (max-width: 1280px)", ".wire-side-panel-stack", [
+  /min-height: 0/
+]);
+assertMediaStyleBlock("@media (max-width: 1280px)", '.wire-side-panel-stack[data-wire-side-panel-persistent-count="1"]', [
+  /grid-template-rows:[\s\S]*minmax\(96px, 1fr\)[\s\S]*minmax\(22px, 0\.12fr\)/
 ]);
 assertStyleBlock(".wire-side-panel-directory", [
   /display: grid/,
@@ -79,4 +88,16 @@ function assertStyleBlock(selector, patterns) {
 function styleBlocks(selector) {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return Array.from(styleSource.matchAll(new RegExp(`${escaped}\\s*\\{[\\s\\S]*?\\n\\}`, "g")), (match) => match[0]);
+}
+
+function assertMediaStyleBlock(mediaSelector, selector, patterns) {
+  const mediaIndex = styleSource.lastIndexOf(mediaSelector);
+  assert.ok(mediaIndex >= 0, `${mediaSelector} must exist`);
+  const mediaSource = styleSource.slice(mediaIndex);
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const block = mediaSource.match(new RegExp(`${escaped}\\s*\\{[\\s\\S]*?\\n\\}`))?.[0] ?? "";
+  assert.ok(block, `${selector} must exist inside ${mediaSelector}`);
+  for (const pattern of patterns) {
+    assert.ok(pattern.test(block), `${selector} inside ${mediaSelector} must satisfy ${pattern}`);
+  }
 }

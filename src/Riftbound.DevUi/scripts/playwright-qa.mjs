@@ -226,6 +226,7 @@ async function assertMatchStateSurface(page, shot) {
       state: node.getAttribute("data-wire-battlefield-score-state") ?? "",
       text: textOf(node)
     }));
+    const stateRail = document.querySelector("[data-wire-side-panel-state-rail]");
     const ruleChain = document.querySelector("[data-wire-side-panel-rule-chain-state]");
     return {
       battlefieldScoreSurfaces,
@@ -247,7 +248,16 @@ async function assertMatchStateSurface(page, shot) {
       })),
       ruleChainState: ruleChain?.getAttribute("data-wire-side-panel-rule-chain-state") ?? "",
       ruleChainText: textOf(ruleChain),
-      scoreTokens
+      scoreTokens,
+      stateRailSummary: stateRail?.getAttribute("data-wire-side-panel-state-summary") ?? "",
+      stateRailText: textOf(stateRail),
+      stateRailMetrics: Array.from(document.querySelectorAll("[data-wire-side-panel-state-metric]")).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-state-key") ?? "",
+        source: node.getAttribute("data-wire-side-panel-state-source") ?? "",
+        state: node.getAttribute("data-wire-side-panel-state") ?? "",
+        value: node.getAttribute("data-wire-side-panel-state-value") ?? "",
+        text: textOf(node)
+      }))
     };
   });
 
@@ -276,6 +286,20 @@ async function assertMatchStateSurface(page, shot) {
   }
   if (!surface.ruleChainState) {
     failures.push("rule chain strip is missing state.");
+  }
+  if (surface.stateRailMetrics.length < 10) {
+    failures.push(`state rail must expose ten server boundary metrics, got ${surface.stateRailMetrics.length}`);
+  }
+  for (const requiredKey of ["connection", "snapshot", "prompt", "candidates", "stack", "tasks", "triggers", "events", "submission", "receipt"]) {
+    if (!surface.stateRailMetrics.some((metric) => metric.key === requiredKey && metric.source)) {
+      failures.push(`state rail missing sourced metric ${requiredKey}: ${JSON.stringify(surface.stateRailMetrics)}`);
+    }
+  }
+  if (!surface.stateRailSummary.includes("tick") || !surface.stateRailSummary.includes("候选")) {
+    failures.push(`state rail summary must expose tick and candidate context: ${surface.stateRailSummary}`);
+  }
+  if (!surface.stateRailText.includes("快照") || !surface.stateRailText.includes("候选")) {
+    failures.push(`state rail must render readable snapshot/candidate labels: ${surface.stateRailText}`);
   }
   if (!surface.ruleChainAria.includes("规则链")) {
     failures.push(`rule chain strip is missing aria label: ${surface.ruleChainAria}`);
