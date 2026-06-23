@@ -311,6 +311,8 @@ async function assertDeckImportSurface(page) {
 }
 
 async function assertRoomWorkflowSurface(page) {
+  await assertConnectionRecoveryPanelSurface(page, "room");
+
   const surface = await page.evaluate(() => {
     const textOf = (node) => node?.textContent?.trim().replace(/\s+/g, " ") ?? "";
     const workflow = document.querySelector("[data-room-workflow-surface]");
@@ -429,6 +431,8 @@ async function assertServerFlow(page) {
 }
 
 async function assertMatchStateSurface(page, shot) {
+  await assertConnectionRecoveryPanelSurface(page, "match");
+
   const activeSlot = await page.locator("[data-wire-side-panel-directory]").first().getAttribute("data-wire-side-panel-directory-active-slot");
   await openSidePanelSlot(page, "ruleQueue");
   const surface = await page.evaluate(() => {
@@ -609,6 +613,74 @@ async function assertMatchStateSurface(page, shot) {
 
   if (failures.length > 0) {
     throw new Error(`Seeded match state surface failed for ${shot.name}: ${failures.join("; ")}`);
+  }
+}
+
+async function assertConnectionRecoveryPanelSurface(page, expectedSurface) {
+  const surface = await page.evaluate((surfaceName) => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\s+/g, " ") ?? "";
+    const panel = Array.from(document.querySelectorAll("[data-connection-recovery-panel]"))
+      .find((node) => node.getAttribute("data-connection-recovery-surface") === surfaceName);
+    return {
+      actions: Array.from(panel?.querySelectorAll("[data-connection-recovery-action]") ?? []).map((node) => ({
+        disabled: node.hasAttribute("disabled"),
+        id: node.getAttribute("data-connection-recovery-action") ?? "",
+        state: node.getAttribute("data-connection-recovery-action-state") ?? "",
+        text: textOf(node),
+        title: node.getAttribute("title") ?? ""
+      })),
+      actionGroupLabel: panel?.querySelector(".connection-recovery-actions")?.getAttribute("aria-label") ?? "",
+      state: panel?.getAttribute("data-connection-recovery-state") ?? "",
+      surface: panel?.getAttribute("data-connection-recovery-surface") ?? "",
+      text: textOf(panel),
+      tickLabel: panel?.getAttribute("data-connection-recovery-tick-label") ?? ""
+    };
+  }, expectedSurface);
+
+  const failures = [];
+  if (surface.surface !== expectedSurface) {
+    failures.push(`connection recovery panel must expose ${expectedSurface} surface: ${JSON.stringify(surface)}`);
+  }
+  if (!surface.state) {
+    failures.push(`connection recovery panel must expose a state: ${JSON.stringify(surface)}`);
+  }
+  if (!surface.text.includes("连接恢复") || surface.actionGroupLabel !== "连接恢复操作") {
+    failures.push(`connection recovery panel must keep readable recovery copy and action group: ${JSON.stringify(surface)}`);
+  }
+  const actionsById = Object.fromEntries(surface.actions.map((action) => [action.id, action]));
+  if (surface.actions.length !== 3) {
+    failures.push(`connection recovery panel must expose connect/resync/disconnect actions: ${JSON.stringify(surface.actions)}`);
+  }
+  for (const actionId of ["connect", "resync", "disconnect"]) {
+    const action = actionsById[actionId];
+    if (!action?.state || !action.text) {
+      failures.push(`connection recovery action ${actionId} must expose state and label: ${JSON.stringify(action)}`);
+    }
+  }
+  if (expectedSurface === "room") {
+    if (surface.state !== "offline" || !surface.tickLabel.includes("无")) {
+      failures.push(`room recovery panel should start offline with no snapshot: ${JSON.stringify(surface)}`);
+    }
+    if (actionsById.connect?.state !== "primary" || actionsById.connect?.disabled !== false) {
+      failures.push(`room recovery connect action must be primary and enabled: ${JSON.stringify(actionsById.connect)}`);
+    }
+    if (actionsById.resync?.disabled !== true || actionsById.disconnect?.disabled !== true) {
+      failures.push(`room recovery resync/disconnect actions must be disabled before connection: ${JSON.stringify(surface.actions)}`);
+    }
+  } else if (expectedSurface === "match") {
+    if (surface.state !== "online" || !surface.tickLabel.includes("快照 tick")) {
+      failures.push(`match recovery panel should be online after seeded connection: ${JSON.stringify(surface)}`);
+    }
+    if (actionsById.connect?.disabled !== true) {
+      failures.push(`match recovery connect action must be disabled after connection: ${JSON.stringify(actionsById.connect)}`);
+    }
+    if (actionsById.resync?.disabled !== false || actionsById.disconnect?.disabled !== false) {
+      failures.push(`match recovery resync/disconnect actions must remain available after connection: ${JSON.stringify(surface.actions)}`);
+    }
+  }
+
+  if (failures.length > 0) {
+    throw new Error(`Connection recovery panel assertions failed:\n${failures.join("\n")}`);
   }
 }
 
