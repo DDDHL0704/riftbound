@@ -114,6 +114,9 @@ try {
     const page = await newPage();
     await page.goto(`${frontendUrl}${shot.path}`, { waitUntil: "networkidle" });
     await assertTexts(page, shot.texts);
+    if (shot.name === "decks") {
+      await assertDeckImportSurface(page);
+    }
     await captureAndAudit(page, shot, report);
     await page.close();
   }
@@ -189,6 +192,119 @@ async function captureAndAudit(page, shot, report) {
     accessibility
   });
   console.log(`QA shot OK: ${shot.name}`);
+}
+
+async function assertDeckImportSurface(page) {
+  const surface = await page.evaluate(() => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\s+/g, " ") ?? "";
+    const root = document.querySelector("[data-deck-import-surface]");
+    const commandPreview = document.querySelector("[data-deck-import-command-preview]");
+    const editor = document.querySelector("[data-deck-import-editor]");
+    const feedback = document.querySelector("[data-deck-import-feedback]");
+    const flowState = document.querySelector("[data-deck-import-flow-state]");
+    const handoff = document.querySelector("[data-deck-import-handoff]");
+    const input = document.querySelector("[data-deck-import-input]");
+    const summary = document.querySelector("[data-deck-import-summary]");
+    return {
+      actions: Array.from(document.querySelectorAll("[data-deck-import-action]")).map((node) => ({
+        id: node.getAttribute("data-deck-import-action") ?? "",
+        state: node.getAttribute("data-deck-import-action-state") ?? "",
+        text: textOf(node)
+      })),
+      commandLength: Number(commandPreview?.getAttribute("data-deck-import-command-length") ?? root?.getAttribute("data-deck-import-command-length") ?? 0),
+      commandText: textOf(commandPreview),
+      editorText: textOf(editor),
+      feedbackState: feedback?.getAttribute("data-deck-import-state") ?? "",
+      feedbackText: textOf(feedback),
+      flowState: flowState?.getAttribute("data-deck-import-flow-state") ?? "",
+      flowSteps: Array.from(document.querySelectorAll("[data-deck-import-flow-step]")).map((node) => ({
+        id: node.getAttribute("data-deck-import-flow-step") ?? "",
+        state: node.getAttribute("data-deck-import-flow-step-state") ?? "",
+        text: textOf(node)
+      })),
+      handoffActiveSection: handoff?.getAttribute("data-deck-import-handoff-active-section") ?? "",
+      handoffSections: Array.from(document.querySelectorAll("[data-deck-import-handoff-section]")).map((node) => ({
+        id: node.getAttribute("data-deck-import-handoff-section") ?? "",
+        source: node.getAttribute("data-deck-import-handoff-source") ?? "",
+        state: node.getAttribute("data-deck-import-handoff-state") ?? "",
+        text: textOf(node)
+      })),
+      handoffSummary: handoff?.getAttribute("data-deck-import-handoff-summary") ?? "",
+      inputState: input?.getAttribute("data-deck-import-state") ?? "",
+      rootState: root?.getAttribute("data-deck-import-state") ?? "",
+      summaryMetrics: Array.from(document.querySelectorAll("[data-deck-import-summary-metric]")).map((node) => ({
+        key: node.getAttribute("data-deck-import-summary-key") ?? "",
+        text: textOf(node),
+        value: node.getAttribute("data-deck-import-summary-value") ?? ""
+      })),
+      summaryText: textOf(summary),
+      surfaceText: textOf(root)
+    };
+  });
+
+  const failures = [];
+  if (surface.rootState !== "valid" || surface.inputState !== "valid" || surface.feedbackState !== "valid" || surface.flowState !== "valid") {
+    failures.push(`deck import states should be valid for default starter text: ${JSON.stringify({
+      feedback: surface.feedbackState,
+      flow: surface.flowState,
+      input: surface.inputState,
+      root: surface.rootState
+    })}`);
+  }
+  if (!Number.isFinite(surface.commandLength) || surface.commandLength < 500) {
+    failures.push(`deck import command preview should expose a durable SUBMIT_DECK payload length: ${surface.commandLength}`);
+  }
+  if (!surface.commandText.includes("legendCardNo") || !surface.commandText.includes("mainDeck") || !surface.commandText.includes("runeDeck")) {
+    failures.push(`deck import command preview must expose command fields while leaving server legality authoritative: ${surface.commandText}`);
+  }
+  if (!surface.editorText.includes("导入入口")) {
+    failures.push(`deck import editor must render the paste intake region: ${surface.editorText}`);
+  }
+  if (!surface.summaryText.includes("主牌堆") || !surface.summaryText.includes("符文牌堆") || !surface.summaryText.includes("战场池")) {
+    failures.push(`deck import summary must render main/rune/battlefield sections: ${surface.summaryText}`);
+  }
+  if (surface.flowSteps.length < 3 || surface.flowSteps.some((step) => !step.id || !step.state)) {
+    failures.push(`deck import flow steps must expose ids and states: ${JSON.stringify(surface.flowSteps)}`);
+  }
+  const expectedHandoffIds = ["intake", "recovery", "current", "command", "server"];
+  const handoffIds = surface.handoffSections.map((section) => section.id);
+  if (surface.handoffSections.length !== expectedHandoffIds.length || expectedHandoffIds.some((id) => !handoffIds.includes(id))) {
+    failures.push(`deck import handoff sections must include ${expectedHandoffIds.join(", ")}: ${JSON.stringify(surface.handoffSections)}`);
+  }
+  if (surface.handoffActiveSection !== "command") {
+    failures.push(`deck import handoff should route default valid import to command, got ${surface.handoffActiveSection}`);
+  }
+  for (const source of ["local-editor", "local-cache", "local-state", "generated-command", "server-authority"]) {
+    if (!surface.handoffSections.some((section) => section.source === source && section.state)) {
+      failures.push(`deck import handoff missing sourced section ${source}: ${JSON.stringify(surface.handoffSections)}`);
+    }
+  }
+  if (!surface.handoffSummary.includes("命令：40/12/3")) {
+    failures.push(`deck import handoff summary must expose command count context: ${surface.handoffSummary}`);
+  }
+  const summaryKeys = surface.summaryMetrics.map((metric) => metric.key);
+  for (const key of ["legend", "champion", "main", "runes", "battlefields"]) {
+    if (!summaryKeys.includes(key)) {
+      failures.push(`deck import summary missing ${key}: ${JSON.stringify(surface.summaryMetrics)}`);
+    }
+  }
+  for (const copy of ["服务端权威", "SUBMIT_DECK", "主牌堆", "符文牌堆", "战场池"]) {
+    if (!surface.surfaceText.includes(copy)) {
+      failures.push(`deck import surface missing ${copy} copy: ${surface.surfaceText}`);
+    }
+  }
+  const actionsById = Object.fromEntries(surface.actions.map((action) => [action.id, action]));
+  if (actionsById.apply?.state !== "ready") {
+    failures.push(`deck import apply action should be ready for default valid starter text: ${JSON.stringify(surface.actions)}`);
+  }
+  for (const actionId of ["load-current", "reset"]) {
+    if (actionsById[actionId]?.state !== "available") {
+      failures.push(`deck import ${actionId} action should stay available: ${JSON.stringify(surface.actions)}`);
+    }
+  }
+  if (failures.length > 0) {
+    throw new Error(`Deck import surface assertions failed:\n${failures.join("\n")}`);
+  }
 }
 
 async function assertServerFlow(page) {

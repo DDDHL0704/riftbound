@@ -101,7 +101,13 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
   }
 
   return (
-    <div className="page-grid" style={deckWireStyles.page}>
+    <div
+      className="page-grid"
+      data-deck-import-command-length={currentCommandPreview.length}
+      data-deck-import-state={importFlowPlan.state}
+      data-deck-import-surface
+      style={deckWireStyles.page}
+    >
       <section style={deckWireStyles.header}>
         <div>
           <span style={deckWireStyles.eyebrow}>DECK INTAKE</span>
@@ -122,7 +128,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
       </section>
       <DeckImportHandoffSurface deckSource={deckSource} plan={importHandoffPlan} />
       <section style={deckWireStyles.importShell}>
-        <div style={deckWireStyles.importEditor}>
+        <div data-deck-import-editor style={deckWireStyles.importEditor}>
           <header style={deckWireStyles.panelHeader}>
             <div>
               <span style={deckWireStyles.eyebrow}>PASTE</span>
@@ -132,6 +138,8 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
           </header>
           <textarea
             aria-label="粘贴构筑"
+            data-deck-import-input
+            data-deck-import-state={importFlowPlan.state}
             onChange={(event) => setImportText(event.target.value)}
             placeholder={[
               "legend: UNL-181/219",
@@ -148,18 +156,39 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
             value={importText}
           />
           <div style={deckWireStyles.actionRow}>
-            <Button disabled={!importFlowPlan.canApplyImport} icon={<ClipboardPaste size={16} />} onClick={applyImport} style={deckWireStyles.primaryButton}>
+            <Button
+              data-deck-import-action="apply"
+              data-deck-import-action-state={importFlowPlan.canApplyImport ? "ready" : "blocked"}
+              disabled={!importFlowPlan.canApplyImport}
+              icon={<ClipboardPaste size={16} />}
+              onClick={applyImport}
+              style={deckWireStyles.primaryButton}
+            >
               导入为当前构筑
             </Button>
-            <Button icon={<FileText size={16} />} onClick={loadCurrentDeckIntoEditor} style={deckWireStyles.secondaryButton} variant="secondary">
+            <Button
+              data-deck-import-action="load-current"
+              data-deck-import-action-state="available"
+              icon={<FileText size={16} />}
+              onClick={loadCurrentDeckIntoEditor}
+              style={deckWireStyles.secondaryButton}
+              variant="secondary"
+            >
               载入当前
             </Button>
-            <Button icon={<RotateCcw size={16} />} onClick={resetToDefaultDeck} style={deckWireStyles.secondaryButton} variant="ghost">
+            <Button
+              data-deck-import-action="reset"
+              data-deck-import-action-state="available"
+              icon={<RotateCcw size={16} />}
+              onClick={resetToDefaultDeck}
+              style={deckWireStyles.secondaryButton}
+              variant="ghost"
+            >
               恢复默认
             </Button>
           </div>
         </div>
-        <aside style={deckWireStyles.feedbackPanel}>
+        <aside data-deck-import-feedback data-deck-import-state={importFlowPlan.state} style={deckWireStyles.feedbackPanel}>
           <header style={deckWireStyles.panelHeader}>
             <div>
               <span style={deckWireStyles.eyebrow}>FEEDBACK</span>
@@ -187,14 +216,39 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
           </div>
         </aside>
       </section>
-      <section aria-label="当前将提交到服务端的构筑摘要" className="deck-summary" style={deckWireStyles.summaryGrid}>
-        <article style={deckWireStyles.summaryBox}><strong>传奇</strong><span style={deckWireStyles.summaryText}>{currentSummary.legendCardNo}</span></article>
-        <article style={deckWireStyles.summaryBox}><strong>英雄</strong><span style={deckWireStyles.summaryText}>{currentSummary.championCardNo}</span></article>
-        <article style={deckWireStyles.summaryBox}><strong>主牌堆</strong><span style={deckWireStyles.summaryText}>{currentSummary.mainDeck} 张 / {currentSummary.distinctMainDeck} 种</span></article>
-        <article style={deckWireStyles.summaryBox}><strong>符文牌堆</strong><span style={deckWireStyles.summaryText}>{currentSummary.runeDeck} 张 / {currentSummary.distinctRuneDeck} 种</span></article>
-        <article style={deckWireStyles.summaryBox}><strong>战场池</strong><span style={deckWireStyles.summaryText}>{deck.battlefields.join("、")}</span></article>
+      <section aria-label="当前将提交到服务端的构筑摘要" className="deck-summary" data-deck-import-summary style={deckWireStyles.summaryGrid}>
+        <article
+          data-deck-import-summary-key="legend"
+          data-deck-import-summary-metric
+          data-deck-import-summary-value={currentSummary.legendCardNo}
+          style={deckWireStyles.summaryBox}
+        ><strong>传奇</strong><span style={deckWireStyles.summaryText}>{currentSummary.legendCardNo}</span></article>
+        <article
+          data-deck-import-summary-key="champion"
+          data-deck-import-summary-metric
+          data-deck-import-summary-value={currentSummary.championCardNo}
+          style={deckWireStyles.summaryBox}
+        ><strong>英雄</strong><span style={deckWireStyles.summaryText}>{currentSummary.championCardNo}</span></article>
+        <article
+          data-deck-import-summary-key="main"
+          data-deck-import-summary-metric
+          data-deck-import-summary-value={currentSummary.mainDeck}
+          style={deckWireStyles.summaryBox}
+        ><strong>主牌堆</strong><span style={deckWireStyles.summaryText}>{currentSummary.mainDeck} 张 / {currentSummary.distinctMainDeck} 种</span></article>
+        <article
+          data-deck-import-summary-key="runes"
+          data-deck-import-summary-metric
+          data-deck-import-summary-value={currentSummary.runeDeck}
+          style={deckWireStyles.summaryBox}
+        ><strong>符文牌堆</strong><span style={deckWireStyles.summaryText}>{currentSummary.runeDeck} 张 / {currentSummary.distinctRuneDeck} 种</span></article>
+        <article
+          data-deck-import-summary-key="battlefields"
+          data-deck-import-summary-metric
+          data-deck-import-summary-value={deck.battlefields.length}
+          style={deckWireStyles.summaryBox}
+        ><strong>战场池</strong><span style={deckWireStyles.summaryText}>{deck.battlefields.join("、")}</span></article>
       </section>
-      <section style={deckWireStyles.commandPreview}>
+      <section data-deck-import-command-length={currentCommandPreview.length} data-deck-import-command-preview style={deckWireStyles.commandPreview}>
         <div>
           <span style={deckWireStyles.eyebrow}>SERVER COMMAND</span>
           <h2 style={deckWireStyles.h2}>当前将提交的 deck 命令</h2>
