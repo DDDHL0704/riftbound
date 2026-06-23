@@ -676,12 +676,15 @@ public sealed class LocalPlayabilityRuleRegressionTests
             string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_SCORE", StringComparison.Ordinal));
         AssertLocalTwoPlayerSpellDuelAuthority(p2PriorityPass, p2FocusPass);
+        var p2FocusPassWithHiddenStandby = WithOpponentFaceDownStandbyProjection(p2FocusPass);
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-HIDDEN-HAND");
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-DRAW");
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P1"], "P2-RUNE-DECK");
+        AssertSnapshotDoesNotExposeObjectId(p2FocusPassWithHiddenStandby.Snapshots["P1"], "P2-FACE-DOWN-STANDBY");
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P2"], "P1-HIDDEN-HAND");
         AssertSnapshotDoesNotExposeObjectId(p2FocusPass.Snapshots["P2"], "P1-RUNE-BOTTOM");
         AssertLocalTwoPlayerTableAuthority(p2FocusPass, battlefieldScoredThisTurn: true);
+        AssertLocalTwoPlayerTableAuthority(p2FocusPassWithHiddenStandby, battlefieldScoredThisTurn: true);
 
         var p2CalledRuneObjectIds = p2FocusPass.State.PlayerZones["P2"].RuneDeck
             .Take(3)
@@ -703,7 +706,10 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(TimingStates.NeutralOpen, p1EndsTurn.State.TimingState);
         AssertLocalTwoPlayerEndTurnAuthority(p1EndsTurn, p2CalledRuneObjectIds, p2DrawnObjectIds);
         AssertLocalTwoPlayerTableAuthority(p1EndsTurn, battlefieldScoredThisTurn: false);
+        var p1EndsTurnWithHiddenStandby = WithOpponentFaceDownStandbyProjection(p1EndsTurn);
+        AssertLocalTwoPlayerTableAuthority(p1EndsTurnWithHiddenStandby, battlefieldScoredThisTurn: false);
         AssertSnapshotDoesNotExposeObjectId(p1EndsTurn.Snapshots["P1"], "P2-HIDDEN-HAND");
+        AssertSnapshotDoesNotExposeObjectId(p1EndsTurnWithHiddenStandby.Snapshots["P1"], "P2-FACE-DOWN-STANDBY");
         AssertSnapshotDoesNotExposeObjectId(p1EndsTurn.Snapshots["P2"], "P1-HIDDEN-HAND");
     }
 
@@ -1069,6 +1075,55 @@ public sealed class LocalPlayabilityRuleRegressionTests
             });
     }
 
+    private static ResolutionResult WithOpponentFaceDownStandbyProjection(ResolutionResult result)
+    {
+        var playerZones = result.State.PlayerZones.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Battlefields = playerZones["P1"].Battlefields
+                .Concat(["BF-HIDDEN"])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+        playerZones["P2"] = playerZones["P2"] with
+        {
+            Battlefields = playerZones["P2"].Battlefields
+                .Concat(["P2-FACE-DOWN-STANDBY"])
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+
+        var cardObjects = result.State.CardObjects.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        cardObjects["BF-HIDDEN"] = Battlefield("BF-HIDDEN", "P1", "OGN·275/298");
+        cardObjects["P2-FACE-DOWN-STANDBY"] = Standby("P2-FACE-DOWN-STANDBY", "P2", isFaceDown: true);
+
+        var objectLocations = result.State.ObjectLocations.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        objectLocations["BF-HIDDEN"] = new ObjectLocationState("P1", "BATTLEFIELD", "BF-HIDDEN");
+        objectLocations["P2-FACE-DOWN-STANDBY"] = new ObjectLocationState("P2", "BATTLEFIELD", "BF-HIDDEN");
+
+        var projectedState = result.State with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            ObjectLocations = objectLocations
+        };
+
+        return result with
+        {
+            State = projectedState,
+            Snapshots = ResolutionResult.BuildSnapshots(projectedState)
+        };
+    }
+
     private static Dictionary<string, string> Seats()
     {
         return new Dictionary<string, string>(StringComparer.Ordinal)
@@ -1119,6 +1174,17 @@ public sealed class LocalPlayabilityRuleRegressionTests
             objectId,
             cardNo: "SFD·001/221",
             tags: [CardObjectTags.RuneCard, $"COLOR:{RuneTrait.Red}"],
+            ownerId: playerId,
+            controllerId: playerId);
+    }
+
+    private static CardObjectState Standby(string objectId, string playerId, bool isFaceDown)
+    {
+        return new CardObjectState(
+            objectId,
+            cardNo: "SFD·125/221",
+            isFaceDown: isFaceDown,
+            tags: [CardObjectTags.Standby],
             ownerId: playerId,
             controllerId: playerId);
     }
@@ -1229,9 +1295,9 @@ public sealed class LocalPlayabilityRuleRegressionTests
         var p1TableOpponent = p1Table.Players.Single(player => string.Equals(player.PlayerId, "P2", StringComparison.Ordinal));
         Assert.True(p1TableSelf.IsViewer);
         Assert.Equal("self", p1TableSelf.Perspective);
-        AssertLocalTwoPlayerTableZoneAuthority(result.State, p1TableSelf, "P1", expectHandVisible: true);
+        AssertLocalTwoPlayerTableZoneAuthority(result.State, p1TableSelf, "P1", "P1", expectHandVisible: true);
         Assert.Equal("opponent", p1TableOpponent.Perspective);
-        AssertLocalTwoPlayerTableZoneAuthority(result.State, p1TableOpponent, "P2", expectHandVisible: false);
+        AssertLocalTwoPlayerTableZoneAuthority(result.State, p1TableOpponent, "P2", "P1", expectHandVisible: false);
         Assert.Empty(p1TableOpponent.Zones.Hand);
         Assert.True(p1TableOpponent.Zones.HandHidden >= 1);
 
@@ -1239,9 +1305,9 @@ public sealed class LocalPlayabilityRuleRegressionTests
         var p2TableOpponent = p2Table.Players.Single(player => string.Equals(player.PlayerId, "P1", StringComparison.Ordinal));
         Assert.True(p2TableSelf.IsViewer);
         Assert.Equal("self", p2TableSelf.Perspective);
-        AssertLocalTwoPlayerTableZoneAuthority(result.State, p2TableSelf, "P2", expectHandVisible: true);
+        AssertLocalTwoPlayerTableZoneAuthority(result.State, p2TableSelf, "P2", "P2", expectHandVisible: true);
         Assert.Equal("opponent", p2TableOpponent.Perspective);
-        AssertLocalTwoPlayerTableZoneAuthority(result.State, p2TableOpponent, "P1", expectHandVisible: false);
+        AssertLocalTwoPlayerTableZoneAuthority(result.State, p2TableOpponent, "P1", "P2", expectHandVisible: false);
         Assert.Empty(p2TableOpponent.Zones.Hand);
         Assert.True(p2TableOpponent.Zones.HandHidden >= 1);
 
@@ -1259,9 +1325,15 @@ public sealed class LocalPlayabilityRuleRegressionTests
         MatchState state,
         SnapshotTablePlayerDto tablePlayer,
         string playerId,
+        string viewerPlayerId,
         bool expectHandVisible)
     {
         var zones = state.PlayerZones[playerId];
+        var expectedBattlefields = expectHandVisible
+            ? zones.Battlefields
+            : zones.Battlefields
+                .Where(objectId => !IsExpectedHiddenStandbyForViewer(state, objectId, viewerPlayerId))
+                .ToArray();
         Assert.Equal(playerId, tablePlayer.PlayerId);
         Assert.Equal(zones.MainDeck.Count, tablePlayer.Zones.MainDeckCount);
         Assert.Equal(zones.RuneDeck.Count, tablePlayer.Zones.RuneDeckCount);
@@ -1270,10 +1342,30 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(zones.Base, tablePlayer.Zones.Base);
         Assert.Equal(ExpectedBaseCards(state, zones), tablePlayer.Zones.BaseCards);
         Assert.Equal(ExpectedBaseRunes(state, zones), tablePlayer.Zones.BaseRunes);
-        Assert.Equal(zones.Battlefields, tablePlayer.Zones.Battlefields);
-        Assert.Equal(0, tablePlayer.Zones.BattlefieldHiddenStandbyCount);
+        Assert.Equal(expectedBattlefields, tablePlayer.Zones.Battlefields);
+        Assert.Equal(ExpectedHiddenStandbyCount(state, zones, viewerPlayerId, expectHandVisible), tablePlayer.Zones.BattlefieldHiddenStandbyCount);
         Assert.Equal(zones.Graveyard, tablePlayer.Zones.Graveyard);
         Assert.Equal(zones.Banished, tablePlayer.Zones.Banished);
+    }
+
+    private static int ExpectedHiddenStandbyCount(
+        MatchState state,
+        PlayerZones zones,
+        string viewerPlayerId,
+        bool expectHandVisible)
+    {
+        return expectHandVisible
+            ? 0
+            : zones.Battlefields.Count(objectId => IsExpectedHiddenStandbyForViewer(state, objectId, viewerPlayerId));
+    }
+
+    private static bool IsExpectedHiddenStandbyForViewer(MatchState state, string objectId, string viewerPlayerId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.IsFaceDown
+            && cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && state.ObjectLocations.TryGetValue(objectId, out var location)
+            && !string.Equals(location.PlayerId, viewerPlayerId, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> ExpectedBaseCards(MatchState state, PlayerZones zones)

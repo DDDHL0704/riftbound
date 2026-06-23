@@ -48,6 +48,7 @@ for (const requiredSnippet of [
   "p2FocusPass.Events.Select",
   "P2-RUNE-DECK",
   "P2-DRAW",
+  "P2-FACE-DOWN-STANDBY",
   "MainDeckCount",
   "RuneDeckCount",
   "Zones.Base",
@@ -55,6 +56,7 @@ for (const requiredSnippet of [
   "Zones.BaseRunes",
   "Zones.Battlefields",
   "BattlefieldHiddenStandbyCount",
+  "ExpectedHiddenStandbyCount",
   "scoredThisTurn",
   "scoredThisTurnPlayerIds",
   "RunePool.Empty"
