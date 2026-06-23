@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -139,6 +140,14 @@ public sealed class SnapshotTableProjectionTests
         Assert.DoesNotContain("P2-HAND", p2Objects.Keys);
         Assert.DoesNotContain("P2-HIDDEN-STANDBY", p2Objects.Keys);
         Assert.Contains("P2-RIGHT-STANDBY", p2Objects.Keys);
+        AssertSerializedSnapshotDoesNotContain(
+            snapshot,
+            "P1-DECK",
+            "P1-RUNE-DECK",
+            "P2-HAND",
+            "P2-DECK",
+            "P2-RUNE-DECK",
+            "P2-HIDDEN-STANDBY");
 
         var p2Snapshot = snapshots["P2"];
         var p2Table = p2Snapshot.Table!;
@@ -166,6 +175,14 @@ public sealed class SnapshotTableProjectionTests
         Assert.DoesNotContain("P1-STANDBY", p1ObjectsFromP2.Keys);
         var p2ObjectsFromP2 = Objects(p2Snapshot, "P2");
         Assert.Contains("P2-HIDDEN-STANDBY", p2ObjectsFromP2.Keys);
+        AssertSerializedSnapshotDoesNotContain(
+            p2Snapshot,
+            "P1-HAND",
+            "P1-DECK",
+            "P1-RUNE-DECK",
+            "P1-STANDBY",
+            "P2-DECK",
+            "P2-RUNE-DECK");
     }
 
     private static MatchState TableProjectionState()
@@ -361,5 +378,14 @@ public sealed class SnapshotTableProjectionTests
     private static bool BoolValue(object? value)
     {
         return Assert.IsType<bool>(value);
+    }
+
+    private static void AssertSerializedSnapshotDoesNotContain(SnapshotDto snapshot, params string[] objectIds)
+    {
+        var serializedSnapshot = JsonSerializer.Serialize(snapshot);
+        foreach (var objectId in objectIds)
+        {
+            Assert.DoesNotContain(objectId, serializedSnapshot, StringComparison.Ordinal);
+        }
     }
 }
