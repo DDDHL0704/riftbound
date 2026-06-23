@@ -27,6 +27,8 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(0, tableP1.Zones.HandHidden);
         Assert.Equal(["P1-BASE-UNIT"], tableP1.Zones.BaseCards);
         Assert.Equal(["P1-RUNE-1"], tableP1.Zones.BaseRunes);
+        Assert.Equal(["P1-GRAVEYARD"], tableP1.Zones.Graveyard);
+        Assert.Equal(["P1-BANISHED"], tableP1.Zones.Banished);
 
         var tableP2 = table.Players.Single(player => player.PlayerId == "P2");
         Assert.Equal("opponent", tableP2.Perspective);
@@ -35,6 +37,8 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(1, tableP2.Zones.HandHidden);
         Assert.Equal(["P2-BASE-UNIT"], tableP2.Zones.BaseCards);
         Assert.Equal(["P2-RUNE-1"], tableP2.Zones.BaseRunes);
+        Assert.Equal(["P2-GRAVEYARD"], tableP2.Zones.Graveyard);
+        Assert.Equal(["P2-BANISHED"], tableP2.Zones.Banished);
 
         Assert.Equal(["BF-LEFT", "BF-RIGHT"], table.Battlefields.Select(field => field.BattlefieldObjectId).ToArray());
         var tableLeftBattlefield = table.Battlefields.Single(field => field.BattlefieldObjectId == "BF-LEFT");
@@ -83,7 +87,11 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(0, IntValue(p1Zones["handHidden"]));
         Assert.Equal(["P1-BASE-UNIT"], StringList(p1Zones["baseCards"]));
         Assert.Equal(["P1-RUNE-1"], StringList(p1Zones["baseRunes"]));
+        Assert.Equal(["P1-GRAVEYARD"], StringList(p1Zones["graveyard"]));
+        Assert.Equal(["P1-BANISHED"], StringList(p1Zones["banished"]));
         var p1Objects = Objects(snapshot, "P1");
+        Assert.Contains("P1-GRAVEYARD", p1Objects.Keys);
+        Assert.Contains("P1-BANISHED", p1Objects.Keys);
         var p1Standby = Dict(p1Objects["P1-STANDBY"]);
         Assert.Equal("P1-STANDBY", StringValue(p1Standby["objectId"]));
         Assert.Equal("UNL-011/219", StringValue(p1Standby["cardNo"]));
@@ -93,6 +101,8 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(1, IntValue(p2Zones["handHidden"]));
         Assert.Equal(["P2-BASE-UNIT"], StringList(p2Zones["baseCards"]));
         Assert.Equal(["P2-RUNE-1"], StringList(p2Zones["baseRunes"]));
+        Assert.Equal(["P2-GRAVEYARD"], StringList(p2Zones["graveyard"]));
+        Assert.Equal(["P2-BANISHED"], StringList(p2Zones["banished"]));
 
         var leftBattlefield = Battlefield(snapshot, "BF-LEFT");
         Assert.Equal("P1", StringValue(leftBattlefield["zonePlayerId"]));
@@ -139,6 +149,8 @@ public sealed class SnapshotTableProjectionTests
         var p2Objects = Objects(snapshot, "P2");
         Assert.DoesNotContain("P2-HAND", p2Objects.Keys);
         Assert.DoesNotContain("P2-HIDDEN-STANDBY", p2Objects.Keys);
+        Assert.Contains("P2-GRAVEYARD", p2Objects.Keys);
+        Assert.Contains("P2-BANISHED", p2Objects.Keys);
         Assert.Contains("P2-RIGHT-STANDBY", p2Objects.Keys);
         AssertSerializedSnapshotDoesNotContain(
             snapshot,
@@ -173,8 +185,12 @@ public sealed class SnapshotTableProjectionTests
         var p1ObjectsFromP2 = Objects(p2Snapshot, "P1");
         Assert.DoesNotContain("P1-HAND", p1ObjectsFromP2.Keys);
         Assert.DoesNotContain("P1-STANDBY", p1ObjectsFromP2.Keys);
+        Assert.Contains("P1-GRAVEYARD", p1ObjectsFromP2.Keys);
+        Assert.Contains("P1-BANISHED", p1ObjectsFromP2.Keys);
         var p2ObjectsFromP2 = Objects(p2Snapshot, "P2");
         Assert.Contains("P2-HIDDEN-STANDBY", p2ObjectsFromP2.Keys);
+        Assert.Contains("P2-GRAVEYARD", p2ObjectsFromP2.Keys);
+        Assert.Contains("P2-BANISHED", p2ObjectsFromP2.Keys);
         AssertSerializedSnapshotDoesNotContain(
             p2Snapshot,
             "P1-HAND",
@@ -209,8 +225,8 @@ public sealed class SnapshotTableProjectionTests
                     Hand: ["P1-HAND"],
                     Base: ["P1-BASE-UNIT", "P1-RUNE-1"],
                     Battlefields: ["BF-LEFT", "P1-LEFT-UNIT", "P1-STANDBY", "P1-RIGHT-UNIT"],
-                    Graveyard: [],
-                    Banished: [],
+                    Graveyard: ["P1-GRAVEYARD"],
+                    Banished: ["P1-BANISHED"],
                     LegendZone: ["P1-LEGEND"],
                     ChampionZone: ["P1-HERO"]),
                 ["P2"] = new(
@@ -219,8 +235,8 @@ public sealed class SnapshotTableProjectionTests
                     Hand: ["P2-HAND"],
                     Base: ["P2-BASE-UNIT", "P2-RUNE-1"],
                     Battlefields: ["BF-RIGHT", "P2-LEFT-UNIT", "P2-HIDDEN-STANDBY", "P2-RIGHT-UNIT", "P2-RIGHT-STANDBY"],
-                    Graveyard: [],
-                    Banished: [],
+                    Graveyard: ["P2-GRAVEYARD"],
+                    Banished: ["P2-BANISHED"],
                     LegendZone: ["P2-LEGEND"],
                     ChampionZone: ["P2-HERO"])
             },
@@ -236,6 +252,10 @@ public sealed class SnapshotTableProjectionTests
             ["P2-HAND"] = Unit("P2-HAND", "P2"),
             ["P1-BASE-UNIT"] = Unit("P1-BASE-UNIT", "P1"),
             ["P2-BASE-UNIT"] = Unit("P2-BASE-UNIT", "P2"),
+            ["P1-GRAVEYARD"] = Unit("P1-GRAVEYARD", "P1"),
+            ["P2-GRAVEYARD"] = Unit("P2-GRAVEYARD", "P2"),
+            ["P1-BANISHED"] = Unit("P1-BANISHED", "P1"),
+            ["P2-BANISHED"] = Unit("P2-BANISHED", "P2"),
             ["P1-RUNE-1"] = Rune("P1-RUNE-1", "P1"),
             ["P2-RUNE-1"] = Rune("P2-RUNE-1", "P2"),
             ["P1-LEGEND"] = new("P1-LEGEND", cardNo: "UNL-181/219", ownerId: "P1", controllerId: "P1"),
@@ -262,6 +282,10 @@ public sealed class SnapshotTableProjectionTests
             ["P2-HAND"] = new("P2", "HAND"),
             ["P1-BASE-UNIT"] = new("P1", "BASE"),
             ["P2-BASE-UNIT"] = new("P2", "BASE"),
+            ["P1-GRAVEYARD"] = new("P1", "GRAVEYARD"),
+            ["P2-GRAVEYARD"] = new("P2", "GRAVEYARD"),
+            ["P1-BANISHED"] = new("P1", "BANISHED"),
+            ["P2-BANISHED"] = new("P2", "BANISHED"),
             ["P1-RUNE-1"] = new("P1", "BASE"),
             ["P2-RUNE-1"] = new("P2", "BASE"),
             ["P1-LEGEND"] = new("P1", "LEGEND"),

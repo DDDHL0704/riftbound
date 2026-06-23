@@ -1,0 +1,48 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const testSource = readFileSync(
+  resolve(scriptDir, "../../../tests/Riftbound.ConformanceTests/SnapshotTableProjectionTests.cs"),
+  "utf8"
+);
+
+for (const objectId of [
+  "P1-GRAVEYARD",
+  "P2-GRAVEYARD",
+  "P1-BANISHED",
+  "P2-BANISHED"
+]) {
+  assert.ok(
+    testSource.includes(objectId),
+    `Snapshot table projection tests must cover non-empty ${objectId} zone mapping.`
+  );
+}
+
+for (const fieldName of [
+  "Zones.Graveyard",
+  "Zones.Banished",
+  "[\"graveyard\"]",
+  "[\"banished\"]"
+]) {
+  assert.ok(
+    testSource.includes(fieldName),
+    `Snapshot table projection tests must assert ${fieldName} in typed table and snapshot payloads.`
+  );
+}
+
+for (const containment of [
+  "Assert.Contains(\"P1-GRAVEYARD\", p1Objects.Keys)",
+  "Assert.Contains(\"P1-BANISHED\", p1Objects.Keys)",
+  "Assert.Contains(\"P2-GRAVEYARD\", p2Objects.Keys)",
+  "Assert.Contains(\"P2-BANISHED\", p2Objects.Keys)"
+]) {
+  assert.ok(
+    testSource.includes(containment),
+    `Snapshot table projection tests must assert visible object payload coverage: ${containment}.`
+  );
+}
+
+console.log("Snapshot table zone mapping coverage check passed.");
