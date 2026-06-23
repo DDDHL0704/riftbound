@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const source = readFileSync(resolve(scriptDir, "playwright-qa.mjs"), "utf8");
+const chromeSmokeSource = readFileSync(resolve(scriptDir, "chrome-smoke.mjs"), "utf8");
 const matchPageSource = readFileSync(resolve(scriptDir, "../src/pages/MatchPage.tsx"), "utf8");
 
 assert.match(
@@ -27,7 +28,9 @@ for (const requiredSelector of [
   "[data-wire-side-panel-rule-chain-state]",
   "[data-wire-side-panel-rule-chain-lane]",
   "[data-wire-side-panel-rule-chain-metric]",
-  "[data-wire-side-panel-rule-chain-route]"
+  "[data-wire-side-panel-rule-chain-route]",
+  "[data-match-recovery-surface]",
+  "[data-match-recovery-region]"
 ]) {
   assert.ok(
     source.includes(requiredSelector),
@@ -37,11 +40,49 @@ for (const requiredSelector of [
 
 for (const requiredAttribute of [
   "data-wire-side-panel-state-key",
-  "data-wire-side-panel-state-source"
+  "data-wire-side-panel-state-source",
+  "data-match-recovery-active-region",
+  "data-match-recovery-state",
+  "data-match-recovery-summary",
+  "data-match-recovery-source"
 ]) {
   assert.ok(
     source.includes(requiredAttribute),
     `Playwright QA match-state surface helper must inspect ${requiredAttribute}.`
+  );
+}
+
+assert.match(
+  chromeSmokeSource,
+  /await\s+runMatchRecoverySurfaceSmoke\(cdp\)/,
+  "Chrome smoke must run match recovery surface browser assertions on the match route."
+);
+
+assert.match(
+  chromeSmokeSource,
+  /async\s+function\s+runMatchRecoverySurfaceSmoke\(cdp\)/,
+  "Chrome smoke must keep match recovery surface checks in a named helper."
+);
+
+for (const requiredChromeSelector of [
+  "[data-match-recovery-surface]",
+  "[data-match-recovery-region]"
+]) {
+  assert.ok(
+    chromeSmokeSource.includes(requiredChromeSelector),
+    `Chrome smoke match recovery helper must inspect ${requiredChromeSelector}.`
+  );
+}
+
+for (const requiredChromeAttribute of [
+  "data-match-recovery-active-region",
+  "data-match-recovery-state",
+  "data-match-recovery-summary",
+  "data-match-recovery-source"
+]) {
+  assert.ok(
+    chromeSmokeSource.includes(requiredChromeAttribute),
+    `Chrome smoke match recovery helper must inspect ${requiredChromeAttribute}.`
   );
 }
 

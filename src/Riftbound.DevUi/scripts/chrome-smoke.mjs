@@ -118,6 +118,9 @@ try {
     if (route.path === "/rooms/stage3-smoke") {
       await runRoomLifecycleSmoke(cdp);
     }
+    if (route.path === "/matches/stage3-smoke") {
+      await runMatchRecoverySurfaceSmoke(cdp);
+    }
     console.log(`Chrome smoke OK: ${route.path}`);
   }
 
@@ -2009,6 +2012,48 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
   const failures = result.failures ?? [];
   if (failures.length > 0) {
     throw new Error(`Wire side panel browser acceptance smoke failed:\n${failures.join("\n")}`);
+  }
+}
+
+async function runMatchRecoverySurfaceSmoke(cdp) {
+  const result = await evaluateJson(cdp, `(() => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\\s+/g, " ") ?? "";
+    const surface = document.querySelector("[data-match-recovery-surface]");
+    const regions = Array.from(document.querySelectorAll("[data-match-recovery-region]")).map((node) => ({
+      id: node.getAttribute("data-match-recovery-region") ?? "",
+      source: node.getAttribute("data-match-recovery-source") ?? "",
+      state: node.getAttribute("data-match-recovery-region-state") ?? "",
+      text: textOf(node)
+    }));
+
+    return {
+      activeRegion: surface?.getAttribute("data-match-recovery-active-region") ?? "",
+      regionCount: regions.length,
+      regions,
+      state: surface?.getAttribute("data-match-recovery-state") ?? "",
+      summary: surface?.getAttribute("data-match-recovery-summary") ?? "",
+      text: textOf(surface)
+    };
+  })()`);
+  const failures = [];
+  if (!result.state || !result.activeRegion) {
+    failures.push(`match recovery surface missing state or active region: ${JSON.stringify(result)}`);
+  }
+  if (result.regionCount !== 4) {
+    failures.push(`match recovery surface expected four regions, got ${result.regionCount}: ${JSON.stringify(result.regions)}`);
+  }
+  for (const id of ["connection", "snapshot", "submission", "errors"]) {
+    if (!result.regions.some((region) => region.id === id && region.source && region.state)) {
+      failures.push(`match recovery surface missing sourced ${id} region: ${JSON.stringify(result.regions)}`);
+    }
+  }
+  for (const copy of ["连接", "快照", "提交", "错误"]) {
+    if (!result.summary.includes(copy) || !result.text.includes(copy)) {
+      failures.push(`match recovery surface missing ${copy} copy: ${JSON.stringify(result)}`);
+    }
+  }
+  if (failures.length > 0) {
+    throw new Error(`Match recovery surface smoke failed:\n${failures.join("\n")}`);
   }
 }
 

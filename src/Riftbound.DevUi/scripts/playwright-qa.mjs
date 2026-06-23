@@ -226,10 +226,21 @@ async function assertMatchStateSurface(page, shot) {
       state: node.getAttribute("data-wire-battlefield-score-state") ?? "",
       text: textOf(node)
     }));
+    const recoverySurface = document.querySelector("[data-match-recovery-surface]");
     const stateRail = document.querySelector("[data-wire-side-panel-state-rail]");
     const ruleChain = document.querySelector("[data-wire-side-panel-rule-chain-state]");
     return {
       battlefieldScoreSurfaces,
+      recoveryActiveRegion: recoverySurface?.getAttribute("data-match-recovery-active-region") ?? "",
+      recoveryRegions: Array.from(document.querySelectorAll("[data-match-recovery-region]")).map((node) => ({
+        id: node.getAttribute("data-match-recovery-region") ?? "",
+        source: node.getAttribute("data-match-recovery-source") ?? "",
+        state: node.getAttribute("data-match-recovery-region-state") ?? "",
+        text: textOf(node)
+      })),
+      recoveryState: recoverySurface?.getAttribute("data-match-recovery-state") ?? "",
+      recoverySummary: recoverySurface?.getAttribute("data-match-recovery-summary") ?? "",
+      recoveryText: textOf(recoverySurface),
       ruleChainAria: ruleChain?.getAttribute("aria-label") ?? "",
       ruleChainLanes: Array.from(document.querySelectorAll("[data-wire-side-panel-rule-chain-lane]")).map((node) => ({
         count: node.getAttribute("data-wire-side-panel-rule-chain-lane-count") ?? "",
@@ -275,6 +286,25 @@ async function assertMatchStateSurface(page, shot) {
   }
   if (surface.battlefieldScoreSurfaces.length === 0) {
     failures.push("expected battlefield score surfaces from server snapshot.");
+  }
+  if (!surface.recoveryState || !surface.recoveryActiveRegion) {
+    failures.push(`match recovery surface missing state/active region: ${JSON.stringify({
+      activeRegion: surface.recoveryActiveRegion,
+      state: surface.recoveryState
+    })}`);
+  }
+  if (surface.recoveryRegions.length !== 4) {
+    failures.push(`match recovery surface must expose four regions, got ${surface.recoveryRegions.length}: ${JSON.stringify(surface.recoveryRegions)}`);
+  }
+  for (const requiredRegion of ["connection", "snapshot", "submission", "errors"]) {
+    if (!surface.recoveryRegions.some((region) => region.id === requiredRegion && region.source)) {
+      failures.push(`match recovery surface missing sourced region ${requiredRegion}: ${JSON.stringify(surface.recoveryRegions)}`);
+    }
+  }
+  for (const requiredCopy of ["连接", "快照", "提交", "错误"]) {
+    if (!surface.recoverySummary.includes(requiredCopy) || !surface.recoveryText.includes(requiredCopy)) {
+      failures.push(`match recovery surface missing ${requiredCopy} copy: summary=${surface.recoverySummary} text=${surface.recoveryText}`);
+    }
   }
   if (!surface.battlefieldScoreSurfaces.some((surface) => surface.text.includes("本回合") && surface.text.includes("得分"))) {
     failures.push(`battlefield score surfaces must expose this-turn scoring copy: ${JSON.stringify(surface.battlefieldScoreSurfaces)}`);
