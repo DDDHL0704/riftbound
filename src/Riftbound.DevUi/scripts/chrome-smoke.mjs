@@ -186,7 +186,12 @@ async function ensureApi() {
 
   const api = spawnChild("dotnet", ["run", "--project", "src/Riftbound.Api/Riftbound.Api.csproj", "--no-launch-profile"], {
     cwd: repoRoot,
-    env: { ...process.env, ASPNETCORE_URLS: serverUrl, ASPNETCORE_ENVIRONMENT: "Development" },
+    env: {
+      ...process.env,
+      ASPNETCORE_ENVIRONMENT: "Development",
+      ASPNETCORE_URLS: serverUrl,
+      ConnectionStrings__Riftbound: process.env.RIFTBOUND_QA_CONNECTION_STRING ?? ""
+    },
     name: "api"
   });
   children.push(api);

@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import axe from "axe-core";
@@ -16,9 +17,10 @@ const frontendPort = Number(process.env.RIFTBOUND_QA_FRONTEND_PORT ?? 5176);
 const serverUrl = process.env.RIFTBOUND_SERVER_URL ?? "http://127.0.0.1:5088";
 const frontendUrl = `http://127.0.0.1:${frontendPort}`;
 const updateBaseline = process.argv.includes("--update-baseline");
-const outputRoot = path.resolve(appRoot, "artifacts");
+const baselineDiffEnabled = process.env.RIFTBOUND_QA_BASELINE_DIFF === "1";
+const outputRoot = path.resolve(process.env.RIFTBOUND_QA_OUTPUT_ROOT ?? path.join(tmpdir(), "riftbound-dev-ui-qa"));
 const appshotDir = path.join(outputRoot, "appshots");
-const baselineDir = path.join(outputRoot, "baselines");
+const baselineDir = path.resolve(process.env.RIFTBOUND_QA_BASELINE_ROOT ?? path.join(appRoot, "artifacts", "baselines"));
 const diffDir = path.join(outputRoot, "visual-diff");
 const reportPath = path.join(outputRoot, "playwright-qa-report.json");
 const visualThreshold = Number(process.env.RIFTBOUND_VISUAL_DIFF_THRESHOLD ?? 0.035);
@@ -43,8 +45,8 @@ const hiddenDebugTexts = [
 const staticShots = [
   { name: "home", path: "/", texts: ["符文战场", "进入大厅"] },
   { name: "cards", path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
-  { name: "decks", path: "/decks", texts: ["本地测试卡组", "等待服务端验证"] },
-  { name: "room", path: "/rooms/qa-visual-room", texts: ["房间", "连接/重连并入座", "选择卡组"] }
+  { name: "decks", path: "/decks", texts: ["构筑导入工作台", "导入入口", "等待服务端验证", "服务端权威"], allowedDebugTexts: ["mainDeck", "runeDeck"] },
+  { name: "room", path: "/rooms/qa-visual-room", texts: ["房间", "连接/重连并入座", "卡组提交", "提交回执"] }
 ];
 
 const scenarioShots = [
@@ -84,7 +86,9 @@ let browser;
 
 try {
   await mkdir(appshotDir, { recursive: true });
-  await mkdir(baselineDir, { recursive: true });
+  if (updateBaseline || baselineDiffEnabled) {
+    await mkdir(baselineDir, { recursive: true });
+  }
   await mkdir(diffDir, { recursive: true });
   await ensureApi();
   await ensurePreview();
@@ -99,6 +103,8 @@ try {
     generatedAt: new Date().toISOString(),
     frontendUrl,
     serverUrl,
+    baselineDiffEnabled,
+    outputRoot,
     interactions: [],
     updateBaseline,
     shots: []
@@ -168,10 +174,11 @@ async function newPage() {
 async function captureAndAudit(page, shot, report) {
   await hideDynamicText(page);
   await waitForCardImages(page);
-  await expectNoHiddenDebugText(page);
+  await expectNoHiddenDebugText(page, shot.allowedDebugTexts ?? []);
   const screenshotPath = path.join(appshotDir, `${shot.name}.png`);
   const buffer = await page.screenshot({ fullPage: false, path: screenshotPath });
   assertNonBlank(buffer, shot.name);
+  await assertWireframeVisual(buffer, shot.name);
   const visual = await compareOrUpdateVisual(shot.name, buffer);
   const accessibility = await runAccessibilitySmoke(page, shot.name);
   report.shots.push({
@@ -274,6 +281,11 @@ async function compareOrUpdateVisual(name, currentBuffer) {
   const baselinePath = path.join(baselineDir, `${name}.png`);
   const diffPath = path.join(diffDir, `${name}.png`);
 
+  if (!updateBaseline && !baselineDiffEnabled) {
+    await rm(diffPath, { force: true });
+    return { status: "wireframe-invariant", ratio: null };
+  }
+
   if (updateBaseline || !existsSync(baselinePath)) {
     await writeFile(baselinePath, currentBuffer);
     await rm(diffPath, { force: true });
@@ -305,6 +317,61 @@ async function compareOrUpdateVisual(name, currentBuffer) {
   return { status: "compared", ratio, diffPixels };
 }
 
+async function assertWireframeVisual(buffer, name) {
+  const image = PNG.sync.read(buffer);
+  let sampled = 0;
+  let nearWhite = 0;
+  let nearBlack = 0;
+  let dark = 0;
+  const stride = 4 * 37;
+
+  for (let index = 0; index < image.data.length; index += stride) {
+    const red = image.data[index];
+    const green = image.data[index + 1];
+    const blue = image.data[index + 2];
+    const alpha = image.data[index + 3];
+    if (alpha < 16) {
+      continue;
+    }
+
+    sampled += 1;
+    const luminance = (red * 0.2126) + (green * 0.7152) + (blue * 0.0722);
+    if (red >= 238 && green >= 238 && blue >= 238) {
+      nearWhite += 1;
+    }
+    if (red <= 72 && green <= 72 && blue <= 72) {
+      nearBlack += 1;
+    }
+    if (luminance < 90) {
+      dark += 1;
+    }
+  }
+
+  const nearWhiteRatio = nearWhite / sampled;
+  const nearBlackRatio = nearBlack / sampled;
+  const darkRatio = dark / sampled;
+  const failures = [];
+  if (nearWhiteRatio < 0.34) {
+    failures.push(`nearWhite=${nearWhiteRatio.toFixed(3)}`);
+  }
+  if (nearBlackRatio < 0.002) {
+    failures.push(`nearBlack=${nearBlackRatio.toFixed(3)}`);
+  }
+  if (darkRatio > 0.55) {
+    failures.push(`dark=${darkRatio.toFixed(3)}`);
+  }
+  if (failures.length > 0) {
+    throw new Error(`Wireframe visual invariant failed for ${name}: ${failures.join(", ")}`);
+  }
+
+  return {
+    checked: true,
+    darkRatio,
+    nearBlackRatio,
+    nearWhiteRatio
+  };
+}
+
 function assertNonBlank(buffer, name) {
   const image = PNG.sync.read(buffer);
   const seen = new Set();
@@ -322,9 +389,10 @@ function assertNonBlank(buffer, name) {
   }
 }
 
-async function expectNoHiddenDebugText(page) {
+async function expectNoHiddenDebugText(page, allowedTexts = []) {
   const bodyText = await page.locator("body").innerText();
-  const leaked = hiddenDebugTexts.filter((text) => bodyText.includes(text));
+  const allowed = new Set(allowedTexts);
+  const leaked = hiddenDebugTexts.filter((text) => !allowed.has(text) && bodyText.includes(text));
   if (leaked.length > 0) {
     throw new Error(`Hidden/debug metadata leaked into DOM text: ${leaked.join(", ")}`);
   }
@@ -825,7 +893,8 @@ async function ensureApi() {
     env: {
       ...process.env,
       ASPNETCORE_ENVIRONMENT: "Development",
-      ASPNETCORE_URLS: serverUrl
+      ASPNETCORE_URLS: serverUrl,
+      ConnectionStrings__Riftbound: process.env.RIFTBOUND_QA_CONNECTION_STRING ?? ""
     },
     name: "api"
   });
