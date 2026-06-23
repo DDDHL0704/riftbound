@@ -16,6 +16,7 @@ import { buildRoomSetupFlowPlan } from "../utils/roomSetupFlowPlan";
 import { buildServerQuickActionPlan, quickActionCommandUiSource, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 import { asRecord, asString } from "../utils/collections";
+import { buildRoomWorkflowSurfacePlan, type RoomWorkflowSurfacePlan, type RoomWorkflowRegionState } from "../utils/roomWorkflowSurfacePlan";
 
 export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
@@ -49,6 +50,45 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
     controller.state.errors,
     controller.state.lastCommandSubmission,
     controller.state.status,
+    snapshot
+  ]);
+  const roomSetupFlowPlan = useMemo(() => buildRoomSetupFlowPlan({
+    connectionStatus: controller.state.status,
+    currentPlayer: snapshot?.players[settings.playerId],
+    lastCommandSubmissionState: controller.state.lastCommandSubmission?.state,
+    players,
+    quickActions: roomQuickActionPlan.entries,
+    roomStatus,
+    submissionGateReason: submissionGate.reason
+  }), [
+    controller.state.lastCommandSubmission?.state,
+    controller.state.status,
+    players,
+    roomQuickActionPlan.entries,
+    roomStatus,
+    settings.playerId,
+    snapshot?.players,
+    submissionGate.reason
+  ]);
+  const roomWorkflowSurfacePlan = useMemo(() => buildRoomWorkflowSurfacePlan({
+    connectionStatus: controller.state.status,
+    errorCount: controller.state.errors.length,
+    errorState: errorResolutionPlan.state,
+    eventCount: controller.state.events.length,
+    hasSnapshot: Boolean(snapshot),
+    quickActions: roomQuickActionPlan.entries,
+    roomStatus,
+    setupGate: roomSetupFlowPlan.startGate,
+    submissionState: controller.state.lastCommandSubmission?.state
+  }), [
+    controller.state.errors.length,
+    controller.state.events.length,
+    controller.state.lastCommandSubmission?.state,
+    controller.state.status,
+    errorResolutionPlan.state,
+    roomQuickActionPlan.entries,
+    roomSetupFlowPlan.startGate,
+    roomStatus,
     snapshot
   ]);
   const runRoomQuickAction = useCallback((entry: ServerQuickActionEntry) => {
@@ -117,32 +157,31 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
           {connectionStatusLabel(controller.state.status)}
         </StatusPill>
       </section>
+      <RoomWorkflowSurface plan={roomWorkflowSurfacePlan} />
       <section className="room-actions">
-        <ConnectionRecoveryPanel
-          connectionStatus={controller.state.status}
-          hasSnapshot={Boolean(snapshot)}
-          lastSystemMessage={controller.state.lastSystemMessage}
-          onConnect={() => void controller.join()}
-          onDisconnect={() => void controller.disconnect()}
-          onResync={() => void controller.requestSnapshot()}
-          promptSnapshotTick={prompt?.snapshotTick}
-          snapshotTick={snapshot?.tick}
-          surface="room"
-        />
-        <RoomPromptButtons
-          entries={roomQuickActionPlan.entries}
-          onRunAction={runRoomQuickAction}
-        />
+        <div className="room-action-region" data-room-recovery-region>
+          <ConnectionRecoveryPanel
+            connectionStatus={controller.state.status}
+            hasSnapshot={Boolean(snapshot)}
+            lastSystemMessage={controller.state.lastSystemMessage}
+            onConnect={() => void controller.join()}
+            onDisconnect={() => void controller.disconnect()}
+            onResync={() => void controller.requestSnapshot()}
+            promptSnapshotTick={prompt?.snapshotTick}
+            snapshotTick={snapshot?.tick}
+            surface="room"
+          />
+        </div>
+        <div className="room-action-region room-quick-action-region" data-room-actions-region>
+          <RoomPromptButtons
+            entries={roomQuickActionPlan.entries}
+            onRunAction={runRoomQuickAction}
+          />
+        </div>
         <Button icon={<Swords size={18} />} onClick={() => onNavigate({ name: "match", matchId: roomId })}>进入对战桌面</Button>
       </section>
       <RoomSetupChecklist
-        connectionStatus={controller.state.status}
-        currentPlayer={snapshot?.players[settings.playerId]}
-        lastCommandSubmission={controller.state.lastCommandSubmission}
-        players={players}
-        quickActions={roomQuickActionPlan.entries}
-        roomStatus={roomStatus}
-        submissionGateReason={submissionGate.reason}
+        plan={roomSetupFlowPlan}
       />
       <section className="seat-grid">
         {Object.entries(snapshot?.players ?? {}).map(([playerId, player]) => (
@@ -168,7 +207,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         onRunAction={runErrorResolutionAction}
         plan={errorResolutionPlan}
       />
-      <section className="room-log-panel">
+      <section className="room-log-panel" data-room-log-region>
         <header>
           <div>
             <span className="eyebrow">房间日志</span>
@@ -206,12 +245,8 @@ function RoomErrorResolutionPanel({
   onRunAction: (action: ErrorResolutionAction) => void;
   plan: ErrorResolutionPlan;
 }) {
-  if (plan.state === "clear") {
-    return null;
-  }
-
   return (
-    <section className="room-error-resolution-panel" data-error-resolution-state={plan.state}>
+    <section className="room-error-resolution-panel" data-error-resolution-state={plan.state} data-room-errors-region>
       <header>
         <div>
           <span className="eyebrow">错误处理</span>
@@ -265,35 +300,9 @@ function errorResolutionActionIcon(actionId: ErrorResolutionAction["id"]) {
   }
 }
 
-function RoomSetupChecklist({
-  connectionStatus,
-  currentPlayer,
-  lastCommandSubmission,
-  players,
-  quickActions,
-  roomStatus,
-  submissionGateReason
-}: {
-  connectionStatus: ReturnType<typeof useMatchController>["state"]["status"];
-  currentPlayer?: { deckSubmitted?: boolean; ready?: boolean; seat?: string };
-  lastCommandSubmission?: CommandSubmissionFeedback;
-  players: Array<{ deckSubmitted?: boolean; ready?: boolean; seat?: string }>;
-  quickActions: ServerQuickActionEntry[];
-  roomStatus: string;
-  submissionGateReason: string;
-}) {
-  const plan = buildRoomSetupFlowPlan({
-    connectionStatus,
-    currentPlayer,
-    lastCommandSubmissionState: lastCommandSubmission?.state,
-    players,
-    quickActions,
-    roomStatus,
-    submissionGateReason
-  });
-
+function RoomSetupChecklist({ plan }: { plan: ReturnType<typeof buildRoomSetupFlowPlan> }) {
   return (
-    <section className="room-flow-panel">
+    <section className="room-flow-panel" data-room-setup-region>
       {plan.steps.map((step) => (
         <article data-room-setup-step={step.id} key={step.id}>
           <strong>{step.title}</strong>
@@ -309,7 +318,7 @@ function RoomSetupChecklist({
 function RoomSubmissionReceipt({ feedback }: { feedback?: CommandSubmissionFeedback }) {
   if (!feedback) {
     return (
-      <section className="room-submission-panel" data-room-submission-state="empty">
+      <section className="room-submission-panel" data-room-submission-region data-room-submission-state="empty">
         <span className="eyebrow">提交回执</span>
         <h2>等待玩家提交</h2>
         <p>房间页会在这里显示服务端接受、拒绝或失败原因。</p>
@@ -325,7 +334,7 @@ function RoomSubmissionReceipt({ feedback }: { feedback?: CommandSubmissionFeedb
       : "保持当前页面，等待服务端入口回执。";
 
   return (
-    <section className="room-submission-panel" data-room-submission-state={feedback.state}>
+    <section className="room-submission-panel" data-room-submission-region data-room-submission-state={feedback.state}>
       <header>
         <div>
           <span className="eyebrow">提交回执</span>
@@ -350,6 +359,58 @@ function RoomSubmissionReceipt({ feedback }: { feedback?: CommandSubmissionFeedb
       </dl>
     </section>
   );
+}
+
+function RoomWorkflowSurface({ plan }: { plan: RoomWorkflowSurfacePlan }) {
+  return (
+    <section
+      aria-label="房间流程总览"
+      className="room-workflow-surface"
+      data-room-workflow-active-region={plan.activeRegionId}
+      data-room-workflow-surface
+      data-room-workflow-summary={plan.summary}
+    >
+      <header>
+        <div>
+          <span className="eyebrow">流程总览</span>
+          <h2>房间到对战的服务端链路</h2>
+        </div>
+        <StatusPill tone="neutral">{plan.activeRegionId}</StatusPill>
+      </header>
+      <p>{plan.summary}</p>
+      <div className="room-workflow-grid">
+        {plan.sections.map((section) => (
+          <article
+            className="room-workflow-region"
+            data-room-workflow-region={section.id}
+            data-room-workflow-source={section.source}
+            data-room-workflow-state={section.state}
+            key={section.id}
+          >
+            <div>
+              <strong>{section.label}</strong>
+              <StatusPill tone={toneForWorkflowState(section.state)}>{section.value}</StatusPill>
+            </div>
+            <span>{section.source}</span>
+            <p>{section.nextStep}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function toneForWorkflowState(state: RoomWorkflowRegionState) {
+  switch (state) {
+    case "blocking":
+      return "bad";
+    case "ready":
+      return "good";
+    case "waiting":
+      return "warn";
+    case "clear":
+      return "neutral";
+  }
 }
 
 function RoomPromptButtons({

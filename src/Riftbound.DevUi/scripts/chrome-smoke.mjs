@@ -35,7 +35,7 @@ const routes = [
   { path: "/lobby", texts: ["创建或加入", "玩家名称", "房间码"] },
   { path: "/decks", texts: ["构筑导入工作台", "导入入口", "等待服务端验证", "服务端权威"] },
   { path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
-  { path: "/rooms/stage3-smoke", texts: ["房间", "连接/重连并入座", "卡组提交", "提交回执"] },
+  { path: "/rooms/stage3-smoke", texts: ["房间", "流程总览", "连接/重连并入座", "卡组提交", "提交回执"] },
   {
     path: "/matches/stage3-smoke",
     texts: ["符文战场对战线框", "等待开局", "控制台", "行动", "响应", "规则", "日志", "详情", "当前页", "态势总览"],
@@ -441,13 +441,54 @@ async function runRoomLifecycleSmoke(cdp) {
       state: button.getAttribute("data-room-quick-action-state") ?? "",
       text: button.textContent ?? ""
     }));
-    return { entries };
+    const workflow = document.querySelector("[data-room-workflow-surface]");
+    const regions = Array.from(document.querySelectorAll("[data-room-workflow-region]")).map((region) => ({
+      id: region.getAttribute("data-room-workflow-region") ?? "",
+      source: region.getAttribute("data-room-workflow-source") ?? "",
+      state: region.getAttribute("data-room-workflow-state") ?? "",
+      text: region.textContent ?? ""
+    }));
+    return {
+      activeRegion: workflow?.getAttribute("data-room-workflow-active-region") ?? "",
+      entries,
+      hasActionRegion: Boolean(document.querySelector("[data-room-actions-region]")),
+      hasErrorRegion: Boolean(document.querySelector("[data-room-errors-region]")),
+      hasLogRegion: Boolean(document.querySelector("[data-room-log-region]")),
+      hasRecoveryRegion: Boolean(document.querySelector("[data-room-recovery-region]")),
+      hasSetupRegion: Boolean(document.querySelector("[data-room-setup-region]")),
+      hasSubmissionRegion: Boolean(document.querySelector("[data-room-submission-region]")),
+      regions,
+      summary: workflow?.getAttribute("data-room-workflow-summary") ?? ""
+    };
   })()`);
 
   const entries = result.entries ?? [];
   const byId = Object.fromEntries(entries.map((entry) => [entry.id, entry]));
+  const regions = result.regions ?? [];
+  const regionIds = regions.map((region) => region.id);
+  const sources = new Set(regions.map((region) => region.source));
+  const expectedRegionIds = ["recovery", "setup", "actions", "submission", "errors", "log"];
   if (entries.length !== 2) {
     throw new Error(`Room lifecycle smoke expected 2 server quick actions, got ${entries.length}`);
+  }
+  if (regions.length !== expectedRegionIds.length || expectedRegionIds.some((id) => !regionIds.includes(id))) {
+    throw new Error(`Room lifecycle smoke did not find all workflow regions: ${JSON.stringify(regions)}`);
+  }
+  for (const source of ["server-connection", "server-snapshot", "server-prompt", "server-receipt", "server-events"]) {
+    if (!sources.has(source)) {
+      throw new Error(`Room lifecycle smoke missing workflow source ${source}: ${JSON.stringify(regions)}`);
+    }
+  }
+  if (result.activeRegion !== "recovery") {
+    throw new Error(`Room lifecycle smoke expected recovery as active region before connect: ${result.activeRegion}`);
+  }
+  if (!String(result.summary ?? "").includes("连接：") || !String(result.summary ?? "").includes("行动：")) {
+    throw new Error(`Room lifecycle smoke missing workflow summary: ${result.summary}`);
+  }
+  for (const flag of ["hasRecoveryRegion", "hasSetupRegion", "hasActionRegion", "hasSubmissionRegion", "hasErrorRegion", "hasLogRegion"]) {
+    if (!result[flag]) {
+      throw new Error(`Room lifecycle smoke missing marked page region ${flag}`);
+    }
   }
   if (byId.submitDeck?.state !== "missing" || byId.submitDeck?.disabled !== true) {
     throw new Error(`Room submit deck quick action should be missing and disabled: ${JSON.stringify(byId.submitDeck)}`);

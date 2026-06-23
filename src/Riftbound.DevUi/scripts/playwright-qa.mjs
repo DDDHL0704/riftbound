@@ -46,7 +46,7 @@ const staticShots = [
   { name: "home", path: "/", texts: ["符文战场", "进入大厅"] },
   { name: "cards", path: "/cards", texts: ["卡牌图鉴", "官方卡牌视图"] },
   { name: "decks", path: "/decks", texts: ["构筑导入工作台", "导入入口", "等待服务端验证", "服务端权威"], allowedDebugTexts: ["mainDeck", "runeDeck"] },
-  { name: "room", path: "/rooms/qa-visual-room", texts: ["房间", "连接/重连并入座", "卡组提交", "提交回执"] }
+  { name: "room", path: "/rooms/qa-visual-room", texts: ["房间", "流程总览", "连接/重连并入座", "卡组提交", "提交回执"] }
 ];
 
 const scenarioShots = [
