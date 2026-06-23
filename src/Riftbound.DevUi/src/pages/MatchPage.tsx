@@ -917,7 +917,7 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       </header>
 
       <div className="wire-match-body">
-        <section className="wire-table-shell" aria-label="黑白线框对战桌面">
+        <section className="wire-table-shell" aria-label="黑白线框对战桌面" tabIndex={0}>
           <div className="wire-table" style={wireTableStyle()}>{tableRows}</div>
           <WireObjectCommandTray
             disabledByConnection={!tableSubmissionGate.canSubmit}
@@ -1466,6 +1466,9 @@ function WirePlayerHome({
   const objects = entry?.objects ?? {};
   const baseObjectIds = entry?.baseObjectIds ?? [];
   const ownerLabel = entry?.label ?? (side === "self" ? "P1 我方" : "P2 对手");
+  const score = entry?.player.score ?? 0;
+  const mainDeckCount = zones.mainDeckCount ?? 0;
+  const runeDeckCount = zones.runeDeckCount ?? 0;
   const baseSections = {
     banish: (
       <section className="wire-banish-main" key="banish" aria-label={`${ownerLabel} 放逐区`}>
@@ -1500,6 +1503,16 @@ function WirePlayerHome({
 
   return (
     <section className={`wire-player-home wire-player-${side} ${entry ? "" : "wire-player-missing"}`} style={wireGridColumnsStyle(layout.columns)} aria-label={`${ownerLabel} 基础区`} data-wire-base-partition-source={entry?.basePartitionSource ?? "missing"}>
+      <div
+        aria-label={`${ownerLabel} 分数 ${score}`}
+        className="tabletop-score-token wire-home-score-token"
+        data-wire-player-score-side={side}
+        role="group"
+      >
+        <span className="tabletop-score-name">{ownerLabel}</span>
+        <strong>{score}</strong>
+        <small className="tabletop-score-meta">主牌 {mainDeckCount} / 符文 {runeDeckCount}</small>
+      </div>
       {layout.slots.map((slot) => homeSections[slot])}
     </section>
   );
@@ -1794,8 +1807,19 @@ function WireBattlefieldSite({
   sideLabel: string;
   specs: Record<string, BehaviorSpec>;
 }) {
+  const scoredPlayers = lane.scoredThisTurnPlayerIds.filter((playerId) => playerId.trim().length > 0);
+  const scoreState = scoredPlayers.length > 0 ? "scored" : "unscored";
+  const scoredPlayersLabel = scoredPlayers.length > 0 ? scoredPlayers.join("、") : "未得分";
+  const controllerLabel = lane.controllerId || "无人";
+
   return (
-    <section className="wire-battlefield-site" aria-label={sideLabel}>
+    <section
+      aria-label={`${sideLabel}，控制 ${controllerLabel}，本回合得分 ${scoredPlayersLabel}`}
+      className="wire-battlefield-site"
+      data-wire-battlefield-score-state={scoreState}
+      data-wire-battlefield-scored-player-count={scoredPlayers.length}
+      data-wire-battlefield-scored-players={scoredPlayers.join(",")}
+    >
       <div className="wire-battlefield-site-body wire-density-single">
         {lane.cardNo ? (
           <CardFace
@@ -1813,6 +1837,10 @@ function WireBattlefieldSite({
         ) : (
           <WireCardSlot label="战场" />
         )}
+      </div>
+      <div className="wire-battlefield-site-meta">
+        <span>控制 {controllerLabel}</span>
+        <span>本回合得分 {scoredPlayersLabel}</span>
       </div>
     </section>
   );

@@ -125,6 +125,7 @@ try {
       await openSeededMatch(page, seeded, shot.playerId);
       await assertTexts(page, shot.texts);
       await assertServerFlow(page);
+      await assertMatchStateSurface(page, shot);
       await captureAndAudit(page, shot, report);
       await page.close();
     } finally {
@@ -207,6 +208,97 @@ async function assertServerFlow(page) {
 
   if (activeSlot && activeSlot !== "serverFlow") {
     await openSidePanelSlot(page, activeSlot);
+  }
+}
+
+async function assertMatchStateSurface(page, shot) {
+  const activeSlot = await page.locator("[data-wire-side-panel-directory]").first().getAttribute("data-wire-side-panel-directory-active-slot");
+  await openSidePanelSlot(page, "ruleQueue");
+  const surface = await page.evaluate(() => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\s+/g, " ") ?? "";
+    const scoreTokens = Array.from(document.querySelectorAll(".tabletop-score-token")).map((node) => ({
+      label: node.getAttribute("aria-label") ?? "",
+      text: textOf(node)
+    }));
+    const battlefieldScoreSurfaces = Array.from(document.querySelectorAll("[data-wire-battlefield-score-state]")).map((node) => ({
+      count: node.getAttribute("data-wire-battlefield-scored-player-count") ?? "",
+      players: node.getAttribute("data-wire-battlefield-scored-players") ?? "",
+      state: node.getAttribute("data-wire-battlefield-score-state") ?? "",
+      text: textOf(node)
+    }));
+    const ruleChain = document.querySelector("[data-wire-side-panel-rule-chain-state]");
+    return {
+      battlefieldScoreSurfaces,
+      ruleChainAria: ruleChain?.getAttribute("aria-label") ?? "",
+      ruleChainLanes: Array.from(document.querySelectorAll("[data-wire-side-panel-rule-chain-lane]")).map((node) => ({
+        count: node.getAttribute("data-wire-side-panel-rule-chain-lane-count") ?? "",
+        key: node.getAttribute("data-wire-side-panel-rule-chain-lane") ?? "",
+        state: node.getAttribute("data-wire-side-panel-rule-chain-lane-state") ?? "",
+        text: textOf(node)
+      })),
+      ruleChainMetrics: Array.from(document.querySelectorAll("[data-wire-side-panel-rule-chain-metric]")).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-rule-chain-metric") ?? "",
+        text: textOf(node)
+      })),
+      ruleChainRoutes: Array.from(document.querySelectorAll("[data-wire-side-panel-rule-chain-route]")).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-rule-chain-route") ?? "",
+        state: node.getAttribute("data-wire-side-panel-rule-chain-route-state") ?? "",
+        text: textOf(node)
+      })),
+      ruleChainState: ruleChain?.getAttribute("data-wire-side-panel-rule-chain-state") ?? "",
+      ruleChainText: textOf(ruleChain),
+      scoreTokens
+    };
+  });
+
+  const failures = [];
+  if (surface.scoreTokens.length < 2) {
+    failures.push(`expected at least two tabletop score tokens, got ${surface.scoreTokens.length}`);
+  }
+  for (const token of surface.scoreTokens) {
+    if (!token.label.includes("分数")) {
+      failures.push(`score token missing score label: ${JSON.stringify(token)}`);
+    }
+    if (!token.text.includes("主牌") || !token.text.includes("符文")) {
+      failures.push(`score token must keep deck/rune context: ${JSON.stringify(token)}`);
+    }
+  }
+  if (surface.battlefieldScoreSurfaces.length === 0) {
+    failures.push("expected battlefield score surfaces from server snapshot.");
+  }
+  if (!surface.battlefieldScoreSurfaces.some((surface) => surface.text.includes("本回合") && surface.text.includes("得分"))) {
+    failures.push(`battlefield score surfaces must expose this-turn scoring copy: ${JSON.stringify(surface.battlefieldScoreSurfaces)}`);
+  }
+  for (const battlefieldSurface of surface.battlefieldScoreSurfaces) {
+    if (!battlefieldSurface.state || !battlefieldSurface.count) {
+      failures.push(`battlefield score surface missing state/count: ${JSON.stringify(battlefieldSurface)}`);
+    }
+  }
+  if (!surface.ruleChainState) {
+    failures.push("rule chain strip is missing state.");
+  }
+  if (!surface.ruleChainAria.includes("规则链")) {
+    failures.push(`rule chain strip is missing aria label: ${surface.ruleChainAria}`);
+  }
+  if (surface.ruleChainLanes.length === 0) {
+    failures.push("rule chain strip is missing lanes.");
+  }
+  if (surface.ruleChainMetrics.length === 0) {
+    failures.push("rule chain strip is missing metrics.");
+  }
+  if (surface.ruleChainRoutes.length === 0) {
+    failures.push("rule chain strip is missing routes.");
+  }
+  if (!surface.ruleChainText.includes("下一步")) {
+    failures.push(`rule chain strip is missing next-step text: ${surface.ruleChainText}`);
+  }
+
+  if (activeSlot && activeSlot !== "ruleQueue") {
+    await openSidePanelSlot(page, activeSlot);
+  }
+
+  if (failures.length > 0) {
+    throw new Error(`Seeded match state surface failed for ${shot.name}: ${failures.join("; ")}`);
   }
 }
 

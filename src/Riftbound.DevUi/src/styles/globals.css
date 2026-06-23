@@ -12239,10 +12239,53 @@ button.card-face:hover {
 }
 
 .wire-player-home {
+  position: relative;
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   gap: 4px;
   padding: 4px;
+}
+
+.wire-home-score-token {
+  position: absolute;
+  z-index: 3;
+  top: 4px;
+  right: 4px;
+  width: 92px;
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1px 4px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 3px 4px;
+  font-size: 9px;
+  line-height: 1.05;
+}
+
+.wire-home-score-token .tabletop-score-name,
+.wire-home-score-token .tabletop-score-meta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-home-score-token .tabletop-score-name {
+  font-weight: 700;
+}
+
+.wire-home-score-token strong {
+  grid-row: span 2;
+  align-self: center;
+  color: #000;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.wire-home-score-token .tabletop-score-meta {
+  color: #000;
 }
 
 .wire-home-legend {
@@ -12391,11 +12434,13 @@ button.card-face:hover {
 }
 
 .wire-battlefield-site {
+  position: relative;
   align-self: center;
   justify-self: center;
   width: var(--wire-battlefield-card-w);
   height: var(--wire-battlefield-card-h);
   border: 0;
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .wire-battlefield-site-body,
@@ -12415,6 +12460,36 @@ button.card-face:hover {
   --wire-card-h: var(--wire-battlefield-card-h);
   padding: 0;
   overflow: hidden;
+}
+
+.wire-battlefield-site-meta {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-width: 0;
+  min-height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 1px 3px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.05;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wire-battlefield-site-meta span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wire-battlefield-center-grid {
