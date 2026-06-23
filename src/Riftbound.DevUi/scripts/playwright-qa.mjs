@@ -227,10 +227,29 @@ async function assertMatchStateSurface(page, shot) {
       text: textOf(node)
     }));
     const recoverySurface = document.querySelector("[data-match-recovery-surface]");
+    const operation = document.querySelector("[data-wire-side-panel-operation-state]");
     const stateRail = document.querySelector("[data-wire-side-panel-state-rail]");
     const ruleChain = document.querySelector("[data-wire-side-panel-rule-chain-state]");
     return {
       battlefieldScoreSurfaces,
+      operationActive: operation?.getAttribute("data-wire-side-panel-operation-active") ?? "",
+      operationReadyCount: operation?.getAttribute("data-wire-side-panel-operation-ready-count") ?? "",
+      operationSections: Array.from(document.querySelectorAll("[data-wire-side-panel-operation-section]")).map((node) => ({
+        active: node.getAttribute("data-wire-side-panel-operation-section-active") ?? "",
+        count: node.getAttribute("data-wire-side-panel-operation-section-count") ?? "",
+        key: node.getAttribute("data-wire-side-panel-operation-section") ?? "",
+        primarySlot: node.querySelector("[data-wire-side-panel-operation-section-primary]")?.getAttribute("data-wire-side-panel-operation-section-primary") ?? "",
+        state: node.getAttribute("data-wire-side-panel-operation-section-state") ?? "",
+        text: textOf(node)
+      })),
+      operationRoutes: Array.from(document.querySelectorAll("[data-wire-side-panel-operation-route]")).map((node) => ({
+        key: node.getAttribute("data-wire-side-panel-operation-route") ?? "",
+        slot: node.getAttribute("data-wire-side-panel-operation-route-slot") ?? "",
+        state: node.getAttribute("data-wire-side-panel-operation-route-state") ?? "",
+        text: textOf(node)
+      })),
+      operationState: operation?.getAttribute("data-wire-side-panel-operation-state") ?? "",
+      operationText: textOf(operation),
       recoveryActiveRegion: recoverySurface?.getAttribute("data-match-recovery-active-region") ?? "",
       recoveryRegions: Array.from(document.querySelectorAll("[data-match-recovery-region]")).map((node) => ({
         id: node.getAttribute("data-match-recovery-region") ?? "",
@@ -345,6 +364,26 @@ async function assertMatchStateSurface(page, shot) {
   }
   if (!surface.ruleChainText.includes("下一步")) {
     failures.push(`rule chain strip is missing next-step text: ${surface.ruleChainText}`);
+  }
+  if (!surface.operationState || !surface.operationActive || !surface.operationReadyCount) {
+    failures.push(`operation panel missing state/active/ready metrics: ${JSON.stringify({
+      active: surface.operationActive,
+      readyCount: surface.operationReadyCount,
+      state: surface.operationState
+    })}`);
+  }
+  for (const requiredSection of ["focus", "prompt", "rules", "commands"]) {
+    if (!surface.operationSections.some((section) => section.key === requiredSection && section.state && section.primarySlot)) {
+      failures.push(`operation panel missing sourced section ${requiredSection}: ${JSON.stringify(surface.operationSections)}`);
+    }
+  }
+  for (const requiredSlot of ["interaction", "actionPrompt", "ruleQueue", "serverFlow", "commandCenter", "responseCoach"]) {
+    if (!surface.operationRoutes.some((route) => route.slot === requiredSlot && route.state)) {
+      failures.push(`operation panel missing sourced route to ${requiredSlot}: ${JSON.stringify(surface.operationRoutes)}`);
+    }
+  }
+  if (!surface.operationText.includes("规则操作") || !surface.operationText.includes("入口")) {
+    failures.push(`operation panel must render readable operation/route copy: ${surface.operationText}`);
   }
 
   if (activeSlot && activeSlot !== "ruleQueue") {

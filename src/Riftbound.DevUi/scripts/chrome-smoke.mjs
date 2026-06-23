@@ -1861,7 +1861,7 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
     const tableShell = document.querySelector(".wire-table-shell");
     const sidePanel = document.querySelector(".wire-side-panel");
     const directory = document.querySelector("[data-wire-side-panel-directory]");
-    const operation = document.querySelector(".wire-side-panel-operation");
+    const operation = document.querySelector("[data-wire-side-panel-operation-state]");
     const operationList = document.querySelector(".wire-side-panel-operation-sections");
     const railStack = document.querySelector("[data-wire-side-panel-rail-stack]");
     const paneStack = document.querySelector(".wire-side-panel-stack");
@@ -1940,6 +1940,42 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
     if (operationBoundary.exists && operationBoundary.clientHeight > operationMaxHeight) {
       failures.push("wire side panel operation list is consuming too much vertical space at " + viewportLabel + ": max " + operationMaxHeight + " got " + JSON.stringify(operationBoundary));
     }
+    const operationState = operation?.getAttribute("data-wire-side-panel-operation-state") ?? "";
+    const operationActive = operation?.getAttribute("data-wire-side-panel-operation-active") ?? "";
+    const operationReadyCount = Number(operation?.getAttribute("data-wire-side-panel-operation-ready-count") ?? "NaN");
+    const operationSections = Array.from(document.querySelectorAll("[data-wire-side-panel-operation-section]")).map((section) => ({
+      count: Number(section.getAttribute("data-wire-side-panel-operation-section-count") ?? "NaN"),
+      key: section.getAttribute("data-wire-side-panel-operation-section") ?? "",
+      primarySlot: section.querySelector("[data-wire-side-panel-operation-section-primary]")?.getAttribute("data-wire-side-panel-operation-section-primary") ?? "",
+      state: section.getAttribute("data-wire-side-panel-operation-section-state") ?? "",
+      text: section.textContent?.trim().replace(/\\s+/g, " ") ?? ""
+    }));
+    const operationRoutes = Array.from(document.querySelectorAll("[data-wire-side-panel-operation-route]")).map((route) => ({
+      key: route.getAttribute("data-wire-side-panel-operation-route") ?? "",
+      slot: route.getAttribute("data-wire-side-panel-operation-route-slot") ?? "",
+      state: route.getAttribute("data-wire-side-panel-operation-route-state") ?? "",
+      text: route.textContent?.trim().replace(/\\s+/g, " ") ?? ""
+    }));
+    if (!operationState || !operationActive || !Number.isFinite(operationReadyCount)) {
+      failures.push("wire side panel operation missing state, active section, or ready count at " + viewportLabel + ": " + JSON.stringify({
+        active: operationActive,
+        readyCount: operationReadyCount,
+        state: operationState
+      }));
+    }
+    for (const sectionKey of ["focus", "prompt", "rules", "commands"]) {
+      if (!operationSections.some((section) => section.key === sectionKey && section.state && section.primarySlot)) {
+        failures.push("wire side panel operation missing section " + sectionKey + " at " + viewportLabel + ": " + JSON.stringify(operationSections));
+      }
+    }
+    for (const slot of ["interaction", "actionPrompt", "ruleQueue", "serverFlow", "commandCenter", "responseCoach"]) {
+      if (!operationRoutes.some((route) => route.slot === slot && route.state)) {
+        failures.push("wire side panel operation missing sourced route to " + slot + " at " + viewportLabel + ": " + JSON.stringify(operationRoutes));
+      }
+    }
+    if (!operationSections.some((section) => section.text.includes("入口")) && !operationRoutes.some((route) => route.text)) {
+      failures.push("wire side panel operation routes are not readable at " + viewportLabel + ": " + JSON.stringify(operationRoutes));
+    }
     const activePanelBoundary = scrollBoundary(activePanel);
     if (!activePanelBoundary.exists || !activePanelBoundary.canScrollY) {
       failures.push("wire side panel active detail pane missing overflow:auto boundary at " + viewportLabel + ": " + JSON.stringify(activePanelBoundary));
@@ -2003,6 +2039,9 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
       activeSlot,
       failures,
       operationBoundary,
+      operationReadyCount,
+      operationSectionCount: operationSections.length,
+      operationState,
       railSummaryCount,
       summaryRailCount: summaryRails.length,
       visiblePaneCount: visiblePanes.length,

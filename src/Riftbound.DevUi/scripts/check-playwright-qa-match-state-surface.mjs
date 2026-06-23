@@ -29,6 +29,9 @@ for (const requiredSelector of [
   "[data-wire-side-panel-rule-chain-lane]",
   "[data-wire-side-panel-rule-chain-metric]",
   "[data-wire-side-panel-rule-chain-route]",
+  "[data-wire-side-panel-operation-state]",
+  "[data-wire-side-panel-operation-section]",
+  "[data-wire-side-panel-operation-route]",
   "[data-match-recovery-surface]",
   "[data-match-recovery-region]"
 ]) {
@@ -41,6 +44,12 @@ for (const requiredSelector of [
 for (const requiredAttribute of [
   "data-wire-side-panel-state-key",
   "data-wire-side-panel-state-source",
+  "data-wire-side-panel-operation-active",
+  "data-wire-side-panel-operation-ready-count",
+  "data-wire-side-panel-operation-section-state",
+  "data-wire-side-panel-operation-section-primary",
+  "data-wire-side-panel-operation-route-state",
+  "data-wire-side-panel-operation-route-slot",
   "data-match-recovery-active-region",
   "data-match-recovery-state",
   "data-match-recovery-summary",
@@ -65,6 +74,9 @@ assert.match(
 );
 
 for (const requiredChromeSelector of [
+  "[data-wire-side-panel-operation-state]",
+  "[data-wire-side-panel-operation-section]",
+  "[data-wire-side-panel-operation-route]",
   "[data-match-recovery-surface]",
   "[data-match-recovery-region]"
 ]) {
@@ -75,6 +87,12 @@ for (const requiredChromeSelector of [
 }
 
 for (const requiredChromeAttribute of [
+  "data-wire-side-panel-operation-active",
+  "data-wire-side-panel-operation-ready-count",
+  "data-wire-side-panel-operation-section-state",
+  "data-wire-side-panel-operation-section-primary",
+  "data-wire-side-panel-operation-route-state",
+  "data-wire-side-panel-operation-route-slot",
   "data-match-recovery-active-region",
   "data-match-recovery-state",
   "data-match-recovery-summary",
