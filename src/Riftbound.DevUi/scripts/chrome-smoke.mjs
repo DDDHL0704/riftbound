@@ -438,6 +438,7 @@ async function readBodyText(cdp) {
 
 async function runRoomLifecycleSmoke(cdp) {
   const result = await evaluateJson(cdp, `(() => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\\s+/g, " ") ?? "";
     const entries = Array.from(document.querySelectorAll("[data-room-quick-action]")).map((button) => ({
       candidate: button.getAttribute("data-room-quick-action-candidate") ?? "",
       commandSource: button.getAttribute("data-room-quick-action-command-source") ?? "",
@@ -445,18 +446,35 @@ async function runRoomLifecycleSmoke(cdp) {
       disabled: button.hasAttribute("disabled"),
       id: button.getAttribute("data-room-quick-action") ?? "",
       state: button.getAttribute("data-room-quick-action-state") ?? "",
-      text: button.textContent ?? ""
+      text: textOf(button)
+    }));
+    const errorActions = Array.from(document.querySelectorAll("[data-error-resolution-action]")).map((button) => ({
+      disabled: button.hasAttribute("disabled"),
+      disabledAttr: button.getAttribute("data-error-resolution-action-disabled") ?? "",
+      id: button.getAttribute("data-error-resolution-action") ?? "",
+      state: button.getAttribute("data-error-resolution-action-state") ?? "",
+      text: textOf(button),
+      title: button.getAttribute("title") ?? ""
+    }));
+    const errorEvidenceRows = Array.from(document.querySelectorAll("[data-error-resolution-evidence-row]")).map((row) => ({
+      id: row.getAttribute("data-error-resolution-evidence-row") ?? "",
+      label: row.getAttribute("data-error-resolution-evidence-label") ?? "",
+      text: textOf(row),
+      value: row.getAttribute("data-error-resolution-evidence-value") ?? ""
     }));
     const workflow = document.querySelector("[data-room-workflow-surface]");
     const regions = Array.from(document.querySelectorAll("[data-room-workflow-region]")).map((region) => ({
       id: region.getAttribute("data-room-workflow-region") ?? "",
       source: region.getAttribute("data-room-workflow-source") ?? "",
       state: region.getAttribute("data-room-workflow-state") ?? "",
-      text: region.textContent ?? ""
+      text: textOf(region)
     }));
     return {
       activeRegion: workflow?.getAttribute("data-room-workflow-active-region") ?? "",
       entries,
+      errorActions,
+      errorEvidenceRows,
+      errorNextStep: textOf(document.querySelector("[data-error-resolution-next-step]")),
       hasActionRegion: Boolean(document.querySelector("[data-room-actions-region]")),
       hasErrorRegion: Boolean(document.querySelector("[data-room-errors-region]")),
       hasLogRegion: Boolean(document.querySelector("[data-room-log-region]")),
@@ -470,6 +488,10 @@ async function runRoomLifecycleSmoke(cdp) {
 
   const entries = result.entries ?? [];
   const byId = Object.fromEntries(entries.map((entry) => [entry.id, entry]));
+  const errorActions = result.errorActions ?? [];
+  const errorActionsById = Object.fromEntries(errorActions.map((action) => [action.id, action]));
+  const errorEvidenceRows = result.errorEvidenceRows ?? [];
+  const errorEvidenceByLabel = Object.fromEntries(errorEvidenceRows.map((row) => [row.label, row]));
   const regions = result.regions ?? [];
   const regionIds = regions.map((region) => region.id);
   const sources = new Set(regions.map((region) => region.source));
@@ -504,6 +526,27 @@ async function runRoomLifecycleSmoke(cdp) {
   }
   if (byId.submitDeck?.commandSource !== "unavailable" || byId.ready?.commandSource !== "unavailable") {
     throw new Error(`Room missing quick actions should expose unavailable command source: ${JSON.stringify(byId)}`);
+  }
+  if (errorActions.length !== 5) {
+    throw new Error(`Room lifecycle smoke expected 5 error recovery actions: ${JSON.stringify(errorActions)}`);
+  }
+  for (const actionId of ["connect", "resync", "openDecks", "reviewPrompt", "waitServer"]) {
+    const action = errorActionsById[actionId];
+    if (!action?.state || !action.text || !action.title || !["true", "false"].includes(action.disabledAttr)) {
+      throw new Error(`Room error recovery action ${actionId} missing browser-readable state: ${JSON.stringify(action)}`);
+    }
+    if (action.disabled !== (action.disabledAttr === "true")) {
+      throw new Error(`Room error recovery action ${actionId} disabled flag mismatch: ${JSON.stringify(action)}`);
+    }
+  }
+  for (const label of ["连接状态", "错误来源"]) {
+    const row = errorEvidenceByLabel[label];
+    if (!row?.id || !row.value || !row.text.includes(label) || !row.text.includes(row.value)) {
+      throw new Error(`Room error recovery evidence row ${label} missing label/value: ${JSON.stringify(row)}`);
+    }
+  }
+  if (!String(result.errorNextStep ?? "").includes("继续按服务端提示")) {
+    throw new Error(`Room error recovery next step missing server-authority guidance: ${result.errorNextStep}`);
   }
 }
 

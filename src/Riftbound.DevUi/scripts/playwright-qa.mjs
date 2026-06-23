@@ -320,6 +320,21 @@ async function assertRoomWorkflowSurface(page) {
     const submission = document.querySelector("[data-room-submission-region]");
     return {
       activeRegion: workflow?.getAttribute("data-room-workflow-active-region") ?? "",
+      errorActions: Array.from(document.querySelectorAll("[data-error-resolution-action]")).map((node) => ({
+        disabled: node.hasAttribute("disabled"),
+        disabledAttr: node.getAttribute("data-error-resolution-action-disabled") ?? "",
+        id: node.getAttribute("data-error-resolution-action") ?? "",
+        state: node.getAttribute("data-error-resolution-action-state") ?? "",
+        text: textOf(node),
+        title: node.getAttribute("title") ?? ""
+      })),
+      errorEvidenceRows: Array.from(document.querySelectorAll("[data-error-resolution-evidence-row]")).map((node) => ({
+        id: node.getAttribute("data-error-resolution-evidence-row") ?? "",
+        label: node.getAttribute("data-error-resolution-evidence-label") ?? "",
+        text: textOf(node),
+        value: node.getAttribute("data-error-resolution-evidence-value") ?? ""
+      })),
+      errorNextStep: textOf(document.querySelector("[data-error-resolution-next-step]")),
       errorsState: errors?.getAttribute("data-error-resolution-state") ?? "",
       errorsText: textOf(errors),
       hasActionRegion: Boolean(document.querySelector("[data-room-actions-region]")),
@@ -400,7 +415,41 @@ async function assertRoomWorkflowSurface(page) {
       text: surface.errorsText
     })}`);
   }
-  for (const copy of ["连接/重连", "卡组提交", "提交回执", "错误处理", "服务端消息"]) {
+  const errorActionsById = Object.fromEntries(surface.errorActions.map((action) => [action.id, action]));
+  if (surface.errorActions.length !== 5) {
+    failures.push(`room error resolution must expose all recovery actions: ${JSON.stringify(surface.errorActions)}`);
+  }
+  for (const actionId of ["connect", "resync", "openDecks", "reviewPrompt", "waitServer"]) {
+    const action = errorActionsById[actionId];
+    if (!action?.state || !action.text || !action.title || !["true", "false"].includes(action.disabledAttr)) {
+      failures.push(`room error action ${actionId} must expose state, disabled flag, title and label: ${JSON.stringify(action)}`);
+    }
+    if (action && action.disabled !== (action.disabledAttr === "true")) {
+      failures.push(`room error action ${actionId} disabled DOM state must match data attribute: ${JSON.stringify(action)}`);
+    }
+  }
+  if (errorActionsById.connect?.state !== "secondary" || errorActionsById.connect?.disabled !== false) {
+    failures.push(`room error connect action should be available before initial connection: ${JSON.stringify(errorActionsById.connect)}`);
+  }
+  if (errorActionsById.reviewPrompt?.state !== "secondary" || errorActionsById.reviewPrompt?.disabled !== false) {
+    failures.push(`room error review prompt action should remain available in clear state: ${JSON.stringify(errorActionsById.reviewPrompt)}`);
+  }
+  for (const disabledActionId of ["resync", "openDecks", "waitServer"]) {
+    if (errorActionsById[disabledActionId]?.state !== "disabled" || errorActionsById[disabledActionId]?.disabled !== true) {
+      failures.push(`room error action ${disabledActionId} should start disabled without a server issue: ${JSON.stringify(errorActionsById[disabledActionId])}`);
+    }
+  }
+  const evidenceByLabel = Object.fromEntries(surface.errorEvidenceRows.map((row) => [row.label, row]));
+  for (const label of ["连接状态", "错误来源"]) {
+    const row = evidenceByLabel[label];
+    if (!row?.id || !row.value || !row.text.includes(label) || !row.text.includes(row.value)) {
+      failures.push(`room error evidence row ${label} must expose label and value: ${JSON.stringify(row)}`);
+    }
+  }
+  if (!surface.errorNextStep.includes("继续按服务端提示")) {
+    failures.push(`room error next step must expose server-authority recovery guidance: ${surface.errorNextStep}`);
+  }
+  for (const copy of ["连接/重连", "卡组提交", "提交回执", "错误处理", "下一步", "连接状态", "错误来源", "服务端消息"]) {
     if (!surface.text.includes(copy)) {
       failures.push(`room workflow page missing ${copy} copy: ${surface.text}`);
     }

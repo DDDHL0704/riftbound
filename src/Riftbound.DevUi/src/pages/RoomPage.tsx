@@ -257,19 +257,27 @@ function RoomErrorResolutionPanel({
       <p>{plan.detail}</p>
       <dl>
         {plan.evidenceRows.map((row) => (
-          <div key={row.label}>
+          <div
+            data-error-resolution-evidence-label={row.label}
+            data-error-resolution-evidence-row={row.label}
+            data-error-resolution-evidence-value={row.value}
+            key={row.label}
+          >
             <dt>{row.label}</dt>
             <dd>{row.value}</dd>
           </div>
         ))}
       </dl>
-      <div className="room-error-next-step">
+      <div className="room-error-next-step" data-error-resolution-next-step>
         <strong>下一步</strong>
         <span>{plan.nextStep}</span>
       </div>
       <div className="room-error-actions">
         {plan.actions.map((action) => (
           <Button
+            data-error-resolution-action={action.id}
+            data-error-resolution-action-disabled={action.disabled ? "true" : "false"}
+            data-error-resolution-action-state={action.state}
             disabled={action.disabled}
             icon={errorResolutionActionIcon(action.id)}
             key={action.id}

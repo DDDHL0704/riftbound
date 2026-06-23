@@ -29,6 +29,9 @@ for (const requiredSelector of [
   "[data-room-setup-step]",
   "[data-room-submission-region]",
   "[data-room-errors-region]",
+  "[data-error-resolution-action]",
+  "[data-error-resolution-evidence-row]",
+  "[data-error-resolution-next-step]",
   "[data-room-log-region]"
 ]) {
   assert.ok(
@@ -45,7 +48,11 @@ for (const requiredAttribute of [
   "data-room-quick-action-state",
   "data-room-quick-action-command-source",
   "data-room-submission-state",
-  "data-error-resolution-state"
+  "data-error-resolution-state",
+  "data-error-resolution-action-state",
+  "data-error-resolution-action-disabled",
+  "data-error-resolution-evidence-label",
+  "data-error-resolution-evidence-value"
 ]) {
   assert.ok(
     qaSource.includes(requiredAttribute),
@@ -62,6 +69,9 @@ for (const requiredText of [
   "卡组提交",
   "提交回执",
   "错误处理",
+  "下一步",
+  "连接状态",
+  "错误来源",
   "服务端消息"
 ]) {
   assert.ok(
