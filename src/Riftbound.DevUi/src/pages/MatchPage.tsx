@@ -3,6 +3,7 @@ import { AppRoute } from "../app/router";
 import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
+import { ConnectionRecoveryPanel } from "../components/match/ConnectionRecoveryPanel";
 import { EventLog } from "../components/match/EventLog";
 import { CommandSubmissionFeedbackPanel, WireActionMapPanel } from "../components/match/WireActionMapPanel";
 import { WireCommandCenterPanel } from "../components/match/WireCommandCenterPanel";
@@ -883,8 +884,19 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
         </div>
         <div className="wire-topbar-actions">
           <Button onClick={() => onNavigate({ name: "lobby" })} variant="ghost">大厅</Button>
-          <Button onClick={() => void controller.join()} variant="secondary">连接</Button>
-          <Button onClick={() => void controller.requestSnapshot()} variant="secondary">同步</Button>
+          <ConnectionRecoveryPanel
+            actionsDisabled={layoutFixtureEnabled}
+            connectionStatus={tableConnectionStatus}
+            density="compact"
+            hasSnapshot={Boolean(tableSnapshot)}
+            lastSystemMessage={layoutFixtureEnabled ? "前端样例快照；真实连接状态请关闭样例模式。" : controller.state.lastSystemMessage}
+            onConnect={() => void controller.join()}
+            onDisconnect={() => void controller.disconnect()}
+            onResync={() => void controller.requestSnapshot()}
+            promptSnapshotTick={tablePrompt?.snapshotTick}
+            snapshotTick={tableSnapshot?.tick}
+            surface="match"
+          />
           {topbarQuickActionPlan.entries.map((entry) => (
             <Button
               data-topbar-quick-action={entry.id}

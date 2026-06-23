@@ -11856,6 +11856,116 @@ button.card-face:hover {
   padding: 5px;
 }
 
+.connection-recovery-panel {
+  display: grid;
+  flex: 1 1 360px;
+  min-width: 280px;
+  gap: 8px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  box-shadow: none;
+  padding: 10px;
+}
+
+.connection-recovery-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.connection-recovery-header h2 {
+  margin: 0;
+  color: #000;
+  font-size: 16px;
+  line-height: 1.15;
+}
+
+.connection-recovery-body {
+  display: grid;
+  gap: 4px;
+  color: #000;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.connection-recovery-body p,
+.connection-recovery-body small {
+  margin: 0;
+  color: #000;
+}
+
+.connection-recovery-body span {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid #000;
+  padding: 2px 5px;
+  background: #fff;
+  color: #000;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.connection-recovery-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.room-actions .connection-recovery-panel {
+  max-width: 520px;
+}
+
+.connection-recovery-panel-compact {
+  display: flex;
+  align-items: center;
+  flex: 0 1 260px;
+  min-width: 220px;
+  gap: 4px;
+  padding: 3px;
+}
+
+.connection-recovery-panel-compact .connection-recovery-header {
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 4px;
+}
+
+.connection-recovery-panel-compact .connection-recovery-header h2 {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.connection-recovery-panel-compact .connection-recovery-header .eyebrow {
+  display: none;
+}
+
+.connection-recovery-panel-compact .connection-recovery-body {
+  display: none;
+}
+
+.connection-recovery-panel-compact .connection-recovery-actions {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+.wire-match-page .connection-recovery-panel-compact .button {
+  min-height: 24px;
+  padding: 3px 5px;
+  font-size: 11px;
+}
+
+.wire-topbar-actions .connection-recovery-panel {
+  align-self: stretch;
+}
+
 .wire-match-page .button,
 .wire-match-page button:not(.card-face) {
   border: 1px solid #000 !important;

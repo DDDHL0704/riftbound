@@ -1,4 +1,4 @@
-import { Check, RefreshCw, Send, Swords } from "lucide-react";
+import { Check, Send, Swords } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
@@ -7,6 +7,7 @@ import { useMatchController } from "../stores/useMatchController";
 import type { CommandSubmissionFeedback } from "../stores/useMatchController";
 import { useSettings } from "../stores/settingsStore";
 import { candidateListLabel } from "../components/match/ActionPanel";
+import { ConnectionRecoveryPanel } from "../components/match/ConnectionRecoveryPanel";
 import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
 import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
 import { connectionStatusLabel, connectionStatusTone } from "../utils/formatters";
@@ -81,7 +82,17 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         </StatusPill>
       </section>
       <section className="room-actions">
-        <Button icon={<RefreshCw size={18} />} onClick={() => void controller.join()}>连接/重连并入座</Button>
+        <ConnectionRecoveryPanel
+          connectionStatus={controller.state.status}
+          hasSnapshot={Boolean(snapshot)}
+          lastSystemMessage={controller.state.lastSystemMessage}
+          onConnect={() => void controller.join()}
+          onDisconnect={() => void controller.disconnect()}
+          onResync={() => void controller.requestSnapshot()}
+          promptSnapshotTick={prompt?.snapshotTick}
+          snapshotTick={snapshot?.tick}
+          surface="room"
+        />
         <RoomPromptButtons
           entries={roomQuickActionPlan.entries}
           onRunAction={runRoomQuickAction}
