@@ -23,22 +23,30 @@ public sealed class SnapshotTableProjectionTests
         var tableP1 = table.Players.Single(player => player.PlayerId == "P1");
         Assert.Equal("self", tableP1.Perspective);
         Assert.True(tableP1.IsViewer);
+        Assert.Equal(1, tableP1.Zones.MainDeckCount);
+        Assert.Equal(1, tableP1.Zones.RuneDeckCount);
         Assert.Equal(["P1-HAND"], tableP1.Zones.Hand);
         Assert.Equal(0, tableP1.Zones.HandHidden);
         Assert.Equal(["P1-BASE-UNIT"], tableP1.Zones.BaseCards);
         Assert.Equal(["P1-RUNE-1"], tableP1.Zones.BaseRunes);
         Assert.Equal(["P1-GRAVEYARD"], tableP1.Zones.Graveyard);
         Assert.Equal(["P1-BANISHED"], tableP1.Zones.Banished);
+        Assert.Equal(["P1-LEGEND"], tableP1.Zones.LegendZone);
+        Assert.Equal(["P1-HERO"], tableP1.Zones.ChampionZone);
 
         var tableP2 = table.Players.Single(player => player.PlayerId == "P2");
         Assert.Equal("opponent", tableP2.Perspective);
         Assert.False(tableP2.IsViewer);
+        Assert.Equal(1, tableP2.Zones.MainDeckCount);
+        Assert.Equal(1, tableP2.Zones.RuneDeckCount);
         Assert.Empty(tableP2.Zones.Hand);
         Assert.Equal(1, tableP2.Zones.HandHidden);
         Assert.Equal(["P2-BASE-UNIT"], tableP2.Zones.BaseCards);
         Assert.Equal(["P2-RUNE-1"], tableP2.Zones.BaseRunes);
         Assert.Equal(["P2-GRAVEYARD"], tableP2.Zones.Graveyard);
         Assert.Equal(["P2-BANISHED"], tableP2.Zones.Banished);
+        Assert.Equal(["P2-LEGEND"], tableP2.Zones.LegendZone);
+        Assert.Equal(["P2-HERO"], tableP2.Zones.ChampionZone);
 
         Assert.Equal(["BF-LEFT", "BF-RIGHT"], table.Battlefields.Select(field => field.BattlefieldObjectId).ToArray());
         var tableLeftBattlefield = table.Battlefields.Single(field => field.BattlefieldObjectId == "BF-LEFT");
@@ -83,26 +91,36 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal("P2", tableRightBattlefield.StandbySlots[0].SidePlayerId);
 
         var p1Zones = Zones(snapshot, "P1");
+        Assert.Equal(1, IntValue(p1Zones["mainDeckCount"]));
+        Assert.Equal(1, IntValue(p1Zones["runeDeckCount"]));
         Assert.Equal(["P1-HAND"], StringList(p1Zones["hand"]));
         Assert.Equal(0, IntValue(p1Zones["handHidden"]));
         Assert.Equal(["P1-BASE-UNIT"], StringList(p1Zones["baseCards"]));
         Assert.Equal(["P1-RUNE-1"], StringList(p1Zones["baseRunes"]));
         Assert.Equal(["P1-GRAVEYARD"], StringList(p1Zones["graveyard"]));
         Assert.Equal(["P1-BANISHED"], StringList(p1Zones["banished"]));
+        Assert.Equal(["P1-LEGEND"], StringList(p1Zones["legendZone"]));
+        Assert.Equal(["P1-HERO"], StringList(p1Zones["championZone"]));
         var p1Objects = Objects(snapshot, "P1");
         Assert.Contains("P1-GRAVEYARD", p1Objects.Keys);
         Assert.Contains("P1-BANISHED", p1Objects.Keys);
+        Assert.Contains("P1-LEGEND", p1Objects.Keys);
+        Assert.Contains("P1-HERO", p1Objects.Keys);
         var p1Standby = Dict(p1Objects["P1-STANDBY"]);
         Assert.Equal("P1-STANDBY", StringValue(p1Standby["objectId"]));
         Assert.Equal("UNL-011/219", StringValue(p1Standby["cardNo"]));
 
         var p2Zones = Zones(snapshot, "P2");
+        Assert.Equal(1, IntValue(p2Zones["mainDeckCount"]));
+        Assert.Equal(1, IntValue(p2Zones["runeDeckCount"]));
         Assert.Empty(StringList(p2Zones["hand"]));
         Assert.Equal(1, IntValue(p2Zones["handHidden"]));
         Assert.Equal(["P2-BASE-UNIT"], StringList(p2Zones["baseCards"]));
         Assert.Equal(["P2-RUNE-1"], StringList(p2Zones["baseRunes"]));
         Assert.Equal(["P2-GRAVEYARD"], StringList(p2Zones["graveyard"]));
         Assert.Equal(["P2-BANISHED"], StringList(p2Zones["banished"]));
+        Assert.Equal(["P2-LEGEND"], StringList(p2Zones["legendZone"]));
+        Assert.Equal(["P2-HERO"], StringList(p2Zones["championZone"]));
 
         var leftBattlefield = Battlefield(snapshot, "BF-LEFT");
         Assert.Equal("P1", StringValue(leftBattlefield["zonePlayerId"]));
@@ -151,6 +169,8 @@ public sealed class SnapshotTableProjectionTests
         Assert.DoesNotContain("P2-HIDDEN-STANDBY", p2Objects.Keys);
         Assert.Contains("P2-GRAVEYARD", p2Objects.Keys);
         Assert.Contains("P2-BANISHED", p2Objects.Keys);
+        Assert.Contains("P2-LEGEND", p2Objects.Keys);
+        Assert.Contains("P2-HERO", p2Objects.Keys);
         Assert.Contains("P2-RIGHT-STANDBY", p2Objects.Keys);
         AssertSerializedSnapshotDoesNotContain(
             snapshot,

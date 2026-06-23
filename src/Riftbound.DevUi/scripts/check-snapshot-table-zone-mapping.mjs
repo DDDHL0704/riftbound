@@ -22,10 +22,18 @@ for (const objectId of [
 }
 
 for (const fieldName of [
+  "Zones.MainDeckCount",
+  "Zones.RuneDeckCount",
   "Zones.Graveyard",
   "Zones.Banished",
+  "Zones.LegendZone",
+  "Zones.ChampionZone",
+  "[\"mainDeckCount\"]",
+  "[\"runeDeckCount\"]",
   "[\"graveyard\"]",
-  "[\"banished\"]"
+  "[\"banished\"]",
+  "[\"legendZone\"]",
+  "[\"championZone\"]"
 ]) {
   assert.ok(
     testSource.includes(fieldName),
@@ -36,8 +44,12 @@ for (const fieldName of [
 for (const containment of [
   "Assert.Contains(\"P1-GRAVEYARD\", p1Objects.Keys)",
   "Assert.Contains(\"P1-BANISHED\", p1Objects.Keys)",
+  "Assert.Contains(\"P1-LEGEND\", p1Objects.Keys)",
+  "Assert.Contains(\"P1-HERO\", p1Objects.Keys)",
   "Assert.Contains(\"P2-GRAVEYARD\", p2Objects.Keys)",
-  "Assert.Contains(\"P2-BANISHED\", p2Objects.Keys)"
+  "Assert.Contains(\"P2-BANISHED\", p2Objects.Keys)",
+  "Assert.Contains(\"P2-LEGEND\", p2Objects.Keys)",
+  "Assert.Contains(\"P2-HERO\", p2Objects.Keys)"
 ]) {
   assert.ok(
     testSource.includes(containment),
