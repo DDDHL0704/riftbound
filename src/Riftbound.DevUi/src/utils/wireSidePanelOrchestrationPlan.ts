@@ -113,6 +113,8 @@ type OrchestrationContext = {
   hasTimelineDetail: boolean;
   promptActionable: boolean;
   stackCount: number;
+  submissionGateReason?: string;
+  submissionGateStateLabel?: string;
   taskCount: number;
   triggerCount: number;
 };
@@ -160,6 +162,8 @@ function orchestrationContext({
     hasTimelineDetail: Boolean(timelineDetail?.id),
     promptActionable: Boolean(prompt?.actionable),
     stackCount: Array.isArray(snapshot?.stack) ? snapshot.stack.length : 0,
+    submissionGateReason: submissionGate?.reason,
+    submissionGateStateLabel: submissionGate?.stateLabel,
     taskCount: arrayLength(pendingTaskQueue.tasks) + arrayLength(timing.battlefieldTasks),
     triggerCount: arrayLength(timing.triggerQueue)
   };
@@ -242,7 +246,12 @@ function commandSlotState(
   }
 
   if (context.candidateCount > 0) {
-    return entryState("blocked", "阻断", context.disabledCandidateCount, "服务端公开候选，但当前提交门或候选状态阻断。");
+    return entryState(
+      "blocked",
+      context.submissionGateStateLabel ?? "阻断",
+      context.disabledCandidateCount,
+      context.submissionGateReason ?? "服务端公开候选，但当前提交门或候选状态阻断。"
+    );
   }
 
   return entryState("waiting", "无候选", 0, "当前服务端没有公开可提交候选。");
