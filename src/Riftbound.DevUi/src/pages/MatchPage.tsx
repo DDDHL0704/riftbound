@@ -90,6 +90,11 @@ import type {
   ObservedGameEvent
 } from "../utils/commandSubmissionFollowupPlan";
 import { buildEventLogPlan } from "../utils/eventLogPlan";
+import { buildConnectionRecoveryPlan } from "../utils/connectionRecoveryPlan";
+import {
+  buildMatchRecoverySurfacePlan,
+  type MatchRecoverySurfacePlan
+} from "../utils/matchRecoverySurfacePlan";
 import { buildServerQuickActionPlan, quickActionCommandUiSource, type ServerQuickActionEntry } from "../utils/serverQuickActionPlan";
 import { buildServerSubmissionGatePlan } from "../utils/serverSubmissionGatePlan";
 import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteractionPlan";
@@ -305,6 +310,37 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     submissionGate: tableSubmissionGate,
     snapshot: tableSnapshot
   }), [promptCanAct, tableConnectionStatus, tablePrompt, tableSubmissionGate, tableSnapshot]);
+  const matchRecoveryConnectionPlan = useMemo(() => buildConnectionRecoveryPlan({
+    connectionStatus: tableConnectionStatus,
+    hasSnapshot: Boolean(tableSnapshot),
+    lastSystemMessage: layoutFixtureEnabled ? "前端样例快照；真实连接状态请关闭样例模式。" : controller.state.lastSystemMessage,
+    promptSnapshotTick: tablePrompt?.snapshotTick,
+    snapshotTick: tableSnapshot?.tick
+  }), [
+    controller.state.lastSystemMessage,
+    layoutFixtureEnabled,
+    tableConnectionStatus,
+    tablePrompt?.snapshotTick,
+    tableSnapshot
+  ]);
+  const matchRecoverySurfacePlan = useMemo(() => buildMatchRecoverySurfacePlan({
+    connectionState: matchRecoveryConnectionPlan.state,
+    connectionStatusLabel: connectionStatusLabel(tableConnectionStatus),
+    errorCount: controller.state.errors.length,
+    hasSnapshot: Boolean(tableSnapshot),
+    promptSnapshotTick: tablePrompt?.snapshotTick,
+    snapshotTick: tableSnapshot?.tick,
+    submissionGate: tableSubmissionGate,
+    submissionState: tableSubmissionFeedback?.state
+  }), [
+    controller.state.errors.length,
+    matchRecoveryConnectionPlan.state,
+    tableConnectionStatus,
+    tablePrompt?.snapshotTick,
+    tableSnapshot,
+    tableSubmissionFeedback?.state,
+    tableSubmissionGate
+  ]);
   const inspectCard = useCallback((card: InspectedCard) => {
     const clickedObjectId = card.objectId ?? card.object?.objectId;
     if (!clickedObjectId) {
@@ -937,6 +973,8 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           ))}
         </div>
       </header>
+
+      <MatchRecoverySurface plan={matchRecoverySurfacePlan} />
 
       <div className="wire-match-body">
         <section className="wire-table-shell" aria-label="黑白线框对战桌面" tabIndex={0}>
@@ -1934,6 +1972,45 @@ function WireBattlefieldUnitZone({
       <div className="wire-battlefield-unit-zone-body">
         <WireCardFlow hintByObjectId={interaction.hintByObjectId} ids={ids} interactionByObjectId={interaction.interactionByObjectId} kind="battlefield-unit" minSlots={3} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={plan} renderEmptySlots selectedObjectId={interaction.selectedObjectId} specs={specs} timelineByObjectId={interaction.timelineByObjectId} />
         <WireBattlefieldStandbyZone interaction={interaction} lane={lane} objects={objects} onInspectCard={onInspectCard} onPreviewCard={onPreviewCard} plan={standbyPlan} side={side} slots={standbySlots} specs={specs} />
+      </div>
+    </section>
+  );
+}
+
+function MatchRecoverySurface({ plan }: { plan: MatchRecoverySurfacePlan }) {
+  return (
+    <section
+      aria-label="对战恢复与断线状态"
+      className="match-recovery-surface"
+      data-match-recovery-active-region={plan.activeRegionId}
+      data-match-recovery-state={plan.state}
+      data-match-recovery-summary={plan.summary}
+      data-match-recovery-surface
+    >
+      <header>
+        <div>
+          <span className="eyebrow">恢复边界</span>
+          <h2>连接 / 快照 / 提交 / 错误</h2>
+        </div>
+        <p>{plan.summary}</p>
+      </header>
+      <div className="match-recovery-grid">
+        {plan.sections.map((section) => (
+          <article
+            className="match-recovery-region"
+            data-match-recovery-region={section.id}
+            data-match-recovery-region-state={section.state}
+            data-match-recovery-source={section.source}
+            key={section.id}
+          >
+            <div>
+              <strong>{section.label}</strong>
+              <span>{section.value}</span>
+            </div>
+            <p>{section.detail}</p>
+            <small>{section.nextStep}</small>
+          </article>
+        ))}
       </div>
     </section>
   );

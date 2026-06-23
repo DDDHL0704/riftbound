@@ -12088,6 +12088,85 @@ button.card-face:hover {
   align-self: stretch;
 }
 
+.match-recovery-surface {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.8fr) minmax(0, 2fr);
+  gap: 4px;
+  border-bottom: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 4px;
+}
+
+.match-recovery-surface header,
+.match-recovery-region {
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+.match-recovery-surface header {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 6px;
+}
+
+.match-recovery-surface h2,
+.match-recovery-surface p,
+.match-recovery-surface small {
+  margin: 0;
+  color: #000;
+}
+
+.match-recovery-surface h2 {
+  font-size: 13px;
+  line-height: 1.15;
+}
+
+.match-recovery-surface p,
+.match-recovery-surface small {
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.match-recovery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.match-recovery-region {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px;
+}
+
+.match-recovery-region div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+}
+
+.match-recovery-region strong,
+.match-recovery-region span {
+  color: #000;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.match-recovery-region span {
+  overflow: hidden;
+  border: 1px solid #000;
+  background: #fff;
+  padding: 2px 4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .wire-match-page .button,
 .wire-match-page button:not(.card-face) {
   border: 1px solid #000 !important;
