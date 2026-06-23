@@ -45,7 +45,7 @@ const snapshot = {
           {
             battlefieldObjectId: "battlefield-left",
             controllerId: "P1",
-            isFaceDown: false,
+            isFaceDown: true,
             objectId: "p1-left-standby",
             sidePlayerId: "P1",
             slotId: "battlefield-left:standby:1",
@@ -56,6 +56,7 @@ const snapshot = {
             battlefieldObjectId: "battlefield-left",
             controllerId: "P2",
             isFaceDown: true,
+            objectId: "p2-hidden-standby",
             sidePlayerId: "P2",
             slotId: "battlefield-left:standby:2",
             state: "HIDDEN",
@@ -72,10 +73,10 @@ const snapshot = {
         battlefieldObjectId: "battlefield-right",
         cardNo: "SITE-RIGHT",
         controllerId: "P2",
-        hiddenStandbyCount: 0,
+        hiddenStandbyCount: 1,
         occupantObjectIds: ["p2-right-1", "p2-right-2", "p1-right-1"],
         scoredThisTurnPlayerIds: ["P2"],
-        standbySlotCount: 1,
+        standbySlotCount: 2,
         standbySlots: [
           {
             battlefieldObjectId: "battlefield-right",
@@ -86,6 +87,15 @@ const snapshot = {
             slotId: "battlefield-right:standby:1",
             state: "VISIBLE",
             visible: true
+          },
+          {
+            battlefieldObjectId: "battlefield-right",
+            controllerId: "P1",
+            isFaceDown: true,
+            sidePlayerId: "P1",
+            slotId: "battlefield-right:standby:2",
+            state: "HIDDEN",
+            visible: false
           }
         ],
         unitsBySide: {
@@ -126,6 +136,7 @@ const snapshot = {
       objects: {
         "p2-base-1": object("p2-base-1", "BASE-001", "P2"),
         "p2-rune-1": object("p2-rune-1", "RUNE-001", "P2"),
+        "p2-hidden-standby": object("p2-hidden-standby", "UNIT-002", "P2"),
         "p2-left-1": { ...object("p2-left-1", "UNIT-001", "P2"), controllerId: "P1" },
         "p2-right-1": object("p2-right-1", "UNIT-001", "P2"),
         "p2-right-2": object("p2-right-2", "UNIT-004", "P2"),
@@ -184,6 +195,10 @@ assert.deepEqual(
     ["battlefield-left:standby:2", "hidden", "opponent", false]
   ]
 );
+assert.equal(battlefield.lanes[0].standbySlots[0].isFaceDown, true, "visible own standby may remain face-down but must keep its real object id");
+assert.equal(battlefield.lanes[0].standbySlots[0].objectId, "p1-left-standby");
+assert.equal(battlefield.lanes[0].standbySlots[1].objectId, undefined, "hidden opponent standby must not leak its real object id");
+assert.equal(battlefield.lanes[0].standbySlots[1].slotId, "battlefield-left:standby:2", "hidden opponent standby keeps only a public slot id");
 assert.deepEqual(battlefield.lanes[0].ownOccupants, ["p1-left-1", "p1-left-2"]);
 assert.deepEqual(battlefield.lanes[0].opposingOccupants, ["p2-left-1"]);
 assert.equal(
@@ -193,7 +208,16 @@ assert.equal(
 );
 assert.equal(battlefield.lanes[1].occupantSplitSource, "server-unitsBySide");
 assert.equal(battlefield.lanes[1].standbySlotSource, "server-standbySlots");
+assert.equal(battlefield.lanes[1].hiddenStandbyCount, 1);
+assert.equal(battlefield.lanes[1].standbySlotCount, 2);
 assert.deepEqual(battlefield.lanes[1].scoredThisTurnPlayerIds, ["P2"]);
+assert.deepEqual(
+  battlefield.lanes[1].standbySlots.map((slot) => [slot.slotId, slot.objectId ?? "hidden", slot.side, slot.visible]),
+  [
+    ["battlefield-right:standby:1", "p2-right-standby", "opponent", true],
+    ["battlefield-right:standby:2", "hidden", "self", false]
+  ]
+);
 assert.deepEqual(battlefield.lanes[1].ownOccupants, ["p1-right-1"]);
 assert.deepEqual(battlefield.lanes[1].opposingOccupants, ["p2-right-1", "p2-right-2"]);
 assert.deepEqual(table.battlefield.unitPlan, battlefield.unitPlan, "table and battlefield builders must share one unit plan");
@@ -201,6 +225,36 @@ assert.deepEqual(table.battlefield.standbyPlan, battlefield.standbyPlan, "table 
 assert.equal(table.battlefield.unitPlan.itemCount, 2, "same max occupancy should drive every battlefield quadrant size");
 assert.equal(table.battlefield.unitPlan.slotCount, 3, "empty space should remain visible for low-count unit zones");
 assert.equal(table.battlefield.standbyPlan.itemCount, 2, "same max standby count should drive every battlefield standby rail");
+assert.equal(table.battlefield.standbyPlan.slotCount, 2, "multi-standby lanes should share a two-slot standby sizing plan");
+assert.equal(table.battlefield.standbyPlan.kind, "standby");
+assert.equal(table.battlefield.unitPlan.kind, "battlefield-unit");
+
+const hiddenStandbySlots = battlefield.lanes.flatMap((lane) => lane.standbySlots.filter((slot) => !slot.visible));
+assert.equal(hiddenStandbySlots.length, 2, "fixture should prove hidden standby on both battlefield lanes");
+for (const slot of hiddenStandbySlots) {
+  assert.equal(slot.objectId, undefined, "hidden standby must not expose objectId");
+  assert.equal("cardNo" in slot, false, "hidden standby must not expose cardNo");
+  assert.equal(slot.isFaceDown, true, "hidden standby must stay face down");
+}
+
+const unitRenderPlansByCount = groupRenderPlans([
+  ...battlefield.lanes.flatMap((lane) => [
+    { count: lane.ownOccupants.length, minSlots: 3, plan: battlefield.unitPlan, renderEmptySlots: true },
+    { count: lane.opposingOccupants.length, minSlots: 3, plan: battlefield.unitPlan, renderEmptySlots: true }
+  ])
+]);
+assert.equal(unitRenderPlansByCount.get(1)?.size, 1, "same one-unit battlefield zones must reuse the same render plan");
+assert.equal(unitRenderPlansByCount.get(2)?.size, 1, "same two-unit battlefield zones must reuse the same render plan");
+
+const standbyRenderPlansByCount = groupRenderPlans(
+  battlefield.lanes.map((lane) => ({
+    count: lane.standbySlots.length,
+    minSlots: battlefield.standbyPlan.minSlots,
+    plan: battlefield.standbyPlan,
+    renderEmptySlots: false
+  }))
+);
+assert.equal(standbyRenderPlansByCount.get(2)?.size, 1, "same two-card standby rails must reuse the same render plan");
 
 const p2Perspective = buildWireBattlefieldModel(snapshot, "P2");
 assert.deepEqual(p2Perspective.lanes[0].ownOccupants, ["p2-left-1"]);
@@ -355,6 +409,40 @@ console.log("Wire table view model check passed.");
 
 function object(objectId, cardNo, ownerId, tags = []) {
   return { cardNo, controllerId: ownerId, objectId, ownerId, tags };
+}
+
+function groupRenderPlans(rows) {
+  const groups = new Map();
+  for (const row of rows) {
+    const slotCount = row.renderEmptySlots
+      ? Math.max(row.plan.slotCount, row.count, row.minSlots)
+      : Math.max(row.count, row.minSlots);
+    const renderPlan = planExports.resolveWireCardFlowRenderPlan({
+      itemCount: row.count,
+      minSlots: row.minSlots,
+      sizingPlan: row.plan,
+      slotCount
+    });
+    const group = groups.get(row.count) ?? new Set();
+    group.add(renderPlanKey(renderPlan));
+    groups.set(row.count, group);
+  }
+  return groups;
+}
+
+function renderPlanKey(plan) {
+  return [
+    plan.kind,
+    plan.layout,
+    plan.density,
+    plan.fit,
+    plan.cardWidth,
+    plan.cardHeight,
+    plan.scrollAfter,
+    plan.minSlots,
+    plan.slotCount,
+    plan.visibleSlotCount
+  ].join("|");
 }
 
 function loadTsModule(sourcePath, injectedValues = {}) {

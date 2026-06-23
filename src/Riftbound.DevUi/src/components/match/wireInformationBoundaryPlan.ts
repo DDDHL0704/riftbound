@@ -41,6 +41,7 @@ export function buildWireInformationBoundaryPlan({
   ]);
   const rows = [
     ...playerRows,
+    standbyBoundaryRow(table),
     faceDownBoundaryRow(table),
     eventRefBoundaryRow(events)
   ];
@@ -53,6 +54,7 @@ export function buildWireInformationBoundaryPlan({
       metric("players", "玩家", "safe", `${table.players.length}`),
       metric("hands", "隐藏手牌", handMetricState(table.players), `${hiddenHandCount(table.players)}`),
       metric("decks", "牌堆计数", deckMetricState(table.players), `${deckCountRows(table.players)} / ${table.players.length}`),
+      metric("standby", "隐藏待命", standbyMetricState(table), `${hiddenStandbySlots(table).length}`),
       metric("faceDown", "盖放对象", faceDownMetricState(table), `${faceDownObjects(table).length}`),
       metric("eventRefs", "隐藏引用", eventMetricState(events), `${hiddenEventRefs(events).length}`),
       metric("issues", "待处理", issueCount === 0 ? "safe" : state, String(issueCount))
@@ -163,6 +165,45 @@ function deckBoundaryRow(entry: WirePlayerEntry): WireInformationBoundaryRow {
   );
 }
 
+function standbyBoundaryRow(table: WireTableViewModel): WireInformationBoundaryRow {
+  const hiddenSlots = hiddenStandbySlots(table);
+  const realObjectIds = hiddenSlots.filter((slot) => Boolean(slot.objectId));
+  const cardNoLeaks = realObjectIds.filter((slot) =>
+    typeof table.battlefield.objects[slot.objectId ?? ""]?.cardNo === "string"
+    && table.battlefield.objects[slot.objectId ?? ""]?.cardNo?.trim());
+
+  if (cardNoLeaks.length > 0) {
+    return row(
+      "standby",
+      "战场隐藏待命",
+      "leak",
+      "泄漏待命牌号",
+      `${cardNoLeaks.length} / ${hiddenSlots.length}`,
+      "对手隐藏待命只能进入战场待命子轨占位，不能公开真实 cardNo。"
+    );
+  }
+
+  if (realObjectIds.length > 0) {
+    return row(
+      "standby",
+      "战场隐藏待命",
+      "leak",
+      "泄漏隐藏待命标识",
+      `${realObjectIds.length} / ${hiddenSlots.length}`,
+      "隐藏待命只能公开数量或占位，不能携带真实对象标识。"
+    );
+  }
+
+  return row(
+    "standby",
+    "战场隐藏待命",
+    "safe",
+    hiddenSlots.length > 0 ? "仅占位/数量" : "无隐藏待命",
+    `${hiddenSlots.length}`,
+    "主桌面只使用服务端战场待命子轨；隐藏待命不公开身份、名称或效果。"
+  );
+}
+
 function faceDownBoundaryRow(table: WireTableViewModel): WireInformationBoundaryRow {
   const faceDown = faceDownObjects(table);
   const leaked = faceDown.filter((object) => typeof object.cardNo === "string" && object.cardNo.trim().length > 0);
@@ -192,8 +233,6 @@ function eventRefBoundaryRow(events: GameEvent[]): WireInformationBoundaryRow {
   const hiddenRefs = hiddenEventRefs(events);
   const cardNoLeaks = hiddenRefs.filter(hasCardNo);
   const realObjectIds = hiddenRefs.filter((ref) => ref.objectId && ref.objectId !== "HIDDEN");
-  const visibleFaceDownObjectIds = realObjectIds.filter((ref) => ref.isFaceDown && !hasCardNo(ref));
-  const unresolvedRealObjectIds = realObjectIds.filter((ref) => !ref.isFaceDown || hasCardNo(ref));
 
   if (cardNoLeaks.length > 0) {
     return row(
@@ -206,14 +245,14 @@ function eventRefBoundaryRow(events: GameEvent[]): WireInformationBoundaryRow {
     );
   }
 
-  if (unresolvedRealObjectIds.length > 0) {
+  if (realObjectIds.length > 0) {
     return row(
       "eventRefs",
       "事件隐藏引用",
-      "mixed",
-      "隐藏对象带真实 ID",
-      `${unresolvedRealObjectIds.length} / ${hiddenRefs.length}`,
-      "隐藏引用已遮蔽牌号，但仍携带真实 objectId，后端应确认该 ID 是否允许公开。"
+      "leak",
+      "泄漏隐藏对象标识",
+      `${realObjectIds.length} / ${hiddenRefs.length}`,
+      "隐藏事件引用只能公开占位，不能携带真实对象标识。"
     );
   }
 
@@ -221,11 +260,9 @@ function eventRefBoundaryRow(events: GameEvent[]): WireInformationBoundaryRow {
     "eventRefs",
     "事件隐藏引用",
     "safe",
-    visibleFaceDownObjectIds.length > 0 ? "盖放身份遮蔽" : hiddenRefs.length > 0 ? "隐藏占位" : "无隐藏引用",
+    hiddenRefs.length > 0 ? "隐藏占位" : "无隐藏引用",
     `${hiddenRefs.length}`,
-    visibleFaceDownObjectIds.length > 0
-      ? "事件引用保留可定位对象 ID，但未公开盖放对象牌号。"
-      : "事件引用未公开隐藏对象身份。"
+    "事件引用未公开隐藏对象身份。"
   );
 }
 
@@ -307,6 +344,10 @@ function faceDownMetricState(table: WireTableViewModel): WireInformationBoundary
   return faceDownBoundaryRow(table).state;
 }
 
+function standbyMetricState(table: WireTableViewModel): WireInformationBoundaryState {
+  return standbyBoundaryRow(table).state;
+}
+
 function hiddenHandCount(players: WirePlayerEntry[]): number {
   return players.reduce((sum, entry) => sum + entry.hiddenHandIds.length, 0);
 }
@@ -323,6 +364,12 @@ function faceDownObjects(table: WireTableViewModel): CardObjectView[] {
   return table.players
     .flatMap((entry) => Object.values(entry.objects))
     .filter((object): object is CardObjectView => Boolean(object?.isFaceDown));
+}
+
+function hiddenStandbySlots(table: WireTableViewModel) {
+  return table.battlefield.lanes.flatMap((lane) =>
+    lane.standbySlots.filter((slot) =>
+      slot.side === "opponent" && (!slot.visible || slot.state === "HIDDEN")));
 }
 
 function hiddenEventRefs(events: GameEvent[]): GameEventObjectRef[] {

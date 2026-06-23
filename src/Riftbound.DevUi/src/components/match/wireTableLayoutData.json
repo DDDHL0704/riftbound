@@ -18,6 +18,8 @@
     "runeTrackWidth": 588,
     "signatureAreaWidth": 100,
     "signatureZoneHeight": 140,
+    "standbyTrackHeight": 96,
+    "standbyTrackMinHeight": 88,
     "heroAreaWidth": 100,
     "tableMinWidth": 1280,
     "tableMinHeight": 892
@@ -67,17 +69,17 @@
   "battlefield": {
     "columns": ["var(--wire-battlefield-card-w)", "minmax(0, 1fr)", "var(--wire-battlefield-card-w)"],
     "slots": ["leftSite", "center", "rightSite"],
-    "centerColumns": ["1fr", "1fr"],
-    "centerRows": ["1fr", "78px", "1fr"],
+    "centerColumns": ["minmax(0, 1fr)", "minmax(0, 1fr)"],
+    "laneRows": ["minmax(var(--wire-card-h), 1fr)", "minmax(var(--wire-standby-track-min-h), var(--wire-standby-track-h))", "minmax(var(--wire-card-h), 1fr)"],
+    "laneZones": [
+      { "id": "left-lane", "laneIndex": 0, "unitZoneIds": ["left-opponent", "left-self"], "standbyZoneId": "left-standby" },
+      { "id": "right-lane", "laneIndex": 1, "unitZoneIds": ["right-opponent", "right-self"], "standbyZoneId": "right-standby" }
+    ],
     "unitZones": [
       { "id": "left-opponent", "laneIndex": 0, "side": "opponent" },
       { "id": "right-opponent", "laneIndex": 1, "side": "opponent" },
       { "id": "left-self", "laneIndex": 0, "side": "self" },
       { "id": "right-self", "laneIndex": 1, "side": "self" }
-    ],
-    "standbyZones": [
-      { "id": "left-standby", "laneIndex": 0 },
-      { "id": "right-standby", "laneIndex": 1 }
     ]
   },
   "sidePanel": {

@@ -11765,6 +11765,7 @@ button.card-face:hover {
 .wire-hand-rail,
 .wire-player-home,
 .wire-battlefield-stack,
+.wire-battlefield-lane,
 .wire-battlefield,
 .wire-zone,
 .wire-side-panel,
@@ -12100,7 +12101,30 @@ button.card-face:hover {
   min-width: 0;
   min-height: 0;
   display: grid;
+  column-gap: 8px;
+  position: relative;
+}
+
+.wire-battlefield-center-grid::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px solid #000;
+  pointer-events: none;
+  transform: translateX(-0.5px);
+}
+
+.wire-battlefield-lane {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
   gap: 4px;
+  border: 1px solid #000;
+  padding: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .wire-battlefield-unit-zone .wire-mini-title {
@@ -12119,9 +12143,14 @@ button.card-face:hover {
 }
 
 .wire-card-flow-standby {
+  min-width: 0;
+  max-width: 100%;
   width: 100%;
   height: 100%;
+  align-items: center;
   justify-content: center;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 2px;
 }
 
@@ -12423,6 +12452,7 @@ button.card-face:hover {
   display: grid;
   grid-template-rows:
     auto
+    auto
     minmax(0, auto)
     minmax(0, 1fr);
   gap: 4px;
@@ -12581,11 +12611,17 @@ button.card-face:hover {
   outline-offset: -2px !important;
 }
 
+.wire-side-panel-directory-groups {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
 .wire-side-panel-directory-group {
   min-width: 0;
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
-  gap: 3px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 2px;
   align-items: stretch;
 }
 
@@ -12595,8 +12631,8 @@ button.card-face:hover {
   align-items: center;
   justify-content: center;
   border: 1px solid #000;
-  padding: 2px;
-  font-size: 10px;
+  padding: 1px;
+  font-size: 9px;
   line-height: 1.1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -12722,6 +12758,151 @@ button.card-face:hover {
 .wire-side-panel-directory a:focus-visible em,
 .wire-side-panel-directory a[aria-current="page"] em {
   display: block;
+}
+
+.wire-side-panel-operation {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 3px;
+  overflow: hidden;
+}
+
+.wire-side-panel-operation-header {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: start;
+  border: 1px solid #000;
+  padding: 3px;
+}
+
+.wire-side-panel-operation-header > div {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.wire-side-panel-operation-header strong,
+.wire-side-panel-operation-header span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wire-side-panel-operation-header strong {
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.wire-side-panel-operation-header span {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.wire-side-panel-operation-sections {
+  min-width: 0;
+  max-height: 190px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.wire-side-panel-operation-sections li {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  border: 1px solid #000;
+  padding: 3px;
+}
+
+.wire-side-panel-operation-sections li[data-wire-side-panel-operation-section-active="true"],
+.wire-side-panel-operation-sections li[data-wire-side-panel-operation-section-state="active"],
+.wire-side-panel-operation-sections li[data-wire-side-panel-operation-section-state="ready"] {
+  border-width: 2px;
+}
+
+.wire-side-panel-operation-sections li[data-wire-side-panel-operation-section-state="blocked"] {
+  border-style: dashed;
+}
+
+.wire-side-panel-operation-section-main {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1px 4px;
+  border: 0;
+  border-bottom: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  padding: 0 0 3px;
+  font: inherit;
+  line-height: 1.1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wire-side-panel-operation-section-main span,
+.wire-side-panel-operation-section-main small,
+.wire-side-panel-operation-section-main em {
+  font-size: 9px;
+}
+
+.wire-side-panel-operation-section-main strong {
+  grid-column: 1 / -1;
+  font-size: 10px;
+}
+
+.wire-side-panel-operation-section-main em {
+  grid-column: 1 / -1;
+  display: -webkit-box;
+  overflow: hidden;
+  font-style: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.wire-side-panel-operation-section-main span,
+.wire-side-panel-operation-section-main strong,
+.wire-side-panel-operation-section-main small,
+.wire-side-panel-operation-section-main em,
+.wire-side-panel-operation-routes button {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wire-side-panel-operation-routes {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.wire-side-panel-operation-routes button {
+  min-height: 22px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  padding: 1px 2px;
+  font-size: 9px;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.wire-side-panel-operation-routes button[data-wire-side-panel-operation-route-state="available"] {
+  border-width: 2px;
 }
 
 .wire-side-panel-status {
@@ -19907,9 +20088,104 @@ button.wire-object-ref {
 @media (max-width: 1280px) {
   .wire-match-body {
     grid-template-columns: minmax(720px, 1fr);
+    grid-template-rows: minmax(280px, 0.68fr) minmax(380px, 1fr);
+    overflow: hidden;
+  }
+
+  .wire-table-shell {
+    min-height: 0;
   }
 
   .wire-side-panel {
-    min-height: 640px;
+    min-height: 0;
+    max-height: 100%;
+    grid-template-rows:
+      auto
+      auto
+      auto
+      minmax(122px, 1fr);
+  }
+
+  .wire-side-panel-directory,
+  .wire-side-panel-operation {
+    min-height: 0;
+  }
+
+  .wire-side-panel-directory {
+    gap: 1px;
+  }
+
+  .wire-match-page .wire-side-panel-control-routes button {
+    min-height: 20px;
+  }
+
+  .wire-match-page .wire-side-panel-tabs button {
+    min-height: 18px;
+    padding: 1px 2px;
+  }
+
+  .wire-side-panel-directory a {
+    min-height: 18px;
+  }
+
+  .wire-side-panel-operation {
+    gap: 2px;
+    padding: 2px;
+  }
+
+  .wire-side-panel-operation-header {
+    padding: 2px;
+  }
+
+  .wire-side-panel-operation-sections {
+    max-height: clamp(64px, 10vh, 88px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2px;
+  }
+
+  .wire-side-panel-operation-sections li {
+    gap: 2px;
+    padding: 2px;
+  }
+
+  .wire-side-panel-operation-section-main {
+    padding-bottom: 2px;
+  }
+
+  .wire-side-panel-operation-section-main em {
+    -webkit-line-clamp: 1;
+  }
+
+  .wire-match-page .wire-side-panel-operation-routes button {
+    min-height: 18px;
+    padding: 1px 2px;
+  }
+
+  .wire-side-panel-rail-stack {
+    gap: 2px;
+  }
+
+  .wire-side-panel-rail-action {
+    min-height: 20px;
+    padding: 0 2px;
+  }
+
+  .wire-match-page .wire-side-panel-rail-action button {
+    min-height: 18px;
+    padding: 0 2px;
+    font-size: 9px;
+  }
+
+  .wire-side-panel-stack {
+    gap: 0;
+    min-height: 122px;
+  }
+
+  .wire-side-panel-stack[data-wire-side-panel-persistent-count="1"] {
+    grid-template-rows: minmax(84px, 1fr) minmax(38px, 0.26fr);
+  }
+
+  .wire-panel {
+    padding: 4px;
   }
 }

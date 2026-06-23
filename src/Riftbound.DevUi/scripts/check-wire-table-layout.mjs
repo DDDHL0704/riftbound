@@ -77,6 +77,10 @@ function validateTokens() {
   if (tokens.tableMinWidth < 1200 || tokens.tableMinHeight < 800) {
     errors.push("table minimum size is too small for the current wire tabletop");
   }
+
+  if (tokens.standbyTrackMinHeight > tokens.standbyTrackHeight) {
+    errors.push("standby track minimum height must not exceed standby track height");
+  }
 }
 
 function validateTableRows() {
@@ -135,7 +139,22 @@ function validateBattlefield() {
   expectAllowedSet("battlefield.slots", battlefield.slots, battlefieldSlots);
   expectLength("battlefield.columns", battlefield.columns, battlefield.slots?.length ?? 0);
   expectLength("battlefield.centerColumns", battlefield.centerColumns, 2);
-  expectLength("battlefield.centerRows", battlefield.centerRows, 3);
+  expectLength("battlefield.laneRows", battlefield.laneRows, 3);
+  if ("centerRows" in battlefield) {
+    errors.push("battlefield.centerRows must not carry standby cards; use battlefield.laneRows inside each lane");
+  }
+  if ("standbyZones" in battlefield) {
+    errors.push("battlefield.standbyZones must not be a central public rail; use battlefield.laneZones standbyZoneId");
+  }
+  if (Array.isArray(battlefield.laneRows) && battlefield.laneRows[0] !== battlefield.laneRows[2]) {
+    errors.push("battlefield.laneRows must keep opponent/self unit zones symmetrical");
+  }
+  if (Array.isArray(battlefield.laneRows) && !String(battlefield.laneRows[0]).includes("--wire-card-h")) {
+    errors.push("battlefield lane unit rows must reserve card-height space through --wire-card-h");
+  }
+  if (Array.isArray(battlefield.laneRows) && !String(battlefield.laneRows[1]).includes("--wire-standby-track")) {
+    errors.push("battlefield.laneRows[1] must reserve the standby sub-rail inside each lane");
+  }
 
   const zones = battlefield.unitZones;
   if (!Array.isArray(zones) || zones.length !== contract.WIRE_TABLE_UNIT_ZONE_COUNT) {
@@ -148,14 +167,14 @@ function validateBattlefield() {
   expectUnitZone(2, 0, "self");
   expectUnitZone(3, 1, "self");
 
-  const standbyZones = battlefield.standbyZones;
-  if (!Array.isArray(standbyZones) || standbyZones.length !== contract.WIRE_TABLE_BATTLEFIELD_LANE_COUNT) {
-    errors.push("battlefield.standbyZones must contain one standby rail per battlefield");
+  const laneZones = battlefield.laneZones;
+  if (!Array.isArray(laneZones) || laneZones.length !== contract.WIRE_TABLE_BATTLEFIELD_LANE_COUNT) {
+    errors.push("battlefield.laneZones must render exactly two .wire-battlefield-lane regions");
     return;
   }
 
-  expectStandbyZone(0, 0);
-  expectStandbyZone(1, 1);
+  expectLaneZone(0, 0, ["left-opponent", "left-self"], "left-standby");
+  expectLaneZone(1, 1, ["right-opponent", "right-self"], "right-standby");
 }
 
 function validateSidePanel() {
@@ -218,10 +237,27 @@ function expectUnitZone(index, laneIndex, side) {
   }
 }
 
-function expectStandbyZone(index, laneIndex) {
-  const zone = layout.battlefield.standbyZones[index];
+function expectLaneZone(index, laneIndex, unitZoneIds, standbyZoneId) {
+  const zone = layout.battlefield.laneZones[index];
   if (zone?.laneIndex !== laneIndex) {
-    errors.push(`battlefield.standbyZones[${index}] should be lane ${laneIndex}`);
+    errors.push(`battlefield.laneZones[${index}] should be lane ${laneIndex}`);
+  }
+  expectArray(`battlefield.laneZones[${index}].unitZoneIds`, zone?.unitZoneIds, unitZoneIds);
+  if (zone?.standbyZoneId !== standbyZoneId) {
+    errors.push(`battlefield.laneZones[${index}].standbyZoneId should be ${standbyZoneId}`);
+  }
+  const unitsForLane = layout.battlefield.unitZones.filter((unitZone) => zone?.unitZoneIds?.includes(unitZone.id));
+  if (unitsForLane.length !== contract.WIRE_TABLE_PLAYER_COUNT) {
+    errors.push(`battlefield.laneZones[${index}] must render exactly two .wire-battlefield-unit-zone regions`);
+  }
+  if (unitsForLane.some((unitZone) => unitZone.laneIndex !== laneIndex)) {
+    errors.push(`battlefield.laneZones[${index}] unit zones must belong to lane ${laneIndex}`);
+  }
+  if (!unitsForLane.some((unitZone) => unitZone.side === "opponent") || !unitsForLane.some((unitZone) => unitZone.side === "self")) {
+    errors.push(`battlefield.laneZones[${index}] must contain one opponent unit zone and one self unit zone`);
+  }
+  if (!zone?.standbyZoneId) {
+    errors.push(`battlefield.laneZones[${index}] must render exactly one .wire-battlefield-standby-zone region`);
   }
 }
 

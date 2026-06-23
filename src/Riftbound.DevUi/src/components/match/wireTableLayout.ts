@@ -49,6 +49,8 @@ export type WireTableTokens = {
   runeTrackWidth: number;
   signatureAreaWidth: number;
   signatureZoneHeight: number;
+  standbyTrackHeight: number;
+  standbyTrackMinHeight: number;
   tableMinHeight: number;
   tableMinWidth: number;
 };
@@ -75,16 +77,18 @@ export type WireBattlefieldUnitZoneLayout = {
   side: WireBattlefieldUnitSide;
 };
 
-export type WireBattlefieldStandbyZoneLayout = {
+export type WireBattlefieldLaneZoneLayout = {
   id: string;
   laneIndex: number;
+  standbyZoneId: string;
+  unitZoneIds: string[];
 };
 
 export type WireBattlefieldLayout = {
   centerColumns: string[];
-  centerRows: string[];
   columns: string[];
-  standbyZones: WireBattlefieldStandbyZoneLayout[];
+  laneRows: string[];
+  laneZones: WireBattlefieldLaneZoneLayout[];
   slots: WireBattlefieldSlot[];
   unitZones: WireBattlefieldUnitZoneLayout[];
 };
@@ -129,6 +133,8 @@ export function wireMatchPageStyle(layout: WireTableLayout = WIRE_TABLE_LAYOUT):
     "--wire-rune-track-w": px(tokens.runeTrackWidth),
     "--wire-signature-area-w": px(tokens.signatureAreaWidth),
     "--wire-signature-zone-h": px(tokens.signatureZoneHeight),
+    "--wire-standby-track-h": px(tokens.standbyTrackHeight),
+    "--wire-standby-track-min-h": px(tokens.standbyTrackMinHeight),
     "--wire-table-min-h": px(tokens.tableMinHeight),
     "--wire-table-min-w": px(tokens.tableMinWidth)
   };

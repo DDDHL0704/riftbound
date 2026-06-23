@@ -1,5 +1,9 @@
 import type { WireSidePanelSlot } from "../components/match/wireTableLayout";
 import type {
+  WireSidePanelDirectoryGroup,
+  WireSidePanelDirectoryPlan
+} from "./wireSidePanelDirectoryPlan";
+import type {
   WireSidePanelOrchestrationEntry,
   WireSidePanelOrchestrationState
 } from "./wireSidePanelOrchestrationPlan";
@@ -43,6 +47,14 @@ export type WireSidePanelDirectoryViewPlan<TTab extends string = string> = {
   primaryEntry: WireSidePanelDirectoryViewEntry<TTab>;
   tabs: WireSidePanelDirectoryViewTab<TTab>[];
   visibleEntries: WireSidePanelDirectoryViewEntry<TTab>[];
+};
+
+export type WireSidePanelDirectoryLayer<TTab extends string = string> = {
+  count: number;
+  entries: WireSidePanelDirectoryViewEntry<TTab>[];
+  group: WireSidePanelDirectoryGroup;
+  key: WireSidePanelDirectoryGroup;
+  label: string;
 };
 
 export function buildWireSidePanelDirectoryViewPlan<TTab extends string>({
@@ -131,6 +143,36 @@ export function buildWireSidePanelDirectoryViewPlan<TTab extends string>({
     tabs: tabsView,
     visibleEntries
   };
+}
+
+export function buildWireSidePanelDirectoryLayerPlan<TTab extends string>({
+  directory,
+  view
+}: {
+  directory: WireSidePanelDirectoryPlan;
+  view: WireSidePanelDirectoryViewPlan<TTab>;
+}): WireSidePanelDirectoryLayer<TTab>[] {
+  const layers = new Map<WireSidePanelDirectoryGroup, WireSidePanelDirectoryLayer<TTab>>();
+
+  for (const entry of view.visibleEntries) {
+    const directoryEntry = directory.bySlot[entry.slot];
+    let layer = layers.get(directoryEntry.group);
+    if (!layer) {
+      layer = {
+        count: 0,
+        entries: [],
+        group: directoryEntry.group,
+        key: directoryEntry.group,
+        label: directoryEntry.groupLabel
+      };
+      layers.set(directoryEntry.group, layer);
+    }
+
+    layer.entries.push(entry);
+    layer.count += 1;
+  }
+
+  return Array.from(layers.values());
 }
 
 function viewEntry<TTab extends string>({

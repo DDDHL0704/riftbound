@@ -53,13 +53,241 @@ public static class GameEventObjectRefProjector
     public static IReadOnlyList<GameEvent> ProjectEvents(IReadOnlyList<GameEvent> events, MatchState state)
     {
         return events
-            .Select(gameEvent => gameEvent with
+            .Select(gameEvent =>
             {
-                ObjectRefs = gameEvent.ObjectRefs is { Count: > 0 }
+                var objectRefs = gameEvent.ObjectRefs is { Count: > 0 }
                     ? EnrichEventObjectRefs(gameEvent.ObjectRefs, state)
-                    : BuildEventObjectRefs(gameEvent.Payload, state)
+                    : BuildEventObjectRefs(gameEvent.Payload, state);
+                return gameEvent with
+                {
+                    Payload = RedactHiddenPayload(gameEvent.Payload, state),
+                    ObjectRefs = objectRefs
+                };
             })
             .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, object?> RedactHiddenPayload(
+        IReadOnlyDictionary<string, object?> payload,
+        MatchState state)
+    {
+        var hiddenObjectIds = state.CardObjects
+            .Where(entry => entry.Value.IsFaceDown)
+            .Select(entry => entry.Key)
+            .ToHashSet(StringComparer.Ordinal);
+        if (payload.Count == 0 || hiddenObjectIds.Count == 0)
+        {
+            return payload;
+        }
+
+        var redacted = RedactHiddenPayloadRecord(payload, hiddenObjectIds, out var changed);
+        return changed ? redacted : payload;
+    }
+
+    private static IReadOnlyDictionary<string, object?> RedactHiddenPayloadRecord(
+        IReadOnlyDictionary<string, object?> record,
+        IReadOnlySet<string> hiddenObjectIds,
+        out bool changed)
+    {
+        var redactedCardNoPrefixes = CollectRedactedCardNoPrefixes(record, hiddenObjectIds);
+        var result = new Dictionary<string, object?>(record.Count, StringComparer.Ordinal);
+        changed = false;
+        foreach (var (key, value) in record)
+        {
+            var redactedValue = RedactHiddenPayloadValue(key, value, hiddenObjectIds, redactedCardNoPrefixes, out var valueChanged);
+            result[key] = redactedValue;
+            changed |= valueChanged;
+        }
+
+        return result;
+    }
+
+    private static HashSet<string> CollectRedactedCardNoPrefixes(
+        IReadOnlyDictionary<string, object?> record,
+        IReadOnlySet<string> hiddenObjectIds)
+    {
+        var prefixes = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (rawKey, value) in record)
+        {
+            var key = NormalizePayloadKey(rawKey);
+            if (TryGetObjectIdPrefix(key, out var prefix) && ContainsHiddenObjectId(value, hiddenObjectIds))
+            {
+                prefixes.Add(prefix);
+                if (string.Equals(prefix, "source", StringComparison.Ordinal)
+                    || string.Equals(prefix, "", StringComparison.Ordinal))
+                {
+                    prefixes.Add("");
+                }
+            }
+        }
+
+        return prefixes;
+    }
+
+    private static object? RedactHiddenPayloadValue(
+        string rawKey,
+        object? value,
+        IReadOnlySet<string> hiddenObjectIds,
+        HashSet<string> redactedCardNoPrefixes,
+        out bool changed)
+    {
+        var key = NormalizePayloadKey(rawKey);
+        if (TryGetObjectIdPrefix(key, out _))
+        {
+            return RedactHiddenObjectIdValue(value, hiddenObjectIds, out changed);
+        }
+
+        if (TryGetCardNoPrefix(key, out var cardNoPrefix) && redactedCardNoPrefixes.Contains(cardNoPrefix))
+        {
+            changed = true;
+            return null;
+        }
+
+        return RedactNestedHiddenPayloadValue(value, hiddenObjectIds, out changed);
+    }
+
+    private static object? RedactHiddenObjectIdValue(
+        object? value,
+        IReadOnlySet<string> hiddenObjectIds,
+        out bool changed)
+    {
+        if (TryReadString(value, out var text))
+        {
+            changed = hiddenObjectIds.Contains(text);
+            return changed ? "HIDDEN" : value;
+        }
+
+        var objectIds = ReadStringList(value).ToArray();
+        if (objectIds.Length == 0)
+        {
+            changed = false;
+            return value;
+        }
+
+        changed = objectIds.Any(hiddenObjectIds.Contains);
+        return changed
+            ? objectIds.Select(objectId => hiddenObjectIds.Contains(objectId) ? "HIDDEN" : objectId).ToArray()
+            : value;
+    }
+
+    private static object? RedactNestedHiddenPayloadValue(
+        object? value,
+        IReadOnlySet<string> hiddenObjectIds,
+        out bool changed)
+    {
+        switch (value)
+        {
+            case null:
+            case string:
+                changed = false;
+                return value;
+            case IReadOnlyDictionary<string, object?> typed:
+                return RedactHiddenPayloadRecord(typed, hiddenObjectIds, out changed);
+            case IDictionary<string, object?> mutable:
+                return RedactHiddenPayloadRecord(new Dictionary<string, object?>(mutable, StringComparer.Ordinal), hiddenObjectIds, out changed);
+            case JsonElement { ValueKind: JsonValueKind.Object } jsonObject:
+                return RedactHiddenPayloadRecord(JsonObjectRecord(jsonObject), hiddenObjectIds, out changed);
+            case JsonElement { ValueKind: JsonValueKind.Array } jsonArray:
+            {
+                var items = new List<object?>();
+                changed = false;
+                foreach (var item in jsonArray.EnumerateArray())
+                {
+                    var redactedItem = RedactNestedHiddenPayloadValue(item.Clone(), hiddenObjectIds, out var itemChanged);
+                    items.Add(redactedItem);
+                    changed |= itemChanged;
+                }
+
+                return changed ? items.ToArray() : value;
+            }
+            case IEnumerable enumerable:
+            {
+                var items = new List<object?>();
+                changed = false;
+                foreach (var item in enumerable)
+                {
+                    var redactedItem = RedactNestedHiddenPayloadValue(item, hiddenObjectIds, out var itemChanged);
+                    items.Add(redactedItem);
+                    changed |= itemChanged;
+                }
+
+                return changed ? items.ToArray() : value;
+            }
+            default:
+                var record = ObjectRecord(value);
+                if (record.Count == 0)
+                {
+                    changed = false;
+                    return value;
+                }
+
+                var redacted = RedactHiddenPayloadRecord(record, hiddenObjectIds, out changed);
+                return changed ? redacted : value;
+        }
+    }
+
+    private static bool ContainsHiddenObjectId(
+        object? value,
+        IReadOnlySet<string> hiddenObjectIds)
+    {
+        if (TryReadString(value, out var text))
+        {
+            return hiddenObjectIds.Contains(text);
+        }
+        return ReadStringList(value).Any(hiddenObjectIds.Contains);
+    }
+
+    private static bool TryGetCardNoPrefix(string key, out string prefix)
+    {
+        const string singularCardNoSuffix = "CardNo";
+        if (string.Equals(key, "cardNo", StringComparison.Ordinal))
+        {
+            prefix = "";
+            return true;
+        }
+
+        if (key.EndsWith(singularCardNoSuffix, StringComparison.Ordinal)
+            && key.Length > singularCardNoSuffix.Length)
+        {
+            prefix = key[..^singularCardNoSuffix.Length];
+            return true;
+        }
+
+        prefix = string.Empty;
+        return false;
+    }
+
+    private static bool TryGetObjectIdPrefix(string key, out string prefix)
+    {
+        if (key.EndsWith(ArrayObjectIdsSuffix, StringComparison.Ordinal)
+            && key.Length > ArrayObjectIdsSuffix.Length)
+        {
+            prefix = key[..^ArrayObjectIdsSuffix.Length];
+            return true;
+        }
+
+        if (key.EndsWith(SingularObjectIdSuffix, StringComparison.Ordinal)
+            && key.Length > SingularObjectIdSuffix.Length)
+        {
+            prefix = key[..^SingularObjectIdSuffix.Length];
+            return true;
+        }
+
+        if (string.Equals(key, "objectId", StringComparison.Ordinal)
+            || string.Equals(key, "objectIds", StringComparison.Ordinal))
+        {
+            prefix = "";
+            return true;
+        }
+
+        if (string.Equals(key, "battlefieldId", StringComparison.Ordinal))
+        {
+            prefix = "battlefield";
+            return true;
+        }
+
+        prefix = string.Empty;
+        return false;
     }
 
     private static IReadOnlyList<GameEventObjectRef>? EnrichEventObjectRefs(
@@ -96,7 +324,7 @@ public static class GameEventObjectRefProjector
     {
         if (sourceRef.IsHidden || string.Equals(objectId, "HIDDEN", StringComparison.Ordinal))
         {
-            return new GameEventObjectRef(objectId, role, IsFaceDown: sourceRef.IsFaceDown, IsHidden: true);
+            return new GameEventObjectRef("HIDDEN", role, IsFaceDown: sourceRef.IsFaceDown, IsHidden: true);
         }
 
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject))
@@ -111,10 +339,15 @@ public static class GameEventObjectRefProjector
         state.ObjectLocations.TryGetValue(objectId, out var location);
         var isFaceDown = sourceRef.IsFaceDown || cardObject.IsFaceDown;
         var isHidden = sourceRef.IsHidden || isFaceDown;
+        if (isHidden)
+        {
+            return new GameEventObjectRef("HIDDEN", role, IsFaceDown: isFaceDown, IsHidden: true);
+        }
+
         return new GameEventObjectRef(
             objectId,
             role,
-            isHidden ? null : cardObject.CardNo ?? NormalizeOptionalText(sourceRef.CardNo),
+            cardObject.CardNo ?? NormalizeOptionalText(sourceRef.CardNo),
             cardObject.OwnerId ?? NormalizeOptionalText(sourceRef.OwnerId),
             cardObject.ControllerId ?? NormalizeOptionalText(sourceRef.ControllerId),
             location?.Zone ?? NormalizeOptionalText(sourceRef.Zone),
@@ -325,7 +558,7 @@ public static class GameEventObjectRefProjector
     {
         if (string.Equals(objectId, "HIDDEN", StringComparison.Ordinal))
         {
-            return new GameEventObjectRef(objectId, role, IsHidden: true);
+            return new GameEventObjectRef("HIDDEN", role, IsHidden: true);
         }
 
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject))
@@ -334,16 +567,21 @@ public static class GameEventObjectRefProjector
         }
 
         state.ObjectLocations.TryGetValue(objectId, out var location);
+        if (cardObject.IsFaceDown)
+        {
+            return new GameEventObjectRef("HIDDEN", role, IsFaceDown: true, IsHidden: true);
+        }
+
         return new GameEventObjectRef(
             objectId,
             role,
-            cardObject.IsFaceDown ? null : cardObject.CardNo,
+            cardObject.CardNo,
             cardObject.OwnerId,
             cardObject.ControllerId,
             location?.Zone,
             location?.BattlefieldObjectId,
-            cardObject.IsFaceDown,
-            cardObject.IsFaceDown);
+            IsFaceDown: false,
+            IsHidden: false);
     }
 
     private static bool TryReadString(object? value, out string text)

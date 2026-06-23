@@ -7,7 +7,10 @@ import ts from "typescript";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const layout = JSON.parse(readFileSync(resolve(scriptDir, "../src/components/match/wireTableLayoutData.json"), "utf8"));
 const { buildWireSidePanelDirectoryPlan, wireSidePanelAnchorId } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryPlan.ts"));
-const { buildWireSidePanelDirectoryViewPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryViewPlan.ts"));
+const {
+  buildWireSidePanelDirectoryLayerPlan,
+  buildWireSidePanelDirectoryViewPlan
+} = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelDirectoryViewPlan.ts"));
 const { buildWireSidePanelControlPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelControlPlan.ts"));
 const { buildWireSidePanelFramePlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelFramePlan.ts"));
 const { buildWireSidePanelOrchestrationPlan } = loadTsModule(resolve(scriptDir, "../src/utils/wireSidePanelOrchestrationPlan.ts"));
@@ -124,6 +127,8 @@ assert.equal(actionDirectoryView.currentTab.active, true);
 assert.equal(actionDirectoryView.density, "dense");
 assert.equal(actionDirectoryView.indexMode, "compact");
 assert.ok(actionDirectoryView.tabs.find((item) => item.id === "rules").count >= 1);
+const actionLayers = buildWireSidePanelDirectoryLayerPlan({ directory: plan, view: actionDirectoryView });
+assert.deepEqual(actionLayers.map((layer) => `${layer.group}:${layer.count}`), ["command:4"]);
 
 const actionControlPlan = buildWireSidePanelControlPlan({
   orchestration: readyOrchestration,
@@ -156,6 +161,16 @@ assert.equal(detailDirectoryView.activeEntry.slot, "timelineDetail");
 assert.equal(detailDirectoryView.primaryEntry.slot, "timelineDetail");
 assert.equal(detailDirectoryView.density, "dense");
 assert.equal(detailDirectoryView.indexMode, "compact");
+const detailLayers = buildWireSidePanelDirectoryLayerPlan({ directory: plan, view: detailDirectoryView });
+assert.deepEqual(detailLayers.map((layer) => layer.group), ["rules", "window", "authority"]);
+assert.deepEqual(
+  detailLayers.map((layer) => layer.entries.map((entry) => entry.slot)),
+  [
+    ["timelineDetail"],
+    ["overview"],
+    ["tableAuthority", "informationBoundary", "promptAuthority"]
+  ]
+);
 
 const detailControlPlan = buildWireSidePanelControlPlan({
   orchestration: readyOrchestration,

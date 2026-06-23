@@ -55,6 +55,10 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(0, IntValue(p1Zones["handHidden"]));
         Assert.Equal(["P1-BASE-UNIT"], StringList(p1Zones["baseCards"]));
         Assert.Equal(["P1-RUNE-1"], StringList(p1Zones["baseRunes"]));
+        var p1Objects = Objects(snapshot, "P1");
+        var p1Standby = Dict(p1Objects["P1-STANDBY"]);
+        Assert.Equal("P1-STANDBY", StringValue(p1Standby["objectId"]));
+        Assert.Equal("UNL-011/219", StringValue(p1Standby["cardNo"]));
 
         var p2Zones = Zones(snapshot, "P2");
         Assert.Empty(StringList(p2Zones["hand"]));

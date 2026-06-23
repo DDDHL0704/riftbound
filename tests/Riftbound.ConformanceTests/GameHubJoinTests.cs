@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.Features;
@@ -67,19 +68,27 @@ public sealed class GameHubJoinTests
         var projected = Assert.Single(GameEventObjectRefProjector.ProjectEvents([sourceEvent], state));
         Assert.NotNull(projected.ObjectRefs);
         var refs = projected.ObjectRefs!;
-        Assert.Equal(["BF-1", "P1-ATTACKER", "P2-DEFENDER", "P2-HIDDEN", "P1-RUNE", "HIDDEN"], refs.Select(item => item.ObjectId));
+        Assert.Equal(
+            [
+                "战场:BF-1",
+                "来源:P1-ATTACKER",
+                "目标:P2-DEFENDER",
+                "目标:HIDDEN",
+                "费用:P1-RUNE",
+                "展示:HIDDEN"
+            ],
+            refs.Select(item => $"{item.Role}:{item.ObjectId}"));
+        Assert.DoesNotContain("P2-HIDDEN", refs.Select(item => item.ObjectId));
 
-        var byObjectId = refs.ToDictionary(item => item.ObjectId, StringComparer.Ordinal);
-        Assert.Equal("战场", byObjectId["BF-1"].Role);
-        Assert.Equal("来源", byObjectId["P1-ATTACKER"].Role);
-        Assert.Equal("目标", byObjectId["P2-DEFENDER"].Role);
-        Assert.Equal("费用", byObjectId["P1-RUNE"].Role);
-        Assert.Equal("BF-1", byObjectId["P2-DEFENDER"].BattlefieldObjectId);
-        Assert.Equal("UNIT-002", byObjectId["P2-DEFENDER"].CardNo);
-        Assert.Null(byObjectId["P2-HIDDEN"].CardNo);
-        Assert.True(byObjectId["P2-HIDDEN"].IsFaceDown);
-        Assert.True(byObjectId["P2-HIDDEN"].IsHidden);
-        Assert.True(byObjectId["HIDDEN"].IsHidden);
+        var defender = Assert.Single(refs, item => item.ObjectId == "P2-DEFENDER");
+        Assert.Equal("目标", defender.Role);
+        Assert.Equal("BF-1", defender.BattlefieldObjectId);
+        Assert.Equal("UNIT-002", defender.CardNo);
+        var hiddenTarget = Assert.Single(refs, item => item.Role == "目标" && item.ObjectId == "HIDDEN");
+        Assert.Null(hiddenTarget.CardNo);
+        Assert.True(hiddenTarget.IsFaceDown);
+        Assert.True(hiddenTarget.IsHidden);
+        Assert.True(Assert.Single(refs, item => item.Role == "展示" && item.ObjectId == "HIDDEN").IsHidden);
     }
 
     [Fact]
@@ -181,16 +190,17 @@ public sealed class GameHubJoinTests
                 "返回:P1-RETURNED",
                 "战场:BF-COMPLETE",
                 "目标:P2-SPELLSHIELD",
-                "隐藏:P2-HIDDEN",
+                "隐藏:HIDDEN",
                 "展示:HIDDEN"
             ],
             refs.Select(item => $"{item.Role}:{item.ObjectId}"));
+        Assert.DoesNotContain("P2-HIDDEN", refs.Select(item => item.ObjectId));
 
-        var hiddenRef = Assert.Single(refs, item => item.ObjectId == "P2-HIDDEN");
+        var hiddenRef = Assert.Single(refs, item => item.Role == "隐藏" && item.ObjectId == "HIDDEN");
         Assert.True(hiddenRef.IsHidden);
         Assert.True(hiddenRef.IsFaceDown);
         Assert.Null(hiddenRef.CardNo);
-        Assert.True(Assert.Single(refs, item => item.ObjectId == "HIDDEN").IsHidden);
+        Assert.True(Assert.Single(refs, item => item.Role == "展示" && item.ObjectId == "HIDDEN").IsHidden);
     }
 
     [Fact]
@@ -241,12 +251,13 @@ public sealed class GameHubJoinTests
         Assert.Equal("P1", rune.ControllerId);
         Assert.Equal("BASE", rune.Zone);
 
-        var hidden = Assert.Single(refs, item => item.ObjectId == "P2-HIDDEN");
+        var hidden = Assert.Single(refs, item => item.Role == "来源" && item.ObjectId == "HIDDEN");
         Assert.Null(hidden.CardNo);
         Assert.True(hidden.IsFaceDown);
         Assert.True(hidden.IsHidden);
-        Assert.Equal("BATTLEFIELD", hidden.Zone);
-        Assert.Equal("BF-1", hidden.BattlefieldObjectId);
+        Assert.Null(hidden.Zone);
+        Assert.Null(hidden.BattlefieldObjectId);
+        Assert.DoesNotContain("P2-HIDDEN", refs.Select(item => item.ObjectId));
 
         var missing = Assert.Single(refs, item => item.ObjectId == "MISSING-OBJECT");
         Assert.Equal("KNOWN-CARD", missing.CardNo);
@@ -12463,6 +12474,28 @@ public sealed class GameHubJoinTests
             string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["destinationZone"] as string, "BATTLEFIELD", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-BANDLE-TREE", StringComparison.Ordinal));
+        AssertPayloadDoesNotContainText(hideEvents, "P1-STANDBY-BANDLE-TEEMO", "OGN·121/298");
+        var triggerEvent = Assert.Single(hideEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal));
+        Assert.Equal("HIDDEN", triggerEvent.Payload["sourceObjectId"]);
+        var broadcastObjectRefs = hideEvents
+            .SelectMany(gameEvent => gameEvent.ObjectRefs ?? [])
+            .ToArray();
+        Assert.NotEmpty(broadcastObjectRefs);
+        Assert.DoesNotContain(broadcastObjectRefs, item => string.Equals(item.ObjectId, "P1-STANDBY-BANDLE-TEEMO", StringComparison.Ordinal));
+        Assert.DoesNotContain(broadcastObjectRefs, item => string.Equals(item.CardNo, "OGN·121/298", StringComparison.Ordinal));
+        var hiddenEvent = Assert.Single(hideEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        Assert.Equal("HIDDEN", hiddenEvent.Payload["sourceObjectId"]);
+        Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys, StringComparer.Ordinal);
+        Assert.NotNull(hiddenEvent.ObjectRefs);
+        var hiddenSourceRef = Assert.Single(hiddenEvent.ObjectRefs!, item =>
+            string.Equals(item.Role, "来源", StringComparison.Ordinal)
+            && string.Equals(item.ObjectId, "HIDDEN", StringComparison.Ordinal));
+        Assert.Null(hiddenSourceRef.CardNo);
+        Assert.True(hiddenSourceRef.IsFaceDown);
+        Assert.True(hiddenSourceRef.IsHidden);
 
         var hideSnapshot = SnapshotFor(hideClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(hideSnapshot.Players["P1"]);
@@ -16600,6 +16633,74 @@ public sealed class GameHubJoinTests
     private static IReadOnlyList<string> StringList(object? value)
     {
         return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
+    }
+
+    private static void AssertPayloadDoesNotContainText(IEnumerable<GameEvent> events, params string[] blockedValues)
+    {
+        var payloadTexts = events
+            .SelectMany(gameEvent => PayloadTextValues(gameEvent.Payload))
+            .ToArray();
+        foreach (var blockedValue in blockedValues)
+        {
+            Assert.DoesNotContain(payloadTexts, value => string.Equals(value, blockedValue, StringComparison.Ordinal));
+        }
+    }
+
+    private static IEnumerable<string> PayloadTextValues(object? value)
+    {
+        switch (value)
+        {
+            case null:
+                yield break;
+            case string text:
+                yield return text;
+                yield break;
+            case IReadOnlyDictionary<string, object?> record:
+                foreach (var nested in record.Values.SelectMany(PayloadTextValues))
+                {
+                    yield return nested;
+                }
+
+                yield break;
+            case JsonElement { ValueKind: JsonValueKind.String } jsonString:
+                var jsonText = jsonString.GetString();
+                if (jsonText is not null)
+                {
+                    yield return jsonText;
+                }
+
+                yield break;
+            case JsonElement { ValueKind: JsonValueKind.Object } jsonObject:
+                foreach (var property in jsonObject.EnumerateObject())
+                {
+                    foreach (var nested in PayloadTextValues(property.Value))
+                    {
+                        yield return nested;
+                    }
+                }
+
+                yield break;
+            case JsonElement { ValueKind: JsonValueKind.Array } jsonArray:
+                foreach (var item in jsonArray.EnumerateArray())
+                {
+                    foreach (var nested in PayloadTextValues(item))
+                    {
+                        yield return nested;
+                    }
+                }
+
+                yield break;
+            case IEnumerable enumerable:
+                foreach (var item in enumerable)
+                {
+                    foreach (var nested in PayloadTextValues(item))
+                    {
+                        yield return nested;
+                    }
+                }
+
+                yield break;
+        }
     }
 
     private sealed class RecordingGameClient : IGameClient

@@ -17,6 +17,11 @@ const frontendUrl = `http://127.0.0.1:${frontendPort}`;
 const startApi = process.argv.includes("--start-api");
 const acceptedCommandFollowupStates = ["accepted-events", "accepted-silent", "accepted-snapshot"];
 const validCommandFollowupStates = ["accepted-awaiting", ...acceptedCommandFollowupStates, "empty", "failed", "pending", "unknown-tick"];
+const wireLayoutGeometryViewports = [
+  { height: 1080, label: "1920x1080", width: 1920 },
+  { height: 900, label: "1440x900", width: 1440 },
+  { height: 800, label: "1280x800", width: 1280 }
+];
 const { WIRE_CARD_IMAGE_RATIO } = loadTsModule(path.resolve(scriptDir, "../src/components/match/wireTableContract.ts"));
 const {
   WIRE_SIDE_PANEL_TAB_BY_SLOT,
@@ -61,9 +66,13 @@ try {
   userDataDir = await mkdtemp(path.join(tmpdir(), "riftbound-chrome-smoke-"));
   const chrome = spawnChild(chromePath(), [
     "--headless=new",
+    "--disable-background-networking",
+    "--disable-component-update",
+    "--disable-default-apps",
     "--disable-gpu",
     "--no-first-run",
     "--no-default-browser-check",
+    "--disable-sync",
     `--remote-debugging-port=${debugPort}`,
     `--user-data-dir=${userDataDir}`,
     "about:blank"
@@ -109,11 +118,23 @@ try {
     console.log(`Chrome smoke OK: ${route.path}`);
   }
 
-  await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
-  await waitForText(cdp, ["符文战场对战线框", "控制台", "行动", "响应", "规则", "日志", "详情", "指挥中心"]);
-  await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
-  await runWireLayoutGeometrySmoke(cdp);
-  console.log("Chrome smoke OK: wire layout geometry");
+  for (const viewport of wireLayoutGeometryViewports) {
+    await setViewport(cdp, viewport);
+    await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
+    await waitForText(cdp, ["符文战场对战线框", "控制台", "行动", "响应", "规则", "日志", "详情", "指挥中心"]);
+    if (viewport.label === "1440x900") {
+      await runAccessibilitySmoke(cdp, "/matches/local?fixture=layout");
+    }
+    await runWireLayoutGeometrySmoke(cdp, viewport.label);
+    console.log(`Chrome smoke OK: wire layout geometry ${viewport.label}`);
+    if (viewport.width >= 1280) {
+      await runWireSidePanelBrowserAcceptanceSmoke(cdp, viewport.label);
+      console.log(`Chrome smoke OK: wire side panel browser acceptance ${viewport.label}`);
+    } else {
+      console.log(`Chrome smoke SKIP: wire side panel browser acceptance ${viewport.label} stacked fallback`);
+    }
+  }
+  await setViewport(cdp, { height: 900, label: "1440x900", width: 1440 });
   await runWireClickSelectionSmoke(cdp);
   console.log("Chrome smoke OK: wire click selection");
   await navigateAndWait(cdp, `${frontendUrl}/matches/local?fixture=layout`);
@@ -149,7 +170,7 @@ try {
   console.log("Chrome smoke passed.");
 } finally {
   for (const child of children.reverse()) {
-    child.kill("SIGTERM");
+    await stopChild(child);
   }
 
   if (userDataDir) {
@@ -186,6 +207,42 @@ function spawnChild(command, args, options) {
     }
   });
   return child;
+}
+
+async function stopChild(child) {
+  if (!child.killed && child.exitCode == null && child.signalCode == null) {
+    child.kill("SIGTERM");
+  }
+
+  let exited = child.exitCode != null || child.signalCode != null;
+  if (!exited) {
+    exited = await waitForChildExit(child, 1_500);
+  }
+  if (!exited && child.exitCode == null && child.signalCode == null) {
+    child.kill("SIGKILL");
+    await waitForChildExit(child, 1_500);
+  }
+
+  child.stdout?.destroy();
+  child.stderr?.destroy();
+}
+
+function waitForChildExit(child, timeoutMs) {
+  if (child.exitCode != null || child.signalCode != null) {
+    return Promise.resolve(true);
+  }
+
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      child.off("exit", onExit);
+      resolve(false);
+    }, timeoutMs);
+    const onExit = () => {
+      clearTimeout(timeout);
+      resolve(true);
+    };
+    child.once("exit", onExit);
+  });
 }
 
 function viteBin() {
@@ -281,6 +338,15 @@ async function navigateAndWait(cdp, url) {
   }
 
   throw new Error(`Timed out waiting for document to become ready: ${url}`);
+}
+
+async function setViewport(cdp, viewport) {
+  await cdp.send("Emulation.setDeviceMetricsOverride", {
+    deviceScaleFactor: 1,
+    height: viewport.height,
+    mobile: false,
+    width: viewport.width
+  });
 }
 
 async function waitForText(cdp, texts) {
@@ -384,11 +450,12 @@ async function runRoomLifecycleSmoke(cdp) {
   }
 }
 
-async function runWireLayoutGeometrySmoke(cdp) {
+async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
   await clickSidePanelSlot(cdp, "actionMap");
   await delay(100);
   const result = await evaluateJson(cdp, `(() => {
     const failures = [];
+    const viewportLabel = ${JSON.stringify(viewportLabel)};
     const validFollowupStates = ${JSON.stringify(validCommandFollowupStates)};
     const cardImageRatio = ${JSON.stringify(WIRE_CARD_IMAGE_RATIO)};
     const round = (value) => Math.round(value * 10) / 10;
@@ -404,8 +471,160 @@ async function runWireLayoutGeometrySmoke(cdp) {
       };
     };
     const sizeKey = (rect) => \`\${round(rect.width)}x\${round(rect.height)}\`;
+    const containedBy = (inner, outer, tolerance = 1) =>
+      inner.left >= outer.left - tolerance
+      && inner.right <= outer.right + tolerance
+      && inner.top >= outer.top - tolerance
+      && inner.bottom <= outer.bottom + tolerance;
     const childCards = (element) => Array.from(element.querySelectorAll(":scope > .card-face, :scope > .card-image-only, :scope > .card-back, :scope > .wire-card-slot"));
     const flowGroups = new Map();
+    const centerGrid = document.querySelector(".wire-battlefield-center-grid");
+    const flowPlanKey = (flow) => [
+      flow?.getAttribute("data-flow-kind") ?? "",
+      flow?.getAttribute("data-flow-layout") ?? "",
+      flow?.getAttribute("data-flow-density") ?? "",
+      flow?.getAttribute("data-flow-fit") ?? "",
+      flow?.getAttribute("data-flow-card-width") ?? "",
+      flow?.getAttribute("data-flow-card-height") ?? "",
+      flow?.getAttribute("data-flow-scroll-after") ?? "",
+      flow?.getAttribute("data-flow-min-slots") ?? ""
+    ].join("|");
+    const laneTopology = Array.from(document.querySelectorAll(".wire-battlefield-lane")).map((lane) => {
+      const unitZones = Array.from(lane.querySelectorAll(":scope > .wire-battlefield-unit-zone"));
+      const standbyZones = Array.from(lane.querySelectorAll(":scope > .wire-battlefield-standby-zone"));
+      return {
+        centerChildTag: lane.parentElement === centerGrid ? lane.tagName.toLowerCase() : "",
+        laneIndex: lane.getAttribute("data-wire-battlefield-lane-index") ?? "",
+        laneZoneId: lane.getAttribute("data-wire-battlefield-lane-zone-id") ?? "",
+        standbyFlowPlans: standbyZones.map((zone) => {
+          const flow = zone.querySelector(":scope .wire-card-flow");
+          return {
+            count: Number(flow?.getAttribute("data-flow-count") ?? "-1"),
+            kind: flow?.getAttribute("data-flow-kind") ?? "",
+            planKey: flowPlanKey(flow)
+          };
+        }),
+        standbyZoneId: lane.getAttribute("data-wire-battlefield-standby-zone-id") ?? "",
+        standbyZoneCount: standbyZones.length,
+        unitFlowPlans: unitZones.map((zone) => {
+          const flow = zone.querySelector(":scope .wire-card-flow");
+          return {
+            count: Number(flow?.getAttribute("data-flow-count") ?? "-1"),
+            kind: flow?.getAttribute("data-flow-kind") ?? "",
+            planKey: flowPlanKey(flow),
+            splitSource: zone.getAttribute("data-wire-battlefield-split-source") ?? ""
+          };
+        }),
+        unitZoneCount: unitZones.length
+      };
+    });
+    if (!centerGrid) {
+      failures.push("wire battlefield center grid is missing");
+    }
+    if (window.innerWidth < 1200) {
+      failures.push(\`wire layout geometry smoke \${viewportLabel} should run at desktop width, got \${window.innerWidth}\`);
+    }
+    if (document.querySelector(".wire-battlefield-center-divider")) {
+      failures.push("legacy wire battlefield center divider should not render");
+    }
+    if ((centerGrid?.querySelectorAll(":scope > .wire-battlefield-standby-zone").length ?? 0) > 0) {
+      failures.push("wire standby zone escaped lane and became a central public row");
+    }
+    if ((centerGrid?.querySelectorAll(":scope > .card-face, :scope > .card-image-only, :scope > .card-back, :scope > .wire-card-slot").length ?? 0) > 0) {
+      failures.push("wire battlefield center grid should not carry cards directly");
+    }
+    if ((centerGrid?.querySelectorAll(":scope > :not(.wire-battlefield-lane)").length ?? 0) > 0) {
+      failures.push("wire battlefield center grid direct children must be lane regions only");
+    }
+    if (document.querySelectorAll(".wire-battlefield-standby-zone:not(.wire-battlefield-lane .wire-battlefield-standby-zone)").length > 0) {
+      failures.push("wire standby zones must be contained by battlefield lanes");
+    }
+    if (laneTopology.length !== 2) {
+      failures.push("wire battlefield should render exactly two lane regions, got " + laneTopology.length);
+    }
+    const expectedLaneTopology = new Map([
+      ["left-lane", { laneIndex: "0", standbyZoneId: "left-standby" }],
+      ["right-lane", { laneIndex: "1", standbyZoneId: "right-standby" }]
+    ]);
+    for (const [laneZoneId, expected] of expectedLaneTopology.entries()) {
+      const lane = laneTopology.find((entry) => entry.laneZoneId === laneZoneId);
+      if (!lane) {
+        failures.push("wire battlefield lane is missing " + laneZoneId);
+        continue;
+      }
+      if (lane.laneIndex !== expected.laneIndex) {
+        failures.push("wire battlefield lane " + laneZoneId + " has wrong lane index: " + lane.laneIndex);
+      }
+      if (lane.standbyZoneId !== expected.standbyZoneId) {
+        failures.push("wire battlefield lane " + laneZoneId + " has wrong standby binding: " + lane.standbyZoneId);
+      }
+      if (lane.unitZoneCount !== 2) {
+        failures.push("wire battlefield lane " + laneZoneId + " should contain two unit zones, got " + lane.unitZoneCount);
+      }
+      if (lane.standbyZoneCount !== 1) {
+        failures.push("wire battlefield lane " + laneZoneId + " should contain one standby zone, got " + lane.standbyZoneCount);
+      }
+      if (lane.centerChildTag !== "section") {
+        failures.push("wire battlefield lane " + laneZoneId + " should be a direct center grid section, got " + (lane.centerChildTag || "detached"));
+      }
+      if (lane.unitFlowPlans.some((plan) => plan.kind !== "battlefield-unit")) {
+        failures.push("wire battlefield lane " + laneZoneId + " unit zones must use battlefield-unit flow: " + JSON.stringify(lane.unitFlowPlans));
+      }
+      if (lane.unitFlowPlans.some((plan) => plan.splitSource !== "server-unitsBySide")) {
+        failures.push("wire battlefield lane " + laneZoneId + " unit zones must keep server split source: " + JSON.stringify(lane.unitFlowPlans));
+      }
+      if (lane.standbyFlowPlans.some((plan) => plan.kind !== "standby")) {
+        failures.push("wire battlefield lane " + laneZoneId + " standby zone must use standby flow: " + JSON.stringify(lane.standbyFlowPlans));
+      }
+    }
+    for (const zone of Array.from(document.querySelectorAll(".wire-battlefield-lane > .wire-battlefield-unit-zone, .wire-battlefield-lane > .wire-battlefield-standby-zone"))) {
+      const flow = zone.querySelector(":scope .wire-card-flow");
+      const zoneRect = rectOf(zone);
+      if (!flow) {
+        failures.push("wire battlefield lane zone is missing a card flow");
+        continue;
+      }
+
+      const flowRect = rectOf(flow);
+      if (!containedBy(flowRect, zoneRect, 2)) {
+        failures.push(\`wire battlefield flow escaped its zone: zone \${sizeKey(zoneRect)} flow \${sizeKey(flowRect)}\`);
+      }
+      for (const card of childCards(flow)) {
+        const cardRect = rectOf(card);
+        if (cardRect.top < zoneRect.top - 2 || cardRect.bottom > zoneRect.bottom + 2) {
+          failures.push(\`wire battlefield card escaped its zone vertically: zone \${sizeKey(zoneRect)} card \${sizeKey(cardRect)}\`);
+        }
+        if (flow.getAttribute("data-flow-overflow") !== "scroll" && !containedBy(cardRect, zoneRect, 2)) {
+          failures.push(\`wire battlefield non-scroll zone let a card escape: zone \${sizeKey(zoneRect)} card \${sizeKey(cardRect)}\`);
+        }
+      }
+    }
+    const flowPlanGroups = new Map();
+    for (const lane of laneTopology) {
+      for (const [index, plan] of lane.unitFlowPlans.entries()) {
+        const groupKey = "battlefield-unit:" + plan.count;
+        const group = flowPlanGroups.get(groupKey) ?? new Set();
+        group.add(plan.planKey);
+        flowPlanGroups.set(groupKey, group);
+        if (plan.count >= 0 && !plan.planKey.startsWith("battlefield-unit|rail|")) {
+          failures.push("wire battlefield lane " + lane.laneZoneId + " unit " + index + " did not use shared rail flow plan: " + plan.planKey);
+        }
+      }
+      for (const [index, plan] of lane.standbyFlowPlans.entries()) {
+        const groupKey = "standby:" + plan.count;
+        const group = flowPlanGroups.get(groupKey) ?? new Set();
+        group.add(plan.planKey);
+        flowPlanGroups.set(groupKey, group);
+        if (plan.count >= 0 && !plan.planKey.startsWith("standby|rail|")) {
+          failures.push("wire battlefield lane " + lane.laneZoneId + " standby " + index + " did not use shared rail flow plan: " + plan.planKey);
+        }
+      }
+    }
+    for (const [groupKey, planKeys] of flowPlanGroups.entries()) {
+      if (planKeys.size > 1) {
+        failures.push("matching battlefield flow count should reuse one layout plan for " + groupKey + ": " + Array.from(planKeys).join(", "));
+      }
+    }
 
     for (const flow of Array.from(document.querySelectorAll(".wire-card-flow"))) {
       const capacity = flow.getAttribute("data-flow-capacity") ?? "";
@@ -1426,21 +1645,251 @@ async function runWireLayoutGeometrySmoke(cdp) {
   }
 }
 
+async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
+  await clickSidePanelSlot(cdp, "actionMap");
+  await delay(100);
+  const result = await evaluateJson(cdp, `(() => {
+    const failures = [];
+    const viewportLabel = ${JSON.stringify(viewportLabel)};
+    const round = (value) => Math.round(value * 10) / 10;
+    const rectOf = (element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        bottom: round(rect.bottom),
+        height: round(rect.height),
+        left: round(rect.left),
+        right: round(rect.right),
+        top: round(rect.top),
+        width: round(rect.width)
+      };
+    };
+    const rectKey = (rect) => rect
+      ? String(rect.left) + "," + String(rect.top) + " " + String(rect.width) + "x" + String(rect.height)
+      : "missing";
+    const visible = (element) => {
+      if (!element) return false;
+      const style = window.getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return style.display !== "none"
+        && style.visibility !== "hidden"
+        && rect.width > 0
+        && rect.height > 0
+        && element.getClientRects().length > 0;
+    };
+    const containedBy = (inner, outer, tolerance = 2) => Boolean(inner && outer)
+      && inner.left >= outer.left - tolerance
+      && inner.right <= outer.right + tolerance
+      && inner.top >= outer.top - tolerance
+      && inner.bottom <= outer.bottom + tolerance;
+    const scrollBoundary = (element) => {
+      if (!element) {
+        return {
+          canScrollY: false,
+          clientHeight: 0,
+          exists: false,
+          hasFiniteMaxHeight: false,
+          overflowY: "",
+          rect: null,
+          scrollHeight: 0,
+          scrollable: false
+        };
+      }
+      const style = window.getComputedStyle(element);
+      const rect = rectOf(element);
+      const maxHeight = Number.parseFloat(style.maxHeight);
+      return {
+        canScrollY: style.overflowY === "auto" || style.overflowY === "scroll",
+        clientHeight: element.clientHeight,
+        exists: true,
+        hasFiniteMaxHeight: Number.isFinite(maxHeight),
+        maxHeight: style.maxHeight,
+        overflowY: style.overflowY,
+        rect,
+        scrollHeight: element.scrollHeight,
+        scrollable: element.scrollHeight > element.clientHeight + 2
+      };
+    };
+    const requireVisible = (element, label) => {
+      if (!visible(element)) {
+        failures.push("wire side panel " + label + " missing or hidden at " + viewportLabel);
+        return false;
+      }
+      return true;
+    };
+    const matchBody = document.querySelector(".wire-match-body");
+    const tableShell = document.querySelector(".wire-table-shell");
+    const sidePanel = document.querySelector(".wire-side-panel");
+    const directory = document.querySelector("[data-wire-side-panel-directory]");
+    const operation = document.querySelector(".wire-side-panel-operation");
+    const operationList = document.querySelector(".wire-side-panel-operation-sections");
+    const railStack = document.querySelector("[data-wire-side-panel-rail-stack]");
+    const paneStack = document.querySelector(".wire-side-panel-stack");
+    const activeSlot = paneStack?.getAttribute("data-wire-side-panel-active-slot") ?? "";
+    const activePane = activeSlot ? document.querySelector('[data-wire-side-panel-pane="' + activeSlot + '"]') : null;
+    const activePanel = activePane?.querySelector(":scope > .wire-panel") ?? null;
+    const visiblePanes = Array.from(document.querySelectorAll('[data-wire-side-panel-pane-visible="true"]')).filter(visible);
+    const summaryRails = Array.from(railStack?.querySelectorAll(':scope > [data-wire-side-panel-rail-mode="summary"]') ?? []).filter(visible);
+    const visibleRails = Array.from(railStack?.querySelectorAll(":scope > [data-wire-side-panel-rail]") ?? []).filter((rail) =>
+      rail.getAttribute("data-wire-side-panel-rail-mode") !== "hidden" && visible(rail)
+    );
+    const sideRect = sidePanel ? rectOf(sidePanel) : null;
+    const tableRect = tableShell ? rectOf(tableShell) : null;
+    const bodyRect = matchBody ? rectOf(matchBody) : null;
+    const directoryRect = directory ? rectOf(directory) : null;
+    const operationRect = operation ? rectOf(operation) : null;
+    const railRect = railStack ? rectOf(railStack) : null;
+    const paneStackRect = paneStack ? rectOf(paneStack) : null;
+    const activePaneRect = activePane ? rectOf(activePane) : null;
+    const activePanelRect = activePanel ? rectOf(activePanel) : null;
+    requireVisible(sidePanel, "shell");
+    requireVisible(directory, "directory");
+    requireVisible(operation, "operation panel");
+    requireVisible(railStack, "rail summary stack");
+    requireVisible(paneStack, "visible pane stack");
+    requireVisible(activePane, "active visible pane");
+    requireVisible(activePanel, "active visible panel");
+    if (sideRect && sideRect.width < 340) {
+      failures.push("wire side panel width is too narrow at " + viewportLabel + ": " + rectKey(sideRect));
+    }
+    if (bodyRect && sideRect && !containedBy(sideRect, bodyRect, 3)) {
+      failures.push("wire side panel escaped match body at " + viewportLabel + ": body " + rectKey(bodyRect) + " side " + rectKey(sideRect));
+    }
+    if (window.innerWidth > 1280 && tableRect && sideRect) {
+      if (sideRect.left < tableRect.right - 3 || sideRect.top > tableRect.top + 6) {
+        failures.push("wire side panel should stay to the right of the table at " + viewportLabel + ": table " + rectKey(tableRect) + " side " + rectKey(sideRect));
+      }
+    }
+    if (window.innerWidth <= 1280 && tableRect && sideRect && sideRect.top < tableRect.bottom - 3) {
+      failures.push("wire side panel stacked layout overlaps table at " + viewportLabel + ": table " + rectKey(tableRect) + " side " + rectKey(sideRect));
+    }
+    const orderedSections = [
+      { element: directory, label: "directory", rect: directoryRect },
+      { element: operation, label: "operation", rect: operationRect },
+      { element: railStack, label: "rail summary", rect: railRect },
+      { element: paneStack, label: "visible pane", rect: paneStackRect }
+    ];
+    for (const section of orderedSections) {
+      if (!visible(section.element)) continue;
+      if (!containedBy(section.rect, sideRect, 3)) {
+        failures.push("wire side panel " + section.label + " escaped shell at " + viewportLabel + ": shell " + rectKey(sideRect) + " item " + rectKey(section.rect));
+      }
+      if (section.rect.width < Math.min(320, (sideRect?.width ?? 320) - 16)) {
+        failures.push("wire side panel " + section.label + " collapsed horizontally at " + viewportLabel + ": " + rectKey(section.rect));
+      }
+      if (section.rect.height < 18) {
+        failures.push("wire side panel " + section.label + " collapsed vertically at " + viewportLabel + ": " + rectKey(section.rect));
+      }
+    }
+    const visibleOrderedSections = orderedSections.filter((section) => visible(section.element));
+    for (let index = 1; index < visibleOrderedSections.length; index += 1) {
+      const previous = visibleOrderedSections[index - 1];
+      const current = visibleOrderedSections[index];
+      if (current.rect.top < previous.rect.bottom - 2) {
+        failures.push("wire side panel sections overlap at " + viewportLabel + ": " + previous.label + " " + rectKey(previous.rect) + " / " + current.label + " " + rectKey(current.rect));
+      }
+    }
+    const operationBoundary = scrollBoundary(operationList);
+    if (!operationBoundary.exists || !operationBoundary.canScrollY || !operationBoundary.hasFiniteMaxHeight) {
+      failures.push("wire side panel operation list missing scroll boundary at " + viewportLabel + ": " + JSON.stringify(operationBoundary));
+    }
+    if (operationBoundary.exists && operationBoundary.clientHeight <= 0) {
+      failures.push("wire side panel operation list has no visible height at " + viewportLabel + ": " + JSON.stringify(operationBoundary));
+    }
+    const activePanelBoundary = scrollBoundary(activePanel);
+    if (!activePanelBoundary.exists || !activePanelBoundary.canScrollY) {
+      failures.push("wire side panel active detail pane missing overflow:auto boundary at " + viewportLabel + ": " + JSON.stringify(activePanelBoundary));
+    }
+    if (activePanelBoundary.exists && activePanelBoundary.clientHeight < 80) {
+      failures.push("wire side panel active detail pane is too compressed at " + viewportLabel + ": " + JSON.stringify(activePanelBoundary));
+    }
+    if (activePaneRect && paneStackRect && !containedBy(activePaneRect, paneStackRect, 3)) {
+      failures.push("wire side panel active pane escaped pane stack at " + viewportLabel + ": stack " + rectKey(paneStackRect) + " pane " + rectKey(activePaneRect));
+    }
+    if (activePanelRect && activePaneRect && !containedBy(activePanelRect, activePaneRect, 3)) {
+      failures.push("wire side panel active panel escaped active pane at " + viewportLabel + ": pane " + rectKey(activePaneRect) + " panel " + rectKey(activePanelRect));
+    }
+    const persistentPanes = visiblePanes.filter((pane) => pane.getAttribute("data-wire-side-panel-pane-region") === "persistent");
+    for (const pane of persistentPanes) {
+      const boundary = scrollBoundary(pane);
+      if (!boundary.canScrollY) {
+        failures.push("wire side panel persistent detail pane missing scroll boundary at " + viewportLabel + ": " + JSON.stringify(boundary));
+      }
+      if (boundary.rect && paneStackRect && !containedBy(boundary.rect, paneStackRect, 3)) {
+        failures.push("wire side panel persistent detail pane escaped pane stack at " + viewportLabel + ": " + rectKey(boundary.rect));
+      }
+    }
+    if (visiblePanes.length < 1) {
+      failures.push("wire side panel should expose at least one visible pane at " + viewportLabel);
+    }
+    if (!activeSlot) {
+      failures.push("wire side panel active slot missing at " + viewportLabel);
+    }
+    const railSummaryCount = Number(railStack?.getAttribute("data-wire-side-panel-rail-summary-count") ?? "NaN");
+    if (!Number.isFinite(railSummaryCount) || railSummaryCount < 1 || summaryRails.length < 1) {
+      failures.push("wire side panel rail summary missing at " + viewportLabel + ": declared " + String(railSummaryCount) + " rendered " + String(summaryRails.length));
+    }
+    if (Number.isFinite(railSummaryCount) && railSummaryCount !== summaryRails.length) {
+      failures.push("wire side panel rail summary count mismatch at " + viewportLabel + ": declared " + String(railSummaryCount) + " rendered " + String(summaryRails.length));
+    }
+    let previousRailRect = null;
+    for (const rail of visibleRails) {
+      const railItemRect = rectOf(rail);
+      if (railRect && !containedBy(railItemRect, railRect, 3)) {
+        failures.push("wire side panel rail escaped rail stack at " + viewportLabel + ": stack " + rectKey(railRect) + " rail " + rectKey(railItemRect));
+      }
+      if (previousRailRect && railItemRect.top < previousRailRect.bottom - 2) {
+        failures.push("wire side panel visible rails overlap at " + viewportLabel + ": " + rectKey(previousRailRect) + " / " + rectKey(railItemRect));
+      }
+      previousRailRect = railItemRect;
+    }
+    const directoryLinks = Array.from(document.querySelectorAll("[data-wire-side-panel-directory-link]")).filter(visible);
+    if (directoryLinks.length < 1) {
+      failures.push("wire side panel directory has no visible links at " + viewportLabel);
+    }
+    for (const link of directoryLinks) {
+      const linkRect = rectOf(link);
+      if (directoryRect && !containedBy(linkRect, directoryRect, 3)) {
+        failures.push("wire side panel directory link escaped directory at " + viewportLabel + ": " + rectKey(linkRect));
+      }
+    }
+    return {
+      activePanelBoundary,
+      activeSlot,
+      failures,
+      operationBoundary,
+      railSummaryCount,
+      summaryRailCount: summaryRails.length,
+      visiblePaneCount: visiblePanes.length,
+      visibleRailCount: visibleRails.length
+    };
+  })()`);
+  const failures = result.failures ?? [];
+  if (failures.length > 0) {
+    throw new Error(`Wire side panel browser acceptance smoke failed:\n${failures.join("\n")}`);
+  }
+}
+
 async function runWireClickSelectionSmoke(cdp) {
+  const previewLayoutBaseline = await readWireShellLayout(cdp);
   await hoverObject(cdp, "p1-hand-spell");
   await delay(300);
   const earlyPreviewResult = await readWireCardPreview(cdp);
+  const earlyPreviewLayout = await readWireShellLayout(cdp);
   await delay(450);
   const standardPreviewResult = await readWireCardPreview(cdp);
+  const standardPreviewLayout = await readWireShellLayout(cdp);
   await unhoverObject(cdp, "p1-hand-spell");
   await delay(100);
   const clearedPreviewResult = await readWireCardPreview(cdp);
+  const clearedPreviewLayout = await readWireShellLayout(cdp);
 
   await hoverObject(cdp, "fixture-left-battlefield");
   await delay(720);
   const battlefieldPreviewResult = await readWireCardPreview(cdp);
+  const battlefieldPreviewLayout = await readWireShellLayout(cdp);
   await unhoverObject(cdp, "fixture-left-battlefield");
   await delay(100);
+  const battlefieldClearedPreviewLayout = await readWireShellLayout(cdp);
 
   await clickObject(cdp, "p1-hand-spell");
   await delay(150);
@@ -2270,6 +2719,13 @@ async function runWireClickSelectionSmoke(cdp) {
   })()`);
 
   const failures = [];
+  failures.push(...wireShellLayoutFailures(previewLayoutBaseline, earlyPreviewLayout, "pending standard card preview"));
+  failures.push(...wireShellLayoutFailures(previewLayoutBaseline, standardPreviewLayout, "visible standard card preview"));
+  failures.push(...wireShellLayoutFailures(previewLayoutBaseline, clearedPreviewLayout, "cleared standard card preview"));
+  failures.push(...wireShellLayoutFailures(previewLayoutBaseline, battlefieldPreviewLayout, "visible battlefield card preview"));
+  failures.push(...wireShellLayoutFailures(previewLayoutBaseline, battlefieldClearedPreviewLayout, "cleared battlefield card preview"));
+  failures.push(...wireCardPreviewLayoutFailures(standardPreviewResult, "standard card preview"));
+  failures.push(...wireCardPreviewLayoutFailures(battlefieldPreviewResult, "battlefield card preview"));
   if (earlyPreviewResult.exists) failures.push("card preview appeared before planned delay");
   if (!standardPreviewResult.exists) failures.push("standard card preview did not appear after delay");
   if (standardPreviewResult.kind !== "standard") failures.push(`standard card preview kind unexpected: ${standardPreviewResult.kind}`);
@@ -4609,16 +5065,145 @@ async function unhoverObject(cdp, objectId) {
 
 async function readWireCardPreview(cdp) {
   return evaluateJson(cdp, `(() => {
+    const round = (value) => Math.round(value * 10) / 10;
+    const rectOf = (element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        bottom: round(rect.bottom),
+        height: round(rect.height),
+        left: round(rect.left),
+        right: round(rect.right),
+        top: round(rect.top),
+        width: round(rect.width)
+      };
+    };
     const preview = document.querySelector(".wire-card-preview");
+    const image = preview?.querySelector("img");
+    const style = preview ? window.getComputedStyle(preview) : null;
     return {
       delayMs: Number(preview?.getAttribute("data-wire-card-preview-delay-ms") ?? "0"),
       exists: Boolean(preview),
+      imageRect: image ? rectOf(image) : null,
       kind: preview?.getAttribute("data-wire-card-preview-kind") ?? null,
       objectId: preview?.getAttribute("data-wire-card-preview-object-id") ?? null,
       orientation: preview?.getAttribute("data-wire-card-preview-orientation") ?? null,
-      state: preview?.getAttribute("data-wire-card-preview-state") ?? null
+      pointerEvents: style?.pointerEvents ?? "",
+      position: style?.position ?? "",
+      rect: preview ? rectOf(preview) : null,
+      state: preview?.getAttribute("data-wire-card-preview-state") ?? null,
+      viewport: {
+        height: window.innerHeight,
+        width: window.innerWidth
+      }
     };
   })()`);
+}
+
+async function readWireShellLayout(cdp) {
+  return evaluateJson(cdp, `(() => {
+    const round = (value) => Math.round(value * 10) / 10;
+    const rectOf = (element) => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return {
+        bottom: round(rect.bottom),
+        height: round(rect.height),
+        left: round(rect.left),
+        right: round(rect.right),
+        top: round(rect.top),
+        width: round(rect.width)
+      };
+    };
+    const paneStack = document.querySelector(".wire-side-panel-stack");
+    const activeSlot = paneStack?.getAttribute("data-wire-side-panel-active-slot") ?? "";
+    const activePane = activeSlot ? document.querySelector('[data-wire-side-panel-pane="' + activeSlot + '"]') : null;
+    return {
+      activeSlot,
+      rects: {
+        activePane: rectOf(activePane),
+        centerGrid: rectOf(document.querySelector(".wire-battlefield-center-grid")),
+        matchBody: rectOf(document.querySelector(".wire-match-body")),
+        sidePanel: rectOf(document.querySelector(".wire-side-panel")),
+        tableShell: rectOf(document.querySelector(".wire-table-shell"))
+      },
+      scroll: {
+        bodyHeight: document.body?.scrollHeight ?? 0,
+        bodyWidth: document.body?.scrollWidth ?? 0,
+        documentHeight: document.documentElement?.scrollHeight ?? 0,
+        documentWidth: document.documentElement?.scrollWidth ?? 0
+      },
+      viewport: {
+        height: window.innerHeight,
+        width: window.innerWidth
+      }
+    };
+  })()`);
+}
+
+function wireShellLayoutFailures(baseline, candidate, label) {
+  const failures = [];
+  const rectKeys = ["matchBody", "tableShell", "sidePanel", "centerGrid", "activePane"];
+  for (const key of rectKeys) {
+    const before = baseline?.rects?.[key];
+    const after = candidate?.rects?.[key];
+    if (!before || !after) {
+      failures.push(`card preview layout check missing ${key} rect during ${label}`);
+      continue;
+    }
+    for (const metric of ["left", "top", "width", "height"]) {
+      const drift = Math.abs(Number(before[metric]) - Number(after[metric]));
+      if (drift > 1.5) {
+        failures.push(`card preview changed ${key}.${metric} during ${label}: ${before[metric]} -> ${after[metric]}`);
+      }
+    }
+  }
+  for (const metric of ["bodyWidth", "documentWidth"]) {
+    const before = Number(baseline?.scroll?.[metric] ?? 0);
+    const after = Number(candidate?.scroll?.[metric] ?? 0);
+    if (Math.abs(before - after) > 1.5) {
+      failures.push(`card preview changed ${metric} during ${label}: ${before} -> ${after}`);
+    }
+  }
+  return failures;
+}
+
+function wireCardPreviewLayoutFailures(preview, label) {
+  const failures = [];
+  if (!preview?.exists) {
+    return failures;
+  }
+  if (preview.position !== "fixed") {
+    failures.push(`${label} should render as a fixed overlay, got ${preview.position || "missing"}`);
+  }
+  if (preview.pointerEvents !== "none") {
+    failures.push(`${label} should not intercept pointer events, got ${preview.pointerEvents || "missing"}`);
+  }
+  const rect = preview.rect;
+  const viewport = preview.viewport;
+  if (!rect || !viewport) {
+    failures.push(`${label} missing overlay rect`);
+  } else {
+    if (Math.abs(rect.left) > 1 || Math.abs(rect.top) > 1) {
+      failures.push(`${label} overlay should start at viewport origin, got ${JSON.stringify(rect)}`);
+    }
+    if (Math.abs(rect.width - viewport.width) > 1.5 || Math.abs(rect.height - viewport.height) > 1.5) {
+      failures.push(`${label} overlay should cover viewport, got ${JSON.stringify({ rect, viewport })}`);
+    }
+  }
+  const imageRect = preview.imageRect;
+  if (!imageRect || imageRect.width <= 0 || imageRect.height <= 0) {
+    failures.push(`${label} image rect is missing or empty`);
+  } else if (viewport) {
+    if (
+      imageRect.left < -2
+      || imageRect.top < -2
+      || imageRect.right > viewport.width + 2
+      || imageRect.bottom > viewport.height + 2
+    ) {
+      failures.push(`${label} image escaped viewport: ${JSON.stringify({ imageRect, viewport })}`);
+    }
+  }
+  return failures;
 }
 
 async function clickRuleObjectRef(cdp, objectId) {

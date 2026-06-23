@@ -12,6 +12,7 @@ import { WireInteractionPanel } from "../components/match/WireInteractionPanel";
 import { WireMatchOverviewPanel } from "../components/match/WireMatchOverviewPanel";
 import { WireObjectCommandTray } from "../components/match/WireObjectCommandTray";
 import { WireSidePanelFocusStrip } from "../components/match/WireSidePanelFocusStrip";
+import { WireSidePanelOperationPanel } from "../components/match/WireSidePanelOperationPanel";
 import { WireSidePanelRuleChainStrip } from "../components/match/WireSidePanelRuleChainStrip";
 import { WirePromptAuthorityPanel } from "../components/match/WirePromptAuthorityPanel";
 import { WireResponseCoachPanel } from "../components/match/WireResponseCoachPanel";
@@ -94,13 +95,17 @@ import { buildWireFocusedInteractionPlan } from "../utils/wireFocusedInteraction
 import { buildWireObjectCommandTrayPlan } from "../utils/wireObjectCommandTrayPlan";
 import { buildWireServerFlowProjectionPlan } from "../utils/wireServerFlowProjectionPlan";
 import { buildWireSidePanelDirectoryPlan, type WireSidePanelDirectoryPlan } from "../utils/wireSidePanelDirectoryPlan";
-import { buildWireSidePanelDirectoryViewPlan } from "../utils/wireSidePanelDirectoryViewPlan";
+import {
+  buildWireSidePanelDirectoryLayerPlan,
+  buildWireSidePanelDirectoryViewPlan
+} from "../utils/wireSidePanelDirectoryViewPlan";
 import { buildWireSidePanelControlPlan } from "../utils/wireSidePanelControlPlan";
 import { buildWireSidePanelFramePlan } from "../utils/wireSidePanelFramePlan";
 import { buildWireSidePanelFocusPlan } from "../utils/wireSidePanelFocusPlan";
 import { buildWireSidePanelOrchestrationPlan, type WireSidePanelOrchestrationPlan } from "../utils/wireSidePanelOrchestrationPlan";
 import { buildWireSidePanelRuleChainPlan } from "../utils/wireSidePanelRuleChainPlan";
 import { buildWireSidePanelStackPlan, type WireSidePanelStackRailEntry } from "../utils/wireSidePanelStackPlan";
+import { buildWireSidePanelOperationPlan } from "../utils/wireSidePanelOperationPlan";
 import {
   buildWireSidePanelTransitionPlan,
   isStickyWireSidePanelState,
@@ -576,6 +581,21 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
     () => sidePanelTransitionForSlot(activeSidePanelSlot, "auto"),
     [activeSidePanelSlot, sidePanelTransitionForSlot]
   );
+  const sidePanelOperationPlan = useMemo(() => buildWireSidePanelOperationPlan({
+    activeSlot: activeSidePanelSlot,
+    focusPlan: sidePanelFocusPlan,
+    orchestration: sidePanelOrchestration,
+    prompt: tablePrompt,
+    ruleChainPlan: sidePanelRuleChainPlan,
+    submissionGate: tableSubmissionGate
+  }), [
+    activeSidePanelSlot,
+    sidePanelFocusPlan,
+    sidePanelOrchestration,
+    sidePanelRuleChainPlan,
+    tablePrompt,
+    tableSubmissionGate
+  ]);
 
   useEffect(() => {
     setActiveSidePanelSlot((current) => {
@@ -914,6 +934,11 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
             orchestration={sidePanelOrchestration}
             plan={sidePanelDirectory}
           />
+          <WireSidePanelOperationPanel
+            activeSlot={activeSidePanelSlot}
+            onSelectSlot={selectSidePanelSlot}
+            plan={sidePanelOperationPlan}
+          />
           <div
             aria-label="右侧控制台摘要堆栈"
             className="wire-side-panel-rail-stack"
@@ -1179,6 +1204,7 @@ function WireSidePanelDirectory({
     entries: orchestration.entries,
     tabs: WIRE_SIDE_PANEL_TABS
   });
+  const layers = buildWireSidePanelDirectoryLayerPlan({ directory: plan, view });
   const controlPlan = buildWireSidePanelControlPlan({ orchestration, view });
   const transitionForSlot = (targetSlot: WireSidePanelSlot, source: WireSidePanelNavigationSource) => buildWireSidePanelTransitionPlan({
     activeSlot,
@@ -1293,53 +1319,66 @@ function WireSidePanelDirectory({
           );
         })}
       </div>
-      <ol className="wire-side-panel-entry-grid" data-wire-side-panel-directory-index-mode={view.indexMode}>
-        {view.visibleEntries.map((entry) => {
-          const shortLabel = WIRE_SIDE_PANEL_SHORT_LABELS[entry.slot];
-          const transition = transitionForSlot(entry.slot, "directory");
-          return (
-            <li
-              data-wire-side-panel-directory-active={entry.active}
-              data-wire-side-panel-directory-group={plan.bySlot[entry.slot].group}
-              data-wire-side-panel-directory-item={entry.slot}
-              data-wire-side-panel-directory-primary={entry.primary}
-              data-wire-side-panel-directory-state={entry.state}
-              data-wire-side-panel-directory-tab={entry.tabId}
-              key={entry.slot}
-            >
-              <a
-                aria-label={`${entry.order}. ${entry.label}：${entry.stateLabel}，${entry.detail}`}
-                aria-current={entry.active ? "page" : undefined}
-                data-wire-side-panel-directory-count-value={entry.count}
-                data-wire-side-panel-directory-label={entry.label}
-                data-wire-side-panel-directory-link={entry.slot}
-                data-wire-side-panel-directory-short-label={shortLabel}
-                data-wire-side-panel-directory-state={entry.state}
-                data-wire-side-panel-directory-tab={entry.tabId}
-                data-wire-side-panel-directory-tone={entry.tone}
-                data-wire-side-panel-transition-from-slot={transition.fromSlot}
-                data-wire-side-panel-transition-from-tab={transition.fromTab}
-                data-wire-side-panel-transition-reason={transition.reason}
-                data-wire-side-panel-transition-selectable={transition.selectable}
-                data-wire-side-panel-transition-source={transition.source}
-                data-wire-side-panel-transition-tab-change={transition.tabChanges}
-                data-wire-side-panel-transition-target-slot={transition.targetSlot}
-                data-wire-side-panel-transition-target-tab={transition.targetTab}
-                href={entry.href}
-                onClick={(event) => {
-                  event.preventDefault();
-                  onSelectSlot(transition.targetSlot);
-                }}
-                title={`${entry.label} / ${entry.stateLabel} / ${entry.detail}`}
-              >
-                <strong>{shortLabel}</strong>
-                <small>{entry.count}</small>
-                <em>{entry.stateLabel}</em>
-              </a>
-            </li>
-          );
-        })}
-      </ol>
+      <div className="wire-side-panel-directory-groups" data-wire-side-panel-directory-layer-count={layers.length}>
+        {layers.map((layer) => (
+          <section
+            aria-label={`${layer.label}入口`}
+            className="wire-side-panel-directory-group"
+            data-wire-side-panel-directory-layer={layer.key}
+            data-wire-side-panel-directory-layer-count={layer.count}
+            key={layer.key}
+          >
+            <span>{layer.label}</span>
+            <ol className="wire-side-panel-entry-grid" data-wire-side-panel-directory-index-mode={view.indexMode}>
+              {layer.entries.map((entry) => {
+                const shortLabel = WIRE_SIDE_PANEL_SHORT_LABELS[entry.slot];
+                const transition = transitionForSlot(entry.slot, "directory");
+                return (
+                  <li
+                    data-wire-side-panel-directory-active={entry.active}
+                    data-wire-side-panel-directory-group={plan.bySlot[entry.slot].group}
+                    data-wire-side-panel-directory-item={entry.slot}
+                    data-wire-side-panel-directory-primary={entry.primary}
+                    data-wire-side-panel-directory-state={entry.state}
+                    data-wire-side-panel-directory-tab={entry.tabId}
+                    key={entry.slot}
+                  >
+                    <a
+                      aria-label={`${entry.order}. ${entry.label}：${entry.stateLabel}，${entry.detail}`}
+                      aria-current={entry.active ? "page" : undefined}
+                      data-wire-side-panel-directory-count-value={entry.count}
+                      data-wire-side-panel-directory-label={entry.label}
+                      data-wire-side-panel-directory-link={entry.slot}
+                      data-wire-side-panel-directory-short-label={shortLabel}
+                      data-wire-side-panel-directory-state={entry.state}
+                      data-wire-side-panel-directory-tab={entry.tabId}
+                      data-wire-side-panel-directory-tone={entry.tone}
+                      data-wire-side-panel-transition-from-slot={transition.fromSlot}
+                      data-wire-side-panel-transition-from-tab={transition.fromTab}
+                      data-wire-side-panel-transition-reason={transition.reason}
+                      data-wire-side-panel-transition-selectable={transition.selectable}
+                      data-wire-side-panel-transition-source={transition.source}
+                      data-wire-side-panel-transition-tab-change={transition.tabChanges}
+                      data-wire-side-panel-transition-target-slot={transition.targetSlot}
+                      data-wire-side-panel-transition-target-tab={transition.targetTab}
+                      href={entry.href}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        onSelectSlot(transition.targetSlot);
+                      }}
+                      title={`${entry.label} / ${entry.stateLabel} / ${entry.detail}`}
+                    >
+                      <strong>{shortLabel}</strong>
+                      <small>{entry.count}</small>
+                      <em>{entry.stateLabel}</em>
+                    </a>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        ))}
+      </div>
     </nav>
   );
 }
@@ -1549,43 +1588,56 @@ function WireBattlefieldTable({
   const layout = WIRE_TABLE_LAYOUT.battlefield;
   const unitPlan = battlefield.unitPlan;
   const standbyPlan = battlefield.standbyPlan;
-  const unitZones = (side: "opponent" | "self") => layout.unitZones
-    .filter((zone) => zone.side === side)
-    .map((zone) => {
-      const lane = lanes[zone.laneIndex];
-      const ids = side === "self" ? lane.ownOccupants : lane.opposingOccupants;
-      return (
-        <WireBattlefieldUnitZone
-          ids={ids}
-          interaction={interaction}
-          key={zone.id}
-          objects={objects}
-          onInspectCard={onInspectCard}
-          onPreviewCard={onPreviewCard}
-          plan={unitPlan}
-          splitSource={lane.occupantSplitSource}
-          specs={specs}
-          title={battlefieldUnitZoneLabel(zone.laneIndex, side)}
-        />
-      );
-    });
+  const renderUnitZone = (zone: typeof layout.unitZones[number]) => {
+    const lane = lanes[zone.laneIndex];
+    const ids = zone.side === "self" ? lane.ownOccupants : lane.opposingOccupants;
+    return (
+      <WireBattlefieldUnitZone
+        ids={ids}
+        interaction={interaction}
+        key={zone.id}
+        objects={objects}
+        onInspectCard={onInspectCard}
+        onPreviewCard={onPreviewCard}
+        plan={unitPlan}
+        splitSource={lane.occupantSplitSource}
+        specs={specs}
+        title={battlefieldUnitZoneLabel(zone.laneIndex, zone.side)}
+      />
+    );
+  };
+  const unitZoneById = new Map(layout.unitZones.map((zone) => [zone.id, zone]));
   const battlefieldSections = {
     center: (
-      <div className="wire-battlefield-center-grid" key="center" style={wireGridTemplateStyle(layout.centerColumns, layout.centerRows)}>
-        {unitZones("opponent")}
-        {layout.standbyZones.map((zone) => (
-          <WireBattlefieldStandbyZone
-            interaction={interaction}
-            key={zone.id}
-            lane={lanes[zone.laneIndex]}
-            objects={objects}
-            onInspectCard={onInspectCard}
-            onPreviewCard={onPreviewCard}
-            plan={standbyPlan}
-            specs={specs}
-          />
-        ))}
-        {unitZones("self")}
+      <div className="wire-battlefield-center-grid" key="center" style={wireGridColumnsStyle(layout.centerColumns)}>
+        {layout.laneZones.map((zone) => {
+          const laneUnitZones = zone.unitZoneIds.map((id) => unitZoneById.get(id)).filter((unitZone): unitZone is typeof layout.unitZones[number] => Boolean(unitZone));
+          const opponentZone = laneUnitZones.find((unitZone) => unitZone.side === "opponent");
+          const selfZone = laneUnitZones.find((unitZone) => unitZone.side === "self");
+          return (
+            <section
+              aria-label={`${zone.laneIndex === 0 ? "左战场" : "右战场"} 单位与待命区`}
+              className="wire-battlefield-lane"
+              data-wire-battlefield-lane-zone-id={zone.id}
+              data-wire-battlefield-lane-index={zone.laneIndex}
+              data-wire-battlefield-standby-zone-id={zone.standbyZoneId}
+              key={zone.id}
+              style={wireGridTemplateStyle(["minmax(0, 1fr)"], layout.laneRows)}
+            >
+              {opponentZone ? renderUnitZone(opponentZone) : null}
+              <WireBattlefieldStandbyZone
+                interaction={interaction}
+                lane={lanes[zone.laneIndex]}
+                objects={objects}
+                onInspectCard={onInspectCard}
+                onPreviewCard={onPreviewCard}
+                plan={standbyPlan}
+                specs={specs}
+              />
+              {selfZone ? renderUnitZone(selfZone) : null}
+            </section>
+          );
+        })}
       </div>
     ),
     leftSite: (
@@ -1638,7 +1690,7 @@ function WireBattlefieldStandbyZone({
 
   return (
     <section
-      aria-label={`${lane.index === 0 ? "左战场" : "右战场"} 待命槽`}
+      aria-label={`${lane.index === 0 ? "左战场" : "右战场"} 待命子轨`}
       className="wire-battlefield-standby-zone"
       data-wire-battlefield-hidden-standby-count={lane.hiddenStandbyCount}
       data-wire-battlefield-standby-count={slots.length}
@@ -1694,9 +1746,10 @@ function WireStandbySlotCard({
   slot: WireBattlefieldStandbySlot;
   specs: Record<string, BehaviorSpec>;
 }) {
-  const objectId = slot.objectId ?? slot.slotId;
-  const object = slot.objectId ? objects[slot.objectId] : hiddenStandbyObject(slot);
-  const spec = slot.objectId && object?.cardNo ? specs[object.cardNo] : undefined;
+  const visibleObject = slot.visible && slot.objectId ? objects[slot.objectId] : undefined;
+  const objectId = visibleObject?.objectId ?? slot.slotId;
+  const object = visibleObject ?? hiddenStandbyObject(slot);
+  const spec = visibleObject?.cardNo ? specs[visibleObject.cardNo] : undefined;
 
   return (
     <CardFace
