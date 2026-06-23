@@ -452,7 +452,15 @@ function CommandSubmissionFeedbackCompactPanel({
       className="wire-command-submission-feedback wire-command-submission-feedback-compact"
       data-command-submission-mode="compact"
       data-command-submission-state={plan.state}
+      data-wire-side-panel-receipt
+      data-wire-side-panel-receipt-bridge-state={plan.bridge.state}
+      data-wire-side-panel-receipt-can-open-layer={plan.canOpenLayer ? "true" : "false"}
+      data-wire-side-panel-receipt-event-count={followup.events.length}
+      data-wire-side-panel-receipt-hidden-count={plan.hiddenEventCount}
+      data-wire-side-panel-receipt-layer-open={layerOpen ? "true" : "false"}
       data-wire-side-panel-receipt-mode={plan.mode}
+      data-wire-side-panel-receipt-state={plan.state}
+      data-wire-side-panel-receipt-visible-event-count={plan.eventRows.length}
     >
       <div className="wire-command-submission-heading">
         <strong>{plan.title}</strong>

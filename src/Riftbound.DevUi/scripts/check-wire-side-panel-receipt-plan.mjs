@@ -7,6 +7,8 @@ import ts from "typescript";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const sourcePath = resolve(scriptDir, "../src/utils/wireSidePanelReceiptPlan.ts");
 const source = readFileSync(sourcePath, "utf8");
+const matchPageSource = readFileSync(resolve(scriptDir, "../src/pages/MatchPage.tsx"), "utf8");
+const actionMapSource = readFileSync(resolve(scriptDir, "../src/components/match/WireActionMapPanel.tsx"), "utf8");
 const output = ts.transpileModule(source, {
   compilerOptions: {
     esModuleInterop: true,
@@ -149,5 +151,25 @@ assert.equal(failedPlan.mode, "failed");
 assert.equal(failedPlan.state, "failed");
 assert.equal(failedPlan.metrics.find((metric) => metric.key === "receipt").state, "failed");
 assert.equal(failedPlan.subtitle, "命令被服务端规则拒绝");
+
+for (const snippet of [
+  "data-wire-side-panel-receipt",
+  "data-wire-side-panel-receipt-mode",
+  "data-wire-side-panel-receipt-state",
+  "data-wire-side-panel-receipt-bridge-state",
+  "data-wire-side-panel-receipt-can-open-layer",
+  "data-wire-side-panel-receipt-event-count",
+  "data-wire-side-panel-receipt-hidden-count"
+]) {
+  assert.ok(actionMapSource.includes(snippet), `CommandSubmissionFeedbackCompactPanel must expose ${snippet}.`);
+}
+
+for (const snippet of [
+  "data-wire-side-panel-receipt",
+  "aria-label=\"服务端提交回执常驻区\"",
+  "variant=\"compact\""
+]) {
+  assert.ok(matchPageSource.includes(snippet), `MatchPage persistent receipt rail must include ${snippet}.`);
+}
 
 console.log("wire side panel receipt plan checks passed");
