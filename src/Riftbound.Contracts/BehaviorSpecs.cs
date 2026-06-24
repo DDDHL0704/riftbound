@@ -55,6 +55,12 @@ public static class TriggerDurations
     public const string UntilEndOfTurn = "UNTIL_END_OF_TURN";
 }
 
+public static class StaticAbilityKinds
+{
+    public const string BattlefieldPreventMoveToBase = "BATTLEFIELD_PREVENT_MOVE_TO_BASE";
+    public const string BattlefieldPreventUnitPlay = "BATTLEFIELD_PREVENT_UNIT_PLAY";
+}
+
 public static class StaticAuraKinds
 {
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =

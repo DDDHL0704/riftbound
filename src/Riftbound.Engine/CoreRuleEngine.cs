@@ -717,13 +717,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
-    private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string RagingDrakeCardNo = "OGN·031/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
@@ -24752,9 +24750,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardNo, out _)
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
-            || IsBattlefieldPreventMoveToBaseCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardNo, out _)
             || IsBattlefieldStaticRoamCardNo(cardNo)
-            || IsBattlefieldPreventUnitPlayCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
             || IsBattlefieldEchoCostReductionCardNo(cardNo)
             || IsBattlefieldHeldNextSpellEchoCardNo(cardNo)
             || IsBattlefieldEquipmentCostReductionCardNo(cardNo)
@@ -24947,19 +24945,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
     }
 
-    private static bool IsBattlefieldPreventMoveToBaseCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldPreventMoveToBaseCardNo, StringComparison.Ordinal);
-    }
-
     private static bool IsBattlefieldStaticRoamCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldPreventUnitPlayCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldPreventUnitPlayCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldEchoCostReductionCardNo(string? cardNo)
@@ -28993,7 +28981,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && IsBattlefieldPreventMoveToBaseCardNo(cardObject.CardNo)
+            && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
@@ -29006,7 +28994,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldPreventUnitPlayCardNo(cardObject.CardNo)
+                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 

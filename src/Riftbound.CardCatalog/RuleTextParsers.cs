@@ -473,6 +473,28 @@ public static class StaticAbilityParser
                 "Keyword/static ability parsed for status display; full rule execution is handled by later rule domains or existing P2 mappings."));
         }
 
+        foreach (var segment in TargetParser.SplitRulesText(text))
+        {
+            if (segment.Contains("单位无法从此处移动到基地", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldPreventMoveToBase,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield prevent-move-to-base static ability parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.StaticAbilities."));
+                continue;
+            }
+
+            if (segment.Contains("单位无法被打出到此处", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldPreventUnitPlay,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield prevent-unit-play static ability parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.StaticAbilities."));
+            }
+        }
+
         foreach (var segment in TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("不能", StringComparison.Ordinal)
                 || segment.Contains("可以从", StringComparison.Ordinal)))

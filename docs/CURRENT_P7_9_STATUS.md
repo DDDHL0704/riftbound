@@ -2512,6 +2512,7 @@ This is the thirty-second rule slice inside P7.9.7. It adds a static battlefield
   - `OGN·295/298`: while this battlefield object is present in a player's battlefield zone, battlefield-zone units cannot move to that player's base through `MOVE_UNIT`.
 - Server-authoritative static restriction changes:
   - `MOVE_UNIT` from `BATTLEFIELD` to `BASE` now checks the server-side `OGN·295/298` battlefield static before mutating zones.
+  - 2026-06-25 Plan B / B4 update: this check is now resolved from BehaviorSpec `StaticAbilitySpec.Kind=BATTLEFIELD_PREVENT_MOVE_TO_BASE`; the old `BattlefieldPreventMoveToBaseCardNo` / `IsBattlefieldPreventMoveToBaseCardNo` card-number branch has been removed.
   - The mutation is rejected with `ErrorCodes.InvalidTarget` and a stable message when the movement restriction applies; no frontend rule inference is required.
   - Boundary note: because the current battlefield model stores battlefield-zone objects flatly, this representative blocks controlled battlefield-zone units from moving to base while preserving the existing prompt and snapshot authority model.
 - Added `battlefield-static-prevent-move-base` local development seed plus GameHub coverage for submitting the blocked move and receiving the stable backend error.
@@ -2577,6 +2578,7 @@ This is the thirty-fourth rule slice inside P7.9.7. It adds a static battlefield
   - `SFD·216/221`: while this battlefield object is present in a player's battlefield zone, unit play attempts to that battlefield through the existing battlefield `PLAY_CARD` destination are rejected by the backend.
 - Server-authoritative unit-play restriction changes:
   - The existing Ambush battlefield play path now checks this battlefield static after the command is otherwise recognized as a legal battlefield unit play and before costs are paid or stack items are created.
+  - 2026-06-25 Plan B / B4 update: this check is now resolved from BehaviorSpec `StaticAbilitySpec.Kind=BATTLEFIELD_PREVENT_UNIT_PLAY`; the old `BattlefieldPreventUnitPlayCardNo` / `IsBattlefieldPreventUnitPlayCardNo` card-number branch has been removed.
   - The mutation is rejected with `ErrorCodes.InvalidTarget` and a stable message; no frontend rule inference is added.
   - Boundary note: because the current battlefield model stores battlefield-zone objects flatly, this representative blocks the server-known battlefield destination for that controller while preserving prompt/snapshot authority.
 - Added `battlefield-static-prevent-play-units` local development seed plus GameHub coverage for submitting the blocked battlefield Ambush play and receiving the stable backend error.

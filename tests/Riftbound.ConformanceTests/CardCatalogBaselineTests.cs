@@ -999,7 +999,7 @@ public sealed class CardCatalogBaselineTests
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 3, functionalUnits: 3);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 40, functionalUnits: 39);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 1, functionalUnits: 1);
-        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 11, functionalUnits: 10);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 13, functionalUnits: 12);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 11, functionalUnits: 10);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 34, functionalUnits: 34);
 
@@ -1380,6 +1380,26 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var vilemawLair = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·295/298", StringComparison.Ordinal));
+        var preventMoveToBase = Assert.Single(vilemawLair.StaticAbilities);
+        Assert.Equal(StaticAbilityKinds.BattlefieldPreventMoveToBase, preventMoveToBase.Kind);
+        Assert.Contains("单位无法从此处移动到基地", preventMoveToBase.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, preventMoveToBase.Status);
+
+        var fallingRocks = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·216/221", StringComparison.Ordinal));
+        var preventUnitPlay = Assert.Single(fallingRocks.StaticAbilities);
+        Assert.Equal(StaticAbilityKinds.BattlefieldPreventUnitPlay, preventUnitPlay.Kind);
+        Assert.Contains("单位无法被打出到此处", preventUnitPlay.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, preventUnitPlay.Status);
+    }
+
+    [Fact]
     public void StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(
@@ -1427,6 +1447,32 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldMovedUnitPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldMovedUnitPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldStaticRestrictionDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldPreventMoveToBaseCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldPreventUnitPlayCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldPreventMoveToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldPreventMoveToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldPreventUnitPlayCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldPreventUnitPlayCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
