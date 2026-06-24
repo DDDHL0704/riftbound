@@ -67,6 +67,7 @@ const eventKindLabels: Record<string, string> = {
   BATTLE_DAMAGE_ASSIGNMENT_OPENED: "战斗伤害分配开启",
   BATTLE_DAMAGE_STEP_STARTED: "战斗伤害步骤",
   BATTLE_DECLARED: "声明战斗",
+  BATTLE_SKIPPED: "跳过战斗",
   BATTLEFIELD_CONTESTED: "战场争夺",
   BATTLEFIELD_CONTROL_RESOLVED: "战场控制结算",
   BATTLEFIELD_CONQUERED: "征服战场",
