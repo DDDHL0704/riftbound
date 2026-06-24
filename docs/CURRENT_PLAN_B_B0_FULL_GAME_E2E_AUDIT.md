@@ -2,7 +2,7 @@
 
 Date: 2026-06-24
 
-Status: focused B0 server E2E slice accepted; project remains **NOT READY**.
+Status: focused B0 server E2E no-legal battle skip slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -14,40 +14,44 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - both players use server prompts to tap runes and play units;
 - a live unit moves from base to the opponent battlefield;
 - the resulting contested battlefield opens and closes spell duel focus through `PASS_FOCUS`;
-- the same battlefield promotes to `START_BATTLE`;
+- if the resulting `START_BATTLE` task has no legal ready attackers / defenders, the engine records `BATTLE_SKIPPED` and clears the blocking battlefield task family for that battlefield for the rest of the turn;
 - every accepted step checks player snapshots for hidden opponent hand, main-deck and rune-deck object id leakage;
 - the match reaches a server `MATCH_WON` result through `SURRENDER`.
 
-The runtime fix in this slice is narrow: when spell duel closes into an existing `START_BATTLE` task, the engine promotes `ActivePlayerId` to the task player (`CleanupTaskState.PlayerId`) instead of always keeping the turn player. This preserves the existing battlefield-owner declaration model and fixes natural games where the mover is not the battle-task player.
+The first B0 runtime fix was narrow: when spell duel closes into an existing `START_BATTLE` task, the engine promotes `ActivePlayerId` to the task player (`CleanupTaskState.PlayerId`) instead of always keeping the turn player. This preserves the existing battlefield-owner declaration model and fixes natural games where the mover is not the battle-task player.
+
+This slice narrows the next exposed B0 blocker: after spell duel closes, the engine now asks the existing server-authored `DECLARE_BATTLE` legality model whether the `START_BATTLE` task player has any legal declaration. If not, it writes a `BATTLEFIELD_BATTLE_SKIPPED:*` end-of-turn marker, emits `BATTLE_SKIPPED` with participant metadata, suppresses repeated pending-task / battlefield-task projection for that battlefield, and returns to the turn player in open main timing.
 
 ## Evidence
 
 - Added `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs`.
 - Strengthened `tests/Riftbound.ConformanceTests/BoardTaskQueueFoundationTests.cs` with `PassFocusClosesSpellDuelAndPromotesBattlefieldOwnerWhenMoverIsTurnPlayer`.
+- Strengthened `tests/Riftbound.ConformanceTests/BoardTaskQueueFoundationTests.cs` with `PassFocusClosesSpellDuelAndSkipsStartBattleWhenNoLegalCombatants`.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` only in the spell-duel close handoff path.
+- Runtime projection / queue filtering changed in `src/Riftbound.Engine/MatchSession.cs` to make the skip marker suppress repeated same-turn battlefield tasks and hide the internal marker from public continuous-effect projection.
 
 ## Residuals
 
-This is not a READY claim and does not close complete battle declaration. The current natural `MOVE_UNIT` path exhausts the moved unit, while `DECLARE_BATTLE` candidates still require ready face-up attackers and defenders. The B0 full-game probe therefore asserts the promoted `START_BATTLE` task and documents the no-enabled-declare residual instead of pretending battle resolution is complete.
+This is not a READY claim and does not close complete battle declaration. The current natural `MOVE_UNIT` path exhausts the moved unit, while `DECLARE_BATTLE` candidates still require ready face-up attackers and defenders. The B0 full-game probe now proves this no-enabled-declare state is consumed by the server state machine instead of leaving a blocking `START_BATTLE` task.
 
 Open follow-up:
 
-- decide and evidence whether exhausted units at a contested battlefield can participate in the immediate battle, or whether the engine must auto-resolve / skip `START_BATTLE` when no legal combatants exist;
 - close real `BATTLE_DECLARED` / `BATTLE_CLOSED` through an official-deck, server-prompt E2E path;
 - close scoring victory through server prompts instead of surrender.
+- evidence whether same-turn effects that ready or add units after a no-legal battle skip should reopen that battlefield battle task before turn end.
 
 ## Validation
 
 Focused validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~PassFocusClosesSpellDuelAndPromotesBattlefieldOwnerWhenMoverIsTurnPlayer"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~PassFocusClosesSpellDuelAndSkipsStartBattleWhenNoLegalCombatants|FullyQualifiedName~PassFocusClosesSpellDuelAndPromotesBattlefieldOwnerWhenMoverIsTurnPlayer|FullyQualifiedName~PassFocusClosesSpellDuelAndPromotesStartBattleWithParticipantData|FullyQualifiedName~ActiveStartBattleDeclareBattleClearsTaskAndPreservesRepresentativeEvents"
 ```
 
 Result:
 
 ```text
-Passed: 2, Failed: 0, Skipped: 0, Total: 2
+Passed: 5, Failed: 0, Skipped: 0, Total: 5
 ```
 
 Adjacent validation passed:
@@ -59,7 +63,19 @@ Adjacent validation passed:
 Result:
 
 ```text
-Passed: 365, Failed: 0, Skipped: 0, Total: 365
+Passed: 366, Failed: 0, Skipped: 0, Total: 366
+```
+
+Recovery / hidden-info validation passed:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 1989, Failed: 0, Skipped: 0, Total: 1989
 ```
 
 Backend full validation passed:
@@ -71,5 +87,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8350, Failed: 0, Skipped: 0, Total: 8350
+Passed: 8351, Failed: 0, Skipped: 0, Total: 8351
 ```

@@ -9,7 +9,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class FullGameEndToEndTests
 {
     [Fact]
-    public async Task OfficialLowCurveDecksReachContestedBattleTaskAndMatchResultThroughServerPrompts()
+    public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var deck = BuildLowCurveOfficialDeck(catalog);
@@ -58,14 +58,16 @@ public sealed class FullGameEndToEndTests
         result = await PreparePlayerBoardAsync(session, result.State.ActivePlayerId, result, "second", playUnitToBattlefield: false);
         result = await MoveBaseUnitToOpponentBattlefieldAsync(session, result.State.ActivePlayerId, result);
         result = await PassOpenSpellDuelAsync(session, result);
-        var battleTask = result.State.PendingTaskQueue.Tasks.FirstOrDefault(task =>
-            string.Equals(task.TaskId, result.State.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal));
-        Assert.NotNull(battleTask);
-        Assert.Equal("START_BATTLE", battleTask.Kind);
-        Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
-        Assert.Equal(battleTask.PlayerId, result.State.ActivePlayerId);
-        Assert.Null(PlayerWithEnabledCandidate(result, CommandTypes.DeclareBattle));
-        Assert.Contains(result.Prompts.Values, prompt => prompt.Actions.Contains("WAIT", StringComparer.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+        Assert.False(result.State.PendingTaskQueue.HasTasks);
+        Assert.False(result.State.PendingTaskQueue.IsBlocking);
+        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
+        Assert.DoesNotContain(result.State.PendingTaskQueue.Tasks, task =>
+            string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
+        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P1"].Actions);
+        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P2"].Actions);
+        Assert.True(result.Prompts[result.State.ActivePlayerId].Actionable);
+        Assert.DoesNotContain("WAIT", result.Prompts[result.State.ActivePlayerId].Actions);
         AssertNoHiddenZoneLeak(result);
 
         var winner = OpponentOf(result.State, result.State.ActivePlayerId);

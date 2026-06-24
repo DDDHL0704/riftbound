@@ -26453,9 +26453,24 @@ public sealed class CoreRuleEngine : IRuleEngine
                 nextState = taskAdvance.State;
                 events.AddRange(taskAdvance.Events);
             }
-            else if (TryResolveStartBattleTaskPlayerId(nextState, completedBattlefieldObjectIds, out var battleTaskPlayerId))
+            else if (TryResolveStartBattleTask(nextState, completedBattlefieldObjectIds, out var startBattleTask))
             {
-                nextState = nextState with { ActivePlayerId = battleTaskPlayerId };
+                var battleTaskPlayerId = startBattleTask.PlayerId?.Trim() ?? string.Empty;
+                var battlePromptState = nextState with { ActivePlayerId = battleTaskPlayerId };
+                if (ActionPromptBuilder.CanDeclareBattleForActiveTask(battlePromptState, battleTaskPlayerId))
+                {
+                    nextState = battlePromptState;
+                }
+                else
+                {
+                    var battleSkip = SkipStartBattleTaskWithNoLegalCombatants(nextState, startBattleTask);
+                    nextState = battleSkip.State;
+                    events.AddRange(battleSkip.Events);
+
+                    var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+                    nextState = taskAdvance.State;
+                    events.AddRange(taskAdvance.Events);
+                }
             }
         }
         else
@@ -26481,21 +26496,55 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
-    private static bool TryResolveStartBattleTaskPlayerId(
+    private static bool TryResolveStartBattleTask(
         MatchState state,
         IReadOnlyList<string> battlefieldObjectIds,
-        out string playerId)
+        out CleanupTaskState startBattleTask)
     {
         var battlefieldIdSet = battlefieldObjectIds
             .Where(battlefieldObjectId => !string.IsNullOrWhiteSpace(battlefieldObjectId))
             .ToHashSet(StringComparer.Ordinal);
-        var startBattleTask = state.PendingTaskQueue.Tasks.FirstOrDefault(task =>
+        var task = state.PendingTaskQueue.Tasks.FirstOrDefault(task =>
             string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(task.PlayerId)
             && !string.IsNullOrWhiteSpace(task.BattlefieldObjectId)
             && battlefieldIdSet.Contains(task.BattlefieldObjectId));
-        playerId = startBattleTask?.PlayerId?.Trim() ?? string.Empty;
-        return !string.IsNullOrWhiteSpace(playerId);
+        startBattleTask = task!;
+        return task is not null;
+    }
+
+    private static (MatchState State, IReadOnlyList<GameEvent> Events) SkipStartBattleTaskWithNoLegalCombatants(
+        MatchState state,
+        CleanupTaskState startBattleTask)
+    {
+        var battlefieldObjectId = startBattleTask.BattlefieldObjectId?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId))
+        {
+            return (state, []);
+        }
+
+        var untilEndOfTurnEffects = AddUntilEndOfTurnEffect(
+            state.UntilEndOfTurnEffects,
+            BattlefieldTaskMarkers.BattleSkipped(battlefieldObjectId));
+        state.BattlefieldStates.TryGetValue(battlefieldObjectId, out var battlefield);
+        var nextState = state with
+        {
+            ActivePlayerId = state.TurnPlayerId,
+            UntilEndOfTurnEffects = untilEndOfTurnEffects
+        };
+        var gameEvent = new GameEvent(
+            "BATTLE_SKIPPED",
+            "没有合法攻防单位，跳过战斗任务",
+            new Dictionary<string, object?>
+            {
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["taskId"] = startBattleTask.TaskId,
+                ["reason"] = "NO_LEGAL_COMBATANTS",
+                ["playerId"] = startBattleTask.PlayerId,
+                ["participantControllerIds"] = battlefield?.OccupantControllerIds.ToArray() ?? Array.Empty<string>(),
+                ["participantObjectIds"] = battlefield?.OccupantObjectIds.ToArray() ?? Array.Empty<string>()
+            });
+        return (nextState, [gameEvent]);
     }
 
     private static (MatchState State, IReadOnlyList<GameEvent> Events) ResolveNonBattlefieldControlAfterSpellDuelClosed(
@@ -26686,6 +26735,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(candidate => candidate.Contested
                 && !state.UntilEndOfTurnEffects.Contains(
                     BattlefieldTaskMarkers.SpellDuelCompleted(candidate.BattlefieldObjectId),
+                    StringComparer.Ordinal)
+                && !state.UntilEndOfTurnEffects.Contains(
+                    BattlefieldTaskMarkers.BattleSkipped(candidate.BattlefieldObjectId),
                     StringComparer.Ordinal))
             .OrderBy(candidate => candidate.BattlefieldObjectId, StringComparer.Ordinal)
             .FirstOrDefault();

@@ -27,6 +27,8 @@ The new B0 probe exercises a real `MatchSession` with legal official decks. It d
 
 The new engine regression proves the spell-duel close handoff chooses the battlefield task player when the turn player is the mover. This is the natural path that previous fixture-style tests did not cover.
 
+The no-legal battle regression proves the next natural blocker is consumed by shared engine state rather than single-card logic. After spell duel closes, `CoreRuleEngine` checks the existing server-authored `DECLARE_BATTLE` requirements for the `START_BATTLE` task player. When no ready face-up attacker / defender declaration exists, the engine emits `BATTLE_SKIPPED`, records `BATTLEFIELD_BATTLE_SKIPPED:*` until end of turn, clears the blocking battlefield task family from state / snapshot projection, and returns to neutral open main timing.
+
 ## Hidden Information Evidence
 
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after every accepted step and rejects exposure of opponent hand, main-deck and rune-deck object ids. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
@@ -36,13 +38,13 @@ The new engine regression proves the spell-duel close handoff chooses the battle
 Focused validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~PassFocusClosesSpellDuelAndPromotesBattlefieldOwnerWhenMoverIsTurnPlayer"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~PassFocusClosesSpellDuelAndSkipsStartBattleWhenNoLegalCombatants|FullyQualifiedName~PassFocusClosesSpellDuelAndPromotesBattlefieldOwnerWhenMoverIsTurnPlayer|FullyQualifiedName~PassFocusClosesSpellDuelAndPromotesStartBattleWithParticipantData|FullyQualifiedName~ActiveStartBattleDeclareBattleClearsTaskAndPreservesRepresentativeEvents"
 ```
 
 Result:
 
 ```text
-Passed: 2, Failed: 0, Skipped: 0, Total: 2
+Passed: 5, Failed: 0, Skipped: 0, Total: 5
 ```
 
 Adjacent validation:
@@ -54,7 +56,19 @@ Adjacent validation:
 Result:
 
 ```text
-Passed: 365, Failed: 0, Skipped: 0, Total: 365
+Passed: 366, Failed: 0, Skipped: 0, Total: 366
+```
+
+Recovery / hidden-info validation:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery"
+```
+
+Result:
+
+```text
+Passed: 1989, Failed: 0, Skipped: 0, Total: 1989
 ```
 
 Backend full validation:
@@ -66,9 +80,9 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8350, Failed: 0, Skipped: 0, Total: 8350
+Passed: 8351, Failed: 0, Skipped: 0, Total: 8351
 ```
 
 ## Non-Closure
 
-This evidence proves the engine can drive legal official decks through setup, opening, live prompt-driven gameplay, contested battlefield task creation and match result without leaking hidden zones. It does not close full official game completion, real battle resolution from official decks, score-based victory, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, full card matrix readiness, frontend gates or final READY.
+This evidence proves the engine can drive legal official decks through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip and match result without leaking hidden zones. It does not close full official game completion, real battle resolution from official decks, score-based victory, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, full card matrix readiness, frontend gates or final READY.

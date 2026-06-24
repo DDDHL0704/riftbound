@@ -45,11 +45,17 @@ public static class TimingStates
 public static class BattlefieldTaskMarkers
 {
     public const string SpellDuelCompletedPrefix = "BATTLEFIELD_SPELL_DUEL_COMPLETED:";
+    public const string BattleSkippedPrefix = "BATTLEFIELD_BATTLE_SKIPPED:";
     public const string ScoreGainedThisTurnPrefix = "BATTLEFIELD_SCORE_GAINED_THIS_TURN:";
 
     public static string SpellDuelCompleted(string battlefieldObjectId)
     {
         return $"{SpellDuelCompletedPrefix}{battlefieldObjectId}";
+    }
+
+    public static string BattleSkipped(string battlefieldObjectId)
+    {
+        return $"{BattleSkippedPrefix}{battlefieldObjectId}";
     }
 
     public static string ScoreGainedThisTurn(string battlefieldObjectId, string playerId)
@@ -1444,6 +1450,11 @@ public sealed record MatchState
 
         foreach (var battlefield in state.BattlefieldStates.Values.Where(battlefield => battlefield.Contested))
         {
+            if (HasBattlefieldBattleSkipped(state, battlefield.BattlefieldObjectId))
+            {
+                continue;
+            }
+
             tasks.Add(new CleanupTaskState(
                 $"cleanup:battlefield-contested:{battlefield.BattlefieldObjectId}",
                 "BATTLEFIELD_CONTESTED",
@@ -1483,6 +1494,11 @@ public sealed record MatchState
             .Where(battlefield => battlefield.Contested)
             .OrderBy(battlefield => battlefield.BattlefieldObjectId, StringComparer.Ordinal))
         {
+            if (HasBattlefieldBattleSkipped(state, battlefield.BattlefieldObjectId))
+            {
+                continue;
+            }
+
             var participantObjectIds = battlefield.OccupantObjectIds
                 .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                     && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
@@ -1742,6 +1758,13 @@ public sealed record MatchState
             StringComparer.Ordinal);
     }
 
+    private static bool HasBattlefieldBattleSkipped(MatchState state, string battlefieldObjectId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            BattlefieldTaskMarkers.BattleSkipped(battlefieldObjectId),
+            StringComparer.Ordinal);
+    }
+
     private static IReadOnlyList<ContinuousEffectState> BuildContinuousEffectStates(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
@@ -1859,7 +1882,8 @@ public sealed record MatchState
     private static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
         return effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
-            || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal);
+            || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal);
     }
 
     private static ContinuousEffectState ApplySourceOrder(

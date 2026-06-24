@@ -2,6 +2,8 @@
 
 更新时间：2026-06-24
 
+2026-06-24 最新补充：Plan B / B0 no-legal battle skip slice 已验收。审计入口为 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md`；focused full-game / battle-task handoff / no-legal skip / accepted battle guard 5/5、adjacent battle/spell-duel/GameHub 366/366、MatchRecovery 1989/1989、backend full 8351/8351 通过。该补充只证明 spell duel 关闭后，若 `START_BATTLE` 任务负责人没有服务端合法 `DECLARE_BATTLE` 候选，引擎会记录 `BATTLE_SKIPPED` 并清除该战场本回合阻塞任务；不关闭真实 battle declaration、score victory、完整 battle lifecycle、same-turn skip reopen policy、full official 或 READY。
+
 2026-06-24 最新补充：Plan B / B1 static aura spec first slice 已验收。审计入口为 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_EVIDENCE.md`；focused static-aura catalog/projection guard 2/2、adjacent StaticAura / Ornn / LayerEngine battlefield static aura / BattlefieldStaticPower 217/217 通过。该补充只证明 `BehaviorSpec.StaticAuras` 已暴露奥恩与崔法利兵营两个 representative，且 `MatchSession` continuous-effect 投影不再依赖 `ContinuousEffectStaticAuraCards` 卡号清单；不关闭 Core runtime recompute、combat static bonus、multiple aura stacking、完整 B1 或 READY。
 
 2026-06-24 最新补充：Plan B / B0 full-game E2E first slice 已验收。审计入口为 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_B0_FULL_GAME_E2E_EVIDENCE.md`；focused full-game / battle-task owner handoff 2/2、adjacent battle/spell-duel/GameHub 365/365、backend full 8350/8350 通过。该补充只证明 legal official decks 可经服务端 prompt 走到开局、出牌、移动、spell-duel close、`START_BATTLE` task 和 surrender match result，并修正 spell-duel close 后 battle task active player 选择；不关闭真实 battle declaration、score victory、完整 battle lifecycle、full official 或 READY。

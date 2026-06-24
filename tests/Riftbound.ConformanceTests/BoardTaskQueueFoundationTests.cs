@@ -753,6 +753,54 @@ public sealed class BoardTaskQueueFoundationTests
     }
 
     [Fact]
+    public async Task PassFocusClosesSpellDuelAndSkipsStartBattleWhenNoLegalCombatants()
+    {
+        var readyToClose = SpellDuelReadyToCloseState();
+        var cardObjects = readyToClose.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-CONTEST-DEFENDER"] = Unit("P2-CONTEST-DEFENDER", "P2", isExhausted: true);
+        var state = readyToClose with
+        {
+            TurnPlayerId = "P2",
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-board-task-pass-focus-skip-no-legal-battle", "P1", CommandTypes.PassFocus),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "BATTLE_SKIPPED"],
+            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Equal("P2", result.State.ActivePlayerId);
+        Assert.Contains(BattlefieldTaskMarkers.SpellDuelCompleted("BF-CONTEST"), result.State.UntilEndOfTurnEffects);
+        Assert.Contains("BATTLEFIELD_BATTLE_SKIPPED:BF-CONTEST", result.State.UntilEndOfTurnEffects);
+        Assert.False(result.State.PendingTaskQueue.HasTasks);
+        Assert.False(result.State.PendingTaskQueue.IsBlocking);
+        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
+        Assert.Null(result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Empty(result.State.PendingTaskQueue.Tasks);
+        Assert.Empty(result.State.BattlefieldTasks);
+        Assert.False(result.State.BattleState.IsActive);
+        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P1"].Actions);
+        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P2"].Actions);
+        Assert.True(result.Prompts["P2"].Actionable);
+        Assert.DoesNotContain("WAIT", result.Prompts["P2"].Actions);
+
+        var battleSkipped = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+        Assert.Equal("task:start-battle:BF-CONTEST", battleSkipped.Payload["taskId"]);
+        Assert.Equal("BF-CONTEST", battleSkipped.Payload["battlefieldObjectId"]);
+        Assert.Equal("P1", battleSkipped.Payload["playerId"]);
+        Assert.Equal("NO_LEGAL_COMBATANTS", battleSkipped.Payload["reason"]);
+        Assert.Equal(["P1", "P2"], StringList(battleSkipped.Payload["participantControllerIds"]));
+        Assert.Equal(["P1-CONTEST-ATTACKER", "P2-CONTEST-DEFENDER"], StringList(battleSkipped.Payload["participantObjectIds"]));
+    }
+
+    [Fact]
     public async Task PreciseRoamPreservesDestinationCasingAndQueuesOnlyDestinationContestTasks()
     {
         const string originBattlefieldObjectId = "P1-Origin-MiXeD-BF";
