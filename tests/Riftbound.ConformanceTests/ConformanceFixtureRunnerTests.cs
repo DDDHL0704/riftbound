@@ -37865,7 +37865,7 @@ public sealed class ConformanceFixtureRunnerTests
             effectId.StartsWith("BATTLEFIELD_CONQUER_READY_RUNE_AT_END:", StringComparison.Ordinal)));
         var scheduleEvent = Assert.Single(battleResult.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_TWO_RUNES_AT_END", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyRunesAtEnd, StringComparison.Ordinal));
         Assert.Equal(
             ["P1-BATTLEFIELD-READY-RUNE-001", "P1-BATTLEFIELD-READY-RUNE-002"],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduleEvent.Payload["runeObjectIds"]));
@@ -37931,7 +37931,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(battleResult.Accepted);
         var scheduleEvent = Assert.Single(battleResult.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_TWO_RUNES_AT_END", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyRunesAtEnd, StringComparison.Ordinal));
         Assert.Equal(
             ["P1-BATTLEFIELD-READY-RUNE-001", "P1-BATTLEFIELD-READY-RUNE-002"],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduleEvent.Payload["runeObjectIds"]));

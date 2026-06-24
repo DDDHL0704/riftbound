@@ -449,6 +449,22 @@ public static class TriggerParser
                 DrawCountPerParticipant: ParseChineseNumber(battlefieldConquerDrawForOtherBattlefieldsMatch.Groups[1].Value));
         }
 
+        var battlefieldConquerReadyRunesAtEndMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，选择([0-9一两二三四五六七八九十]+)枚符文，并在本回合结束时，让它们变为活跃状态",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerReadyRunesAtEndMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerReadyRunesAtEnd,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered ready-runes-at-end trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.OwnedRuneInBase,
+                RuneReadyCount: ParseChineseNumber(battlefieldConquerReadyRunesAtEndMatch.Groups[1].Value),
+                ReadyTiming: TriggerReadyTimings.EndOfTurn);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

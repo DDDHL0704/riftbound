@@ -674,7 +674,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
-    private const string BattlefieldConquerReadyTwoRunesAtEndCardNo = "OGN·289/298";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerPowerfulPayOneDrawEffectKind = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW";
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
@@ -17284,7 +17283,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 runePools = battlefieldSandSoldierRunePools;
             }
-            if (TryResolveBattlefieldConquerReadyTwoRunesAtEndTrigger(
+            if (TryResolveBattlefieldConquerReadyRunesAtEndTrigger(
                     playerZones,
                     cardObjects,
                     untilEndOfTurnEffects,
@@ -24507,7 +24506,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryResolveBattlefieldConquerReadyTwoRunesAtEndTrigger(
+    private static bool TryResolveBattlefieldConquerReadyRunesAtEndTrigger(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyList<string> untilEndOfTurnEffects,
@@ -24517,11 +24516,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects)
     {
-        const string abilityId = "BATTLEFIELD_CONQUERED_READY_TWO_RUNES_AT_END";
+        const string abilityId = TriggerKinds.BattlefieldConquerReadyRunesAtEnd;
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerReadyTwoRunesAtEndCardNo(battlefieldState.CardNo)
-            || !TryGetFirstRuneObjectsInBase(playerZones, cardObjects, playerId, requiredCount: 2, out var runeObjectIds))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.OwnedRuneInBase, StringComparison.Ordinal)
+            || trigger.RuneReadyCount.GetValueOrDefault() <= 0
+            || !string.Equals(trigger.ReadyTiming, TriggerReadyTimings.EndOfTurn, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var runeReadyCount = trigger.RuneReadyCount.GetValueOrDefault();
+        IReadOnlyList<string> runeObjectIds;
+        if (!TryGetFirstRuneObjectsInBase(playerZones, cardObjects, playerId, runeReadyCount, out runeObjectIds))
         {
             return false;
         }
@@ -24972,7 +24981,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldDefendRevealSpellCardNo(cardNo)
             || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardNo, out _)
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
-            || IsBattlefieldConquerReadyTwoRunesAtEndCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(cardNo, out _)
             || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
             || IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(cardNo)
@@ -25050,11 +25059,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerPayOneReadyLegendCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerReadyTwoRunesAtEndCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerReadyTwoRunesAtEndCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerPowerfulPayOneDrawCardNo(string? cardNo)

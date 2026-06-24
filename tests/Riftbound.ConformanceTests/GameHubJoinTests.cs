@@ -9744,7 +9744,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(battleClients.CallerClient.Errors);
         Assert.Contains(EventsFor(battleClients), gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_TWO_RUNES_AT_END", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyRunesAtEnd, StringComparison.Ordinal));
         var battleSnapshot = SnapshotFor(battleClients, "P1");
         var battleP1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var battleObjects = Assert.IsType<Dictionary<string, object?>>(battleP1["objects"]);

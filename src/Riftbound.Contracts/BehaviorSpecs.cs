@@ -70,6 +70,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_DISCARD_DRAW";
     public const string BattlefieldConquerDrawForOtherBattlefields =
         "BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS";
+    public const string BattlefieldConquerReadyRunesAtEnd =
+        "BATTLEFIELD_CONQUERED_READY_RUNES_AT_END";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -115,6 +117,11 @@ public static class TriggerTargetScopes
 public static class TriggerDurations
 {
     public const string UntilEndOfTurn = "UNTIL_END_OF_TURN";
+}
+
+public static class TriggerReadyTimings
+{
+    public const string EndOfTurn = "END_OF_TURN";
 }
 
 public static class TriggerMoveDestinations
@@ -284,6 +291,8 @@ public sealed record TriggerSpec(
     int? BoonCount = null,
     int? ConsumedBoonCount = null,
     int? RuneCallCount = null,
+    int? RuneReadyCount = null,
+    string? ReadyTiming = null,
     int? MoveCount = null,
     string? MoveDestination = null,
     bool? OncePerTurn = null,

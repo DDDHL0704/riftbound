@@ -1864,6 +1864,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerReadyRunesAtEndTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var mountTargon = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·289/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(mountTargon.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerReadyRunesAtEnd, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OwnedRuneInBase, trigger.TargetScope);
+        Assert.Equal(2, trigger.RuneReadyCount);
+        Assert.Equal(TriggerReadyTimings.EndOfTurn, trigger.ReadyTiming);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("选择两枚符文", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("本回合结束时", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered ready-runes-at-end trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2408,6 +2430,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldConquerDrawForOtherBattlefieldsCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldConquerDrawForOtherBattlefieldsCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldConquerReadyRunesAtEndTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerReadyTwoRunesAtEndCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerReadyTwoRunesAtEndCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerReadyTwoRunesAtEndCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

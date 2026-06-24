@@ -29,6 +29,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·282/298` 希拉娜修道院 has official text `当你征服此处时，你可以选择消耗一个增益，以此抽一张牌。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·298/298` 祖安地沟 has official text `当你征服此处时，弃置一张手牌，然后抽一张牌。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·217/221` 权能之座 has official text `当你征服此处时，你和盟友每控制一处其他战场，你便抽一张牌。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·289/298` 巨神峰之巅 has official text `当你征服此处时，选择两枚符文，并在本回合结束时，让它们变为活跃状态。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -53,6 +54,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldConquerConsumesBoonAndDraws`, `P79BattlefieldConquerConsumesControlledBoonWhenDirtyBoonIsOpponentOwned`, and GameHub `P79BattlefieldConquerBoonDrawSeedOffersBattlefieldDestinationAndConsumesBoon` remain the runtime evidence for the conquered-battlefield consume-boon draw representative behavior.
 - Existing representative tests `P79BattlefieldConquerDiscardsThenDraws`, `P79BattlefieldConquerDiscardDrawSkipsOpponentControlledHandCard`, and GameHub `P79BattlefieldConquerDiscardDrawSeedOffersBattlefieldDestinationAndCyclesHand` remain the runtime evidence for the conquered-battlefield discard-draw representative behavior.
 - Existing representative tests `P79BattlefieldConquerDrawsForOtherControlledBattlefields`, `P79BattlefieldConquerDrawsForOtherBattlefieldsSkipsOpponentOwnedBattlefield`, and GameHub `P79BattlefieldConquerDrawOtherSeedOffersBattlefieldDestinationAndDraws` remain the runtime evidence for the conquered-battlefield draw-for-other-battlefields representative behavior.
+- Existing representative tests `P79BattlefieldConquerReadyRunesAtEndSchedulesAndReadiesRunes`, `P79BattlefieldConquerReadyRunesAtEndSkipsOpponentOwnedRune`, and GameHub `P79BattlefieldConquerReadyRunesEndSeedSchedulesAndReadiesRunes` remain the runtime evidence for the conquered-battlefield ready-runes-at-end representative behavior.
 
 ## Runtime Evidence
 
@@ -148,6 +150,10 @@ The conquer draw-for-other-battlefields follow-up parser path turns the Seat of 
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still counts other controlled battlefield card objects, excludes the conquered source battlefield object, skips opponent-owned dirty battlefield objects, and draws `otherBattlefieldObjectIds.Length * DrawCountPerParticipant`. It emits `BATTLEFIELD_TRIGGER_RESOLVED` and `CARD_DRAWN` with `BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS` while preserving hidden main-deck ordering boundaries through the existing draw implementation.
 
+The conquer ready-runes-at-end follow-up parser path turns the Mount Targon official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OWNED_RUNE_IN_BASE`, `RuneReadyCount=2`, and `ReadyTiming=END_OF_TURN`. Runtime no longer checks `OGN·289/298` through `BattlefieldConquerReadyTwoRunesAtEndCardNo` / `IsBattlefieldConquerReadyTwoRunesAtEndCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` conquered-battlefield path still schedules the existing delayed end-of-turn ready effects for owned base runes, skips opponent-owned dirty rune objects in the base zone, and then `END_TURN` resolves those markers through the existing `BATTLEFIELD_END_TURN_READY_RUNES` path. It emits `BATTLEFIELD_TRIGGER_RESOLVED` and `RUNE_READY_SCHEDULED` with `BATTLEFIELD_CONQUERED_READY_RUNES_AT_END`, while preserving the existing end-turn marker shape and snapshot hidden-information boundaries.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -200,10 +206,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer discard-draw adjacent BattlefieldConquer / BattlefieldTriggerSpec / Discard / Jinx / FullGame / GameHub representatives: `330/330`;
 - conquer draw-for-other-battlefields focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - conquer draw-for-other-battlefields adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `282/282`;
+- conquer ready-runes-at-end focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- conquer ready-runes-at-end adjacent BattlefieldConquer / BattlefieldTriggerSpec / Rune / FullGame / GameHub representatives: `458/458`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the conquer draw-for-other-battlefields follow-up: `8419/8419`;
+- backend full conformance after the conquer ready-runes-at-end follow-up: `8421/8421`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves twenty-three battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves twenty-four battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
