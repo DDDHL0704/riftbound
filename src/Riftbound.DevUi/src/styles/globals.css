@@ -12190,12 +12190,82 @@ button.card-face:hover {
 }
 
 .wire-match-body {
+  position: relative;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(860px, 1fr) clamp(360px, 28vw, 420px);
   gap: 4px;
   padding: 4px;
   background: #fff;
+}
+
+.wire-side-panel-inspection-layer {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  bottom: 4px;
+  width: clamp(360px, 28vw, 420px);
+  z-index: 40;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  box-shadow: -8px 0 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.wire-side-panel-inspection-layer[hidden] {
+  display: none;
+}
+
+.wire-side-panel-inspection-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #000;
+}
+
+.wire-side-panel-inspection-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.wire-side-panel-inspection-close {
+  padding: 3px 8px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wire-side-panel-inspection-close:hover {
+  background: #000;
+  color: #fff;
+}
+
+.wire-side-panel-inspection-body {
+  min-height: 0;
+  display: grid;
+  grid-auto-rows: min-content;
+  gap: 6px;
+  overflow: auto;
+}
+
+.wire-side-panel-inspection-pane {
+  min-height: 0;
+}
+
+.wire-side-panel-inspection-pane[data-wire-side-panel-inspection-pane-active="true"] {
+  outline: 2px solid #000;
+  outline-offset: -2px;
 }
 
 .wire-table-shell,

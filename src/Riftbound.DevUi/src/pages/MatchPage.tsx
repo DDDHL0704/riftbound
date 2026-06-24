@@ -148,6 +148,16 @@ function commandUiSource(
   };
 }
 
+// 检查层（inspection drawer）承载的 authority slot：移出右侧主 tab 轮换，
+// 收敛主区从 14 slot 到 10 slot，避免「权威/边界证据」常驻挤占行动控制台。
+const WIRE_SIDE_PANEL_INSPECTION_SLOTS: readonly WireSidePanelSlot[] = [
+  "overview",
+  "tableAuthority",
+  "informationBoundary",
+  "promptAuthority"
+];
+const WIRE_SIDE_PANEL_INSPECTION_SLOT_SET = new Set<WireSidePanelSlot>(WIRE_SIDE_PANEL_INSPECTION_SLOTS);
+
 export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
   const { specByNo } = useCatalog();
@@ -588,10 +598,17 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
   const sidePanelEntryBySlot = useMemo(() => Object.fromEntries(
     sidePanelOrchestration.entries.map((entry) => [entry.slot, entry])
   ) as Record<WireSidePanelSlot, WireSidePanelOrchestrationPlan["entries"][number]>, [sidePanelOrchestration.entries]);
+  const sidePanelMainSlots = useMemo(
+    () => WIRE_TABLE_LAYOUT.sidePanel.slots.filter((slot) => !WIRE_SIDE_PANEL_INSPECTION_SLOT_SET.has(slot)),
+    []
+  );
+  const inspectionLayerOpen = WIRE_SIDE_PANEL_INSPECTION_SLOT_SET.has(activeSidePanelSlot);
+  // 检查层 slot 退出主 frame：用 commandCenter 兜底 active，保证 frame 不抛错。
+  const sidePanelFrameActiveSlot: WireSidePanelSlot = inspectionLayerOpen ? "commandCenter" : activeSidePanelSlot;
   const sidePanelFrame = useMemo(() => buildWireSidePanelFramePlan({
-    activeSlot: activeSidePanelSlot,
-    slots: WIRE_TABLE_LAYOUT.sidePanel.slots
-  }), [activeSidePanelSlot]);
+    activeSlot: sidePanelFrameActiveSlot,
+    slots: sidePanelMainSlots
+  }), [sidePanelFrameActiveSlot, sidePanelMainSlots]);
   const sidePanelStackPlan = useMemo(() => buildWireSidePanelStackPlan({
     activeSlot: activeSidePanelSlot,
     focusPlan: sidePanelFocusPlan,
@@ -1143,6 +1160,39 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 role={wireSidePanelTabPanelIdForSlot(entry.slot) ? "tabpanel" : undefined}
               >
                 {sidePanelSections[entry.slot]}
+              </div>
+            ))}
+          </div>
+        </aside>
+        <aside
+          aria-hidden={!inspectionLayerOpen}
+          aria-label="检查层"
+          className="wire-side-panel-inspection-layer"
+          data-wire-side-panel-inspection-active-slot={inspectionLayerOpen ? activeSidePanelSlot : ""}
+          data-wire-side-panel-inspection-layer
+          data-wire-side-panel-inspection-open={inspectionLayerOpen}
+          data-wire-side-panel-inspection-slot-count={WIRE_SIDE_PANEL_INSPECTION_SLOTS.length}
+          hidden={!inspectionLayerOpen}
+        >
+          <header className="wire-side-panel-inspection-head">
+            <span className="wire-side-panel-inspection-title">检查层 · 权威证据</span>
+            <button
+              className="wire-side-panel-inspection-close"
+              onClick={() => selectSidePanelSlot("commandCenter", "manual")}
+              type="button"
+            >
+              收起
+            </button>
+          </header>
+          <div className="wire-side-panel-inspection-body">
+            {WIRE_SIDE_PANEL_INSPECTION_SLOTS.map((slot) => (
+              <div
+                className="wire-side-panel-inspection-pane"
+                data-wire-side-panel-inspection-pane={slot}
+                data-wire-side-panel-inspection-pane-active={slot === activeSidePanelSlot}
+                key={slot}
+              >
+                {sidePanelSections[slot]}
               </div>
             ))}
           </div>
