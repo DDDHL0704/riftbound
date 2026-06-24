@@ -62,6 +62,7 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(["P2-LEFT-UNIT"], tableLeftBattlefield.UnitsBySide["P2"]);
         Assert.Equal(["P1-STANDBY"], tableLeftBattlefield.StandbyObjectIds);
         Assert.Equal(2, tableLeftBattlefield.StandbySlotCount);
+        Assert.Equal(2, tableLeftBattlefield.FaceDownStandbyCount);
         Assert.Equal(1, tableLeftBattlefield.HiddenStandbyCount);
         Assert.True(tableLeftBattlefield.ScoredThisTurn);
         Assert.Equal(["P1"], tableLeftBattlefield.ScoredThisTurnPlayerIds);
@@ -87,6 +88,7 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(["P2-RIGHT-UNIT"], tableRightBattlefield.UnitsBySide["P2"]);
         Assert.Equal(["P2-RIGHT-STANDBY"], tableRightBattlefield.StandbyObjectIds);
         Assert.Equal(1, tableRightBattlefield.StandbySlotCount);
+        Assert.Equal(0, tableRightBattlefield.FaceDownStandbyCount);
         Assert.Equal(0, tableRightBattlefield.HiddenStandbyCount);
         Assert.Single(tableRightBattlefield.StandbySlots);
         Assert.Equal("VISIBLE", tableRightBattlefield.StandbySlots[0].State);
@@ -145,6 +147,7 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(["P2-LEFT-UNIT"], StringListMap(leftBattlefield["unitsBySide"])["P2"]);
         Assert.Equal(["P1-STANDBY"], StringList(leftBattlefield["standbyObjectIds"]));
         Assert.Equal(2, IntValue(leftBattlefield["standbySlotCount"]));
+        Assert.Equal(2, IntValue(leftBattlefield["faceDownStandbyCount"]));
         Assert.Equal(1, IntValue(leftBattlefield["hiddenStandbyCount"]));
         Assert.True(BoolValue(leftBattlefield["scoredThisTurn"]));
         Assert.Equal(["P1"], StringList(leftBattlefield["scoredThisTurnPlayerIds"]));
@@ -171,6 +174,7 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(["P2-RIGHT-UNIT"], StringListMap(rightBattlefield["unitsBySide"])["P2"]);
         Assert.Equal(["P2-RIGHT-STANDBY"], StringList(rightBattlefield["standbyObjectIds"]));
         Assert.Equal(1, IntValue(rightBattlefield["standbySlotCount"]));
+        Assert.Equal(0, IntValue(rightBattlefield["faceDownStandbyCount"]));
         Assert.Equal(0, IntValue(rightBattlefield["hiddenStandbyCount"]));
         var rightStandbySlots = ObjectList(rightBattlefield["standbySlots"]);
         Assert.Single(rightStandbySlots);

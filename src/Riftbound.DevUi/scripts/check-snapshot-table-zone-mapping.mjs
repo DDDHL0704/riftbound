@@ -41,6 +41,18 @@ for (const fieldName of [
   );
 }
 
+for (const standbyCountAssertion of [
+  "tableLeftBattlefield.FaceDownStandbyCount",
+  "tableRightBattlefield.FaceDownStandbyCount",
+  "leftBattlefield[\"faceDownStandbyCount\"]",
+  "rightBattlefield[\"faceDownStandbyCount\"]"
+]) {
+  assert.ok(
+    testSource.includes(standbyCountAssertion),
+    `Snapshot table projection tests must assert face-down standby authority field: ${standbyCountAssertion}.`
+  );
+}
+
 for (const containment of [
   "Assert.Contains(\"P1-GRAVEYARD\", p1Objects.Keys)",
   "Assert.Contains(\"P1-BANISHED\", p1Objects.Keys)",
