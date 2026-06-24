@@ -47,6 +47,7 @@ const linkedPlan = buildWireServerFlowProjectionPlan({
     promptType: "MAIN_ACTION",
     queueCounts: {},
     reason: "服务端公开关联对象。",
+    relatedBattlefieldId: "battlefield-from-server-flow",
     relatedObjectIds: [" unit-1 ", "unit-1", "HIDDEN", "hidden", "   ", "battlefield-1"],
     responsiblePlayerId: "P1",
     state: "ready",
@@ -58,10 +59,11 @@ const linkedPlan = buildWireServerFlowProjectionPlan({
   snapshotTick: 7
 });
 assert.equal(linkedPlan.state, "linked");
-assert.equal(linkedPlan.relatedObjectCount, 2);
-assert.deepEqual(linkedPlan.objectIds, ["unit-1", "battlefield-1"]);
+assert.equal(linkedPlan.relatedObjectCount, 3);
+assert.deepEqual(linkedPlan.objectIds, ["unit-1", "battlefield-1", "battlefield-from-server-flow"]);
 assert.deepEqual(linkedPlan.timelineByObjectId, {
   "battlefield-1": "rule",
+  "battlefield-from-server-flow": "rule",
   "unit-1": "rule"
 });
 

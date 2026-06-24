@@ -13,7 +13,10 @@ export type WireServerFlowProjectionPlan = {
 export function buildWireServerFlowProjectionPlan(prompt?: ActionPromptDto): WireServerFlowProjectionPlan {
   const serverFlow = prompt?.serverFlow;
   const semanticObjectIds = serverFlow?.relatedObjects?.map((ref) => ref.objectId) ?? [];
-  const objectIds = visibleRelatedObjectIds(semanticObjectIds.length > 0 ? semanticObjectIds : serverFlow?.relatedObjectIds ?? []);
+  const objectIds = visibleRelatedObjectIds([
+    ...(semanticObjectIds.length > 0 ? semanticObjectIds : serverFlow?.relatedObjectIds ?? []),
+    serverFlow?.relatedBattlefieldId ?? ""
+  ]);
   return {
     objectIds,
     relatedObjectCount: objectIds.length,
