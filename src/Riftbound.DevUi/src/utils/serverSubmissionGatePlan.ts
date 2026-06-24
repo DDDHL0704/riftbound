@@ -5,6 +5,7 @@ export type ServerSubmissionGateState =
   | "connected"
   | "disconnected"
   | "missing-snapshot"
+  | "read-only-prompt"
   | "resyncing"
   | "stale-snapshot";
 
@@ -30,6 +31,10 @@ export function buildServerSubmissionGatePlan({
 
   if (connectionStatus !== "connected") {
     return blockedGate("disconnected", "连接未就绪", `连接状态：${connectionStatusLabel(connectionStatus)}，暂不提交行动。`);
+  }
+
+  if (prompt && !prompt.actionable) {
+    return blockedGate("read-only-prompt", "只读提示", "当前服务端提示为只读状态，暂不提交行动。");
   }
 
   if (prompt?.snapshotTick == null) {

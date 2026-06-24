@@ -27,6 +27,15 @@ const noPromptTick = buildServerSubmissionGatePlan({
 assert.equal(noPromptTick.canSubmit, true);
 assert.equal(noPromptTick.state, "connected");
 
+const readOnlyPrompt = buildServerSubmissionGatePlan({
+  connectionStatus: "connected",
+  prompt: { actionable: false, candidates: [], playerId: "P1", snapshotTick: 13 },
+  snapshot: { tick: 13 }
+});
+assert.equal(readOnlyPrompt.canSubmit, false);
+assert.equal(readOnlyPrompt.state, "read-only-prompt");
+assert.ok(readOnlyPrompt.reason.includes("只读"));
+
 const stale = buildServerSubmissionGatePlan({
   connectionStatus: "connected",
   prompt: { actionable: true, candidates: [], playerId: "P1", snapshotTick: 12 },
