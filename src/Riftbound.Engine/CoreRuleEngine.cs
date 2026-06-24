@@ -19324,6 +19324,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolveWaterbenderLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
+        staticPowerBonus += ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveFriendlyFilteredUnitsPowerBonus(state, playerZones, objectId, cardObject);
 
@@ -19424,6 +19425,58 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || sourceState.IsFaceDown
                 || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsPowerAura(sourceState.CardNo, out var aura)
+                || !string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    controllerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            bonus += aura.PowerDeltaPerParticipant;
+        }
+
+        return bonus;
+    }
+
+    private static int ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
+            || !string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId)
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var battlefieldObjectId = objectLocation.BattlefieldObjectId;
+        var bonus = 0;
+        foreach (var entry in state.ObjectLocations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var sourceObjectId = entry.Key;
+            if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
+                || !string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                || !string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                || !IsObjectOnField(playerZones, sourceObjectId)
+                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura(sourceState.CardNo, out var aura)
+                || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
                 || !string.Equals(
                     EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
                     controllerId,

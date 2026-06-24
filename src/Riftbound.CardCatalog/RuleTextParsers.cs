@@ -518,6 +518,27 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var sameBattlefieldOtherFriendlyBoonPowerMatch = Regex.Match(
+                segment,
+                @"我所在战场上其他拥有增益的友方单位获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (sameBattlefieldOtherFriendlyBoonPowerMatch.Success
+                && int.TryParse(sameBattlefieldOtherFriendlyBoonPowerMatch.Groups[1].Value, out var sameBattlefieldBoonPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.SameBattlefieldOtherFriendlyFilteredUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldOtherFriendlyFilteredUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyFilteredPublicUnits,
+                    sameBattlefieldBoonPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                    StaticAuraTargetFilters.TagPrefix + "增益"));
+                continue;
+            }
+
             var friendlyTokenUnitsPowerMatch = Regex.Match(
                 segment,
                 @"你的指示物单位获得\{\{S\}\}\+(\d+)",

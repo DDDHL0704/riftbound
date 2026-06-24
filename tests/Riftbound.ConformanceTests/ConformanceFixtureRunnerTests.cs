@@ -38517,6 +38517,69 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79SameBattlefieldOtherFriendlyFilteredStaticPowerAddsTwoToBoonUnits()
+    {
+        var state = SameBattlefieldOtherFriendlyFilteredStaticPowerState();
+        var staticAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, "P1-LEE-SIN-SOURCE", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD", staticAura.Scope);
+        Assert.Equal("P1-LEE-SIN-BOON-ALLY", staticAura.TargetObjectId);
+        Assert.Equal(2, staticAura.PowerDelta);
+        Assert.Equal("SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER", staticAura.EffectKind);
+        Assert.Equal("OGN·151/298", staticAura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus", staticAura.SourcePath);
+        Assert.Equal("SOURCE_AND_OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD", staticAura.Condition);
+        Assert.Equal("DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS", staticAura.Lifecycle);
+        Assert.Equal(["P1-LEE-SIN-BOON-ALLY"], staticAura.ParticipantObjectIds);
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-LEE-SIN-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-LEE-SIN-SOURCE", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-LEE-SIN-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-LEE-SIN-NONBOON-ALLY", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-LEE-SIN-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-LEE-SIN-OTHER-BATTLEFIELD-BOON-ALLY", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-LEE-SIN-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-LEE-SIN-BOON-DEFENDER", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-same-battlefield-filtered-static-power", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-LEE-SIN-BATTLEFIELD",
+                ["P1-LEE-SIN-BOON-ALLY"],
+                ["P2-LEE-SIN-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-LEE-SIN-BOON-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(4, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(4, attackerDamageEvent.Payload["damage"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-LEE-SIN-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
+        Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79OtherFriendlyStaticPowerAddsTwoAcrossPublicField()
     {
         var state = OtherFriendlyStaticPowerState();
@@ -65073,6 +65136,101 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-GAREN-OTHER-BATTLEFIELD-ALLY"] = new("P1", "BATTLEFIELD", "P1-GAREN-OTHER-BATTLEFIELD")
             },
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-GAREN-BATTLEFIELD")]
+        };
+    }
+
+    private static MatchState SameBattlefieldOtherFriendlyFilteredStaticPowerState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-LEE-SIN-BATTLEFIELD",
+                        "P1-LEE-SIN-SOURCE",
+                        "P1-LEE-SIN-BOON-ALLY",
+                        "P1-LEE-SIN-NONBOON-ALLY",
+                        "P1-LEE-SIN-OTHER-BATTLEFIELD",
+                        "P1-LEE-SIN-OTHER-BATTLEFIELD-BOON-ALLY"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-LEE-SIN-DEFENDER", "P2-LEE-SIN-BOON-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEE-SIN-BATTLEFIELD"] = new(
+                    "P1-LEE-SIN-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEE-SIN-SOURCE"] = new(
+                    "P1-LEE-SIN-SOURCE",
+                    cardNo: "OGN·151/298",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEE-SIN-BOON-ALLY"] = new(
+                    "P1-LEE-SIN-BOON-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEE-SIN-NONBOON-ALLY"] = new(
+                    "P1-LEE-SIN-NONBOON-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEE-SIN-OTHER-BATTLEFIELD"] = new(
+                    "P1-LEE-SIN-OTHER-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEE-SIN-OTHER-BATTLEFIELD-BOON-ALLY"] = new(
+                    "P1-LEE-SIN-OTHER-BATTLEFIELD-BOON-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-LEE-SIN-DEFENDER"] = new(
+                    "P2-LEE-SIN-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-LEE-SIN-BOON-DEFENDER"] = new(
+                    "P2-LEE-SIN-BOON-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-LEE-SIN-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-LEE-SIN-BATTLEFIELD"),
+                ["P1-LEE-SIN-SOURCE"] = new("P1", "BATTLEFIELD", "P1-LEE-SIN-BATTLEFIELD"),
+                ["P1-LEE-SIN-BOON-ALLY"] = new("P1", "BATTLEFIELD", "P1-LEE-SIN-BATTLEFIELD"),
+                ["P1-LEE-SIN-NONBOON-ALLY"] = new("P1", "BATTLEFIELD", "P1-LEE-SIN-BATTLEFIELD"),
+                ["P2-LEE-SIN-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-LEE-SIN-BATTLEFIELD"),
+                ["P2-LEE-SIN-BOON-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-LEE-SIN-BATTLEFIELD"),
+                ["P1-LEE-SIN-OTHER-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-LEE-SIN-OTHER-BATTLEFIELD"),
+                ["P1-LEE-SIN-OTHER-BATTLEFIELD-BOON-ALLY"] = new("P1", "BATTLEFIELD", "P1-LEE-SIN-OTHER-BATTLEFIELD")
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-LEE-SIN-BATTLEFIELD")]
         };
     }
 

@@ -1866,6 +1866,7 @@ public sealed record MatchState
 
         effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildFriendlyFilteredUnitsStaticAuraEffects(state));
         var publicFieldSourceOrders = PublicFieldSourceOrders(state);
@@ -2014,6 +2015,73 @@ public sealed record MatchState
                     LayerEngineFoundationResiduals(),
                     Condition: "SOURCE_AND_OTHER_FRIENDLY_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
                     Lifecycle: "DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FRIENDLY_UNIT_LOCATIONS",
+                    ParticipantObjectIds: participantObjectIds,
+                    SourceDependencyObjectIds: sourceDependencyObjectIds,
+                    TargetDependencyObjectIds: targetDependencyObjectIds,
+                    ParticipantDependencyObjectIds: participantDependencyObjectIds));
+            }
+        }
+
+        return effects;
+    }
+
+    private static IReadOnlyList<ContinuousEffectState> BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var entry in state.CardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var sourceObjectId = entry.Key;
+            var source = entry.Value;
+            if (string.IsNullOrWhiteSpace(source.CardNo)
+                || source.IsFaceDown
+                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyFilteredUnitsPowerAura(source.CardNo, out var aura)
+                || !TryFindBattlefieldUnitLocation(state, sourceObjectId, source, out var battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var controllerId = EffectiveFieldControllerId(state, sourceObjectId, source);
+            if (string.IsNullOrWhiteSpace(controllerId))
+            {
+                continue;
+            }
+
+            var participantObjectIds = SameBattlefieldOtherFriendlyFilteredUnitObjectIds(
+                state,
+                sourceObjectId,
+                battlefieldObjectId,
+                controllerId,
+                aura);
+            if (participantObjectIds.Count == 0)
+            {
+                continue;
+            }
+
+            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [sourceObjectId]);
+            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+            foreach (var participantObjectId in participantObjectIds)
+            {
+                var participant = state.CardObjects[participantObjectId];
+                var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
+                effects.Add(new ContinuousEffectState(
+                    $"STATIC_AURA:SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER:{sourceObjectId}:{participantObjectId}",
+                    "BATTLEFIELD",
+                    ContinuousEffectLayers.StaticAura,
+                    aura.Duration,
+                    participantObjectId,
+                    sourceObjectId,
+                    aura.PowerDeltaPerParticipant,
+                    participant.Power,
+                    participant.Power + aura.PowerDeltaPerParticipant,
+                    aura.Kind,
+                    source.CardNo,
+                    "CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus",
+                    true,
+                    LayerEngineFoundationResiduals(),
+                    Condition: "SOURCE_AND_OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
+                    Lifecycle: "DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS",
                     ParticipantObjectIds: participantObjectIds,
                     SourceDependencyObjectIds: sourceDependencyObjectIds,
                     TargetDependencyObjectIds: targetDependencyObjectIds,
@@ -2241,6 +2309,35 @@ public sealed record MatchState
                 && state.CardObjects.TryGetValue(entry.Key, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !participant.IsFaceDown
+                && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out var fieldLocation)
+                && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && IsPublicFieldObjectLocationCompatible(state, entry.Key, "BATTLEFIELD")
+                && string.Equals(
+                    EffectiveFieldControllerId(state, entry.Key, participant),
+                    controllerId,
+                    StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> SameBattlefieldOtherFriendlyFilteredUnitObjectIds(
+        MatchState state,
+        string sourceObjectId,
+        string battlefieldObjectId,
+        string controllerId,
+        StaticAuraSpec aura)
+    {
+        return state.ObjectLocations
+            .Where(entry => !string.Equals(entry.Key, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(entry.Key, out var participant)
+                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !participant.IsFaceDown
+                && !participant.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && StaticAuraSpecRules.TargetMatchesFilter(aura, participant)
                 && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out var fieldLocation)
                 && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && IsPublicFieldObjectLocationCompatible(state, entry.Key, "BATTLEFIELD")
