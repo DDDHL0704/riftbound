@@ -321,7 +321,12 @@ function DeckImportHandoffSurface({ deckSource, plan }: { deckSource: DeckSource
       aria-label="构筑导入交接"
       data-deck-import-handoff
       data-deck-import-handoff-active-section={plan.activeSectionId}
+      data-deck-import-handoff-command-type={plan.serverHandoff.commandType}
+      data-deck-import-handoff-requires-prompt={String(plan.serverHandoff.requiresPrompt)}
+      data-deck-import-handoff-requires-snapshot-tick={String(plan.serverHandoff.requiresSnapshotTick)}
       data-deck-import-handoff-summary={plan.summary}
+      data-deck-import-handoff-target-action={plan.serverHandoff.targetActionId}
+      data-deck-import-handoff-target-surface={plan.serverHandoff.targetSurface}
       data-deck-import-source={deckSource}
       style={deckWireStyles.handoffSurface}
     >

@@ -24,10 +24,29 @@ export type DeckImportHandoffSection = {
   value: string;
 };
 
+export type DeckImportServerHandoff = {
+  authority: "server-authority";
+  commandType: "SUBMIT_DECK";
+  requiresPrompt: true;
+  requiresSnapshotTick: true;
+  targetActionId: "submitDeck";
+  targetSurface: "room";
+};
+
 export type DeckImportHandoffPlan = {
   activeSectionId: DeckImportHandoffSectionId;
+  serverHandoff: DeckImportServerHandoff;
   sections: DeckImportHandoffSection[];
   summary: string;
+};
+
+const serverHandoff: DeckImportServerHandoff = {
+  authority: "server-authority",
+  commandType: "SUBMIT_DECK",
+  requiresPrompt: true,
+  requiresSnapshotTick: true,
+  targetActionId: "submitDeck",
+  targetSurface: "room"
 };
 
 export function buildDeckImportHandoffPlan({
@@ -55,6 +74,7 @@ export function buildDeckImportHandoffPlan({
 
   return {
     activeSectionId: activeSection(sections),
+    serverHandoff,
     sections,
     summary: `导入：${importStateLabel(importState)} / 来源：${deckSourceLabel(deckSource)} / 命令：${summaryShort(currentSummary)}`
   };

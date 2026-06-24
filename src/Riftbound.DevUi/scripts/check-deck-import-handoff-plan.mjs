@@ -69,11 +69,24 @@ assert.equal(validImport.sections.find((section) => section.id === "current")?.v
 assert.equal(validImport.sections.find((section) => section.id === "command")?.state, "ready");
 assert.equal(validImport.sections.find((section) => section.id === "server")?.state, "authority");
 assert.ok(validImport.sections.find((section) => section.id === "intake")?.detail.includes("41 主 / 12 符文 / 2 战场"));
+assert.deepEqual(validImport.serverHandoff, {
+  authority: "server-authority",
+  commandType: "SUBMIT_DECK",
+  requiresPrompt: true,
+  requiresSnapshotTick: true,
+  targetActionId: "submitDeck",
+  targetSurface: "room"
+});
 
 assert.ok(deckPageSource.includes("buildDeckImportHandoffPlan"), "DecksPage must build the deck import handoff plan.");
 assert.ok(deckPageSource.includes("data-deck-import-handoff"), "DecksPage must expose the handoff surface for browser smoke.");
 assert.ok(deckPageSource.includes("data-deck-import-handoff-section"), "DecksPage must expose each handoff section.");
 assert.ok(deckPageSource.includes("data-deck-import-handoff-source"), "DecksPage must expose handoff authority sources.");
+assert.ok(deckPageSource.includes("data-deck-import-handoff-target-surface"), "DecksPage must expose the room handoff target surface.");
+assert.ok(deckPageSource.includes("data-deck-import-handoff-target-action"), "DecksPage must expose the room submit-deck target action.");
+assert.ok(deckPageSource.includes("data-deck-import-handoff-command-type"), "DecksPage must expose the command type handed to the room.");
+assert.ok(deckPageSource.includes("data-deck-import-handoff-requires-prompt"), "DecksPage must expose the prompt-bound submission boundary.");
+assert.ok(deckPageSource.includes("data-deck-import-handoff-requires-snapshot-tick"), "DecksPage must expose the snapshot tick submission boundary.");
 assert.ok(deckPageSource.includes("data-deck-import-source"), "DecksPage must expose the current deck source.");
 assert.ok(packageJson.scripts["check:deck-import-handoff-plan"], "Package scripts must expose the deck import handoff check.");
 assert.ok(packageJson.scripts.build.includes("check:deck-import-handoff-plan"), "Build must run the deck import handoff check.");
