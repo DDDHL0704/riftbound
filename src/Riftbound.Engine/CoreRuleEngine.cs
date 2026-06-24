@@ -666,7 +666,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
-    private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
@@ -21714,7 +21713,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHoldGrantBoonCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
+            || trigger.BoonCount.GetValueOrDefault() != 1
             || !TryGetFirstSurvivingBattlefieldUnit(cardObjects, playerZones, defenderObjectIds, out var targetObjectId))
         {
             return false;
@@ -21729,7 +21733,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_GRANT_BOON",
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["targetObjectId"] = targetObjectId
             }));
@@ -21738,7 +21742,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             targetObjectId,
             playerId,
             battlefieldObjectId,
-            "BATTLEFIELD_HELD_GRANT_BOON",
+            trigger.Kind,
             events);
         return true;
     }
@@ -24808,7 +24812,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldCreateMinionCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardNo, out _)
-            || IsBattlefieldHoldGrantBoonCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(cardNo, out _)
             || IsBattlefieldHeldReturnHeroCardNo(cardNo)
             || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
             || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
@@ -24862,11 +24866,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldHoldGrantBoonCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHoldGrantBoonCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldReturnHeroCardNo(string? cardNo)

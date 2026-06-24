@@ -5986,7 +5986,6 @@ internal static class ActionPromptBuilder
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
-    private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
@@ -16031,7 +16030,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldHoldGrantBoonCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldHeldReturnHeroCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal)
@@ -16562,7 +16561,6 @@ public sealed class MatchSession : IMatchSession
 {
     private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
-    private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
@@ -21795,7 +21793,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-NAVORI-ARENA"] = new(
                     "P2-BATTLEFIELD-NAVORI-ARENA",
-                    cardNo: BattlefieldHoldGrantBoonCardNo,
+                    cardNo: "OGN·283/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P2,
                     controllerId: seed.P2),

@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -167,6 +167,18 @@ The 2026-06-25 held move-unit-to-base follow-up moves another implemented held-b
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldMoveUnitToBaseCardNo` constant.
 - The old `BattlefieldHeldMoveUnitToBaseCardNo` / `IsBattlefieldHeldMoveUnitToBaseCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `79` total / `75` in `CoreRuleEngine`; Core battlefield helper count is `31`.
 
+The 2026-06-25 held grant-boon follow-up moves another implemented held-battlefield trigger away from engine card-number branching:
+
+- `OGN·283/298` / 纳沃利角斗场 official text: `当你据守此处时，给予此处的一名单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_HELD_GRANT_BOON`
+  - `Timing = BATTLEFIELD_HELD`
+  - `TargetScope = UNIT_AT_THIS_BATTLEFIELD`
+  - `BoonCount = 1`
+- `CoreRuleEngine.TryResolveBattlefieldHeldGrantBoonTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(...)` and reads the target scope and boon count from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHoldGrantBoonCardNo` constant.
+- The old `BattlefieldHoldGrantBoonCardNo` / `IsBattlefieldHoldGrantBoonCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `78` total / `74` in `CoreRuleEngine`; Core battlefield helper count is `30`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -274,4 +286,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldHeld / BattlefieldTriggerSpec / MoveUnit / FullGame / GameHub representatives: passed `360/360`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8397/8397`;
+- DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.
+
+2026-06-25 held grant-boon follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `4/4`;
+- adjacent BattlefieldHeld / BattlefieldTriggerSpec / Boon / FullGame / GameHub representatives: passed `360/360`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8399/8399`;
 - DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.

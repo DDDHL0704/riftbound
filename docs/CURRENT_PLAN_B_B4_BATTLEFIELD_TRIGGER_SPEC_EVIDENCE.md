@@ -19,6 +19,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·288/298` 星尖峰 has official text `当你据守此处时，你可以选择召出一枚休眠的符文。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·219/221` 彩纸灵树 has official text `当你据守此处时，每名玩家召出一枚休眠的符文。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-207/219` 业余排练厅 has official text `当你据守此处时，你可以选择将战场上的一名单位移动到其基地。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·283/298` 纳沃利角斗场 has official text `当你据守此处时，给予此处的一名单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -33,6 +34,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldHeldCallsRuneForHolder` and GameHub `P79BattlefieldHeldRuneSeedOffersBattlefieldDestinationAndCallsRuneForHolder` remain the runtime evidence for the held call-rune behavior.
 - Existing representative tests `P79BattlefieldHeldCallsRunesForEachPlayer` and GameHub `P79BattlefieldHeldRunesSeedOffersBattlefieldDestinationAndCallsRunes` remain the runtime evidence for the held each-player call-rune behavior.
 - Existing representative tests `P79BattlefieldHeldMovesSurvivingDefenderToBase` and GameHub `P79BattlefieldHeldMoveToBaseSeedOffersBattlefieldDestinationAndMovesDefender` remain the runtime evidence for the held move-unit-to-base behavior.
+- Existing representative tests `P79BattlefieldHeldGrantsBoonToSurvivingDefender` and GameHub `P79BattlefieldHeldBoonSeedOffersBattlefieldDestinationAndGrantsBoon` remain the runtime evidence for the held grant-boon behavior.
 
 ## Runtime Evidence
 
@@ -88,6 +90,10 @@ The held move-unit-to-base follow-up parser path turns the Rehearsal Hall offici
 
 The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible controlled battlefield source and moves the first legal battlefield unit target to its owner's base through the existing server-authoritative move helper. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_MOVED_TO_BASE` payloads now use the parsed trigger kind, while target visibility and destination legality remain covered by existing GameHub and move-unit prompt tests.
 
+The held grant-boon follow-up parser path turns the Navori Arena official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_HELD_GRANT_BOON`, `Timing=BATTLEFIELD_HELD`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, and `BoonCount=1`. Runtime no longer checks `OGN·283/298` through `BattlefieldHoldGrantBoonCardNo` / `IsBattlefieldHoldGrantBoonCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible controlled battlefield source and grants one boon to the existing auto-selected surviving battlefield unit target through the server-authoritative boon helper. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` and `BOON_GRANTED` payloads now use the parsed trigger kind, while the broader optional target-choice prompt remains outside this narrow routing slice.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -120,10 +126,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held each-player call-rune adjacent BattlefieldHeld / BattlefieldTriggerSpec / CallRune / Runes representatives: `103/103`;
 - held move-unit-to-base focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - held move-unit-to-base adjacent BattlefieldHeld / BattlefieldTriggerSpec / MoveUnit / FullGame / GameHub representatives: `360/360`;
+- held grant-boon focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
+- held grant-boon adjacent BattlefieldHeld / BattlefieldTriggerSpec / Boon / FullGame / GameHub representatives: `360/360`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the held move-unit-to-base follow-up: `8397/8397`;
-- DevUi build/browser smoke: not repeated for the held move-unit-to-base follow-up; this slice did not touch DevUi files or frontend behavior.
+- backend full conformance after the held grant-boon follow-up: `8399/8399`;
+- DevUi build/browser smoke: not repeated for the held grant-boon follow-up; this slice did not touch DevUi files or frontend behavior.
 
 ## Non-Closure
 
-This evidence proves thirteen battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves fourteen battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

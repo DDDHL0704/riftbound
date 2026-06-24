@@ -1640,6 +1640,26 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHeldGrantBoonTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var navoriArena = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·283/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(navoriArena.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldHeldGrantBoon, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.UnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.BoonCount);
+        Assert.Contains("当你据守此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("给予此处的一名单位增益", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield held grant-boon trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1952,6 +1972,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHeldMoveUnitToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHeldMoveUnitToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHeldGrantBoonTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHoldGrantBoonCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHoldGrantBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHoldGrantBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
