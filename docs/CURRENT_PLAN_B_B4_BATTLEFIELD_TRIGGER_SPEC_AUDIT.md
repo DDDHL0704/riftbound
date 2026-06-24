@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, friendly-spell draw, spell-power bonus, and high-cost spell insight; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, friendly-spell draw, spell-power bonus, high-cost spell insight, and unit-play boon; project remains **NOT READY**.
 
 ## Scope
 
@@ -79,6 +79,19 @@ The 2026-06-25 high-cost spell insight follow-up moves another implemented battl
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHighCostSpellInsightCardNo` constant.
 - The old `BattlefieldHighCostSpellInsightCardNo` / `IsBattlefieldHighCostSpellInsightCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `87` total / `83` in `CoreRuleEngine`; Core battlefield helper count is `39`.
 
+The 2026-06-25 unit-play boon follow-up moves another implemented battlefield trigger away from engine card-number branching:
+
+- `UNL-218/219` / 偶像谷 official text: `当一名玩家在此处打出一名单位时，该玩家可以选择支付{{1}}，以此给予该单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON`
+  - `Timing = BATTLEFIELD_UNIT_PLAYED`
+  - `TargetScope = PLAYED_UNIT_AT_THIS_BATTLEFIELD`
+  - `ManaCost = 1`
+  - `BoonCount = 1`
+- `CoreRuleEngine.TryResolveBattlefieldPlayUnitPayOneBoonTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(...)` and reads both the mana cost and boon count from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldPlayUnitPayOneBoonCardNo` constant.
+- The old `BattlefieldPlayUnitPayOneBoonCardNo` / `IsBattlefieldPlayUnitPayOneBoonCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `85` total / `81` in `CoreRuleEngine`; Core battlefield helper count is `37`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, optional trigger choice prompts, frontend/browser smoke, full official coverage or READY.
@@ -130,4 +143,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldHighCostSpellInsight / BattlefieldTriggerSpec / BattlefieldSpellPowerBonus / BattlefieldFriendlySpellDraw / P6 battlefield surface representatives: passed `15/15`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8382/8382`;
+- DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.
+
+2026-06-25 unit-play boon follow-up validation:
+
+- focused behavior-spec/source guard/runtime representative: passed `6/6`;
+- adjacent BattlefieldPlayUnitBoon / BattlefieldTriggerSpec / PlayCard / Boon / GameHub / P6 battlefield surface representatives: passed `331/331`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8385/8385`;
 - DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.

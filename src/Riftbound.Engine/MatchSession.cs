@@ -6191,7 +6191,6 @@ internal static class ActionPromptBuilder
         bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldCardNo = "");
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
-    private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const int BattlefieldHeldScorePowerCost = 4;
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
@@ -16085,7 +16084,7 @@ internal static class ActionPromptBuilder
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldUnitReturnedCallRuneCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldPlayUnitPayOneBoonCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo, StringComparison.Ordinal)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardObject.CardNo, out _);
@@ -16605,7 +16604,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
-    private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
@@ -23394,7 +23392,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-IDOL-VALLEY"] = new(
                     "P1-BATTLEFIELD-IDOL-VALLEY",
-                    cardNo: BattlefieldPlayUnitPayOneBoonCardNo,
+                    cardNo: "UNL-218/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)

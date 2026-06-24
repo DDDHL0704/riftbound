@@ -372,6 +372,23 @@ public static class TriggerParser
                 DrawCount: ParseChineseNumber(friendlySpellDrawMatch.Groups[1].Value));
         }
 
+        var playUnitPayBoonMatch = Regex.Match(
+            segment,
+            @"当一名玩家在此处打出一名单位时，该玩家可以选择支付\{\{(\d+)\}\}，以此给予该单位\{\{增益\}\}",
+            RegexOptions.CultureInvariant);
+        if (playUnitPayBoonMatch.Success
+            && int.TryParse(playUnitPayBoonMatch.Groups[1].Value, out var playUnitBoonManaCost))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldPlayUnitPayBoon,
+                TriggerTimings.BattlefieldUnitPlayed,
+                segment,
+                "Battlefield unit-play pay-mana boon trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.PlayedUnitAtThisBattlefield,
+                ManaCost: playUnitBoonManaCost,
+                BoonCount: 1);
+        }
+
         var spellPowerBonusMatch = Regex.Match(
             segment,
             @"当一名玩家打出法术时，该玩家可以选择让自己在此处控制的一名单位在本回合内\{\{S\}\}\+(\d+)",

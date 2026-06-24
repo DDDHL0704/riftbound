@@ -1493,6 +1493,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldPlayUnitBoonTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var idolValley = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-218/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(idolValley.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldPlayUnitPayBoon, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldUnitPlayed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.PlayedUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.ManaCost);
+        Assert.Equal(1, trigger.BoonCount);
+        Assert.Contains("当一名玩家在此处打出一名单位时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("支付{{1}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("给予该单位{{增益}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield unit-play pay-mana boon trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1713,6 +1735,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHighCostSpellInsightCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHighCostSpellInsightCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldPlayUnitBoonTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldPlayUnitPayOneBoonCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldPlayUnitPayOneBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldPlayUnitPayOneBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

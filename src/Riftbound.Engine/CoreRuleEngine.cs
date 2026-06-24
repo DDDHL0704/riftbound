@@ -722,7 +722,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
-    private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
@@ -24824,7 +24823,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(cardNo, out _)
             || IsBattlefieldUnitReturnedCallRuneCardNo(cardNo)
-            || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(cardNo, out _)
             || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
@@ -25011,11 +25010,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldUnitReturnedCallRuneCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldUnitReturnedCallRuneCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldPlayUnitPayOneBoonCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldPlayUnitPayOneBoonCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(string? cardNo)
@@ -31881,20 +31875,38 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceUnitState, playerId)
             || sourceUnitState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
-            || !runePools.TryGetValue(playerId, out var currentPool)
-            || currentPool.Mana < 1)
+            || !runePools.TryGetValue(playerId, out var currentPool))
         {
             return false;
         }
 
-        var battlefieldObjectId = zones.Battlefields
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldPlayUnitPayOneBoonCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault();
+        var battlefieldObjectId = string.Empty;
+        var manaCost = 0;
+        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject)
+                || !BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(cardObject.CardNo, out var trigger)
+                || trigger.BoonCount.GetValueOrDefault() <= 0
+                || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+            {
+                continue;
+            }
+
+            var triggerManaCost = trigger.ManaCost.GetValueOrDefault();
+            if (triggerManaCost <= 0)
+            {
+                continue;
+            }
+
+            battlefieldObjectId = objectId;
+            manaCost = triggerManaCost;
+            break;
+        }
+
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
-            || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState))
+            || manaCost <= 0
+            || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+            || currentPool.Mana < manaCost)
         {
             return false;
         }
@@ -31902,23 +31914,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         mutableRunePools[playerId] = currentPool with
         {
-            Mana = currentPool.Mana - 1
+            Mana = currentPool.Mana - manaCost
         };
         nextRunePools = mutableRunePools;
 
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 在偶像谷打出单位并支付 1 给予增益",
+            $"{playerId} 在偶像谷打出单位并支付 {manaCost} 给予增益",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON",
+                ["trigger"] = TriggerKinds.BattlefieldPlayUnitPayBoon,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["targetObjectId"] = stackItem.SourceObjectId,
                 ["destination"] = stackItem.Destination,
-                ["manaCost"] = 1
+                ["manaCost"] = manaCost
             }));
         events.Add(new GameEvent(
             "COST_PAID",
@@ -31926,16 +31938,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
-                ["mana"] = 1,
+                ["mana"] = manaCost,
                 ["power"] = 0,
-                ["reason"] = "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON"
+                ["reason"] = TriggerKinds.BattlefieldPlayUnitPayBoon
             }));
         GrantLegendBoon(
             cardObjects,
             stackItem.SourceObjectId,
             playerId,
             battlefieldObjectId,
-            "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON",
+            TriggerKinds.BattlefieldPlayUnitPayBoon,
             events);
         return true;
     }
