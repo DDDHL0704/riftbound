@@ -42188,6 +42188,7 @@ public sealed class ConformanceFixtureRunnerTests
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE", StringComparison.Ordinal));
         Assert.Equal("P1-BATTLEFIELD-DREAMTREE", trigger.Payload["battlefieldObjectId"]);
+        Assert.Equal(1, trigger.Payload["drawCount"]);
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && Equals(gameEvent.Payload["count"], 1));

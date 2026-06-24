@@ -721,7 +721,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
@@ -4985,12 +4984,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             behavior,
             plan.TotalManaCost);
-        var battlefieldFriendlySpellDrawSourceObjectId = TryGetBattlefieldFriendlySpellDrawSourceObjectId(
+        var battlefieldFriendlySpellDrawSourceObjectId = TryGetBattlefieldFriendlySpellDrawSource(
                 state,
                 intent.PlayerId,
                 behavior,
                 targetObjectIds,
-                out var spellDrawSourceObjectId)
+                out var spellDrawSourceObjectId,
+                out var battlefieldFriendlySpellDrawSourceCardNo,
+                out var battlefieldFriendlySpellDrawCount)
             ? spellDrawSourceObjectId
             : string.Empty;
         if (!string.IsNullOrWhiteSpace(battlefieldFriendlySpellDrawSourceObjectId))
@@ -5303,8 +5304,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["battlefieldObjectId"] = battlefieldFriendlySpellDrawSourceObjectId,
-                    ["battlefieldCardNo"] = BattlefieldFriendlySpellDrawCardNo,
-                    ["trigger"] = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE",
+                    ["battlefieldCardNo"] = battlefieldFriendlySpellDrawSourceCardNo,
+                    ["trigger"] = TriggerKinds.BattlefieldFriendlySpellDraw,
+                    ["drawCount"] = battlefieldFriendlySpellDrawCount,
                     ["playedCardNo"] = command.CardNo,
                     ["targetObjectIds"] = targetObjectIds.ToArray()
                 }));
@@ -5313,7 +5315,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerZones,
                 playerScores,
                 intent.PlayerId,
-                1,
+                battlefieldFriendlySpellDrawCount,
                 rngCursor,
                 events);
             playerScores = battlefieldDrawApplication.PlayerScores;
@@ -24805,7 +24807,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out _)
-            || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(cardNo, out _)
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
             || IsBattlefieldGrantUnitExperienceCardNo(cardNo)
             || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
@@ -24992,11 +24994,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldFriendlySpellDrawCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldFriendlySpellDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldSpellPowerBonusCardNo(string? cardNo)
@@ -31601,14 +31598,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         return manaDelta;
     }
 
-    private static bool TryGetBattlefieldFriendlySpellDrawSourceObjectId(
+    private static bool TryGetBattlefieldFriendlySpellDrawSource(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> targetObjectIds,
-        out string sourceObjectId)
+        out string sourceObjectId,
+        out string sourceCardNo,
+        out int drawCount)
     {
         sourceObjectId = string.Empty;
+        sourceCardNo = string.Empty;
+        drawCount = 0;
         if (!IsSpellPlayBehavior(behavior)
             || targetObjectIds.Count == 0
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -31619,15 +31620,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        sourceObjectId = zones.Battlefields
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldFriendlySpellDrawCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                && !BattlefieldFriendlySpellDrawUsedThisTurn(state, playerId, objectId))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault() ?? string.Empty;
+        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+                || !BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(cardObject.CardNo, out var trigger)
+                || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldFriendlySpellTargeted, StringComparison.Ordinal)
+                || !string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
+                || trigger.DrawCount.GetValueOrDefault() <= 0
+                || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                || BattlefieldFriendlySpellDrawUsedThisTurn(state, playerId, objectId))
+            {
+                continue;
+            }
 
-        return !string.IsNullOrWhiteSpace(sourceObjectId);
+            sourceObjectId = objectId;
+            sourceCardNo = cardObject.CardNo ?? string.Empty;
+            drawCount = trigger.DrawCount.GetValueOrDefault();
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryResolveBattlefieldSpellPowerBonusTrigger(

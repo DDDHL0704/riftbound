@@ -6027,7 +6027,6 @@ internal static class ActionPromptBuilder
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string EagerApprenticeCardNo = "OGN·084/298";
-    private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
@@ -16085,7 +16084,7 @@ internal static class ActionPromptBuilder
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldFriendlySpellDrawCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal)
@@ -16609,7 +16608,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
-    private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
@@ -23096,7 +23094,7 @@ public sealed class MatchSession : IMatchSession
                     power: 2),
                 ["P1-BATTLEFIELD-DREAMTREE"] = new(
                     "P1-BATTLEFIELD-DREAMTREE",
-                    cardNo: BattlefieldFriendlySpellDrawCardNo,
+                    cardNo: "OGN·292/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)

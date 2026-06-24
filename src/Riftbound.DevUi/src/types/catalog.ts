@@ -48,6 +48,7 @@ export type BehaviorSpec = {
     powerDelta?: number | null;
     duration?: string | null;
     manaDelta?: number | null;
+    drawCount?: number | null;
   }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
   activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;

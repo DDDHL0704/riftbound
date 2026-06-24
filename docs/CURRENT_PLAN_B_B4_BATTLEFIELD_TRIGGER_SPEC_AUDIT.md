@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, and held unit-cost increase; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, and friendly-spell draw; project remains **NOT READY**.
 
 ## Scope
 
@@ -42,6 +42,18 @@ The 2026-06-25 held unit-cost follow-up moves another implemented held-battlefie
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldUnitCostIncreaseCardNo` constant.
 - The old `BattlefieldHeldUnitCostIncreaseCardNo` / `IsBattlefieldHeldUnitCostIncreaseCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `91` total / `87` in `CoreRuleEngine`; Core battlefield helper count is `43`.
 
+The 2026-06-25 friendly-spell draw follow-up moves another implemented battlefield trigger away from engine card-number branching:
+
+- `OGN·292/298` / 幻梦之树 official text: `每回合首次：当你对此处的友方单位使用法术时，抽一张牌。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE`
+  - `Timing = BATTLEFIELD_FRIENDLY_SPELL_TARGETED`
+  - `TargetScope = FRIENDLY_UNIT_AT_THIS_BATTLEFIELD`
+  - `DrawCount = 1`
+- `CoreRuleEngine.TryGetBattlefieldFriendlySpellDrawSource` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(...)` and reads the draw count from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldFriendlySpellDrawCardNo` constant.
+- The old `BattlefieldFriendlySpellDrawCardNo` / `IsBattlefieldFriendlySpellDrawCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `90` total / `86` in `CoreRuleEngine`; Core battlefield helper count is `42`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, frontend/browser smoke, full official coverage or READY.
@@ -70,3 +82,11 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after adding `/opt/homebrew/bin` to PATH for local `npm`;
 - backend full conformance: passed `8375/8375`.
+
+2026-06-25 friendly-spell draw follow-up validation:
+
+- focused behavior-spec/source guard/runtime representative: passed `5/5`;
+- adjacent BattlefieldFriendlySpellDraw / BattlefieldFriendlySpellTarget / BattlefieldTriggerSpec / held-trigger representatives: passed `12/12`;
+- MatchRecovery: passed `1989/1989`;
+- DevUi build: passed after adding `/opt/homebrew/bin` to PATH for local `npm`;
+- backend full conformance: passed `8377/8377`.

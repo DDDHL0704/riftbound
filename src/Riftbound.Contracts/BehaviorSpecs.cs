@@ -42,17 +42,21 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO";
     public const string BattlefieldHeldUnitCostIncrease =
         "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE";
+    public const string BattlefieldFriendlySpellDraw =
+        "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
 }
 
 public static class TriggerTimings
 {
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
+    public const string BattlefieldFriendlySpellTargeted = "BATTLEFIELD_FRIENDLY_SPELL_TARGETED";
 }
 
 public static class TriggerTargetScopes
 {
     public const string MovedUnit = "MOVED_UNIT";
+    public const string FriendlyUnitAtThisBattlefield = "FRIENDLY_UNIT_AT_THIS_BATTLEFIELD";
 }
 
 public static class TriggerDurations
@@ -180,7 +184,8 @@ public sealed record TriggerSpec(
     string? TargetScope = null,
     int? PowerDelta = null,
     string? Duration = null,
-    int? ManaDelta = null);
+    int? ManaDelta = null,
+    int? DrawCount = null);
 
 public sealed record ReplacementSpec(
     string Kind,

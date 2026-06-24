@@ -1431,6 +1431,26 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldFriendlySpellDrawTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var dreamTree = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·292/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(dreamTree.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldFriendlySpellDraw, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldFriendlySpellTargeted, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.FriendlyUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.Contains("每回合首次", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("对此处的友方单位使用法术时，抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield first friendly spell targeting trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1564,6 +1584,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHeldUnitCostIncreaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHeldUnitCostIncreaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldFriendlySpellDrawTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldFriendlySpellDrawCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldFriendlySpellDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldFriendlySpellDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

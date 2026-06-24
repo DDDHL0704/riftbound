@@ -357,6 +357,21 @@ public static class TriggerParser
                 ManaDelta: manaDelta);
         }
 
+        var friendlySpellDrawMatch = Regex.Match(
+            segment,
+            @"每回合首次：当你对此处的友方单位使用法术时，抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (friendlySpellDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldFriendlySpellDraw,
+                TriggerTimings.BattlefieldFriendlySpellTargeted,
+                segment,
+                "Battlefield first friendly spell targeting trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.FriendlyUnitAtThisBattlefield,
+                DrawCount: ParseChineseNumber(friendlySpellDrawMatch.Groups[1].Value));
+        }
+
         var movedUnitPowerMatch = Regex.Match(
             segment,
             @"每当一名单位从此处向别处移动时，让其本回合内\{\{S\}\}\+(\d+)",
@@ -379,6 +394,30 @@ public static class TriggerParser
             DetermineTiming(segment),
             segment,
             "Parsed trigger candidate; queue ordering remains a later rule-domain implementation.");
+    }
+
+    private static int ParseChineseNumber(string raw)
+    {
+        if (int.TryParse(raw, out var numeric))
+        {
+            return numeric;
+        }
+
+        return raw switch
+        {
+            "一" => 1,
+            "两" => 2,
+            "二" => 2,
+            "三" => 3,
+            "四" => 4,
+            "五" => 5,
+            "六" => 6,
+            "七" => 7,
+            "八" => 8,
+            "九" => 9,
+            "十" => 10,
+            _ => 1
+        };
     }
 
     private static string DetermineKind(string segment)
