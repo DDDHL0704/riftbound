@@ -15883,15 +15883,6 @@ public static class MatchRecoveryValidator
             "source object id",
             errors);
         ValidateContinuousEffectSourceObjectConsistency(effectLabel, scope, layer, sourceObjectId, errors);
-        ValidateContinuousEffectStaticAuraEffectIdConsistency(
-            effectLabel,
-            effectId,
-            scope,
-            layer,
-            duration,
-            targetObjectId,
-            sourceObjectId,
-            errors);
         ValidateContinuousEffectStaticAuraObjectSourceTargetConsistency(
             effectLabel,
             scope,
@@ -15962,6 +15953,16 @@ public static class MatchRecoveryValidator
             "effect kind",
             errors,
             rejectEmptyString: true);
+        ValidateContinuousEffectStaticAuraEffectIdConsistency(
+            effectLabel,
+            effectId,
+            scope,
+            layer,
+            duration,
+            targetObjectId,
+            sourceObjectId,
+            effectKind,
+            errors);
         var sourceCardNo = ValidateSnapshotPayloadOptionalStringValue(
             effectPayload,
             "sourceCardNo",
@@ -16321,6 +16322,7 @@ public static class MatchRecoveryValidator
         string? duration,
         string? targetObjectId,
         string? sourceObjectId,
+        string? effectKind,
         List<string> errors)
     {
         if (effectId is null
@@ -16354,6 +16356,28 @@ public static class MatchRecoveryValidator
 
             if (string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal))
             {
+                if (string.Equals(effectKind, StaticAuraKinds.FriendlyFilteredUnitsPower, StringComparison.Ordinal))
+                {
+                    ValidateContinuousEffectStaticAuraExpectedEffectId(
+                        effectLabel,
+                        effectId,
+                        $"STATIC_AURA:FRIENDLY_FILTERED_UNITS_POWER:{sourceObjectId}:{targetObjectId}",
+                        "object static aura effect id",
+                        errors);
+                    return;
+                }
+
+                if (!string.Equals(effectKind, StaticAuraKinds.OtherFriendlyUnitsPower, StringComparison.Ordinal))
+                {
+                    if (effectKind is not null)
+                    {
+                        errors.Add(
+                            $"{effectLabel} object static aura effect kind {effectKind} is invalid for {duration}");
+                    }
+
+                    return;
+                }
+
                 ValidateContinuousEffectStaticAuraExpectedEffectId(
                     effectLabel,
                     effectId,
@@ -16549,6 +16573,33 @@ public static class MatchRecoveryValidator
 
             if (string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal))
             {
+                if (string.Equals(effectKind, StaticAuraKinds.FriendlyFilteredUnitsPower, StringComparison.Ordinal))
+                {
+                    ValidateContinuousEffectStaticAuraFriendlyFilteredSourceCardSpecConsistency(
+                        effectLabel,
+                        sourceCardNo,
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        sourcePath,
+                        "CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus",
+                        "object static aura source path",
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        condition,
+                        "SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_FILTERED_PUBLIC_UNITS",
+                        "object static aura condition",
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        lifecycle,
+                        "DERIVED_FROM_CURRENT_PUBLIC_FIELD_FILTERED_UNIT_LOCATIONS",
+                        "object static aura lifecycle",
+                        errors);
+                    return;
+                }
+
                 ValidateContinuousEffectStaticAuraMetadataValue(
                     effectLabel,
                     effectKind,
@@ -16692,6 +16743,21 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{effectLabel} object static aura source card no must reference a BehaviorSpec other-friendly power aura");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraFriendlyFilteredSourceCardSpecConsistency(
+        string effectLabel,
+        string? sourceCardNo,
+        List<string> errors)
+    {
+        if (sourceCardNo is null
+            || StaticAuraSpecRules.TryGetFriendlyFilteredUnitsPowerAura(sourceCardNo, out _))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} object static aura source card no must reference a BehaviorSpec friendly filtered power aura");
     }
 
     private static void ValidateContinuousEffectStaticAuraMetadataValue(

@@ -549,7 +549,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
     private const string PetalPixieCardNo = "UNL-076/219";
-    private const string SoulShepherdCardNo = "UNL-077/219";
     private const string OgnJinxDiscardTriggerCardNo = "OGN·202/298";
     private const string OgnJinxDiscardTriggerAltCardNo = "OGN·202a/298";
     private const string ArcJinxDiscardTriggerCardNo = "ARC-005/006";
@@ -19319,7 +19318,6 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         staticPowerBonus += ResolveMasterYiLevelLegendPowerBonus(state, playerZones, objectId);
         staticPowerBonus += ResolvePetalPixieFriendlyEphemeralPowerBonus(state, playerZones, objectId, cardObject);
-        staticPowerBonus += ResolveSoulShepherdTokenUnitPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveScarletPigeonMultiAttackerPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveDuneDrakeReadyEnemyAttackPowerBonus(cardObject, isAttacking, attacksReadyEnemyUnit);
         staticPowerBonus += ResolveWiseElderBoonPowerBonus(cardObject);
@@ -19327,6 +19325,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
+        staticPowerBonus += ResolveFriendlyFilteredUnitsPowerBonus(state, playerZones, objectId, cardObject);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
     }
@@ -19447,6 +19446,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, objectId))
         {
             return 0;
@@ -19470,6 +19470,52 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || sourceState.IsFaceDown
                 || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !StaticAuraSpecRules.TryGetOtherFriendlyUnitsPowerAura(sourceState.CardNo, out var aura)
+                || !string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    controllerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            bonus += aura.PowerDeltaPerParticipant;
+        }
+
+        return bonus;
+    }
+
+    private static int ResolveFriendlyFilteredUnitsPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var bonus = 0;
+        foreach (var sourceObjectId in playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(candidateObjectId => candidateObjectId, StringComparer.Ordinal))
+        {
+            if (!IsObjectOnField(playerZones, sourceObjectId)
+                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !StaticAuraSpecRules.TryGetFriendlyFilteredUnitsPowerAura(sourceState.CardNo, out var aura)
+                || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
                 || !string.Equals(
                     EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
                     controllerId,
@@ -19519,54 +19565,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 EffectiveFieldControllerId(playerZones, entry.Key, candidate),
                 controllerId,
                 StringComparison.Ordinal));
-    }
-
-    private static int ResolveSoulShepherdTokenUnitPowerBonus(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string objectId,
-        CardObjectState cardObject)
-    {
-        if (!IsUnitTokenObject(cardObject)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !IsObjectOnField(playerZones, objectId))
-        {
-            return 0;
-        }
-
-        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId)
-            || !playerZones.TryGetValue(controllerId, out var zones))
-        {
-            return 0;
-        }
-
-        return zones.Base
-            .Concat(zones.Battlefields)
-            .Distinct(StringComparer.Ordinal)
-            .Count(sourceObjectId =>
-                state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && IsSoulShepherdCardNo(sourceState.CardNo)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown
-                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                && string.Equals(
-                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                    controllerId,
-                    StringComparison.Ordinal));
-    }
-
-    private static bool IsUnitTokenObject(CardObjectState cardObject)
-    {
-        return IsUnitTokenCardNo(cardObject.CardNo);
-    }
-
-    private static bool IsUnitTokenCardNo(string? cardNo)
-    {
-        return !string.IsNullOrWhiteSpace(cardNo)
-            && P6TokenFactoryCatalog.TryGetByCardNo(cardNo, out var definition)
-            && string.Equals(definition.CategoryName, "指示物单位", StringComparison.Ordinal);
     }
 
     private static int ResolveScarletPigeonMultiAttackerPowerBonus(
@@ -24926,11 +24924,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsPetalPixieCardNo(string? cardNo)
     {
         return string.Equals(cardNo, PetalPixieCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsSoulShepherdCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, SoulShepherdCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsSavageJawfishCardNo(string? cardNo)

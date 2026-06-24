@@ -42,6 +42,7 @@ public static class StaticAuraKinds
     public const string SameBattlefieldOtherFriendlyUnitsPowerPlusOne =
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE";
     public const string OtherFriendlyUnitsPower = "OTHER_FRIENDLY_UNITS_POWER";
+    public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
 }
 
 public static class StaticAuraTargetScopes
@@ -50,6 +51,7 @@ public static class StaticAuraTargetScopes
     public const string SameBattlefieldUnits = "SAME_BATTLEFIELD_UNITS";
     public const string SameBattlefieldOtherFriendlyUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS";
     public const string OtherFriendlyUnits = "OTHER_FRIENDLY_UNITS";
+    public const string FriendlyFilteredUnits = "FRIENDLY_FILTERED_UNITS";
 }
 
 public static class StaticAuraParticipantScopes
@@ -58,6 +60,13 @@ public static class StaticAuraParticipantScopes
     public const string SameBattlefieldPublicUnits = "SAME_BATTLEFIELD_PUBLIC_UNITS";
     public const string SameBattlefieldOtherFriendlyPublicUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS";
     public const string OtherFriendlyPublicUnits = "OTHER_FRIENDLY_PUBLIC_UNITS";
+    public const string FriendlyFilteredPublicUnits = "FRIENDLY_FILTERED_PUBLIC_UNITS";
+}
+
+public static class StaticAuraTargetFilters
+{
+    public const string UnitToken = "UNIT_TOKEN";
+    public const string TagPrefix = "TAG:";
 }
 
 public sealed record BehaviorSpec(
@@ -138,7 +147,8 @@ public sealed record StaticAuraSpec(
     int PowerDeltaPerParticipant,
     string Text,
     string Status,
-    string Reason);
+    string Reason,
+    string? TargetFilter = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,

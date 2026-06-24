@@ -38582,6 +38582,84 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79FriendlyFilteredStaticPowerAddsOneToMatchingFriendlyUnits()
+    {
+        var state = FriendlyFilteredStaticPowerState();
+        var rumbleAuras = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-RUMBLE-SOURCE", StringComparison.Ordinal))
+            .OrderBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(2, rumbleAuras.Length);
+        Assert.Equal(
+            ["P1-RUMBLE-MECH-ALLY", "P1-RUMBLE-SOURCE"],
+            rumbleAuras.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        Assert.All(
+            rumbleAuras,
+            effect =>
+            {
+                Assert.Equal("OBJECT", effect.Scope);
+                Assert.Equal(1, effect.PowerDelta);
+                Assert.Equal("FRIENDLY_FILTERED_UNITS_POWER", effect.EffectKind);
+                Assert.Equal("SFD·089/221", effect.SourceCardNo);
+                Assert.Equal("CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus", effect.SourcePath);
+                Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_FILTERED_PUBLIC_UNITS", effect.Condition);
+                Assert.Equal("DERIVED_FROM_CURRENT_PUBLIC_FIELD_FILTERED_UNIT_LOCATIONS", effect.Lifecycle);
+                Assert.Equal(["P1-RUMBLE-MECH-ALLY", "P1-RUMBLE-SOURCE"], effect.ParticipantObjectIds);
+            });
+
+        var soulShepherdAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, "P1-SOUL-SHEPHERD-SOURCE", StringComparison.Ordinal));
+        Assert.Equal("OBJECT", soulShepherdAura.Scope);
+        Assert.Equal("P1-SOUL-SHEPHERD-TOKEN", soulShepherdAura.TargetObjectId);
+        Assert.Equal(1, soulShepherdAura.PowerDelta);
+        Assert.Equal("FRIENDLY_FILTERED_UNITS_POWER", soulShepherdAura.EffectKind);
+        Assert.Equal("UNL-077/219", soulShepherdAura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus", soulShepherdAura.SourcePath);
+        Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_FILTERED_PUBLIC_UNITS", soulShepherdAura.Condition);
+        Assert.Equal("DERIVED_FROM_CURRENT_PUBLIC_FIELD_FILTERED_UNIT_LOCATIONS", soulShepherdAura.Lifecycle);
+        Assert.Equal(["P1-SOUL-SHEPHERD-TOKEN"], soulShepherdAura.ParticipantObjectIds);
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.EffectKind, "FRIENDLY_FILTERED_UNITS_POWER", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-RUMBLE-NONMECH-BASE", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.EffectKind, "FRIENDLY_FILTERED_UNITS_POWER", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-RUMBLE-MECH-DEFENDER", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-friendly-filtered-static-power", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-RUMBLE-BATTLEFIELD",
+                ["P1-RUMBLE-MECH-ALLY"],
+                ["P2-RUMBLE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-RUMBLE-MECH-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-RUMBLE-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
+        Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79PetalPixieCountsFriendlyEphemeralUnitsAtSameBattlefieldForBattlePower()
     {
         var state = PunishmentState(mana: 0) with
@@ -65060,6 +65138,105 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BARON-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BARON-BATTLEFIELD")
             },
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BARON-BATTLEFIELD")]
+        };
+    }
+
+    private static MatchState FriendlyFilteredStaticPowerState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-RUMBLE-SOURCE",
+                        "P1-SOUL-SHEPHERD-SOURCE",
+                        "P1-SOUL-SHEPHERD-TOKEN",
+                        "P1-RUMBLE-NONMECH-BASE"
+                    ],
+                    Battlefields =
+                    [
+                        "P1-RUMBLE-BATTLEFIELD",
+                        "P1-RUMBLE-MECH-ALLY"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-RUMBLE-DEFENDER", "P2-RUMBLE-MECH-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RUMBLE-SOURCE"] = new(
+                    "P1-RUMBLE-SOURCE",
+                    cardNo: "SFD·089/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SOUL-SHEPHERD-SOURCE"] = new(
+                    "P1-SOUL-SHEPHERD-SOURCE",
+                    cardNo: "UNL-077/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SOUL-SHEPHERD-TOKEN"] = new(
+                    "P1-SOUL-SHEPHERD-TOKEN",
+                    cardNo: "UNL·T02",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "鸟类"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUMBLE-NONMECH-BASE"] = new(
+                    "P1-RUMBLE-NONMECH-BASE",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUMBLE-BATTLEFIELD"] = new(
+                    "P1-RUMBLE-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUMBLE-MECH-ALLY"] = new(
+                    "P1-RUMBLE-MECH-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "机械"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-RUMBLE-DEFENDER"] = new(
+                    "P2-RUMBLE-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-RUMBLE-MECH-DEFENDER"] = new(
+                    "P2-RUMBLE-MECH-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "机械"],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-RUMBLE-SOURCE"] = new("P1", "BASE"),
+                ["P1-SOUL-SHEPHERD-SOURCE"] = new("P1", "BASE"),
+                ["P1-SOUL-SHEPHERD-TOKEN"] = new("P1", "BASE"),
+                ["P1-RUMBLE-NONMECH-BASE"] = new("P1", "BASE"),
+                ["P1-RUMBLE-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
+                ["P1-RUMBLE-MECH-ALLY"] = new("P1", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
+                ["P2-RUMBLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
+                ["P2-RUMBLE-MECH-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD")
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-RUMBLE-BATTLEFIELD")]
         };
     }
 

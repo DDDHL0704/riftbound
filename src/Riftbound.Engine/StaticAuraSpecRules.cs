@@ -52,6 +52,36 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetFriendlyFilteredUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
+    {
+        return TryGetAura(
+            cardNo,
+            StaticAuraKinds.FriendlyFilteredUnitsPower,
+            out aura);
+    }
+
+    public static bool TargetMatchesFilter(StaticAuraSpec aura, CardObjectState target)
+    {
+        if (string.IsNullOrWhiteSpace(aura.TargetFilter))
+        {
+            return false;
+        }
+
+        if (string.Equals(aura.TargetFilter, StaticAuraTargetFilters.UnitToken, StringComparison.Ordinal))
+        {
+            return IsUnitTokenCardNo(target.CardNo);
+        }
+
+        if (aura.TargetFilter.StartsWith(StaticAuraTargetFilters.TagPrefix, StringComparison.Ordinal))
+        {
+            var requiredTag = aura.TargetFilter[StaticAuraTargetFilters.TagPrefix.Length..];
+            return !string.IsNullOrWhiteSpace(requiredTag)
+                && target.Tags.Contains(requiredTag, StringComparer.Ordinal);
+        }
+
+        return false;
+    }
+
     private static bool TryGetAura(string? cardNo, string kind, out StaticAuraSpec aura)
     {
         aura = default!;
@@ -64,6 +94,13 @@ internal static class StaticAuraSpecRules
 
         aura = match;
         return true;
+    }
+
+    private static bool IsUnitTokenCardNo(string? cardNo)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && P6TokenFactoryCatalog.TryGetByCardNo(cardNo, out var definition)
+            && string.Equals(definition.CategoryName, "指示物单位", StringComparison.Ordinal);
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<StaticAuraSpec>> BuildStaticAuraMap()

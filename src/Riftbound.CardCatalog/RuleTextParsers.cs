@@ -518,6 +518,48 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var friendlyTokenUnitsPowerMatch = Regex.Match(
+                segment,
+                @"你的指示物单位获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (friendlyTokenUnitsPowerMatch.Success
+                && int.TryParse(friendlyTokenUnitsPowerMatch.Groups[1].Value, out var friendlyTokenUnitsPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.FriendlyFilteredUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.FriendlyFilteredUnits,
+                    StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                    friendlyTokenUnitsPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                    StaticAuraTargetFilters.UnitToken));
+                continue;
+            }
+
+            var friendlyTaggedUnitsPowerMatch = Regex.Match(
+                segment,
+                @"你的“([^”]+)”属性单位获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (friendlyTaggedUnitsPowerMatch.Success
+                && int.TryParse(friendlyTaggedUnitsPowerMatch.Groups[2].Value, out var friendlyTaggedUnitsPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.FriendlyFilteredUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.FriendlyFilteredUnits,
+                    StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                    friendlyTaggedUnitsPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                    StaticAuraTargetFilters.TagPrefix + friendlyTaggedUnitsPowerMatch.Groups[1].Value));
+                continue;
+            }
+
             if (segment.Contains("每有一件友方装备", StringComparison.Ordinal)
                 && segment.Contains("{{S}}+1", StringComparison.Ordinal))
             {

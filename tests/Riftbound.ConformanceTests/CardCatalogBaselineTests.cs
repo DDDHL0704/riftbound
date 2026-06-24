@@ -1210,6 +1210,33 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
         }
 
+        var soulShepherd = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-077/219", StringComparison.Ordinal));
+        var tokenAura = Assert.Single(soulShepherd.StaticAuras);
+        Assert.Equal(StaticAuraKinds.FriendlyFilteredUnitsPower, tokenAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, tokenAura.Layer);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", tokenAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.FriendlyFilteredUnits, tokenAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, tokenAura.ParticipantScope);
+        Assert.Equal(1, tokenAura.PowerDeltaPerParticipant);
+        Assert.Equal(StaticAuraTargetFilters.UnitToken, tokenAura.TargetFilter);
+        Assert.Contains("你的指示物单位", tokenAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, tokenAura.Status);
+
+        foreach (var cardNo in new[] { "SFD·089/221", "SFD·089a/221" })
+        {
+            var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var aura = Assert.Single(source.StaticAuras);
+            Assert.Equal(StaticAuraKinds.FriendlyFilteredUnitsPower, aura.Kind);
+            Assert.Equal(ContinuousEffectLayers.StaticAura, aura.Layer);
+            Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", aura.Duration);
+            Assert.Equal(StaticAuraTargetScopes.FriendlyFilteredUnits, aura.TargetScope);
+            Assert.Equal(StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, aura.ParticipantScope);
+            Assert.Equal(1, aura.PowerDeltaPerParticipant);
+            Assert.Equal(StaticAuraTargetFilters.TagPrefix + "机械", aura.TargetFilter);
+            Assert.Contains("你的“机械”属性单位", aura.Text, StringComparison.Ordinal);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
+        }
+
         var enthusiasticAnnouncer = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-043/219", StringComparison.Ordinal));
         Assert.Empty(enthusiasticAnnouncer.StaticAuras);
     }

@@ -22,6 +22,7 @@ export type StaticAuraSpec = {
   text: string;
   status: string;
   reason: string;
+  targetFilter?: string | null;
 };
 
 export type BehaviorSpec = {
