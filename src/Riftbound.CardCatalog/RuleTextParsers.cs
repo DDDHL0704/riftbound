@@ -622,6 +622,22 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var battlefieldTargetDamageBonusMatch = Regex.Match(
+                segment,
+                @"以此处的单位作为目标的法术或技能，造成的伤害\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (battlefieldTargetDamageBonusMatch.Success
+                && int.TryParse(battlefieldTargetDamageBonusMatch.Groups[1].Value, out var damageBonusAmount))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldTargetSpellSkillDamageBonus,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield target spell/skill damage bonus parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
+                    damageBonusAmount));
+                continue;
+            }
+
             if (segment.Contains("单位无法从此处移动到基地", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(

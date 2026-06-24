@@ -77,6 +77,8 @@ public static class StaticAbilityKinds
     public const string BattlefieldEquipmentCostReduction = "BATTLEFIELD_EQUIPMENT_COST_REDUCTION";
     public const string BattlefieldGrantUnitExperienceAbility =
         "BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE";
+    public const string BattlefieldTargetSpellSkillDamageBonus =
+        "BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS";
 }
 
 public static class StaticAuraKinds

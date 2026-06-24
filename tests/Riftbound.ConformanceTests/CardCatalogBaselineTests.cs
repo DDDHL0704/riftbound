@@ -999,7 +999,7 @@ public sealed class CardCatalogBaselineTests
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 3, functionalUnits: 3);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 40, functionalUnits: 39);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 1, functionalUnits: 1);
-        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 15, functionalUnits: 14);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 16, functionalUnits: 15);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 11, functionalUnits: 10);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 34, functionalUnits: 34);
 
@@ -1536,6 +1536,16 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("获得1经验", grantedExperienceAbility.Text, StringComparison.Ordinal);
         Assert.Equal(1, grantedExperienceAbility.Amount);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, grantedExperienceAbility.Status);
+
+        var voidGate = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·296/298", StringComparison.Ordinal));
+        var targetDamageBonus = Assert.Single(
+            voidGate.StaticAbilities,
+            ability => string.Equals(ability.Kind, StaticAbilityKinds.BattlefieldTargetSpellSkillDamageBonus, StringComparison.Ordinal));
+        Assert.Equal(StaticAbilityKinds.BattlefieldTargetSpellSkillDamageBonus, targetDamageBonus.Kind);
+        Assert.Contains("以此处的单位作为目标的法术或技能", targetDamageBonus.Text, StringComparison.Ordinal);
+        Assert.Contains("造成的伤害+1", targetDamageBonus.Text, StringComparison.Ordinal);
+        Assert.Equal(1, targetDamageBonus.Amount);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, targetDamageBonus.Status);
     }
 
     [Fact]
@@ -1726,6 +1736,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldGrantUnitExperienceCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldGrantUnitExperienceCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldTargetSpellSkillDamageBonusDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldTargetSpellSkillDamageBonusCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldTargetSpellSkillDamageBonusCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldTargetSpellSkillDamageBonusCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

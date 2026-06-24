@@ -724,7 +724,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
-    private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int BattlefieldReadyLegendManaCost = 1;
@@ -24827,7 +24826,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldUnitReturnedCallRuneCardNo(cardNo)
             || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
             || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
-            || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
     }
 
@@ -25022,11 +25021,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldTargetSpellSkillDamageBonusCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldTargetSpellSkillDamageBonusCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -42295,15 +42289,30 @@ public sealed class CoreRuleEngine : IRuleEngine
             return damageAmount;
         }
 
-        var hasBattlefieldBonus = playerZones.Any(entry =>
-            entry.Value.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, entry.Key, targetObjectId)
-            && entry.Value.Battlefields.Any(objectId =>
-                cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
+        var damageBonus = 0;
+        foreach (var entry in playerZones)
+        {
+            if (!entry.Value.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, entry.Key, targetObjectId))
+            {
+                continue;
+            }
 
-        return hasBattlefieldBonus ? damageAmount + 1 : damageAmount;
+            foreach (var objectId in entry.Value.Battlefields)
+            {
+                if (cardObjects.TryGetValue(objectId, out var cardObject)
+                    && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(
+                        cardObject.CardNo,
+                        out var ability)
+                    && ability.Amount > 0
+                    && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key))
+                {
+                    damageBonus += ability.Amount;
+                }
+            }
+        }
+
+        return damageAmount + damageBonus;
     }
 
     private static bool DamageConditionApplies(
