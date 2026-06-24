@@ -46,6 +46,44 @@ assert.equal(entry(stalePlan, "commandCenter").detail, "行动提示属于 tick 
 assert.equal(entry(stalePlan, "actionMap").stateLabel, "等待同步");
 assert.equal(entry(stalePlan, "actionPrompt").detail, "行动提示属于 tick 8，当前桌面快照是 tick 7。");
 
+const readOnlyPromptPlan = buildWireSidePanelOrchestrationPlan({
+  connectionStatus: "connected",
+  directory,
+  events: [],
+  prompt: {
+    actionable: false,
+    candidates: [{ action: "PASS_PRIORITY", enabled: true, reason: "只读观察" }],
+    playerId: "P2",
+    snapshotTick: 11,
+    view: { title: "响应观察", type: "RESPONSE" }
+  },
+  snapshot: {
+    activePlayerId: "P1",
+    lanes: {},
+    players: {},
+    stack: [],
+    table: { source: "server-snapshot" },
+    tick: 11,
+    timing: {},
+    turnNumber: 2,
+    turnState: "ACTION"
+  },
+  submissionGate: {
+    canSubmit: false,
+    reason: "当前服务端提示为只读状态，暂不提交行动。",
+    state: "read-only-prompt",
+    stateLabel: "只读提示"
+  }
+});
+assert.equal(entry(readOnlyPromptPlan, "commandCenter").state, "review");
+assert.equal(entry(readOnlyPromptPlan, "commandCenter").stateLabel, "只读提示");
+assert.equal(entry(readOnlyPromptPlan, "commandCenter").count, 1);
+assert.equal(entry(readOnlyPromptPlan, "commandCenter").detail, "当前服务端提示为只读状态，暂不提交行动。");
+assert.equal(entry(readOnlyPromptPlan, "actionMap").state, "review");
+assert.equal(entry(readOnlyPromptPlan, "actionPrompt").stateLabel, "只读提示");
+assert.equal(entry(readOnlyPromptPlan, "responseCoach").state, "review");
+assert.equal(entry(readOnlyPromptPlan, "responseCoach").count, 1);
+
 const readyPlan = buildWireSidePanelOrchestrationPlan({
   connectionStatus: "connected",
   directory,

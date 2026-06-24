@@ -112,6 +112,7 @@ type OrchestrationContext = {
   hasTableProjection: boolean;
   hasTimelineDetail: boolean;
   promptActionable: boolean;
+  readOnlyPrompt: boolean;
   stackCount: number;
   submissionGateReason?: string;
   submissionGateStateLabel?: string;
@@ -161,6 +162,7 @@ function orchestrationContext({
     hasTableProjection: Boolean(snapshot?.table?.source),
     hasTimelineDetail: Boolean(timelineDetail?.id),
     promptActionable: Boolean(prompt?.actionable),
+    readOnlyPrompt: submissionGate?.state === "read-only-prompt",
     stackCount: Array.isArray(snapshot?.stack) ? snapshot.stack.length : 0,
     submissionGateReason: submissionGate?.reason,
     submissionGateStateLabel: submissionGate?.stateLabel,
@@ -197,6 +199,8 @@ function slotState(
     case "responseCoach":
       return context.canSubmit
         ? entryState("ready", "可响应", context.enabledCandidateCount, "响应导航可提交服务端候选。")
+        : context.readOnlyPrompt && context.candidateCount > 0
+          ? readOnlyPromptSlotState(context)
         : context.promptActionable
           ? entryState("blocked", "受限", context.disabledCandidateCount, "行动窗口存在，但提交门未开放。")
           : entryState("waiting", "观察", 0, "当前没有需要本地响应的候选。");
@@ -245,6 +249,10 @@ function commandSlotState(
     return entryState("review", "选择中", context.candidateCount, "已有本地选择草稿，等待补齐服务端要求字段。");
   }
 
+  if (context.readOnlyPrompt && context.candidateCount > 0) {
+    return readOnlyPromptSlotState(context);
+  }
+
   if (context.candidateCount > 0) {
     return entryState(
       "blocked",
@@ -255,6 +263,17 @@ function commandSlotState(
   }
 
   return entryState("waiting", "无候选", 0, "当前服务端没有公开可提交候选。");
+}
+
+function readOnlyPromptSlotState(
+  context: OrchestrationContext
+): Omit<WireSidePanelOrchestrationEntry, "groupLabel" | "href" | "label" | "order" | "slot"> {
+  return entryState(
+    "review",
+    context.submissionGateStateLabel ?? "只读提示",
+    context.candidateCount,
+    context.submissionGateReason ?? "当前服务端提示为只读状态，暂不提交行动。"
+  );
 }
 
 function disconnectedSlotState(
