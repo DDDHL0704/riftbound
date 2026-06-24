@@ -694,7 +694,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
     private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
-    private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
@@ -23408,11 +23407,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         discardedObjectIds = [];
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerDiscardDrawCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledHandCard, StringComparison.Ordinal)
+            || trigger.DiscardCount.GetValueOrDefault() <= 0
+            || !string.Equals(trigger.DiscardSourceZone, TriggerZones.Hand, StringComparison.Ordinal)
+            || !string.Equals(trigger.DiscardDestinationZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+            || trigger.DrawCount.GetValueOrDefault() <= 0)
         {
             return false;
         }
 
+        var drawCount = trigger.DrawCount.GetValueOrDefault();
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
             $"{playerId} 征服战场并弃牌抽牌",
@@ -23422,9 +23428,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONQUERED_DISCARD_DRAW",
+                ["trigger"] = TriggerKinds.BattlefieldConquerDiscardDraw,
                 ["sourceObjectId"] = sourceObjectId,
-                ["drawCount"] = 1
+                ["drawCount"] = drawCount
             }));
 
         if (playerZones.TryGetValue(playerId, out var zones)
@@ -23442,8 +23448,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["playerId"] = playerId,
                         ["sourceObjectId"] = battlefieldObjectId,
                         ["targetObjectId"] = discardedObjectId,
-                        ["reason"] = "BATTLEFIELD_CONQUERED_DISCARD_DRAW",
-                        ["destinationZone"] = "GRAVEYARD"
+                        ["reason"] = TriggerKinds.BattlefieldConquerDiscardDraw,
+                        ["destinationZone"] = trigger.DiscardDestinationZone
                     }));
                 ResolveJinxDiscardedHandCardsTrigger(
                     playerZones,
@@ -23462,7 +23468,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             playerScores,
             playerId,
-            1,
+            drawCount,
             rngCursor,
             events);
         return true;
@@ -24969,7 +24975,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(cardNo)
             || IsBattlefieldConquerPayOneCreateGoldCardNo(cardNo)
             || IsBattlefieldConquerReadyEquipmentCardNo(cardNo)
-            || IsBattlefieldConquerDiscardDrawCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardNo, out _)
             || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo)
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
             || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
@@ -25071,11 +25077,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerReadyEquipmentCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerReadyEquipmentCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerDiscardDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerOverkillCreateWarhawkCardNo(string? cardNo)

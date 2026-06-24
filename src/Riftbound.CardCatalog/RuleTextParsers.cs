@@ -416,6 +416,24 @@ public static class TriggerParser
                 ConsumedBoonCount: ParseChineseNumber(battlefieldConquerConsumeBoonDrawMatch.Groups[1].Value));
         }
 
+        var battlefieldConquerDiscardDrawMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，弃置([0-9一两二三四五六七八九十]+)张手牌，然后抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerDiscardDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerDiscardDraw,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered discard-draw trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.ControlledHandCard,
+                DrawCount: ParseChineseNumber(battlefieldConquerDiscardDrawMatch.Groups[2].Value),
+                DiscardCount: ParseChineseNumber(battlefieldConquerDiscardDrawMatch.Groups[1].Value),
+                DiscardSourceZone: TriggerZones.Hand,
+                DiscardDestinationZone: TriggerZones.Graveyard);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

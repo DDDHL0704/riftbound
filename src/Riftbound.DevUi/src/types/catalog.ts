@@ -58,6 +58,9 @@ export type BehaviorSpec = {
     millCount?: number | null;
     millSourceZone?: string | null;
     millDestinationZone?: string | null;
+    discardCount?: number | null;
+    discardSourceZone?: string | null;
+    discardDestinationZone?: string | null;
     manaCost?: number | null;
     boonCount?: number | null;
     consumedBoonCount?: number | null;

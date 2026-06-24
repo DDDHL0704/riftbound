@@ -66,6 +66,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_RECYCLE_RUNE";
     public const string BattlefieldConquerConsumeBoonDraw =
         "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW";
+    public const string BattlefieldConquerDiscardDraw =
+        "BATTLEFIELD_CONQUERED_DISCARD_DRAW";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -104,6 +106,7 @@ public static class TriggerTargetScopes
     public const string ControlledUnitsAtThisBattlefield = "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD";
     public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
+    public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
 }
 
 public static class TriggerDurations
@@ -125,6 +128,7 @@ public static class TriggerZones
 {
     public const string MainDeck = "MAIN_DECK";
     public const string Base = "BASE";
+    public const string Hand = "HAND";
     public const string Graveyard = "GRAVEYARD";
     public const string Champion = "CHAMPION";
 }
@@ -269,6 +273,9 @@ public sealed record TriggerSpec(
     int? MillCount = null,
     string? MillSourceZone = null,
     string? MillDestinationZone = null,
+    int? DiscardCount = null,
+    string? DiscardSourceZone = null,
+    string? DiscardDestinationZone = null,
     int? ManaCost = null,
     int? BoonCount = null,
     int? ConsumedBoonCount = null,
