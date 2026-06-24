@@ -16396,6 +16396,28 @@ public static class MatchRecoveryValidator
 
         if (string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal))
         {
+            if (string.Equals(effectKind, StaticAuraKinds.BattlefieldFilteredUnitsPower, StringComparison.Ordinal))
+            {
+                ValidateContinuousEffectStaticAuraExpectedEffectId(
+                    effectLabel,
+                    effectId,
+                    $"STATIC_AURA:BATTLEFIELD_FILTERED_UNITS_POWER:{sourceObjectId}:{targetObjectId}",
+                    "battlefield static aura effect id",
+                    errors);
+                return;
+            }
+
+            if (!string.Equals(effectKind, StaticAuraKinds.BattlefieldAllUnitsPowerPlusOne, StringComparison.Ordinal))
+            {
+                if (effectKind is not null)
+                {
+                    errors.Add(
+                        $"{effectLabel} battlefield static aura effect kind {effectKind} is invalid for {duration}");
+                }
+
+                return;
+            }
+
             ValidateContinuousEffectStaticAuraExpectedEffectId(
                 effectLabel,
                 effectId,
@@ -16657,6 +16679,33 @@ public static class MatchRecoveryValidator
         {
             if (string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal))
             {
+                if (string.Equals(effectKind, StaticAuraKinds.BattlefieldFilteredUnitsPower, StringComparison.Ordinal))
+                {
+                    ValidateContinuousEffectStaticAuraBattlefieldFilteredSourceCardSpecConsistency(
+                        effectLabel,
+                        sourceCardNo,
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        sourcePath,
+                        "CoreRuleEngine.ResolveBattlefieldFilteredUnitsPowerBonus",
+                        "battlefield static aura source path",
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        condition,
+                        "SOURCE_BATTLEFIELD_FILTERED_UNITS_POWER_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+                        "battlefield static aura condition",
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        lifecycle,
+                        "DERIVED_FROM_CURRENT_BATTLEFIELD_FILTERED_OBJECT_LOCATIONS",
+                        "battlefield static aura lifecycle",
+                        errors);
+                    return;
+                }
+
                 ValidateContinuousEffectStaticAuraMetadataValue(
                     effectLabel,
                     effectKind,
@@ -16762,6 +16811,21 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{effectLabel} battlefield static aura source card no must reference a BehaviorSpec battlefield all-units power aura");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraBattlefieldFilteredSourceCardSpecConsistency(
+        string effectLabel,
+        string? sourceCardNo,
+        List<string> errors)
+    {
+        if (sourceCardNo is null
+            || StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(sourceCardNo, out _))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} battlefield static aura source card no must reference a BehaviorSpec battlefield filtered power aura");
     }
 
     private static void ValidateContinuousEffectStaticAuraSameBattlefieldOtherFriendlySourceCardSpecConsistency(

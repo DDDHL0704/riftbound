@@ -19323,6 +19323,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolveWiseElderBoonPowerBonus(cardObject);
         staticPowerBonus += ResolveWaterbenderLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
+        staticPowerBonus += ResolveBattlefieldFilteredUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveOtherFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
@@ -19386,6 +19387,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
             && StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(battlefieldState.CardNo, out var aura)
+            ? aura.PowerDeltaPerParticipant
+            : 0;
+    }
+
+    private static int ResolveBattlefieldFilteredUnitsPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldId,
+        CardObjectState cardObject)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(battlefieldState.CardNo, out var aura)
+            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
             ? aura.PowerDeltaPerParticipant
             : 0;
     }

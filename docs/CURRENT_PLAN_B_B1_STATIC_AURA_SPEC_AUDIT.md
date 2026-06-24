@@ -17,10 +17,13 @@ Implemented in this slice:
   - `UNL-077/219` 牧魂人：你的指示物单位获得 `{{S}}+1`。
   - `SFD·089/221` / `SFD·089a/221` 兰博：你的“机械”属性单位获得 `{{S}}+1`。
   - `OGN·151/298` / `OGN·151a/298` 李青：我所在战场上其他拥有增益的友方单位获得 `{{S}}+2`。
-- Parser false-positive guard for `UNL-043/219` 热情的播报员：其 card text grants `{{增益}}` tokens and must not be treated as a fixed `STATIC_AURA` power modifier.
+  - `UNL·T03` 草丛：此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得 `{{S}}+1`。
+- Parser false-positive guards:
+  - `UNL-043/219` 热情的播报员：其 card text grants `{{增益}}` tokens and must not be treated as a fixed `STATIC_AURA` power modifier.
+  - `UNL-195/219` 翠神：parenthetical reminder text describes the Brush battlefield token and must not be treated as a legend-source `STATIC_AURA`.
 - `MatchSession` continuous-effect projection now resolves these `STATIC_AURA` kinds via `StaticAuraSpecRules` instead of `ContinuousEffectStaticAuraCards`.
-- `CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveOtherFriendlyUnitsPowerBonus`, and `CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus` now apply these static power auras from `BehaviorSpec.StaticAuras`.
-- Recovery static-aura source-card validation now checks the source card's `BehaviorSpec` aura surface for battlefield all-units, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, and friendly-filtered unit auras instead of a projection allow-list.
+- `CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus`, `CoreRuleEngine.ResolveBattlefieldFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus`, `CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus`, `CoreRuleEngine.ResolveOtherFriendlyUnitsPowerBonus`, and `CoreRuleEngine.ResolveFriendlyFilteredUnitsPowerBonus` now apply these static power auras from `BehaviorSpec.StaticAuras`.
+- Recovery static-aura source-card validation now checks the source card's `BehaviorSpec` aura surface for battlefield all-units, battlefield-filtered, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, and friendly-filtered unit auras instead of a projection allow-list.
 
 ## Not Closed
 
@@ -44,7 +47,9 @@ This slice does not claim full B1 completion:
 - `UNL-077/219`: `你的指示物单位获得{{S}}+1。`
 - `SFD·089/221` / `SFD·089a/221`: `你的“机械”属性单位获得{{S}}+1。（包括我。）`
 - `OGN·151/298` / `OGN·151a/298`: `我所在战场上其他拥有增益的友方单位获得{{S}}+2。`
+- `UNL·T03`: `此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得{{S}}+1。`
 - `UNL-043/219`: `给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
+- `UNL-195/219`: `位于草丛的“鸟类”、“猫科”、“犬形”、“魄罗”和“艾翁”属性单位获得{{S}}+1。` appears only as parenthetical token reminder text.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
 
 ## Validation
@@ -65,6 +70,14 @@ Latest same-battlefield friendly-filtered focused check:
 
 Result: 2/2 passed.
 
+Latest battlefield-filtered focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives|FullyQualifiedName~BattlefieldFilteredStaticPower"
+```
+
+Result: 2/2 passed.
+
 Adjacent:
 
 ```bash
@@ -81,10 +94,18 @@ Latest adjacent:
 
 Result: 399/399 passed.
 
+Latest adjacent after battlefield-filtered slice:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect"
+```
+
+Result: 400/400 passed.
+
 Full backend:
 
 ```bash
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Result: 8361/8361 passed.
+Result: 8362/8362 passed.

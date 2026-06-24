@@ -1865,6 +1865,7 @@ public sealed record MatchState
         }
 
         effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildBattlefieldFilteredUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsStaticAuraEffects(state));
@@ -2274,6 +2275,60 @@ public sealed record MatchState
         return effects;
     }
 
+    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldFilteredUnitsStaticAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var battlefieldObjectId in state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || !StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(battlefield.CardNo, out var aura)
+                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+                || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var participantObjectIds = BattlefieldFilteredStaticAuraParticipantObjectIds(
+                state,
+                battlefieldObjectId,
+                aura);
+            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [battlefieldObjectId]);
+            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+
+            foreach (var participantObjectId in participantObjectIds)
+            {
+                var participant = state.CardObjects[participantObjectId];
+                var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
+                effects.Add(new ContinuousEffectState(
+                    $"STATIC_AURA:BATTLEFIELD_FILTERED_UNITS_POWER:{battlefieldObjectId}:{participantObjectId}",
+                    "BATTLEFIELD",
+                    ContinuousEffectLayers.StaticAura,
+                    aura.Duration,
+                    participantObjectId,
+                    battlefieldObjectId,
+                    aura.PowerDeltaPerParticipant,
+                    participant.Power,
+                    participant.Power + aura.PowerDeltaPerParticipant,
+                    aura.Kind,
+                    battlefield.CardNo,
+                    "CoreRuleEngine.ResolveBattlefieldFilteredUnitsPowerBonus",
+                    true,
+                    LayerEngineFoundationResiduals(),
+                    Condition: "SOURCE_BATTLEFIELD_FILTERED_UNITS_POWER_AND_PARTICIPANT_UNIT_AT_BATTLEFIELD",
+                    Lifecycle: "DERIVED_FROM_CURRENT_BATTLEFIELD_FILTERED_OBJECT_LOCATIONS",
+                    ParticipantObjectIds: participantObjectIds,
+                    SourceDependencyObjectIds: sourceDependencyObjectIds,
+                    TargetDependencyObjectIds: targetDependencyObjectIds,
+                    ParticipantDependencyObjectIds: participantDependencyObjectIds));
+            }
+        }
+
+        return effects;
+    }
+
     private static bool TryFindBattlefieldUnitLocation(
         MatchState state,
         string objectId,
@@ -2419,6 +2474,42 @@ public sealed record MatchState
             .Where(objectId => !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
                 && state.CardObjects.TryGetValue(objectId, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsObjectLocationCompatibleWithBattlefield(state, objectId, battlefieldObjectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> BattlefieldFilteredStaticAuraParticipantObjectIds(
+        MatchState state,
+        string battlefieldObjectId,
+        StaticAuraSpec aura)
+    {
+        var locatedParticipantObjectIds = state.ObjectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(entry.Key, out var participant)
+                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !participant.IsFaceDown
+                && !participant.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && StaticAuraSpecRules.TargetMatchesFilter(aura, participant)
+                && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out _))
+            .Select(entry => entry.Key)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        if (locatedParticipantObjectIds.Length > 0)
+        {
+            return locatedParticipantObjectIds;
+        }
+
+        return state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(objectId, out var participant)
+                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !participant.IsFaceDown
+                && !participant.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && StaticAuraSpecRules.TargetMatchesFilter(aura, participant)
                 && IsObjectLocationCompatibleWithBattlefield(state, objectId, battlefieldObjectId))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)

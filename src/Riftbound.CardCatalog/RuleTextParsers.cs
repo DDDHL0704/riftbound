@@ -478,6 +478,36 @@ public static class StaticAuraParser
         var auras = new List<StaticAuraSpec>();
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var brushBattlefieldFilteredPowerMatch = Regex.Match(
+                segment,
+                @"此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (brushBattlefieldFilteredPowerMatch.Success
+                && int.TryParse(brushBattlefieldFilteredPowerMatch.Groups[1].Value, out var brushPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.BattlefieldFilteredUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldFilteredUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
+                    brushPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                    StaticAuraTargetFilters.AnyPrefix
+                    + StaticAuraTargetFilters.TagPrefix + "鸟类"
+                    + "|"
+                    + StaticAuraTargetFilters.TagPrefix + "猫科"
+                    + "|"
+                    + StaticAuraTargetFilters.TagPrefix + "犬形"
+                    + "|"
+                    + StaticAuraTargetFilters.TagPrefix + "魄罗"
+                    + "|"
+                    + StaticAuraTargetFilters.CardNamePrefix + "艾翁"));
+                continue;
+            }
+
             var sameBattlefieldOtherFriendlyPowerMatch = Regex.Match(
                 segment,
                 @"此处的其他友方单位获得\{\{S\}\}\+(\d+)",

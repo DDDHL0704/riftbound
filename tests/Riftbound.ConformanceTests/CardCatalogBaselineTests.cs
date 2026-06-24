@@ -1181,6 +1181,32 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("此处的所有单位", battlefieldAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, battlefieldAura.Status);
 
+        var brushBattlefield = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL·T03", StringComparison.Ordinal));
+        var brushAura = Assert.Single(brushBattlefield.StaticAuras);
+        Assert.Equal(StaticAuraKinds.BattlefieldFilteredUnitsPower, brushAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, brushAura.Layer);
+        Assert.Equal("WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", brushAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SameBattlefieldFilteredUnits, brushAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits, brushAura.ParticipantScope);
+        Assert.Equal(1, brushAura.PowerDeltaPerParticipant);
+        Assert.Equal(
+            StaticAuraTargetFilters.AnyPrefix
+            + StaticAuraTargetFilters.TagPrefix + "鸟类"
+            + "|"
+            + StaticAuraTargetFilters.TagPrefix + "猫科"
+            + "|"
+            + StaticAuraTargetFilters.TagPrefix + "犬形"
+            + "|"
+            + StaticAuraTargetFilters.TagPrefix + "魄罗"
+            + "|"
+            + StaticAuraTargetFilters.CardNamePrefix + "艾翁",
+            brushAura.TargetFilter);
+        Assert.Contains("此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位", brushAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, brushAura.Status);
+
+        var ivernLegend = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-195/219", StringComparison.Ordinal));
+        Assert.Empty(ivernLegend.StaticAuras);
+
         foreach (var cardNo in new[] { "OGS·013/024", "SFD·236/221", "SFD·236*/221", "OGN·243/298", "OGN·243a/298" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));

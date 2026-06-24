@@ -36,6 +36,14 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetBattlefieldFilteredUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
+    {
+        return TryGetAura(
+            cardNo,
+            StaticAuraKinds.BattlefieldFilteredUnitsPower,
+            out aura);
+    }
+
     public static bool TryGetSameBattlefieldOtherFriendlyUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -75,16 +83,37 @@ internal static class StaticAuraSpecRules
             return false;
         }
 
-        if (string.Equals(aura.TargetFilter, StaticAuraTargetFilters.UnitToken, StringComparison.Ordinal))
+        if (aura.TargetFilter.StartsWith(StaticAuraTargetFilters.AnyPrefix, StringComparison.Ordinal))
+        {
+            return aura.TargetFilter[StaticAuraTargetFilters.AnyPrefix.Length..]
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(filter => TargetMatchesFilter(filter, target));
+        }
+
+        return TargetMatchesFilter(aura.TargetFilter, target);
+    }
+
+    private static bool TargetMatchesFilter(string targetFilter, CardObjectState target)
+    {
+        if (string.Equals(targetFilter, StaticAuraTargetFilters.UnitToken, StringComparison.Ordinal))
         {
             return IsUnitTokenCardNo(target.CardNo);
         }
 
-        if (aura.TargetFilter.StartsWith(StaticAuraTargetFilters.TagPrefix, StringComparison.Ordinal))
+        if (targetFilter.StartsWith(StaticAuraTargetFilters.TagPrefix, StringComparison.Ordinal))
         {
-            var requiredTag = aura.TargetFilter[StaticAuraTargetFilters.TagPrefix.Length..];
+            var requiredTag = targetFilter[StaticAuraTargetFilters.TagPrefix.Length..];
             return !string.IsNullOrWhiteSpace(requiredTag)
                 && target.Tags.Contains(requiredTag, StringComparer.Ordinal);
+        }
+
+        if (targetFilter.StartsWith(StaticAuraTargetFilters.CardNamePrefix, StringComparison.Ordinal))
+        {
+            var requiredCardName = targetFilter[StaticAuraTargetFilters.CardNamePrefix.Length..];
+            return !string.IsNullOrWhiteSpace(requiredCardName)
+                && !string.IsNullOrWhiteSpace(target.CardNo)
+                && CardBehaviorRegistry.TryGetByCardNo(target.CardNo, out var behavior)
+                && string.Equals(behavior.DisplayName, requiredCardName, StringComparison.Ordinal);
         }
 
         return false;
