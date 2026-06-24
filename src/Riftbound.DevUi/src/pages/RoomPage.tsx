@@ -76,9 +76,11 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
     errorState: errorResolutionPlan.state,
     eventCount: controller.state.events.length,
     hasSnapshot: Boolean(snapshot),
+    promptSnapshotTick: prompt?.snapshotTick,
     quickActions: roomQuickActionPlan.entries,
     roomStatus,
     setupGate: roomSetupFlowPlan.startGate,
+    snapshotTick: snapshot?.tick,
     submissionState: controller.state.lastCommandSubmission?.state
   }), [
     controller.state.errors.length,
@@ -89,7 +91,9 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
     roomQuickActionPlan.entries,
     roomSetupFlowPlan.startGate,
     roomStatus,
-    snapshot
+    prompt?.snapshotTick,
+    snapshot,
+    snapshot?.tick
   ]);
   const runRoomQuickAction = useCallback((entry: ServerQuickActionEntry) => {
     if (entry.disabled) {

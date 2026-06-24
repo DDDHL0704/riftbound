@@ -52,6 +52,26 @@ assert.equal(readyRoom.sections.find((section) => section.id === "submission")?.
 assert.equal(readyRoom.sections.find((section) => section.id === "log")?.value, "3 事件 / 0 错误");
 assert.ok(readyRoom.summary.includes("开局：已开局"));
 
+const staleRoomPrompt = buildRoomWorkflowSurfacePlan({
+  connectionStatus: "connected",
+  errorCount: 0,
+  errorState: "clear",
+  eventCount: 3,
+  hasSnapshot: true,
+  promptSnapshotTick: 7,
+  quickActions: [{ id: "submitDeck", state: "ready" }],
+  roomStatus: "WAITING",
+  setupGate: { label: "等待准备", nextStep: "按服务端候选继续。", reason: "服务端快照等待玩家准备。", tone: "warn" },
+  snapshotTick: 8,
+  submissionState: undefined
+});
+assert.equal(staleRoomPrompt.activeRegionId, "recovery");
+assert.equal(staleRoomPrompt.sections.find((section) => section.id === "recovery")?.state, "blocking");
+assert.equal(staleRoomPrompt.sections.find((section) => section.id === "recovery")?.value, "快照需要同步");
+assert.equal(staleRoomPrompt.sections.find((section) => section.id === "recovery")?.detail, "快照 tick 8 / prompt tick 7");
+assert.equal(staleRoomPrompt.sections.find((section) => section.id === "recovery")?.nextStep, "重新同步快照，再提交行动。");
+assert.ok(staleRoomPrompt.summary.includes("连接：快照需要同步"));
+
 const failedSubmission = buildRoomWorkflowSurfacePlan({
   connectionStatus: "connected",
   errorCount: 1,
@@ -68,6 +88,8 @@ assert.equal(failedSubmission.sections.find((section) => section.id === "errors"
 assert.equal(failedSubmission.sections.find((section) => section.id === "submission")?.state, "blocking");
 
 assert.ok(roomPageSource.includes("buildRoomWorkflowSurfacePlan"), "RoomPage must build the workflow surface from server-derived plans.");
+assert.ok(roomPageSource.includes("promptSnapshotTick: prompt?.snapshotTick"), "RoomPage must pass prompt tick into the workflow surface.");
+assert.ok(roomPageSource.includes("snapshotTick: snapshot?.tick"), "RoomPage must pass snapshot tick into the workflow surface.");
 assert.ok(roomPageSource.includes("data-room-workflow-surface"), "RoomPage must expose the workflow surface for browser smoke.");
 assert.ok(roomPageSource.includes("data-room-workflow-region"), "RoomPage must expose each workflow region for browser smoke.");
 assert.ok(roomPageSource.includes("data-room-workflow-source"), "RoomPage must expose server source labels.");

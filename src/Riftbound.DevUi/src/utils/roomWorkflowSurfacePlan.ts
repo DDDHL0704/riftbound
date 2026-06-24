@@ -1,4 +1,5 @@
 import type { ConnectionStatus } from "../types/protocol";
+import { buildConnectionRecoveryPlan, type ConnectionRecoveryState } from "./connectionRecoveryPlan";
 import type { ErrorResolutionState } from "./errorResolutionPlan";
 import { connectionStatusLabel } from "./formatters";
 import type { RoomSetupGate } from "./roomSetupFlowPlan";
@@ -42,9 +43,11 @@ export function buildRoomWorkflowSurfacePlan({
   errorState,
   eventCount,
   hasSnapshot,
+  promptSnapshotTick,
   quickActions,
   roomStatus,
   setupGate,
+  snapshotTick,
   submissionState
 }: {
   connectionStatus: ConnectionStatus;
@@ -52,14 +55,16 @@ export function buildRoomWorkflowSurfacePlan({
   errorState: ErrorResolutionState;
   eventCount: number;
   hasSnapshot: boolean;
+  promptSnapshotTick?: number | null;
   quickActions: readonly RoomWorkflowQuickActionLike[];
   roomStatus: string;
   setupGate: RoomSetupGate;
+  snapshotTick?: number | null;
   submissionState?: string;
 }): RoomWorkflowSurfacePlan {
   const readyQuickActions = quickActions.filter((action) => action.state === "ready").length;
   const sections: RoomWorkflowRegion[] = [
-    recoveryRegion(connectionStatus, hasSnapshot),
+    recoveryRegion(connectionStatus, hasSnapshot, promptSnapshotTick, snapshotTick),
     setupRegion(setupGate, roomStatus),
     actionsRegion(readyQuickActions, quickActions.length),
     submissionRegion(submissionState),
@@ -70,21 +75,53 @@ export function buildRoomWorkflowSurfacePlan({
   return {
     activeRegionId: activeRegion(sections),
     sections,
-    summary: `连接：${connectionStatusLabel(connectionStatus)} / 开局：${setupGate.label} / 行动：${readyQuickActions}/${quickActions.length}`
+    summary: `连接：${sections[0].value} / 开局：${setupGate.label} / 行动：${readyQuickActions}/${quickActions.length}`
   };
 }
 
-function recoveryRegion(connectionStatus: ConnectionStatus, hasSnapshot: boolean): RoomWorkflowRegion {
-  const connected = connectionStatus === "connected";
+function recoveryRegion(
+  connectionStatus: ConnectionStatus,
+  hasSnapshot: boolean,
+  promptSnapshotTick?: number | null,
+  snapshotTick?: number | null
+): RoomWorkflowRegion {
+  const recoveryPlan = buildConnectionRecoveryPlan({
+    connectionStatus,
+    hasSnapshot,
+    promptSnapshotTick,
+    snapshotTick
+  });
+  const stale = recoveryPlan.state === "stale";
+  const detail = recoveryPlan.state === "stale"
+    ? recoveryPlan.tickLabel
+    : hasSnapshot
+      ? "已收到服务端房间快照。"
+      : "尚无服务端房间快照。";
+
   return {
-    detail: hasSnapshot ? "已收到服务端房间快照。" : "尚无服务端房间快照。",
+    detail,
     id: "recovery",
     label: "恢复",
-    nextStep: connected ? "必要时重新同步快照。" : "连接并入座，等待服务端发布快照。",
+    nextStep: recoveryPlan.nextStep,
     source: "server-connection",
-    state: connected ? "ready" : "blocking",
-    value: connectionStatusLabel(connectionStatus)
+    state: workflowStateForRecovery(recoveryPlan.state),
+    value: stale ? recoveryPlan.headline : connectionStatusLabel(connectionStatus)
   };
+}
+
+function workflowStateForRecovery(state: ConnectionRecoveryState): RoomWorkflowRegionState {
+  switch (state) {
+    case "online":
+      return "ready";
+    case "connecting":
+    case "recovering":
+    case "resyncing":
+      return "waiting";
+    case "error":
+    case "offline":
+    case "stale":
+      return "blocking";
+  }
 }
 
 function setupRegion(setupGate: RoomSetupGate, roomStatus: string): RoomWorkflowRegion {
