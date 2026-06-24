@@ -44,6 +44,9 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
   );
   const currentSummary = useMemo(() => summarizeStarterDeck(deck), [deck]);
   const currentCommandPreview = useMemo(() => JSON.stringify(deck, null, 2), [deck]);
+  const feedbackMessage = importFlowPlan.state === "invalid"
+    ? `导入未应用：${importFlowPlan.issueRows[0]?.message ?? "请修正粘贴内容。"}`
+    : importMessage;
   const importHandoffPlan = useMemo(() => buildDeckImportHandoffPlan({
     canApplyImport: importFlowPlan.canApplyImport,
     commandPreviewLength: currentCommandPreview.length,
@@ -196,7 +199,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
             </div>
             {importFlowPlan.feedbackIcon === "valid" ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
           </header>
-          <p style={deckWireStyles.bodyCopy}>{importMessage}</p>
+          <p style={deckWireStyles.bodyCopy}>{feedbackMessage}</p>
           <p style={deckWireStyles.nextStep}>{importFlowPlan.nextStep}</p>
           <div data-deck-import-flow-state={importFlowPlan.state} style={deckWireStyles.previewGrid}>
             {importFlowPlan.metrics.map((metric) => (

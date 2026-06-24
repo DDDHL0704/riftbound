@@ -62,6 +62,10 @@ for (const requiredAttribute of [
 }
 
 for (const requiredText of [
+  "assertInvalidDeckImportFlow",
+  "data-deck-import-input",
+  "导入未应用",
+  "should keep the previous SUBMIT_DECK payload",
   "服务端权威",
   "SUBMIT_DECK",
   "主牌堆",

@@ -305,9 +305,85 @@ async function assertDeckImportSurface(page) {
       failures.push(`deck import ${actionId} action should stay available: ${JSON.stringify(surface.actions)}`);
     }
   }
+  failures.push(...await assertInvalidDeckImportFlow(page, surface.commandText));
   if (failures.length > 0) {
     throw new Error(`Deck import surface assertions failed:\n${failures.join("\n")}`);
   }
+}
+
+async function assertInvalidDeckImportFlow(page, previousCommandText) {
+  const input = page.locator("[data-deck-import-input]").first();
+  const originalText = await input.inputValue();
+  const invalidDeckText = [
+    "legend:",
+    "champion:",
+    "main:",
+    "1 NOT-A-CARD"
+  ].join("\n");
+  const failures = [];
+
+  try {
+    await input.fill(invalidDeckText);
+    await page.locator('[data-deck-import-surface][data-deck-import-state="invalid"]').waitFor({ timeout: 5_000 });
+
+    const invalidSurface = await page.evaluate(() => {
+      const textOf = (node) => node?.textContent?.trim().replace(/\s+/g, " ") ?? "";
+      const apply = document.querySelector('[data-deck-import-action="apply"]');
+      const commandPreview = document.querySelector("[data-deck-import-command-preview]");
+      const feedback = document.querySelector("[data-deck-import-feedback]");
+      const flowState = document.querySelector("[data-deck-import-flow-state]");
+      const handoff = document.querySelector("[data-deck-import-handoff]");
+      const input = document.querySelector("[data-deck-import-input]");
+      const root = document.querySelector("[data-deck-import-surface]");
+      return {
+        applyDisabled: apply?.hasAttribute("disabled") ?? false,
+        applyState: apply?.getAttribute("data-deck-import-action-state") ?? "",
+        commandText: textOf(commandPreview),
+        feedbackState: feedback?.getAttribute("data-deck-import-state") ?? "",
+        feedbackText: textOf(feedback),
+        flowState: flowState?.getAttribute("data-deck-import-flow-state") ?? "",
+        handoffActiveSection: handoff?.getAttribute("data-deck-import-handoff-active-section") ?? "",
+        handoffSummary: handoff?.getAttribute("data-deck-import-handoff-summary") ?? "",
+        inputState: input?.getAttribute("data-deck-import-state") ?? "",
+        issueFields: Array.from(document.querySelectorAll("[data-deck-import-issue-field]")).map((node) =>
+          node.getAttribute("data-deck-import-issue-field") ?? ""
+        ),
+        rootState: root?.getAttribute("data-deck-import-state") ?? ""
+      };
+    });
+
+    if (
+      invalidSurface.rootState !== "invalid"
+      || invalidSurface.inputState !== "invalid"
+      || invalidSurface.feedbackState !== "invalid"
+      || invalidSurface.flowState !== "invalid"
+    ) {
+      failures.push(`invalid deck import must project invalid state across root/input/feedback/flow: ${JSON.stringify(invalidSurface)}`);
+    }
+    if (invalidSurface.applyState !== "blocked" || invalidSurface.applyDisabled !== true) {
+      failures.push(`invalid deck import must block apply without entering server submission: ${JSON.stringify(invalidSurface)}`);
+    }
+    if (invalidSurface.handoffActiveSection !== "intake" || !invalidSurface.handoffSummary.includes("结构无效")) {
+      failures.push(`invalid deck import handoff must route back to intake: ${JSON.stringify(invalidSurface)}`);
+    }
+    if (!invalidSurface.feedbackText.includes("导入未应用") || !invalidSurface.feedbackText.includes("服务端权威")) {
+      failures.push(`invalid deck import feedback must explain the local block and server authority: ${invalidSurface.feedbackText}`);
+    }
+    if (invalidSurface.issueFields.length < 1) {
+      failures.push(`invalid deck import must expose issue fields for correction: ${JSON.stringify(invalidSurface.issueFields)}`);
+    }
+    if (invalidSurface.commandText !== previousCommandText || invalidSurface.commandText.includes("NOT-A-CARD")) {
+      failures.push(`invalid deck import should keep the previous SUBMIT_DECK payload: ${JSON.stringify({
+        after: invalidSurface.commandText,
+        before: previousCommandText
+      })}`);
+    }
+  } finally {
+    await input.fill(originalText);
+    await page.locator('[data-deck-import-surface][data-deck-import-state="valid"]').waitFor({ timeout: 5_000 });
+  }
+
+  return failures;
 }
 
 async function assertRoomWorkflowSurface(page) {
