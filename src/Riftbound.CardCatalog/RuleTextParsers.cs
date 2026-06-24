@@ -590,6 +590,22 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var battlefieldGrantUnitExperienceMatch = Regex.Match(
+                segment,
+                @"此处的单位获得“\{\{横置\}\}：获得(\d+)经验",
+                RegexOptions.CultureInvariant);
+            if (battlefieldGrantUnitExperienceMatch.Success
+                && int.TryParse(battlefieldGrantUnitExperienceMatch.Groups[1].Value, out var experienceAmount))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldGrantUnitExperienceAbility,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield granted unit experience activated ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
+                    experienceAmount));
+                continue;
+            }
+
             if (segment.Contains("单位无法从此处移动到基地", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(

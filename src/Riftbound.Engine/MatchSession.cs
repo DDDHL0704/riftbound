@@ -6027,7 +6027,6 @@ internal static class ActionPromptBuilder
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string EagerApprenticeCardNo = "OGN·084/298";
-    private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitBaseZone = "BASE";
     private const string MoveUnitRoamOptionalCost = "ROAM";
@@ -11070,7 +11069,7 @@ internal static class ActionPromptBuilder
         return zones.Battlefields.FirstOrDefault(battlefieldObjectId =>
             !string.Equals(battlefieldObjectId, sourceObjectId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-            && string.Equals(battlefieldState.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
+            && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(battlefieldState.CardNo, out _)
             && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId));
     }
 
@@ -16085,7 +16084,7 @@ internal static class ActionPromptBuilder
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldUnitReturnedCallRuneCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldPlayUnitPayOneBoonCardNo, StringComparison.Ordinal)
@@ -16607,7 +16606,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
-    private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
@@ -19523,7 +19521,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-MUTATION-GARDEN"] = new(
                     "P1-BATTLEFIELD-MUTATION-GARDEN",
-                    cardNo: BattlefieldGrantUnitExperienceCardNo,
+                    cardNo: "UNL-213/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
@@ -23240,7 +23238,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-MUTATION-GARDEN"] = new(
                     "P1-BATTLEFIELD-MUTATION-GARDEN",
-                    cardNo: BattlefieldGrantUnitExperienceCardNo,
+                    cardNo: "UNL-213/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),

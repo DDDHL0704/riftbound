@@ -721,7 +721,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
@@ -11081,11 +11080,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var battlefieldObjectId = zones.Battlefields.FirstOrDefault(objectId =>
-            !string.Equals(objectId, command.SourceObjectId, StringComparison.Ordinal)
-            && state.CardObjects.TryGetValue(objectId, out var battlefieldState)
-            && IsBattlefieldGrantUnitExperienceCardNo(battlefieldState.CardNo)
-            && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, intent.PlayerId));
+        var battlefieldObjectId = string.Empty;
+        var experienceAmount = 0;
+        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (string.Equals(objectId, command.SourceObjectId, StringComparison.Ordinal)
+                || !state.CardObjects.TryGetValue(objectId, out var battlefieldState)
+                || !BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(
+                    battlefieldState.CardNo,
+                    out var ability)
+                || ability.Amount <= 0
+                || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, intent.PlayerId))
+            {
+                continue;
+            }
+
+            battlefieldObjectId = objectId;
+            experienceAmount = ability.Amount;
+            break;
+        }
+
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldCardState))
         {
@@ -11104,8 +11118,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         var playerExperience = NormalizeExperienceForSeats(state);
         playerExperience[intent.PlayerId] = playerExperience.TryGetValue(intent.PlayerId, out var currentExperience)
-            ? currentExperience + 1
-            : 1;
+            ? currentExperience + experienceAmount
+            : experienceAmount;
         var events = new List<GameEvent>
         {
             new(
@@ -11139,17 +11153,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldCardNo"] = battlefieldCardState.CardNo,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["abilityId"] = command.AbilityId,
-                    ["trigger"] = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE"
+                    ["trigger"] = BattlefieldUnitGainExperienceAbilityId,
+                    ["amount"] = experienceAmount
                 }),
             new(
                 "EXPERIENCE_GAINED",
-                $"{intent.PlayerId} 获得 1 经验",
+                $"{intent.PlayerId} 获得 {experienceAmount} 经验",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["cardNo"] = sourceState.CardNo,
-                    ["amount"] = 1,
+                    ["amount"] = experienceAmount,
                     ["totalExperience"] = playerExperience[intent.PlayerId],
                     ["abilityId"] = command.AbilityId,
                     ["battlefieldObjectId"] = battlefieldObjectId
@@ -24808,7 +24823,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(cardNo, out _)
-            || IsBattlefieldGrantUnitExperienceCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardNo, out _)
             || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
             || IsBattlefieldUnitReturnedCallRuneCardNo(cardNo)
             || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
@@ -24993,11 +25008,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldGrantUnitExperienceCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHighCostSpellInsightCardNo(string? cardNo)

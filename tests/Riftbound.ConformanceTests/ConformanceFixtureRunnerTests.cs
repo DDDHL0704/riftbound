@@ -42458,6 +42458,7 @@ public sealed class ConformanceFixtureRunnerTests
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE", StringComparison.Ordinal));
         Assert.Equal("P1-BATTLEFIELD-MUTATION-GARDEN", trigger.Payload["battlefieldObjectId"]);
+        Assert.Equal(1, trigger.Payload["amount"]);
         var experienceEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
         Assert.Equal(1, experienceEvent.Payload["amount"]);
         Assert.Equal(1, experienceEvent.Payload["totalExperience"]);

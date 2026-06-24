@@ -999,7 +999,7 @@ public sealed class CardCatalogBaselineTests
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 3, functionalUnits: 3);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 40, functionalUnits: 39);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 1, functionalUnits: 1);
-        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 14, functionalUnits: 13);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 15, functionalUnits: 14);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 11, functionalUnits: 10);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 34, functionalUnits: 34);
 
@@ -1507,6 +1507,14 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("第一件友方装备的费用减少{{1}}", equipmentCostReduction.Text, StringComparison.Ordinal);
         Assert.Equal(1, equipmentCostReduction.Amount);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, equipmentCostReduction.Status);
+
+        var mutationGarden = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-213/219", StringComparison.Ordinal));
+        var grantedExperienceAbility = Assert.Single(mutationGarden.StaticAbilities);
+        Assert.Equal(StaticAbilityKinds.BattlefieldGrantUnitExperienceAbility, grantedExperienceAbility.Kind);
+        Assert.Contains("此处的单位获得", grantedExperienceAbility.Text, StringComparison.Ordinal);
+        Assert.Contains("获得1经验", grantedExperienceAbility.Text, StringComparison.Ordinal);
+        Assert.Equal(1, grantedExperienceAbility.Amount);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, grantedExperienceAbility.Status);
     }
 
     [Fact]
@@ -1651,6 +1659,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldSpellPowerBonusCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldSpellPowerBonusCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldGrantUnitExperienceAbilityDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldGrantUnitExperienceCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldGrantUnitExperienceCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldGrantUnitExperienceCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
