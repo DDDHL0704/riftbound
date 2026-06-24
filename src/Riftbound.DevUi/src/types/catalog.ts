@@ -53,6 +53,7 @@ export type BehaviorSpec = {
     revealCount?: number | null;
     revealSourceZone?: string | null;
     recycleCount?: number | null;
+    recycleSourceZone?: string | null;
     recycleDestinationZone?: string | null;
     millCount?: number | null;
     millSourceZone?: string | null;

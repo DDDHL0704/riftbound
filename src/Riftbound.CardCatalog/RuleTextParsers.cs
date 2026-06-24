@@ -383,6 +383,23 @@ public static class TriggerParser
                 MillDestinationZone: TriggerZones.Graveyard);
         }
 
+        var battlefieldConquerRecycleRuneMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，回收一枚你的符文",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerRecycleRuneMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerRecycleRune,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered recycle-rune trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.OwnedRuneInBase,
+                RecycleCount: 1,
+                RecycleSourceZone: TriggerZones.Base,
+                RecycleDestinationZone: TriggerZones.MainDeck);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

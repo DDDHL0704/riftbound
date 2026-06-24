@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -252,6 +252,20 @@ The 2026-06-25 conquer mill follow-up moves another implemented conquered-battle
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerMillTwoCardNo` constant.
 - The old `BattlefieldConquerMillTwoCardNo` / `IsBattlefieldConquerMillTwoCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `73` total / `69` in `CoreRuleEngine`; Core battlefield helper count is `25`.
 
+The 2026-06-25 conquer recycle-rune follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
+
+- `OGN·287/298` / 雷霆之纹 official text: `当你征服此处时，回收一枚你的符文。`
+- `RuleTextParser` now parses that official text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_CONQUERED_RECYCLE_RUNE`
+  - `Timing = BATTLEFIELD_CONQUERED`
+  - `TargetScope = OWNED_RUNE_IN_BASE`
+  - `RecycleCount = 1`
+  - `RecycleSourceZone = BASE`
+  - `RecycleDestinationZone = MAIN_DECK`
+- `CoreRuleEngine.ResolveBattlefieldConquerRecycleRuneTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(...)` and reads the rune count and source/destination zones from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerRecycleRuneCardNo` constant.
+- The old `BattlefieldConquerRecycleRuneCardNo` / `IsBattlefieldConquerRecycleRuneCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `72` total / `68` in `CoreRuleEngine`; Core battlefield helper count is `24`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -407,4 +421,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: passed `274/274`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8411/8411`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
+
+2026-06-25 conquer recycle-rune follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `4/4`;
+- adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: passed `276/276`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8413/8413`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.

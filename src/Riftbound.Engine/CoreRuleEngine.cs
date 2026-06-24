@@ -673,7 +673,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
-    private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerReadyTwoRunesAtEndCardNo = "OGN·289/298";
@@ -23242,17 +23241,24 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var events = new List<GameEvent>();
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerRecycleRuneCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.OwnedRuneInBase, StringComparison.Ordinal)
+            || !string.Equals(trigger.RecycleSourceZone, TriggerZones.Base, StringComparison.Ordinal)
+            || !string.Equals(trigger.RecycleDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+            || trigger.RecycleCount.GetValueOrDefault() <= 0
             || !playerZones.TryGetValue(playerId, out var zones))
         {
             return new RecycleResult(events, rngCursor);
         }
 
-        var recycledRuneObjectId = zones.Base.FirstOrDefault(objectId =>
-            cardObjects.TryGetValue(objectId, out var cardObject)
-            && IsRuneObject(objectId, cardObject)
-            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)) ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(recycledRuneObjectId))
+        var recycledRuneObjectIds = zones.Base
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsRuneObject(objectId, cardObject)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
+            .Take(trigger.RecycleCount.GetValueOrDefault())
+            .ToArray();
+        if (recycledRuneObjectIds.Length == 0)
         {
             return new RecycleResult(events, rngCursor);
         }
@@ -23260,9 +23266,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         playerZones[playerId] = zones with
         {
             Base = zones.Base
-                .Where(objectId => !string.Equals(objectId, recycledRuneObjectId, StringComparison.Ordinal))
+                .Where(objectId => !recycledRuneObjectIds.Contains(objectId, StringComparer.Ordinal))
                 .ToArray(),
-            MainDeck = zones.MainDeck.Concat([recycledRuneObjectId]).ToArray()
+            MainDeck = zones.MainDeck.Concat(recycledRuneObjectIds).ToArray()
         };
 
         events.Add(new GameEvent(
@@ -23274,21 +23280,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONQUERED_RECYCLE_RUNE",
+                ["trigger"] = TriggerKinds.BattlefieldConquerRecycleRune,
                 ["sourceObjectId"] = sourceObjectId,
-                ["targetObjectId"] = recycledRuneObjectId
+                ["targetObjectId"] = recycledRuneObjectIds[0]
             }));
         events.Add(new GameEvent(
             "CARDS_RECYCLED",
-            $"{playerId} 回收 1 枚符文",
+            $"{playerId} 回收 {recycledRuneObjectIds.Length} 枚符文",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = battlefieldObjectId,
-                ["cardIds"] = new[] { recycledRuneObjectId },
-                ["count"] = 1,
-                ["sourceZone"] = "BASE",
-                ["destinationZone"] = "MAIN_DECK"
+                ["cardIds"] = recycledRuneObjectIds,
+                ["count"] = recycledRuneObjectIds.Length,
+                ["sourceZone"] = trigger.RecycleSourceZone,
+                ["destinationZone"] = trigger.RecycleDestinationZone
             }));
 
         return new RecycleResult(events, rngCursor);
@@ -24949,7 +24955,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardNo, out _)
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
             || IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(cardNo)
-            || IsBattlefieldConquerRecycleRuneCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardNo, out _)
             || IsBattlefieldDefendRevealSpellCardNo(cardNo)
             || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardNo, out _)
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
@@ -25026,11 +25032,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefendMoveFriendlyUnitToBaseCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerRecycleRuneCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerRecycleRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldDefendRevealSpellCardNo(string? cardNo)

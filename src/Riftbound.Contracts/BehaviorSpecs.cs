@@ -62,6 +62,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE";
     public const string BattlefieldConquerMill =
         "BATTLEFIELD_CONQUERED_MILL_TOP_TWO";
+    public const string BattlefieldConquerRecycleRune =
+        "BATTLEFIELD_CONQUERED_RECYCLE_RUNE";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -98,6 +100,7 @@ public static class TriggerTargetScopes
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
     public const string ControlledUnitsAtThisBattlefield = "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD";
+    public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
 }
 
 public static class TriggerDurations
@@ -118,6 +121,7 @@ public static class TriggerTokenDestinations
 public static class TriggerZones
 {
     public const string MainDeck = "MAIN_DECK";
+    public const string Base = "BASE";
     public const string Graveyard = "GRAVEYARD";
     public const string Champion = "CHAMPION";
 }
@@ -257,6 +261,7 @@ public sealed record TriggerSpec(
     int? RevealCount = null,
     string? RevealSourceZone = null,
     int? RecycleCount = null,
+    string? RecycleSourceZone = null,
     string? RecycleDestinationZone = null,
     int? MillCount = null,
     string? MillSourceZone = null,
