@@ -1260,6 +1260,18 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
         }
 
+        var farronCaptain = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·015/298", StringComparison.Ordinal));
+        var farronCaptainAura = Assert.Single(farronCaptain.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword, farronCaptainAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.RuleText, farronCaptainAura.Layer);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", farronCaptainAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits, farronCaptainAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits, farronCaptainAura.ParticipantScope);
+        Assert.Equal(0, farronCaptainAura.PowerDeltaPerParticipant);
+        Assert.Equal(CardCombatKeywordNames.Assault, farronCaptainAura.GrantedKeyword);
+        Assert.Contains("此处的其他友方单位获得{{强攻}}", farronCaptainAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, farronCaptainAura.Status);
+
         foreach (var cardNo in new[] { "UNL-147/219", "UNL-147a/219", "UNL-238/219" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));

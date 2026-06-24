@@ -17404,6 +17404,12 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal))
+        {
+            return;
+        }
+
         if (!string.Equals(duration, "UNTIL_END_OF_TURN", StringComparison.Ordinal))
         {
             errors.Add($"{effectLabel} {layer} duration {duration} is invalid");
@@ -18184,22 +18190,22 @@ public static class MatchRecoveryValidator
             return;
         }
 
-        if (effectKind is not null)
+        if (!string.IsNullOrWhiteSpace(effectKind))
         {
             errors.Add($"{effectLabel} RULE_TEXT effect kind must be absent");
         }
 
-        if (sourceCardNo is not null)
+        if (!string.IsNullOrWhiteSpace(sourceCardNo))
         {
             errors.Add($"{effectLabel} RULE_TEXT source card no must be absent");
         }
 
-        if (sourcePath is not null)
+        if (!string.IsNullOrWhiteSpace(sourcePath))
         {
             errors.Add($"{effectLabel} RULE_TEXT source path must be absent");
         }
 
-        if (layerEngineStatus is not null)
+        if (!string.IsNullOrWhiteSpace(layerEngineStatus))
         {
             errors.Add($"{effectLabel} RULE_TEXT layer engine status must be absent");
         }

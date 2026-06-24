@@ -23,6 +23,7 @@ export type StaticAuraSpec = {
   status: string;
   reason: string;
   targetFilter?: string | null;
+  grantedKeyword?: string | null;
 };
 
 export type BehaviorSpec = {

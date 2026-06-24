@@ -1880,6 +1880,7 @@ public sealed record MatchState
 
         effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
         effects.AddRange(BuildBattlefieldFilteredUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsStaticAuraEffects(state));
@@ -1910,6 +1911,11 @@ public sealed record MatchState
         IReadOnlyDictionary<string, int> publicFieldSourceOrders)
     {
         if (string.IsNullOrWhiteSpace(effect.SourceObjectId))
+        {
+            return effect;
+        }
+
+        if (string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal))
         {
             return effect;
         }
@@ -2078,6 +2084,50 @@ public sealed record MatchState
             TargetDependencyObjectIds: targetDependencyObjectIds,
             ParticipantDependencyObjectIds: participantDependencyObjectIds);
         return true;
+    }
+
+    private static IReadOnlyList<ContinuousEffectState> BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var entry in state.CardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var sourceObjectId = entry.Key;
+            var source = entry.Value;
+            if (string.IsNullOrWhiteSpace(source.CardNo)
+                || source.IsFaceDown
+                || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura(source.CardNo, out var aura)
+                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                || !TryFindBattlefieldUnitLocation(state, sourceObjectId, source, out var battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var controllerId = EffectiveFieldControllerId(state, sourceObjectId, source);
+            if (string.IsNullOrWhiteSpace(controllerId))
+            {
+                continue;
+            }
+
+            var participantObjectIds = SameBattlefieldOtherFriendlyUnitObjectIds(
+                state,
+                sourceObjectId,
+                battlefieldObjectId,
+                controllerId);
+            foreach (var participantObjectId in participantObjectIds)
+            {
+                effects.Add(new ContinuousEffectState(
+                    $"RULE_TEXT:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD:{sourceObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                    "OBJECT",
+                    ContinuousEffectLayers.RuleText,
+                    aura.Duration,
+                    participantObjectId,
+                    sourceObjectId));
+            }
+        }
+
+        return effects;
     }
 
     private static IReadOnlyList<ContinuousEffectState> BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(MatchState state)

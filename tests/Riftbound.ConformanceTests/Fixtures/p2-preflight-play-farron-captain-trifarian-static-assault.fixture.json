@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-farron-captain-trifarian-static-assault",
-  "description": "Farron Captain enters as a Trifarian unit while his local Assault static text is deferred.",
+  "description": "Farron Captain enters as a Trifarian unit while his local Assault static text is covered by the B2 RULE_TEXT static keyword aura path.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·015/298 法荣队长",
-      "note": "官方卡面：费用 4；单位；战力 5；崔法利；同处其他友方单位获得强攻。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录属性标签；同处其他友方单位获得强攻的静态路径暂缓。"
+      "note": "官方卡面：费用 4；单位；战力 5；崔法利；同处其他友方单位获得强攻。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录属性标签；同处其他友方单位获得强攻的静态路径由 BehaviorSpec RULE_TEXT 静态关键词光环和 P79SameBattlefieldOtherFriendlyStaticKeywordGrantsAssaultToOnlyOtherFriendlyAttackers 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

@@ -471,6 +471,7 @@ public static class StaticAbilityParser
 
 public static class StaticAuraParser
 {
+    private const string RuleTextLayer = "RULE_TEXT";
     private const string StaticAuraLayer = "STATIC_AURA";
 
     public static IReadOnlyList<StaticAuraSpec> Parse(string text)
@@ -556,6 +557,31 @@ public static class StaticAuraParser
                     "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                     StaticAuraTargetFilters.TagPrefix + targetTag));
                 continue;
+            }
+
+            var sameBattlefieldOtherFriendlyKeywordMatch = Regex.Match(
+                segment,
+                @"此处的其他友方单位获得\{\{([^}]+)\}\}(?!\+)",
+                RegexOptions.CultureInvariant);
+            if (sameBattlefieldOtherFriendlyKeywordMatch.Success)
+            {
+                var grantedKeyword = sameBattlefieldOtherFriendlyKeywordMatch.Groups[1].Value.Trim();
+                if (!string.IsNullOrWhiteSpace(grantedKeyword)
+                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+                {
+                    auras.Add(new StaticAuraSpec(
+                        StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword,
+                        RuleTextLayer,
+                        "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD",
+                        StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits,
+                        StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits,
+                        0,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                        GrantedKeyword: grantedKeyword));
+                    continue;
+                }
             }
 
             var sameBattlefieldOtherFriendlyPowerMatch = Regex.Match(

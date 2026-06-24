@@ -60,7 +60,7 @@ public static class CardCombatKeywordRules
                 : "Card does not expose combat keywords through the P2 source-object tag path.");
     }
 
-    private static int KeywordAmount(
+    public static int KeywordAmount(
         IReadOnlyList<string> tags,
         string keyword)
     {

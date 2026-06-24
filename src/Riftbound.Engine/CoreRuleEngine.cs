@@ -19274,9 +19274,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        keywordBonus = CombatKeywordAmount(
-            cardObject.Tags,
-            isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast);
+        var combatKeyword = isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast;
+        keywordBonus = CombatKeywordAmount(cardObject.Tags, combatKeyword);
+        keywordBonus = Math.Max(
+            keywordBonus,
+            ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
+                state,
+                playerZones,
+                objectId,
+                cardObject,
+                combatKeyword));
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
@@ -19457,6 +19464,64 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return bonus;
+    }
+
+    private static int ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject,
+        string combatKeyword)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || !state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
+            || !string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId)
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var battlefieldObjectId = objectLocation.BattlefieldObjectId;
+        var bonus = 0;
+        foreach (var entry in state.ObjectLocations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var sourceObjectId = entry.Key;
+            if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
+                || !string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                || !string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                || !IsObjectOnField(playerZones, sourceObjectId)
+                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura(sourceState.CardNo, out var aura)
+                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                || !string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    controllerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+        }
+
+        return bonus;
+    }
+
+    private static int GrantedCombatKeywordAmount(StaticAuraSpec aura, string combatKeyword)
+    {
+        return string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+            ? 0
+            : CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], combatKeyword);
     }
 
     private static int ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus(

@@ -43,6 +43,8 @@ public static class StaticAuraKinds
     public const string BattlefieldFilteredUnitsPower = "BATTLEFIELD_FILTERED_UNITS_POWER";
     public const string SameBattlefieldOtherFriendlyUnitsPowerPlusOne =
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE";
+    public const string SameBattlefieldOtherFriendlyUnitsKeyword =
+        "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_KEYWORD";
     public const string SameBattlefieldOtherFriendlyFilteredUnitsPower =
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS_POWER";
     public const string SameBattlefieldFriendlyFilteredUnitCountToSourcePower =
@@ -165,7 +167,8 @@ public sealed record StaticAuraSpec(
     string Text,
     string Status,
     string Reason,
-    string? TargetFilter = null);
+    string? TargetFilter = null,
+    string? GrantedKeyword = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,
