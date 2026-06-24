@@ -35,6 +35,8 @@ The turn-start battle reopen regression proves still-contested battlefields do n
 
 The score-victory regression proves the same legal official-deck path can continue after real `BATTLE_CLOSED` through server-authored `END_TURN` prompts until battlefield scoring emits `SCORE_GAINED` and a single score-based `MATCH_WON`. The runtime fix restores ordinary open-main action to `TurnPlayerId` after a non-turn-player battle task closes with no further battlefield task, and prevents duplicate `MATCH_WON` during turn start when pre-rune-call scoring already won before the synthetic draw result is built.
 
+The distinct-deck regression proves the full-game score-victory path is not limited to two copies of the same deck. `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts` submits legal official Jhin and Rumble low-curve decks with different legend and champion cards, then drives the same server prompt path to real battle close and score-based `MATCH_WON`. This slice changes only the test driver / evidence: it parameterizes the deck pair and skips `待命` units when selecting the representative unit to play or move, so the B0 probe remains focused on battle / score instead of standby cleanup.
+
 ## Hidden Information Evidence
 
 `FullGameEndToEndTests.AssertNoHiddenZoneLeak` serializes each viewer snapshot after every accepted step and rejects exposure of opponent hand, main-deck and rune-deck object ids. This is a focused hidden-zone guard for the full-game probe and does not replace the broader `MatchRecovery` spectator validation suite.
@@ -50,7 +52,7 @@ Focused validation:
 Result:
 
 ```text
-Passed: 3, Failed: 0, Skipped: 0, Total: 3
+Passed: 4, Failed: 0, Skipped: 0, Total: 4
 ```
 
 Adjacent validation:
@@ -62,7 +64,7 @@ Adjacent validation:
 Result:
 
 ```text
-Passed: 368, Failed: 0, Skipped: 0, Total: 368
+Passed: 369, Failed: 0, Skipped: 0, Total: 369
 ```
 
 Recovery / hidden-info validation:
@@ -86,9 +88,9 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8353, Failed: 0, Skipped: 0, Total: 8353
+Passed: 8354, Failed: 0, Skipped: 0, Total: 8354
 ```
 
 ## Non-Closure
 
-This evidence proves the engine can drive legal official decks through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It does not close all official deck archetypes, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, full card matrix readiness, frontend gates or final READY.
+This evidence proves the engine can drive mirrored Jhin low-curve decks and a distinct Jhin-vs-Rumble official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It does not close all official deck archetypes, standby-heavy deck paths, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, full card matrix readiness, frontend gates or final READY.

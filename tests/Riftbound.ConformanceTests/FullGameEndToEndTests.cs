@@ -8,6 +8,11 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class FullGameEndToEndTests
 {
+    private const string JhinLegendCardNo = "UNL-181/219";
+    private const string JhinChampionCardNo = "UNL-022/219";
+    private const string RumbleLegendCardNo = "SFD·181/221";
+    private const string RumbleChampionCardNo = "SFD·026/221";
+
     [Fact]
     public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
     {
@@ -49,6 +54,41 @@ public sealed class FullGameEndToEndTests
         var (session, _, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
             "b0-full-game-official-low-curve-score-room");
 
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-score");
+
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildLowCurveOfficialDeck(catalog, JhinLegendCardNo, JhinChampionCardNo);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        Assert.NotEqual(p1Deck.LegendCardNo, p2Deck.LegendCardNo);
+        Assert.NotEqual(p1Deck.ChampionCardNo, p2Deck.ChampionCardNo);
+
+        var (session, _, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
+            "b0-full-game-distinct-low-curve-score-room",
+            p1Deck,
+            p2Deck);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-distinct-score");
+
+        AssertScoreVictory(result);
+    }
+
+    private static async ValueTask<ResolutionResult> DriveBattleCloseToScoreVictoryAsync(
+        MatchSession session,
+        ResolutionResult battleResult,
+        string intentPrefix)
+    {
         var result = battleResult;
         var scoreEvents = result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
         for (var turnIndex = 0; turnIndex < 24 && !string.Equals(result.State.Status, MatchStatuses.Finished, StringComparison.Ordinal); turnIndex++)
@@ -56,7 +96,7 @@ public sealed class FullGameEndToEndTests
             if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
             {
-                result = await PassOpenSpellDuelAsync(session, result, $"b0-score-pass-focus-{turnIndex}");
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
                 scoreEvents += result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
             }
 
@@ -80,14 +120,19 @@ public sealed class FullGameEndToEndTests
             }
 
             Assert.Equal(result.State.TurnPlayerId, result.State.ActivePlayerId);
-            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"b0-score-end-turn-{turnIndex}");
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-turn-{turnIndex}");
             AssertNoHiddenZoneLeak(result);
             scoreEvents += result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
         }
 
+        Assert.True(scoreEvents > 0, "Expected the prompt-driven game to gain battlefield score before match win.");
+        return result;
+    }
+
+    private static void AssertScoreVictory(ResolutionResult result)
+    {
         Assert.Equal(MatchStatuses.Finished, result.State.Status);
         Assert.False(string.IsNullOrWhiteSpace(result.State.WinnerPlayerId));
-        Assert.True(scoreEvents > 0, "Expected the prompt-driven game to gain battlefield score before match win.");
         var winEvent = Assert.Single(
             result.Events,
             gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
@@ -101,7 +146,17 @@ public sealed class FullGameEndToEndTests
     private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveOfficialLowCurveDecksToBattleCloseAsync(
         string roomId)
     {
-        var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(roomId);
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildLowCurveOfficialDeck(catalog);
+        return await DriveOfficialLowCurveDecksToBattleCloseAsync(roomId, deck, deck);
+    }
+
+    private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveOfficialLowCurveDecksToBattleCloseAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(roomId, p1Deck, p2Deck);
         var current = skipped;
         ResolutionResult? battleReady = null;
         var skippedBattleCount = 0;
@@ -155,12 +210,20 @@ public sealed class FullGameEndToEndTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var deck = BuildLowCurveOfficialDeck(catalog);
+        return await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(roomId, deck, deck);
+    }
+
+    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
         var session = new MatchSession(roomId, new CoreRuleEngine());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
-        var p1Submit = await SubmitDeckAsync(session, "P1", deck, "b0-submit-p1");
-        var p2Submit = await SubmitDeckAsync(session, "P2", deck, "b0-submit-p2");
+        var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-submit-p1");
+        var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-submit-p2");
         AssertAccepted(p1Submit);
         AssertAccepted(p2Submit);
 
@@ -313,7 +376,8 @@ public sealed class FullGameEndToEndTests
         {
             var sourceObjectId = sources[index].Id;
             if (!current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
-                || string.IsNullOrWhiteSpace(cardObject.CardNo))
+                || string.IsNullOrWhiteSpace(cardObject.CardNo)
+                || IsDriverStandbyUnit(cardObject))
             {
                 continue;
             }
@@ -399,7 +463,20 @@ public sealed class FullGameEndToEndTests
     {
         var zones = current.State.PlayerZones[playerId];
         var sourceObjectId = zones.Base.FirstOrDefault(objectId => IsReadyUnit(current.State, objectId))
-            ?? throw new InvalidOperationException($"B0 auto-driver could not find a ready base unit for {playerId}.");
+            ?? throw new InvalidOperationException(
+                $"B0 auto-driver could not find a ready base unit for {playerId}: "
+                + JsonSerializer.Serialize(zones.Base.Select(objectId =>
+                {
+                    current.State.CardObjects.TryGetValue(objectId, out var cardObject);
+                    return new
+                    {
+                        ObjectId = objectId,
+                        cardObject?.CardNo,
+                        Tags = cardObject?.Tags,
+                        cardObject?.IsExhausted,
+                        cardObject?.IsFaceDown
+                    };
+                }).ToArray()));
         var opponentId = OpponentOf(current.State, playerId);
         var opponentBattlefieldObjectId = current.State.PlayerZones[opponentId].Battlefields
             .FirstOrDefault(objectId => current.State.CardObjects.TryGetValue(objectId, out var cardObject)
@@ -468,8 +545,18 @@ public sealed class FullGameEndToEndTests
     {
         return state.CardObjects.TryGetValue(objectId, out var cardObject)
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !IsDriverStandbyUnit(cardObject)
             && !cardObject.IsExhausted
             && !cardObject.IsFaceDown;
+    }
+
+    private static bool IsDriverStandbyUnit(CardObjectState cardObject)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || (CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo ?? string.Empty, out var behavior)
+                && behavior.SourceUnitTags
+                    .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Contains(CardObjectTags.Standby, StringComparer.Ordinal));
     }
 
     private static string OpponentOf(MatchState state, string playerId)
@@ -506,8 +593,14 @@ public sealed class FullGameEndToEndTests
 
     private static OfficialDecklist BuildLowCurveOfficialDeck(OfficialCardCatalog catalog)
     {
-        const string legendCardNo = "UNL-181/219";
-        const string championCardNo = "UNL-022/219";
+        return BuildLowCurveOfficialDeck(catalog, JhinLegendCardNo, JhinChampionCardNo);
+    }
+
+    private static OfficialDecklist BuildLowCurveOfficialDeck(
+        OfficialCardCatalog catalog,
+        string legendCardNo,
+        string championCardNo)
+    {
         var legend = catalog.Cards.Single(card => string.Equals(card.CardNo, legendCardNo, StringComparison.Ordinal));
         var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
         var cardsByNo = catalog.Cards

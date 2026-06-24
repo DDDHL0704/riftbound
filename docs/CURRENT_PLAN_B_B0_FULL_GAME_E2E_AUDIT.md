@@ -2,7 +2,7 @@
 
 Date: 2026-06-24
 
-Status: focused B0 server E2E score-victory slice accepted; project remains **NOT READY**.
+Status: focused B0 server E2E distinct-deck score-victory slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -20,6 +20,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - the real official-deck path emits `BATTLE_DECLARED` and `BATTLE_CLOSED`;
 - after real battle close, repeated server `END_TURN` prompts drive battlefield scoring until score-based `MATCH_WON`;
 - the score-victory result has a single `MATCH_WON` event and winner score satisfies the emitted `winningScore`;
+- the score-victory path now runs both the original mirrored Jhin deck and a distinct Jhin-vs-Rumble official deck pair;
 - every accepted step checks player snapshots for hidden opponent hand, main-deck and rune-deck object id leakage;
 - the earlier surrender result smoke remains covered separately.
 
@@ -31,6 +32,8 @@ This turn-start slice narrows the follow-up B0 blocker: after turn-start ready /
 
 This score-victory slice narrows the next B0 blocker. When a non-turn-player `START_BATTLE` task resolves and no further battlefield task opens, `AdvancePendingBattlefieldTasksAfterStateChange` now restores `ActivePlayerId` to `TurnPlayerId` for ordinary open main timing so the next server-authored `END_TURN` prompt is accepted by the same authority check that produced it. `BuildTurnStartEvents` also avoids adding a second `MATCH_WON` when pre-rune-call battlefield scoring already emitted the win event.
 
+This distinct-deck slice adds no runtime rule changes. It broadens the B0 probe from mirrored Jhin decks to a second legal official deck pairing: P1 uses `UNL-181/219` Jhin with `UNL-022/219`, while P2 uses `SFD·181/221` Rumble with `SFD·026/221`. The auto-driver also avoids selecting `待命` units as its representative battle-path unit so this B0 slice stays on the battle / score path instead of detouring into the standby cleanup family.
+
 ## Evidence
 
 - Added `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs`.
@@ -38,6 +41,8 @@ This score-victory slice narrows the next B0 blocker. When a non-turn-player `ST
 - Strengthened `tests/Riftbound.ConformanceTests/BoardTaskQueueFoundationTests.cs` with `PassFocusClosesSpellDuelAndSkipsStartBattleWhenNoLegalCombatants`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialLowCurveDecksReopenContestedBattleAfterSkippedCombatantsReadyAcrossTurns`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
+- Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to parameterize P1/P2 decks and skip `待命` units when choosing the representative play / move unit.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` only in the spell-duel close handoff path.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` turn start to advance pending battlefield tasks after turn-start ready / draw / score state is built.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to restore ordinary open main `ActivePlayerId` to `TurnPlayerId` after battlefield-task advancement finds no further contested battlefield.
@@ -46,13 +51,14 @@ This score-victory slice narrows the next B0 blocker. When a non-turn-player `ST
 
 ## Residuals
 
-This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves one low-curve official-deck path can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It does not prove all real deck archetypes, all battle damage assignment branches, all response windows, or all card-effect families can complete a game.
+This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks and a distinct Jhin-vs-Rumble low-curve official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It does not prove all real deck archetypes, all battle damage assignment branches, all response windows, or all card-effect families can complete a game.
 
-Current §6 mouth count after this slice: `Is*CardNo` engine whitelist definitions remain 108. Coverage-matrix unsupported functional-unit count was not changed by this B0 state-machine slice.
+Current §6 mouth count after this slice: `Is*CardNo` engine whitelist definitions remain 108. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-driver slice.
 
 Open follow-up:
 
 - evidence whether same-turn effects that ready or add units after a no-legal battle skip should reopen that battlefield battle task before turn end.
+- extend the B0 driver to cover the Poppy / orange-yellow standby-heavy path that currently requires explicit standby / non-ready-base handling before it can be a battle-path representative.
 - broaden B0 beyond the low-curve prompt driver into richer official deck paths that exercise battle damage assignment, response windows, replacement / duration cleanup, and more card-effect families.
 
 ## Validation
@@ -66,7 +72,7 @@ Focused validation passed:
 Result:
 
 ```text
-Passed: 3, Failed: 0, Skipped: 0, Total: 3
+Passed: 4, Failed: 0, Skipped: 0, Total: 4
 ```
 
 Adjacent validation passed:
@@ -78,7 +84,7 @@ Adjacent validation passed:
 Result:
 
 ```text
-Passed: 368, Failed: 0, Skipped: 0, Total: 368
+Passed: 369, Failed: 0, Skipped: 0, Total: 369
 ```
 
 Recovery / hidden-info validation passed:
@@ -102,5 +108,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8353, Failed: 0, Skipped: 0, Total: 8353
+Passed: 8354, Failed: 0, Skipped: 0, Total: 8354
 ```
