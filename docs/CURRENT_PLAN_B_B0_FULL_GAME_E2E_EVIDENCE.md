@@ -24,6 +24,7 @@ The new B0 probe exercises a real `MatchSession` with legal official decks. It d
 - `MOVE_UNIT`
 - `PASS_FOCUS`
 - `DECLARE_BATTLE`
+- `ASSIGN_COMBAT_DAMAGE`
 - score-based `END_TURN` advancement to `MATCH_WON`
 - `SURRENDER`
 
@@ -38,6 +39,8 @@ The score-victory regression proves the same legal official-deck path can contin
 The distinct-deck regression proves the full-game score-victory path is not limited to two copies of the same deck. `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts` submits legal official Jhin and Rumble low-curve decks with different legend and champion cards, then drives the same server prompt path to real battle close and score-based `MATCH_WON`. This slice changes only the test driver / evidence: it parameterizes the deck pair and skips `待命` units when selecting the representative unit to play or move, so the B0 probe remains focused on battle / score instead of standby cleanup.
 
 The standby-heavy regression proves that the same full-game score-victory route remains stable when one official low-curve deck includes standby-capable cards. `StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts` submits distinct legal Jhin and Poppy low-curve decks, keeps representative unit selection on non-standby battle-path units, then drives setup, real battle close and score-based `MATCH_WON` through server-authored prompts. This slice changes only test / evidence coverage; it does not add runtime rule behavior or close full standby reveal / reaction mechanics.
+
+The damage-assignment regression proves that a legal official deck pair can reach the server-authored multi-defender battle damage assignment window without a handcrafted battle fixture. `OfficialDecksResolveMultiDefenderBattleDamageAssignmentThroughServerPrompts` submits legal Lillia green/blue decks containing official `UNL-036/219` Mutant Kitten (`壁垒`) and `UNL-090/219` LeBlanc (`后排`), stages two invading units on one battlefield through server prompts, opens `BATTLE_DAMAGE_ASSIGNMENT_OPENED`, submits `ASSIGN_COMBAT_DAMAGE` for both players, and observes `DAMAGE_APPLIED` plus `BATTLE_CLOSED`. This slice changes only test / evidence coverage; it does not close complete combat damage assignment breadth.
 
 ## Hidden Information Evidence
 
@@ -54,19 +57,19 @@ Focused validation:
 Result:
 
 ```text
-Passed: 5, Failed: 0, Skipped: 0, Total: 5
+Passed: 6, Failed: 0, Skipped: 0, Total: 6
 ```
 
 Adjacent validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~BoardTaskQueueFoundationTests|FullyQualifiedName~SpellDuelBattleStateMachineTests|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHubJoinTests"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~BoardTaskQueueFoundationTests|FullyQualifiedName~SpellDuelBattleStateMachineTests|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~BattleDamageAssignment"
 ```
 
 Result:
 
 ```text
-Passed: 370, Failed: 0, Skipped: 0, Total: 370
+Passed: 477, Failed: 0, Skipped: 0, Total: 477
 ```
 
 Recovery / hidden-info validation:
@@ -90,9 +93,9 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8355, Failed: 0, Skipped: 0, Total: 8355
+Passed: 8356, Failed: 0, Skipped: 0, Total: 8356
 ```
 
 ## Non-Closure
 
-This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It does not close all official deck archetypes, full standby reveal / reaction mechanics, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, full card matrix readiness, frontend gates or final READY.
+This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves an official Lillia multi-defender damage-assignment path can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts. It does not close all official deck archetypes, full standby reveal / reaction mechanics, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, full card matrix readiness, frontend gates or final READY.

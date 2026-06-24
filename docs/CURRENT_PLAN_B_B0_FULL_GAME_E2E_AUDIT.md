@@ -2,7 +2,7 @@
 
 Date: 2026-06-24
 
-Status: focused B0 server E2E standby-heavy score-victory slice accepted; project remains **NOT READY**.
+Status: focused B0 server E2E damage-assignment slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -21,6 +21,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - after real battle close, repeated server `END_TURN` prompts drive battlefield scoring until score-based `MATCH_WON`;
 - the score-victory result has a single `MATCH_WON` event and winner score satisfies the emitted `winningScore`;
 - the score-victory path now runs the original mirrored Jhin deck, a distinct Jhin-vs-Rumble official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair;
+- a legal official Lillia deck pair can drive multi-defender `DECLARE_BATTLE` into `ASSIGN_COMBAT_DAMAGE`, submit both players' assignments, and close battle with `DAMAGE_APPLIED` / `BATTLE_CLOSED`;
 - every accepted step checks player snapshots for hidden opponent hand, main-deck and rune-deck object id leakage;
 - the earlier surrender result smoke remains covered separately.
 
@@ -36,6 +37,8 @@ This distinct-deck slice adds no runtime rule changes. It broadens the B0 probe 
 
 This standby-heavy slice also adds no runtime rule changes. It broadens the same battle / score probe to a Poppy official deck pair: P1 uses `UNL-181/219` Jhin with `UNL-022/219`, while P2 uses `UNL-203/219` Poppy with `UNL-116/219`. The existing standby-aware driver can keep the B0 route on a real `DECLARE_BATTLE` / `BATTLE_CLOSED` / score-victory path even when the low-curve deck includes standby-capable cards.
 
+This damage-assignment slice adds no runtime rule changes. It broadens B0 from real battle close to a real official-deck multi-defender battle damage assignment window. Both players use legal Lillia green/blue decks containing official `UNL-036/219` Mutant Kitten (`壁垒`) and `UNL-090/219` LeBlanc (`后排`). The driver stages two invading units on one battlefield through server prompts, opens `BATTLE_DAMAGE_ASSIGNMENT_OPENED`, submits `ASSIGN_COMBAT_DAMAGE` for both players, and observes `DAMAGE_APPLIED` + `BATTLE_CLOSED` without hidden-zone leakage.
+
 ## Evidence
 
 - Added `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs`.
@@ -45,7 +48,8 @@ This standby-heavy slice also adds no runtime rule changes. It broadens the same
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
-- Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to parameterize P1/P2 decks and skip `待命` units when choosing the representative play / move unit.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveMultiDefenderBattleDamageAssignmentThroughServerPrompts`.
+- Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to parameterize P1/P2 decks, force required official cards into legal low-curve Lillia decks for the damage-assignment route, and skip `待命` units when choosing the representative play / move unit.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` only in the spell-duel close handoff path.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` turn start to advance pending battlefield tasks after turn-start ready / draw / score state is built.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to restore ordinary open main `ActivePlayerId` to `TurnPlayerId` after battlefield-task advancement finds no further contested battlefield.
@@ -54,7 +58,7 @@ This standby-heavy slice also adds no runtime rule changes. It broadens the same
 
 ## Residuals
 
-This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It does not prove all real deck archetypes, full standby reveal / reaction mechanics, all battle damage assignment branches, all response windows, or all card-effect families can complete a game.
+This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves an official Lillia multi-defender damage-assignment deck pair can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts. It does not prove all real deck archetypes, full standby reveal / reaction mechanics, complete combat damage assignment breadth, all response windows, or all card-effect families can complete a game.
 
 Current §6 mouth count after this slice: `Is*CardNo` engine whitelist definitions remain 108. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-driver slice.
 
@@ -62,7 +66,7 @@ Open follow-up:
 
 - evidence whether same-turn effects that ready or add units after a no-legal battle skip should reopen that battlefield battle task before turn end.
 - broaden standby-heavy coverage beyond the battle-path representative into explicit standby reveal / reaction and non-ready-base cleanup branches.
-- broaden B0 beyond the low-curve prompt driver into richer official deck paths that exercise battle damage assignment, response windows, replacement / duration cleanup, and more card-effect families.
+- broaden B0 beyond representative damage assignment into response windows, replacement / duration cleanup, and more card-effect families.
 
 ## Validation
 
@@ -75,19 +79,19 @@ Focused validation passed:
 Result:
 
 ```text
-Passed: 5, Failed: 0, Skipped: 0, Total: 5
+Passed: 6, Failed: 0, Skipped: 0, Total: 6
 ```
 
 Adjacent validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~BoardTaskQueueFoundationTests|FullyQualifiedName~SpellDuelBattleStateMachineTests|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHubJoinTests"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~BoardTaskQueueFoundationTests|FullyQualifiedName~SpellDuelBattleStateMachineTests|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~BattleDamageAssignment"
 ```
 
 Result:
 
 ```text
-Passed: 370, Failed: 0, Skipped: 0, Total: 370
+Passed: 477, Failed: 0, Skipped: 0, Total: 477
 ```
 
 Recovery / hidden-info validation passed:
@@ -111,5 +115,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8355, Failed: 0, Skipped: 0, Total: 8355
+Passed: 8356, Failed: 0, Skipped: 0, Total: 8356
 ```

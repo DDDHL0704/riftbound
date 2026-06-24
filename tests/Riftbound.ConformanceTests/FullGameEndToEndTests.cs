@@ -14,6 +14,10 @@ public sealed class FullGameEndToEndTests
     private const string RumbleChampionCardNo = "SFD·026/221";
     private const string PoppyLegendCardNo = "UNL-203/219";
     private const string PoppyChampionCardNo = "UNL-116/219";
+    private const string LilliaLegendCardNo = "UNL-189/219";
+    private const string LilliaChampionCardNo = "UNL-082/219";
+    private const string MutantKittenCardNo = "UNL-036/219";
+    private const string LeblancCardNo = "UNL-090/219";
 
     [Fact]
     public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
@@ -106,6 +110,27 @@ public sealed class FullGameEndToEndTests
             "b0-standby-heavy-score");
 
         AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task OfficialDecksResolveMultiDefenderBattleDamageAssignmentThroughServerPrompts()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildDamageAssignmentOfficialDeck(catalog);
+
+        var (_, assignmentOpened, battleResult) = await DriveOfficialDecksToDamageAssignmentBattleCloseAsync(
+            "b0-full-game-damage-assignment-room",
+            deck,
+            deck);
+
+        Assert.Contains(assignmentOpened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.AssignCombatDamage, assignmentOpened.Prompts[assignmentOpened.State.ActivePlayerId].View?.Type);
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.False(battleResult.State.BattleState.IsActive);
+        AssertNoHiddenZoneLeak(assignmentOpened);
+        AssertNoHiddenZoneLeak(battleResult);
     }
 
     private static async ValueTask<ResolutionResult> DriveBattleCloseToScoreVictoryAsync(
@@ -229,6 +254,73 @@ public sealed class FullGameEndToEndTests
         return (session, battleReady, battleResult);
     }
 
+    private static async ValueTask<(MatchSession Session, ResolutionResult AssignmentOpened, ResolutionResult BattleResult)> DriveOfficialDecksToDamageAssignmentBattleCloseAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var initialState = MatchState.Create(roomId) with { Seed = 424242 };
+        var session = new MatchSession(initialState, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-damage-submit-p1");
+        var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-damage-submit-p2");
+        AssertAccepted(p1Submit);
+        AssertAccepted(p2Submit);
+
+        AssertAccepted(await session.ReadyAsync("P1", "b0-damage-ready-p1", RawCommand(CommandTypes.Ready), CancellationToken.None));
+        var ready = await session.ReadyAsync("P2", "b0-damage-ready-p2", RawCommand(CommandTypes.Ready), CancellationToken.None);
+        AssertAccepted(ready);
+        AssertNoHiddenZoneLeak(ready);
+
+        var activePlayerId = ready.State.ActivePlayerId;
+        var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
+        var activeMulligan = await session.SubmitAsync(
+            activePlayerId,
+            "b0-damage-mulligan-active",
+            new MulliganCommand([]),
+            RawCommand(CommandTypes.Mulligan),
+            CancellationToken.None);
+        AssertAccepted(activeMulligan);
+        AssertNoHiddenZoneLeak(activeMulligan);
+
+        var current = await session.SubmitAsync(
+            secondPlayerId,
+            "b0-damage-mulligan-second",
+            new MulliganCommand([]),
+            RawCommand(CommandTypes.Mulligan),
+            CancellationToken.None);
+        AssertAccepted(current);
+        AssertNoHiddenZoneLeak(current);
+        Assert.Equal(MatchPhases.Main, current.State.Phase);
+
+        var battlefieldOwnerId = current.State.ActivePlayerId;
+        current = await TapAllAvailableRunesAsync(session, battlefieldOwnerId, current, "b0-damage-owner-tap");
+        current = await TryPlayFirstUnitAsync(session, battlefieldOwnerId, current, "b0-damage-owner-play-attacker", playUnitToBattlefield: true);
+
+        var invadingPlayerId = OpponentOf(current.State, battlefieldOwnerId);
+        current = await EndTurnAsync(session, battlefieldOwnerId, "b0-damage-end-owner-setup");
+        AssertNoHiddenZoneLeak(current);
+
+        current = await DriveTwoAssignmentDefendersOntoBattlefieldAsync(
+            session,
+            current,
+            invadingPlayerId,
+            battlefieldOwnerId);
+
+        var assignmentOpened = await DriveContestedBattlefieldToDamageAssignmentAsync(
+            session,
+            current,
+            battlefieldOwnerId,
+            invadingPlayerId);
+        var battleResult = await ResolveOpenBattleDamageAssignmentsAsync(
+            session,
+            assignmentOpened,
+            "b0-damage-assignment");
+        return (session, assignmentOpened, battleResult);
+    }
+
     private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
         string roomId)
     {
@@ -301,6 +393,94 @@ public sealed class FullGameEndToEndTests
         return (session, result);
     }
 
+    private static async ValueTask<ResolutionResult> DriveTwoAssignmentDefendersOntoBattlefieldAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string invadingPlayerId,
+        string battlefieldOwnerId)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 18; turnIndex++)
+        {
+            if (!string.Equals(result.State.ActivePlayerId, invadingPlayerId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"b0-damage-wait-for-invader-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            result = await TapAllAvailableRunesAsync(session, invadingPlayerId, result, $"b0-damage-invader-tap-{turnIndex}");
+            if (!PlayerHandContainsCardNo(result.State, invadingPlayerId, MutantKittenCardNo)
+                || !PlayerHandContainsCardNo(result.State, invadingPlayerId, LeblancCardNo)
+                || result.State.RunePools[invadingPlayerId].Mana < 6)
+            {
+                result = await EndTurnAsync(session, invadingPlayerId, $"b0-damage-wait-for-defenders-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            var battlefieldDestination = BattlefieldDestinationFor(result.State, battlefieldOwnerId);
+            result = await PlaySpecificUnitToBaseAndMoveToBattlefieldAsync(
+                session,
+                invadingPlayerId,
+                result,
+                MutantKittenCardNo,
+                battlefieldDestination,
+                "b0-damage-play-move-kitten");
+            result = await PassOpenSpellDuelAsync(session, result, "b0-damage-pass-kitten-contest");
+            Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+            Assert.Equal(invadingPlayerId, result.State.ActivePlayerId);
+
+            result = await PlaySpecificUnitToBaseAndMoveToBattlefieldAsync(
+                session,
+                invadingPlayerId,
+                result,
+                LeblancCardNo,
+                battlefieldDestination,
+                "b0-damage-play-move-leblanc");
+            result = await PassOpenSpellDuelAsync(session, result, "b0-damage-pass-leblanc-contest");
+            Assert.Equal(invadingPlayerId, result.State.ActivePlayerId);
+            return result;
+        }
+
+        throw new InvalidOperationException("B0 damage-assignment driver could not stage two assignment defenders.");
+    }
+
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToDamageAssignmentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string battlefieldOwnerId,
+        string invadingPlayerId)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 12; turnIndex++)
+        {
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"b0-damage-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"b0-damage-reopen-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                var declared = await SubmitMultiDefenderDeclareBattleAsync(
+                    session,
+                    result,
+                    battlefieldOwnerId,
+                    invadingPlayerId,
+                    "b0-damage-declare-multi-defender-battle");
+                AssertAccepted(declared);
+                return declared;
+            }
+        }
+
+        throw new InvalidOperationException("B0 damage-assignment driver could not open a multi-defender battle task.");
+    }
+
     private static async ValueTask<ResolutionResult> PreparePlayerBoardAsync(
         MatchSession session,
         string playerId,
@@ -311,6 +491,177 @@ public sealed class FullGameEndToEndTests
         var result = current;
         result = await TapAllAvailableRunesAsync(session, playerId, result, $"b0-{label}-tap");
         result = await TryPlayFirstUnitAsync(session, playerId, result, $"b0-{label}-play-unit", playUnitToBattlefield);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> PlaySpecificUnitToBaseAndMoveToBattlefieldAsync(
+        MatchSession session,
+        string playerId,
+        ResolutionResult current,
+        string cardNo,
+        string battlefieldDestination,
+        string intentPrefix)
+    {
+        var sourceObjectId = FindHandCardObjectByCardNo(current.State, playerId, cardNo)
+            ?? throw new InvalidOperationException($"B0 damage-assignment driver could not find {cardNo} in {playerId}'s hand.");
+        var play = await session.SubmitAsync(
+            playerId,
+            $"{intentPrefix}-play",
+            new PlayCardCommand(sourceObjectId, cardNo, [], Destination: "BASE"),
+            RawCommand(CommandTypes.PlayCard),
+            CancellationToken.None);
+        AssertAccepted(play);
+        AssertNoHiddenZoneLeak(play);
+
+        var resolved = await ResolveStackPassPassAsync(session, play, $"{intentPrefix}-resolve");
+        var baseObjectId = resolved.State.PlayerZones[playerId].Base
+            .FirstOrDefault(objectId => resolved.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal)
+                && !cardObject.IsExhausted
+                && !cardObject.IsFaceDown)
+            ?? throw new InvalidOperationException($"B0 damage-assignment driver could not find ready base {cardNo} for {playerId}.");
+        var move = await session.SubmitAsync(
+            playerId,
+            $"{intentPrefix}-move",
+            new MoveUnitCommand(baseObjectId, "BASE", battlefieldDestination, []),
+            RawCommand(CommandTypes.MoveUnit),
+            CancellationToken.None);
+        AssertAccepted(move);
+        AssertNoHiddenZoneLeak(move);
+        return move;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitMultiDefenderDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string battlefieldOwnerId,
+        string invadingPlayerId,
+        string intentId)
+    {
+        Assert.Equal(battlefieldOwnerId, current.State.ActivePlayerId);
+        var playerId = current.State.ActivePlayerId;
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 damage-assignment driver could not find DECLARE_BATTLE for {playerId}.");
+        var battlefieldId = candidate.Destinations?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 damage-assignment driver could not find battle destination.");
+        var attackerObjectId = candidate.Sources?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 damage-assignment driver could not find battle attacker.");
+        var defenderObjectIds = current.State.PlayerZones[invadingPlayerId].Battlefields
+            .Where(objectId => IsObjectLocatedAtBattlefield(current.State, objectId, battlefieldId))
+            .Where(objectId => IsReadyUnit(current.State, objectId))
+            .Where(objectId => current.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && (string.Equals(cardObject.CardNo, MutantKittenCardNo, StringComparison.Ordinal)
+                    || string.Equals(cardObject.CardNo, LeblancCardNo, StringComparison.Ordinal)))
+            .OrderBy(objectId => current.State.CardObjects[objectId].CardNo, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(2, defenderObjectIds.Length);
+
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            defenderObjectIds,
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        return await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { attackerObjectId },
+                defenderObjectIds,
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+    }
+
+    private static async ValueTask<ResolutionResult> ResolveOpenBattleDamageAssignmentsAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var index = 0; index < 4; index++)
+        {
+            var assigningPlayerId = PlayerWithEnabledCandidate(result, CommandTypes.AssignCombatDamage);
+            if (assigningPlayerId is null)
+            {
+                return result;
+            }
+
+            result = await SubmitCurrentBattleDamageAssignmentAsync(
+                session,
+                result,
+                assigningPlayerId,
+                $"{intentPrefix}-{index}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException("B0 damage-assignment driver exceeded ASSIGN_COMBAT_DAMAGE guard.");
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitCurrentBattleDamageAssignmentAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var prompt = current.Prompts[playerId];
+        Assert.Equal(PromptTypes.AssignCombatDamage, prompt.View?.Type);
+        var view = Assert.IsType<PromptViewDto>(prompt.View);
+        var metadata = view.Metadata
+            ?? throw new InvalidOperationException("ASSIGN_COMBAT_DAMAGE prompt missing metadata.");
+        var battleId = Assert.IsType<string>(metadata["battleId"]);
+        var battlefieldId = Assert.IsType<string>(metadata["battlefieldId"]);
+        var damagePool = IntMap(metadata["assignableDamagePool"]);
+        var legalTargets = StringListMap(metadata["legalTargets"]);
+        var lethalThreshold = IntMap(metadata["lethalDamageThreshold"]);
+        var assignments = new List<CombatDamageAssignmentDto>();
+        foreach (var (sourceObjectId, damage) in damagePool)
+        {
+            if (damage <= 0 || !legalTargets.TryGetValue(sourceObjectId, out var targets) || targets.Count == 0)
+            {
+                continue;
+            }
+
+            var remainingDamage = damage;
+            for (var targetIndex = 0; targetIndex < targets.Count && remainingDamage > 0; targetIndex++)
+            {
+                var targetObjectId = targets[targetIndex];
+                var isLastTarget = targetIndex == targets.Count - 1;
+                var assignDamage = isLastTarget
+                    ? remainingDamage
+                    : Math.Min(remainingDamage, Math.Max(0, lethalThreshold.GetValueOrDefault(targetObjectId)));
+                if (assignDamage <= 0)
+                {
+                    continue;
+                }
+
+                assignments.Add(new CombatDamageAssignmentDto(sourceObjectId, targetObjectId, assignDamage));
+                remainingDamage -= assignDamage;
+            }
+        }
+
+        Assert.NotEmpty(assignments);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            new AssignCombatDamageCommand(battleId, battlefieldId, assignments),
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.AssignCombatDamage,
+                battleId,
+                battlefieldId,
+                assignments = assignments.Select(assignment => new
+                {
+                    assignment.SourceObjectId,
+                    assignment.TargetObjectId,
+                    assignment.Damage
+                }).ToArray()
+            }),
+            CancellationToken.None);
+        AssertAccepted(result);
         return result;
     }
 
@@ -465,6 +816,16 @@ public sealed class FullGameEndToEndTests
         return $"BATTLEFIELD:{battlefieldObjectId}";
     }
 
+    private static bool IsObjectLocatedAtBattlefield(MatchState state, string objectId, string battlefieldDestination)
+    {
+        var normalizedBattlefieldObjectId = battlefieldDestination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            ? battlefieldDestination["BATTLEFIELD:".Length..]
+            : battlefieldDestination;
+        return state.ObjectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(location.BattlefieldObjectId, normalizedBattlefieldObjectId, StringComparison.Ordinal);
+    }
+
     private static async ValueTask<ResolutionResult> EndTurnAsync(
         MatchSession session,
         string playerId,
@@ -574,6 +935,53 @@ public sealed class FullGameEndToEndTests
             && !cardObject.IsFaceDown;
     }
 
+    private static bool PlayerHandContainsCardNo(MatchState state, string playerId, string cardNo)
+    {
+        return FindHandCardObjectByCardNo(state, playerId, cardNo) is not null;
+    }
+
+    private static string? FindHandCardObjectByCardNo(MatchState state, string playerId, string cardNo)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Hand.FirstOrDefault(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal))
+            : null;
+    }
+
+    private static IReadOnlyDictionary<string, int> IntMap(object? value)
+    {
+        return value switch
+        {
+            IReadOnlyDictionary<string, int> typed => typed,
+            IReadOnlyDictionary<string, object?> objects => objects.ToDictionary(
+                entry => entry.Key,
+                entry => Assert.IsType<int>(entry.Value),
+                StringComparer.Ordinal),
+            _ => throw new InvalidOperationException($"Expected string/int metadata map, got {value?.GetType().FullName ?? "null"}.")
+        };
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> StringListMap(object? value)
+    {
+        return value switch
+        {
+            IReadOnlyDictionary<string, IReadOnlyList<string>> typed => typed,
+            IReadOnlyDictionary<string, string[]> arrays => arrays.ToDictionary(
+                entry => entry.Key,
+                entry => (IReadOnlyList<string>)entry.Value,
+                StringComparer.Ordinal),
+            IReadOnlyDictionary<string, object?> objects => objects.ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value switch
+                {
+                    IReadOnlyList<string> list => list,
+                    _ => throw new InvalidOperationException($"Expected string list metadata for {entry.Key}.")
+                },
+                StringComparer.Ordinal),
+            _ => throw new InvalidOperationException($"Expected string/list metadata map, got {value?.GetType().FullName ?? "null"}.")
+        };
+    }
+
     private static bool IsDriverStandbyUnit(CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -625,6 +1033,15 @@ public sealed class FullGameEndToEndTests
         string legendCardNo,
         string championCardNo)
     {
+        return BuildLowCurveOfficialDeck(catalog, legendCardNo, championCardNo, []);
+    }
+
+    private static OfficialDecklist BuildLowCurveOfficialDeck(
+        OfficialCardCatalog catalog,
+        string legendCardNo,
+        string championCardNo,
+        IReadOnlyList<string> requiredMainDeckCardNos)
+    {
         var legend = catalog.Cards.Single(card => string.Equals(card.CardNo, legendCardNo, StringComparison.Ordinal));
         var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
         var cardsByNo = catalog.Cards
@@ -649,6 +1066,14 @@ public sealed class FullGameEndToEndTests
         {
             [cardsByNo[championCardNo].CardName] = 1
         };
+        foreach (var cardNo in requiredMainDeckCardNos)
+        {
+            Assert.True(cardsByNo.TryGetValue(cardNo, out var requiredCard), $"Required card {cardNo} was not found in the official catalog.");
+            Assert.True(IsMainDeckCandidate(requiredCard, allowedColors), $"Required card {cardNo} is not legal for {legendCardNo}.");
+            mainDeck.Add(cardNo);
+            nameCounts[requiredCard.CardName] = nameCounts.TryGetValue(requiredCard.CardName, out var current) ? current + 1 : 1;
+        }
+
         foreach (var card in implementedLowCurveUnits)
         {
             while (mainDeck.Count < OfficialDeckValidator.MinimumMainDeckCount
@@ -690,6 +1115,22 @@ public sealed class FullGameEndToEndTests
         var validation = OfficialDeckValidator.Validate(deck, catalog);
         Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
         return deck;
+    }
+
+    private static OfficialDecklist BuildDamageAssignmentOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return BuildLowCurveOfficialDeck(
+            catalog,
+            LilliaLegendCardNo,
+            LilliaChampionCardNo,
+            [
+                MutantKittenCardNo,
+                MutantKittenCardNo,
+                MutantKittenCardNo,
+                LeblancCardNo,
+                LeblancCardNo,
+                LeblancCardNo
+            ]);
     }
 
     private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
