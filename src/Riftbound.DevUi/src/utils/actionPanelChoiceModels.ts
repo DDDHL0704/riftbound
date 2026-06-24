@@ -106,6 +106,7 @@ export function buildDamageAssignmentModel(
   const battleId = stringMetadata(metadata, "battleId") ?? prompt?.view?.relatedBattleId ?? "";
   const battlefieldId = stringMetadata(metadata, "battlefieldId")
     ?? stringMetadata(metadata, "battlefieldObjectId")
+    ?? prompt?.serverFlow?.relatedBattlefieldId
     ?? prompt?.view?.relatedBattlefieldId
     ?? "";
   const scalarDamagePool = firstNumberMetadata(metadata, ["damagePool", "totalDamage", "assignableDamage"]);

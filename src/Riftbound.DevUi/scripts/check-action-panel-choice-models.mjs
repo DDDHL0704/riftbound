@@ -109,6 +109,9 @@ const legalTargetsModel = buildDamageAssignmentModel({
   },
   reason: "服务端战斗候选"
 }, {
+  serverFlow: {
+    relatedBattlefieldId: "bf-from-server-flow"
+  },
   view: {
     message: "",
     relatedBattleId: "battle-from-prompt",
@@ -119,7 +122,7 @@ const legalTargetsModel = buildDamageAssignmentModel({
 }, snapshot);
 
 assert.equal(legalTargetsModel.battleId, "battle-from-prompt");
-assert.equal(legalTargetsModel.battlefieldId, "bf-from-prompt");
+assert.equal(legalTargetsModel.battlefieldId, "bf-from-server-flow");
 assert.equal(legalTargetsModel.damagePoolLabel, "1 个来源");
 assert.equal(legalTargetsModel.choices[0].sourceDamagePool, 2);
 
