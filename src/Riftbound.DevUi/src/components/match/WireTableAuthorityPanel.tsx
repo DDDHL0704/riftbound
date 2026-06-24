@@ -39,7 +39,7 @@ export function WireTableAuthorityPanel({ selectedObjectId, table }: { selectedO
             >
               <span>{row.label}</span>
               <strong>{row.sourceLabel}</strong>
-              <small>基地 {row.baseCount} / 符文 {row.runeCount}</small>
+              <small>基地 {row.baseCount} / 符文 {row.runeCount} / 隐藏待命 {row.hiddenBattlefieldStandbyCount}</small>
             </li>
           ))}
         </ol>

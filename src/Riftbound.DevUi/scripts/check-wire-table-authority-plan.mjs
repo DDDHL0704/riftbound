@@ -23,6 +23,7 @@ assert.equal(serverPlan.state, "server");
 assert.equal(serverPlan.issueCount, 0);
 assert.equal(serverPlan.consistencyState, "consistent");
 assert.equal(serverPlan.consistencyIssueCount, 0);
+assert.deepEqual(serverPlan.players.map((row) => row.hiddenBattlefieldStandbyCount), [0, 1]);
 assert.deepEqual(serverPlan.metrics.map((metric) => metric.value), ["2/2", "2/2", "2/2", "4/4", "0"]);
 assert.deepEqual(
   serverPlan.consistencyRows.map((row) => [row.key, row.expectedKind, row.state, row.cardWidth]),
@@ -317,6 +318,7 @@ function table({ laneObjects = {}, laneSources, objects = {}, playerSources, sta
       hiddenHandIds: [],
       id: `P${index + 1}`,
       label: `P${index + 1}`,
+      hiddenBattlefieldStandbyCount: index,
       objects,
       player: {},
       runeIds: [`p${index + 1}-rune-a`, `p${index + 1}-rune-b`],

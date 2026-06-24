@@ -29,6 +29,7 @@ export type WireTableAuthorityMetric = {
 
 export type WireTableAuthorityPlayerRow = {
   baseCount: number;
+  hiddenBattlefieldStandbyCount: number;
   key: string;
   label: string;
   runeCount: number;
@@ -146,6 +147,7 @@ export function buildWireTableAuthorityPlan(
 ): WireTableAuthorityPlan {
   const players = table.players.map((entry): WireTableAuthorityPlayerRow => ({
     baseCount: entry.baseObjectIds.length,
+    hiddenBattlefieldStandbyCount: entry.hiddenBattlefieldStandbyCount,
     key: entry.id,
     label: entry.label,
     runeCount: entry.runeIds.length,

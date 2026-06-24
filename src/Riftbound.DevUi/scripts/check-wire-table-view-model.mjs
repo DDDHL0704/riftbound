@@ -124,6 +124,7 @@ const snapshot = {
         base: ["p1-base-1", "p1-rune-1", "p1-rune-tagged"],
         baseCards: ["p1-base-1"],
         baseRunes: ["p1-rune-1", "p1-rune-tagged"],
+        battlefieldHiddenStandbyCount: 0,
         hand: ["p1-hand-1"],
         handHidden: 9,
         mainDeckCount: 31,
@@ -146,6 +147,7 @@ const snapshot = {
         base: ["p2-rune-1", "p2-base-1"],
         baseCards: ["p2-base-1"],
         baseRunes: ["p2-rune-1"],
+        battlefieldHiddenStandbyCount: 2,
         handHidden: 4,
         mainDeckCount: 28,
         runeDeckCount: 10
@@ -171,10 +173,12 @@ assert.equal(table.self.basePartitionSource, "server");
 assert.deepEqual(table.self.runeIds, ["p1-rune-1", "p1-rune-tagged"]);
 assert.deepEqual(table.self.handIds, ["p1-hand-1"]);
 assert.deepEqual(table.self.hiddenHandIds, []);
+assert.equal(table.self.hiddenBattlefieldStandbyCount, 0);
 assert.deepEqual(table.opponent.baseObjectIds, ["p2-base-1"]);
 assert.equal(table.opponent.basePartitionSource, "server");
 assert.deepEqual(table.opponent.runeIds, ["p2-rune-1"]);
 assert.deepEqual(table.opponent.hiddenHandIds, ["hidden-P2-0", "hidden-P2-1", "hidden-P2-2", "hidden-P2-3"]);
+assert.equal(table.opponent.hiddenBattlefieldStandbyCount, 2);
 assert.equal(table.playerPlans.basePlan.kind, "base");
 assert.equal(table.playerPlans.basePlan.itemCount, 1);
 assert.equal(table.playerPlans.basePlan.minSlots, 1);
@@ -306,6 +310,7 @@ const tableProjectionSnapshot = {
           base: ["p2-base-1", "p2-rune-1"],
           baseCards: ["p2-base-1"],
           baseRunes: ["p2-rune-1"],
+          battlefieldHiddenStandbyCount: 5,
           handHidden: 2
         }
       },
@@ -316,6 +321,7 @@ const tableProjectionSnapshot = {
         seat: "P1",
         zones: {
           ...snapshot.players.P1.zones,
+          battlefieldHiddenStandbyCount: 0,
           hand: ["p1-hand-1", "p1-table-only-hand"],
           handHidden: 0
         }
@@ -336,6 +342,7 @@ const tableProjectionSnapshot = {
 const tableProjection = buildWireTableViewModel({ perspectivePlayerId: "P1", snapshot: tableProjectionSnapshot, specs });
 assert.deepEqual(tableProjection.self.handIds, ["p1-hand-1", "p1-table-only-hand"], "table projection player zones must override legacy player zones");
 assert.deepEqual(tableProjection.opponent.hiddenHandIds, ["hidden-P2-0", "hidden-P2-1"], "table projection hidden hand count must drive opponent hand rail");
+assert.equal(tableProjection.opponent.hiddenBattlefieldStandbyCount, 5, "table projection hidden standby count must drive opponent battlefield boundary summary");
 assert.equal(tableProjection.battlefield.lanes[0].battlefieldId, "battlefield-right", "table projection battlefield index must override legacy lane order");
 assert.equal(tableProjection.battlefield.lanes[1].battlefieldId, "battlefield-left", "table projection battlefield index must preserve explicit server order");
 

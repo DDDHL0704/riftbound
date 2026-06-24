@@ -21,6 +21,7 @@ export type WirePlayerEntry = {
   basePartitionSource: WireBasePartitionSource;
   baseObjectIds: string[];
   handIds: string[];
+  hiddenBattlefieldStandbyCount: number;
   hiddenHandIds: string[];
   id: string;
   label: string;
@@ -204,6 +205,7 @@ function buildWirePlayerEntry(
     baseObjectIds,
     basePartitionSource: basePartitionSource(serverBaseCardIds, serverRuneIds, locationPartition),
     handIds,
+    hiddenBattlefieldStandbyCount: nonNegativeNumber(zones.battlefieldHiddenStandbyCount, 0),
     hiddenHandIds: hiddenCards(hiddenHandCount(player, zones, side, handIds.length), id),
     id,
     label: "",
