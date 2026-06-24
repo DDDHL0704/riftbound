@@ -12,6 +12,8 @@ public sealed class FullGameEndToEndTests
     private const string JhinChampionCardNo = "UNL-022/219";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string RumbleChampionCardNo = "SFD·026/221";
+    private const string PoppyLegendCardNo = "UNL-203/219";
+    private const string PoppyChampionCardNo = "UNL-116/219";
 
     [Fact]
     public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
@@ -80,6 +82,28 @@ public sealed class FullGameEndToEndTests
             session,
             battleResult,
             "b0-distinct-score");
+
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
+    public async Task StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildLowCurveOfficialDeck(catalog, JhinLegendCardNo, JhinChampionCardNo);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog, PoppyLegendCardNo, PoppyChampionCardNo);
+        Assert.NotEqual(p1Deck.LegendCardNo, p2Deck.LegendCardNo);
+        Assert.NotEqual(p1Deck.ChampionCardNo, p2Deck.ChampionCardNo);
+
+        var (session, _, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
+            "b0-full-game-standby-heavy-low-curve-score-room",
+            p1Deck,
+            p2Deck);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-standby-heavy-score");
 
         AssertScoreVictory(result);
     }
