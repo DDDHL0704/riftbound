@@ -1180,6 +1180,23 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1, battlefieldAura.PowerDeltaPerParticipant);
         Assert.Contains("此处的所有单位", battlefieldAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, battlefieldAura.Status);
+
+        foreach (var cardNo in new[] { "OGS·013/024", "SFD·236/221", "SFD·236*/221", "OGN·243/298", "OGN·243a/298" })
+        {
+            var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var aura = Assert.Single(source.StaticAuras);
+            Assert.Equal(StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsPowerPlusOne, aura.Kind);
+            Assert.Equal(ContinuousEffectLayers.StaticAura, aura.Layer);
+            Assert.Equal("WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", aura.Duration);
+            Assert.Equal(StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits, aura.TargetScope);
+            Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits, aura.ParticipantScope);
+            Assert.Equal(1, aura.PowerDeltaPerParticipant);
+            Assert.Contains("此处的其他友方单位", aura.Text, StringComparison.Ordinal);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
+        }
+
+        var enthusiasticAnnouncer = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-043/219", StringComparison.Ordinal));
+        Assert.Empty(enthusiasticAnnouncer.StaticAuras);
     }
 
     [Fact]

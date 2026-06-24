@@ -39,18 +39,22 @@ public static class StaticAuraKinds
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
     public const string BattlefieldAllUnitsPowerPlusOne = "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE";
+    public const string SameBattlefieldOtherFriendlyUnitsPowerPlusOne =
+        "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE";
 }
 
 public static class StaticAuraTargetScopes
 {
     public const string SourceObject = "SOURCE_OBJECT";
     public const string SameBattlefieldUnits = "SAME_BATTLEFIELD_UNITS";
+    public const string SameBattlefieldOtherFriendlyUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS";
 }
 
 public static class StaticAuraParticipantScopes
 {
     public const string FriendlyPublicFieldEquipment = "FRIENDLY_PUBLIC_FIELD_EQUIPMENT";
     public const string SameBattlefieldPublicUnits = "SAME_BATTLEFIELD_PUBLIC_UNITS";
+    public const string SameBattlefieldOtherFriendlyPublicUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS";
 }
 
 public sealed record BehaviorSpec(

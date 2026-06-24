@@ -36,6 +36,14 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetSameBattlefieldOtherFriendlyUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
+    {
+        return TryGetAura(
+            cardNo,
+            StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsPowerPlusOne,
+            out aura);
+    }
+
     private static bool TryGetAura(string? cardNo, string kind, out StaticAuraSpec aura)
     {
         aura = default!;

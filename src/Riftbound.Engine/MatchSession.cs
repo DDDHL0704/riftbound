@@ -1865,6 +1865,7 @@ public sealed record MatchState
         }
 
         effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
         var publicFieldSourceOrders = PublicFieldSourceOrders(state);
 
         return effects
@@ -1956,6 +1957,71 @@ public sealed record MatchState
         return true;
     }
 
+    private static IReadOnlyList<ContinuousEffectState> BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var entry in state.CardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var sourceObjectId = entry.Key;
+            var source = entry.Value;
+            if (string.IsNullOrWhiteSpace(source.CardNo)
+                || source.IsFaceDown
+                || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsPowerAura(source.CardNo, out var aura)
+                || !TryFindBattlefieldUnitLocation(state, sourceObjectId, source, out var battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var controllerId = EffectiveFieldControllerId(state, sourceObjectId, source);
+            if (string.IsNullOrWhiteSpace(controllerId))
+            {
+                continue;
+            }
+
+            var participantObjectIds = SameBattlefieldOtherFriendlyUnitObjectIds(
+                state,
+                sourceObjectId,
+                battlefieldObjectId,
+                controllerId);
+            if (participantObjectIds.Count == 0)
+            {
+                continue;
+            }
+
+            var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [sourceObjectId]);
+            var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+            foreach (var participantObjectId in participantObjectIds)
+            {
+                var participant = state.CardObjects[participantObjectId];
+                var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
+                effects.Add(new ContinuousEffectState(
+                    $"STATIC_AURA:SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE:{sourceObjectId}:{participantObjectId}",
+                    "BATTLEFIELD",
+                    ContinuousEffectLayers.StaticAura,
+                    aura.Duration,
+                    participantObjectId,
+                    sourceObjectId,
+                    aura.PowerDeltaPerParticipant,
+                    participant.Power,
+                    participant.Power + aura.PowerDeltaPerParticipant,
+                    aura.Kind,
+                    source.CardNo,
+                    "CoreRuleEngine.ResolveSameBattlefieldOtherFriendlyUnitsPowerBonus",
+                    true,
+                    LayerEngineFoundationResiduals(),
+                    Condition: "SOURCE_AND_OTHER_FRIENDLY_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
+                    Lifecycle: "DERIVED_FROM_CURRENT_SAME_BATTLEFIELD_FRIENDLY_UNIT_LOCATIONS",
+                    ParticipantObjectIds: participantObjectIds,
+                    SourceDependencyObjectIds: sourceDependencyObjectIds,
+                    TargetDependencyObjectIds: targetDependencyObjectIds,
+                    ParticipantDependencyObjectIds: participantDependencyObjectIds));
+            }
+        }
+
+        return effects;
+    }
+
     private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldAllUnitsStaticAuraEffects(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
@@ -2005,6 +2071,54 @@ public sealed record MatchState
         }
 
         return effects;
+    }
+
+    private static bool TryFindBattlefieldUnitLocation(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        out string battlefieldObjectId)
+    {
+        battlefieldObjectId = string.Empty;
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
+            || !string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || !state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
+            || !string.Equals(objectLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId))
+        {
+            return false;
+        }
+
+        battlefieldObjectId = objectLocation.BattlefieldObjectId;
+        return true;
+    }
+
+    private static IReadOnlyList<string> SameBattlefieldOtherFriendlyUnitObjectIds(
+        MatchState state,
+        string sourceObjectId,
+        string battlefieldObjectId,
+        string controllerId)
+    {
+        return state.ObjectLocations
+            .Where(entry => !string.Equals(entry.Key, sourceObjectId, StringComparison.Ordinal)
+                && string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(entry.Key, out var participant)
+                && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !participant.IsFaceDown
+                && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out var fieldLocation)
+                && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && IsPublicFieldObjectLocationCompatible(state, entry.Key, "BATTLEFIELD")
+                && string.Equals(
+                    EffectiveFieldControllerId(state, entry.Key, participant),
+                    controllerId,
+                    StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static IReadOnlyList<string> BattlefieldStaticAuraParticipantObjectIds(

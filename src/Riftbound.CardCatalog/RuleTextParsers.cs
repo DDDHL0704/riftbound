@@ -478,6 +478,26 @@ public static class StaticAuraParser
         var auras = new List<StaticAuraSpec>();
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var sameBattlefieldOtherFriendlyPowerMatch = Regex.Match(
+                segment,
+                @"此处的其他友方单位获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (sameBattlefieldOtherFriendlyPowerMatch.Success
+                && int.TryParse(sameBattlefieldOtherFriendlyPowerMatch.Groups[1].Value, out var otherFriendlyPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsPowerPlusOne,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits,
+                    otherFriendlyPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras."));
+                continue;
+            }
+
             if (segment.Contains("每有一件友方装备", StringComparison.Ordinal)
                 && segment.Contains("{{S}}+1", StringComparison.Ordinal))
             {
@@ -494,8 +514,12 @@ public static class StaticAuraParser
                 continue;
             }
 
-            if (segment.Contains("此处的所有单位", StringComparison.Ordinal)
-                && segment.Contains("{{S}}+1", StringComparison.Ordinal))
+            var battlefieldAllUnitsPowerMatch = Regex.Match(
+                segment,
+                @"此处的所有单位获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (battlefieldAllUnitsPowerMatch.Success
+                && int.TryParse(battlefieldAllUnitsPowerMatch.Groups[1].Value, out var battlefieldAllUnitsPowerDelta))
             {
                 auras.Add(new StaticAuraSpec(
                     StaticAuraKinds.BattlefieldAllUnitsPowerPlusOne,
@@ -503,7 +527,7 @@ public static class StaticAuraParser
                     "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
                     StaticAuraTargetScopes.SameBattlefieldUnits,
                     StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
-                    1,
+                    battlefieldAllUnitsPowerDelta,
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras."));
