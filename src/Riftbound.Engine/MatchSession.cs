@@ -328,11 +328,6 @@ public static class ContinuousEffectLayers
     public const string StaticAura = "STATIC_AURA";
 }
 
-internal static class ContinuousEffectStaticAuraCards
-{
-    public const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
-}
-
 public sealed record ContinuousEffectState(
     string EffectId,
     string Scope,
@@ -1890,8 +1885,7 @@ public sealed record MatchState
         effect = default!;
         if (string.IsNullOrWhiteSpace(cardObject.CardNo)
             || cardObject.IsFaceDown
-            || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
-            || !behavior.AddsFriendlyFieldEquipmentCountToSourceUnitPower
+            || !StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura(cardObject.CardNo, out var aura)
             || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out _))
         {
@@ -1908,20 +1902,23 @@ public sealed record MatchState
         var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
         var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [objectId]);
         var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, equipmentObjectIds);
-        var basePower = behavior.SourceUnitPower > 0
+        var printedPower = CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
             ? behavior.SourceUnitPower
-            : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier - equipmentObjectIds.Count;
+            : 0;
+        var basePower = printedPower > 0
+            ? printedPower
+            : cardObject.Power - cardObject.UntilEndOfTurnPowerModifier - (equipmentObjectIds.Count * aura.PowerDeltaPerParticipant);
         effect = new ContinuousEffectState(
             $"STATIC_AURA:FRIENDLY_EQUIPMENT_POWER:{objectId}",
             "OBJECT",
             ContinuousEffectLayers.StaticAura,
-            "WHILE_SOURCE_ON_PUBLIC_FIELD",
+            aura.Duration,
             objectId,
             objectId,
-            equipmentObjectIds.Count,
+            equipmentObjectIds.Count * aura.PowerDeltaPerParticipant,
             basePower,
             cardObject.Power,
-            "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER",
+            aura.Kind,
             cardObject.CardNo,
             "CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute",
             true,
@@ -1944,10 +1941,7 @@ public sealed record MatchState
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
-                || !string.Equals(
-                    battlefield.CardNo,
-                    ContinuousEffectStaticAuraCards.BattlefieldAllUnitsPowerPlusOneCardNo,
-                    StringComparison.Ordinal)
+                || !StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(battlefield.CardNo, out var aura)
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
                 || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
             {
@@ -1969,10 +1963,10 @@ public sealed record MatchState
                     "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
                     participantObjectId,
                     battlefieldObjectId,
-                    1,
+                    aura.PowerDeltaPerParticipant,
                     participant.Power,
-                    participant.Power + 1,
-                    "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
+                    participant.Power + aura.PowerDeltaPerParticipant,
+                    aura.Kind,
                     battlefield.CardNo,
                     "CoreRuleEngine.ResolveBattlefieldAllUnitsPowerBonus",
                     true,

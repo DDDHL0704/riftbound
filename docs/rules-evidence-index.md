@@ -1,6 +1,8 @@
 # 规则证据索引
 
-更新时间：2026-05-14
+更新时间：2026-06-24
+
+2026-06-24 最新补充：Plan B / B1 static aura spec first slice 已验收。审计入口为 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_AUDIT.md`，证据入口为 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_EVIDENCE.md`；focused static-aura catalog/projection guard 2/2、adjacent StaticAura / Ornn / LayerEngine battlefield static aura / BattlefieldStaticPower 217/217 通过。该补充只证明 `BehaviorSpec.StaticAuras` 已暴露奥恩与崔法利兵营两个 representative，且 `MatchSession` continuous-effect 投影不再依赖 `ContinuousEffectStaticAuraCards` 卡号清单；不关闭 Core runtime recompute、combat static bonus、multiple aura stacking、完整 B1 或 READY。
 
 2026-05-14 最新补充：4D-02I Battle response payment-resource context test-only slice 已验收。审计入口为 `docs/CURRENT_STAGE4D_02I_BATTLE_RESPONSE_PAYMENT_RESOURCE_CONTEXT_AUDIT.md`，证据入口为 `docs/CURRENT_STAGE4D_02I_BATTLE_RESPONSE_PAYMENT_RESOURCE_CONTEXT_EVIDENCE.md`；focused 431/431、adjacent 608/608、backend full 4199/4199、`git diff --check` 通过。该补充只证明 held-score `RECYCLE_RUNE:*` optional cost context 可经 battle-response pass 保留并触发 held-score payment / audit branch，不关闭 full official P0-004、P0-005、P1 或 READY。
 

@@ -11,6 +11,7 @@ public sealed record RuleTextParseResult(
     IReadOnlyList<ReplacementSpec> Replacements,
     IReadOnlyList<ActivatedAbilitySpec> ActivatedAbilities,
     IReadOnlyList<StaticAbilitySpec> StaticAbilities,
+    IReadOnlyList<StaticAuraSpec> StaticAuras,
     IReadOnlyList<EffectPhraseSpec> Effects);
 
 public static class RuleTextParser
@@ -28,6 +29,7 @@ public static class RuleTextParser
             ReplacementParser.Parse(text),
             ActivatedAbilityParser.Parse(text),
             StaticAbilityParser.Parse(text, keywords),
+            StaticAuraParser.Parse(text),
             effects);
     }
 }
@@ -462,6 +464,54 @@ public static class StaticAbilityParser
 
         return staticSpecs
             .GroupBy(spec => $"{spec.Kind}\n{spec.Text}", StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+    }
+}
+
+public static class StaticAuraParser
+{
+    private const string StaticAuraLayer = "STATIC_AURA";
+
+    public static IReadOnlyList<StaticAuraSpec> Parse(string text)
+    {
+        var auras = new List<StaticAuraSpec>();
+        foreach (var segment in TargetParser.SplitRulesText(text))
+        {
+            if (segment.Contains("每有一件友方装备", StringComparison.Ordinal)
+                && segment.Contains("{{S}}+1", StringComparison.Ordinal))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
+                    1,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras."));
+                continue;
+            }
+
+            if (segment.Contains("此处的所有单位", StringComparison.Ordinal)
+                && segment.Contains("{{S}}+1", StringComparison.Ordinal))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.BattlefieldAllUnitsPowerPlusOne,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
+                    1,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras."));
+            }
+        }
+
+        return auras
+            .GroupBy(aura => $"{aura.Kind}\n{aura.Text}", StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
     }

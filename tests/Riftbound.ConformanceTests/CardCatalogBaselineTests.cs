@@ -1150,6 +1150,52 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        foreach (var cardNo in new[] { "SFD·085/221", "SFD·085a/221" })
+        {
+            var ornn = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var aura = Assert.Single(ornn.StaticAuras);
+            Assert.Equal(StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower, aura.Kind);
+            Assert.Equal(ContinuousEffectLayers.StaticAura, aura.Layer);
+            Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", aura.Duration);
+            Assert.Equal(StaticAuraTargetScopes.SourceObject, aura.TargetScope);
+            Assert.Equal(StaticAuraParticipantScopes.FriendlyPublicFieldEquipment, aura.ParticipantScope);
+            Assert.Equal(1, aura.PowerDeltaPerParticipant);
+            Assert.Contains("每有一件友方装备", aura.Text, StringComparison.Ordinal);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
+        }
+
+        var battlefield = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·294/298", StringComparison.Ordinal));
+        var battlefieldAura = Assert.Single(battlefield.StaticAuras);
+        Assert.Equal(StaticAuraKinds.BattlefieldAllUnitsPowerPlusOne, battlefieldAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, battlefieldAura.Layer);
+        Assert.Equal("WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", battlefieldAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SameBattlefieldUnits, battlefieldAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldPublicUnits, battlefieldAura.ParticipantScope);
+        Assert.Equal(1, battlefieldAura.PowerDeltaPerParticipant);
+        Assert.Contains("此处的所有单位", battlefieldAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, battlefieldAura.Status);
+    }
+
+    [Fact]
+    public void StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("ContinuousEffectStaticAuraCards", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task BehaviorTemplateExecutorRoutesRegisteredTemplatesWithoutReplacingP2Rules()
     {
         var requiredTemplates = new[]
@@ -3345,5 +3391,22 @@ public sealed class CardCatalogBaselineTests
         }
 
         return CardBasicActionRules.BuildProfile(spec, definition);
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 }

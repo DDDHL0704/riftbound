@@ -531,6 +531,7 @@ public static class BehaviorSpecCatalogBuilder
         var effects = ApplyEffectStatuses(parsed.Effects, status, implementation is not null);
         var activatedAbilities = ApplyActivatedAbilityStatuses(parsed.ActivatedAbilities, status);
         var staticAbilities = ApplyStaticAbilityStatuses(parsed.StaticAbilities, status, implementation is not null);
+        var staticAuras = ApplyStaticAuraStatuses(parsed.StaticAuras, status, implementation is not null);
         var templateIds = effects
             .Select(effect => effect.TemplateId)
             .Distinct(StringComparer.Ordinal)
@@ -554,6 +555,7 @@ public static class BehaviorSpecCatalogBuilder
             parsed.Replacements,
             activatedAbilities,
             staticAbilities,
+            staticAuras,
             effects,
             templateIds,
             implementation?.EffectKind,
@@ -765,6 +767,37 @@ public static class BehaviorSpecCatalogBuilder
                 }
 
                 return ability;
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyList<StaticAuraSpec> ApplyStaticAuraStatuses(
+        IReadOnlyList<StaticAuraSpec> staticAuras,
+        string behaviorStatus,
+        bool hasImplementation)
+    {
+        return staticAuras
+            .Select(aura =>
+            {
+                if (hasImplementation)
+                {
+                    return aura with
+                    {
+                        Status = BehaviorImplementationStatuses.Implemented,
+                        Reason = "Static aura is covered by the current functional unit mapping and is exposed for B1 spec-driven engine routing."
+                    };
+                }
+
+                if (string.Equals(behaviorStatus, BehaviorImplementationStatuses.ManualRuleRequired, StringComparison.Ordinal))
+                {
+                    return aura with
+                    {
+                        Status = BehaviorImplementationStatuses.ManualRuleRequired,
+                        Reason = "Static aura belongs to a manual rule domain in P3."
+                    };
+                }
+
+                return aura;
             })
             .ToArray();
     }

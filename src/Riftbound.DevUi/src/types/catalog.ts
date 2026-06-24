@@ -12,6 +12,18 @@ export type KeywordSpec = {
   value?: string | null;
 };
 
+export type StaticAuraSpec = {
+  kind: string;
+  layer: string;
+  duration: string;
+  targetScope: string;
+  participantScope: string;
+  powerDeltaPerParticipant: number;
+  text: string;
+  status: string;
+  reason: string;
+};
+
 export type BehaviorSpec = {
   cardNo: string;
   cardName: string;
@@ -29,6 +41,7 @@ export type BehaviorSpec = {
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
   activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;
   staticAbilities: Array<{ kind: string; text: string; status: string; reason: string }>;
+  staticAuras: StaticAuraSpec[];
   effects: Array<{ templateId: string; phrase: string; status: string; reason: string }>;
   templateIds: string[];
   implementedEffectKind?: string | null;

@@ -5463,7 +5463,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item battlefield static aura source card no must be OGN·294/298",
+                "snapshot for alice timing continuous effect item battlefield static aura source card no must reference a BehaviorSpec battlefield all-units power aura",
                 StringComparison.Ordinal));
     }
 
@@ -95490,7 +95490,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item battlefield static aura source card no must be OGN·294/298",
+                "spectator replay frame timing continuous effect item battlefield static aura source card no must reference a BehaviorSpec battlefield all-units power aura",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

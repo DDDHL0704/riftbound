@@ -34,6 +34,25 @@ public static class BehaviorTemplateIds
     public const string Ambush = "ambush";
 }
 
+public static class StaticAuraKinds
+{
+    public const string FriendlyFieldEquipmentCountToSourceUnitPower =
+        "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
+    public const string BattlefieldAllUnitsPowerPlusOne = "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE";
+}
+
+public static class StaticAuraTargetScopes
+{
+    public const string SourceObject = "SOURCE_OBJECT";
+    public const string SameBattlefieldUnits = "SAME_BATTLEFIELD_UNITS";
+}
+
+public static class StaticAuraParticipantScopes
+{
+    public const string FriendlyPublicFieldEquipment = "FRIENDLY_PUBLIC_FIELD_EQUIPMENT";
+    public const string SameBattlefieldPublicUnits = "SAME_BATTLEFIELD_PUBLIC_UNITS";
+}
+
 public sealed record BehaviorSpec(
     string CardNo,
     string CardName,
@@ -51,6 +70,7 @@ public sealed record BehaviorSpec(
     IReadOnlyList<ReplacementSpec> Replacements,
     IReadOnlyList<ActivatedAbilitySpec> ActivatedAbilities,
     IReadOnlyList<StaticAbilitySpec> StaticAbilities,
+    IReadOnlyList<StaticAuraSpec> StaticAuras,
     IReadOnlyList<EffectPhraseSpec> Effects,
     IReadOnlyList<string> TemplateIds,
     string? ImplementedEffectKind = null,
@@ -98,6 +118,17 @@ public sealed record ActivatedAbilitySpec(
 
 public sealed record StaticAbilitySpec(
     string Kind,
+    string Text,
+    string Status,
+    string Reason);
+
+public sealed record StaticAuraSpec(
+    string Kind,
+    string Layer,
+    string Duration,
+    string TargetScope,
+    string ParticipantScope,
+    int PowerDeltaPerParticipant,
     string Text,
     string Status,
     string Reason);

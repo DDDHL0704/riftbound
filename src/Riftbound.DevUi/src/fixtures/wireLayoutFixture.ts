@@ -1099,6 +1099,7 @@ function toBehaviorSpec(fixture: FixtureCard): BehaviorSpec {
     reason: "前端布局样例牌，不参与规则判定。",
     replacements: [],
     staticAbilities: [],
+    staticAuras: [],
     status: "fixture",
     targets: [],
     templateIds: [],

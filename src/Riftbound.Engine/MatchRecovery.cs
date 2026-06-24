@@ -16536,11 +16536,9 @@ public static class MatchRecoveryValidator
                 "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE",
                 "battlefield static aura effect kind",
                 errors);
-            ValidateContinuousEffectStaticAuraMetadataValue(
+            ValidateContinuousEffectStaticAuraSourceCardSpecConsistency(
                 effectLabel,
                 sourceCardNo,
-                ContinuousEffectStaticAuraCards.BattlefieldAllUnitsPowerPlusOneCardNo,
-                "battlefield static aura source card no",
                 errors);
             ValidateContinuousEffectStaticAuraMetadataValue(
                 effectLabel,
@@ -16561,6 +16559,21 @@ public static class MatchRecoveryValidator
                 "battlefield static aura lifecycle",
                 errors);
         }
+    }
+
+    private static void ValidateContinuousEffectStaticAuraSourceCardSpecConsistency(
+        string effectLabel,
+        string? sourceCardNo,
+        List<string> errors)
+    {
+        if (sourceCardNo is null
+            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(sourceCardNo, out _))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} battlefield static aura source card no must reference a BehaviorSpec battlefield all-units power aura");
     }
 
     private static void ValidateContinuousEffectStaticAuraMetadataValue(
