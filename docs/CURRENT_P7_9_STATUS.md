@@ -2544,7 +2544,8 @@ This is the thirty-third rule slice inside P7.9.7. It adds a battlefield movemen
   - `OGN·277/298`: while this battlefield object is present in a player's battlefield zone, a controlled battlefield-zone unit that moves away from the battlefield gets `+1` power until end of turn.
 - Server-authoritative movement-trigger power changes:
   - `MOVE_UNIT` now applies the trigger after a successful battlefield-origin move and before the resulting snapshot is emitted.
-  - The mutation emits the existing movement event, then `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1`, then `POWER_MODIFIED_UNTIL_END_OF_TURN`.
+  - 2026-06-25 Plan B / B4 update: the trigger source is now resolved from BehaviorSpec `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER` with `Timing=BATTLEFIELD_UNIT_MOVED_AWAY`, `TargetScope=MOVED_UNIT`, `PowerDelta=1`, and `Duration=UNTIL_END_OF_TURN`; the old `BattlefieldMovedUnitPowerPlusOneCardNo` / `IsBattlefieldMovedUnitPowerPlusOneCardNo` card-number branch has been removed.
+  - The mutation emits the existing movement event, then `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER`, then `POWER_MODIFIED_UNTIL_END_OF_TURN`.
   - Boundary note: because the current battlefield model stores battlefield-zone objects flatly, this representative checks the controller's battlefield zone and adds no frontend location inference.
 - Added `battlefield-move-power` local development seed plus GameHub coverage for prompt submission, authoritative movement, trigger event delivery, and final snapshot power/base-zone state.
 - Migrated this battlefield movement-trigger power slice in `BehaviorSpec`:

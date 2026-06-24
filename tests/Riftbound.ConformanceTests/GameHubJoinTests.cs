@@ -11493,7 +11493,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(moveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
         Assert.Contains(moveEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
         Assert.Contains(moveEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
             && Equals(gameEvent.Payload["resultingPower"], 3));

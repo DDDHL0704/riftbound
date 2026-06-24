@@ -34,6 +34,27 @@ public static class BehaviorTemplateIds
     public const string Ambush = "ambush";
 }
 
+public static class TriggerKinds
+{
+    public const string BattlefieldUnitMovedAwayPowerModifier =
+        "BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER";
+}
+
+public static class TriggerTimings
+{
+    public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
+}
+
+public static class TriggerTargetScopes
+{
+    public const string MovedUnit = "MOVED_UNIT";
+}
+
+public static class TriggerDurations
+{
+    public const string UntilEndOfTurn = "UNTIL_END_OF_TURN";
+}
+
 public static class StaticAuraKinds
 {
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
@@ -141,7 +162,10 @@ public sealed record TriggerSpec(
     string Kind,
     string Timing,
     string Text,
-    string Reason = "");
+    string Reason = "",
+    string? TargetScope = null,
+    int? PowerDelta = null,
+    string? Duration = null);
 
 public sealed record ReplacementSpec(
     string Kind,

@@ -41791,10 +41791,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].UntilEndOfTurnPowerModifier);
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal)
             && Equals(gameEvent.Payload["resultingPower"], 3));
     }
 
@@ -41825,7 +41825,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].UntilEndOfTurnPowerModifier);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
     }

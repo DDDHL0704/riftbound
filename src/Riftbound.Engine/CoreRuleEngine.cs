@@ -715,7 +715,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
-    private const string BattlefieldMovedUnitPowerPlusOneCardNo = "OGN·277/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
@@ -24751,7 +24750,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldTurnStartDamageAllUnitsCardNo(cardNo)
             || IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardNo)
             || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
-            || IsBattlefieldMovedUnitPowerPlusOneCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardNo, out _)
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
             || IsBattlefieldPreventMoveToBaseCardNo(cardNo)
             || IsBattlefieldStaticRoamCardNo(cardNo)
@@ -24940,11 +24939,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerRevealRecycleCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerRevealRecycleCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldMovedUnitPowerPlusOneCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldMovedUnitPowerPlusOneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldSevenUnitsWinCardNo(string? cardNo)
@@ -29037,25 +29031,32 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var triggerSourceObjectId = zones.Battlefields
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldMovedUnitPowerPlusOneCardNo(cardObject.CardNo)
+                && BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardObject.CardNo, out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (triggerSourceObjectId is null
-            || !state.CardObjects.TryGetValue(triggerSourceObjectId, out var triggerSourceState))
+            || !state.CardObjects.TryGetValue(triggerSourceObjectId, out var triggerSourceState)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(
+                triggerSourceState.CardNo,
+                out var triggerSpec)
+            || !string.Equals(triggerSpec.TargetScope, TriggerTargetScopes.MovedUnit, StringComparison.Ordinal)
+            || !string.Equals(triggerSpec.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            || triggerSpec.PowerDelta is not > 0)
         {
             return [];
         }
 
+        var powerDelta = triggerSpec.PowerDelta.Value;
         var nextSourceState = ApplyDirectUntilEndPowerModifier(
             sourceState,
             sourceObjectId,
             triggerSourceObjectId,
             triggerSourceState.CardNo,
-            "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1",
+            triggerSpec.Kind,
             "CoreRuleEngine.ApplyBattlefieldMovedUnitPowerPlusOne",
-            1,
-            sourceState.Power + 1);
+            powerDelta,
+            sourceState.Power + powerDelta);
         cardObjects[sourceObjectId] = nextSourceState;
         return
         [
@@ -29065,22 +29066,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
-                    ["trigger"] = "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1",
+                    ["trigger"] = triggerSpec.Kind,
                     ["targetObjectId"] = sourceObjectId,
                     ["originZone"] = originZone,
                     ["destinationZone"] = destinationZone
                 }),
             new GameEvent(
                 "POWER_MODIFIED_UNTIL_END_OF_TURN",
-                $"{sourceObjectId} 本回合战力 +1",
+                $"{sourceObjectId} 本回合战力 +{powerDelta}",
                 new Dictionary<string, object?>
                 {
                     ["targetObjectId"] = sourceObjectId,
-                    ["powerDelta"] = 1,
-                    ["appliedPowerDelta"] = 1,
+                    ["powerDelta"] = powerDelta,
+                    ["appliedPowerDelta"] = powerDelta,
                     ["minimumPower"] = 0,
                     ["resultingPower"] = nextSourceState.Power,
-                    ["reason"] = "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1"
+                    ["reason"] = triggerSpec.Kind
                 })
         ];
     }

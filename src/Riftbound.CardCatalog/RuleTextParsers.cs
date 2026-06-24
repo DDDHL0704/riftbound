@@ -324,12 +324,34 @@ public static class TriggerParser
                 || segment.Contains("回合开始", StringComparison.Ordinal)
                 || segment.Contains("被摧毁", StringComparison.Ordinal)
                 || segment.Contains("征服", StringComparison.Ordinal))
-            .Select(segment => new TriggerSpec(
-                DetermineKind(segment),
-                DetermineTiming(segment),
-                segment,
-                "Parsed trigger candidate; queue ordering remains a later rule-domain implementation."))
+            .Select(ToTriggerSpec)
             .ToArray();
+    }
+
+    private static TriggerSpec ToTriggerSpec(string segment)
+    {
+        var movedUnitPowerMatch = Regex.Match(
+            segment,
+            @"每当一名单位从此处向别处移动时，让其本回合内\{\{S\}\}\+(\d+)",
+            RegexOptions.CultureInvariant);
+        if (movedUnitPowerMatch.Success
+            && int.TryParse(movedUnitPowerMatch.Groups[1].Value, out var powerDelta))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldUnitMovedAwayPowerModifier,
+                TriggerTimings.BattlefieldUnitMovedAway,
+                segment,
+                "Battlefield moved-unit power modifier parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                TriggerTargetScopes.MovedUnit,
+                powerDelta,
+                TriggerDurations.UntilEndOfTurn);
+        }
+
+        return new TriggerSpec(
+            DetermineKind(segment),
+            DetermineTiming(segment),
+            segment,
+            "Parsed trigger candidate; queue ordering remains a later rule-domain implementation.");
     }
 
     private static string DetermineKind(string segment)

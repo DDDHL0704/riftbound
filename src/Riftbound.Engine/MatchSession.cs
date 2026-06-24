@@ -5987,7 +5987,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
-    private const string BattlefieldMovedUnitPowerPlusOneCardNo = "OGN·277/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
@@ -15993,7 +15992,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldTurnStartDamageAllUnitsCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldTurnStartDestroyUnitDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerRevealRecycleCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldMovedUnitPowerPlusOneCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldPreventMoveToBaseCardNo, StringComparison.Ordinal)
@@ -16525,7 +16524,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
-    private const string BattlefieldMovedUnitPowerPlusOneCardNo = "OGN·277/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
@@ -22443,7 +22441,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-BACK-ALLEY-BAR"] = new(
                     "P1-BATTLEFIELD-BACK-ALLEY-BAR",
-                    cardNo: BattlefieldMovedUnitPowerPlusOneCardNo,
+                    cardNo: "OGN·277/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),

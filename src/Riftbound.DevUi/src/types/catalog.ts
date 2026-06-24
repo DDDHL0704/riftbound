@@ -39,7 +39,15 @@ export type BehaviorSpec = {
   cost: ParsedCostSpec;
   keywords: KeywordSpec[];
   targets: Array<{ scope: string; minCount: number; maxCount?: number | null; text: string; optional?: boolean }>;
-  triggers: Array<{ kind: string; timing: string; text: string; reason: string }>;
+  triggers: Array<{
+    kind: string;
+    timing: string;
+    text: string;
+    reason: string;
+    targetScope?: string | null;
+    powerDelta?: number | null;
+    duration?: string | null;
+  }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
   activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;
   staticAbilities: Array<{ kind: string; text: string; status: string; reason: string }>;

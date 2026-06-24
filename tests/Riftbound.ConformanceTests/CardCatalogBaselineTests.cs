@@ -1359,6 +1359,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldMovedUnitPowerTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var backAlleyBar = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·277/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(backAlleyBar.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldUnitMovedAway, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.MovedUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.PowerDelta);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Contains("每当一名单位从此处向别处移动时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("本回合内{{S}}+1", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield moved-unit power modifier parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public void StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(
@@ -1383,6 +1404,29 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("WiseElderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldAllUnitsPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldMovedUnitPowerTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldMovedUnitPowerPlusOneCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldMovedUnitPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldMovedUnitPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
