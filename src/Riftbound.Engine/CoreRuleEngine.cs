@@ -667,7 +667,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int SettLegendManaCost = 1;
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
-    private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
@@ -21369,11 +21368,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHoldDrawCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(battlefieldState.CardNo, out var trigger)
+            || trigger.DrawCount.GetValueOrDefault() <= 0)
         {
             return false;
         }
 
+        var drawCount = trigger.DrawCount.GetValueOrDefault();
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
             $"{playerId} 据守战场并抽牌",
@@ -21383,16 +21384,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_DRAW_ONE",
+                ["trigger"] = TriggerKinds.BattlefieldHeldDrawOne,
                 ["sourceObjectId"] = sourceObjectId,
-                ["drawCount"] = 1
+                ["drawCount"] = drawCount
             }));
         drawApplication = ApplyDrawToPlayer(
             state,
             playerZones,
             playerScores,
             playerId,
-            1,
+            drawCount,
             rngCursor,
             events);
         return true;
@@ -24797,7 +24798,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardNo, out _)
             || IsBattlefieldHeldMoveUnitToBaseCardNo(cardNo)
             || IsBattlefieldHoldCreateMinionCardNo(cardNo)
-            || IsBattlefieldHoldDrawCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardNo, out _)
             || IsBattlefieldHoldCallRuneCardNo(cardNo)
             || IsBattlefieldHoldGrantBoonCardNo(cardNo)
             || IsBattlefieldHeldReturnHeroCardNo(cardNo)
@@ -24858,11 +24859,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldHoldDrawCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHoldDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHoldCallRuneCardNo(string? cardNo)

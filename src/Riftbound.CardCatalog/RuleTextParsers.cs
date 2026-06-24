@@ -357,6 +357,20 @@ public static class TriggerParser
                 ManaDelta: manaDelta);
         }
 
+        var battlefieldHeldDrawMatch = Regex.Match(
+            segment,
+            @"当你据守此处时，抽一张牌",
+            RegexOptions.CultureInvariant);
+        if (battlefieldHeldDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldDrawOne,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held draw-one trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                DrawCount: 1);
+        }
+
         var friendlySpellDrawMatch = Regex.Match(
             segment,
             @"每回合首次：当你对此处的友方单位使用法术时，抽([0-9一两二三四五六七八九十]+)张牌",

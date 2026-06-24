@@ -42,6 +42,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO";
     public const string BattlefieldHeldUnitCostIncrease =
         "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE";
+    public const string BattlefieldHeldDrawOne =
+        "BATTLEFIELD_HELD_DRAW_ONE";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
