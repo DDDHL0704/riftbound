@@ -1985,6 +1985,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerPayReadyLegendTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var hallOfLegends = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·210/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(hallOfLegends.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerPayReadyLegend, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ControlledLegend, trigger.TargetScope);
+        Assert.Equal(1, trigger.ManaCost);
+        Assert.Equal(1, trigger.LegendReadyCount);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("支付{{1}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("你的传奇变为活跃状态", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered pay-ready-legend trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2647,6 +2669,30 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldSandSoldierManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldConquerPayReadyLegendTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerPayOneReadyLegendCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerPayOneReadyLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerPayOneReadyLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldReadyLegendManaCost", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

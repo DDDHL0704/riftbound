@@ -80,6 +80,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
     public const string BattlefieldConquerPayReturnUnitCreateSandSoldier =
         "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER";
+    public const string BattlefieldConquerPayReadyLegend =
+        "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -113,6 +115,7 @@ public static class TriggerTargetScopes
     public const string ReturnedUnitAtThisBattlefield = "RETURNED_UNIT_AT_THIS_BATTLEFIELD";
     public const string OtherControlledUnitAtThisBattlefield = "OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
     public const string ControlledUnitAtThisBattlefield = "CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
+    public const string ControlledLegend = "CONTROLLED_LEGEND";
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
@@ -307,6 +310,7 @@ public sealed record TriggerSpec(
     int? RuneReadyCount = null,
     string? ReadyTiming = null,
     int? EquipmentReadyCount = null,
+    int? LegendReadyCount = null,
     bool? DetachesArmament = null,
     int? MoveCount = null,
     string? MoveDestination = null,

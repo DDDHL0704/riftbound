@@ -574,6 +574,22 @@ public static class TriggerParser
                 CreatedTokenExhausted: false);
         }
 
+        var battlefieldConquerPayReadyLegendMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}，以此让你的传奇变为活跃状态",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerPayReadyLegendMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerPayReadyLegend,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered pay-ready-legend trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.ControlledLegend,
+                ManaCost: ParseChineseNumber(battlefieldConquerPayReadyLegendMatch.Groups[1].Value),
+                LegendReadyCount: 1);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

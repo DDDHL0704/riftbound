@@ -673,7 +673,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
-    private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
@@ -700,7 +699,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
-    private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldHeldScorePowerCost = 4;
     private const int BattlefieldScoreDelayReleasedTurnOrdinal = 3;
     private const int JhinCompletionSpellCount = 4;
@@ -23629,15 +23627,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             string battlefieldId,
             string sourceObjectId)
     {
+        const string abilityId = TriggerKinds.BattlefieldConquerPayReadyLegend;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerPayOneReadyLegendCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledLegend, StringComparison.Ordinal)
+            || trigger.ManaCost is not > 0
+            || trigger.LegendReadyCount is not 1
             || !TryGetFirstExhaustedLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState))
         {
             return (runePools, []);
         }
 
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < BattlefieldReadyLegendManaCost)
+        var manaCost = trigger.ManaCost.Value;
+        if (currentPool.Mana < manaCost)
         {
             return (runePools, []);
         }
@@ -23645,7 +23651,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var nextRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         nextRunePools[playerId] = currentPool with
         {
-            Mana = currentPool.Mana - BattlefieldReadyLegendManaCost
+            Mana = currentPool.Mana - manaCost
         };
         cardObjects[legendObjectId] = legendState with
         {
@@ -23663,7 +23669,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldId,
                     ["battlefieldObjectId"] = battlefieldObjectId,
                     ["battlefieldCardNo"] = battlefieldState.CardNo,
-                    ["trigger"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND",
+                    ["trigger"] = abilityId,
                     ["sourceObjectId"] = sourceObjectId,
                     ["legendObjectId"] = legendObjectId
                 }),
@@ -23673,9 +23679,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
-                    ["mana"] = BattlefieldReadyLegendManaCost,
+                    ["mana"] = manaCost,
                     ["power"] = 0,
-                    ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
+                    ["reason"] = abilityId
                 }),
             new GameEvent(
                 "LEGEND_READIED",
@@ -23684,7 +23690,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
+                    ["reason"] = abilityId
                 })
         ]);
     }
@@ -25085,7 +25091,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardNo, out _)
             || IsBattlefieldDefendRevealSpellCardNo(cardNo)
             || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardNo, out _)
-            || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(cardNo, out _)
@@ -25159,11 +25165,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefendRevealSpellCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefendRevealSpellCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerPayOneReadyLegendCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerOverkillCreateWarhawkCardNo(string? cardNo)
