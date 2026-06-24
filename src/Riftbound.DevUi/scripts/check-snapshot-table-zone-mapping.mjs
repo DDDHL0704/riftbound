@@ -69,4 +69,19 @@ for (const containment of [
   );
 }
 
+for (const stackRedactionAssertion of [
+  "SnapshotRedactsHiddenStackSourcePerViewer",
+  "STACK-HIDDEN-STANDBY",
+  "sourceVisibility",
+  "HIDDEN_REACTION",
+  "UNL-099/219",
+  "Assert.Equal([\"HIDDEN\", \"P1-LEFT-UNIT\"], StringList(p1StackItem[\"targetObjectIds\"]))",
+  "AssertSerializedSnapshotDoesNotContain("
+]) {
+  assert.ok(
+    testSource.includes(stackRedactionAssertion),
+    `Snapshot table projection tests must assert hidden stack source redaction: ${stackRedactionAssertion}.`
+  );
+}
+
 console.log("Snapshot table zone mapping coverage check passed.");

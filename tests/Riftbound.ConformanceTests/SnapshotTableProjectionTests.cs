@@ -243,6 +243,47 @@ public sealed class SnapshotTableProjectionTests
             "P2-RUNE-DECK");
     }
 
+    [Fact]
+    public void SnapshotRedactsHiddenStackSourcePerViewer()
+    {
+        var state = TableProjectionState() with
+        {
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-HIDDEN-STANDBY",
+                    "P2",
+                    "P2-HIDDEN-STANDBY",
+                    "HIDDEN_REACTION",
+                    "UNL-099/219",
+                    targetObjectIds: ["P2-HIDDEN-STANDBY", "P1-LEFT-UNIT"],
+                    damageAmount: 1)
+            ]
+        };
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+
+        var p1StackItem = Assert.Single(ObjectList(snapshots["P1"].Stack));
+        Assert.Equal("STACK-HIDDEN-STANDBY", StringValue(p1StackItem["stackItemId"]));
+        Assert.Equal("P2", StringValue(p1StackItem["controllerId"]));
+        Assert.Equal("HIDDEN", StringValue(p1StackItem["sourceObjectId"]));
+        Assert.Equal("HIDDEN", StringValue(p1StackItem["sourceVisibility"]));
+        Assert.Equal("HIDDEN", StringValue(p1StackItem["effectKind"]));
+        Assert.Equal("HIDDEN", StringValue(p1StackItem["cardNo"]));
+        Assert.Equal(["HIDDEN", "P1-LEFT-UNIT"], StringList(p1StackItem["targetObjectIds"]));
+        AssertSerializedSnapshotDoesNotContain(
+            snapshots["P1"],
+            "P2-HIDDEN-STANDBY",
+            "HIDDEN_REACTION",
+            "UNL-099/219");
+
+        var p2StackItem = Assert.Single(ObjectList(snapshots["P2"].Stack));
+        Assert.Equal("P2-HIDDEN-STANDBY", StringValue(p2StackItem["sourceObjectId"]));
+        Assert.Equal("VISIBLE", StringValue(p2StackItem["sourceVisibility"]));
+        Assert.Equal("HIDDEN_REACTION", StringValue(p2StackItem["effectKind"]));
+        Assert.Equal("UNL-099/219", StringValue(p2StackItem["cardNo"]));
+        Assert.Equal(["P2-HIDDEN-STANDBY", "P1-LEFT-UNIT"], StringList(p2StackItem["targetObjectIds"]));
+    }
+
     private static MatchState TableProjectionState()
     {
         return new MatchState(
@@ -315,7 +356,7 @@ public sealed class SnapshotTableProjectionTests
             ["P1-RIGHT-UNIT"] = Unit("P1-RIGHT-UNIT", "P1"),
             ["P2-RIGHT-UNIT"] = Unit("P2-RIGHT-UNIT", "P2"),
             ["P1-STANDBY"] = Standby("P1-STANDBY", "P1", isFaceDown: true),
-            ["P2-HIDDEN-STANDBY"] = Standby("P2-HIDDEN-STANDBY", "P2", isFaceDown: true),
+            ["P2-HIDDEN-STANDBY"] = Standby("P2-HIDDEN-STANDBY", "P2", isFaceDown: true, "UNL-099/219"),
             ["P2-RIGHT-STANDBY"] = Standby("P2-RIGHT-STANDBY", "P2", isFaceDown: false)
         };
     }
@@ -370,13 +411,17 @@ public sealed class SnapshotTableProjectionTests
             controllerId: ownerId);
     }
 
-    private static CardObjectState Standby(string objectId, string ownerId, bool isFaceDown)
+    private static CardObjectState Standby(
+        string objectId,
+        string ownerId,
+        bool isFaceDown,
+        string cardNo = "UNL-011/219")
     {
         return new(
             objectId,
             isFaceDown: isFaceDown,
             tags: [CardObjectTags.Standby],
-            cardNo: "UNL-011/219",
+            cardNo: cardNo,
             ownerId: ownerId,
             controllerId: ownerId);
     }

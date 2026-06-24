@@ -3084,7 +3084,7 @@ public sealed record ResolutionResult(
             state.ActivePlayerId,
             players,
             BuildLaneSnapshotView(state, viewerPlayerId),
-            state.StackItems.Select(item => (object?)BuildStackItemSnapshotView(item)).ToArray(),
+            state.StackItems.Select(item => (object?)BuildStackItemSnapshotView(state, item, viewerPlayerId)).ToArray(),
             new Dictionary<string, object?>
             {
                 ["phase"] = state.Phase,
@@ -3292,16 +3292,25 @@ public sealed record ResolutionResult(
             || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
-    private static Dictionary<string, object?> BuildStackItemSnapshotView(StackItemState item)
+    private static Dictionary<string, object?> BuildStackItemSnapshotView(
+        MatchState state,
+        StackItemState item,
+        string viewerPlayerId)
     {
+        var hiddenSource = IsHiddenStackSourceForViewer(state, item, viewerPlayerId);
         var view = new Dictionary<string, object?>
         {
             ["stackItemId"] = item.StackItemId,
             ["controllerId"] = item.ControllerId,
-            ["sourceObjectId"] = item.SourceObjectId,
-            ["effectKind"] = item.EffectKind,
-            ["cardNo"] = item.CardNo,
-            ["targetObjectIds"] = item.TargetObjectIds,
+            ["sourceObjectId"] = hiddenSource ? "HIDDEN" : item.SourceObjectId,
+            ["sourceVisibility"] = hiddenSource ? "HIDDEN" : "VISIBLE",
+            ["effectKind"] = hiddenSource ? "HIDDEN" : item.EffectKind,
+            ["cardNo"] = hiddenSource ? "HIDDEN" : item.CardNo,
+            ["targetObjectIds"] = item.TargetObjectIds
+                .Select(targetObjectId => IsHiddenBattlefieldStandbyForViewer(state, targetObjectId, viewerPlayerId)
+                    ? "HIDDEN"
+                    : targetObjectId)
+                .ToArray(),
             ["damageAmount"] = item.DamageAmount
         };
         if (!string.IsNullOrWhiteSpace(item.Destination))
@@ -3310,6 +3319,15 @@ public sealed record ResolutionResult(
         }
 
         return view;
+    }
+
+    private static bool IsHiddenStackSourceForViewer(
+        MatchState state,
+        StackItemState item,
+        string viewerPlayerId)
+    {
+        return !string.IsNullOrWhiteSpace(item.SourceObjectId)
+            && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 
     private static IReadOnlyList<Dictionary<string, object?>> BuildRuleQueueCoverageSnapshotView(MatchState state)
