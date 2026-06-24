@@ -935,6 +935,17 @@ async function runWireLayoutGeometrySmoke(cdp, viewportLabel) {
     if (document.querySelectorAll("[data-wire-table-authority-player-source='server']").length < 2) {
       failures.push("wire table authority did not expose two server-authored player base partitions");
     }
+    const tableAuthorityPlayerRows = Array.from(document.querySelectorAll("[data-wire-table-authority-player-source]")).map((row) => ({
+      hiddenStandbyCount: Number(row.getAttribute("data-wire-table-authority-hidden-standby-count") ?? "-1"),
+      source: row.getAttribute("data-wire-table-authority-player-source") ?? "",
+      state: row.getAttribute("data-wire-table-authority-row-state") ?? ""
+    }));
+    if (tableAuthorityPlayerRows.length < 2) {
+      failures.push("wire table authority player rows missing");
+    }
+    if (tableAuthorityPlayerRows.some((row) => row.source === "server" && (!Number.isFinite(row.hiddenStandbyCount) || row.hiddenStandbyCount < 0))) {
+      failures.push("wire table authority player hidden standby counts must be non-negative server fields: " + JSON.stringify(tableAuthorityPlayerRows));
+    }
     if (document.querySelectorAll("[data-wire-table-authority-lane-source='server-unitsBySide']").length < 2) {
       failures.push("wire table authority did not expose two server-authored battlefield lane splits");
     }

@@ -34,6 +34,7 @@ export function WireTableAuthorityPanel({ selectedObjectId, table }: { selectedO
           {plan.players.map((row) => (
             <li
               data-wire-table-authority-player-source={row.source}
+              data-wire-table-authority-hidden-standby-count={row.hiddenBattlefieldStandbyCount}
               data-wire-table-authority-row-state={row.state}
               key={row.key}
             >
