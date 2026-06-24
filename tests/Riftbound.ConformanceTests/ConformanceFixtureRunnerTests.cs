@@ -38212,7 +38212,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_EQUIPMENT", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal));
         Assert.Equal("P1-BATTLEFIELD-ARMAMENT", triggerEvent.Payload["equipmentObjectId"]);
         Assert.Equal(true, triggerEvent.Payload["detachesArmament"]);
         Assert.Contains(result.Events, gameEvent =>
@@ -38268,7 +38268,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_EQUIPMENT", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal));
         Assert.Equal("P1-BATTLEFIELD-ARMAMENT", triggerEvent.Payload["equipmentObjectId"]);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
         Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].AttachedToObjectId);

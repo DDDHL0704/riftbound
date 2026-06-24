@@ -1886,6 +1886,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerReadyEquipmentTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var moonveilAltar = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·221/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(moonveilAltar.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerReadyEquipment, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.FriendlyEquipment, trigger.TargetScope);
+        Assert.Equal(1, trigger.EquipmentReadyCount);
+        Assert.True(trigger.DetachesArmament);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("让一件友方装备变为活跃状态", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("武装", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered ready-equipment trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2453,6 +2475,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldConquerReadyTwoRunesAtEndCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldConquerReadyTwoRunesAtEndCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldConquerReadyEquipmentTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerReadyEquipmentCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerReadyEquipmentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerReadyEquipmentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

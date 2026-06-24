@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -319,6 +319,19 @@ The 2026-06-25 conquer ready-runes-at-end follow-up moves another implemented co
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerReadyTwoRunesAtEndCardNo` constant.
 - The old `BattlefieldConquerReadyTwoRunesAtEndCardNo` / `IsBattlefieldConquerReadyTwoRunesAtEndCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `68` total / `64` in `CoreRuleEngine`; Core battlefield helper count is `20`.
 
+The 2026-06-25 conquer ready-equipment follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
+
+- `SFD·221/221` / 月帷祭坛 official text: `当你征服此处时，你可以选择让一件友方装备变为活跃状态。如果它是一件武装，则你可以选择将其卸除。`
+- `RuleTextParser` now parses that official text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_CONQUERED_READY_EQUIPMENT`
+  - `Timing = BATTLEFIELD_CONQUERED`
+  - `TargetScope = FRIENDLY_EQUIPMENT`
+  - `EquipmentReadyCount = 1`
+  - `DetachesArmament = true`
+- `CoreRuleEngine.TryResolveBattlefieldConquerReadyEquipmentTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(...)` and reads the equipment count / armament detach policy from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerReadyEquipmentCardNo` constant.
+- The old `BattlefieldConquerReadyEquipmentCardNo` / `IsBattlefieldConquerReadyEquipmentCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `67` total / `63` in `CoreRuleEngine`; Core battlefield helper count is `19`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -515,3 +528,11 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8421/8421`.
+
+2026-06-25 conquer ready-equipment follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `4/4`;
+- adjacent BattlefieldConquer / BattlefieldTriggerSpec / Equipment / FullGame / GameHub representatives: passed `750/750`;
+- MatchRecovery: passed `1989/1989`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
+- backend full conformance: passed `8423/8423`.

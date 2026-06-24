@@ -5999,7 +5999,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
     private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
-    private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
@@ -16041,7 +16040,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneCreateGoldCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldConquerReadyEquipmentCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldConquerOverkillCreateWarhawkCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
@@ -16561,7 +16560,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
     private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
-    private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
@@ -24495,7 +24493,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-MOONVEIL-ALTAR"] = new(
                     "P1-BATTLEFIELD-MOONVEIL-ALTAR",
-                    cardNo: BattlefieldConquerReadyEquipmentCardNo,
+                    cardNo: "SFD·221/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),

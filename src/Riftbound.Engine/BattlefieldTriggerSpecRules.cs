@@ -152,6 +152,14 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetBattlefieldConquerReadyEquipmentTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldConquerReadyEquipment,
+            out trigger);
+    }
+
     public static bool TryGetBattlefieldFriendlySpellDrawTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

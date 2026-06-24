@@ -68,6 +68,8 @@ export type BehaviorSpec = {
     runeCallCount?: number | null;
     runeReadyCount?: number | null;
     readyTiming?: string | null;
+    equipmentReadyCount?: number | null;
+    detachesArmament?: boolean | null;
     moveCount?: number | null;
     moveDestination?: string | null;
     oncePerTurn?: boolean | null;

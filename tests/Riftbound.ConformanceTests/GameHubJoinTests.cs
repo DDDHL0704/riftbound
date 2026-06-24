@@ -10113,7 +10113,7 @@ public sealed class GameHubJoinTests
         var battleEvents = EventsFor(battleClients);
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_EQUIPMENT", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal));
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_READIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-ARMAMENT", StringComparison.Ordinal));

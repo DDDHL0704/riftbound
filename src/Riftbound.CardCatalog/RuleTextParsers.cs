@@ -325,6 +325,13 @@ public static class TriggerParser
             triggers.Add(battlefieldConquerRevealRecycleTrigger);
         }
 
+        var hasBattlefieldConquerReadyEquipmentTrigger =
+            TryParseBattlefieldConquerReadyEquipment(text, out var battlefieldConquerReadyEquipmentTrigger);
+        if (hasBattlefieldConquerReadyEquipmentTrigger)
+        {
+            triggers.Add(battlefieldConquerReadyEquipmentTrigger);
+        }
+
         triggers.AddRange(TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
@@ -334,6 +341,9 @@ public static class TriggerParser
                 || segment.Contains("征服", StringComparison.Ordinal))
             .Where(segment => !hasBattlefieldConquerRevealRecycleTrigger
                 || !segment.Contains("当你征服此处时，查看主牌堆顶部", StringComparison.Ordinal))
+            .Where(segment => !hasBattlefieldConquerReadyEquipmentTrigger
+                || !segment.Contains("当你征服此处时，你可以选择让", StringComparison.Ordinal)
+                || !segment.Contains("友方装备变为活跃状态", StringComparison.Ordinal))
             .Select(ToTriggerSpec)
             .ToArray());
 
@@ -362,6 +372,29 @@ public static class TriggerParser
             RevealSourceZone: TriggerZones.MainDeck,
             RecycleCount: revealCount,
             RecycleDestinationZone: TriggerZones.MainDeck);
+        return true;
+    }
+
+    private static bool TryParseBattlefieldConquerReadyEquipment(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"当你征服此处时，你可以选择让([0-9一两二三四五六七八九十]+)件友方装备变为活跃状态。?如果它是一件武装，则你可以选择将其卸除",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            TriggerKinds.BattlefieldConquerReadyEquipment,
+            TriggerTimings.BattlefieldConquered,
+            match.Value,
+            "Battlefield conquered ready-equipment trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            TargetScope: TriggerTargetScopes.FriendlyEquipment,
+            EquipmentReadyCount: ParseChineseNumber(match.Groups[1].Value),
+            DetachesArmament: true);
         return true;
     }
 
@@ -463,6 +496,22 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.OwnedRuneInBase,
                 RuneReadyCount: ParseChineseNumber(battlefieldConquerReadyRunesAtEndMatch.Groups[1].Value),
                 ReadyTiming: TriggerReadyTimings.EndOfTurn);
+        }
+
+        var battlefieldConquerReadyEquipmentMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，你可以选择让([0-9一两二三四五六七八九十]+)件友方装备变为活跃状态。如果它是一件武装，则你可以选择将其卸除",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerReadyEquipmentMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerReadyEquipment,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered ready-equipment trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.FriendlyEquipment,
+                EquipmentReadyCount: ParseChineseNumber(battlefieldConquerReadyEquipmentMatch.Groups[1].Value),
+                DetachesArmament: true);
         }
 
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)

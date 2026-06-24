@@ -691,7 +691,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
-    private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
@@ -24648,15 +24647,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         string sourceObjectId,
         List<GameEvent> events)
     {
+        const string abilityId = TriggerKinds.BattlefieldConquerReadyEquipment;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerReadyEquipmentCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyEquipment, StringComparison.Ordinal)
+            || trigger.EquipmentReadyCount.GetValueOrDefault() <= 0
             || !TryGetFirstExhaustedFriendlyEquipment(playerZones, cardObjects, playerId, out var equipmentObjectId, out var equipmentState))
         {
             return false;
         }
 
         var previousAttachedToObjectId = equipmentState.AttachedToObjectId;
-        var detachesArmament = equipmentState.Tags.Contains("武装", StringComparer.Ordinal)
+        var detachesArmament = trigger.DetachesArmament == true
+            && equipmentState.Tags.Contains("武装", StringComparer.Ordinal)
             && !string.IsNullOrWhiteSpace(previousAttachedToObjectId);
         cardObjects[equipmentObjectId] = equipmentState with
         {
@@ -24673,7 +24677,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONQUERED_READY_EQUIPMENT",
+                ["trigger"] = abilityId,
                 ["sourceObjectId"] = sourceObjectId,
                 ["equipmentObjectId"] = equipmentObjectId,
                 ["detachesArmament"] = detachesArmament
@@ -24685,7 +24689,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = equipmentObjectId,
-                ["reason"] = "BATTLEFIELD_CONQUERED_READY_EQUIPMENT",
+                ["reason"] = abilityId,
                 ["wasExhausted"] = equipmentState.IsExhausted,
                 ["isExhausted"] = false
             }));
@@ -24698,7 +24702,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = battlefieldObjectId,
-                    ["abilityId"] = "BATTLEFIELD_CONQUERED_READY_EQUIPMENT",
+                    ["abilityId"] = abilityId,
                     ["unitObjectId"] = previousAttachedToObjectId,
                     ["equipmentObjectId"] = equipmentObjectId,
                     ["controllerId"] = playerId,
@@ -24986,7 +24990,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
             || IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(cardNo)
             || IsBattlefieldConquerPayOneCreateGoldCardNo(cardNo)
-            || IsBattlefieldConquerReadyEquipmentCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardNo, out _)
             || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo)
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
@@ -25074,11 +25078,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerPayOneCreateGoldCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerPayOneCreateGoldCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerReadyEquipmentCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerReadyEquipmentCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerOverkillCreateWarhawkCardNo(string? cardNo)
