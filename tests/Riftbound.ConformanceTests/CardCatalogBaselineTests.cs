@@ -1219,6 +1219,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("我所处的战场你每有一名拥有{{瞬息}}的单位", petalPixieAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, petalPixieAura.Status);
 
+        var wiseElder = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·065/298", StringComparison.Ordinal));
+        var wiseElderAura = Assert.Single(wiseElder.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SourceObjectFilteredPower, wiseElderAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, wiseElderAura.Layer);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", wiseElderAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SourceObject, wiseElderAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SourceObject, wiseElderAura.ParticipantScope);
+        Assert.Equal(1, wiseElderAura.PowerDeltaPerParticipant);
+        Assert.Equal(StaticAuraTargetFilters.TagPrefix + "增益", wiseElderAura.TargetFilter);
+        Assert.Contains("如果我拥有增益", wiseElderAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, wiseElderAura.Status);
+
         foreach (var cardNo in new[] { "OGS·013/024", "SFD·236/221", "SFD·236*/221", "OGN·243/298", "OGN·243a/298" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
@@ -1314,6 +1326,7 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
 
         Assert.DoesNotContain("IsPetalPixieCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("WiseElderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

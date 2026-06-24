@@ -563,7 +563,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgsLuxHighCostSpellCardNo = "OGS·006/024";
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
-    private const string WiseElderCardNo = "OGN·065/298";
     private const string WaterbenderCardNo = "OGN·055/298";
     private const string SfdFioraPowerfulReadyCardNo = "SFD·180/221";
     private const string SfdFioraPowerfulReadyAltCardNo = "SFD·180a/221";
@@ -19323,7 +19322,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObject);
         staticPowerBonus += ResolveScarletPigeonMultiAttackerPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveDuneDrakeReadyEnemyAttackPowerBonus(cardObject, isAttacking, attacksReadyEnemyUnit);
-        staticPowerBonus += ResolveWiseElderBoonPowerBonus(cardObject);
+        staticPowerBonus += ResolveSourceObjectFilteredPowerBonus(cardObject);
         staticPowerBonus += ResolveWaterbenderLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
         staticPowerBonus += ResolveBattlefieldFilteredUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
@@ -19353,13 +19352,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             : defendingUnitCount == 1 ? 2 : 0;
     }
 
-    private static int ResolveWiseElderBoonPowerBonus(CardObjectState cardObject)
+    private static int ResolveSourceObjectFilteredPowerBonus(CardObjectState cardObject)
     {
-        return string.Equals(cardObject.CardNo, WiseElderCardNo, StringComparison.Ordinal)
-            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && cardObject.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
-            ? 1
+            && StaticAuraSpecRules.TryGetSourceObjectFilteredPowerAura(cardObject.CardNo, out var aura)
+            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+            ? aura.PowerDeltaPerParticipant
             : 0;
     }
 

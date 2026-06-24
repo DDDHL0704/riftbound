@@ -478,6 +478,34 @@ public static class StaticAuraParser
         var auras = new List<StaticAuraSpec>();
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var sourceObjectFilteredPowerMatch = Regex.Match(
+                segment,
+                @"如果我拥有([^，。]+)，则我(?:额外)?获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (sourceObjectFilteredPowerMatch.Success
+                && int.TryParse(sourceObjectFilteredPowerMatch.Groups[2].Value, out var sourceObjectFilteredPowerDelta))
+            {
+                var tag = sourceObjectFilteredPowerMatch.Groups[1].Value
+                    .Replace("{{", string.Empty, StringComparison.Ordinal)
+                    .Replace("}}", string.Empty, StringComparison.Ordinal)
+                    .Trim();
+                if (!string.IsNullOrWhiteSpace(tag))
+                {
+                    auras.Add(new StaticAuraSpec(
+                        StaticAuraKinds.SourceObjectFilteredPower,
+                        StaticAuraLayer,
+                        "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                        StaticAuraTargetScopes.SourceObject,
+                        StaticAuraParticipantScopes.SourceObject,
+                        sourceObjectFilteredPowerDelta,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                        StaticAuraTargetFilters.TagPrefix + tag));
+                    continue;
+                }
+            }
+
             var brushBattlefieldFilteredPowerMatch = Regex.Match(
                 segment,
                 @"此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得\{\{S\}\}\+(\d+)",

@@ -28,6 +28,14 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetSourceObjectFilteredPowerAura(string? cardNo, out StaticAuraSpec aura)
+    {
+        return TryGetAura(
+            cardNo,
+            StaticAuraKinds.SourceObjectFilteredPower,
+            out aura);
+    }
+
     public static bool TryGetBattlefieldAllUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(

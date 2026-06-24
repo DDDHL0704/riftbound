@@ -38,6 +38,7 @@ public static class StaticAuraKinds
 {
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
+    public const string SourceObjectFilteredPower = "SOURCE_OBJECT_FILTERED_POWER";
     public const string BattlefieldAllUnitsPowerPlusOne = "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE";
     public const string BattlefieldFilteredUnitsPower = "BATTLEFIELD_FILTERED_UNITS_POWER";
     public const string SameBattlefieldOtherFriendlyUnitsPowerPlusOne =
@@ -64,6 +65,7 @@ public static class StaticAuraTargetScopes
 
 public static class StaticAuraParticipantScopes
 {
+    public const string SourceObject = "SOURCE_OBJECT";
     public const string FriendlyPublicFieldEquipment = "FRIENDLY_PUBLIC_FIELD_EQUIPMENT";
     public const string SameBattlefieldPublicUnits = "SAME_BATTLEFIELD_PUBLIC_UNITS";
     public const string SameBattlefieldFilteredPublicUnits = "SAME_BATTLEFIELD_FILTERED_PUBLIC_UNITS";
