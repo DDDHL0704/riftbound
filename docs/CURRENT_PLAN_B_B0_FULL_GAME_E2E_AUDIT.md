@@ -2,7 +2,7 @@
 
 Date: 2026-06-24
 
-Status: focused B0 server E2E damage-assignment slice accepted; project remains **NOT READY**.
+Status: focused B0 server E2E response-activation slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -22,6 +22,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - the score-victory result has a single `MATCH_WON` event and winner score satisfies the emitted `winningScore`;
 - the score-victory path now runs the original mirrored Jhin deck, a distinct Jhin-vs-Rumble official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair;
 - a legal official Lillia deck pair can drive multi-defender `DECLARE_BATTLE` into `ASSIGN_COMBAT_DAMAGE`, submit both players' assignments, and close battle with `DAMAGE_APPLIED` / `BATTLE_CLOSED`;
+- a legal official Vex deck pair can drive `DECLARE_BATTLE` into `BATTLE_RESPONSE_PRIORITY_OPENED`, activate `UNL-194/219` Shadow through `ACTIVATE_ABILITY`, resolve the stack, return to battle response priority, and close battle with `BATTLE_RESPONSE_PRIORITY_CLOSED` / `BATTLE_CLOSED`;
 - every accepted step checks player snapshots for hidden opponent hand, main-deck and rune-deck object id leakage;
 - the earlier surrender result smoke remains covered separately.
 
@@ -39,6 +40,8 @@ This standby-heavy slice also adds no runtime rule changes. It broadens the same
 
 This damage-assignment slice adds no runtime rule changes. It broadens B0 from real battle close to a real official-deck multi-defender battle damage assignment window. Both players use legal Lillia green/blue decks containing official `UNL-036/219` Mutant Kitten (`壁垒`) and `UNL-090/219` LeBlanc (`后排`). The driver stages two invading units on one battlefield through server prompts, opens `BATTLE_DAMAGE_ASSIGNMENT_OPENED`, submits `ASSIGN_COMBAT_DAMAGE` for both players, and observes `DAMAGE_APPLIED` + `BATTLE_CLOSED` without hidden-zone leakage.
 
+This response-activation slice adds no runtime rule changes. It broadens B0 from response-pass / assignment fixtures to a real official-deck battle response activation path. Both players use legal Vex green/purple decks with `UNL-232/219` Vex legend, `UNL-055/219` Vex champion, and official `UNL-194/219` Shadow. The driver follows Shadow's official text by playing it directly to a contested battlefield active, opens `BATTLE_RESPONSE_PRIORITY_OPENED`, submits prompt-authored `ACTIVATE_ABILITY` with the required payment resource action when quoted, resolves Shadow's stack item, observes `STUNNED`, returns to battle response priority, and then closes the battle without hidden-zone leakage.
+
 ## Evidence
 
 - Added `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs`.
@@ -49,7 +52,8 @@ This damage-assignment slice adds no runtime rule changes. It broadens B0 from r
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveMultiDefenderBattleDamageAssignmentThroughServerPrompts`.
-- Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to parameterize P1/P2 decks, force required official cards into legal low-curve Lillia decks for the damage-assignment route, and skip `待命` units when choosing the representative play / move unit.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveShadowBattleResponseActivationThroughServerPrompts`.
+- Test driver changed in `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` to parameterize P1/P2 decks, force required official cards into legal low-curve Lillia / Vex decks for the damage-assignment and response-activation routes, support required official exclusive units, and skip `待命` units when choosing the representative play / move unit.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` only in the spell-duel close handoff path.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` turn start to advance pending battlefield tasks after turn-start ready / draw / score state is built.
 - Runtime changed in `src/Riftbound.Engine/CoreRuleEngine.cs` to restore ordinary open main `ActivePlayerId` to `TurnPlayerId` after battlefield-task advancement finds no further contested battlefield.
@@ -58,7 +62,7 @@ This damage-assignment slice adds no runtime rule changes. It broadens B0 from r
 
 ## Residuals
 
-This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves an official Lillia multi-defender damage-assignment deck pair can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts. It does not prove all real deck archetypes, full standby reveal / reaction mechanics, complete combat damage assignment breadth, all response windows, or all card-effect families can complete a game.
+This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves an official Lillia multi-defender damage-assignment deck pair can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, and an official Vex / Shadow deck pair can open and resolve a battle response activation through server prompts. It does not prove all real deck archetypes, full standby reveal / reaction mechanics, complete combat damage assignment breadth, all response windows, or all card-effect families can complete a game.
 
 Current §6 mouth count after this slice: `Is*CardNo` engine whitelist definitions remain 108. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-driver slice.
 
@@ -66,7 +70,7 @@ Open follow-up:
 
 - evidence whether same-turn effects that ready or add units after a no-legal battle skip should reopen that battlefield battle task before turn end.
 - broaden standby-heavy coverage beyond the battle-path representative into explicit standby reveal / reaction and non-ready-base cleanup branches.
-- broaden B0 beyond representative damage assignment into response windows, replacement / duration cleanup, and more card-effect families.
+- broaden B0 beyond representative damage assignment / response activation into standby reaction windows, replacement / duration cleanup, and more card-effect families.
 
 ## Validation
 
@@ -79,19 +83,19 @@ Focused validation passed:
 Result:
 
 ```text
-Passed: 6, Failed: 0, Skipped: 0, Total: 6
+Passed: 7, Failed: 0, Skipped: 0, Total: 7
 ```
 
 Adjacent validation passed:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~BoardTaskQueueFoundationTests|FullyQualifiedName~SpellDuelBattleStateMachineTests|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~BattleDamageAssignment"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~BoardTaskQueueFoundationTests|FullyQualifiedName~SpellDuelBattleStateMachineTests|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~BattleDamageAssignment|FullyQualifiedName~ShadowActivatedAbility"
 ```
 
 Result:
 
 ```text
-Passed: 477, Failed: 0, Skipped: 0, Total: 477
+Passed: 528, Failed: 0, Skipped: 0, Total: 528
 ```
 
 Recovery / hidden-info validation passed:
@@ -115,5 +119,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8356, Failed: 0, Skipped: 0, Total: 8356
+Passed: 8357, Failed: 0, Skipped: 0, Total: 8357
 ```

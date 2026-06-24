@@ -18,6 +18,9 @@ public sealed class FullGameEndToEndTests
     private const string LilliaChampionCardNo = "UNL-082/219";
     private const string MutantKittenCardNo = "UNL-036/219";
     private const string LeblancCardNo = "UNL-090/219";
+    private const string VexLegendCardNo = "UNL-232/219";
+    private const string VexChampionCardNo = "UNL-055/219";
+    private const string ShadowCardNo = "UNL-194/219";
 
     [Fact]
     public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
@@ -130,6 +133,42 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         Assert.False(battleResult.State.BattleState.IsActive);
         AssertNoHiddenZoneLeak(assignmentOpened);
+        AssertNoHiddenZoneLeak(battleResult);
+    }
+
+    [Fact]
+    public async Task OfficialDecksResolveShadowBattleResponseActivationThroughServerPrompts()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildShadowResponseOfficialDeck(catalog);
+
+        var (_, openedResponse, activated, stackResolved, battleResult, targetObjectId) =
+            await DriveOfficialDecksToShadowResponseBattleCloseAsync(
+                "b0-full-game-shadow-response-room",
+                deck,
+                deck);
+
+        Assert.Contains(openedResponse.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.StackPriority, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].View?.Type);
+        Assert.Contains(CommandTypes.ActivateAbility, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].Actions);
+
+        Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Single(activated.State.StackItems);
+
+        Assert.Contains(stackResolved.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        Assert.Contains("STUNNED", stackResolved.State.CardObjects[targetObjectId].UntilEndOfTurnEffects);
+
+        Assert.Contains(battleResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.False(battleResult.State.BattleState.IsActive);
+        AssertNoHiddenZoneLeak(openedResponse);
+        AssertNoHiddenZoneLeak(activated);
+        AssertNoHiddenZoneLeak(stackResolved);
         AssertNoHiddenZoneLeak(battleResult);
     }
 
@@ -319,6 +358,209 @@ public sealed class FullGameEndToEndTests
             assignmentOpened,
             "b0-damage-assignment");
         return (session, assignmentOpened, battleResult);
+    }
+
+    private static async ValueTask<(
+        MatchSession Session,
+        ResolutionResult OpenedResponse,
+        ResolutionResult Activated,
+        ResolutionResult StackResolved,
+        ResolutionResult BattleResult,
+        string TargetObjectId)> DriveOfficialDecksToShadowResponseBattleCloseAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in new[] { 7, 11, 17, 23, 31, 42, 101, 404, 20260624, 424242 })
+        {
+            try
+            {
+                return await DriveOfficialDecksToShadowResponseBattleCloseAsync(
+                    $"{roomId}-{seed}",
+                    p1Deck,
+                    p2Deck,
+                    seed);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 shadow-response driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+            catch (MatchSessionException ex) when (ex.Message.Contains("对局已经结束", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: match ended before Shadow response path");
+            }
+        }
+
+        throw new InvalidOperationException(
+            "B0 shadow-response driver could not find a deterministic official-deck Shadow response path. "
+            + string.Join(" | ", failures));
+    }
+
+    private static async ValueTask<(
+        MatchSession Session,
+        ResolutionResult OpenedResponse,
+        ResolutionResult Activated,
+        ResolutionResult StackResolved,
+        ResolutionResult BattleResult,
+        string TargetObjectId)> DriveOfficialDecksToShadowResponseBattleCloseAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck,
+        int seed)
+    {
+        var initialState = MatchState.Create(roomId) with { Seed = seed };
+        var session = new MatchSession(initialState, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-shadow-submit-p1");
+        var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-shadow-submit-p2");
+        AssertAccepted(p1Submit);
+        AssertAccepted(p2Submit);
+
+        AssertAccepted(await session.ReadyAsync("P1", "b0-shadow-ready-p1", RawCommand(CommandTypes.Ready), CancellationToken.None));
+        var ready = await session.ReadyAsync("P2", "b0-shadow-ready-p2", RawCommand(CommandTypes.Ready), CancellationToken.None);
+        AssertAccepted(ready);
+        AssertNoHiddenZoneLeak(ready);
+
+        var activePlayerId = ready.State.ActivePlayerId;
+        var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
+        var activeMulligan = await session.SubmitAsync(
+            activePlayerId,
+            "b0-shadow-mulligan-active",
+            new MulliganCommand([]),
+            RawCommand(CommandTypes.Mulligan),
+            CancellationToken.None);
+        AssertAccepted(activeMulligan);
+        AssertNoHiddenZoneLeak(activeMulligan);
+
+        var current = await session.SubmitAsync(
+            secondPlayerId,
+            "b0-shadow-mulligan-second",
+            new MulliganCommand([]),
+            RawCommand(CommandTypes.Mulligan),
+            CancellationToken.None);
+        AssertAccepted(current);
+        AssertNoHiddenZoneLeak(current);
+        Assert.Equal(MatchPhases.Main, current.State.Phase);
+
+        var battlefieldOwnerId = current.State.ActivePlayerId;
+        current = await TapAllAvailableRunesAsync(session, battlefieldOwnerId, current, "b0-shadow-owner-tap");
+        current = await TryPlayFirstUnitAsync(session, battlefieldOwnerId, current, "b0-shadow-owner-play-attacker", playUnitToBattlefield: true);
+
+        var shadowControllerId = OpponentOf(current.State, battlefieldOwnerId);
+        current = await EndTurnAsync(session, battlefieldOwnerId, "b0-shadow-end-owner-setup");
+        AssertNoHiddenZoneLeak(current);
+
+        current = await DriveShadowOntoBattlefieldAsync(
+            session,
+            current,
+            shadowControllerId,
+            battlefieldOwnerId);
+
+        var openedResponse = await DriveContestedBattlefieldToShadowResponseAsync(
+            session,
+            current,
+            battlefieldOwnerId,
+            shadowControllerId);
+        var (activated, targetObjectId) = await ActivateCurrentShadowResponseAsync(
+            session,
+            openedResponse,
+            openedResponse.State.PriorityPlayerId!,
+            "b0-shadow-activate-response");
+        var stackResolved = await ResolveCurrentStackOnlyAsync(session, activated, "b0-shadow-resolve-stack");
+        var battleResult = await PassOpenBattleResponseAsync(session, stackResolved, "b0-shadow-pass-returned-response");
+        return (session, openedResponse, activated, stackResolved, battleResult, targetObjectId);
+    }
+
+    private static async ValueTask<ResolutionResult> DriveShadowOntoBattlefieldAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string shadowControllerId,
+        string battlefieldOwnerId)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 40; turnIndex++)
+        {
+            if (!string.Equals(result.State.ActivePlayerId, shadowControllerId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"b0-shadow-wait-for-controller-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            result = await TapAllAvailableRunesAsync(session, shadowControllerId, result, $"b0-shadow-controller-tap-{turnIndex}");
+            var pool = result.State.RunePools[shadowControllerId];
+            if (!PlayerHandContainsCardNo(result.State, shadowControllerId, ShadowCardNo)
+                || pool.Mana < 4)
+            {
+                result = await EndTurnAsync(session, shadowControllerId, $"b0-shadow-wait-for-card-resources-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            var battlefieldDestination = BattlefieldDestinationFor(result.State, battlefieldOwnerId);
+            result = await PlaySpecificUnitToBattlefieldAsync(
+                session,
+                shadowControllerId,
+                result,
+                ShadowCardNo,
+                battlefieldDestination,
+                "b0-shadow-play-shadow-to-battlefield");
+            result = await PassOpenSpellDuelAsync(session, result, "b0-shadow-pass-shadow-contest");
+            return result;
+        }
+
+        throw new InvalidOperationException("B0 shadow-response driver could not stage Shadow with response resources.");
+    }
+
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToShadowResponseAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string battlefieldOwnerId,
+        string shadowControllerId)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 12; turnIndex++)
+        {
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                var declared = await SubmitShadowResponseDeclareBattleAsync(
+                    session,
+                    result,
+                    battlefieldOwnerId,
+                    shadowControllerId,
+                    $"b0-shadow-declare-response-battle-{turnIndex}");
+                AssertAccepted(declared);
+                return declared;
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"b0-shadow-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"b0-shadow-reopen-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                var declared = await SubmitShadowResponseDeclareBattleAsync(
+                    session,
+                    result,
+                    battlefieldOwnerId,
+                    shadowControllerId,
+                    "b0-shadow-declare-response-battle");
+                AssertAccepted(declared);
+                return declared;
+            }
+        }
+
+        throw new InvalidOperationException("B0 shadow-response driver could not open a Shadow response battle task.");
     }
 
     private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
@@ -531,6 +773,35 @@ public sealed class FullGameEndToEndTests
         return move;
     }
 
+    private static async ValueTask<ResolutionResult> PlaySpecificUnitToBattlefieldAsync(
+        MatchSession session,
+        string playerId,
+        ResolutionResult current,
+        string cardNo,
+        string battlefieldDestination,
+        string intentPrefix)
+    {
+        var sourceObjectId = FindHandCardObjectByCardNo(current.State, playerId, cardNo)
+            ?? throw new InvalidOperationException($"B0 shadow-response driver could not find {cardNo} in {playerId}'s hand.");
+        var play = await session.SubmitAsync(
+            playerId,
+            $"{intentPrefix}-play",
+            new PlayCardCommand(sourceObjectId, cardNo, [], Destination: battlefieldDestination),
+            RawCommand(CommandTypes.PlayCard),
+            CancellationToken.None);
+        AssertAccepted(play);
+        AssertNoHiddenZoneLeak(play);
+
+        var resolved = await ResolveStackPassPassAsync(session, play, $"{intentPrefix}-resolve");
+        var battlefieldObjectId = resolved.State.PlayerZones[playerId].Battlefields
+            .FirstOrDefault(objectId => IsObjectLocatedAtBattlefield(resolved.State, objectId, battlefieldDestination)
+                && resolved.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException($"B0 shadow-response driver could not find battlefield {cardNo} for {playerId}.");
+        Assert.False(resolved.State.CardObjects[battlefieldObjectId].IsExhausted);
+        return resolved;
+    }
+
     private static async ValueTask<ResolutionResult> SubmitMultiDefenderDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -574,6 +845,151 @@ public sealed class FullGameEndToEndTests
                 optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
             }),
             CancellationToken.None);
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitShadowResponseDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string battlefieldOwnerId,
+        string shadowControllerId,
+        string intentId)
+    {
+        Assert.Equal(battlefieldOwnerId, current.State.ActivePlayerId);
+        var playerId = current.State.ActivePlayerId;
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 shadow-response driver could not find DECLARE_BATTLE for {playerId}.");
+        var battlefieldId = candidate.Destinations?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 shadow-response driver could not find battle destination.");
+        var attackerObjectId = candidate.Sources?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 shadow-response driver could not find battle attacker.");
+        var shadowObjectId = current.State.PlayerZones[shadowControllerId].Battlefields
+            .FirstOrDefault(objectId => IsObjectLocatedAtBattlefield(current.State, objectId, battlefieldId)
+                && IsReadyUnit(current.State, objectId)
+                && current.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, ShadowCardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("B0 shadow-response driver could not find ready Shadow defender.");
+
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            [shadowObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { attackerObjectId },
+                defenderObjectIds = new[] { shadowObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        if (declared.Accepted)
+        {
+            Assert.Contains(declared.Events, gameEvent =>
+                string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            Assert.Equal(shadowControllerId, declared.State.PriorityPlayerId);
+        }
+
+        return declared;
+    }
+
+    private static async ValueTask<(ResolutionResult Result, string TargetObjectId)> ActivateCurrentShadowResponseAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var prompt = current.Prompts[playerId];
+        Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
+        var candidate = EnabledCandidate(prompt, CommandTypes.ActivateAbility)
+            ?? throw new InvalidOperationException($"B0 shadow-response driver could not find ACTIVATE_ABILITY for {playerId}.");
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var requirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
+            entry => string.Equals(
+                entry["abilityId"] as string,
+                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                StringComparison.Ordinal));
+        var sourceObjectId = Assert.IsType<string>(requirement["sourceObjectId"]);
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            requirement["targetChoicesByIndex"]);
+        var targetObjectId = Assert.Single(targetChoicesByIndex["0"]).Id;
+        var optionalCosts = ActivateAbilityPaymentResourceChoicesForRequirement(requirement);
+        var command = new ActivateAbilityCommand(
+            sourceObjectId,
+            P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+            [targetObjectId],
+            optionalCosts);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.ActivateAbility,
+                sourceObjectId,
+                abilityId = P4ActivatedAbilityCatalog.ShadowStunAbilityId,
+                targetObjectIds = new[] { targetObjectId },
+                optionalCosts
+            }),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return (result, targetObjectId);
+    }
+
+    private static IReadOnlyList<string> ActivateAbilityPaymentResourceChoicesForRequirement(
+        IReadOnlyDictionary<string, object?> requirement)
+    {
+        var powerCost = Assert.IsType<int>(requirement["powerCost"]);
+        var availablePower = Assert.IsType<int>(requirement["availablePower"]);
+        if (availablePower >= powerCost)
+        {
+            return [];
+        }
+
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            requirement["paymentResourceChoices"]);
+        var choice = paymentResourceChoices.FirstOrDefault()
+            ?? throw new InvalidOperationException("B0 shadow-response driver expected a payment resource choice for Shadow power cost.");
+        return [choice.Id];
+    }
+
+    private static async ValueTask<ResolutionResult> PassOpenBattleResponseAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var index = 0; index < 8; index++)
+        {
+            if (!result.State.BattleState.IsActive || string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
+            {
+                return result;
+            }
+
+            if (result.State.StackItems.Count > 0)
+            {
+                result = await ResolveStackPassPassAsync(session, result, $"{intentPrefix}-stack-{index}");
+                continue;
+            }
+
+            var priorityPlayerId = result.State.PriorityPlayerId;
+            result = await session.SubmitAsync(
+                priorityPlayerId,
+                $"{intentPrefix}-{index}",
+                new PassPriorityCommand(),
+                RawCommand(CommandTypes.PassPriority),
+                CancellationToken.None);
+            AssertAccepted(result);
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException("B0 shadow-response driver exceeded battle response pass guard.");
     }
 
     private static async ValueTask<ResolutionResult> ResolveOpenBattleDamageAssignmentsAsync(
@@ -708,7 +1124,7 @@ public sealed class FullGameEndToEndTests
         string intentPrefix)
     {
         var result = current;
-        for (var index = 0; index < 10; index++)
+        for (var index = 0; index < 20; index++)
         {
             var prompt = result.Prompts[playerId];
             var candidate = EnabledCandidate(prompt, CommandTypes.TapRune);
@@ -805,6 +1221,38 @@ public sealed class FullGameEndToEndTests
         }
 
         throw new InvalidOperationException("B0 auto-driver exceeded stack pass guard.");
+    }
+
+    private static async ValueTask<ResolutionResult> ResolveCurrentStackOnlyAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var index = 0; index < 20; index++)
+        {
+            if (result.State.StackItems.Count == 0)
+            {
+                return result;
+            }
+
+            var priorityPlayerId = result.State.PriorityPlayerId;
+            if (string.IsNullOrWhiteSpace(priorityPlayerId))
+            {
+                throw new InvalidOperationException("B0 auto-driver found stack items without a priority player.");
+            }
+
+            result = await session.SubmitAsync(
+                priorityPlayerId,
+                $"{intentPrefix}-pass-priority-{index}",
+                new PassPriorityCommand(),
+                RawCommand(CommandTypes.PassPriority),
+                CancellationToken.None);
+            AssertAccepted(result);
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException("B0 auto-driver exceeded current stack pass guard.");
     }
 
     private static string BattlefieldDestinationFor(MatchState state, string playerId)
@@ -1069,7 +1517,7 @@ public sealed class FullGameEndToEndTests
         foreach (var cardNo in requiredMainDeckCardNos)
         {
             Assert.True(cardsByNo.TryGetValue(cardNo, out var requiredCard), $"Required card {cardNo} was not found in the official catalog.");
-            Assert.True(IsMainDeckCandidate(requiredCard, allowedColors), $"Required card {cardNo} is not legal for {legendCardNo}.");
+            Assert.True(IsRequiredMainDeckCandidate(requiredCard, allowedColors), $"Required card {cardNo} is not legal for {legendCardNo}.");
             mainDeck.Add(cardNo);
             nameCounts[requiredCard.CardName] = nameCounts.TryGetValue(requiredCard.CardName, out var current) ? current + 1 : 1;
         }
@@ -1133,10 +1581,31 @@ public sealed class FullGameEndToEndTests
             ]);
     }
 
+    private static OfficialDecklist BuildShadowResponseOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [
+                ShadowCardNo,
+                ShadowCardNo,
+                ShadowCardNo
+            ]);
+    }
+
     private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
     {
         return card.CardCategoryName is "单位" or "英雄单位"
             && !card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal)
+            && card.CardGroupLimit != 1
+            && !card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal)
+            && TraitsAllowed(card, allowedColors);
+    }
+
+    private static bool IsRequiredMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
+    {
+        return card.CardCategoryName is "单位" or "英雄单位" or "专属单位"
             && card.CardGroupLimit != 1
             && !card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal)
             && TraitsAllowed(card, allowedColors);
