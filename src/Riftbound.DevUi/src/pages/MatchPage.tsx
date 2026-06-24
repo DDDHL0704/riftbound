@@ -1097,7 +1097,12 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
           </div>
           <div
             className="wire-side-panel-stack"
+            data-wire-side-panel-active-boundary-source={sidePanelStackPlan.activePanel.boundarySource}
+            data-wire-side-panel-active-can-scroll-y={sidePanelStackPlan.activePanel.canScrollY}
+            data-wire-side-panel-active-min-height={sidePanelStackPlan.activePanel.minHeightPx}
+            data-wire-side-panel-active-overflow-mode={sidePanelStackPlan.activePanel.overflowMode}
             data-wire-side-panel-active-slot={activeSidePanelSlot}
+            data-wire-side-panel-active-stack-slot={sidePanelStackPlan.activePanel.slot}
             data-wire-side-panel-active-tab={activeSidePanelTab}
             data-wire-side-panel-persistent-count={sidePanelFrame.persistentSlots.length}
             data-wire-side-panel-rail={sidePanelStackPlan.byRail.main.key}
@@ -1127,6 +1132,10 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
                 className="wire-side-panel-pane"
                 data-wire-side-panel-pane={entry.slot}
                 data-wire-side-panel-pane-active={entry.active}
+                data-wire-side-panel-pane-boundary-source={entry.active ? sidePanelStackPlan.activePanel.boundarySource : ""}
+                data-wire-side-panel-pane-can-scroll-y={entry.active ? sidePanelStackPlan.activePanel.canScrollY : ""}
+                data-wire-side-panel-pane-min-height={entry.active ? sidePanelStackPlan.activePanel.minHeightPx : ""}
+                data-wire-side-panel-pane-overflow-mode={entry.active ? sidePanelStackPlan.activePanel.overflowMode : ""}
                 data-wire-side-panel-pane-region={entry.region}
                 data-wire-side-panel-pane-visible={entry.visible}
                 id={wireSidePanelTabPanelIdForSlot(entry.slot)}

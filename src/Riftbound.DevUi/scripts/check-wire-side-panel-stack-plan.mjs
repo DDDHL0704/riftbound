@@ -70,6 +70,11 @@ assert.equal(quietPlan.byRail.status.priority, "urgent");
 assert.equal(quietPlan.byRail.main.bodyMode, "full");
 assert.equal(quietPlan.byRail.main.capacityWeight, 4);
 assert.deepEqual(quietPlan.visibleEntries.map((rail) => rail.key), ["status", "receipt", "main"]);
+assert.equal(quietPlan.activePanel.slot, "commandCenter");
+assert.equal(quietPlan.activePanel.overflowMode, "auto");
+assert.equal(quietPlan.activePanel.minHeightPx, 96);
+assert.equal(quietPlan.activePanel.boundarySource, "wire-side-panel-stack-plan");
+assert.equal(quietPlan.activePanel.canScrollY, true);
 
 const focusedPlan = buildWireSidePanelStackPlan({
   activeSlot: "commandCenter",
@@ -147,6 +152,9 @@ const rulesExpandedPlan = buildWireSidePanelStackPlan({
 assert.equal(rulesExpandedPlan.byRail.rules.mode, "expanded");
 assert.equal(rulesExpandedPlan.byRail.rules.state, "primary");
 assert.equal(rulesExpandedPlan.byRail.rules.bodyMode, "full");
+assert.equal(rulesExpandedPlan.activePanel.slot, "ruleQueue");
+assert.equal(rulesExpandedPlan.activePanel.overflowMode, "auto");
+assert.equal(rulesExpandedPlan.activePanel.canScrollY, true);
 
 const receiptSummaryPlan = buildWireSidePanelStackPlan({
   activeSlot: "ruleQueue",

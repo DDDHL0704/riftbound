@@ -20,6 +20,14 @@ export type WireSidePanelStackRailPriority = "background" | "context" | "primary
 
 export type WireSidePanelStackRailState = "empty" | "normal" | "primary" | "urgent";
 
+export type WireSidePanelActivePanelPlan = {
+  boundarySource: "wire-side-panel-stack-plan";
+  canScrollY: boolean;
+  minHeightPx: number;
+  overflowMode: "auto";
+  slot: WireSidePanelSlot;
+};
+
 export type WireSidePanelStackRailEntry = {
   actionLabel: string;
   actionSlot?: WireSidePanelSlot;
@@ -37,6 +45,7 @@ export type WireSidePanelStackRailEntry = {
 };
 
 export type WireSidePanelStackPlan = {
+  activePanel: WireSidePanelActivePanelPlan;
   activeSlot: WireSidePanelSlot;
   activeSlotLabel: string;
   byRail: Record<WireSidePanelStackRailKey, WireSidePanelStackRailEntry>;
@@ -87,6 +96,7 @@ export function buildWireSidePanelStackPlan({
   >;
 
   return {
+    activePanel: activePanelPlan(activeEntry?.slot ?? activeSlot),
     activeSlot,
     activeSlotLabel: activeEntry?.label ?? activeSlot,
     byRail,
@@ -102,6 +112,16 @@ export function buildWireSidePanelStackPlan({
     summary: `${activeEntry?.label ?? activeSlot} 展开；${summaryCount} 个摘要；${hiddenCount} 个隐藏；${capacity.density} 密度。`,
     summaryCount,
     visibleEntries
+  };
+}
+
+function activePanelPlan(slot: WireSidePanelSlot): WireSidePanelActivePanelPlan {
+  return {
+    boundarySource: "wire-side-panel-stack-plan",
+    canScrollY: true,
+    minHeightPx: 96,
+    overflowMode: "auto",
+    slot
   };
 }
 

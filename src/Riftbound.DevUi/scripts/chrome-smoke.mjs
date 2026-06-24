@@ -1918,6 +1918,11 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
     const railStack = document.querySelector("[data-wire-side-panel-rail-stack]");
     const paneStack = document.querySelector(".wire-side-panel-stack");
     const activeSlot = paneStack?.getAttribute("data-wire-side-panel-active-slot") ?? "";
+    const activeBoundarySource = paneStack?.getAttribute("data-wire-side-panel-active-boundary-source") ?? "";
+    const activeCanScrollY = paneStack?.getAttribute("data-wire-side-panel-active-can-scroll-y") ?? "";
+    const activeMinHeight = Number(paneStack?.getAttribute("data-wire-side-panel-active-min-height") ?? "NaN");
+    const activeOverflowMode = paneStack?.getAttribute("data-wire-side-panel-active-overflow-mode") ?? "";
+    const activeStackSlot = paneStack?.getAttribute("data-wire-side-panel-active-stack-slot") ?? "";
     const activePane = activeSlot ? document.querySelector('[data-wire-side-panel-pane="' + activeSlot + '"]') : null;
     const activePanel = activePane?.querySelector(":scope > .wire-panel") ?? null;
     const visiblePanes = Array.from(document.querySelectorAll('[data-wire-side-panel-pane-visible="true"]')).filter(visible);
@@ -2057,6 +2062,33 @@ async function runWireSidePanelBrowserAcceptanceSmoke(cdp, viewportLabel) {
       failures.push("wire side panel operation routes are not readable at " + viewportLabel + ": " + JSON.stringify(operationRoutes));
     }
     const activePanelBoundary = scrollBoundary(activePanel);
+    if (activeStackSlot !== activeSlot) {
+      failures.push("wire side panel active stack slot mismatch at " + viewportLabel + ": " + activeStackSlot + " / " + activeSlot);
+    }
+    if (activeBoundarySource !== "wire-side-panel-stack-plan" || activePane?.getAttribute("data-wire-side-panel-pane-boundary-source") !== activeBoundarySource) {
+      failures.push("wire side panel active boundary source missing at " + viewportLabel + ": " + JSON.stringify({
+        pane: activePane?.getAttribute("data-wire-side-panel-pane-boundary-source") ?? "",
+        stack: activeBoundarySource
+      }));
+    }
+    if (activeCanScrollY !== "true" || activePane?.getAttribute("data-wire-side-panel-pane-can-scroll-y") !== activeCanScrollY) {
+      failures.push("wire side panel active can-scroll contract missing at " + viewportLabel + ": " + JSON.stringify({
+        pane: activePane?.getAttribute("data-wire-side-panel-pane-can-scroll-y") ?? "",
+        stack: activeCanScrollY
+      }));
+    }
+    if (activeOverflowMode !== "auto" || activePane?.getAttribute("data-wire-side-panel-pane-overflow-mode") !== activeOverflowMode) {
+      failures.push("wire side panel active overflow contract missing at " + viewportLabel + ": " + JSON.stringify({
+        pane: activePane?.getAttribute("data-wire-side-panel-pane-overflow-mode") ?? "",
+        stack: activeOverflowMode
+      }));
+    }
+    if (!Number.isFinite(activeMinHeight) || activeMinHeight < 96 || Number(activePane?.getAttribute("data-wire-side-panel-pane-min-height") ?? "NaN") !== activeMinHeight) {
+      failures.push("wire side panel active min-height contract missing at " + viewportLabel + ": " + JSON.stringify({
+        pane: activePane?.getAttribute("data-wire-side-panel-pane-min-height") ?? "",
+        stack: activeMinHeight
+      }));
+    }
     if (!activePanelBoundary.exists || !activePanelBoundary.canScrollY) {
       failures.push("wire side panel active detail pane missing overflow:auto boundary at " + viewportLabel + ": " + JSON.stringify(activePanelBoundary));
     }
