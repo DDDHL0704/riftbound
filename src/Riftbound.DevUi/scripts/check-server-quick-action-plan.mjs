@@ -88,6 +88,21 @@ assert.equal(readonlyById.endTurn.state, "readonly");
 assert.equal(readonlyById.endTurn.disabled, true);
 assert.equal(readonlyById.endTurn.title, "当前不是你的服务端行动窗口。");
 
+const readOnlyPromptPlan = buildServerQuickActionPlan({
+  canAct: true,
+  connected: true,
+  prompt: {
+    ...prompt,
+    actionable: false
+  },
+  snapshot: { tick: 7 }
+});
+const readOnlyPromptById = entriesById(readOnlyPromptPlan.entries);
+assert.equal(readOnlyPromptById.pass.state, "readonly");
+assert.equal(readOnlyPromptById.pass.disabled, true);
+assert.equal(readOnlyPromptById.pass.command, undefined);
+assert.equal(readOnlyPromptById.pass.title, "当前服务端提示为只读状态，暂不提交行动。");
+
 const missingPlan = buildServerQuickActionPlan({
   canAct: true,
   connected: true,

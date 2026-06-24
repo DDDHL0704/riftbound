@@ -159,8 +159,10 @@ function quickActionEntryForDefinition({
     candidate,
     disabledByConnection: !submissionGate.canSubmit || !canAct
   });
-  const command = commandPlan.command ? promptStampedCommand(commandPlan.command, prompt) : undefined;
-  const executable = Boolean(command || commandPlan.directAction);
+  const canExposeExecutable = submissionGate.canSubmit && canAct;
+  const command = canExposeExecutable && commandPlan.command ? promptStampedCommand(commandPlan.command, prompt) : undefined;
+  const directAction = canExposeExecutable ? commandPlan.directAction : undefined;
+  const executable = Boolean(command || directAction);
   const disabled = commandPlan.disabled || !executable;
 
   return {
@@ -169,7 +171,7 @@ function quickActionEntryForDefinition({
     commandSource: commandPlan.commandSource,
     commandSourceDetail: commandPlan.commandSourceDetail,
     commandSourceLabel: commandPlan.commandSourceLabel,
-    directAction: commandPlan.directAction,
+    directAction,
     disabled,
     id: definition.id,
     label: definition.label,
@@ -212,7 +214,7 @@ function quickActionState({
     return "disconnected";
   }
 
-  if (!canAct) {
+  if (!canAct || submissionGate.state === "read-only-prompt") {
     return "readonly";
   }
 
