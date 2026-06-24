@@ -508,6 +508,27 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var sameBattlefieldFriendlyFilteredCountSourcePowerMatch = Regex.Match(
+                segment,
+                @"我所处的战场你每有一名拥有\{\{([^}]+)\}\}的单位，我便获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (sameBattlefieldFriendlyFilteredCountSourcePowerMatch.Success
+                && int.TryParse(sameBattlefieldFriendlyFilteredCountSourcePowerMatch.Groups[2].Value, out var sameBattlefieldCountPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits,
+                    sameBattlefieldCountPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                    StaticAuraTargetFilters.TagPrefix + sameBattlefieldFriendlyFilteredCountSourcePowerMatch.Groups[1].Value));
+                continue;
+            }
+
             var sameBattlefieldOtherFriendlyPowerMatch = Regex.Match(
                 segment,
                 @"此处的其他友方单位获得\{\{S\}\}\+(\d+)",

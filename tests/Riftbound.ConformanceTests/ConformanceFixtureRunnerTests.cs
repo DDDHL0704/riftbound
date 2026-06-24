@@ -38884,6 +38884,19 @@ public sealed class ConformanceFixtureRunnerTests
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-PETAL")]
         };
 
+        var staticAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, "P1-PETAL-PIXIE", StringComparison.Ordinal));
+        Assert.Equal("OBJECT", staticAura.Scope);
+        Assert.Equal("P1-PETAL-PIXIE", staticAura.TargetObjectId);
+        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal("SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER", staticAura.EffectKind);
+        Assert.Equal("UNL-076/219", staticAura.SourceCardNo);
+        Assert.Equal("CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus", staticAura.SourcePath);
+        Assert.Equal("SOURCE_AND_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD", staticAura.Condition);
+        Assert.Equal("RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS", staticAura.Lifecycle);
+        Assert.Equal(["P1-EPHEMERAL-SAME"], staticAura.ParticipantObjectIds);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-petal-pixie-static-battle", "P1", "DECLARE_BATTLE"),

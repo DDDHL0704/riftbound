@@ -1207,6 +1207,18 @@ public sealed class CardCatalogBaselineTests
         var ivernLegend = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-195/219", StringComparison.Ordinal));
         Assert.Empty(ivernLegend.StaticAuras);
 
+        var petalPixie = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-076/219", StringComparison.Ordinal));
+        var petalPixieAura = Assert.Single(petalPixie.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, petalPixieAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, petalPixieAura.Layer);
+        Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", petalPixieAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SourceObject, petalPixieAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits, petalPixieAura.ParticipantScope);
+        Assert.Equal(1, petalPixieAura.PowerDeltaPerParticipant);
+        Assert.Equal(StaticAuraTargetFilters.TagPrefix + "瞬息", petalPixieAura.TargetFilter);
+        Assert.Contains("我所处的战场你每有一名拥有{{瞬息}}的单位", petalPixieAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, petalPixieAura.Status);
+
         foreach (var cardNo in new[] { "OGS·013/024", "SFD·236/221", "SFD·236*/221", "OGN·243/298", "OGN·243a/298" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
@@ -1293,6 +1305,15 @@ public sealed class CardCatalogBaselineTests
         var source = File.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("ContinuousEffectStaticAuraCards", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("IsPetalPixieCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -60,6 +60,16 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura(
+        string? cardNo,
+        out StaticAuraSpec aura)
+    {
+        return TryGetAura(
+            cardNo,
+            StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower,
+            out aura);
+    }
+
     public static bool TryGetOtherFriendlyUnitsPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(

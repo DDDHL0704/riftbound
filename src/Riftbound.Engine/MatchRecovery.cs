@@ -16345,6 +16345,28 @@ public static class MatchRecoveryValidator
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
                 && string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal))
             {
+                if (string.Equals(effectKind, StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, StringComparison.Ordinal))
+                {
+                    ValidateContinuousEffectStaticAuraExpectedEffectId(
+                        effectLabel,
+                        effectId,
+                        $"STATIC_AURA:SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER:{sourceObjectId}",
+                        "object static aura effect id",
+                        errors);
+                    return;
+                }
+
+                if (!string.Equals(effectKind, StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower, StringComparison.Ordinal))
+                {
+                    if (effectKind is not null)
+                    {
+                        errors.Add(
+                            $"{effectLabel} object static aura effect kind {effectKind} is invalid for {duration}");
+                    }
+
+                    return;
+                }
+
                 ValidateContinuousEffectStaticAuraExpectedEffectId(
                     effectLabel,
                     effectId,
@@ -16588,6 +16610,33 @@ public static class MatchRecoveryValidator
         {
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal))
             {
+                if (string.Equals(effectKind, StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, StringComparison.Ordinal))
+                {
+                    ValidateContinuousEffectStaticAuraSameBattlefieldFriendlyFilteredCountSourceCardSpecConsistency(
+                        effectLabel,
+                        sourceCardNo,
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        sourcePath,
+                        "CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus",
+                        "object static aura source path",
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        condition,
+                        "SOURCE_AND_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD",
+                        "object static aura condition",
+                        errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(
+                        effectLabel,
+                        lifecycle,
+                        "RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS",
+                        "object static aura lifecycle",
+                        errors);
+                    return;
+                }
+
                 ValidateContinuousEffectStaticAuraMetadataValue(
                     effectLabel,
                     effectKind,
@@ -16826,6 +16875,21 @@ public static class MatchRecoveryValidator
 
         errors.Add(
             $"{effectLabel} battlefield static aura source card no must reference a BehaviorSpec battlefield filtered power aura");
+    }
+
+    private static void ValidateContinuousEffectStaticAuraSameBattlefieldFriendlyFilteredCountSourceCardSpecConsistency(
+        string effectLabel,
+        string? sourceCardNo,
+        List<string> errors)
+    {
+        if (sourceCardNo is null
+            || StaticAuraSpecRules.TryGetSameBattlefieldFriendlyFilteredUnitCountToSourcePowerAura(sourceCardNo, out _))
+        {
+            return;
+        }
+
+        errors.Add(
+            $"{effectLabel} object static aura source card no must reference a BehaviorSpec same-battlefield friendly filtered count-to-source power aura");
     }
 
     private static void ValidateContinuousEffectStaticAuraSameBattlefieldOtherFriendlySourceCardSpecConsistency(
