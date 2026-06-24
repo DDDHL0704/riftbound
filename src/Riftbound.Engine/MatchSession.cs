@@ -6198,7 +6198,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
-    private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const int BattlefieldHeldScorePowerCost = 4;
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
@@ -13848,14 +13847,41 @@ internal static class ActionPromptBuilder
         if (!behavior.PlaysSourceToBaseAsUnit
             || behavior.ManaCost <= 0
             || P6TokenFactoryCatalog.TryGetByCardNo(behavior.CardNo, out _)
-            || !state.UntilEndOfTurnEffects.Contains(
-                $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}",
-                StringComparer.Ordinal))
+            || !TryGetPromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, out var manaDelta))
         {
             return 0;
         }
 
-        return 1;
+        return manaDelta;
+    }
+
+    private static bool TryGetPromptBattlefieldHeldUnitCostIncreaseMana(
+        MatchState state,
+        string playerId,
+        out int manaDelta)
+    {
+        manaDelta = 0;
+        var effectPrefix = $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}";
+        foreach (var effectId in state.UntilEndOfTurnEffects)
+        {
+            if (!effectId.StartsWith(effectPrefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var currentManaDelta = 1;
+            if (effectId.Length > effectPrefix.Length
+                && effectId[effectPrefix.Length] == ':'
+                && int.TryParse(effectId[(effectPrefix.Length + 1)..], out var parsedManaDelta)
+                && parsedManaDelta > 0)
+            {
+                currentManaDelta = parsedManaDelta;
+            }
+
+            manaDelta = Math.Max(manaDelta, currentManaDelta);
+        }
+
+        return manaDelta > 0;
     }
 
     private sealed record PlayCardPowerPaymentRequirement(
@@ -16067,7 +16093,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldPlayUnitPayOneBoonCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldTargetSpellSkillDamageBonusCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldHeldUnitCostIncreaseCardNo, StringComparison.Ordinal);
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardObject.CardNo, out _);
     }
 
     private static bool IsBattlefieldExtraStandbyCardNo(string? cardNo)
@@ -16591,7 +16617,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
-    private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";

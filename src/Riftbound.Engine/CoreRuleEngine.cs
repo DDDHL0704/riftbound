@@ -729,7 +729,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
-    private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int BattlefieldReadyLegendManaCost = 1;
@@ -6390,9 +6389,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix}{playerId}:{battlefieldObjectId}";
     }
 
-    private static string BuildBattlefieldHeldUnitCostIncreaseEffectId(string playerId)
+    private static string BuildBattlefieldHeldUnitCostIncreaseEffectId(string playerId, int manaDelta)
     {
-        return $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}";
+        return manaDelta == 1
+            ? $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}"
+            : $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}:{manaDelta}";
     }
 
     private static string BuildBattlefieldHeldNextSpellEchoEffectId(string playerId)
@@ -6431,11 +6432,33 @@ public sealed class CoreRuleEngine : IRuleEngine
             StringComparer.Ordinal);
     }
 
-    private static bool BattlefieldHeldUnitCostIncreaseActive(MatchState state, string playerId)
+    private static bool TryGetBattlefieldHeldUnitCostIncreaseMana(
+        MatchState state,
+        string playerId,
+        out int manaDelta)
     {
-        return state.UntilEndOfTurnEffects.Contains(
-            BuildBattlefieldHeldUnitCostIncreaseEffectId(playerId),
-            StringComparer.Ordinal);
+        manaDelta = 0;
+        var effectPrefix = $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}";
+        foreach (var effectId in state.UntilEndOfTurnEffects)
+        {
+            if (!effectId.StartsWith(effectPrefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var currentManaDelta = 1;
+            if (effectId.Length > effectPrefix.Length
+                && effectId[effectPrefix.Length] == ':'
+                && int.TryParse(effectId[(effectPrefix.Length + 1)..], out var parsedManaDelta)
+                && parsedManaDelta > 0)
+            {
+                currentManaDelta = parsedManaDelta;
+            }
+
+            manaDelta = Math.Max(manaDelta, currentManaDelta);
+        }
+
+        return manaDelta > 0;
     }
 
     private static bool BattlefieldHeldNextSpellEchoActive(MatchState state, string playerId)
@@ -22100,26 +22123,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHeldUnitCostIncreaseCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(
+                battlefieldState.CardNo,
+                out var triggerSpec)
+            || !string.Equals(triggerSpec.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            || !string.Equals(triggerSpec.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            || triggerSpec.ManaDelta is not > 0)
         {
             return false;
         }
 
-        var effectId = BuildBattlefieldHeldUnitCostIncreaseEffectId(playerId);
+        var manaDelta = triggerSpec.ManaDelta.Value;
+        var effectId = BuildBattlefieldHeldUnitCostIncreaseEffectId(playerId, manaDelta);
         nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(untilEndOfTurnEffects, effectId);
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 据守海力亚秘库，本回合非指示物单位费用增加",
+            $"{playerId} 据守战场，本回合非指示物单位费用增加",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE",
+                ["trigger"] = triggerSpec.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["effectId"] = effectId,
-                ["manaIncrease"] = 1
+                ["manaIncrease"] = manaDelta
             }));
         return true;
     }
@@ -24784,7 +24813,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
             || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
             || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo)
-            || IsBattlefieldHeldUnitCostIncreaseCardNo(cardNo);
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
     }
 
     private static bool IsBattlefieldHeldMoveUnitToBaseCardNo(string? cardNo)
@@ -25003,11 +25032,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldTargetSpellSkillDamageBonusCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldTargetSpellSkillDamageBonusCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldHeldUnitCostIncreaseCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHeldUnitCostIncreaseCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -31569,12 +31593,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!behavior.PlaysSourceToBaseAsUnit
             || behavior.ManaCost <= 0
             || P6TokenFactoryCatalog.TryGetByCardNo(behavior.CardNo, out _)
-            || !BattlefieldHeldUnitCostIncreaseActive(state, playerId))
+            || !TryGetBattlefieldHeldUnitCostIncreaseMana(state, playerId, out var manaDelta))
         {
             return 0;
         }
 
-        return 1;
+        return manaDelta;
     }
 
     private static bool TryGetBattlefieldFriendlySpellDrawSourceObjectId(

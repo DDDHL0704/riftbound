@@ -341,6 +341,22 @@ public static class TriggerParser
                 Duration: TriggerDurations.UntilEndOfTurn);
         }
 
+        var heldUnitCostIncreaseMatch = Regex.Match(
+            segment,
+            @"当你据守此处时，你的非指示物单位在本回合内的打出费用增加\{\{(\d+)\}\}",
+            RegexOptions.CultureInvariant);
+        if (heldUnitCostIncreaseMatch.Success
+            && int.TryParse(heldUnitCostIncreaseMatch.Groups[1].Value, out var manaDelta))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldUnitCostIncrease,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held non-token unit cost increase parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                Duration: TriggerDurations.UntilEndOfTurn,
+                ManaDelta: manaDelta);
+        }
+
         var movedUnitPowerMatch = Regex.Match(
             segment,
             @"每当一名单位从此处向别处移动时，让其本回合内\{\{S\}\}\+(\d+)",

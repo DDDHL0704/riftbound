@@ -2815,6 +2815,7 @@ This is the forty-first rule slice inside P7.9.7. It adds a held-battlefield cos
   - The backend records `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:{playerId}` until end of turn.
   - `PLAY_CARD` cost planning reads that effect only for server-known unit play behaviors and excludes token card identities from the increase.
   - `COST_PAID` now includes `battlefieldHeldUnitCostIncreaseMana`, so UI/event-log surfaces can display the increase without client-side rule math.
+  - 2026-06-25 Plan B / B4 update: the held-trigger source is now resolved from BehaviorSpec `TriggerSpec.Kind=BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE` with `Timing=BATTLEFIELD_HELD`, `Duration=UNTIL_END_OF_TURN`, and `ManaDelta=1`; the old `BattlefieldHeldUnitCostIncreaseCardNo` / `IsBattlefieldHeldUnitCostIncreaseCardNo` card-number branch has been removed.
 - Added `battlefield-held-unit-cost-increase` local development seed plus GameHub coverage for playing `OGN·211/298` with the held-cost marker active and observing a `4` mana payment from base cost `3`.
 - Migrated this battlefield held-trigger slice in `BehaviorSpec`:
   - Implemented functional units: `799/811`
@@ -2836,6 +2837,14 @@ P7.9.7 battlefield foundation slice 41 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/held-cost battlefield slice. GameHub coverage verifies the seed, authoritative cost payload, and stack item creation; conformance coverage verifies the held trigger marker.
+
+Plan B / B4 held unit-cost trigger-spec migration validation:
+
+- `/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BehaviorSpecCatalogParsesBattlefieldHeldUnitCostIncreaseTrigger|FullyQualifiedName~BattlefieldHeldUnitCostIncreaseTriggerDoesNotUseCardNumberAllowList|FullyQualifiedName~P79BattlefieldHeldUnitCostIncrease"`: passed `5/5`.
+- `/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~PaymentEngine|FullyQualifiedName~PlayCard|FullyQualifiedName~GameHubJoinTests.P79Battlefield|FullyQualifiedName~BoardTaskQueue|FullyQualifiedName~FullGame"`: passed `1156/1156`.
+- `/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery"`: passed `1989/1989`.
+- `PATH="/opt/homebrew/bin:..." npm --prefix src/Riftbound.DevUi run build`: passed with existing SignalR Rollup annotation warnings and chunk-size warning.
+- `/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj`: passed `8375/8375`.
 
 ## P7.9.7 Battlefield Foundation Slice 42 Delivered
 

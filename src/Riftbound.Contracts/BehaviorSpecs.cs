@@ -40,6 +40,8 @@ public static class TriggerKinds
         "BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER";
     public const string BattlefieldHeldNextSpellEcho =
         "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO";
+    public const string BattlefieldHeldUnitCostIncrease =
+        "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE";
 }
 
 public static class TriggerTimings
@@ -177,7 +179,8 @@ public sealed record TriggerSpec(
     string Reason = "",
     string? TargetScope = null,
     int? PowerDelta = null,
-    string? Duration = null);
+    string? Duration = null,
+    int? ManaDelta = null);
 
 public sealed record ReplacementSpec(
     string Kind,

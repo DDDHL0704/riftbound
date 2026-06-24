@@ -8,9 +8,11 @@ Project status: **NOT READY**.
 
 - `data/official/card-catalog.zh-CN.json`: `OGN·277/298` 后巷酒吧 has official text `每当一名单位从此处向别处移动时，让其本回合内{{S}}+1。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-216/219` 皮城学院 has official text `当你据守此处时，在本回合内，你的下一个法术获得等同于其基础费用的{{回响}}。（你可以选择支付此额外费用，以重复此法术效果。）`
+- `data/official/card-catalog.zh-CN.json`: `UNL-219/219` 海力亚秘库 has official text `当你据守此处时，你的非指示物单位在本回合内的打出费用增加{{1}}。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
+- Existing representative tests `P79BattlefieldHeldUnitCostIncrease...` and GameHub `P79BattlefieldHeldUnitCostIncrease...` remain the runtime evidence for the held unit-cost increase behavior.
 
 ## Runtime Evidence
 
@@ -22,6 +24,10 @@ The 2026-06-25 follow-up parser path turns the Piltover Academy official text in
 
 The accepted `DECLARE_BATTLE` held-battlefield path still stores the same until-end-of-turn marker `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:{playerId}`. The next spell prompt still offers the existing Echo optional cost, charges extra mana equal to the spell base cost, repeats the stack item, and consumes the marker. Only the source recognition moved from a card-number branch to BehaviorSpec.
 
+The held unit-cost follow-up parser path turns the Vaults of Helia official text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE`, `Timing=BATTLEFIELD_HELD`, `Duration=UNTIL_END_OF_TURN`, and `ManaDelta=1`. Runtime no longer checks `UNL-219/219` through `BattlefieldHeldUnitCostIncreaseCardNo` / `IsBattlefieldHeldUnitCostIncreaseCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` held-battlefield path still stores the existing until-end-of-turn marker shape `BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:{playerId}` for the official `+1` case. `CoreRuleEngine` and `MatchSession` now parse the marker for a mana delta, defaulting the compatibility marker to `1` and allowing future larger deltas to be represented in data without adding another card-number branch. `PLAY_CARD` still excludes tokens and writes `battlefieldHeldUnitCostIncreaseMana` into payment metadata and prompt source requirements.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -32,10 +38,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - moved-unit adjacent BattlefieldMoved / BattlefieldMovePower / MoveUnit / BoardTaskQueue / FullGame / GameHub: `326/326`;
 - held-next-spell Echo focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - held-next-spell Echo adjacent BattlefieldHeld / BattlefieldTriggerSpec / BattlefieldMovedUnitPower / BattlefieldMovePower / GameHub battlefield representatives: `102/102`;
+- held unit-cost increase focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- held unit-cost increase adjacent BattlefieldHeld / BattlefieldTriggerSpec / PaymentEngine / PlayCard / GameHub battlefield representatives / BoardTaskQueue / FullGame: `1156/1156`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the held-next-spell Echo follow-up: `8373/8373`;
-- DevUi build/browser smoke: not repeated for the held-next-spell Echo follow-up because no DevUi files changed.
+- backend full conformance after the held unit-cost increase follow-up: `8375/8375`;
+- DevUi build: passed after adding `/opt/homebrew/bin` to PATH for local `npm`.
 
 ## Non-Closure
 
-This evidence proves two battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, all card-effect families, frontend smoke or READY.
+This evidence proves three battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, all card-effect families, frontend smoke or READY.
