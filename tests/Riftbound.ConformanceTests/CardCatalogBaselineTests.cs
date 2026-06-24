@@ -1392,6 +1392,25 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHeldNextSpellEchoTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var piltoverAcademy = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-216/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(piltoverAcademy.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldHeldNextSpellEcho, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Contains("当你据守此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("下一个法术获得等同于其基础费用的{{回响}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield held next-spell Echo parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1479,6 +1498,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldMovedUnitPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldMovedUnitPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHeldNextSpellEchoTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHeldNextSpellEchoCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHeldNextSpellEchoCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHeldNextSpellEchoCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

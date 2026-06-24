@@ -38,11 +38,14 @@ public static class TriggerKinds
 {
     public const string BattlefieldUnitMovedAwayPowerModifier =
         "BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER";
+    public const string BattlefieldHeldNextSpellEcho =
+        "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO";
 }
 
 public static class TriggerTimings
 {
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
+    public const string BattlefieldHeld = "BATTLEFIELD_HELD";
 }
 
 public static class TriggerTargetScopes

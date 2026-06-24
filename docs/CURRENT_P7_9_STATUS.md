@@ -3087,6 +3087,7 @@ This is the forty-ninth rule slice inside P7.9.7. It adds Piltover Academy's hel
   - The backend stores an until-end-of-turn marker `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:{playerId}` and consumes it when that player's next spell is played.
   - `PLAY_CARD` accepts the existing `ECHO` optional cost for that next spell, charges extra mana equal to the spell's base cost, and creates a stack item with `EffectRepeatCount = 2`.
   - If the player plays the next spell without paying Echo, the marker is still consumed; the frontend only offers/submits prompt choices and never adjudicates the repeat itself.
+  - 2026-06-25 Plan B / B4 update: the held-trigger source is now resolved from BehaviorSpec `TriggerSpec.Kind=BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO` with `Timing=BATTLEFIELD_HELD` and `Duration=UNTIL_END_OF_TURN`; the old `BattlefieldHeldNextSpellEchoCardNo` / `IsBattlefieldHeldNextSpellEchoCardNo` card-number branch has been removed.
 - Added `battlefield-held-next-spell-echo` local development seed plus GameHub coverage for declaring battle at `P2-BATTLEFIELD-PILTOVER-ACADEMY` and observing the held trigger marker event.
 - Migrated this battlefield held-trigger/Echo slice in `BehaviorSpec`:
   - Implemented functional units: `807/811`
@@ -3109,6 +3110,13 @@ P7.9.7 battlefield foundation slice 49 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2800/2800`.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/held-next-spell-Echo battlefield slice. GameHub coverage verifies the seed, authoritative `DECLARE_BATTLE` path, held event, trigger payload, and in-progress snapshot boundary.
+
+Plan B / B4 held-next-spell Echo trigger-spec migration validation:
+
+- `/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BehaviorSpecCatalogParsesBattlefieldHeldNextSpellEchoTrigger|FullyQualifiedName~BattlefieldHeldNextSpellEchoTriggerDoesNotUseCardNumberAllowList|FullyQualifiedName~P79BattlefieldHeldNextSpellEcho"`: passed `5/5`.
+- `/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldHeld|FullyQualifiedName~BattlefieldTriggerSpec|FullyQualifiedName~BattlefieldMovedUnitPower|FullyQualifiedName~BattlefieldMovePower|FullyQualifiedName~GameHubJoinTests.P79Battlefield"`: passed `102/102`.
+- `/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~MatchRecovery"`: passed `1989/1989`.
+- `/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj`: passed `8373/8373`.
 
 ## P7.9.7 Battlefield Foundation Slice 50 Delivered
 

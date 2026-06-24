@@ -330,6 +330,17 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
+            && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldNextSpellEcho,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held next-spell Echo parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                Duration: TriggerDurations.UntilEndOfTurn);
+        }
+
         var movedUnitPowerMatch = Regex.Match(
             segment,
             @"每当一名单位从此处向别处移动时，让其本回合内\{\{S\}\}\+(\d+)",

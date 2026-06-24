@@ -721,7 +721,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
@@ -22138,7 +22137,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHeldNextSpellEchoCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(
+                battlefieldState.CardNo,
+                out var triggerSpec)
+            || !string.Equals(triggerSpec.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            || !string.Equals(triggerSpec.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal))
         {
             return false;
         }
@@ -22147,14 +22150,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(untilEndOfTurnEffects, effectId);
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 据守皮城学院，下一个法术获得回响",
+            $"{playerId} 据守战场，下一个法术获得回响",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO",
+                ["trigger"] = triggerSpec.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["effectId"] = effectId
             }));
@@ -24771,7 +24774,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldSourceGrantsRoam(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardNo, out _)
-            || IsBattlefieldHeldNextSpellEchoCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out _)
             || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
@@ -24960,11 +24963,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldHeldNextSpellEchoCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHeldNextSpellEchoCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldFriendlySpellDrawCardNo(string? cardNo)
