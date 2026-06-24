@@ -82,6 +82,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER";
     public const string BattlefieldConquerPayReadyLegend =
         "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND";
+    public const string BattlefieldDefendRevealTopDrawSpellOrRecycle =
+        "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -101,6 +103,7 @@ public static class TriggerTimings
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
     public const string BattlefieldConquered = "BATTLEFIELD_CONQUERED";
+    public const string BattlefieldDefended = "BATTLEFIELD_DEFENDED";
     public const string BattlefieldFriendlySpellTargeted = "BATTLEFIELD_FRIENDLY_SPELL_TARGETED";
     public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
@@ -294,6 +297,9 @@ public sealed record TriggerSpec(
     int? MinimumPaidMana = null,
     int? RevealCount = null,
     string? RevealSourceZone = null,
+    string? RevealMatchCardFilter = null,
+    string? RevealMatchDestinationZone = null,
+    string? RevealMissDestinationZone = null,
     int? RecycleCount = null,
     string? RecycleSourceZone = null,
     string? RecycleDestinationZone = null,

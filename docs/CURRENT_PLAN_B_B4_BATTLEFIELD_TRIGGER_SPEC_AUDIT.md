@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -397,6 +397,21 @@ The 2026-06-25 conquer pay-ready-legend follow-up moves another implemented conq
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneReadyLegendCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPayOneReadyLegendCardNo` / `IsBattlefieldConquerPayOneReadyLegendCardNo` card-number branch and `BattlefieldReadyLegendManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `63` total / `59` in `CoreRuleEngine`; Core battlefield helper count is `15`.
 
+The 2026-06-25 defend reveal-spell-or-recycle follow-up moves another implemented defended-battlefield trigger away from engine card-number branching:
+
+- `SFD·215/221` / 拉文布鲁姆学院 official text: `当你防守此处时，展示你主牌堆顶部的一张牌。如果是一张法术牌，则将其放入你的手牌，否则将其回收。`
+- `RuleTextParser` now parses that two-sentence official text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE`
+  - `Timing = BATTLEFIELD_DEFENDED`
+  - `RevealCount = 1`
+  - `RevealSourceZone = MAIN_DECK`
+  - `RevealMatchCardFilter = TAG:CARD_TYPE:SPELL`
+  - `RevealMatchDestinationZone = HAND`
+  - `RevealMissDestinationZone = MAIN_DECK`
+- `CoreRuleEngine.ResolveBattlefieldDefendRevealSpellTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(...)` and reads the reveal count, source zone, match filter and branch destinations from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldDefendRevealSpellCardNo` constant. The development seed keeps the official card number only as fixture data.
+- The old `BattlefieldDefendRevealSpellCardNo` / `IsBattlefieldDefendRevealSpellCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `62` total / `58` in `CoreRuleEngine`; Core battlefield helper count is `14`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -633,3 +648,11 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8432/8432`.
+
+2026-06-25 defend reveal-spell-or-recycle follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `7/7`;
+- adjacent BattlefieldDefend / BattlefieldDefender / BattlefieldTriggerSpec / RevealCard / DeclareBattle representatives: passed `188/188`;
+- MatchRecovery: passed `1989/1989`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
+- backend full conformance: passed `8434/8434`.

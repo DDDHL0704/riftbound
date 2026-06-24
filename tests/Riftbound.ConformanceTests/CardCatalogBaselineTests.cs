@@ -2007,6 +2007,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldDefendRevealSpellTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var ravenbloom = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·215/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(ravenbloom.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldDefended, trigger.Timing);
+        Assert.Equal(1, trigger.RevealCount);
+        Assert.Equal(TriggerZones.MainDeck, trigger.RevealSourceZone);
+        Assert.Equal(TriggerCardFilters.TagPrefix + "CARD_TYPE:SPELL", trigger.RevealMatchCardFilter);
+        Assert.Equal(TriggerZones.Hand, trigger.RevealMatchDestinationZone);
+        Assert.Equal(TriggerZones.MainDeck, trigger.RevealMissDestinationZone);
+        Assert.Contains("当你防守此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("展示你主牌堆顶部的一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("如果是一张法术牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield defended reveal-top spell-or-recycle trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2693,6 +2717,29 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("BattlefieldConquerPayOneReadyLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldConquerPayOneReadyLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldReadyLegendManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldDefendRevealSpellTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldDefendRevealSpellCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldDefendRevealSpellCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldDefendRevealSpellCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

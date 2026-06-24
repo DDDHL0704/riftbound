@@ -672,7 +672,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
-    private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
@@ -23180,7 +23179,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.IsNullOrWhiteSpace(playerId)
             || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldDefendRevealSpellCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            || trigger.RevealCount is not 1
+            || !string.Equals(trigger.RevealSourceZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(trigger.RevealMatchCardFilter)
+            || !string.Equals(trigger.RevealMatchDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
+            || !string.Equals(trigger.RevealMissDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal)
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.MainDeck.Count == 0)
         {
@@ -23195,7 +23202,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var revealedObjectId = revealedObjectIds[0];
         var revealedIsSpell = cardObjects.TryGetValue(revealedObjectId, out var revealedState)
-            && revealedState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal);
+            && TriggerCardMatchesFilter(trigger.RevealMatchCardFilter, revealedState);
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
             $"{playerId} 防守战场并展示主牌堆顶牌",
@@ -23205,7 +23212,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE",
+                ["trigger"] = TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle,
                 ["sourceObjectId"] = sourceObjectId,
                 ["revealedObjectId"] = revealedObjectId,
                 ["revealedIsSpell"] = revealedIsSpell
@@ -23219,7 +23226,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = battlefieldObjectId,
                 ["cardIds"] = new[] { revealedObjectId },
                 ["count"] = 1,
-                ["zone"] = "MAIN_DECK"
+                ["zone"] = trigger.RevealSourceZone
             }));
 
         if (revealedIsSpell)
@@ -23237,7 +23244,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = battlefieldObjectId,
                     ["count"] = 1,
-                    ["cardIds"] = new[] { revealedObjectId }
+                    ["cardIds"] = new[] { revealedObjectId },
+                    ["destinationZone"] = trigger.RevealMatchDestinationZone
                 }));
         }
         else
@@ -23255,8 +23263,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = battlefieldObjectId,
                     ["cardIds"] = new[] { revealedObjectId },
                     ["count"] = 1,
-                    ["sourceZone"] = "MAIN_DECK",
-                    ["destinationZone"] = "MAIN_DECK"
+                    ["sourceZone"] = trigger.RevealSourceZone,
+                    ["destinationZone"] = trigger.RevealMissDestinationZone
                 }));
         }
 
@@ -25089,7 +25097,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
             || IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardNo, out _)
-            || IsBattlefieldDefendRevealSpellCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(cardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReadyLegendTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(cardNo, out _)
@@ -25160,11 +25168,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefendMoveFriendlyUnitToBaseCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldDefendRevealSpellCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldDefendRevealSpellCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerOverkillCreateWarhawkCardNo(string? cardNo)

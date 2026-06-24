@@ -53,6 +53,9 @@ export type BehaviorSpec = {
     minimumPaidMana?: number | null;
     revealCount?: number | null;
     revealSourceZone?: string | null;
+    revealMatchCardFilter?: string | null;
+    revealMatchDestinationZone?: string | null;
+    revealMissDestinationZone?: string | null;
     recycleCount?: number | null;
     recycleSourceZone?: string | null;
     recycleDestinationZone?: string | null;

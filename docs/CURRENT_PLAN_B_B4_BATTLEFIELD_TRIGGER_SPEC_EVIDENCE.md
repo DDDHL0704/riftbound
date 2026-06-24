@@ -35,6 +35,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `SFD·218/221` 沉没神庙 has official text `当你征服此处时，如果此战场上留存至少一名{{强力}}单位，则你可以选择支付{{1}}来抽一张牌。（战力达到5或以上时，即为强力单位。）`
 - `data/official/card-catalog.zh-CN.json`: `SFD·207/221` 帝王神坛 has official text `当你征服此处时，你可以选择支付{{1}}并让你在此处控制的一名单位返回其所属的手牌，以此在此处打出一名2{{S}}的“黄沙士兵”。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·210/221` 传奇殿堂 has official text `当你征服此处时，你可以选择支付{{1}}，以此让你的传奇变为活跃状态。`
+- `data/official/card-catalog.zh-CN.json`: `SFD·215/221` 拉文布鲁姆学院 has official text `当你防守此处时，展示你主牌堆顶部的一张牌。如果是一张法术牌，则将其放入你的手牌，否则将其回收。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -65,6 +66,7 @@ Project status: **NOT READY**.
 - Representative tests `P79BattlefieldConquerPowerfulUnitPaysOneToDraw`, `P79BattlefieldConquerPowerfulDrawCountsAnySurvivingPowerfulAttacker`, and GameHub `P79BattlefieldConquerPowerfulDrawSeedOffersBattlefieldDestinationAndDraws` are the runtime evidence for the conquered-battlefield powerful-unit pay-draw representative behavior.
 - Existing representative tests `P79BattlefieldConquerSandSoldierPaysOneReturnsUnitAndCreatesToken`, `P79BattlefieldConquerSandSoldierSkipsWhenManaUnavailable`, and GameHub `P79BattlefieldConquerSandSoldierSeedReturnsUnitAndCreatesToken` remain the runtime evidence for the conquered-battlefield pay-return-unit create-Sand-Soldier representative behavior.
 - Existing representative tests `P79BattlefieldConquerReadyLegendPaysOne`, `P79BattlefieldConquerReadyLegendSkipsOpponentOwnedLegend`, and GameHub `P79BattlefieldConquerReadyLegendSeedOffersBattlefieldDestinationAndReadiesLegend` remain the runtime evidence for the conquered-battlefield pay-ready-legend representative behavior.
+- Existing representative tests `P79BattlefieldDefendRevealSpellDrawsTopSpell`, `P79BattlefieldDefendRevealSpellRecyclesTopNonSpell`, `P79BattlefieldDefendRevealSpellSkipsOpponentControlledTopCard`, `P79BattlefieldDefendRevealSpellSkipsAttackerControlledBattlefield`, and GameHub `P79BattlefieldDefendRevealSpellSeedOffersBattlefieldDestinationAndDrawsSpell` remain the runtime evidence for the defended-battlefield reveal-spell-or-recycle representative behavior.
 
 ## Runtime Evidence
 
@@ -184,6 +186,10 @@ The conquer pay-ready-legend follow-up parser path turns the Hall of Legends off
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior: when mana and an exhausted controlled legend are available, it pays the parsed cost and readies one controlled legend. The trigger id, mana cost, controlled-legend target scope and ready count now come from the parsed spec while the existing opponent-owned legend guard remains covered.
 
+The defend reveal-spell-or-recycle follow-up parser path turns the Ravenbloom Conservatory official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE`, `Timing=BATTLEFIELD_DEFENDED`, `RevealCount=1`, `RevealSourceZone=MAIN_DECK`, `RevealMatchCardFilter=TAG:CARD_TYPE:SPELL`, `RevealMatchDestinationZone=HAND`, and `RevealMissDestinationZone=MAIN_DECK`. Runtime no longer checks `SFD·215/221` through `BattlefieldDefendRevealSpellCardNo` / `IsBattlefieldDefendRevealSpellCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` defended-battlefield path keeps the existing representative auto-resolution behavior: the defending player reveals the top controlled main-deck card, moves it to hand when it matches the parsed spell-card filter, otherwise recycles it to the parsed miss destination. The opponent-controlled dirty top-card guard and attacker-controlled battlefield source guard remain covered.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -249,10 +255,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer pay-return-unit create-Sand-Soldier adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec / SandSoldier representatives: `141/141`;
 - conquer pay-ready-legend focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - conquer pay-ready-legend adjacent BattlefieldConquer / BattlefieldTriggerSpec / ReadyLegend / LegendReadied representatives: `81/81`;
+- defend reveal-spell-or-recycle focused behavior-spec/source guard/runtime/GameHub representative: `7/7`;
+- defend reveal-spell-or-recycle adjacent BattlefieldDefend / BattlefieldDefender / BattlefieldTriggerSpec / RevealCard / DeclareBattle representatives: `188/188`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the conquer pay-ready-legend follow-up: `8432/8432`;
+- backend full conformance after the defend reveal-spell-or-recycle follow-up: `8434/8434`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves twenty-nine battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

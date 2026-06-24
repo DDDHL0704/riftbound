@@ -334,6 +334,13 @@ public static class TriggerParser
             triggers.Add(battlefieldConquerReadyEquipmentTrigger);
         }
 
+        var hasBattlefieldDefendRevealSpellTrigger =
+            TryParseBattlefieldDefendRevealSpell(text, out var battlefieldDefendRevealSpellTrigger);
+        if (hasBattlefieldDefendRevealSpellTrigger)
+        {
+            triggers.Add(battlefieldDefendRevealSpellTrigger);
+        }
+
         triggers.AddRange(TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
@@ -346,6 +353,8 @@ public static class TriggerParser
             .Where(segment => !hasBattlefieldConquerReadyEquipmentTrigger
                 || !segment.Contains("当你征服此处时，你可以选择让", StringComparison.Ordinal)
                 || !segment.Contains("友方装备变为活跃状态", StringComparison.Ordinal))
+            .Where(segment => !hasBattlefieldDefendRevealSpellTrigger
+                || !segment.Contains("当你防守此处时，展示你主牌堆顶部", StringComparison.Ordinal))
             .Select(ToTriggerSpec)
             .ToArray());
 
@@ -397,6 +406,31 @@ public static class TriggerParser
             TargetScope: TriggerTargetScopes.FriendlyEquipment,
             EquipmentReadyCount: ParseChineseNumber(match.Groups[1].Value),
             DetachesArmament: true);
+        return true;
+    }
+
+    private static bool TryParseBattlefieldDefendRevealSpell(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"当你防守此处时，展示你主牌堆顶部的([0-9一两二三四五六七八九十]+)张牌。?如果是一张法术牌，则将其放入你的手牌，否则将其回收",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle,
+            TriggerTimings.BattlefieldDefended,
+            match.Value,
+            "Battlefield defended reveal-top spell-or-recycle trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            RevealCount: ParseChineseNumber(match.Groups[1].Value),
+            RevealSourceZone: TriggerZones.MainDeck,
+            RevealMatchCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:SPELL",
+            RevealMatchDestinationZone: TriggerZones.Hand,
+            RevealMissDestinationZone: TriggerZones.MainDeck);
         return true;
     }
 

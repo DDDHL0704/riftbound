@@ -192,6 +192,14 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle,
+            out trigger);
+    }
+
     public static bool TryGetBattlefieldFriendlySpellDrawTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(
