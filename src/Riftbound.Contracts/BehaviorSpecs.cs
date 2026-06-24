@@ -70,12 +70,16 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_DISCARD_DRAW";
     public const string BattlefieldConquerDrawForOtherBattlefields =
         "BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS";
+    public const string BattlefieldConquerPowerfulPayDraw =
+        "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW";
     public const string BattlefieldConquerReadyRunesAtEnd =
         "BATTLEFIELD_CONQUERED_READY_RUNES_AT_END";
     public const string BattlefieldConquerReadyEquipment =
         "BATTLEFIELD_CONQUERED_READY_EQUIPMENT";
     public const string BattlefieldConquerPayCreateGold =
         "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
+    public const string BattlefieldConquerPayReturnUnitCreateSandSoldier =
+        "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -108,6 +112,7 @@ public static class TriggerTargetScopes
     public const string PlayedUnitAtThisBattlefield = "PLAYED_UNIT_AT_THIS_BATTLEFIELD";
     public const string ReturnedUnitAtThisBattlefield = "RETURNED_UNIT_AT_THIS_BATTLEFIELD";
     public const string OtherControlledUnitAtThisBattlefield = "OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
+    public const string ControlledUnitAtThisBattlefield = "CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
@@ -116,6 +121,7 @@ public static class TriggerTargetScopes
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
+    public const string SurvivingPowerfulUnitAtThisBattlefield = "SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD";
     public const string FriendlyEquipment = "FRIENDLY_EQUIPMENT";
 }
 
@@ -137,12 +143,14 @@ public static class TriggerMoveDestinations
 public static class TriggerTokenDestinations
 {
     public const string OwnerBase = "OWNER_BASE";
+    public const string Battlefield = "BATTLEFIELD";
 }
 
 public static class TriggerZones
 {
     public const string MainDeck = "MAIN_DECK";
     public const string Base = "BASE";
+    public const string Battlefield = "BATTLEFIELD";
     public const string Hand = "HAND";
     public const string Graveyard = "GRAVEYARD";
     public const string Champion = "CHAMPION";
@@ -315,6 +323,7 @@ public sealed record TriggerSpec(
     string? ReturnDestinationZone = null,
     string? ReturnCardFilter = null,
     int? RequiredUnitCount = null,
+    int? RequiredPowerThreshold = null,
     bool? WinsGame = null);
 
 public sealed record ReplacementSpec(

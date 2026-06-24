@@ -38085,6 +38085,49 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerPowerfulDrawCountsAnySurvivingPowerfulAttacker()
+    {
+        var state = BattlefieldConquerPowerfulDrawMultipleAttackersState();
+        var engine = new CoreRuleEngine();
+
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-powerful-draw-multiple", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-SUNKEN-TEMPLE",
+                ["P1-BATTLEFIELD-WEAK-ATTACKER", "P1-BATTLEFIELD-SECOND-POWERFUL-ATTACKER"],
+                ["P2-BATTLEFIELD-POWERFUL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var payment = result.State.PendingPayment;
+        Assert.NotNull(payment);
+        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
+
+        var paid = await engine.ResolveAsync(
+            result.State,
+            new PlayerIntent("intent-p7-9-battlefield-powerful-draw-multiple-pay", "P1", "PAY_COST"),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(paid.Accepted);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        var triggerEvent = Assert.Single(paid.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-SECOND-POWERFUL-ATTACKER", triggerEvent.Payload["powerfulObjectId"]);
+        Assert.Equal(1, triggerEvent.Payload["drawCount"]);
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-001"], paid.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerGoldOpensPaymentThenPaysOneToCreateDormantGold()
     {
         var state = BattlefieldConquerGoldState();
@@ -65168,6 +65211,68 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·125/221",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-POWERFUL-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-BATTLEFIELD-POWERFUL-DRAW-001"] = new(
+                    "P1-BATTLEFIELD-POWERFUL-DRAW-001",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-POWERFUL-DRAW-002"] = new(
+                    "P1-BATTLEFIELD-POWERFUL-DRAW-002",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerPowerfulDrawMultipleAttackersState()
+    {
+        return PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-BATTLEFIELD-POWERFUL-DRAW-001", "P1-BATTLEFIELD-POWERFUL-DRAW-002"],
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-SUNKEN-TEMPLE",
+                        "P1-BATTLEFIELD-WEAK-ATTACKER",
+                        "P1-BATTLEFIELD-SECOND-POWERFUL-ATTACKER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-POWERFUL-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-SUNKEN-TEMPLE"] = new(
+                    "P1-BATTLEFIELD-SUNKEN-TEMPLE",
+                    cardNo: "SFD·218/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-WEAK-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-WEAK-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-SECOND-POWERFUL-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-SECOND-POWERFUL-ATTACKER",
+                    cardNo: "SFD·126/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new(

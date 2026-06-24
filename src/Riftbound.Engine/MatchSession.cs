@@ -5996,8 +5996,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
-    private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
-    private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
@@ -16036,8 +16034,8 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(cardObject.CardNo, out _)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayCreateGoldTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardObject.CardNo, out _)
@@ -16556,8 +16554,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
-    private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
-    private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
@@ -24326,7 +24322,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-SUNKEN-TEMPLE"] = new(
                     "P1-BATTLEFIELD-SUNKEN-TEMPLE",
-                    cardNo: BattlefieldConquerPowerfulPayOneDrawCardNo,
+                    cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
@@ -24386,7 +24382,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-EMPEROR-SHRINE"] = new(
                     "P1-BATTLEFIELD-EMPEROR-SHRINE",
-                    cardNo: BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo,
+                    cardNo: "SFD·207/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),

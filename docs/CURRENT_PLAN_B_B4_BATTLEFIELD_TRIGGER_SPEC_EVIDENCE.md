@@ -32,6 +32,8 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·289/298` 巨神峰之巅 has official text `当你征服此处时，选择两枚符文，并在本回合结束时，让它们变为活跃状态。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·221/221` 月帷祭坛 has official text `当你征服此处时，你可以选择让一件友方装备变为活跃状态。如果它是一件武装，则你可以选择将其卸除。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·220/221` 珍宝堆 has official text `当你征服此处时，你可以选择支付{{1}}，以此打出一个休眠的“金币”装备指示物。`
+- `data/official/card-catalog.zh-CN.json`: `SFD·218/221` 沉没神庙 has official text `当你征服此处时，如果此战场上留存至少一名{{强力}}单位，则你可以选择支付{{1}}来抽一张牌。（战力达到5或以上时，即为强力单位。）`
+- `data/official/card-catalog.zh-CN.json`: `SFD·207/221` 帝王神坛 has official text `当你征服此处时，你可以选择支付{{1}}并让你在此处控制的一名单位返回其所属的手牌，以此在此处打出一名2{{S}}的“黄沙士兵”。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -59,6 +61,8 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldConquerReadyRunesAtEndSchedulesAndReadiesRunes`, `P79BattlefieldConquerReadyRunesAtEndSkipsOpponentOwnedRune`, and GameHub `P79BattlefieldConquerReadyRunesEndSeedSchedulesAndReadiesRunes` remain the runtime evidence for the conquered-battlefield ready-runes-at-end representative behavior.
 - Existing representative tests `P79BattlefieldConquerReadiesAndDetachesEquipment`, `P79BattlefieldConquerReadyEquipmentSkipsOpponentOwnedEquipment`, and GameHub `P79BattlefieldConquerReadyEquipmentSeedOffersBattlefieldDestinationAndDetachesArmament` remain the runtime evidence for the conquered-battlefield ready-equipment representative behavior.
 - Existing representative tests `P79BattlefieldConquerGoldOpensPaymentThenPaysOneToCreateDormantGold` and GameHub `P79BattlefieldConquerGoldSeedOffersBattlefieldDestinationAndCreatesGold` remain the runtime evidence for the conquered-battlefield pay-create-gold representative behavior.
+- Representative tests `P79BattlefieldConquerPowerfulUnitPaysOneToDraw`, `P79BattlefieldConquerPowerfulDrawCountsAnySurvivingPowerfulAttacker`, and GameHub `P79BattlefieldConquerPowerfulDrawSeedOffersBattlefieldDestinationAndDraws` are the runtime evidence for the conquered-battlefield powerful-unit pay-draw representative behavior.
+- Existing representative tests `P79BattlefieldConquerSandSoldierPaysOneReturnsUnitAndCreatesToken`, `P79BattlefieldConquerSandSoldierSkipsWhenManaUnavailable`, and GameHub `P79BattlefieldConquerSandSoldierSeedReturnsUnitAndCreatesToken` remain the runtime evidence for the conquered-battlefield pay-return-unit create-Sand-Soldier representative behavior.
 
 ## Runtime Evidence
 
@@ -166,6 +170,14 @@ The conquer pay-create-gold follow-up parser path turns the Treasure Pile offici
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still opens a `TRIGGER_PAYMENT` prompt, accepts `SPEND_MANA:1` or `DECLINE`, and creates an exhausted Gold equipment token after successful payment. The prompt cost, trigger id, token name, token destination and exhausted state now come from the parsed spec while preserving the existing `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `EQUIPMENT_TOKEN_CREATED` event contract and hidden information boundaries.
 
+The conquer powerful pay-draw follow-up parser path turns the Sunken Temple official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD`, `RequiredPowerThreshold=5`, `ManaCost=1`, and `DrawCount=1`. Runtime no longer checks `SFD·218/221` through `BattlefieldConquerPowerfulPayOneDrawCardNo` / `IsBattlefieldConquerPowerfulPayOneDrawCardNo`, and no longer uses `BattlefieldPowerfulDrawManaCost`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` conquered-battlefield path still opens a `TRIGGER_PAYMENT` prompt, accepts `SPEND_MANA:1` or `DECLINE`, and draws after successful payment. The prompt cost, trigger id, draw count, and required power threshold now come from the parsed spec. The new multi-attacker regression proves the official `此战场上留存至少一名{{强力}}单位` condition is evaluated over all surviving conquest attackers instead of only the first attacker object.
+
+The conquer pay-return-unit create-Sand-Soldier follow-up parser path turns the Imperial Shrine official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, `ManaCost=1`, `ReturnCount=1`, `ReturnOriginZone=BATTLEFIELD`, `ReturnDestinationZone=HAND`, `CreatedTokenCount=1`, `CreatedTokenName=黄沙士兵`, `CreatedTokenPower=2`, `CreatedTokenDestination=BATTLEFIELD`, and `CreatedTokenExhausted=false`. Runtime no longer checks `SFD·207/221` through `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` / `IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo`, and no longer uses `BattlefieldSandSoldierManaCost`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior: when mana and a controlled unit are available, it pays the parsed cost, returns the selected unit to its owner's hand, resolves existing unit-returned battlefield hooks, and creates the parsed 2-power Sand Soldier token at that battlefield. The concrete token card now resolves from `P6TokenFactoryCatalog` by parsed token family and power instead of hardcoding the trigger source card number or payment cost.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -224,10 +236,15 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer ready-equipment adjacent BattlefieldConquer / BattlefieldTriggerSpec / Equipment / FullGame / GameHub representatives: `750/750`;
 - conquer pay-create-gold focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer pay-create-gold adjacent BattlefieldConquer / TriggerPayment representatives: `130/130`;
+- conquer powerful pay-draw focused behavior-spec/source guard/runtime representatives: `4/4`;
+- conquer powerful pay-draw GameHub seed representative: `1/1`;
+- conquer powerful pay-draw adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec representatives: `91/91`;
+- conquer pay-return-unit create-Sand-Soldier focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- conquer pay-return-unit create-Sand-Soldier adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec / SandSoldier representatives: `141/141`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the conquer pay-create-gold follow-up: `8425/8425`;
+- backend full conformance after the conquer pay-return-unit create-Sand-Soldier follow-up: `8430/8430`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves twenty-six battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves twenty-eight battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

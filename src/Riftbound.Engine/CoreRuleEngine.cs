@@ -674,9 +674,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
-    private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
-    private const string BattlefieldConquerPowerfulPayOneDrawEffectKind = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW";
-    private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
@@ -704,8 +701,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int BattlefieldReadyLegendManaCost = 1;
-    private const int BattlefieldPowerfulDrawManaCost = 1;
-    private const int BattlefieldSandSoldierManaCost = 1;
     private const int BattlefieldHeldScorePowerCost = 4;
     private const int BattlefieldScoreDelayReleasedTurnOrdinal = 3;
     private const int JhinCompletionSpellCount = 4;
@@ -1413,7 +1408,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 pendingPayment,
                 out var powerfulBattlefieldId,
                 out var powerfulBattlefieldObjectId,
-                out var powerfulSourceObjectId))
+                out var powerfulSourceObjectId,
+                out var powerfulObjectId))
         {
             return ResolveBattlefieldConquerPowerfulDrawTriggerPayment(
                 state,
@@ -1422,7 +1418,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 submittedChoices,
                 powerfulBattlefieldId,
                 powerfulBattlefieldObjectId,
-                powerfulSourceObjectId);
+                powerfulSourceObjectId,
+                powerfulObjectId);
         }
 
         if (TryReadOgnVayneConquerRecallPaymentContext(
@@ -1595,14 +1592,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> submittedChoices,
         string battlefieldId,
         string battlefieldObjectId,
-        string sourceObjectId)
+        string sourceObjectId,
+        string powerfulObjectId)
     {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var resolvedBattlefieldObjectId, out var battlefieldState)
             || !string.Equals(resolvedBattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            || !IsBattlefieldConquerPowerfulPayOneDrawCardNo(battlefieldState.CardNo)
-            || !TryGetSurvivingPowerfulUnit(cardObjects, playerZones, sourceObjectId, out var powerfulObjectId))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.SurvivingPowerfulUnitAtThisBattlefield, StringComparison.Ordinal)
+            || trigger.ManaCost is not > 0
+            || trigger.DrawCount is not > 0
+            || trigger.RequiredPowerThreshold is not > 0
+            || pendingPayment.ManaCost != trigger.ManaCost.Value
+            || !TryGetSurvivingPowerfulUnit(
+                cardObjects,
+                playerZones,
+                powerfulObjectId,
+                trigger.RequiredPowerThreshold.Value,
+                out var resolvedPowerfulObjectId))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1613,7 +1621,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var paymentPlan = BuildPendingPaymentPlan(
             pendingPayment,
             intent.PlayerId,
-            BattlefieldConquerPowerfulPayOneDrawEffectKind,
+            trigger.Kind,
             sourceObjectId);
         var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
         if (!paymentCommit.Accepted)
@@ -1640,7 +1648,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["power"] = pendingPayment.PowerCost,
                         ["powerByTrait"] = pendingPayment.PowerCostByTrait,
                         ["paymentChoiceIds"] = submittedChoices.ToArray(),
-                        ["reason"] = BattlefieldConquerPowerfulPayOneDrawEffectKind
+                        ["reason"] = trigger.Kind
                     })),
             new(
                 "BATTLEFIELD_TRIGGER_RESOLVED",
@@ -1651,10 +1659,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldId,
                     ["battlefieldObjectId"] = battlefieldObjectId,
                     ["battlefieldCardNo"] = battlefieldState.CardNo,
-                    ["trigger"] = BattlefieldConquerPowerfulPayOneDrawEffectKind,
+                    ["trigger"] = trigger.Kind,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["powerfulObjectId"] = powerfulObjectId,
-                    ["drawCount"] = 1,
+                    ["powerfulObjectId"] = resolvedPowerfulObjectId,
+                    ["drawCount"] = trigger.DrawCount.Value,
                     ["paymentId"] = pendingPayment.PaymentId,
                     ["paymentWindow"] = pendingPayment.PaymentWindow
                 })
@@ -1665,7 +1673,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             state.PlayerScores,
             intent.PlayerId,
-            1,
+            trigger.DrawCount.Value,
             state.RngCursor,
             events);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
@@ -2263,12 +2271,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                      pendingPayment,
                      out battlefieldId,
                      out battlefieldObjectId,
-                     out sourceObjectId))
+                     out sourceObjectId,
+                     out var powerfulObjectId))
         {
-            payload["trigger"] = BattlefieldConquerPowerfulPayOneDrawEffectKind;
+            payload["trigger"] = TriggerKinds.BattlefieldConquerPowerfulPayDraw;
             payload["battlefieldId"] = battlefieldId;
             payload["battlefieldObjectId"] = battlefieldObjectId;
             payload["sourceObjectId"] = sourceObjectId;
+            payload["powerfulObjectId"] = powerfulObjectId;
         }
         else if (TryReadOgnVayneConquerRecallPaymentContext(
                      pendingPayment,
@@ -2941,25 +2951,29 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string BuildBattlefieldConquerPowerfulDrawPaymentReason(
         string battlefieldId,
         string battlefieldObjectId,
-        string sourceObjectId)
+        string sourceObjectId,
+        string powerfulObjectId)
     {
         return string.Join(
             '|',
-            BattlefieldConquerPowerfulPayOneDrawEffectKind,
+            TriggerKinds.BattlefieldConquerPowerfulPayDraw,
             battlefieldId,
             battlefieldObjectId,
-            sourceObjectId);
+            sourceObjectId,
+            powerfulObjectId);
     }
 
     private static bool TryReadBattlefieldConquerPowerfulDrawPaymentContext(
         PendingPaymentState pendingPayment,
         out string battlefieldId,
         out string battlefieldObjectId,
-        out string sourceObjectId)
+        out string sourceObjectId,
+        out string powerfulObjectId)
     {
         battlefieldId = string.Empty;
         battlefieldObjectId = string.Empty;
         sourceObjectId = string.Empty;
+        powerfulObjectId = string.Empty;
         if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(pendingPayment.Reason))
         {
@@ -2967,11 +2981,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
-        if (parts.Length != 4
-            || !string.Equals(parts[0], BattlefieldConquerPowerfulPayOneDrawEffectKind, StringComparison.Ordinal)
+        if (parts.Length != 5
+            || !string.Equals(parts[0], TriggerKinds.BattlefieldConquerPowerfulPayDraw, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(parts[1])
             || string.IsNullOrWhiteSpace(parts[2])
-            || string.IsNullOrWhiteSpace(parts[3]))
+            || string.IsNullOrWhiteSpace(parts[3])
+            || string.IsNullOrWhiteSpace(parts[4]))
         {
             return false;
         }
@@ -2979,6 +2994,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         battlefieldId = parts[1];
         battlefieldObjectId = parts[2];
         sourceObjectId = parts[3];
+        powerfulObjectId = parts[4];
         return true;
     }
 
@@ -17268,12 +17284,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackerObjectId);
             runePools = battlefieldReadyLegendTrigger.RunePools;
             combatEvents.AddRange(battlefieldReadyLegendTrigger.Events);
-            if (TryOpenBattlefieldConquerPowerfulPayOneDrawPaymentWindow(
+            if (TryOpenBattlefieldConquerPowerfulPayDrawPaymentWindow(
                     playerZones,
                     cardObjects,
                     intent.PlayerId,
                     battlefieldId,
                     attackerObjectId,
+                    survivingConquerAttackerObjectIds,
                     state.Tick + 1,
                     combatEvents,
                     out var battlefieldPowerfulDrawPendingPayment))
@@ -23672,24 +23689,35 @@ public sealed class CoreRuleEngine : IRuleEngine
         ]);
     }
 
-    private static bool TryOpenBattlefieldConquerPowerfulPayOneDrawPaymentWindow(
+    private static bool TryOpenBattlefieldConquerPowerfulPayDrawPaymentWindow(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
+        IReadOnlyList<string> survivingConquerAttackerObjectIds,
         long paymentTick,
         List<GameEvent> events,
         out PendingPaymentState? pendingPayment)
     {
         pendingPayment = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerPowerfulPayOneDrawCardNo(battlefieldState.CardNo)
-            || !TryGetSurvivingPowerfulUnit(cardObjects, playerZones, sourceObjectId, out _))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.SurvivingPowerfulUnitAtThisBattlefield, StringComparison.Ordinal)
+            || trigger.ManaCost is not > 0
+            || trigger.DrawCount is not > 0
+            || trigger.RequiredPowerThreshold is not > 0
+            || !TryGetFirstSurvivingPowerfulUnit(
+                cardObjects,
+                playerZones,
+                survivingConquerAttackerObjectIds,
+                trigger.RequiredPowerThreshold.Value,
+                out var powerfulObjectId))
         {
             return false;
         }
 
+        var spendManaChoiceId = BuildSpendManaPaymentChoiceId(trigger.ManaCost.Value);
         var paymentId = PaymentCostRules.BuildPaymentId(
             paymentTick,
             TriggerPaymentWindow,
@@ -23699,9 +23727,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentId,
             TriggerPaymentWindow,
             playerId,
-            manaCost: BattlefieldPowerfulDrawManaCost,
-            legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
-            reason: BuildBattlefieldConquerPowerfulDrawPaymentReason(battlefieldId, battlefieldObjectId, sourceObjectId));
+            manaCost: trigger.ManaCost.Value,
+            legalPaymentChoiceIds: [spendManaChoiceId, DeclinePaymentChoiceId],
+            reason: BuildBattlefieldConquerPowerfulDrawPaymentReason(
+                battlefieldId,
+                battlefieldObjectId,
+                sourceObjectId,
+                powerfulObjectId));
         events.Add(new GameEvent(
             "PAYMENT_WINDOW_OPENED",
             $"{playerId} 征服沉没神庙后等待支付抽牌触发费用",
@@ -23713,31 +23745,53 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = BattlefieldConquerPowerfulPayOneDrawEffectKind,
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
-                ["mana"] = BattlefieldPowerfulDrawManaCost,
+                ["powerfulObjectId"] = powerfulObjectId,
+                ["requiredPowerThreshold"] = trigger.RequiredPowerThreshold.Value,
+                ["mana"] = trigger.ManaCost.Value,
                 ["power"] = 0,
                 ["cost"] = new Dictionary<string, object?>
                 {
-                    ["mana"] = BattlefieldPowerfulDrawManaCost,
+                    ["mana"] = trigger.ManaCost.Value,
                     ["power"] = 0,
                     ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
-                ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
-                ["reason"] = BattlefieldConquerPowerfulPayOneDrawEffectKind
+                ["paymentChoices"] = new[] { spendManaChoiceId, DeclinePaymentChoiceId },
+                ["reason"] = trigger.Kind
             }));
         return true;
+    }
+
+    private static bool TryGetFirstSurvivingPowerfulUnit(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyList<string> objectIds,
+        int powerThreshold,
+        out string powerfulObjectId)
+    {
+        foreach (var objectId in objectIds)
+        {
+            if (TryGetSurvivingPowerfulUnit(cardObjects, playerZones, objectId, powerThreshold, out powerfulObjectId))
+            {
+                return true;
+            }
+        }
+
+        powerfulObjectId = string.Empty;
+        return false;
     }
 
     private static bool TryGetSurvivingPowerfulUnit(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string objectId,
+        int powerThreshold,
         out string powerfulObjectId)
     {
         powerfulObjectId = string.Empty;
         if (!cardObjects.TryGetValue(objectId, out var candidate)
-            || candidate.Power < PowerfulUnitPowerThreshold
+            || candidate.Power < powerThreshold
             || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, objectId))
         {
@@ -24384,23 +24438,36 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         out IReadOnlyDictionary<string, RunePool> nextRunePools)
     {
-        const string abilityId = "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER";
+        const string abilityId = TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier;
         nextRunePools = runePools;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitAtThisBattlefield, StringComparison.Ordinal)
+            || trigger.ManaCost is not > 0
+            || trigger.ReturnCount is not 1
+            || !string.Equals(trigger.ReturnOriginZone, TriggerZones.Battlefield, StringComparison.Ordinal)
+            || !string.Equals(trigger.ReturnDestinationZone, TriggerZones.Hand, StringComparison.Ordinal)
+            || trigger.CreatedTokenCount is not 1
+            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            || trigger.CreatedTokenPower is not > 0
+            || !string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.Battlefield, StringComparison.Ordinal)
             || !TryGetFirstControlledBattlefieldUnit(
                 playerZones,
                 cardObjects,
                 playerId,
                 sourceObjectId,
                 out var targetObjectId)
-            || !P6TokenFactoryCatalog.TryGetByCardNo(SandSoldierTokenCardNo, out var tokenDefinition))
+            || !TryGetUnitTokenDefinition(trigger.CreatedTokenName, trigger.CreatedTokenPower.Value, out var tokenDefinition))
         {
             return false;
         }
 
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < BattlefieldSandSoldierManaCost)
+        var manaCost = trigger.ManaCost.Value;
+        if (currentPool.Mana < manaCost)
         {
             return false;
         }
@@ -24418,7 +24485,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         mutableRunePools[playerId] = currentPool with
         {
-            Mana = currentPool.Mana - BattlefieldSandSoldierManaCost
+            Mana = currentPool.Mana - manaCost
         };
         nextRunePools = mutableRunePools;
 
@@ -24426,6 +24493,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var tokenState = tokenDefinition.CreateObject(tokenObjectId, playerId, playerId);
         tokenState = tokenState with
         {
+            IsExhausted = trigger.CreatedTokenExhausted.GetValueOrDefault(),
             Tags = ApplyAzirSandSoldierTemperedTags(
                 playerZones,
                 cardObjects,
@@ -24459,11 +24527,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             "COST_PAID",
             $"{playerId} 支付帝王神坛征服触发费用",
             new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["mana"] = BattlefieldSandSoldierManaCost,
-                ["power"] = 0,
-                ["reason"] = abilityId
+                {
+                    ["playerId"] = playerId,
+                    ["mana"] = manaCost,
+                    ["power"] = 0,
+                    ["reason"] = abilityId
             }));
         events.Add(new GameEvent(
             "UNIT_RETURNED_TO_HAND",
@@ -25020,8 +25088,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyRunesAtEndTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(cardNo, out _)
-            || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
-            || IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(cardNo, out _)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayCreateGoldTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardNo, out _)
@@ -25096,16 +25164,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerPayOneReadyLegendCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerPowerfulPayOneDrawCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerOverkillCreateWarhawkCardNo(string? cardNo)

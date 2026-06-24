@@ -315,6 +315,8 @@ public static partial class TargetParser
 
 public static class TriggerParser
 {
+    private const int PowerfulUnitPowerThreshold = 5;
+
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
@@ -482,6 +484,23 @@ public static class TriggerParser
                 DrawCountPerParticipant: ParseChineseNumber(battlefieldConquerDrawForOtherBattlefieldsMatch.Groups[1].Value));
         }
 
+        var battlefieldConquerPowerfulPayDrawMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，如果此战场上留存至少一名\{\{强力\}\}单位，则你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}来抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerPowerfulPayDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerPowerfulPayDraw,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered powerful-unit pay-draw trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.SurvivingPowerfulUnitAtThisBattlefield,
+                ManaCost: ParseChineseNumber(battlefieldConquerPowerfulPayDrawMatch.Groups[1].Value),
+                DrawCount: ParseChineseNumber(battlefieldConquerPowerfulPayDrawMatch.Groups[2].Value),
+                RequiredPowerThreshold: PowerfulUnitPowerThreshold);
+        }
+
         var battlefieldConquerReadyRunesAtEndMatch = Regex.Match(
             segment,
             @"当你征服此处时，选择([0-9一两二三四五六七八九十]+)枚符文，并在本回合结束时，让它们变为活跃状态",
@@ -530,6 +549,29 @@ public static class TriggerParser
                 CreatedTokenName: battlefieldConquerPayCreateGoldMatch.Groups[3].Value,
                 CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
                 CreatedTokenExhausted: true);
+        }
+
+        var battlefieldConquerPayReturnUnitCreateSandSoldierMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}并让你在此处控制的一名单位返回其所属的手牌，以此在此处打出一名([0-9一两二三四五六七八九十]+)\{\{S\}\}的“([^”]+)”",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerPayReturnUnitCreateSandSoldierMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered pay-return-unit-create-token trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.ControlledUnitAtThisBattlefield,
+                ManaCost: ParseChineseNumber(battlefieldConquerPayReturnUnitCreateSandSoldierMatch.Groups[1].Value),
+                ReturnCount: 1,
+                ReturnOriginZone: TriggerZones.Battlefield,
+                ReturnDestinationZone: TriggerZones.Hand,
+                CreatedTokenCount: 1,
+                CreatedTokenName: battlefieldConquerPayReturnUnitCreateSandSoldierMatch.Groups[3].Value,
+                CreatedTokenPower: ParseChineseNumber(battlefieldConquerPayReturnUnitCreateSandSoldierMatch.Groups[2].Value),
+                CreatedTokenDestination: TriggerTokenDestinations.Battlefield,
+                CreatedTokenExhausted: false);
         }
 
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)

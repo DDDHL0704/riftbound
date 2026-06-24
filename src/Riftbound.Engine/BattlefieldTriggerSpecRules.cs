@@ -144,6 +144,14 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetBattlefieldConquerPowerfulPayDrawTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldConquerPowerfulPayDraw,
+            out trigger);
+    }
+
     public static bool TryGetBattlefieldConquerReadyRunesAtEndTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(
@@ -165,6 +173,14 @@ internal static class BattlefieldTriggerSpecRules
         return TryGetTrigger(
             cardNo,
             TriggerKinds.BattlefieldConquerPayCreateGold,
+            out trigger);
+    }
+
+    public static bool TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier,
             out trigger);
     }
 

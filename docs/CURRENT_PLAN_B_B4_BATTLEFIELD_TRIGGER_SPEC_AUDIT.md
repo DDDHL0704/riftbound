@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -348,6 +348,42 @@ The 2026-06-25 conquer pay-create-gold follow-up moves another implemented conqu
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneCreateGoldCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldConquerPayOneCreateGoldCardNo` / `IsBattlefieldConquerPayOneCreateGoldCardNo` card-number branch and `BattlefieldGoldManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `66` total / `62` in `CoreRuleEngine`; Core battlefield helper count is `18`.
 
+The 2026-06-25 conquer powerful pay-draw follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
+
+- `SFD·218/221` / 沉没神庙 official text: `当你征服此处时，如果此战场上留存至少一名{{强力}}单位，则你可以选择支付{{1}}来抽一张牌。（战力达到5或以上时，即为强力单位。）`
+- `RuleTextParser` now parses that official text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW`
+  - `Timing = BATTLEFIELD_CONQUERED`
+  - `TargetScope = SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD`
+  - `RequiredPowerThreshold = 5`
+  - `ManaCost = 1`
+  - `DrawCount = 1`
+- `CoreRuleEngine.TryOpenBattlefieldConquerPowerfulPayDrawPaymentWindow` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPowerfulPayDrawTrigger(...)`, reads the mana cost / draw count / power threshold from `BehaviorSpec.Triggers`, and builds the payment choice from that parsed cost.
+- `CoreRuleEngine.ResolveBattlefieldConquerPowerfulDrawTriggerPayment` revalidates the same parsed trigger after payment and rechecks the selected surviving powerful unit before drawing.
+- The payment-window selector now evaluates all surviving conquest attackers instead of only the first attacker object, matching the official `此战场上留存至少一名{{强力}}单位` condition.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPowerfulPayOneDrawCardNo` constant. The development seed keeps the official card number only as fixture data.
+- The old `BattlefieldConquerPowerfulPayOneDrawCardNo` / `IsBattlefieldConquerPowerfulPayOneDrawCardNo` card-number branch and `BattlefieldPowerfulDrawManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `65` total / `61` in `CoreRuleEngine`; Core battlefield helper count is `17`.
+
+The 2026-06-25 conquer pay-return-unit create-Sand-Soldier follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
+
+- `SFD·207/221` / 帝王神坛 official text: `当你征服此处时，你可以选择支付{{1}}并让你在此处控制的一名单位返回其所属的手牌，以此在此处打出一名2{{S}}的“黄沙士兵”。`
+- `RuleTextParser` now parses that official text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER`
+  - `Timing = BATTLEFIELD_CONQUERED`
+  - `TargetScope = CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`
+  - `ManaCost = 1`
+  - `ReturnCount = 1`
+  - `ReturnOriginZone = BATTLEFIELD`
+  - `ReturnDestinationZone = HAND`
+  - `CreatedTokenCount = 1`
+  - `CreatedTokenName = 黄沙士兵`
+  - `CreatedTokenPower = 2`
+  - `CreatedTokenDestination = BATTLEFIELD`
+  - `CreatedTokenExhausted = false`
+- `CoreRuleEngine.TryResolveBattlefieldConquerPayOneReturnUnitCreateSandSoldierTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger(...)`, reads the mana cost / return zones / token name and token power from `BehaviorSpec.Triggers`, and resolves the concrete unit token through `P6TokenFactoryCatalog` by token family and power.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` constant. The development seed keeps the official card number only as fixture data.
+- The old `BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` / `IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo` card-number branch and `BattlefieldSandSoldierManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `64` total / `60` in `CoreRuleEngine`; Core battlefield helper count is `16`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -560,3 +596,19 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8425/8425`.
+
+2026-06-25 conquer powerful pay-draw follow-up validation:
+
+- focused behavior-spec/source guard/runtime representatives: passed `4/4`;
+- GameHub seed representative: passed `1/1`;
+- adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec representatives: passed `91/91`;
+- MatchRecovery: passed `1989/1989`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
+- backend full conformance: passed `8428/8428`.
+
+2026-06-25 conquer pay-return-unit create-Sand-Soldier follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `5/5`;
+- adjacent BattlefieldConquer / TriggerPayment / BattlefieldTriggerSpec / SandSoldier representatives: passed `141/141`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8430/8430`.

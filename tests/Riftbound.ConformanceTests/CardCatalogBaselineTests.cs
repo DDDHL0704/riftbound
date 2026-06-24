@@ -1864,6 +1864,29 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerPowerfulPayDrawTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var sunkenTemple = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·218/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(sunkenTemple.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerPowerfulPayDraw, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SurvivingPowerfulUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(5, trigger.RequiredPowerThreshold);
+        Assert.Equal(1, trigger.ManaCost);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("留存至少一名{{强力}}单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("支付{{1}}来抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered powerful-unit pay-draw trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldConquerReadyRunesAtEndTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1928,6 +1951,36 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("休眠的“金币”装备指示物", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(
             "Battlefield conquered pay-create-gold trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerPayReturnUnitCreateSandSoldierTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var imperialShrine = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·207/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(imperialShrine.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerPayReturnUnitCreateSandSoldier, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ControlledUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.ManaCost);
+        Assert.Equal(1, trigger.ReturnCount);
+        Assert.Equal(TriggerZones.Battlefield, trigger.ReturnOriginZone);
+        Assert.Equal(TriggerZones.Hand, trigger.ReturnDestinationZone);
+        Assert.Equal(1, trigger.CreatedTokenCount);
+        Assert.Equal("黄沙士兵", trigger.CreatedTokenName);
+        Assert.Equal(2, trigger.CreatedTokenPower);
+        Assert.Equal(TriggerTokenDestinations.Battlefield, trigger.CreatedTokenDestination);
+        Assert.False(trigger.CreatedTokenExhausted);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("支付{{1}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("返回其所属的手牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出一名2{{S}}的“黄沙士兵”", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered pay-return-unit-create-token trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
             trigger.Reason);
     }
 
@@ -2479,6 +2532,31 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public void BattlefieldConquerPowerfulPayDrawTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerPowerfulPayOneDrawCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerPowerfulPayOneDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerPowerfulPayOneDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldConquerPowerfulPayOneDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldPowerfulDrawManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void BattlefieldConquerReadyRunesAtEndTriggerDoesNotUseCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(
@@ -2545,6 +2623,30 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldConquerPayOneCreateGoldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldConquerPayOneCreateGoldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldConquerPayReturnUnitCreateSandSoldierTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldSandSoldierManaCost", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

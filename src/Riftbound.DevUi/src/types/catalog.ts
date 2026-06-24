@@ -85,6 +85,7 @@ export type BehaviorSpec = {
     returnDestinationZone?: string | null;
     returnCardFilter?: string | null;
     requiredUnitCount?: number | null;
+    requiredPowerThreshold?: number | null;
     winsGame?: boolean | null;
   }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
