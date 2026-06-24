@@ -581,6 +581,31 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var battlefieldAllUnitsKeywordMatch = Regex.Match(
+                segment,
+                @"此处的单位获得\{\{([^}]+)\}\}(?!\+)",
+                RegexOptions.CultureInvariant);
+            if (battlefieldAllUnitsKeywordMatch.Success)
+            {
+                var grantedKeyword = battlefieldAllUnitsKeywordMatch.Groups[1].Value.Trim();
+                if (!string.IsNullOrWhiteSpace(grantedKeyword)
+                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+                {
+                    auras.Add(new StaticAuraSpec(
+                        StaticAuraKinds.BattlefieldAllUnitsKeyword,
+                        RuleTextLayer,
+                        "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                        StaticAuraTargetScopes.SameBattlefieldUnits,
+                        StaticAuraParticipantScopes.SameBattlefieldPublicUnits,
+                        0,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Static keyword aura parsed for B2 routing; execution is available when the source card reaches a supported battlefield rule-domain path.",
+                        GrantedKeyword: grantedKeyword));
+                    continue;
+                }
+            }
+
             var battlefieldFilteredKeywordMatch = Regex.Match(
                 segment,
                 @"此处拥有(?:\{\{)?([^}，。]+)(?:\}\})?的单位获得\{\{([^}]+)\}\}(?!\+)",

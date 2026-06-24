@@ -717,7 +717,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
-    private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string RagingDrakeCardNo = "OGN·031/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
@@ -19280,6 +19279,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 combatKeyword));
         keywordBonus = Math.Max(
             keywordBonus,
+            ResolveBattlefieldAllUnitsKeywordBonus(
+                state,
+                playerZones,
+                battlefieldId,
+                combatKeyword));
+        keywordBonus = Math.Max(
+            keywordBonus,
             ResolveBattlefieldFilteredUnitsKeywordBonus(
                 state,
                 playerZones,
@@ -19432,6 +19438,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             && StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(battlefieldState.CardNo, out var aura)
             && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
             && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+            ? GrantedCombatKeywordAmount(aura, combatKeyword)
+            : 0;
+    }
+
+    private static int ResolveBattlefieldAllUnitsKeywordBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldId,
+        string combatKeyword)
+    {
+        return TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(battlefieldState.CardNo, out var aura)
+            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
             ? GrantedCombatKeywordAmount(aura, combatKeyword)
             : 0;
     }
@@ -24751,7 +24770,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardNo, out _)
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardNo, out _)
-            || IsBattlefieldStaticRoamCardNo(cardNo)
+            || BattlefieldSourceGrantsRoam(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
             || IsBattlefieldEchoCostReductionCardNo(cardNo)
             || IsBattlefieldHeldNextSpellEchoCardNo(cardNo)
@@ -24943,11 +24962,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldStaticRoamCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldEchoCostReductionCardNo(string? cardNo)
@@ -28957,6 +28971,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             && sourceState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
     }
 
+    private static bool BattlefieldSourceGrantsRoam(string? cardNo)
+    {
+        return StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(cardNo, out var aura)
+            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(aura.GrantedKeyword, MoveUnitRoamKeyword, StringComparison.Ordinal);
+    }
+
     private static bool HasBattlefieldStaticRoamPermission(MatchState state, string playerId, string sourceObjectId)
     {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
@@ -28967,7 +28988,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && IsBattlefieldStaticRoamCardNo(cardObject.CardNo)
+            && BattlefieldSourceGrantsRoam(cardObject.CardNo)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 

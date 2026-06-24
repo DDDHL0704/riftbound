@@ -1880,6 +1880,7 @@ public sealed record MatchState
 
         effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
         effects.AddRange(BuildBattlefieldFilteredUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildBattlefieldAllUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildBattlefieldFilteredUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
@@ -2493,6 +2494,40 @@ public sealed record MatchState
                     SourceDependencyObjectIds: sourceDependencyObjectIds,
                     TargetDependencyObjectIds: targetDependencyObjectIds,
                     ParticipantDependencyObjectIds: participantDependencyObjectIds));
+            }
+        }
+
+        return effects;
+    }
+
+    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldAllUnitsKeywordAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var battlefieldObjectId in state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || !StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(battlefield.CardNo, out var aura)
+                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+                || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var participantObjectIds = BattlefieldStaticAuraParticipantObjectIds(state, battlefieldObjectId);
+            foreach (var participantObjectId in participantObjectIds)
+            {
+                effects.Add(new ContinuousEffectState(
+                    $"RULE_TEXT:BATTLEFIELD_ALL_UNITS_KEYWORD:{battlefieldObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                    "OBJECT",
+                    ContinuousEffectLayers.RuleText,
+                    aura.Duration,
+                    participantObjectId,
+                    battlefieldObjectId));
             }
         }
 
@@ -5989,7 +6024,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
-    private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
@@ -8720,7 +8754,7 @@ internal static class ActionPromptBuilder
             || HasBilgewaterBullyBoonPromptRoamPermission(sourceState)
             || zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal)
+                && BattlefieldSourceGrantsRoam(cardObject.CardNo)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
@@ -8752,6 +8786,13 @@ internal static class ActionPromptBuilder
     {
         return string.Equals(sourceState.CardNo, BilgewaterBullyCardNo, StringComparison.Ordinal)
             && sourceState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
+    }
+
+    private static bool BattlefieldSourceGrantsRoam(string? cardNo)
+    {
+        return StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(cardNo, out var aura)
+            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(aura.GrantedKeyword, MoveUnitRoamKeyword, StringComparison.Ordinal);
     }
 
     private static bool TryMoveUnitPreciseBattlefieldOrigin(
@@ -15994,7 +16035,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal)
+            || BattlefieldSourceGrantsRoam(cardObject.CardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldNextSpellEchoCardNo, StringComparison.Ordinal)
@@ -16523,7 +16564,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
-    private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
@@ -23493,7 +23533,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-WIND-HILL"] = new(
                     "P1-BATTLEFIELD-WIND-HILL",
-                    cardNo: BattlefieldStaticRoamCardNo,
+                    cardNo: "OGN·297/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),

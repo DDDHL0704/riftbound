@@ -2480,6 +2480,7 @@ This is the thirty-first rule slice inside P7.9.7. It adds a static battlefield 
   - `OGN·297/298`: while this battlefield object is present in a player's battlefield zone, battlefield-zone unit objects can use `ROAM` for precise friendly battlefield-to-battlefield movement.
 - Server-authoritative static roam changes:
   - `MOVE_UNIT` precise battlefield movement now resolves roam permission from native `游走`, temporary `ROAM`, or the server-side `OGN·297/298` battlefield static.
+  - 2026-06-25 Plan B / B2 update: the `OGN·297/298` battlefield static is now resolved from BehaviorSpec `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走`; the old `BattlefieldStaticRoamCardNo` / `IsBattlefieldStaticRoamCardNo` card-number branch has been removed.
   - The mutation remains server-authoritative and emits the existing `UNIT_MOVED_TO_BATTLEFIELD` event with `movementKeyword = 游走`, origin, destination, and optional cost metadata.
   - Boundary note: because the current battlefield model stores battlefield-zone objects flatly, this representative applies the static roam permission to controlled battlefield-zone units while adding no frontend location inference.
 - Added `battlefield-static-roam` local development seed plus GameHub coverage for prompt source exposure, `MOVE_UNIT` `ROAM` optional cost, precise battlefield move submission, and final snapshot boundary.

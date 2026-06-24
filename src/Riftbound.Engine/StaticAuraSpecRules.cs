@@ -52,6 +52,14 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetBattlefieldAllUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
+    {
+        return TryGetAura(
+            cardNo,
+            StaticAuraKinds.BattlefieldAllUnitsKeyword,
+            out aura);
+    }
+
     public static bool TryGetBattlefieldFilteredUnitsKeywordAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
