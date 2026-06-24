@@ -27290,6 +27290,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             UntilEndOfTurnEffects = scoredUntilEndOfTurnEffects
         };
 
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, turnPlayerId);
+        nextState = taskAdvance.State;
+        events.AddRange(taskAdvance.Events);
+
         return new ResolutionResult(
             true,
             null,

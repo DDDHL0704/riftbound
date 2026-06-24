@@ -23,11 +23,14 @@ The new B0 probe exercises a real `MatchSession` with legal official decks. It d
 - `END_TURN`
 - `MOVE_UNIT`
 - `PASS_FOCUS`
+- `DECLARE_BATTLE`
 - `SURRENDER`
 
 The new engine regression proves the spell-duel close handoff chooses the battlefield task player when the turn player is the mover. This is the natural path that previous fixture-style tests did not cover.
 
 The no-legal battle regression proves the next natural blocker is consumed by shared engine state rather than single-card logic. After spell duel closes, `CoreRuleEngine` checks the existing server-authored `DECLARE_BATTLE` requirements for the `START_BATTLE` task player. When no ready face-up attacker / defender declaration exists, the engine emits `BATTLE_SKIPPED`, records `BATTLEFIELD_BATTLE_SKIPPED:*` until end of turn, clears the blocking battlefield task family from state / snapshot projection, and returns to neutral open main timing.
+
+The turn-start battle reopen regression proves still-contested battlefields do not remain idle after a no-legal battle skip expires. `ResolveTurnStart` now advances pending battlefield tasks after turn-start ready / draw / score state is built. The B0 probe drives multiple natural turns, observes repeated no-legal skips until the moved combatant naturally readies, then submits the first server-authored `DECLARE_BATTLE` candidate and observes `BATTLE_DECLARED` plus `BATTLE_CLOSED` from a legal official deck path.
 
 ## Hidden Information Evidence
 
@@ -44,7 +47,7 @@ Focused validation:
 Result:
 
 ```text
-Passed: 5, Failed: 0, Skipped: 0, Total: 5
+Passed: 6, Failed: 0, Skipped: 0, Total: 6
 ```
 
 Adjacent validation:
@@ -56,7 +59,7 @@ Adjacent validation:
 Result:
 
 ```text
-Passed: 366, Failed: 0, Skipped: 0, Total: 366
+Passed: 367, Failed: 0, Skipped: 0, Total: 367
 ```
 
 Recovery / hidden-info validation:
@@ -80,9 +83,9 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8351, Failed: 0, Skipped: 0, Total: 8351
+Passed: 8352, Failed: 0, Skipped: 0, Total: 8352
 ```
 
 ## Non-Closure
 
-This evidence proves the engine can drive legal official decks through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip and match result without leaking hidden zones. It does not close full official game completion, real battle resolution from official decks, score-based victory, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, full card matrix readiness, frontend gates or final READY.
+This evidence proves the engine can drive legal official decks through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and match result without leaking hidden zones. It does not close full official game completion, score-based victory, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, full card matrix readiness, frontend gates or final READY.

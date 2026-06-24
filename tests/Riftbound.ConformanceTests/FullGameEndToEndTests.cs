@@ -11,9 +11,89 @@ public sealed class FullGameEndToEndTests
     [Fact]
     public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
     {
+        var (session, result) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            "b0-full-game-official-low-curve-room");
+
+        var winner = OpponentOf(result.State, result.State.ActivePlayerId);
+        var surrender = await session.SubmitAsync(
+            result.State.ActivePlayerId,
+            "b0-surrender-after-battle",
+            new SurrenderCommand(),
+            RawCommand(CommandTypes.Surrender),
+            CancellationToken.None);
+        AssertAccepted(surrender);
+        Assert.Equal(MatchStatuses.Finished, surrender.State.Status);
+        Assert.Equal(winner, surrender.State.WinnerPlayerId);
+        Assert.Contains(surrender.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(surrender);
+    }
+
+    [Fact]
+    public async Task OfficialLowCurveDecksReopenContestedBattleAfterSkippedCombatantsReadyAcrossTurns()
+    {
+        var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            "b0-full-game-official-low-curve-reopen-room");
+
+        var current = skipped;
+        ResolutionResult? battleReady = null;
+        var skippedBattleCount = 0;
+        for (var turnIndex = 0; turnIndex < 4; turnIndex++)
+        {
+            var turnStart = await EndTurnAsync(
+                session,
+                current.State.ActivePlayerId,
+                $"b0-end-after-no-legal-battle-skip-{turnIndex}");
+            AssertNoHiddenZoneLeak(turnStart);
+            Assert.DoesNotContain(turnStart.State.UntilEndOfTurnEffects, effectId =>
+                effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal));
+            Assert.Equal(TimingStates.SpellDuelOpen, turnStart.State.TimingState);
+            Assert.NotNull(turnStart.State.FocusPlayerId);
+            Assert.Equal("SPELL_DUEL_TASKS", turnStart.State.PendingTaskQueue.Phase);
+            Assert.Contains(turnStart.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
+
+            current = await PassOpenSpellDuelAsync(session, turnStart, $"b0-reopen-pass-focus-{turnIndex}");
+            AssertNoHiddenZoneLeak(current);
+            if (string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && current.Prompts[current.State.ActivePlayerId].Actions.Contains("DECLARE_BATTLE", StringComparer.Ordinal))
+            {
+                battleReady = current;
+                break;
+            }
+
+            skippedBattleCount++;
+            Assert.Contains(current.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+            Assert.Equal("IDLE", current.State.PendingTaskQueue.Phase);
+            Assert.DoesNotContain("DECLARE_BATTLE", current.Prompts["P1"].Actions);
+            Assert.DoesNotContain("DECLARE_BATTLE", current.Prompts["P2"].Actions);
+        }
+
+        Assert.True(skippedBattleCount > 0);
+        Assert.NotNull(battleReady);
+        Assert.Equal("BATTLE_TASKS", battleReady.State.PendingTaskQueue.Phase);
+        Assert.Equal("START_BATTLE", battleReady.State.PendingTaskQueue.Tasks.Single(task =>
+            string.Equals(task.TaskId, battleReady.State.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal)).Kind);
+        Assert.Equal(PromptTypes.BattleDeclaration, battleReady.Prompts[battleReady.State.ActivePlayerId].View?.Type);
+        Assert.Contains("DECLARE_BATTLE", battleReady.Prompts[battleReady.State.ActivePlayerId].Actions);
+
+        var battleResult = await SubmitFirstDeclareBattleCandidateAsync(
+            session,
+            battleReady,
+            "b0-declare-reopened-official-battle");
+        AssertNoHiddenZoneLeak(battleResult);
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleResult.State.PendingTaskQueue.Tasks, task =>
+            string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+            && string.Equals(task.BattlefieldObjectId, battleReady.State.PendingTaskQueue.Tasks.Single(activeTask =>
+                string.Equals(activeTask.TaskId, battleReady.State.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal)).BattlefieldObjectId, StringComparison.Ordinal));
+    }
+
+    private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        string roomId)
+    {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var deck = BuildLowCurveOfficialDeck(catalog);
-        var session = new MatchSession("b0-full-game-official-low-curve-room", new CoreRuleEngine());
+        var session = new MatchSession(roomId, new CoreRuleEngine());
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
@@ -57,7 +137,7 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(nextPlayerId, result.State.ActivePlayerId);
         result = await PreparePlayerBoardAsync(session, result.State.ActivePlayerId, result, "second", playUnitToBattlefield: false);
         result = await MoveBaseUnitToOpponentBattlefieldAsync(session, result.State.ActivePlayerId, result);
-        result = await PassOpenSpellDuelAsync(session, result);
+        result = await PassOpenSpellDuelAsync(session, result, "b0-initial-pass-focus");
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
         Assert.False(result.State.PendingTaskQueue.HasTasks);
         Assert.False(result.State.PendingTaskQueue.IsBlocking);
@@ -69,19 +149,7 @@ public sealed class FullGameEndToEndTests
         Assert.True(result.Prompts[result.State.ActivePlayerId].Actionable);
         Assert.DoesNotContain("WAIT", result.Prompts[result.State.ActivePlayerId].Actions);
         AssertNoHiddenZoneLeak(result);
-
-        var winner = OpponentOf(result.State, result.State.ActivePlayerId);
-        var surrender = await session.SubmitAsync(
-            result.State.ActivePlayerId,
-            "b0-surrender-after-battle",
-            new SurrenderCommand(),
-            RawCommand(CommandTypes.Surrender),
-            CancellationToken.None);
-        AssertAccepted(surrender);
-        Assert.Equal(MatchStatuses.Finished, surrender.State.Status);
-        Assert.Equal(winner, surrender.State.WinnerPlayerId);
-        Assert.Contains(surrender.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
-        AssertNoHiddenZoneLeak(surrender);
+        return (session, result);
     }
 
     private static async ValueTask<ResolutionResult> PreparePlayerBoardAsync(
@@ -94,6 +162,42 @@ public sealed class FullGameEndToEndTests
         var result = current;
         result = await TapAllAvailableRunesAsync(session, playerId, result, $"b0-{label}-tap");
         result = await TryPlayFirstUnitAsync(session, playerId, result, $"b0-{label}-play-unit", playUnitToBattlefield);
+        return result;
+    }
+
+    private static async ValueTask<ResolutionResult> SubmitFirstDeclareBattleCandidateAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string intentId)
+    {
+        var playerId = current.State.ActivePlayerId;
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 auto-driver could not find an enabled DECLARE_BATTLE candidate for {playerId}.");
+        var battlefieldId = candidate.Destinations?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 auto-driver could not find a DECLARE_BATTLE battlefield choice.");
+        var attackerObjectId = candidate.Sources?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 auto-driver could not find a DECLARE_BATTLE attacker choice.");
+        var defenderObjectId = candidate.Targets?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 auto-driver could not find a DECLARE_BATTLE defender choice.");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [attackerObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { attackerObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(result);
         return result;
     }
 
@@ -253,7 +357,8 @@ public sealed class FullGameEndToEndTests
 
     private static async ValueTask<ResolutionResult> PassOpenSpellDuelAsync(
         MatchSession session,
-        ResolutionResult current)
+        ResolutionResult current,
+        string intentPrefix)
     {
         var result = current;
         for (var index = 0; index < 20; index++)
@@ -272,7 +377,7 @@ public sealed class FullGameEndToEndTests
 
             result = await session.SubmitAsync(
                 focusPlayerId,
-                $"b0-pass-focus-{index}",
+                $"{intentPrefix}-{index}",
                 new PassFocusCommand(),
                 RawCommand(CommandTypes.PassFocus),
                 CancellationToken.None);
