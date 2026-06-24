@@ -432,9 +432,32 @@ const stackPriorityPlan = buildActionPanelPromptPlan({
     ],
     playerId: "P2",
     reason: "STACK_PRIORITY",
+    serverFlow: {
+      actionableForPromptPlayer: true,
+      candidateCount: 3,
+      disabledCandidateCount: 1,
+      enabledCandidateCount: 2,
+      isResponsiblePlayer: true,
+      lanes: [],
+      nextStep: "响应顶部结算项目或让过优先权。",
+      primaryLabel: "响应结算链",
+      promptPlayerId: "P2",
+      promptType: "STACK_PRIORITY",
+      queueCounts: { stack: 2 },
+      reason: "服务端声明当前响应焦点。",
+      relatedObjectIds: ["spell-2"],
+      relatedObjects: [],
+      responsiblePlayerId: "P2",
+      state: "respond",
+      stateLabel: "响应",
+      steps: [],
+      summary: "优先行动 / 响应 / 响应顶部结算项目或让过优先权。",
+      topStackItemId: "server-stack-2",
+      tone: "info"
+    },
     view: {
       message: "处理结算链响应。",
-      relatedStackItemId: "stack-2",
+      relatedStackItemId: "view-stack-2",
       responsibility: {
         actionableForPromptPlayer: true,
         isResponsiblePlayer: true,
@@ -470,7 +493,7 @@ assert.equal(stackPriorityPlan.genericPrompt, undefined);
 assert.equal(stackPriorityPlan.stackPriority?.stateLabel, "轮到你响应");
 assert.equal(stackPriorityPlan.stackPriority?.nextStep, "响应顶部结算项目或让过优先权。");
 assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "priority-player")?.mine, true);
-assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "top-stack")?.value, "stack-2");
+assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "top-stack")?.value, "server-stack-2");
 assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "source")?.value, "unit-1");
 assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "effect")?.value, "ABILITY");
 assert.equal(stackPriorityPlan.stackPriority?.metrics.find((row) => row.key === "targets")?.value, "2 项");

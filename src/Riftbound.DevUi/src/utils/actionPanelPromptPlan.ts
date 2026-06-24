@@ -427,6 +427,7 @@ function buildStackPriorityPlan({
   const blockedActions = prompt.candidates?.filter((candidate) => !candidate.enabled && candidate.action !== "PASS_PRIORITY") ?? [];
   const canAct = Boolean(prompt.actionable && prompt.playerId === playerId);
   const topStackItemId = firstNonEmpty(
+    prompt.serverFlow?.topStackItemId,
     prompt.view?.relatedStackItemId,
     stringValue(topStackItem.stackItemId),
     stringValue(topStackItem.id),
