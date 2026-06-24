@@ -538,11 +538,12 @@ public static class StaticAuraParser
 
             var sameBattlefieldFriendlyFilteredCountSourcePowerMatch = Regex.Match(
                 segment,
-                @"我所处的战场你每有一名拥有\{\{([^}]+)\}\}的单位，我便获得\{\{S\}\}\+(\d+)",
+                @"我所处的战场(?:你)?每有一名拥有(?:\{\{)?([^}，。]+)(?:\}\})?的(?:友方)?单位，我便获得\{\{S\}\}\+(\d+)",
                 RegexOptions.CultureInvariant);
             if (sameBattlefieldFriendlyFilteredCountSourcePowerMatch.Success
                 && int.TryParse(sameBattlefieldFriendlyFilteredCountSourcePowerMatch.Groups[2].Value, out var sameBattlefieldCountPowerDelta))
             {
+                var targetTag = sameBattlefieldFriendlyFilteredCountSourcePowerMatch.Groups[1].Value.Trim();
                 auras.Add(new StaticAuraSpec(
                     StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower,
                     StaticAuraLayer,
@@ -553,7 +554,7 @@ public static class StaticAuraParser
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
-                    StaticAuraTargetFilters.TagPrefix + sameBattlefieldFriendlyFilteredCountSourcePowerMatch.Groups[1].Value));
+                    StaticAuraTargetFilters.TagPrefix + targetTag));
                 continue;
             }
 

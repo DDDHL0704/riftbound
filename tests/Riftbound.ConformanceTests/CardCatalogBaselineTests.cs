@@ -1219,6 +1219,21 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("我所处的战场你每有一名拥有{{瞬息}}的单位", petalPixieAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, petalPixieAura.Status);
 
+        foreach (var cardNo in new[] { "OGN·240/298", "OGN·240a/298" })
+        {
+            var sett = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var aura = Assert.Single(sett.StaticAuras);
+            Assert.Equal(StaticAuraKinds.SameBattlefieldFriendlyFilteredUnitCountToSourcePower, aura.Kind);
+            Assert.Equal(ContinuousEffectLayers.StaticAura, aura.Layer);
+            Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", aura.Duration);
+            Assert.Equal(StaticAuraTargetScopes.SourceObject, aura.TargetScope);
+            Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits, aura.ParticipantScope);
+            Assert.Equal(1, aura.PowerDeltaPerParticipant);
+            Assert.Equal(StaticAuraTargetFilters.TagPrefix + "增益", aura.TargetFilter);
+            Assert.Contains("我所处的战场每有一名拥有增益的友方单位", aura.Text, StringComparison.Ordinal);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
+        }
+
         var wiseElder = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·065/298", StringComparison.Ordinal));
         var wiseElderAura = Assert.Single(wiseElder.StaticAuras);
         Assert.Equal(StaticAuraKinds.SourceObjectFilteredPower, wiseElderAura.Kind);

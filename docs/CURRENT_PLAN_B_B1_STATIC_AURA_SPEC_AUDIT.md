@@ -19,6 +19,7 @@ Implemented in this slice:
   - `OGN·151/298` / `OGN·151a/298` 李青：我所在战场上其他拥有增益的友方单位获得 `{{S}}+2`。
   - `UNL·T03` 草丛：此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得 `{{S}}+1`。
   - `UNL-076/219` 花瓣仙子：我所处的战场你每有一名拥有 `{{瞬息}}` 的单位，我便获得 `{{S}}+1`。
+  - `OGN·240/298` / `OGN·240a/298` 瑟提：我所处的战场每有一名拥有增益的友方单位，我便获得 `{{S}}+1`。
 - Parser false-positive guards:
   - `UNL-043/219` 热情的播报员：其 card text grants `{{增益}}` tokens and must not be treated as a fixed `STATIC_AURA` power modifier.
   - `UNL-195/219` 翠神：parenthetical reminder text describes the Brush battlefield token and must not be treated as a legend-source `STATIC_AURA`.
@@ -50,6 +51,7 @@ This slice does not claim full B1 completion:
 - `OGN·151/298` / `OGN·151a/298`: `我所在战场上其他拥有增益的友方单位获得{{S}}+2。`
 - `UNL·T03`: `此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得{{S}}+1。`
 - `UNL-076/219`: `我所处的战场你每有一名拥有{{瞬息}}的单位，我便获得{{S}}+1。`
+- `OGN·240/298` / `OGN·240a/298`: `我所处的战场每有一名拥有增益的友方单位，我便获得{{S}}+1。`
 - `UNL-043/219`: `给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
 - `UNL-195/219`: `位于草丛的“鸟类”、“猫科”、“犬形”、“魄罗”和“艾翁”属性单位获得{{S}}+1。` appears only as parenthetical token reminder text.
 - Rule authority protocol: `docs/rules-authority-and-audit.md`.
@@ -79,6 +81,14 @@ Latest same-battlefield friendly-filtered count-to-source focused check:
 ```
 
 Result: 3/3 passed.
+
+Latest Sett same-battlefield boon count-to-source focused check:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79SettCountsFriendlyBoonUnitsAtSameBattlefieldForBattlePower"
+```
+
+Result: 79/79 passed.
 
 Latest battlefield-filtered focused check:
 
@@ -120,10 +130,18 @@ Latest adjacent after same-battlefield count-to-source slice:
 
 Result: 401/401 passed.
 
+Latest adjacent after Sett same-battlefield boon count-to-source slice:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~PetalPixie|FullyQualifiedName~Sett"
+```
+
+Result: 427/427 passed.
+
 Full backend:
 
 ```bash
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Result: 8362/8362 passed.
+Result: 8365/8365 passed.

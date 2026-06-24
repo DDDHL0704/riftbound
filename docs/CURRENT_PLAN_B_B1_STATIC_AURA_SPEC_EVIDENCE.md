@@ -9,9 +9,9 @@ This evidence records the current B1 static-aura data-driven slices.
 BehaviorSpec / catalog:
 
 - `src/Riftbound.Contracts/BehaviorSpecs.cs` defines `StaticAuraSpec`, `StaticAuraKinds`, `StaticAuraTargetScopes`, and `StaticAuraParticipantScopes`.
-- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses the current representative static-aura text patterns, including battlefield all-units, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, and friendly-filtered unit power auras.
+- `src/Riftbound.CardCatalog/RuleTextParsers.cs` parses the current representative static-aura text patterns, including battlefield all-units, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield boon count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, and friendly-filtered unit power auras.
 - `src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs` exposes parsed static auras through `BehaviorSpec.StaticAuras`.
-- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` verifies Ornn, Tifarian Training Grounds, Brush, Petal Pixie, Soul Shepherd, Rumble, and Lee Sin representative static-aura specs, plus false-positive guards for Boon-granting text and Brush reminder text on Ivern's legend.
+- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` verifies Ornn, Tifarian Training Grounds, Brush, Petal Pixie, Sett, Soul Shepherd, Rumble, and Lee Sin representative static-aura specs, plus false-positive guards for Boon-granting text and Brush reminder text on Ivern's legend.
 
 Engine projection:
 
@@ -29,9 +29,9 @@ Recovery:
 
 ## Validation Evidence
 
-- Latest focused static-aura catalog / Petal Pixie runtime / source guard: 3/3 passed.
-- Latest adjacent static-aura / static-power / continuous-effect / PetalPixie: 401/401 passed.
-- Latest backend full: 8362/8362 passed.
+- Latest focused static-aura catalog / Sett runtime: 79/79 passed.
+- Latest adjacent static-aura / static-power / continuous-effect / PetalPixie / Sett: 427/427 passed.
+- Latest backend full: 8365/8365 passed.
 
 ## Remaining Evidence Needed
 
@@ -39,7 +39,7 @@ Before B1 can be called complete, later slices still need evidence for:
 
 - Core runtime recompute removing the Ornn registry bridge.
 - Brush replacement / score-time swap-back lifecycle beyond the token's static aura.
-- Other source-unit count-to-source static auras beyond Petal Pixie.
+- Other source-unit count-to-source static auras beyond Petal Pixie / Sett.
 - Multiple static auras and aura stacking beyond the current additive representatives.
 - Interaction with until-end-of-turn power modifiers beyond existing representative coverage.
 - Additional conditional subscopes and RULE_TEXT keyword grants.
