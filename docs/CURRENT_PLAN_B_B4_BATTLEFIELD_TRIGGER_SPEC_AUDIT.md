@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -332,6 +332,22 @@ The 2026-06-25 conquer ready-equipment follow-up moves another implemented conqu
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerReadyEquipmentCardNo` constant.
 - The old `BattlefieldConquerReadyEquipmentCardNo` / `IsBattlefieldConquerReadyEquipmentCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `67` total / `63` in `CoreRuleEngine`; Core battlefield helper count is `19`.
 
+The 2026-06-25 conquer pay-create-gold follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
+
+- `SFD·220/221` / 珍宝堆 official text: `当你征服此处时，你可以选择支付{{1}}，以此打出一个休眠的“金币”装备指示物。`
+- `RuleTextParser` now parses that official text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD`
+  - `Timing = BATTLEFIELD_CONQUERED`
+  - `ManaCost = 1`
+  - `CreatedTokenCount = 1`
+  - `CreatedTokenName = 金币`
+  - `CreatedTokenDestination = OWNER_BASE`
+  - `CreatedTokenExhausted = true`
+- `CoreRuleEngine.TryOpenBattlefieldConquerPayOneCreateGoldPaymentWindow` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayCreateGoldTrigger(...)`, reads the mana cost from `BehaviorSpec.Triggers`, and builds the payment choice from that parsed cost.
+- `CoreRuleEngine.ResolveBattlefieldConquerGoldTriggerPayment` revalidates the same parsed trigger after payment and creates the parsed exhausted equipment token through the existing server-authoritative token path.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerPayOneCreateGoldCardNo` constant. The development seed keeps the official card number only as fixture data.
+- The old `BattlefieldConquerPayOneCreateGoldCardNo` / `IsBattlefieldConquerPayOneCreateGoldCardNo` card-number branch and `BattlefieldGoldManaCost` fixed-cost constant are removed. Current source-helper count for `private static bool Is*CardNo(...)` is `66` total / `62` in `CoreRuleEngine`; Core battlefield helper count is `18`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -536,3 +552,11 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8423/8423`.
+
+2026-06-25 conquer pay-create-gold follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `4/4`;
+- adjacent BattlefieldConquer / TriggerPayment representatives: passed `130/130`;
+- MatchRecovery: passed `1989/1989`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
+- backend full conformance: passed `8425/8425`.

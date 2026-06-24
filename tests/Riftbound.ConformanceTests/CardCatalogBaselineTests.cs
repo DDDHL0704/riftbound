@@ -1908,6 +1908,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerPayCreateGoldTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var treasurePile = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·220/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(treasurePile.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerPayCreateGold, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(1, trigger.ManaCost);
+        Assert.Equal(1, trigger.CreatedTokenCount);
+        Assert.Equal("金币", trigger.CreatedTokenName);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination);
+        Assert.True(trigger.CreatedTokenExhausted);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("支付{{1}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("休眠的“金币”装备指示物", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered pay-create-gold trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2498,6 +2522,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldConquerReadyEquipmentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldConquerReadyEquipmentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldConquerPayCreateGoldTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerPayOneCreateGoldCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerPayOneCreateGoldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerPayOneCreateGoldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

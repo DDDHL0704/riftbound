@@ -160,6 +160,14 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetBattlefieldConquerPayCreateGoldTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldConquerPayCreateGold,
+            out trigger);
+    }
+
     public static bool TryGetBattlefieldFriendlySpellDrawTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

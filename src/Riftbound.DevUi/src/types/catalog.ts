@@ -78,6 +78,7 @@ export type BehaviorSpec = {
     createdTokenName?: string | null;
     createdTokenPower?: number | null;
     createdTokenDestination?: string | null;
+    createdTokenExhausted?: boolean | null;
     returnCount?: number | null;
     requiredEmptyZone?: string | null;
     returnOriginZone?: string | null;

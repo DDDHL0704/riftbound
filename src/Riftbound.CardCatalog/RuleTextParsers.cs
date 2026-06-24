@@ -514,6 +514,24 @@ public static class TriggerParser
                 DetachesArmament: true);
         }
 
+        var battlefieldConquerPayCreateGoldMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}，以此打出([0-9一两二三四五六七八九十]+)个休眠的“([^”]+)”装备指示物",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerPayCreateGoldMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerPayCreateGold,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered pay-create-gold trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                ManaCost: ParseChineseNumber(battlefieldConquerPayCreateGoldMatch.Groups[1].Value),
+                CreatedTokenCount: ParseChineseNumber(battlefieldConquerPayCreateGoldMatch.Groups[2].Value),
+                CreatedTokenName: battlefieldConquerPayCreateGoldMatch.Groups[3].Value,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
+                CreatedTokenExhausted: true);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

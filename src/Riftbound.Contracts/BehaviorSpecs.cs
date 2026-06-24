@@ -74,6 +74,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_READY_RUNES_AT_END";
     public const string BattlefieldConquerReadyEquipment =
         "BATTLEFIELD_CONQUERED_READY_EQUIPMENT";
+    public const string BattlefieldConquerPayCreateGold =
+        "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -306,6 +308,7 @@ public sealed record TriggerSpec(
     string? CreatedTokenName = null,
     int? CreatedTokenPower = null,
     string? CreatedTokenDestination = null,
+    bool? CreatedTokenExhausted = null,
     int? ReturnCount = null,
     string? RequiredEmptyZone = null,
     string? ReturnOriginZone = null,
