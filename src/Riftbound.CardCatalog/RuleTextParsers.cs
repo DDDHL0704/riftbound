@@ -389,6 +389,22 @@ public static class TriggerParser
                 Duration: TriggerDurations.UntilEndOfTurn);
         }
 
+        var highCostSpellInsightMatch = Regex.Match(
+            segment,
+            @"当你打出一张法术牌时，如果消耗了不低于\{\{(\d+)\}\}法力，则进行\{\{洞察\}\}",
+            RegexOptions.CultureInvariant);
+        if (highCostSpellInsightMatch.Success
+            && int.TryParse(highCostSpellInsightMatch.Groups[1].Value, out var minimumPaidMana))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHighCostSpellInsightRecycle,
+                TriggerTimings.BattlefieldSpellPlayed,
+                segment,
+                "Battlefield high-cost spell insight recycle parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                MinimumPaidMana: minimumPaidMana,
+                RecycleCount: 1);
+        }
+
         var movedUnitPowerMatch = Regex.Match(
             segment,
             @"每当一名单位从此处向别处移动时，让其本回合内\{\{S\}\}\+(\d+)",

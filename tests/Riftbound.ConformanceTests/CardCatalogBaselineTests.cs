@@ -1472,6 +1472,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHighCostSpellInsightTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var lostLibrary = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-211/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(lostLibrary.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldHighCostSpellInsightRecycle, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
+        Assert.Equal(4, trigger.MinimumPaidMana);
+        Assert.Equal(1, trigger.RecycleCount);
+        Assert.Contains("当你打出一张法术牌时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("消耗了不低于{{4}}法力", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("进行{{洞察}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield high-cost spell insight recycle parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1659,6 +1680,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldSpellPowerBonusCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldSpellPowerBonusCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHighCostSpellInsightTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHighCostSpellInsightCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHighCostSpellInsightCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHighCostSpellInsightCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, friendly-spell draw, and spell-power bonus; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, friendly-spell draw, spell-power bonus, and high-cost spell insight; project remains **NOT READY**.
 
 ## Scope
 
@@ -67,9 +67,21 @@ The 2026-06-25 spell-power bonus follow-up moves another implemented battlefield
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldSpellPowerBonusCardNo` constant.
 - The old `BattlefieldSpellPowerBonusCardNo` / `IsBattlefieldSpellPowerBonusCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `89` total / `85` in `CoreRuleEngine`; Core battlefield helper count is `41`.
 
+The 2026-06-25 high-cost spell insight follow-up moves another implemented battlefield trigger away from engine card-number branching:
+
+- `UNL-211/219` / 失落书库 official text: `若此战场受你控制，当你打出一张法术牌时，如果消耗了不低于{{4}}法力，则进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE`
+  - `Timing = BATTLEFIELD_SPELL_PLAYED`
+  - `MinimumPaidMana = 4`
+  - `RecycleCount = 1`
+- `CoreRuleEngine.TryResolveBattlefieldHighCostSpellInsightTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(...)` and reads both the paid-mana threshold and recycle count from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHighCostSpellInsightCardNo` constant.
+- The old `BattlefieldHighCostSpellInsightCardNo` / `IsBattlefieldHighCostSpellInsightCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `87` total / `83` in `CoreRuleEngine`; Core battlefield helper count is `39`.
+
 ## Non-Closure
 
-This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, frontend/browser smoke, full official coverage or READY.
+This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, optional trigger choice prompts, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
@@ -110,4 +122,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldSpellPowerBonus / BattlefieldTriggerSpec / recently migrated battlefield trigger representatives: passed `21/21`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8379/8379`;
+- DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.
+
+2026-06-25 high-cost spell insight follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `6/6`;
+- adjacent BattlefieldHighCostSpellInsight / BattlefieldTriggerSpec / BattlefieldSpellPowerBonus / BattlefieldFriendlySpellDraw / P6 battlefield surface representatives: passed `15/15`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8382/8382`;
 - DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.

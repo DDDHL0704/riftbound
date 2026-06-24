@@ -46,6 +46,8 @@ public static class TriggerKinds
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
         "BATTLEFIELD_SPELL_POWER_PLUS_1";
+    public const string BattlefieldHighCostSpellInsightRecycle =
+        "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE";
 }
 
 public static class TriggerTimings
@@ -190,7 +192,9 @@ public sealed record TriggerSpec(
     int? PowerDelta = null,
     string? Duration = null,
     int? ManaDelta = null,
-    int? DrawCount = null);
+    int? DrawCount = null,
+    int? MinimumPaidMana = null,
+    int? RecycleCount = null);
 
 public sealed record ReplacementSpec(
     string Kind,

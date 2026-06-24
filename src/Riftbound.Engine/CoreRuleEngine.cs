@@ -721,7 +721,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
@@ -24824,7 +24823,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardNo, out _)
-            || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(cardNo, out _)
             || IsBattlefieldUnitReturnedCallRuneCardNo(cardNo)
             || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
             || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
@@ -25008,11 +25007,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldHighCostSpellInsightCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldUnitReturnedCallRuneCardNo(string? cardNo)
@@ -32052,25 +32046,46 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var events = new List<GameEvent>();
         if (!IsSpellPlayBehavior(behavior)
-            || paidMana < 4
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.MainDeck.Count == 0)
         {
             return new RecycleResult(events, rngCursor);
         }
 
-        var sourceObjectId = zones.Battlefields
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldHighCostSpellInsightCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(sourceObjectId))
+        var sourceObjectId = string.Empty;
+        var battlefieldCardNo = string.Empty;
+        var recycleCount = 0;
+        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject)
+                || !BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(
+                    cardObject.CardNo,
+                    out var trigger)
+                || paidMana < trigger.MinimumPaidMana.GetValueOrDefault()
+                || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+            {
+                continue;
+            }
+
+            var triggerRecycleCount = trigger.RecycleCount.GetValueOrDefault();
+            if (triggerRecycleCount <= 0)
+            {
+                continue;
+            }
+
+            sourceObjectId = objectId;
+            battlefieldCardNo = cardObject.CardNo;
+            recycleCount = triggerRecycleCount;
+            break;
+        }
+
+        if (string.IsNullOrWhiteSpace(sourceObjectId)
+            || recycleCount <= 0)
         {
             return new RecycleResult(events, rngCursor);
         }
 
-        var recycledCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, 1);
+        var recycledCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, recycleCount);
         if (recycledCardIds.Length == 0)
         {
             return new RecycleResult(events, rngCursor);
@@ -32096,22 +32111,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = sourceObjectId,
-                ["battlefieldCardNo"] = BattlefieldHighCostSpellInsightCardNo,
-                ["trigger"] = "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE",
+                ["battlefieldCardNo"] = battlefieldCardNo,
+                ["trigger"] = TriggerKinds.BattlefieldHighCostSpellInsightRecycle,
                 ["playedCardNo"] = stackItem.CardNo,
                 ["paidMana"] = paidMana,
                 ["recycledCardIds"] = randomizedRecycledCardIds.ToArray()
             }));
         events.Add(new GameEvent(
             "CARDS_RECYCLED",
-            $"{playerId} 洞察并回收 1 张牌",
+            $"{playerId} 洞察并回收 {randomizedRecycledCardIds.Count} 张牌",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
                 ["cardIds"] = randomizedRecycledCardIds.ToArray(),
                 ["count"] = randomizedRecycledCardIds.Count,
-                ["reason"] = "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE"
+                ["reason"] = TriggerKinds.BattlefieldHighCostSpellInsightRecycle
             }));
         return new RecycleResult(events, rngCursor);
     }
