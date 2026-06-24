@@ -26453,6 +26453,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 nextState = taskAdvance.State;
                 events.AddRange(taskAdvance.Events);
             }
+            else if (TryResolveStartBattleTaskPlayerId(nextState, completedBattlefieldObjectIds, out var battleTaskPlayerId))
+            {
+                nextState = nextState with { ActivePlayerId = battleTaskPlayerId };
+            }
         }
         else
         {
@@ -26475,6 +26479,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static bool TryResolveStartBattleTaskPlayerId(
+        MatchState state,
+        IReadOnlyList<string> battlefieldObjectIds,
+        out string playerId)
+    {
+        var battlefieldIdSet = battlefieldObjectIds
+            .Where(battlefieldObjectId => !string.IsNullOrWhiteSpace(battlefieldObjectId))
+            .ToHashSet(StringComparer.Ordinal);
+        var startBattleTask = state.PendingTaskQueue.Tasks.FirstOrDefault(task =>
+            string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(task.PlayerId)
+            && !string.IsNullOrWhiteSpace(task.BattlefieldObjectId)
+            && battlefieldIdSet.Contains(task.BattlefieldObjectId));
+        playerId = startBattleTask?.PlayerId?.Trim() ?? string.Empty;
+        return !string.IsNullOrWhiteSpace(playerId);
     }
 
     private static (MatchState State, IReadOnlyList<GameEvent> Events) ResolveNonBattlefieldControlAfterSpellDuelClosed(

@@ -728,6 +728,31 @@ public sealed class BoardTaskQueueFoundationTests
     }
 
     [Fact]
+    public async Task PassFocusClosesSpellDuelAndPromotesBattlefieldOwnerWhenMoverIsTurnPlayer()
+    {
+        var state = SpellDuelReadyToCloseState() with
+        {
+            TurnPlayerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-board-task-pass-focus-promote-battle-owner", "P1", CommandTypes.PassFocus),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["FOCUS_PASSED", "SPELL_DUEL_CLOSED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.ActivePlayerId);
+        Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-battle:BF-CONTEST", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(PromptTypes.BattleDeclaration, result.Prompts["P1"].View?.Type);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P2"].Actions);
+    }
+
+    [Fact]
     public async Task PreciseRoamPreservesDestinationCasingAndQueuesOnlyDestinationContestTasks()
     {
         const string originBattlefieldObjectId = "P1-Origin-MiXeD-BF";
