@@ -491,6 +491,22 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var battlefieldEquipmentCostReductionMatch = Regex.Match(
+                segment,
+                @"第一件友方装备的费用减少\{\{(\d+)\}\}",
+                RegexOptions.CultureInvariant);
+            if (battlefieldEquipmentCostReductionMatch.Success
+                && int.TryParse(battlefieldEquipmentCostReductionMatch.Groups[1].Value, out var equipmentCostReductionAmount))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldEquipmentCostReduction,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield equipment cost-reduction static ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
+                    equipmentCostReductionAmount));
+                continue;
+            }
+
             if (segment.Contains("单位无法从此处移动到基地", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(

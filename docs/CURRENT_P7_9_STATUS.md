@@ -2646,6 +2646,7 @@ This is the thirty-sixth rule slice inside P7.9.7. It adds a static battlefield 
   - `SFD·213/221`: while this battlefield object is present in a player's battlefield zone, that player's first friendly equipment played each turn costs `1` less mana.
 - Server-authoritative equipment cost reduction changes:
   - `PLAY_CARD` planning now applies the reduction only for equipment cards that the server already recognizes as equipment play commands.
+  - 2026-06-25 Plan B / B4 update: this check is now resolved from BehaviorSpec `StaticAbilitySpec.Kind=BATTLEFIELD_EQUIPMENT_COST_REDUCTION` + `Amount=1`; the old `BattlefieldEquipmentCostReductionCardNo` / `IsBattlefieldEquipmentCostReductionCardNo` card-number branch has been removed.
   - The backend records `PLAYED_EQUIPMENT_THIS_TURN:{playerId}` as an until-end-of-turn marker after an equipment is played, so a second equipment in the same turn cannot receive the first-equipment reduction.
   - `COST_PAID` now includes `battlefieldEquipmentCostReductionMana` so the UI/event log can explain the reduced paid mana total without client-side rule math.
   - Boundary note: token equipment creation is not a `PLAY_CARD` equipment command, so token generation remains excluded from this reduction.

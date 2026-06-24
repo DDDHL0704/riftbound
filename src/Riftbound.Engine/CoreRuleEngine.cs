@@ -722,7 +722,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
-    private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
@@ -24773,7 +24772,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardNo, out _)
             || IsBattlefieldHeldNextSpellEchoCardNo(cardNo)
-            || IsBattlefieldEquipmentCostReductionCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out _)
             || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
             || IsBattlefieldGrantUnitExperienceCardNo(cardNo)
@@ -24966,11 +24965,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHeldNextSpellEchoCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHeldNextSpellEchoCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldEquipmentCostReductionCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldFriendlySpellDrawCardNo(string? cardNo)
@@ -31498,16 +31492,27 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (behavior.ManaCost <= 0
             || !behavior.PlaysSourceToBaseAsEquipment
             || ControllerPlayedEquipmentThisTurn(state, playerId)
-            || !state.PlayerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldEquipmentCostReductionCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)))
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return 0;
         }
 
-        return Math.Min(1, behavior.ManaCost);
+        var reductionAmount = zones.Battlefields
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                    ? BattlefieldEquipmentCostReductionAmount(cardObject.CardNo)
+                    : 0)
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return Math.Min(reductionAmount, behavior.ManaCost);
+    }
+
+    private static int BattlefieldEquipmentCostReductionAmount(string? cardNo)
+    {
+        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out var ability)
+            ? Math.Max(0, ability.Amount)
+            : 0;
     }
 
     private static int ResolveRagingDrakeNextSpellCostReductionMana(

@@ -60,6 +60,7 @@ public static class StaticAbilityKinds
     public const string BattlefieldPreventMoveToBase = "BATTLEFIELD_PREVENT_MOVE_TO_BASE";
     public const string BattlefieldPreventUnitPlay = "BATTLEFIELD_PREVENT_UNIT_PLAY";
     public const string BattlefieldEchoCostReduction = "BATTLEFIELD_ECHO_COST_REDUCTION";
+    public const string BattlefieldEquipmentCostReduction = "BATTLEFIELD_EQUIPMENT_COST_REDUCTION";
 }
 
 public static class StaticAuraKinds

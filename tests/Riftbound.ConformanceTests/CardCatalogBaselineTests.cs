@@ -999,7 +999,7 @@ public sealed class CardCatalogBaselineTests
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 3, functionalUnits: 3);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 40, functionalUnits: 39);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 1, functionalUnits: 1);
-        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 13, functionalUnits: 12);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 14, functionalUnits: 13);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 11, functionalUnits: 10);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 34, functionalUnits: 34);
 
@@ -1418,6 +1418,15 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("友方{{回响}}的费用减少{{1}}", echoCostReduction.Text, StringComparison.Ordinal);
         Assert.Equal(1, echoCostReduction.Amount);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, echoCostReduction.Status);
+
+        var ornnForge = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·213/221", StringComparison.Ordinal));
+        var equipmentCostReduction = Assert.Single(
+            ornnForge.StaticAbilities,
+            ability => string.Equals(ability.Kind, StaticAbilityKinds.BattlefieldEquipmentCostReduction, StringComparison.Ordinal));
+        Assert.Equal(StaticAbilityKinds.BattlefieldEquipmentCostReduction, equipmentCostReduction.Kind);
+        Assert.Contains("第一件友方装备的费用减少{{1}}", equipmentCostReduction.Text, StringComparison.Ordinal);
+        Assert.Equal(1, equipmentCostReduction.Amount);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, equipmentCostReduction.Status);
     }
 
     [Fact]
@@ -1485,6 +1494,7 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("BattlefieldPreventMoveToBaseCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldPreventUnitPlayCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldEchoCostReductionCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldEquipmentCostReductionCardNo", source, StringComparison.Ordinal);
 
         var coreRuleEnginePath = Path.Combine(
             RepositoryRoot(),
@@ -1499,6 +1509,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsBattlefieldPreventUnitPlayCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldEchoCostReductionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldEchoCostReductionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldEquipmentCostReductionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldEquipmentCostReductionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

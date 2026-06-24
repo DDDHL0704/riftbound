@@ -6027,7 +6027,6 @@ internal static class ActionPromptBuilder
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
-    private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
@@ -13769,16 +13768,27 @@ internal static class ActionPromptBuilder
         if (behavior.ManaCost <= 0
             || !behavior.PlaysSourceToBaseAsEquipment
             || state.UntilEndOfTurnEffects.Contains($"{PlayedEquipmentThisTurnEffectPrefix}{playerId}", StringComparer.Ordinal)
-            || !state.PlayerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)))
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return 0;
         }
 
-        return Math.Min(1, behavior.ManaCost);
+        var reductionAmount = zones.Battlefields
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                    ? BattlefieldEquipmentCostReductionAmount(cardObject.CardNo)
+                    : 0)
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return Math.Min(reductionAmount, behavior.ManaCost);
+    }
+
+    private static int BattlefieldEquipmentCostReductionAmount(string? cardNo)
+    {
+        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out var ability)
+            ? Math.Max(0, ability.Amount)
+            : 0;
     }
 
     private static int PromptNextSpellCostReductionMana(
@@ -16049,7 +16059,7 @@ internal static class ActionPromptBuilder
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldHeldNextSpellEchoCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldFriendlySpellDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
@@ -16575,7 +16585,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
-    private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
@@ -22736,7 +22745,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-ORNN-FORGE"] = new(
                     "P1-BATTLEFIELD-ORNN-FORGE",
-                    cardNo: BattlefieldEquipmentCostReductionCardNo,
+                    cardNo: "SFD·213/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
