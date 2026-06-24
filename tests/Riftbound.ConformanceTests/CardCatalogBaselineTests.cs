@@ -1217,6 +1217,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("此处拥有{{瞬息}}的单位获得{{坚守}}", blackflameAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, blackflameAura.Status);
 
+        var forbiddenWasteland = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-210/219", StringComparison.Ordinal));
+        var forbiddenWastelandAura = Assert.Single(forbiddenWasteland.StaticAuras);
+        Assert.Equal(StaticAuraKinds.BattlefieldIsolatedDefenderKeywordModifier, forbiddenWastelandAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.RuleText, forbiddenWastelandAura.Layer);
+        Assert.Equal("WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", forbiddenWastelandAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SameBattlefieldIsolatedDefender, forbiddenWastelandAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldIsolatedDefender, forbiddenWastelandAura.ParticipantScope);
+        Assert.Equal(-2, forbiddenWastelandAura.PowerDeltaPerParticipant);
+        Assert.Equal(CardCombatKeywordNames.Steadfast, forbiddenWastelandAura.GrantedKeyword);
+        Assert.Contains("如果防守此处的单位落单", forbiddenWastelandAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, forbiddenWastelandAura.Status);
+
         var ivernLegend = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-195/219", StringComparison.Ordinal));
         Assert.Empty(ivernLegend.StaticAuras);
 
@@ -1358,6 +1370,7 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("ContinuousEffectStaticAuraCards", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldAllUnitsPowerPlusOneCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo", source, StringComparison.Ordinal);
 
         var coreRuleEnginePath = Path.Combine(
             RepositoryRoot(),
@@ -1369,6 +1382,7 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsPetalPixieCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("WiseElderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldAllUnitsPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -1816,7 +1816,7 @@ P7.9.7 battlefield foundation slice 9 validation:
 This is the tenth rule slice inside P7.9.7. It adds a defending battlefield static penalty that changes combat damage for an isolated defender without adding frontend rule authority.
 
 - Added implemented battlefield card:
-  - `UNL-210/219`: when a player defends at this battlefield object with exactly one defending unit, that isolated defender gets `坚守 -2` for combat power calculation.
+  - `UNL-210/219`: BehaviorSpec `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` gives the lone defender at this battlefield `坚守 -2` for combat power calculation.
 - The penalty is resolved inside `CoreRuleEngine.ResolveBattleCombatPower`; the client still only submits `DECLARE_BATTLE` with server-prompted battlefield destinations.
 - Added `battlefield-isolated-defender` local development seed plus GameHub coverage for prompt destination exposure, submitted object-id battle resolution, and authoritative damage payload verification.
 - Migrated this battlefield static/keyword-penalty slice in `BehaviorSpec`:

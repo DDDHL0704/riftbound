@@ -42,6 +42,8 @@ public static class StaticAuraKinds
     public const string BattlefieldAllUnitsPowerPlusOne = "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE";
     public const string BattlefieldFilteredUnitsPower = "BATTLEFIELD_FILTERED_UNITS_POWER";
     public const string BattlefieldFilteredUnitsKeyword = "BATTLEFIELD_FILTERED_UNITS_KEYWORD";
+    public const string BattlefieldIsolatedDefenderKeywordModifier =
+        "BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER";
     public const string SameBattlefieldOtherFriendlyUnitsPowerPlusOne =
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE";
     public const string SameBattlefieldOtherFriendlyUnitsKeyword =
@@ -59,6 +61,7 @@ public static class StaticAuraTargetScopes
     public const string SourceObject = "SOURCE_OBJECT";
     public const string SameBattlefieldUnits = "SAME_BATTLEFIELD_UNITS";
     public const string SameBattlefieldFilteredUnits = "SAME_BATTLEFIELD_FILTERED_UNITS";
+    public const string SameBattlefieldIsolatedDefender = "SAME_BATTLEFIELD_ISOLATED_DEFENDER";
     public const string SameBattlefieldOtherFriendlyUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS";
     public const string SameBattlefieldOtherFriendlyFilteredUnits =
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS";
@@ -72,6 +75,7 @@ public static class StaticAuraParticipantScopes
     public const string FriendlyPublicFieldEquipment = "FRIENDLY_PUBLIC_FIELD_EQUIPMENT";
     public const string SameBattlefieldPublicUnits = "SAME_BATTLEFIELD_PUBLIC_UNITS";
     public const string SameBattlefieldFilteredPublicUnits = "SAME_BATTLEFIELD_FILTERED_PUBLIC_UNITS";
+    public const string SameBattlefieldIsolatedDefender = "SAME_BATTLEFIELD_ISOLATED_DEFENDER";
     public const string SameBattlefieldFriendlyFilteredPublicUnits =
         "SAME_BATTLEFIELD_FRIENDLY_FILTERED_PUBLIC_UNITS";
     public const string SameBattlefieldOtherFriendlyPublicUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS";

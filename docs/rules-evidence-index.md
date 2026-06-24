@@ -1,6 +1,8 @@
 # 规则证据索引
 
-更新时间：2026-06-24
+更新时间：2026-06-25
+
+2026-06-25 最新补充：Plan B / B2 battlefield isolated-defender keyword modifier slice 已验收。审计入口沿用 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_AUDIT.md`，证据入口沿用 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_EVIDENCE.md`；focused static-aura catalog / source guard / isolated defender runtime 3/3、adjacent StaticAura / ContinuousEffect / BattlefieldIsolated / Steadfast / BattlefieldDefender 400/400、MatchRecovery 1989/1989、backend full 8367/8367 通过。该补充证明 `UNL-210/219` 禁忌荒原“如果防守此处的单位落单，则该单位{{S}}-2”已通过 BehaviorSpec `BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER` + `GrantedKeyword=坚守` + `PowerDeltaPerParticipant=-2` 的 RULE_TEXT 战场防守关键词修正路径进入 `CoreRuleEngine` 战斗关键词战力重算；并移除旧的 `BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo` / `IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo` 卡号分支。白名单口径从总 100 / Core 100 降到总 99 / Core 99。不关闭 `OGN·279/298` 目标选择型防守关键词授予、其他战场关键词修正、完整 B2 或 READY。
 
 2026-06-24 最新补充：Plan B / B1 battlefield all-units static aura allow-list cleanup slice 已验收。审计入口沿用 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_AUDIT.md`，证据入口沿用 `docs/CURRENT_PLAN_B_B1_STATIC_AURA_SPEC_EVIDENCE.md`；focused static-aura source guard 1/1、adjacent StaticAura / StaticPower / ContinuousEffect / BattlefieldStaticPower 401/401、MatchRecovery 1989/1989、backend full 8367/8367 通过。该补充证明 `OGN·294/298` “此处的所有单位获得{{S}}+1”已不再依赖 `BattlefieldAllUnitsPowerPlusOneCardNo` / `IsBattlefieldAllUnitsPowerPlusOneCardNo` 卡号白名单进行战场识别，`MatchSession` 与 `CoreRuleEngine` 均改为通过 BehaviorSpec `BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE` 查询；白名单口径从总 101 / Core 101 降到总 100 / Core 100。不关闭其他战场卡号白名单、完整 B1 或 READY。
 

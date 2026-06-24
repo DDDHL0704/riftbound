@@ -684,7 +684,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
-    private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerReadyTwoRunesAtEndCardNo = "OGN·289/298";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
@@ -19306,10 +19305,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             keywordBonus += 1;
         }
 
-        if (!isAttacking && HasBattlefieldIsolatedDefenderSteadfastPenalty(state, playerZones, battlefieldId, cardObject, defendingUnitCount))
-        {
-            keywordBonus -= 2;
-        }
+        keywordBonus += ResolveBattlefieldIsolatedDefenderKeywordModifier(
+            state,
+            playerZones,
+            cardObject,
+            isAttacking,
+            defendingUnitCount,
+            battlefieldId,
+            combatKeyword);
 
         if (!isAttacking
             && string.Equals(objectId, battlefieldSteadfastObjectId, StringComparison.Ordinal))
@@ -19741,17 +19744,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
-    private static bool HasBattlefieldIsolatedDefenderSteadfastPenalty(
+    private static int ResolveBattlefieldIsolatedDefenderKeywordModifier(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string battlefieldId,
         CardObjectState cardObject,
-        int defendingUnitCount)
+        bool isAttacking,
+        int defendingUnitCount,
+        string battlefieldId,
+        string combatKeyword)
     {
-        return defendingUnitCount == 1
+        return !isAttacking
+            && defendingUnitCount == 1
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
-            && IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(battlefieldState.CardNo);
+            && StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(
+                battlefieldState.CardNo,
+                out var aura)
+            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && GrantedCombatKeywordAmount(aura, combatKeyword) > 0
+            ? aura.PowerDeltaPerParticipant
+            : 0;
     }
 
     private static string? ResolveSingleDefendingPlayerId(
@@ -24722,7 +24734,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(cardNo)
             || IsBattlefieldConquerRecycleRuneCardNo(cardNo)
             || IsBattlefieldDefendRevealSpellCardNo(cardNo)
-            || IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(cardNo)
+            || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardNo, out _)
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
             || IsBattlefieldConquerReadyTwoRunesAtEndCardNo(cardNo)
             || IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(cardNo)
@@ -24847,11 +24859,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefendRevealSpellCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefendRevealSpellCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerPayOneReadyLegendCardNo(string? cardNo)

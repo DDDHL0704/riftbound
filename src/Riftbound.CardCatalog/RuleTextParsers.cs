@@ -565,6 +565,27 @@ public static class StaticAuraParser
                 }
             }
 
+            var battlefieldIsolatedDefenderKeywordModifierMatch = Regex.Match(
+                segment,
+                @"如果防守此处的单位落单，则该单位\{\{S\}\}-(\d+)",
+                RegexOptions.CultureInvariant);
+            if (battlefieldIsolatedDefenderKeywordModifierMatch.Success
+                && int.TryParse(battlefieldIsolatedDefenderKeywordModifierMatch.Groups[1].Value, out var isolatedDefenderPenalty))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.BattlefieldIsolatedDefenderKeywordModifier,
+                    RuleTextLayer,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldIsolatedDefender,
+                    StaticAuraParticipantScopes.SameBattlefieldIsolatedDefender,
+                    -isolatedDefenderPenalty,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield isolated-defender keyword modifier parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                    GrantedKeyword: "坚守"));
+                continue;
+            }
+
             var sameBattlefieldFriendlyFilteredCountSourcePowerMatch = Regex.Match(
                 segment,
                 @"我所处的战场(?:你)?每有一名拥有(?:\{\{)?([^}，。]+)(?:\}\})?的(?:友方)?单位，我便获得\{\{S\}\}\+(\d+)",
