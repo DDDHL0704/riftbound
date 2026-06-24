@@ -1357,6 +1357,7 @@ public sealed class CardCatalogBaselineTests
         var source = File.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("ContinuousEffectStaticAuraCards", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldAllUnitsPowerPlusOneCardNo", source, StringComparison.Ordinal);
 
         var coreRuleEnginePath = Path.Combine(
             RepositoryRoot(),
@@ -1367,6 +1368,7 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("IsPetalPixieCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("WiseElderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldAllUnitsPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

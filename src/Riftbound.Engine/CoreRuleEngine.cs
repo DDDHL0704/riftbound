@@ -680,7 +680,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
-    private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
@@ -24718,7 +24717,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
-            || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
+            || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardNo, out _)
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
             || IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(cardNo)
             || IsBattlefieldConquerRecycleRuneCardNo(cardNo)
@@ -24828,11 +24827,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldEachPlayerCallRuneCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldEachPlayerCallRuneCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldAllUnitsPowerPlusOneCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldAllUnitsPowerPlusOneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldDefenderSteadfastTwoCardNo(string? cardNo)
