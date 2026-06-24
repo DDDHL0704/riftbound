@@ -50,7 +50,10 @@ export type BehaviorSpec = {
     manaDelta?: number | null;
     drawCount?: number | null;
     minimumPaidMana?: number | null;
+    revealCount?: number | null;
+    revealSourceZone?: string | null;
     recycleCount?: number | null;
+    recycleDestinationZone?: string | null;
     manaCost?: number | null;
     boonCount?: number | null;
     runeCallCount?: number | null;

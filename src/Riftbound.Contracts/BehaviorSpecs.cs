@@ -58,6 +58,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD";
     public const string BattlefieldHeldSevenUnitsWin =
         "BATTLEFIELD_HELD_SEVEN_UNITS_WIN";
+    public const string BattlefieldConquerRevealRecycle =
+        "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -76,6 +78,7 @@ public static class TriggerTimings
 {
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
+    public const string BattlefieldConquered = "BATTLEFIELD_CONQUERED";
     public const string BattlefieldFriendlySpellTargeted = "BATTLEFIELD_FRIENDLY_SPELL_TARGETED";
     public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
@@ -112,6 +115,7 @@ public static class TriggerTokenDestinations
 
 public static class TriggerZones
 {
+    public const string MainDeck = "MAIN_DECK";
     public const string Graveyard = "GRAVEYARD";
     public const string Champion = "CHAMPION";
 }
@@ -248,7 +252,10 @@ public sealed record TriggerSpec(
     int? ManaDelta = null,
     int? DrawCount = null,
     int? MinimumPaidMana = null,
+    int? RevealCount = null,
+    string? RevealSourceZone = null,
     int? RecycleCount = null,
+    string? RecycleDestinationZone = null,
     int? ManaCost = null,
     int? BoonCount = null,
     int? RuneCallCount = null,

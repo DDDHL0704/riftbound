@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -224,9 +224,24 @@ The 2026-06-25 held seven-units win follow-up moves another implemented held-bat
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldSevenUnitsWinCardNo` / `BattlefieldHeldSevenUnitsWinAltCardNo` constants.
 - The old `BattlefieldHeldSevenUnitsWinCardNo` / `BattlefieldHeldSevenUnitsWinAltCardNo` / `IsBattlefieldHeldSevenUnitsWinCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `75` total / `71` in `CoreRuleEngine`; Core battlefield helper count is `27`.
 
+The 2026-06-25 conquer reveal/recycle follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
+
+- `OGN·291/298` / 烛光圣殿 official text: `当你征服此处时，查看主牌堆顶部的两张牌。你可以选择从这两张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处。`
+- `RuleTextParser` now parses that two-sentence official text as one `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`
+  - `Timing = BATTLEFIELD_CONQUERED`
+  - `RevealCount = 2`
+  - `RevealSourceZone = MAIN_DECK`
+  - `RecycleCount = 2`
+  - `RecycleDestinationZone = MAIN_DECK`
+- `CoreRuleEngine.ResolveBattlefieldConquerRevealRecycleTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRevealRecycleTrigger(...)` and reads the reveal/recycle counts and zones from `BehaviorSpec.Triggers`.
+- The runtime keeps the existing deterministic representative path: it reveals the top two controlled main-deck cards, recycles the parsed count, and returns any non-recycled revealed cards to the top in original order. The official optional choice and ordering prompt remains outside this narrow routing slice.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerRevealRecycleCardNo` constant.
+- The old `BattlefieldConquerRevealRecycleCardNo` / `IsBattlefieldConquerRevealRecycleCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `74` total / `70` in `CoreRuleEngine`; Core battlefield helper count is `26`.
+
 ## Non-Closure
 
-This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
+This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
 
 ## Validation
 
@@ -363,4 +378,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldHeld / BattlefieldTriggerSpec / FullGame / GameHub representatives: passed `293/293`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8407/8407`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
+
+2026-06-25 conquer reveal/recycle follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `4/4`;
+- adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: passed `272/272`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8409/8409`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.

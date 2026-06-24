@@ -1731,6 +1731,29 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerRevealRecycleTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var candlelitSanctum = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·291/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(candlelitSanctum.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerRevealRecycle, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(2, trigger.RevealCount);
+        Assert.Equal(2, trigger.RecycleCount);
+        Assert.Equal(TriggerZones.MainDeck, trigger.RevealSourceZone);
+        Assert.Equal(TriggerZones.MainDeck, trigger.RecycleDestinationZone);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("查看主牌堆顶部的两张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("回收任意数量的卡牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered reveal/recycle trigger parsed for B4 routing; execution is available as a deterministic representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2137,6 +2160,29 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("BattlefieldHeldSevenUnitsWinCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldHeldSevenUnitsWinAltCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHeldSevenUnitsWinCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldConquerRevealRecycleTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerRevealRecycleCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerRevealRecycleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerRevealRecycleCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

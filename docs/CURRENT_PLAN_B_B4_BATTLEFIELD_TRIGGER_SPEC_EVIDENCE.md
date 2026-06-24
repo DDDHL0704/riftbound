@@ -23,6 +23,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·275/298` 团结圣坛 has official text `当你据守此处时，打出一名1{{S}}的“随从”到你的基地。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·281/298` 圣化之墓 has official text `当你据守此处时，如果你的英雄区域已无英雄单位牌，则可以选择让该英雄从废牌堆中返回英雄区域。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·293/298` / `OGN·293a/298` 宏伟广场 has official text `当你据守此处，且在此拥有至少七名单位时，你赢得游戏胜利。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·291/298` 烛光圣殿 has official text `当你征服此处时，查看主牌堆顶部的两张牌。你可以选择从这两张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -41,6 +42,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldHeldCreatesMinionInBase`, `P79BattlefieldHeldMinionSeedOffersBattlefieldDestinationAndCreatesToken`, and `TurnStartHeldBattlefieldScoresAndTriggersOgn275Minion` remain the runtime evidence for the held create-minion behavior.
 - Existing representative tests `P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone`, `P79BattlefieldHeldReturnHeroSkipsOpponentOwnedTomb`, and GameHub `P79BattlefieldHeldReturnHeroSeedOffersBattlefieldDestinationAndReturnsHero` remain the runtime evidence for the held return-hero behavior.
 - Representative tests `P79BattlefieldHeldSevenUnitsWinsGame`, `P79BattlefieldHeldSevenUnitsWinCountsOnlyUnitsAtThatBattlefield`, and GameHub `P79BattlefieldHeldSevenUnitsSeedOffersBattlefieldDestinationAndWins` are the runtime evidence for the held seven-units win behavior and its `在此` same-battlefield boundary.
+- Existing representative tests `P79BattlefieldConquerRevealRecyclesTopTwo` and GameHub `P79BattlefieldConquerRevealRecycleSeedOffersBattlefieldDestinationAndRecycles` remain the runtime evidence for the conquered-battlefield reveal/recycle representative behavior.
 
 ## Runtime Evidence
 
@@ -112,6 +114,10 @@ The held seven-units win follow-up parser path turns the Grand Plaza official ba
 
 The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible controlled battlefield source and now counts only controlled, face-up, non-standby units whose `ObjectLocations.BattlefieldObjectId` equals the held battlefield object. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` / `MATCH_WON` payloads use the parsed trigger kind and parsed required count. `P79BattlefieldHeldSevenUnitsWinCountsOnlyUnitsAtThatBattlefield` proves that seven controlled battlefield-zone units split across different battlefields do not satisfy the official `在此` text.
 
+The conquer reveal/recycle follow-up parser path turns the Candlelit Sanctum official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, `Timing=BATTLEFIELD_CONQUERED`, `RevealCount=2`, `RevealSourceZone=MAIN_DECK`, `RecycleCount=2`, and `RecycleDestinationZone=MAIN_DECK`. Runtime no longer checks `OGN·291/298` through `BattlefieldConquerRevealRecycleCardNo` / `IsBattlefieldConquerRevealRecycleCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` conquered-battlefield path still keeps the existing deterministic representative behavior: it reveals the top two controlled main-deck cards, recycles the parsed count, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARDS_RECYCLED` with `BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, and preserves hidden main-deck ordering boundaries. The official optional choice of any number and arbitrary order for non-recycled cards remains outside this narrow routing slice.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -152,10 +158,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held return-hero adjacent BattlefieldHeld / BattlefieldTriggerSpec / ChampionZone / FullGame / GameHub representatives: `290/290`;
 - held seven-units win focused behavior-spec/source guard/runtime/GameHub representative: `7/7`;
 - held seven-units win adjacent BattlefieldHeld / BattlefieldTriggerSpec / FullGame / GameHub representatives: `293/293`;
+- conquer reveal/recycle focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
+- conquer reveal/recycle adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `272/272`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the held seven-units win follow-up: `8407/8407`;
+- backend full conformance after the conquer reveal/recycle follow-up: `8409/8409`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves seventeen battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves eighteen battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

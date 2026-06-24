@@ -317,15 +317,52 @@ public static class TriggerParser
 {
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
-        return TargetParser.SplitRulesText(text)
+        var triggers = new List<TriggerSpec>();
+        var hasBattlefieldConquerRevealRecycleTrigger =
+            TryParseBattlefieldConquerRevealRecycle(text, out var battlefieldConquerRevealRecycleTrigger);
+        if (hasBattlefieldConquerRevealRecycleTrigger)
+        {
+            triggers.Add(battlefieldConquerRevealRecycleTrigger);
+        }
+
+        triggers.AddRange(TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
                 || segment.Contains("打出我时", StringComparison.Ordinal)
                 || segment.Contains("回合开始", StringComparison.Ordinal)
                 || segment.Contains("被摧毁", StringComparison.Ordinal)
                 || segment.Contains("征服", StringComparison.Ordinal))
+            .Where(segment => !hasBattlefieldConquerRevealRecycleTrigger
+                || !segment.Contains("当你征服此处时，查看主牌堆顶部", StringComparison.Ordinal))
             .Select(ToTriggerSpec)
-            .ToArray();
+            .ToArray());
+
+        return triggers.ToArray();
+    }
+
+    private static bool TryParseBattlefieldConquerRevealRecycle(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"当你征服此处时，查看主牌堆顶部的([0-9一两二三四五六七八九十]+)张牌。你可以选择从这[0-9一两二三四五六七八九十]+张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var revealCount = ParseChineseNumber(match.Groups[1].Value);
+        trigger = new TriggerSpec(
+            TriggerKinds.BattlefieldConquerRevealRecycle,
+            TriggerTimings.BattlefieldConquered,
+            match.Value,
+            "Battlefield conquered reveal/recycle trigger parsed for B4 routing; execution is available as a deterministic representative path when engine support reads BehaviorSpec.Triggers.",
+            RevealCount: revealCount,
+            RevealSourceZone: TriggerZones.MainDeck,
+            RecycleCount: revealCount,
+            RecycleDestinationZone: TriggerZones.MainDeck);
+        return true;
     }
 
     private static TriggerSpec ToTriggerSpec(string segment)
