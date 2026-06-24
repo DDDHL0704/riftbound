@@ -106,6 +106,14 @@ public sealed class SnapshotTableProjectionTests
         Assert.Contains("P1-BANISHED", p1Objects.Keys);
         Assert.Contains("P1-LEGEND", p1Objects.Keys);
         Assert.Contains("P1-HERO", p1Objects.Keys);
+        AssertObjectLocation(p1Objects, "P1-BASE-UNIT", "P1", "BASE", "base");
+        AssertObjectLocation(p1Objects, "P1-RUNE-1", "P1", "BASE", "rune");
+        AssertObjectLocation(p1Objects, "BF-LEFT", "P1", "BATTLEFIELD", "battlefield-site");
+        AssertObjectLocation(p1Objects, "P1-LEFT-UNIT", "P1", "BATTLEFIELD", "battlefield", "BF-LEFT");
+        AssertObjectLocation(p1Objects, "P1-GRAVEYARD", "P1", "GRAVEYARD", "graveyard");
+        AssertObjectLocation(p1Objects, "P1-BANISHED", "P1", "BANISHED", "banished");
+        AssertObjectLocation(p1Objects, "P1-LEGEND", "P1", "LEGEND", "legend");
+        AssertObjectLocation(p1Objects, "P1-HERO", "P1", "CHAMPION", "champion");
         var p1Standby = Dict(p1Objects["P1-STANDBY"]);
         Assert.Equal("P1-STANDBY", StringValue(p1Standby["objectId"]));
         Assert.Equal("UNL-011/219", StringValue(p1Standby["cardNo"]));
@@ -172,6 +180,8 @@ public sealed class SnapshotTableProjectionTests
         Assert.Contains("P2-LEGEND", p2Objects.Keys);
         Assert.Contains("P2-HERO", p2Objects.Keys);
         Assert.Contains("P2-RIGHT-STANDBY", p2Objects.Keys);
+        AssertObjectLocationAbsent(p2Objects, "P2-HIDDEN-STANDBY");
+        AssertObjectLocation(p2Objects, "P2-RIGHT-STANDBY", "P2", "BATTLEFIELD", "battlefield", "BF-RIGHT");
         AssertSerializedSnapshotDoesNotContain(
             snapshot,
             "P1-DECK",
@@ -205,12 +215,14 @@ public sealed class SnapshotTableProjectionTests
         var p1ObjectsFromP2 = Objects(p2Snapshot, "P1");
         Assert.DoesNotContain("P1-HAND", p1ObjectsFromP2.Keys);
         Assert.DoesNotContain("P1-STANDBY", p1ObjectsFromP2.Keys);
+        AssertObjectLocationAbsent(p1ObjectsFromP2, "P1-STANDBY");
         Assert.Contains("P1-GRAVEYARD", p1ObjectsFromP2.Keys);
         Assert.Contains("P1-BANISHED", p1ObjectsFromP2.Keys);
         var p2ObjectsFromP2 = Objects(p2Snapshot, "P2");
         Assert.Contains("P2-HIDDEN-STANDBY", p2ObjectsFromP2.Keys);
         Assert.Contains("P2-GRAVEYARD", p2ObjectsFromP2.Keys);
         Assert.Contains("P2-BANISHED", p2ObjectsFromP2.Keys);
+        AssertObjectLocation(p2ObjectsFromP2, "P2-HIDDEN-STANDBY", "P2", "BATTLEFIELD", "battlefield", "BF-LEFT");
         AssertSerializedSnapshotDoesNotContain(
             p2Snapshot,
             "P1-HAND",
@@ -374,6 +386,36 @@ public sealed class SnapshotTableProjectionTests
     private static IReadOnlyDictionary<string, object?> Objects(SnapshotDto snapshot, string playerId)
     {
         return Dict(Player(snapshot, playerId)["objects"]);
+    }
+
+    private static void AssertObjectLocation(
+        IReadOnlyDictionary<string, object?> objects,
+        string objectId,
+        string playerId,
+        string zone,
+        string zoneKind,
+        string? battlefieldObjectId = null)
+    {
+        var location = Dict(Dict(objects[objectId])["location"]);
+        Assert.Equal(playerId, StringValue(location["playerId"]));
+        Assert.Equal(zone, StringValue(location["zone"]));
+        Assert.Equal(zoneKind, StringValue(location["zoneKind"]));
+        Assert.False(string.IsNullOrWhiteSpace(StringValue(location["zoneLabel"])));
+
+        if (battlefieldObjectId is null)
+        {
+            Assert.False(location.ContainsKey("battlefieldObjectId"));
+            return;
+        }
+
+        Assert.Equal(battlefieldObjectId, StringValue(location["battlefieldObjectId"]));
+    }
+
+    private static void AssertObjectLocationAbsent(
+        IReadOnlyDictionary<string, object?> objects,
+        string objectId)
+    {
+        Assert.DoesNotContain(objectId, objects.Keys);
     }
 
     private static IReadOnlyDictionary<string, object?> Player(SnapshotDto snapshot, string playerId)
