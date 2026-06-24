@@ -667,7 +667,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int SettLegendManaCost = 1;
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
-    private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
@@ -21555,11 +21554,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHoldCallRuneCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(battlefieldState.CardNo, out var trigger)
+            || trigger.RuneCallCount is not > 0)
         {
             return false;
         }
 
+        var runeCallCount = trigger.RuneCallCount.GetValueOrDefault();
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
             $"{playerId} 据守战场并召出符文",
@@ -21569,14 +21570,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_CALL_RUNE",
+                ["trigger"] = TriggerKinds.BattlefieldHeldCallRune,
                 ["sourceObjectId"] = sourceObjectId
             }));
         var runeCallResult = CallRunes(
             playerZones,
             cardObjects,
             playerId,
-            1);
+            runeCallCount);
         events.Add(new GameEvent(
             "RUNES_CALLED",
             $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
@@ -24799,7 +24800,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHeldMoveUnitToBaseCardNo(cardNo)
             || IsBattlefieldHoldCreateMinionCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardNo, out _)
-            || IsBattlefieldHoldCallRuneCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardNo, out _)
             || IsBattlefieldHoldGrantBoonCardNo(cardNo)
             || IsBattlefieldHeldReturnHeroCardNo(cardNo)
             || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
@@ -24859,11 +24860,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldHoldCallRuneCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHoldCallRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHoldGrantBoonCardNo(string? cardNo)

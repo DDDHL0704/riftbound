@@ -5987,7 +5987,6 @@ internal static class ActionPromptBuilder
     private const int CrescentGuardReadyPowerCost = 1;
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
-    private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
@@ -16033,7 +16032,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldHeldMoveUnitToBaseCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldHoldCallRuneCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldHoldGrantBoonCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldReturnHeroCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal)
@@ -16566,7 +16565,6 @@ public sealed class MatchSession : IMatchSession
     private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
-    private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
@@ -23884,7 +23882,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-STAR-PEAK"] = new(
                     "P2-BATTLEFIELD-STAR-PEAK",
-                    cardNo: BattlefieldHoldCallRuneCardNo,
+                    cardNo: "OGN·288/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P2,
                     controllerId: seed.P2),

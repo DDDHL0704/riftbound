@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -131,6 +131,17 @@ The 2026-06-25 held draw-one follow-up moves another implemented battlefield tri
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHoldDrawCardNo` constant.
 - The old `BattlefieldHoldDrawCardNo` / `IsBattlefieldHoldDrawCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `82` total / `78` in `CoreRuleEngine`; Core battlefield helper count is `34`.
 
+The 2026-06-25 held call-rune follow-up moves another implemented held-battlefield trigger away from engine card-number branching:
+
+- `OGN·288/298` / 星尖峰 official text: `当你据守此处时，你可以选择召出一枚休眠的符文。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_HELD_CALL_RUNE`
+  - `Timing = BATTLEFIELD_HELD`
+  - `RuneCallCount = 1`
+- `CoreRuleEngine.TryResolveBattlefieldHeldCallRuneTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(...)` and reads the rune-call count from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHoldCallRuneCardNo` constant.
+- The old `BattlefieldHoldCallRuneCardNo` / `IsBattlefieldHoldCallRuneCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `81` total / `77` in `CoreRuleEngine`; Core battlefield helper count is `33`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, optional trigger choice prompts, frontend/browser smoke, full official coverage or READY.
@@ -214,4 +225,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldHeld / BattlefieldTriggerSpec / Dunehorn / held-trigger GameHub representatives: passed `63/63`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8391/8391`;
+- DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.
+
+2026-06-25 held call-rune follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `4/4`;
+- adjacent BattlefieldHeld / BattlefieldTriggerSpec / BattlefieldReturnCallRune representatives: passed `64/64`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8393/8393`;
 - DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.

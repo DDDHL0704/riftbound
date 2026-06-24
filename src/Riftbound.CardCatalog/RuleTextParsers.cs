@@ -371,6 +371,20 @@ public static class TriggerParser
                 DrawCount: 1);
         }
 
+        var battlefieldHeldCallRuneMatch = Regex.Match(
+            segment,
+            @"当你据守此处时，你可以选择召出一枚休眠的符文",
+            RegexOptions.CultureInvariant);
+        if (battlefieldHeldCallRuneMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldCallRune,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held call-rune trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                RuneCallCount: 1);
+        }
+
         var friendlySpellDrawMatch = Regex.Match(
             segment,
             @"每回合首次：当你对此处的友方单位使用法术时，抽([0-9一两二三四五六七八九十]+)张牌",
