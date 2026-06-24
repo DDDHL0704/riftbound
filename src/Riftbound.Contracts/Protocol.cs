@@ -450,7 +450,8 @@ public sealed record ActionPromptServerFlowDto(
     IReadOnlyList<ActionPromptServerFlowLaneDto> Lanes,
     IReadOnlyList<ActionPromptServerFlowStepDto> Steps,
     IReadOnlyList<string> RelatedObjectIds,
-    IReadOnlyList<ActionPromptServerFlowObjectRefDto> RelatedObjects);
+    IReadOnlyList<ActionPromptServerFlowObjectRefDto> RelatedObjects,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TopStackItemId = null);
 
 public sealed record ActionPromptDto(
     string PlayerId,

@@ -201,6 +201,7 @@ function serverBackedFlowPlan(
   const relatedObjectIds = visibleServerFlowObjectIds(relatedObjectRefs.map((ref) => ref.id));
   const relatedActionRows = serverFlowRelatedActionRows(relatedObjectRefs, interactionModel);
   const serverFlowDetail = detail ?? serverFlowRelatedObjectsDetail(serverFlow, relatedObjectRefs);
+  const topStackItemId = serverFlow.topStackItemId?.trim();
   return {
     detail: serverFlowDetail,
     detailButtonLabel: detail ? "打开规则焦点" : serverFlowDetail ? "打开关联对象" : "暂无焦点",
@@ -216,6 +217,7 @@ function serverBackedFlowPlan(
       { key: "source", label: "来源", value: "服务端" },
       { key: "action", label: "行动", value: responsePlan.stateLabel },
       { key: "prompt", label: "提示", value: prompt.view?.title ?? serverFlow.promptType ?? "无" },
+      ...(topStackItemId ? [{ key: "top-stack", label: "顶部结算", value: topStackItemId }] : []),
       { key: "related", label: "关联", value: String(relatedObjectIds.length) }
     ],
     nextStepLabel: state === "selecting" ? responsePlan.nextStepLabel : serverFlow.nextStep,

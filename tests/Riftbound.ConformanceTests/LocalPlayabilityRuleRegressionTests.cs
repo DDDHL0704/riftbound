@@ -637,6 +637,11 @@ public sealed class LocalPlayabilityRuleRegressionTests
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(p1PriorityPass.Accepted, p1PriorityPass.ErrorMessage);
+        var p2StackPrompt = p1PriorityPass.Prompts["P2"];
+        Assert.True(p2StackPrompt.Actionable);
+        Assert.Equal(PromptTypes.StackPriority, p2StackPrompt.View?.Type);
+        Assert.Equal("P2", p2StackPrompt.ServerFlow?.ResponsiblePlayerId);
+        Assert.Equal(p2StackPrompt.View?.RelatedStackItemId, p2StackPrompt.ServerFlow?.TopStackItemId);
 
         var p2PriorityPass = await engine.ResolveAsync(
             p1PriorityPass.State,

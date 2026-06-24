@@ -434,6 +434,7 @@ export type ActionPromptServerFlowDto = {
   steps: ActionPromptServerFlowStepDto[];
   relatedObjectIds: string[];
   relatedObjects?: ActionPromptServerFlowObjectRefDto[] | null;
+  topStackItemId?: string | null;
 };
 
 export type ActionPromptDto = {
