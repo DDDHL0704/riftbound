@@ -1195,6 +1195,21 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
         }
 
+        foreach (var cardNo in new[] { "UNL-147/219", "UNL-147a/219", "UNL-238/219" })
+        {
+            var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var aura = Assert.Single(source.StaticAuras);
+            Assert.Equal(StaticAuraKinds.OtherFriendlyUnitsPower, aura.Kind);
+            Assert.Equal(ContinuousEffectLayers.StaticAura, aura.Layer);
+            Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", aura.Duration);
+            Assert.Equal(StaticAuraTargetScopes.OtherFriendlyUnits, aura.TargetScope);
+            Assert.Equal(StaticAuraParticipantScopes.OtherFriendlyPublicUnits, aura.ParticipantScope);
+            Assert.Equal(2, aura.PowerDeltaPerParticipant);
+            Assert.Contains("其他友方单位", aura.Text, StringComparison.Ordinal);
+            Assert.DoesNotContain("此处", aura.Text, StringComparison.Ordinal);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
+        }
+
         var enthusiasticAnnouncer = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-043/219", StringComparison.Ordinal));
         Assert.Empty(enthusiasticAnnouncer.StaticAuras);
     }

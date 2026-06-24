@@ -498,6 +498,26 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var otherFriendlyPowerMatch = Regex.Match(
+                segment,
+                @"其他友方单位获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (otherFriendlyPowerMatch.Success
+                && int.TryParse(otherFriendlyPowerMatch.Groups[1].Value, out var globalOtherFriendlyPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.OtherFriendlyUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.OtherFriendlyUnits,
+                    StaticAuraParticipantScopes.OtherFriendlyPublicUnits,
+                    globalOtherFriendlyPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras."));
+                continue;
+            }
+
             if (segment.Contains("每有一件友方装备", StringComparison.Ordinal)
                 && segment.Contains("{{S}}+1", StringComparison.Ordinal))
             {

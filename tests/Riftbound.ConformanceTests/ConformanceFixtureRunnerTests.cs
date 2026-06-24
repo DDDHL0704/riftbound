@@ -38517,6 +38517,71 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79OtherFriendlyStaticPowerAddsTwoAcrossPublicField()
+    {
+        var state = OtherFriendlyStaticPowerState();
+        var staticAuras = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BARON-SOURCE", StringComparison.Ordinal))
+            .OrderBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(2, staticAuras.Length);
+        Assert.Equal(
+            ["P1-BARON-ALLY", "P1-BARON-BASE-ALLY"],
+            staticAuras.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        Assert.All(
+            staticAuras,
+            effect =>
+            {
+                Assert.Equal("OBJECT", effect.Scope);
+                Assert.Equal(2, effect.PowerDelta);
+                Assert.Equal("OTHER_FRIENDLY_UNITS_POWER", effect.EffectKind);
+                Assert.Equal("UNL-147/219", effect.SourceCardNo);
+                Assert.Equal("CoreRuleEngine.ResolveOtherFriendlyUnitsPowerBonus", effect.SourcePath);
+                Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_OTHER_FRIENDLY_PUBLIC_UNITS", effect.Condition);
+                Assert.Equal("DERIVED_FROM_CURRENT_PUBLIC_FIELD_FRIENDLY_UNIT_LOCATIONS", effect.Lifecycle);
+                Assert.Equal(["P1-BARON-ALLY", "P1-BARON-BASE-ALLY"], effect.ParticipantObjectIds);
+            });
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-BARON-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-BARON-SOURCE", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-BARON-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-BARON-DEFENDER", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-other-friendly-static-power", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BARON-BATTLEFIELD",
+                ["P1-BARON-ALLY"],
+                ["P2-BARON-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-BARON-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(4, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(4, attackerDamageEvent.Payload["damage"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BARON-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
+        Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79PetalPixieCountsFriendlyEphemeralUnitsAtSameBattlefieldForBattlePower()
     {
         var state = PunishmentState(mana: 0) with
@@ -64930,6 +64995,71 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-GAREN-OTHER-BATTLEFIELD-ALLY"] = new("P1", "BATTLEFIELD", "P1-GAREN-OTHER-BATTLEFIELD")
             },
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-GAREN-BATTLEFIELD")]
+        };
+    }
+
+    private static MatchState OtherFriendlyStaticPowerState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BARON-SOURCE", "P1-BARON-BASE-ALLY"],
+                    Battlefields = ["P1-BARON-BATTLEFIELD", "P1-BARON-ALLY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BARON-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BARON-SOURCE"] = new(
+                    "P1-BARON-SOURCE",
+                    cardNo: "UNL-147/219",
+                    power: 12,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BARON-BASE-ALLY"] = new(
+                    "P1-BARON-BASE-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BARON-BATTLEFIELD"] = new(
+                    "P1-BARON-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BARON-ALLY"] = new(
+                    "P1-BARON-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BARON-DEFENDER"] = new(
+                    "P2-BARON-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BARON-SOURCE"] = new("P1", "BASE"),
+                ["P1-BARON-BASE-ALLY"] = new("P1", "BASE"),
+                ["P1-BARON-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-BARON-BATTLEFIELD"),
+                ["P1-BARON-ALLY"] = new("P1", "BATTLEFIELD", "P1-BARON-BATTLEFIELD"),
+                ["P2-BARON-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BARON-BATTLEFIELD")
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BARON-BATTLEFIELD")]
         };
     }
 
