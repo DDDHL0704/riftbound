@@ -44,6 +44,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
+    public const string BattlefieldSpellPowerBonus =
+        "BATTLEFIELD_SPELL_POWER_PLUS_1";
 }
 
 public static class TriggerTimings
@@ -51,6 +53,7 @@ public static class TriggerTimings
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
     public const string BattlefieldFriendlySpellTargeted = "BATTLEFIELD_FRIENDLY_SPELL_TARGETED";
+    public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
 }
 
 public static class TriggerTargetScopes

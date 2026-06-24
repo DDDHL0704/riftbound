@@ -10,11 +10,13 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `UNL-216/219` 皮城学院 has official text `当你据守此处时，在本回合内，你的下一个法术获得等同于其基础费用的{{回响}}。（你可以选择支付此额外费用，以重复此法术效果。）`
 - `data/official/card-catalog.zh-CN.json`: `UNL-219/219` 海力亚秘库 has official text `当你据守此处时，你的非指示物单位在本回合内的打出费用增加{{1}}。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·292/298` 幻梦之树 has official text `每回合首次：当你对此处的友方单位使用法术时，抽一张牌。`
+- `data/official/card-catalog.zh-CN.json`: `UNL-205/219` 废弃大厅 has official text `当一名玩家打出法术时，该玩家可以选择让自己在此处控制的一名单位在本回合内{{S}}+1。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
 - Existing representative tests `P79BattlefieldHeldUnitCostIncrease...` and GameHub `P79BattlefieldHeldUnitCostIncrease...` remain the runtime evidence for the held unit-cost increase behavior.
 - Existing representative tests `P79BattlefieldFriendlySpellTarget...` and GameHub `P79BattlefieldFriendlySpellDrawSeed...` remain the runtime evidence for the friendly-spell draw behavior.
+- Existing representative tests `P79BattlefieldSpellPowerBonus...` and GameHub `P79BattlefieldSpellPowerBonusSeed...` remain the runtime evidence for the spell-power bonus behavior.
 
 ## Runtime Evidence
 
@@ -34,6 +36,10 @@ The friendly-spell draw follow-up parser path turns the Dream Tree official text
 
 The accepted `PLAY_CARD` path still requires a spell targeting a controlled battlefield unit and still records `BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:{playerId}:{battlefieldObjectId}` until end of turn so the source draws only once. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` payload now carries the parsed trigger kind and `drawCount`, and the draw application reads the count from the parsed spec.
 
+The spell-power bonus follow-up parser path turns the Waste Hall official text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_SPELL_POWER_PLUS_1`, `Timing=BATTLEFIELD_SPELL_PLAYED`, `TargetScope=FRIENDLY_UNIT_AT_THIS_BATTLEFIELD`, `PowerDelta=1`, and `Duration=UNTIL_END_OF_TURN`. Runtime no longer checks `UNL-205/219` through `BattlefieldSpellPowerBonusCardNo` / `IsBattlefieldSpellPowerBonusCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `PLAY_CARD` path still requires a spell play, an eligible controlled battlefield source, and a controlled unit at that battlefield. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` payload keeps `BATTLEFIELD_SPELL_POWER_PLUS_1` while sourcing `battlefieldCardNo` and `powerDelta` from the parsed spec-backed source, and the until-end-of-turn power modifier applies that parsed delta.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -48,10 +54,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held unit-cost increase adjacent BattlefieldHeld / BattlefieldTriggerSpec / PaymentEngine / PlayCard / GameHub battlefield representatives / BoardTaskQueue / FullGame: `1156/1156`;
 - friendly-spell draw focused behavior-spec/source guard/runtime representative: `5/5`;
 - friendly-spell draw adjacent BattlefieldFriendlySpellDraw / BattlefieldFriendlySpellTarget / BattlefieldTriggerSpec / held-trigger representatives: `12/12`;
+- spell-power bonus focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- spell-power bonus adjacent BattlefieldSpellPowerBonus / BattlefieldTriggerSpec / recently migrated battlefield trigger representatives: `21/21`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the friendly-spell draw follow-up: `8377/8377`;
+- backend full conformance after the spell-power bonus follow-up: `8379/8379`;
 - DevUi build: passed after adding `/opt/homebrew/bin` to PATH for local `npm`.
 
 ## Non-Closure
 
-This evidence proves four battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, all card-effect families, frontend smoke or READY.
+This evidence proves five battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, all card-effect families, frontend smoke or READY.

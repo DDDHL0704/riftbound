@@ -1451,6 +1451,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldSpellPowerBonusTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var wasteHall = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-205/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(wasteHall.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldSpellPowerBonus, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.FriendlyUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.PowerDelta);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Contains("当一名玩家打出法术时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("在本回合内{{S}}+1", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield spell-play power modifier parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1607,6 +1628,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldFriendlySpellDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldFriendlySpellDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldSpellPowerBonusTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldSpellPowerBonusCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldSpellPowerBonusCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldSpellPowerBonusCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

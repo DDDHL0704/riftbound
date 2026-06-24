@@ -721,7 +721,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
@@ -24808,7 +24807,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldNextSpellEchoTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEquipmentCostReductionAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFriendlySpellDrawTrigger(cardNo, out _)
-            || IsBattlefieldSpellPowerBonusCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(cardNo, out _)
             || IsBattlefieldGrantUnitExperienceCardNo(cardNo)
             || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
             || IsBattlefieldUnitReturnedCallRuneCardNo(cardNo)
@@ -24994,11 +24993,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldSpellPowerBonusCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldGrantUnitExperienceCardNo(string? cardNo)
@@ -31656,12 +31650,28 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var sourceObjectId = zones.Battlefields
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldSpellPowerBonusCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault();
+        var sourceObjectId = string.Empty;
+        var sourceCardNo = string.Empty;
+        var powerDelta = 0;
+        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject)
+                || !BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(cardObject.CardNo, out var trigger)
+                || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
+                || !string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
+                || !string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+                || trigger.PowerDelta.GetValueOrDefault() == 0
+                || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+            {
+                continue;
+            }
+
+            sourceObjectId = objectId;
+            sourceCardNo = cardObject.CardNo ?? string.Empty;
+            powerDelta = trigger.PowerDelta.GetValueOrDefault();
+            break;
+        }
+
         if (string.IsNullOrWhiteSpace(sourceObjectId))
         {
             return false;
@@ -31685,18 +31695,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = sourceObjectId,
-                ["battlefieldCardNo"] = BattlefieldSpellPowerBonusCardNo,
-                ["trigger"] = "BATTLEFIELD_SPELL_POWER_PLUS_1",
+                ["battlefieldCardNo"] = sourceCardNo,
+                ["trigger"] = TriggerKinds.BattlefieldSpellPowerBonus,
                 ["playedCardNo"] = stackItem.CardNo,
                 ["targetObjectId"] = targetObjectId,
-                ["powerDelta"] = 1
+                ["powerDelta"] = powerDelta
             }));
         cardObjects[targetObjectId] = ApplyPowerModifier(
             targetState,
             behavior,
             stackItem,
             targetObjectId,
-            1,
+            powerDelta,
             out var powerEvent);
         events.Add(powerEvent);
         return true;

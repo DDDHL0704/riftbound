@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, and friendly-spell draw; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, friendly-spell draw, and spell-power bonus; project remains **NOT READY**.
 
 ## Scope
 
@@ -54,6 +54,19 @@ The 2026-06-25 friendly-spell draw follow-up moves another implemented battlefie
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldFriendlySpellDrawCardNo` constant.
 - The old `BattlefieldFriendlySpellDrawCardNo` / `IsBattlefieldFriendlySpellDrawCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `90` total / `86` in `CoreRuleEngine`; Core battlefield helper count is `42`.
 
+The 2026-06-25 spell-power bonus follow-up moves another implemented battlefield trigger away from engine card-number branching:
+
+- `UNL-205/219` / 废弃大厅 official text: `当一名玩家打出法术时，该玩家可以选择让自己在此处控制的一名单位在本回合内{{S}}+1。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_SPELL_POWER_PLUS_1`
+  - `Timing = BATTLEFIELD_SPELL_PLAYED`
+  - `TargetScope = FRIENDLY_UNIT_AT_THIS_BATTLEFIELD`
+  - `PowerDelta = 1`
+  - `Duration = UNTIL_END_OF_TURN`
+- `CoreRuleEngine.TryResolveBattlefieldSpellPowerBonusTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(...)` and reads the power delta from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldSpellPowerBonusCardNo` constant.
+- The old `BattlefieldSpellPowerBonusCardNo` / `IsBattlefieldSpellPowerBonusCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `89` total / `85` in `CoreRuleEngine`; Core battlefield helper count is `41`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, frontend/browser smoke, full official coverage or READY.
@@ -90,3 +103,11 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after adding `/opt/homebrew/bin` to PATH for local `npm`;
 - backend full conformance: passed `8377/8377`.
+
+2026-06-25 spell-power bonus follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `5/5`;
+- adjacent BattlefieldSpellPowerBonus / BattlefieldTriggerSpec / recently migrated battlefield trigger representatives: passed `21/21`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8379/8379`;
+- DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.

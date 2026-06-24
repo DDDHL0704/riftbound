@@ -372,6 +372,23 @@ public static class TriggerParser
                 DrawCount: ParseChineseNumber(friendlySpellDrawMatch.Groups[1].Value));
         }
 
+        var spellPowerBonusMatch = Regex.Match(
+            segment,
+            @"当一名玩家打出法术时，该玩家可以选择让自己在此处控制的一名单位在本回合内\{\{S\}\}\+(\d+)",
+            RegexOptions.CultureInvariant);
+        if (spellPowerBonusMatch.Success
+            && int.TryParse(spellPowerBonusMatch.Groups[1].Value, out var spellPowerDelta))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldSpellPowerBonus,
+                TriggerTimings.BattlefieldSpellPlayed,
+                segment,
+                "Battlefield spell-play power modifier parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.FriendlyUnitAtThisBattlefield,
+                PowerDelta: spellPowerDelta,
+                Duration: TriggerDurations.UntilEndOfTurn);
+        }
+
         var movedUnitPowerMatch = Regex.Match(
             segment,
             @"每当一名单位从此处向别处移动时，让其本回合内\{\{S\}\}\+(\d+)",
