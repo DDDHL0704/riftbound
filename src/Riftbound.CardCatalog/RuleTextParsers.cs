@@ -400,6 +400,22 @@ public static class TriggerParser
                 RecycleDestinationZone: TriggerZones.MainDeck);
         }
 
+        var battlefieldConquerConsumeBoonDrawMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，你可以选择消耗([0-9一两二三四五六七八九十]+)个增益，以此抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerConsumeBoonDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerConsumeBoonDraw,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered consume-boon draw trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.ControlledBoonUnitOnField,
+                DrawCount: ParseChineseNumber(battlefieldConquerConsumeBoonDrawMatch.Groups[2].Value),
+                ConsumedBoonCount: ParseChineseNumber(battlefieldConquerConsumeBoonDrawMatch.Groups[1].Value));
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

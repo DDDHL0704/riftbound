@@ -60,6 +60,7 @@ export type BehaviorSpec = {
     millDestinationZone?: string | null;
     manaCost?: number | null;
     boonCount?: number | null;
+    consumedBoonCount?: number | null;
     runeCallCount?: number | null;
     moveCount?: number | null;
     moveDestination?: string | null;

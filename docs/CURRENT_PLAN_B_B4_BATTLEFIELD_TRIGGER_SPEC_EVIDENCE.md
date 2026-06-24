@@ -26,6 +26,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·291/298` 烛光圣殿 has official text `当你征服此处时，查看主牌堆顶部的两张牌。你可以选择从这两张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·212/221` 雷区 has official text `当你征服此处时，将你主牌堆顶部的两张牌放入废牌堆。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·287/298` 雷霆之纹 has official text `当你征服此处时，回收一枚你的符文。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·282/298` 希拉娜修道院 has official text `当你征服此处时，你可以选择消耗一个增益，以此抽一张牌。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -47,6 +48,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldConquerRevealRecyclesTopTwo` and GameHub `P79BattlefieldConquerRevealRecycleSeedOffersBattlefieldDestinationAndRecycles` remain the runtime evidence for the conquered-battlefield reveal/recycle representative behavior.
 - Existing representative tests `P79BattlefieldConquerMillsTopTwoFromBattlefieldObject` and GameHub `P79BattlefieldConquerMillSeedOffersBattlefieldDestinationAndMills` remain the runtime evidence for the conquered-battlefield mill representative behavior.
 - Existing representative tests `P79BattlefieldConquerRecyclesRune`, `P79BattlefieldConquerRecycleRuneSkipsOpponentControlledBaseRune`, and GameHub `P79BattlefieldConquerRecycleRuneSeedOffersBattlefieldDestinationAndRecyclesRune` remain the runtime evidence for the conquered-battlefield recycle-rune representative behavior.
+- Existing representative tests `P79BattlefieldConquerConsumesBoonAndDraws`, `P79BattlefieldConquerConsumesControlledBoonWhenDirtyBoonIsOpponentOwned`, and GameHub `P79BattlefieldConquerBoonDrawSeedOffersBattlefieldDestinationAndConsumesBoon` remain the runtime evidence for the conquered-battlefield consume-boon draw representative behavior.
 
 ## Runtime Evidence
 
@@ -130,6 +132,10 @@ The conquer recycle-rune follow-up parser path turns the Sigil of Thunder offici
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still selects a controlled rune in the conquering player's base, moves it to the bottom of that player's main deck, and emits `BATTLEFIELD_TRIGGER_RESOLVED` plus `CARDS_RECYCLED` with `BATTLEFIELD_CONQUERED_RECYCLE_RUNE`. The recycle count and source/destination zones now come from the parsed spec, and the existing opponent-controlled base rune guard remains covered.
 
+The conquer consume-boon draw follow-up parser path turns the Shirana Monastery official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=CONTROLLED_BOON_UNIT_ON_FIELD`, `ConsumedBoonCount=1`, and `DrawCount=1`. Runtime no longer checks `OGN·282/298` through `BattlefieldConquerConsumeBoonDrawCardNo` / `IsBattlefieldConquerConsumeBoonDrawCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior for this optional trigger: when a controlled boon unit is available, it consumes one boon, reduces that unit's power by one, draws the parsed count, and emits `BATTLEFIELD_TRIGGER_RESOLVED`, `BOON_CONSUMED`, and `CARD_DRAWN` with `BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW`. The opponent-controlled dirty boon guard remains covered; the broader optional yes/no prompt remains outside this narrow routing slice.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -176,10 +182,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer mill adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `274/274`;
 - conquer recycle-rune focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer recycle-rune adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `276/276`;
+- conquer consume-boon draw focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- conquer consume-boon draw adjacent BattlefieldConquer / BattlefieldTriggerSpec / Boon / FullGame / GameHub representatives: `357/357`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the conquer recycle-rune follow-up: `8413/8413`;
+- backend full conformance after the conquer consume-boon draw follow-up: `8415/8415`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves twenty battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves twenty-one battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

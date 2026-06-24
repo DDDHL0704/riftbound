@@ -670,7 +670,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
-    private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
@@ -23483,12 +23482,17 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerConsumeBoonDrawCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledBoonUnitOnField, StringComparison.Ordinal)
+            || trigger.ConsumedBoonCount.GetValueOrDefault() <= 0
+            || trigger.DrawCount.GetValueOrDefault() <= 0
             || !TryGetFirstControlledBoonUnit(playerZones, cardObjects, playerId, sourceObjectId, out var targetObjectId, out var targetState))
         {
             return false;
         }
 
+        var drawCount = trigger.DrawCount.GetValueOrDefault();
         var nextPower = targetState.Power - 1;
         cardObjects[targetObjectId] = targetState with
         {
@@ -23507,10 +23511,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW",
+                ["trigger"] = TriggerKinds.BattlefieldConquerConsumeBoonDraw,
                 ["sourceObjectId"] = sourceObjectId,
                 ["targetObjectId"] = targetObjectId,
-                ["drawCount"] = 1
+                ["drawCount"] = drawCount
             }));
         events.Add(new GameEvent(
             "BOON_CONSUMED",
@@ -23522,7 +23526,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["previousPower"] = targetState.Power,
                 ["power"] = nextPower,
-                ["reason"] = "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW"
+                ["reason"] = TriggerKinds.BattlefieldConquerConsumeBoonDraw
             }));
 
         drawApplication = ApplyDrawToPlayer(
@@ -23530,7 +23534,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             playerScores,
             playerId,
-            1,
+            drawCount,
             rngCursor,
             events);
         return true;
@@ -24949,7 +24953,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
             || IsBattlefieldExtraStandbyCardNo(cardNo)
             || IsBattlefieldHeldActivateConquestEffectsCardNo(cardNo)
-            || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardNo, out _)
@@ -25017,11 +25021,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHeldActivateConquestEffectsCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHeldActivateConquestEffectsCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerConsumeBoonDrawCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerConsumeBoonDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldDefenderSteadfastTwoCardNo(string? cardNo)

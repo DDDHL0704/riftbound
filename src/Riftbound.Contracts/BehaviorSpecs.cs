@@ -64,6 +64,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_MILL_TOP_TWO";
     public const string BattlefieldConquerRecycleRune =
         "BATTLEFIELD_CONQUERED_RECYCLE_RUNE";
+    public const string BattlefieldConquerConsumeBoonDraw =
+        "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -101,6 +103,7 @@ public static class TriggerTargetScopes
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
     public const string ControlledUnitsAtThisBattlefield = "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD";
     public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
+    public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
 }
 
 public static class TriggerDurations
@@ -268,6 +271,7 @@ public sealed record TriggerSpec(
     string? MillDestinationZone = null,
     int? ManaCost = null,
     int? BoonCount = null,
+    int? ConsumedBoonCount = null,
     int? RuneCallCount = null,
     int? MoveCount = null,
     string? MoveDestination = null,
