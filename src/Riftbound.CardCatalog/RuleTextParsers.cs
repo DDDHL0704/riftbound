@@ -537,6 +537,34 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var battlefieldFilteredKeywordMatch = Regex.Match(
+                segment,
+                @"此处拥有(?:\{\{)?([^}，。]+)(?:\}\})?的单位获得\{\{([^}]+)\}\}(?!\+)",
+                RegexOptions.CultureInvariant);
+            if (battlefieldFilteredKeywordMatch.Success)
+            {
+                var targetTag = battlefieldFilteredKeywordMatch.Groups[1].Value.Trim();
+                var grantedKeyword = battlefieldFilteredKeywordMatch.Groups[2].Value.Trim();
+                if (!string.IsNullOrWhiteSpace(targetTag)
+                    && !string.IsNullOrWhiteSpace(grantedKeyword)
+                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+                {
+                    auras.Add(new StaticAuraSpec(
+                        StaticAuraKinds.BattlefieldFilteredUnitsKeyword,
+                        RuleTextLayer,
+                        "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                        StaticAuraTargetScopes.SameBattlefieldFilteredUnits,
+                        StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
+                        0,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                        StaticAuraTargetFilters.TagPrefix + targetTag,
+                        GrantedKeyword: grantedKeyword));
+                    continue;
+                }
+            }
+
             var sameBattlefieldFriendlyFilteredCountSourcePowerMatch = Regex.Match(
                 segment,
                 @"我所处的战场(?:你)?每有一名拥有(?:\{\{)?([^}，。]+)(?:\}\})?的(?:友方)?单位，我便获得\{\{S\}\}\+(\d+)",

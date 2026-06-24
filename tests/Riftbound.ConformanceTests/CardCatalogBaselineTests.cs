@@ -1204,6 +1204,19 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位", brushAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, brushAura.Status);
 
+        var blackflameAltar = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-208/219", StringComparison.Ordinal));
+        var blackflameAura = Assert.Single(blackflameAltar.StaticAuras);
+        Assert.Equal(StaticAuraKinds.BattlefieldFilteredUnitsKeyword, blackflameAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.RuleText, blackflameAura.Layer);
+        Assert.Equal("WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", blackflameAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SameBattlefieldFilteredUnits, blackflameAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits, blackflameAura.ParticipantScope);
+        Assert.Equal(0, blackflameAura.PowerDeltaPerParticipant);
+        Assert.Equal(StaticAuraTargetFilters.TagPrefix + "瞬息", blackflameAura.TargetFilter);
+        Assert.Equal(CardCombatKeywordNames.Steadfast, blackflameAura.GrantedKeyword);
+        Assert.Contains("此处拥有{{瞬息}}的单位获得{{坚守}}", blackflameAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, blackflameAura.Status);
+
         var ivernLegend = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-195/219", StringComparison.Ordinal));
         Assert.Empty(ivernLegend.StaticAuras);
 

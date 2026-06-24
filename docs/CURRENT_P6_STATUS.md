@@ -811,7 +811,7 @@ P6.10a validation:
   - `SFD·208/221` 魄罗熔炉: battlefield-control legend activated ability grant to attach a weapon.
   - `OGN·292/298` 幻梦之树: first-per-turn friendly-unit spell draw trigger.
   - `UNL-206/219` 鲜血祭坛: battle-destruction replacement that can remove damage, sleep, and recall.
-  - `UNL-208/219` 黑焰祭坛: static keyword grant for `{{瞬息}}` units gaining `{{坚守}}`.
+  - `UNL-208/219` 黑焰祭坛: BehaviorSpec `BATTLEFIELD_FILTERED_UNITS_KEYWORD` static keyword grant for `{{瞬息}}` units gaining `{{坚守}}`.
 - Added catalog audit coverage proving each representative:
   - is a `战场` official entry;
   - has the expected official card text anchor;

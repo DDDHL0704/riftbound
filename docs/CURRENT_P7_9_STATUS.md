@@ -1688,7 +1688,7 @@ P7.9.7 battlefield foundation slice 5 validation:
 This is the sixth rule slice inside P7.9.7. It adds the first battlefield static keyword grant that modifies combat damage without adding frontend rule authority.
 
 - Added implemented battlefield card:
-  - `UNL-208/219`: when battle is declared at this battlefield object, defending `瞬息` unit card objects gain `坚守` for combat power calculation.
+  - `UNL-208/219`: BehaviorSpec `BATTLEFIELD_FILTERED_UNITS_KEYWORD` grants `坚守` to `瞬息` unit card objects at this battlefield for combat power calculation.
 - The bonus is represented through the authoritative `DAMAGE_APPLIED` payload:
   - `keyword = "坚守"`
   - `keywordBonus = 1`

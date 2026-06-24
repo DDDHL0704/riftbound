@@ -665,7 +665,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
-    private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
@@ -19284,6 +19283,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 objectId,
                 cardObject,
                 combatKeyword));
+        keywordBonus = Math.Max(
+            keywordBonus,
+            ResolveBattlefieldFilteredUnitsKeywordBonus(
+                state,
+                playerZones,
+                battlefieldId,
+                cardObject,
+                combatKeyword));
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
@@ -19296,11 +19303,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (!isAttacking && HasRumbleLegendMechanicalSteadfastBonus(state, playerZones, objectId, cardObject))
-        {
-            keywordBonus += 1;
-        }
-
-        if (!isAttacking && HasBattlefieldEphemeralSteadfastBonus(state, playerZones, battlefieldId, cardObject))
         {
             keywordBonus += 1;
         }
@@ -19414,6 +19416,24 @@ public sealed class CoreRuleEngine : IRuleEngine
             && StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(battlefieldState.CardNo, out var aura)
             && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
             ? aura.PowerDeltaPerParticipant
+            : 0;
+    }
+
+    private static int ResolveBattlefieldFilteredUnitsKeywordBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldId,
+        CardObjectState cardObject,
+        string combatKeyword)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(battlefieldState.CardNo, out var aura)
+            && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+            ? GrantedCombatKeywordAmount(aura, combatKeyword)
             : 0;
     }
 
@@ -19720,18 +19740,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             ? 2
             : 0;
-    }
-
-    private static bool HasBattlefieldEphemeralSteadfastBonus(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string battlefieldId,
-        CardObjectState cardObject)
-    {
-        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && cardObject.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal)
-            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
-            && IsBattlefieldEphemeralUnitsSteadfastCardNo(battlefieldState.CardNo);
     }
 
     private static bool HasBattlefieldIsolatedDefenderSteadfastPenalty(
@@ -24695,7 +24703,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsImplementedBattlefieldCardNo(string? cardNo)
     {
-        return IsBattlefieldEphemeralUnitsSteadfastCardNo(cardNo)
+        return StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardNo, out _)
             || IsBattlefieldHeldMoveUnitToBaseCardNo(cardNo)
             || IsBattlefieldHoldCreateMinionCardNo(cardNo)
             || IsBattlefieldHoldDrawCardNo(cardNo)
@@ -24749,11 +24757,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
             || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo)
             || IsBattlefieldHeldUnitCostIncreaseCardNo(cardNo);
-    }
-
-    private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldEphemeralUnitsSteadfastCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldMoveUnitToBaseCardNo(string? cardNo)

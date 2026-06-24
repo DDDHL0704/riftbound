@@ -38783,6 +38783,80 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldFilteredStaticKeywordGrantsSteadfastToEphemeralDefenders()
+    {
+        var state = BattlefieldFilteredStaticKeywordState();
+        var ruleTextAuras = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BLACKFLAME-BATTLEFIELD", StringComparison.Ordinal))
+            .OrderBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(2, ruleTextAuras.Length);
+        Assert.Equal(
+            ["P1-BLACKFLAME-EPHEMERAL-ALLY", "P2-BLACKFLAME-EPHEMERAL-DEFENDER"],
+            ruleTextAuras.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        Assert.All(
+            ruleTextAuras,
+            effect =>
+            {
+                Assert.Equal("OBJECT", effect.Scope);
+                Assert.Equal("WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", effect.Duration);
+                Assert.Equal(0, effect.PowerDelta);
+                Assert.Equal(0, effect.BasePower);
+                Assert.Equal(0, effect.EffectivePower);
+                Assert.Empty(effect.EffectKind);
+                Assert.Null(effect.SourceCardNo);
+                Assert.Empty(effect.SourcePath);
+                Assert.Null(effect.ParticipantObjectIds);
+                Assert.Null(effect.SourceDependencyObjectIds);
+                Assert.Null(effect.TargetDependencyObjectIds);
+                Assert.Null(effect.ParticipantDependencyObjectIds);
+                Assert.Null(effect.SourceOrder);
+            });
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-BLACKFLAME-BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-BLACKFLAME-NONMATCHING-ALLY", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-BLACKFLAME-BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-BLACKFLAME-STANDBY-ALLY", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-BLACKFLAME-BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-BLACKFLAME-OTHER-BATTLEFIELD-EPHEMERAL", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-filtered-static-keyword", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BLACKFLAME-BATTLEFIELD",
+                ["P1-BLACKFLAME-ATTACKER"],
+                ["P2-BLACKFLAME-EPHEMERAL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-BLACKFLAME-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["damage"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BLACKFLAME-EPHEMERAL-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79OtherFriendlyStaticPowerAddsTwoAcrossPublicField()
     {
         var state = OtherFriendlyStaticPowerState();
@@ -65682,6 +65756,105 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BRUSH-OTHER-BATTLEFIELD-PORO"] = new("P1", "BATTLEFIELD", "P1-BRUSH-OTHER-BATTLEFIELD")
             },
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BRUSH-BATTLEFIELD")]
+        };
+    }
+
+    private static MatchState BattlefieldFilteredStaticKeywordState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BLACKFLAME-BATTLEFIELD",
+                        "P1-BLACKFLAME-ATTACKER",
+                        "P1-BLACKFLAME-EPHEMERAL-ALLY",
+                        "P1-BLACKFLAME-NONMATCHING-ALLY",
+                        "P1-BLACKFLAME-STANDBY-ALLY",
+                        "P1-BLACKFLAME-OTHER-BATTLEFIELD",
+                        "P1-BLACKFLAME-OTHER-BATTLEFIELD-EPHEMERAL"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BLACKFLAME-EPHEMERAL-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BLACKFLAME-BATTLEFIELD"] = new(
+                    "P1-BLACKFLAME-BATTLEFIELD",
+                    cardNo: "UNL-208/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BLACKFLAME-ATTACKER"] = new(
+                    "P1-BLACKFLAME-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BLACKFLAME-EPHEMERAL-ALLY"] = new(
+                    "P1-BLACKFLAME-EPHEMERAL-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BLACKFLAME-NONMATCHING-ALLY"] = new(
+                    "P1-BLACKFLAME-NONMATCHING-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BLACKFLAME-STANDBY-ALLY"] = new(
+                    "P1-BLACKFLAME-STANDBY-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BLACKFLAME-OTHER-BATTLEFIELD"] = new(
+                    "P1-BLACKFLAME-OTHER-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BLACKFLAME-OTHER-BATTLEFIELD-EPHEMERAL"] = new(
+                    "P1-BLACKFLAME-OTHER-BATTLEFIELD-EPHEMERAL",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BLACKFLAME-EPHEMERAL-DEFENDER"] = new(
+                    "P2-BLACKFLAME-EPHEMERAL-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BLACKFLAME-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-BLACKFLAME-BATTLEFIELD"),
+                ["P1-BLACKFLAME-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BLACKFLAME-BATTLEFIELD"),
+                ["P1-BLACKFLAME-EPHEMERAL-ALLY"] = new("P1", "BATTLEFIELD", "P1-BLACKFLAME-BATTLEFIELD"),
+                ["P1-BLACKFLAME-NONMATCHING-ALLY"] = new("P1", "BATTLEFIELD", "P1-BLACKFLAME-BATTLEFIELD"),
+                ["P1-BLACKFLAME-STANDBY-ALLY"] = new("P1", "BATTLEFIELD", "P1-BLACKFLAME-BATTLEFIELD"),
+                ["P2-BLACKFLAME-EPHEMERAL-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BLACKFLAME-BATTLEFIELD"),
+                ["P1-BLACKFLAME-OTHER-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-BLACKFLAME-OTHER-BATTLEFIELD"),
+                ["P1-BLACKFLAME-OTHER-BATTLEFIELD-EPHEMERAL"] = new(
+                    "P1",
+                    "BATTLEFIELD",
+                    "P1-BLACKFLAME-OTHER-BATTLEFIELD")
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BLACKFLAME-BATTLEFIELD")]
         };
     }
 

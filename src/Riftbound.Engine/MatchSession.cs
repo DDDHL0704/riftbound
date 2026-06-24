@@ -1880,6 +1880,7 @@ public sealed record MatchState
 
         effects.AddRange(BuildBattlefieldAllUnitsStaticAuraEffects(state));
         effects.AddRange(BuildBattlefieldFilteredUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildBattlefieldFilteredUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
@@ -2492,6 +2493,44 @@ public sealed record MatchState
                     SourceDependencyObjectIds: sourceDependencyObjectIds,
                     TargetDependencyObjectIds: targetDependencyObjectIds,
                     ParticipantDependencyObjectIds: participantDependencyObjectIds));
+            }
+        }
+
+        return effects;
+    }
+
+    private static IReadOnlyList<ContinuousEffectState> BuildBattlefieldFilteredUnitsKeywordAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var battlefieldObjectId in state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || !StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(battlefield.CardNo, out var aura)
+                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+                || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var participantObjectIds = BattlefieldFilteredStaticAuraParticipantObjectIds(
+                state,
+                battlefieldObjectId,
+                aura);
+
+            foreach (var participantObjectId in participantObjectIds)
+            {
+                effects.Add(new ContinuousEffectState(
+                    $"RULE_TEXT:BATTLEFIELD_FILTERED_UNITS_KEYWORD:{battlefieldObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                    "OBJECT",
+                    ContinuousEffectLayers.RuleText,
+                    aura.Duration,
+                    participantObjectId,
+                    battlefieldObjectId));
             }
         }
 
@@ -5911,7 +5950,6 @@ internal static class ActionPromptBuilder
 
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
-    private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
@@ -15919,7 +15957,7 @@ internal static class ActionPromptBuilder
     private static bool IsBattlefieldCardObject(CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldEphemeralUnitsSteadfastCardNo, StringComparison.Ordinal)
+            || StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldHeldMoveUnitToBaseCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldDrawCardNo, StringComparison.Ordinal)
@@ -16454,7 +16492,6 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 public sealed class MatchSession : IMatchSession
 {
     private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
-    private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
@@ -21503,7 +21540,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-BLACK-FLAME"] = new(
                     "P2-BATTLEFIELD-BLACK-FLAME",
-                    cardNo: BattlefieldEphemeralUnitsSteadfastCardNo,
+                    cardNo: "UNL-208/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P2,
                     controllerId: seed.P2),

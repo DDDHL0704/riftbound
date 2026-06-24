@@ -5120,7 +5120,7 @@ public sealed class MatchRecoveryTests
                     "effectId": "effect-rule-text-duration",
                     "scope": "GLOBAL",
                     "layer": "RULE_TEXT",
-                    "duration": "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    "duration": "WHILE_SOURCE_ON_PUBLIC_FIELD",
                     "targetObjectId": null,
                     "sourceObjectId": null,
                     "powerDelta": 0,
@@ -5167,7 +5167,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing continuous effect item RULE_TEXT duration WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD is invalid",
+                "snapshot for alice timing continuous effect item RULE_TEXT duration WHILE_SOURCE_ON_PUBLIC_FIELD is invalid",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -95033,7 +95033,7 @@ public sealed class MatchRecoveryTests
             ["effectId"] = "effect-rule-text-duration",
             ["scope"] = "GLOBAL",
             ["layer"] = "RULE_TEXT",
-            ["duration"] = "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+            ["duration"] = "WHILE_SOURCE_ON_PUBLIC_FIELD",
             ["targetObjectId"] = null,
             ["sourceObjectId"] = null,
             ["powerDelta"] = 0,
@@ -95083,7 +95083,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing continuous effect item RULE_TEXT duration WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD is invalid",
+                "spectator replay frame timing continuous effect item RULE_TEXT duration WHILE_SOURCE_ON_PUBLIC_FIELD is invalid",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
