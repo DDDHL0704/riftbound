@@ -63,6 +63,9 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(["P1-STANDBY"], tableLeftBattlefield.StandbyObjectIds);
         Assert.Equal(2, tableLeftBattlefield.StandbySlotCount);
         Assert.Equal(1, tableLeftBattlefield.HiddenStandbyCount);
+        Assert.True(tableLeftBattlefield.ScoredThisTurn);
+        Assert.Equal(["P1"], tableLeftBattlefield.ScoredThisTurnPlayerIds);
+        Assert.Equal(["BATTLEFIELD_CONTESTED", "REMOVE_ILLEGAL_STANDBY", "START_BATTLE", "START_SPELL_DUEL"], tableLeftBattlefield.PendingTaskKinds);
         Assert.Equal(2, tableLeftBattlefield.StandbySlots.Count);
         Assert.Equal("VISIBLE", tableLeftBattlefield.StandbySlots[0].State);
         Assert.Equal("P1-STANDBY", tableLeftBattlefield.StandbySlots[0].ObjectId);
@@ -143,6 +146,9 @@ public sealed class SnapshotTableProjectionTests
         Assert.Equal(["P1-STANDBY"], StringList(leftBattlefield["standbyObjectIds"]));
         Assert.Equal(2, IntValue(leftBattlefield["standbySlotCount"]));
         Assert.Equal(1, IntValue(leftBattlefield["hiddenStandbyCount"]));
+        Assert.True(BoolValue(leftBattlefield["scoredThisTurn"]));
+        Assert.Equal(["P1"], StringList(leftBattlefield["scoredThisTurnPlayerIds"]));
+        Assert.Equal(["BATTLEFIELD_CONTESTED", "REMOVE_ILLEGAL_STANDBY", "START_BATTLE", "START_SPELL_DUEL"], StringList(leftBattlefield["pendingTaskKinds"]));
 
         var standbySlots = ObjectList(leftBattlefield["standbySlots"]);
         Assert.Equal(2, standbySlots.Count);
@@ -249,6 +255,10 @@ public sealed class SnapshotTableProjectionTests
             turnPlayerId: "P1",
             phase: MatchPhases.Main,
             timingState: TimingStates.NeutralOpen,
+            untilEndOfTurnEffects:
+            [
+                BattlefieldTaskMarkers.ScoreGainedThisTurn("BF-LEFT", "P1")
+            ],
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
