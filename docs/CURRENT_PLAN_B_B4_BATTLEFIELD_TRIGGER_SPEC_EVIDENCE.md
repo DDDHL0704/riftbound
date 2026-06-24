@@ -14,6 +14,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `UNL-211/219` 失落书库 has official text `若此战场受你控制，当你打出一张法术牌时，如果消耗了不低于{{4}}法力，则进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）`
 - `data/official/card-catalog.zh-CN.json`: `UNL-218/219` 偶像谷 has official text `当一名玩家在此处打出一名单位时，该玩家可以选择支付{{1}}，以此给予该单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）`
 - `data/official/card-catalog.zh-CN.json`: `UNL-214/219` 鬼影湾 has official text `当此处的一名单位返回到一名玩家的手牌时，该玩家可以选择支付{{1}}，以此召出一枚休眠的符文。`
+- `data/official/card-catalog.zh-CN.json`: `UNL-215/219` 流星疗泉 has official text `每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -23,6 +24,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldHighCostSpellInsight...` and GameHub `P79BattlefieldHighCostSpellInsightSeed...` remain the runtime evidence for the high-cost spell insight behavior.
 - Existing representative tests `P79BattlefieldPlayUnitBoon...` and GameHub `P79BattlefieldPlayUnitBoonSeed...` remain the runtime evidence for the unit-play pay-mana boon behavior.
 - Existing representative tests `P79BattlefieldReturnedUnit...` and GameHub `P79BattlefieldReturnCallRuneSeed...` remain the runtime evidence for the unit-returned pay-mana call-rune behavior.
+- Existing representative tests `P79BattlefieldFirstUnitPlayedMoveOther...` and GameHub `P79BattlefieldFirstUnitMoveOtherSeed...` remain the runtime evidence for the first non-token unit-play move-other-to-base behavior.
 
 ## Runtime Evidence
 
@@ -58,6 +60,10 @@ The unit-returned call-rune follow-up parser path turns the Ghost Bay official t
 
 The accepted return-to-hand path still requires a returned unit from that battlefield, an eligible controlled battlefield source, a non-empty rune deck, and enough mana to pay the parsed cost. The emitted `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `RUNES_CALLED` payloads now use the parsed trigger kind and parsed values, while the skipped cases for empty rune deck, insufficient mana, and opponent-controlled source remain server-authoritative.
 
+The first-unit-play move-other-to-base follow-up parser path turns the Meteor Spring official text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE`, `Timing=BATTLEFIELD_UNIT_PLAYED`, `TargetScope=OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD`, `MoveCount=1`, `MoveDestination=OWNER_BASE`, `OncePerTurn=true`, and `ExcludesTokens=true`. Runtime no longer checks `UNL-215/219` through `BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo` / `IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `PLAY_CARD` stack-resolution path still requires a non-token unit played to a battlefield, an eligible controlled battlefield source, no matching once-per-turn marker for that player/source, and another controlled unit to move. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_MOVED_TO_BASE` payloads now use the parsed trigger kind, while the used marker remains `BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:{playerId}:{battlefieldObjectId}` for compatibility.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -80,10 +86,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - unit-play boon adjacent BattlefieldPlayUnitBoon / BattlefieldTriggerSpec / PlayCard / Boon / GameHub / P6 battlefield surface representatives: `331/331`;
 - unit-returned call-rune focused behavior-spec/source guard/runtime/GameHub representative: `6/6`;
 - unit-returned call-rune adjacent BattlefieldReturnCallRune / BattlefieldReturnedUnit / BattlefieldTriggerSpec / recent battlefield trigger representatives / call-rune representatives: `23/23`;
+- first-unit-play move-other-to-base focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- first-unit-play move-other-to-base adjacent BattlefieldFirstUnit / BattlefieldPlayUnitBoon / BattlefieldTriggerSpec / MoveUnit / PlayCard / GameHub representatives: `342/342`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the unit-returned call-rune follow-up: `8387/8387`;
-- DevUi build/browser smoke: not repeated for the unit-returned call-rune follow-up; this slice did not touch DevUi files or frontend behavior.
+- backend full conformance after the first-unit-play move-other-to-base follow-up: `8389/8389`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves eight battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, all card-effect families, frontend smoke or READY.
+This evidence proves nine battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, all card-effect families, frontend smoke or READY.

@@ -721,7 +721,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int BattlefieldReadyLegendManaCost = 1;
@@ -24846,7 +24845,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldUnitReturnedPayCallRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(cardNo, out _)
-            || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
     }
@@ -25027,11 +25026,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -31978,7 +31972,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!IsStackItemBattlefieldDestination(stackItem)
-            || P6TokenFactoryCatalog.TryGetByCardNo(stackItem.CardNo, out _)
             || !playerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
@@ -31988,12 +31981,33 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var battlefieldObjectId = zones.Battlefields
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault();
+        var battlefieldObjectId = string.Empty;
+        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject)
+                || !BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(
+                    cardObject.CardNo,
+                    out var trigger)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                || !string.Equals(
+                    trigger.TargetScope,
+                    TriggerTargetScopes.OtherControlledUnitAtThisBattlefield,
+                    StringComparison.Ordinal)
+                || trigger.MoveCount.GetValueOrDefault() != 1
+                || !string.Equals(
+                    trigger.MoveDestination,
+                    TriggerMoveDestinations.OwnerBase,
+                    StringComparison.Ordinal)
+                || trigger.OncePerTurn != true
+                || (trigger.ExcludesTokens == true && P6TokenFactoryCatalog.TryGetByCardNo(stackItem.CardNo, out _)))
+            {
+                continue;
+            }
+
+            battlefieldObjectId = objectId;
+            break;
+        }
+
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState))
         {
@@ -32035,7 +32049,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE",
+                ["trigger"] = TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["playedUnitObjectId"] = stackItem.SourceObjectId,
                 ["targetObjectId"] = targetObjectId,
@@ -32052,7 +32066,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["originZone"] = MoveUnitBattlefieldZone,
                 ["destinationZone"] = MoveUnitBaseZone,
-                ["reason"] = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE"
+                ["reason"] = TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase
             }));
         return true;
     }

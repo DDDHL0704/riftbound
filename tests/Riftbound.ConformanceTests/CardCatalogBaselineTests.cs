@@ -1537,6 +1537,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var meteorSpring = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-215/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(meteorSpring.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldUnitPlayed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OtherControlledUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.MoveCount);
+        Assert.Equal(TriggerMoveDestinations.OwnerBase, trigger.MoveDestination);
+        Assert.True(trigger.OncePerTurn);
+        Assert.True(trigger.ExcludesTokens);
+        Assert.Contains("每回合首次", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出一名非指示物单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("另一名单位移动到其基地", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield first non-token unit-play move-other-to-base trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1803,6 +1827,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldUnitReturnedCallRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldUnitReturnedCallRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldFirstUnitPlayedMoveOtherToBaseTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

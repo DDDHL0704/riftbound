@@ -49,6 +49,15 @@ export type BehaviorSpec = {
     duration?: string | null;
     manaDelta?: number | null;
     drawCount?: number | null;
+    minimumPaidMana?: number | null;
+    recycleCount?: number | null;
+    manaCost?: number | null;
+    boonCount?: number | null;
+    runeCallCount?: number | null;
+    moveCount?: number | null;
+    moveDestination?: string | null;
+    oncePerTurn?: boolean | null;
+    excludesTokens?: boolean | null;
   }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
   activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;

@@ -406,6 +406,24 @@ public static class TriggerParser
                 RuneCallCount: 1);
         }
 
+        var firstUnitPlayedMoveOtherToBaseMatch = Regex.Match(
+            segment,
+            @"每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地",
+            RegexOptions.CultureInvariant);
+        if (firstUnitPlayedMoveOtherToBaseMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldFirstUnitPlayedMoveOtherToBase,
+                TriggerTimings.BattlefieldUnitPlayed,
+                segment,
+                "Battlefield first non-token unit-play move-other-to-base trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.OtherControlledUnitAtThisBattlefield,
+                MoveCount: 1,
+                MoveDestination: TriggerMoveDestinations.OwnerBase,
+                OncePerTurn: true,
+                ExcludesTokens: true);
+        }
+
         var spellPowerBonusMatch = Regex.Match(
             segment,
             @"当一名玩家打出法术时，该玩家可以选择让自己在此处控制的一名单位在本回合内\{\{S\}\}\+(\d+)",

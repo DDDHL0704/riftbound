@@ -52,6 +52,8 @@ public static class TriggerKinds
         "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON";
     public const string BattlefieldUnitReturnedPayCallRune =
         "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE";
+    public const string BattlefieldFirstUnitPlayedMoveOtherToBase =
+        "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE";
 }
 
 public static class TriggerTimings
@@ -70,11 +72,17 @@ public static class TriggerTargetScopes
     public const string FriendlyUnitAtThisBattlefield = "FRIENDLY_UNIT_AT_THIS_BATTLEFIELD";
     public const string PlayedUnitAtThisBattlefield = "PLAYED_UNIT_AT_THIS_BATTLEFIELD";
     public const string ReturnedUnitAtThisBattlefield = "RETURNED_UNIT_AT_THIS_BATTLEFIELD";
+    public const string OtherControlledUnitAtThisBattlefield = "OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
 }
 
 public static class TriggerDurations
 {
     public const string UntilEndOfTurn = "UNTIL_END_OF_TURN";
+}
+
+public static class TriggerMoveDestinations
+{
+    public const string OwnerBase = "OWNER_BASE";
 }
 
 public static class StaticAbilityKinds
@@ -207,7 +215,11 @@ public sealed record TriggerSpec(
     int? RecycleCount = null,
     int? ManaCost = null,
     int? BoonCount = null,
-    int? RuneCallCount = null);
+    int? RuneCallCount = null,
+    int? MoveCount = null,
+    string? MoveDestination = null,
+    bool? OncePerTurn = null,
+    bool? ExcludesTokens = null);
 
 public sealed record ReplacementSpec(
     string Kind,
