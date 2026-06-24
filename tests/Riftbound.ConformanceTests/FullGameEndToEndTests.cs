@@ -31,9 +31,77 @@ public sealed class FullGameEndToEndTests
     [Fact]
     public async Task OfficialLowCurveDecksReopenContestedBattleAfterSkippedCombatantsReadyAcrossTurns()
     {
-        var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+        var (_, battleReady, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
             "b0-full-game-official-low-curve-reopen-room");
 
+        AssertNoHiddenZoneLeak(battleResult);
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleResult.State.PendingTaskQueue.Tasks, task =>
+            string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+            && string.Equals(task.BattlefieldObjectId, battleReady.State.PendingTaskQueue.Tasks.Single(activeTask =>
+                string.Equals(activeTask.TaskId, battleReady.State.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal)).BattlefieldObjectId, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts()
+    {
+        var (session, _, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
+            "b0-full-game-official-low-curve-score-room");
+
+        var result = battleResult;
+        var scoreEvents = result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        for (var turnIndex = 0; turnIndex < 24 && !string.Equals(result.State.Status, MatchStatuses.Finished, StringComparison.Ordinal); turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"b0-score-pass-focus-{turnIndex}");
+                scoreEvents += result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException(JsonSerializer.Serialize(new
+                {
+                    MatchStatus = result.State.Status,
+                    MatchPhase = result.State.Phase,
+                    result.State.TimingState,
+                    result.State.ActivePlayerId,
+                    result.State.TurnPlayerId,
+                    result.State.FocusPlayerId,
+                    PendingTaskPhase = result.State.PendingTaskQueue.Phase,
+                    result.State.PendingTaskQueue.ActiveTaskId,
+                    TaskKinds = result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray(),
+                    PromptActions = result.Prompts[result.State.ActivePlayerId].Actions
+                }));
+            }
+
+            Assert.Equal(result.State.TurnPlayerId, result.State.ActivePlayerId);
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"b0-score-end-turn-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+            scoreEvents += result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        }
+
+        Assert.Equal(MatchStatuses.Finished, result.State.Status);
+        Assert.False(string.IsNullOrWhiteSpace(result.State.WinnerPlayerId));
+        Assert.True(scoreEvents > 0, "Expected the prompt-driven game to gain battlefield score before match win.");
+        var winEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        var winningScore = Assert.IsType<int>(winEvent.Payload["winningScore"]);
+        Assert.True(
+            result.State.PlayerScores[result.State.WinnerPlayerId!] >= winningScore,
+            $"Expected winner score to satisfy winningScore={winningScore}; scores={JsonSerializer.Serialize(result.State.PlayerScores)}.");
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static async ValueTask<(MatchSession Session, ResolutionResult BattleReady, ResolutionResult BattleResult)> DriveOfficialLowCurveDecksToBattleCloseAsync(
+        string roomId)
+    {
+        var (session, skipped) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(roomId);
         var current = skipped;
         ResolutionResult? battleReady = null;
         var skippedBattleCount = 0;
@@ -79,13 +147,7 @@ public sealed class FullGameEndToEndTests
             session,
             battleReady,
             "b0-declare-reopened-official-battle");
-        AssertNoHiddenZoneLeak(battleResult);
-        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
-        Assert.DoesNotContain(battleResult.State.PendingTaskQueue.Tasks, task =>
-            string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
-            && string.Equals(task.BattlefieldObjectId, battleReady.State.PendingTaskQueue.Tasks.Single(activeTask =>
-                string.Equals(activeTask.TaskId, battleReady.State.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal)).BattlefieldObjectId, StringComparison.Ordinal));
+        return (session, battleReady, battleResult);
     }
 
     private static async ValueTask<(MatchSession Session, ResolutionResult Result)> DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(

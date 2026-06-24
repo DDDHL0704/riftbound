@@ -26743,7 +26743,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .FirstOrDefault();
         if (battlefield is null || battlefield.OccupantControllerIds.Count < 1)
         {
-            return (state, []);
+            return (RestoreTurnPlayerAsActiveIfOrdinaryMainOpen(state), []);
         }
 
         var focusPlayerId = battlefield.OccupantControllerIds.Contains(causingPlayerId, StringComparer.Ordinal)
@@ -26792,6 +26792,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
 
         return (nextState, events);
+    }
+
+    private static MatchState RestoreTurnPlayerAsActiveIfOrdinaryMainOpen(MatchState state)
+    {
+        if (string.Equals(state.ActivePlayerId, state.TurnPlayerId, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(state.TurnPlayerId)
+            || !state.Seats.ContainsKey(state.TurnPlayerId)
+            || !string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || state.StackItems.Count > 0
+            || state.SpellDuelState.IsActive
+            || state.BattleState.IsActive
+            || state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            || !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+            || ResolutionResult.HasOpenOrderTriggersWindow(state)
+            || ResolutionResult.HasOpenBattleDamageAssignmentWindow(state)
+            || ResolutionResult.ActiveStartBattleTask(state) is not null
+            || state.PendingTaskQueue.HasTasks)
+        {
+            return state;
+        }
+
+        return state with { ActivePlayerId = state.TurnPlayerId };
     }
 
     private static bool IsPendingStateBasedCleanupTask(string kind)
@@ -43281,14 +43307,18 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (drawResult.WinnerPlayerId is not null)
         {
-            events.Add(new GameEvent(
-                "MATCH_WON",
-                $"{drawResult.WinnerPlayerId} 达到获胜分数并获胜",
-                new Dictionary<string, object?>
-                {
-                    ["winnerPlayerId"] = drawResult.WinnerPlayerId,
-                    ["winningScore"] = drawResult.WinningScore
-                }));
+            if (!events.Any(gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal)))
+            {
+                events.Add(new GameEvent(
+                    "MATCH_WON",
+                    $"{drawResult.WinnerPlayerId} 达到获胜分数并获胜",
+                    new Dictionary<string, object?>
+                    {
+                        ["winnerPlayerId"] = drawResult.WinnerPlayerId,
+                        ["winningScore"] = drawResult.WinningScore
+                    }));
+            }
+
             return events;
         }
 
