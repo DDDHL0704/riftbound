@@ -665,7 +665,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
-    private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
@@ -21755,7 +21754,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHeldMoveUnitToBaseCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
+            || trigger.MoveCount.GetValueOrDefault() != 1
+            || !string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal)
             || !TryGetFirstBattlefieldZoneUnit(cardObjects, playerZones, defenderObjectIds.Concat([sourceObjectId]), out var targetObjectId))
         {
             return false;
@@ -21781,7 +21786,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE",
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["targetObjectId"] = targetObjectId
             }));
@@ -21795,7 +21800,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["originZone"] = MoveUnitBattlefieldZone,
                 ["destinationZone"] = MoveUnitBaseZone,
-                ["reason"] = "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE"
+                ["reason"] = trigger.Kind
             }));
         return true;
     }
@@ -24799,7 +24804,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsImplementedBattlefieldCardNo(string? cardNo)
     {
         return StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardNo, out _)
-            || IsBattlefieldHeldMoveUnitToBaseCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(cardNo, out _)
             || IsBattlefieldHoldCreateMinionCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardNo, out _)
@@ -24852,11 +24857,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
-    }
-
-    private static bool IsBattlefieldHeldMoveUnitToBaseCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHeldMoveUnitToBaseCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)

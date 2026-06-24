@@ -48,6 +48,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_CALL_RUNE";
     public const string BattlefieldHeldEachPlayerCallRune =
         "BATTLEFIELD_HELD_EACH_PLAYER_CALL_RUNE";
+    public const string BattlefieldHeldMoveUnitToBase =
+        "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -79,6 +81,7 @@ public static class TriggerTargetScopes
     public const string PlayedUnitAtThisBattlefield = "PLAYED_UNIT_AT_THIS_BATTLEFIELD";
     public const string ReturnedUnitAtThisBattlefield = "RETURNED_UNIT_AT_THIS_BATTLEFIELD";
     public const string OtherControlledUnitAtThisBattlefield = "OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
+    public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
 }
 
