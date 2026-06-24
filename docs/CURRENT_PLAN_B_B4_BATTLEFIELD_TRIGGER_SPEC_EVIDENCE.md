@@ -24,6 +24,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·281/298` 圣化之墓 has official text `当你据守此处时，如果你的英雄区域已无英雄单位牌，则可以选择让该英雄从废牌堆中返回英雄区域。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·293/298` / `OGN·293a/298` 宏伟广场 has official text `当你据守此处，且在此拥有至少七名单位时，你赢得游戏胜利。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·291/298` 烛光圣殿 has official text `当你征服此处时，查看主牌堆顶部的两张牌。你可以选择从这两张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处。`
+- `data/official/card-catalog.zh-CN.json`: `SFD·212/221` 雷区 has official text `当你征服此处时，将你主牌堆顶部的两张牌放入废牌堆。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -43,6 +44,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone`, `P79BattlefieldHeldReturnHeroSkipsOpponentOwnedTomb`, and GameHub `P79BattlefieldHeldReturnHeroSeedOffersBattlefieldDestinationAndReturnsHero` remain the runtime evidence for the held return-hero behavior.
 - Representative tests `P79BattlefieldHeldSevenUnitsWinsGame`, `P79BattlefieldHeldSevenUnitsWinCountsOnlyUnitsAtThatBattlefield`, and GameHub `P79BattlefieldHeldSevenUnitsSeedOffersBattlefieldDestinationAndWins` are the runtime evidence for the held seven-units win behavior and its `在此` same-battlefield boundary.
 - Existing representative tests `P79BattlefieldConquerRevealRecyclesTopTwo` and GameHub `P79BattlefieldConquerRevealRecycleSeedOffersBattlefieldDestinationAndRecycles` remain the runtime evidence for the conquered-battlefield reveal/recycle representative behavior.
+- Existing representative tests `P79BattlefieldConquerMillsTopTwoFromBattlefieldObject` and GameHub `P79BattlefieldConquerMillSeedOffersBattlefieldDestinationAndMills` remain the runtime evidence for the conquered-battlefield mill representative behavior.
 
 ## Runtime Evidence
 
@@ -118,6 +120,10 @@ The conquer reveal/recycle follow-up parser path turns the Candlelit Sanctum off
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path still keeps the existing deterministic representative behavior: it reveals the top two controlled main-deck cards, recycles the parsed count, emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARDS_REVEALED`, and `CARDS_RECYCLED` with `BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, and preserves hidden main-deck ordering boundaries. The official optional choice of any number and arbitrary order for non-recycled cards remains outside this narrow routing slice.
 
+The conquer mill follow-up parser path turns the Minefield official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_MILL_TOP_TWO`, `Timing=BATTLEFIELD_CONQUERED`, `MillCount=2`, `MillSourceZone=MAIN_DECK`, and `MillDestinationZone=GRAVEYARD`. Runtime no longer checks `SFD·212/221` through `BattlefieldConquerMillTwoCardNo` / `IsBattlefieldConquerMillTwoCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` conquered-battlefield path still moves the top controlled main-deck cards into the conquering player's graveyard and emits `BATTLEFIELD_TRIGGER_RESOLVED` plus `CARDS_MILLED` with `BATTLEFIELD_CONQUERED_MILL_TOP_TWO`. The mill count and source/destination zones now come from the parsed spec while preserving existing hidden main-deck ordering boundaries.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -160,10 +166,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held seven-units win adjacent BattlefieldHeld / BattlefieldTriggerSpec / FullGame / GameHub representatives: `293/293`;
 - conquer reveal/recycle focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - conquer reveal/recycle adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `272/272`;
+- conquer mill focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
+- conquer mill adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `274/274`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the conquer reveal/recycle follow-up: `8409/8409`;
+- backend full conformance after the conquer mill follow-up: `8411/8411`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves eighteen battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves nineteen battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

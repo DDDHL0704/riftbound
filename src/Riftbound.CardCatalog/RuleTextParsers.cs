@@ -367,6 +367,22 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var battlefieldConquerMillMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，将你主牌堆顶部的([0-9一两二三四五六七八九十]+)张牌放入废牌堆",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerMillMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerMill,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered mill trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                MillCount: ParseChineseNumber(battlefieldConquerMillMatch.Groups[1].Value),
+                MillSourceZone: TriggerZones.MainDeck,
+                MillDestinationZone: TriggerZones.Graveyard);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

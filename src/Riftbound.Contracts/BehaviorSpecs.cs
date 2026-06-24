@@ -60,6 +60,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_SEVEN_UNITS_WIN";
     public const string BattlefieldConquerRevealRecycle =
         "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE";
+    public const string BattlefieldConquerMill =
+        "BATTLEFIELD_CONQUERED_MILL_TOP_TWO";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -256,6 +258,9 @@ public sealed record TriggerSpec(
     string? RevealSourceZone = null,
     int? RecycleCount = null,
     string? RecycleDestinationZone = null,
+    int? MillCount = null,
+    string? MillSourceZone = null,
+    string? MillDestinationZone = null,
     int? ManaCost = null,
     int? BoonCount = null,
     int? RuneCallCount = null,

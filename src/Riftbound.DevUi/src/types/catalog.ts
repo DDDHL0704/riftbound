@@ -54,6 +54,9 @@ export type BehaviorSpec = {
     revealSourceZone?: string | null;
     recycleCount?: number | null;
     recycleDestinationZone?: string | null;
+    millCount?: number | null;
+    millSourceZone?: string | null;
+    millDestinationZone?: string | null;
     manaCost?: number | null;
     boonCount?: number | null;
     runeCallCount?: number | null;

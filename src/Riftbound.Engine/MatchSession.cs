@@ -5993,7 +5993,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
-    private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
@@ -16033,7 +16032,7 @@ internal static class ActionPromptBuilder
             || IsBattlefieldExtraStandbyCardNo(cardObject.CardNo)
             || string.Equals(cardObject.CardNo, BattlefieldHeldActivateConquestEffectsCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerConsumeBoonDrawCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardObject.CardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldDefenderSteadfastTwoCardNo, StringComparison.Ordinal)
@@ -16561,7 +16560,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
-    private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
@@ -23595,7 +23593,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-SCRAPYARD"] = new(
                     "P1-BATTLEFIELD-SCRAPYARD",
-                    cardNo: BattlefieldConquerMillTwoCardNo,
+                    cardNo: "SFD·212/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),

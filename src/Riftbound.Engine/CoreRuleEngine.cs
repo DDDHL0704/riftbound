@@ -671,7 +671,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
-    private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
@@ -23087,14 +23086,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerMillTwoCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.MillSourceZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+            || !string.Equals(trigger.MillDestinationZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+            || trigger.MillCount.GetValueOrDefault() <= 0
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.MainDeck.Count == 0)
         {
             return false;
         }
 
-        var movedCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, 2);
+        var movedCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, trigger.MillCount.GetValueOrDefault());
         if (movedCardIds.Length == 0)
         {
             return false;
@@ -23115,7 +23118,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONQUERED_MILL_TOP_TWO",
+                ["trigger"] = TriggerKinds.BattlefieldConquerMill,
                 ["sourceObjectId"] = sourceObjectId,
                 ["count"] = movedCardIds.Length
             }));
@@ -23128,8 +23131,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = battlefieldObjectId,
                 ["cardIds"] = movedCardIds,
                 ["count"] = movedCardIds.Length,
-                ["sourceZone"] = "MAIN_DECK",
-                ["destinationZone"] = "GRAVEYARD"
+                ["sourceZone"] = trigger.MillSourceZone,
+                ["destinationZone"] = trigger.MillDestinationZone
             }));
         return true;
     }
@@ -24941,7 +24944,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldExtraStandbyCardNo(cardNo)
             || IsBattlefieldHeldActivateConquestEffectsCardNo(cardNo)
             || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
-            || IsBattlefieldConquerMillTwoCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardNo, out _)
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
@@ -25013,11 +25016,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerConsumeBoonDrawCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerConsumeBoonDrawCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerMillTwoCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldDefenderSteadfastTwoCardNo(string? cardNo)
