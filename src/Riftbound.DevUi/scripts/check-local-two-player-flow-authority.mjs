@@ -15,6 +15,12 @@ assert.ok(
   `${testName} must remain the local 2P integrated flow regression.`
 );
 
+const promptScopedTestName = "LocalTwoPlayerRuneActionsUsePromptScopedSessionSubmissionAndRejectStalePrompt";
+assert.ok(
+  testSource.includes(promptScopedTestName),
+  `${promptScopedTestName} must keep local 2P rune actions wired through MatchSession prompt/tick authority.`
+);
+
 for (const requiredEvent of [
   "UNIT_PLAYED_TO_BATTLEFIELD",
   "BATTLEFIELD_CONTESTED",
@@ -66,6 +72,22 @@ for (const requiredSnippet of [
   assert.ok(
     testSource.includes(requiredSnippet),
     `Local 2P integrated flow must assert authoritative ${requiredSnippet} coverage.`
+  );
+}
+
+for (const requiredPromptScopedSnippet of [
+  "PromptScopedRuneRawCommand",
+  "session.SubmitAsync",
+  "ErrorCodes.PromptExpired",
+  "行动快照已过期，请按最新状态重新提交。",
+  "MatchStateHasher.Hash(staleRecycle.State)",
+  "AssertPromptScopedRuneRawCommand",
+  "CommandTypes.TapRune",
+  "CommandTypes.RecycleRune"
+]) {
+  assert.ok(
+    testSource.includes(requiredPromptScopedSnippet),
+    `Local 2P prompt-scoped flow must assert ${requiredPromptScopedSnippet}.`
   );
 }
 

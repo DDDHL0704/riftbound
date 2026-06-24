@@ -713,6 +713,88 @@ public sealed class LocalPlayabilityRuleRegressionTests
         AssertSnapshotDoesNotExposeObjectId(p1EndsTurn.Snapshots["P2"], "P1-HIDDEN-HAND");
     }
 
+    [Fact]
+    public async Task LocalTwoPlayerRuneActionsUsePromptScopedSessionSubmissionAndRejectStalePrompt()
+    {
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(LocalTwoPlayerIntegratedFlowState(), new CoreRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var openingPrompt = session.PromptFor("P1");
+        Assert.True(openingPrompt.Actionable);
+        Assert.Equal(PromptTypes.MainAction, openingPrompt.View?.Type);
+        Assert.Contains(CommandTypes.TapRune, openingPrompt.Actions);
+        Assert.Contains(CommandTypes.RecycleRune, openingPrompt.Actions);
+
+        var tapRawCommand = PromptScopedRuneRawCommand(CommandTypes.TapRune, "P1-RUNE-MANA", openingPrompt);
+        var tapped = await session.SubmitAsync(
+            "P1",
+            "intent-local-2p-session-tap-rune",
+            new TapRuneCommand("P1-RUNE-MANA"),
+            tapRawCommand,
+            CancellationToken.None);
+
+        Assert.True(tapped.Accepted, tapped.ErrorMessage);
+        Assert.Equal(1, tapped.State.Tick);
+        Assert.True(tapped.State.CardObjects["P1-RUNE-MANA"].IsExhausted);
+        Assert.Equal(4, tapped.State.RunePools["P1"].Mana);
+        AssertPromptScopedRuneRawCommand(journal.Entries[0].RawCommand!.Value, CommandTypes.TapRune, "P1-RUNE-MANA", openingPrompt);
+
+        var tappedStateHash = MatchStateHasher.Hash(tapped.State);
+        var afterTapPrompt = session.PromptFor("P1");
+        Assert.True(afterTapPrompt.Actionable);
+        Assert.Equal(tapped.State.Tick, afterTapPrompt.SnapshotTick);
+        Assert.Contains(CommandTypes.RecycleRune, afterTapPrompt.Actions);
+
+        var staleRecycleRawCommand = PromptScopedRuneRawCommand(
+            CommandTypes.RecycleRune,
+            "P1-RUNE-POWER",
+            afterTapPrompt,
+            openingPrompt.SnapshotTick);
+        var staleRecycle = await session.SubmitAsync(
+            "P1",
+            "intent-local-2p-session-stale-recycle-rune",
+            new RecycleRuneCommand("P1-RUNE-POWER"),
+            staleRecycleRawCommand,
+            CancellationToken.None);
+
+        Assert.False(staleRecycle.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, staleRecycle.ErrorCode);
+        Assert.Equal("行动快照已过期，请按最新状态重新提交。", staleRecycle.ErrorMessage);
+        Assert.Empty(staleRecycle.Events);
+        Assert.Equal(tappedStateHash, MatchStateHasher.Hash(staleRecycle.State));
+        Assert.Equal(tapped.State.Tick, staleRecycle.State.Tick);
+        AssertPromptScopedRuneRawCommand(
+            journal.Entries[1].RawCommand!.Value,
+            CommandTypes.RecycleRune,
+            "P1-RUNE-POWER",
+            afterTapPrompt,
+            openingPrompt.SnapshotTick);
+
+        var freshPrompt = session.PromptFor("P1");
+        Assert.True(freshPrompt.Actionable);
+        Assert.Equal(tapped.State.Tick, freshPrompt.SnapshotTick);
+        Assert.Contains(CommandTypes.RecycleRune, freshPrompt.Actions);
+
+        var recycleRawCommand = PromptScopedRuneRawCommand(CommandTypes.RecycleRune, "P1-RUNE-POWER", freshPrompt);
+        var recycled = await session.SubmitAsync(
+            "P1",
+            "intent-local-2p-session-recycle-rune",
+            new RecycleRuneCommand("P1-RUNE-POWER"),
+            recycleRawCommand,
+            CancellationToken.None);
+
+        Assert.True(recycled.Accepted, recycled.ErrorMessage);
+        Assert.Equal(2, recycled.State.Tick);
+        Assert.Equal(["P1-RUNE-MANA"], recycled.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM", "P1-RUNE-POWER"], recycled.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(1, recycled.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(new ObjectLocationState("P1", "RUNE_DECK"), recycled.State.ObjectLocations["P1-RUNE-POWER"]);
+        AssertPromptScopedRuneRawCommand(journal.Entries[2].RawCommand!.Value, CommandTypes.RecycleRune, "P1-RUNE-POWER", freshPrompt);
+        Assert.Equal([true, false, true], journal.Entries.Select(entry => entry.Accepted).ToArray());
+    }
+
     private static MatchState PlayUnitToContestedBattlefieldState()
     {
         return new MatchState(
@@ -1429,6 +1511,34 @@ public sealed class LocalPlayabilityRuleRegressionTests
     {
         return Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Lanes["battlefields"])
             .Single(item => string.Equals(item["battlefieldObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
+    }
+
+    private static JsonElement PromptScopedRuneRawCommand(
+        string commandType,
+        string sourceObjectId,
+        ActionPromptDto prompt,
+        long? snapshotTick = null)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = commandType,
+            sourceObjectId,
+            promptId = prompt.PromptId,
+            snapshotTick = snapshotTick ?? prompt.SnapshotTick
+        });
+    }
+
+    private static void AssertPromptScopedRuneRawCommand(
+        JsonElement rawCommand,
+        string commandType,
+        string sourceObjectId,
+        ActionPromptDto prompt,
+        long? snapshotTick = null)
+    {
+        Assert.Equal(commandType, rawCommand.GetProperty("cmdType").GetString());
+        Assert.Equal(sourceObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
+        Assert.Equal(snapshotTick ?? prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal
