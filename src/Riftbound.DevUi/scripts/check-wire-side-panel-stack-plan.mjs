@@ -124,10 +124,13 @@ const expandedFocusPlan = buildWireSidePanelStackPlan({
   orchestration,
   ruleChainPlan: idleRulePlan
 });
-assert.equal(expandedFocusPlan.byRail.focus.mode, "expanded");
-assert.equal(expandedFocusPlan.byRail.focus.state, "primary");
-assert.equal(expandedFocusPlan.byRail.focus.bodyMode, "full");
-assert.equal(expandedFocusPlan.byRail.focus.priority, "primary");
+// Focus rail caps at summary; the interaction main pane owns the expanded surface.
+assert.equal(expandedFocusPlan.byRail.focus.mode, "summary");
+assert.equal(expandedFocusPlan.byRail.focus.state, "normal");
+assert.equal(expandedFocusPlan.byRail.focus.bodyMode, "collapsed");
+assert.equal(expandedFocusPlan.byRail.focus.priority, "context");
+assert.equal(expandedFocusPlan.byRail.main.mode, "expanded");
+assert.equal(expandedFocusPlan.activePanel.slot, "interaction");
 
 const rulesSummaryPlan = buildWireSidePanelStackPlan({
   activeSlot: "commandCenter",
@@ -149,9 +152,11 @@ const rulesExpandedPlan = buildWireSidePanelStackPlan({
   orchestration,
   ruleChainPlan: activeRulePlan
 });
-assert.equal(rulesExpandedPlan.byRail.rules.mode, "expanded");
-assert.equal(rulesExpandedPlan.byRail.rules.state, "primary");
-assert.equal(rulesExpandedPlan.byRail.rules.bodyMode, "full");
+// Rules rail caps at summary; the ruleQueue main pane owns the expanded surface.
+assert.equal(rulesExpandedPlan.byRail.rules.mode, "summary");
+assert.equal(rulesExpandedPlan.byRail.rules.state, "urgent");
+assert.equal(rulesExpandedPlan.byRail.rules.bodyMode, "compact");
+assert.equal(rulesExpandedPlan.byRail.main.mode, "expanded");
 assert.equal(rulesExpandedPlan.activePanel.slot, "ruleQueue");
 assert.equal(rulesExpandedPlan.activePanel.overflowMode, "auto");
 assert.equal(rulesExpandedPlan.activePanel.canScrollY, true);
@@ -166,7 +171,7 @@ const receiptSummaryPlan = buildWireSidePanelStackPlan({
 assert.equal(receiptSummaryPlan.byRail.receipt.mode, "summary");
 assert.equal(receiptSummaryPlan.byRail.receipt.state, "normal");
 assert.equal(receiptSummaryPlan.byRail.receipt.actionSlot, "commandCenter");
-assert.equal(receiptSummaryPlan.density, "crowded");
+assert.equal(receiptSummaryPlan.density, "urgent");
 assert.equal(receiptSummaryPlan.byRail.receipt.bodyMode, "collapsed");
 assert.equal(receiptSummaryPlan.byRail.status.bodyMode, "collapsed");
 assert.equal(receiptSummaryPlan.capacityOverflow, false);
@@ -178,7 +183,8 @@ const receiptExpandedPlan = buildWireSidePanelStackPlan({
   ruleChainPlan: activeRulePlan,
   submissionFeedback: receipt("failed")
 });
-assert.equal(receiptExpandedPlan.byRail.receipt.mode, "expanded");
+// Receipt rail caps at summary; an urgent failure still renders a compact body.
+assert.equal(receiptExpandedPlan.byRail.receipt.mode, "summary");
 assert.equal(receiptExpandedPlan.byRail.receipt.state, "urgent");
 assert.equal(receiptExpandedPlan.byRail.receipt.bodyMode, "compact");
 assert.equal(receiptExpandedPlan.byRail.receipt.priority, "urgent");

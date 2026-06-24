@@ -80,7 +80,7 @@ export function buildWireSidePanelStackPlan({
   const rawEntries: WireSidePanelStackRailEntry[] = [
     statusRail(orchestration),
     focusRail({ activeSlot, focusPlan }),
-    rulesRail({ activeSlot, ruleChainPlan }),
+    rulesRail({ ruleChainPlan }),
     receiptRail({ activeSlot, submissionFeedback }),
     mainRail(activeEntry)
   ];
@@ -163,35 +163,31 @@ function focusRail({
     };
   }
 
-  const expanded = activeSlot === "interaction";
   const commandSurfaceCompact = activeSlot === "actionMap" || activeSlot === "actionPrompt";
   return {
-    actionLabel: expanded ? "已展开" : "焦点",
+    actionLabel: "焦点",
     actionSlot: "interaction",
-    bodyPreference: commandSurfaceCompact && !expanded ? "compact" : undefined,
+    bodyPreference: commandSurfaceCompact ? "compact" : undefined,
     bodyMode: "collapsed",
     capacityWeight: 0,
     key: "focus",
     label: "焦点",
-    mode: expanded ? "expanded" : "summary",
+    mode: "summary",
     order: 2,
-    priority: expanded ? "primary" : "context",
+    priority: "context",
     reason: focusPlan.nextStepLabel,
     slot: "interaction",
-    state: expanded ? "primary" : "normal"
+    state: "normal"
   };
 }
 
 function rulesRail({
-  activeSlot,
   ruleChainPlan
 }: {
-  activeSlot: WireSidePanelSlot;
   ruleChainPlan: WireSidePanelRuleChainPlan;
 }): WireSidePanelStackRailEntry {
-  const expanded = activeSlot === "ruleQueue" || activeSlot === "serverFlow";
   const idle = ruleChainPlan.state === "idle";
-  if (idle && !expanded) {
+  if (idle) {
     return {
       actionLabel: "队列",
       bodyMode: "collapsed",
@@ -206,19 +202,20 @@ function rulesRail({
     };
   }
 
+  const urgent = urgentRuleState(ruleChainPlan.state);
   return {
-    actionLabel: expanded ? "已展开" : "队列",
+    actionLabel: "队列",
     actionSlot: "ruleQueue",
     bodyMode: "collapsed",
     capacityWeight: 0,
     key: "rules",
     label: "规则链",
-    mode: expanded ? "expanded" : "summary",
+    mode: "summary",
     order: 3,
-    priority: expanded ? "primary" : urgentRuleState(ruleChainPlan.state) ? "urgent" : "context",
+    priority: urgent ? "urgent" : "context",
     reason: ruleChainPlan.nextStepLabel,
     slot: "ruleQueue",
-    state: expanded ? "primary" : urgentRuleState(ruleChainPlan.state) ? "urgent" : "normal"
+    state: urgent ? "urgent" : "normal"
   };
 }
 
@@ -246,21 +243,20 @@ function receiptRail({
   }
 
   const urgent = submissionFeedback?.state === "failed" || submissionFeedback?.state === "submitting";
-  const expanded = Boolean(submissionFeedback) && (urgent || commandReceiptSurface);
   return {
-    actionLabel: expanded ? "已展开" : "回执",
+    actionLabel: "回执",
     actionSlot: "commandCenter",
     bodyPreference: !submissionFeedback && commandReceiptSurface ? "compact" : undefined,
     bodyMode: "collapsed",
     capacityWeight: 0,
     key: "receipt",
     label: "回执",
-    mode: expanded ? "expanded" : "summary",
+    mode: "summary",
     order: 4,
-    priority: urgent ? "urgent" : expanded ? "primary" : "context",
+    priority: urgent ? "urgent" : "context",
     reason: submissionFeedback?.message ?? "尚未提交命令。",
     slot: "commandCenter",
-    state: urgent ? "urgent" : submissionFeedback ? expanded ? "primary" : "normal" : "empty"
+    state: urgent ? "urgent" : submissionFeedback ? "normal" : "empty"
   };
 }
 
