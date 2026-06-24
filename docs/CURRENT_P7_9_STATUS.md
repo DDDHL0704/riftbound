@@ -2612,6 +2612,7 @@ This is the thirty-fifth rule slice inside P7.9.7. It adds a static battlefield 
   - `SFD·211/221`: while this battlefield object is present in a player's battlefield zone, that player's friendly `ECHO` optional cost is reduced by `1` mana.
 - Server-authoritative Echo cost reduction changes:
   - `PLAY_CARD` optional-cost planning still accepts only the server-known `ECHO` token from the prompt/command path.
+  - 2026-06-25 Plan B / B4 update: this check is now resolved from BehaviorSpec `StaticAbilitySpec.Kind=BATTLEFIELD_ECHO_COST_REDUCTION` + `Amount=1`; the old `BattlefieldEchoCostReductionCardNo` / `IsBattlefieldEchoCostReductionCardNo` card-number branch has been removed.
   - The backend applies the battlefield reduction to the Echo extra mana cost before cost validation and payment; no frontend cost calculation authority is added.
   - `COST_PAID` now includes `battlefieldEchoCostReductionMana` so the UI/event log can show why the paid mana total was lower.
   - Boundary note: because the current battlefield model stores battlefield-zone objects flatly, this representative checks the controller's battlefield zone for the static battlefield object.

@@ -1409,6 +1409,15 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(StaticAbilityKinds.BattlefieldPreventUnitPlay, preventUnitPlay.Kind);
         Assert.Contains("单位无法被打出到此处", preventUnitPlay.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, preventUnitPlay.Status);
+
+        var maraiSpire = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·211/221", StringComparison.Ordinal));
+        var echoCostReduction = Assert.Single(
+            maraiSpire.StaticAbilities,
+            ability => string.Equals(ability.Kind, StaticAbilityKinds.BattlefieldEchoCostReduction, StringComparison.Ordinal));
+        Assert.Equal(StaticAbilityKinds.BattlefieldEchoCostReduction, echoCostReduction.Kind);
+        Assert.Contains("友方{{回响}}的费用减少{{1}}", echoCostReduction.Text, StringComparison.Ordinal);
+        Assert.Equal(1, echoCostReduction.Amount);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, echoCostReduction.Status);
     }
 
     [Fact]
@@ -1475,6 +1484,7 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldPreventMoveToBaseCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldPreventUnitPlayCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldEchoCostReductionCardNo", source, StringComparison.Ordinal);
 
         var coreRuleEnginePath = Path.Combine(
             RepositoryRoot(),
@@ -1487,6 +1497,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsBattlefieldPreventMoveToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldPreventUnitPlayCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldPreventUnitPlayCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldEchoCostReductionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldEchoCostReductionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

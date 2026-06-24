@@ -475,6 +475,22 @@ public static class StaticAbilityParser
 
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var battlefieldEchoCostReductionMatch = Regex.Match(
+                segment,
+                @"友方\{\{回响\}\}的费用减少\{\{(\d+)\}\}",
+                RegexOptions.CultureInvariant);
+            if (battlefieldEchoCostReductionMatch.Success
+                && int.TryParse(battlefieldEchoCostReductionMatch.Groups[1].Value, out var echoCostReductionAmount))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldEchoCostReduction,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield Echo cost-reduction static ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
+                    echoCostReductionAmount));
+                continue;
+            }
+
             if (segment.Contains("单位无法从此处移动到基地", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(

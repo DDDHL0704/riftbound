@@ -6026,7 +6026,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
-    private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string EagerApprenticeCardNo = "OGN·084/298";
@@ -13739,16 +13738,27 @@ internal static class ActionPromptBuilder
         int echoManaCost)
     {
         if (echoManaCost <= 0
-            || !state.PlayerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)))
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return 0;
         }
 
-        return Math.Min(1, echoManaCost);
+        var reductionAmount = zones.Battlefields
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                    ? BattlefieldEchoCostReductionAmount(cardObject.CardNo)
+                    : 0)
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return Math.Min(reductionAmount, echoManaCost);
+    }
+
+    private static int BattlefieldEchoCostReductionAmount(string? cardNo)
+    {
+        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardNo, out var ability)
+            ? Math.Max(0, ability.Amount)
+            : 0;
     }
 
     private static int PromptBattlefieldEquipmentCostReductionMana(
@@ -16037,7 +16047,7 @@ internal static class ActionPromptBuilder
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
             || BattlefieldSourceGrantsRoam(cardObject.CardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldEchoCostReductionAbility(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldHeldNextSpellEchoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFriendlySpellDrawCardNo, StringComparison.Ordinal)
@@ -16564,7 +16574,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
-    private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
@@ -22584,7 +22593,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-MARAI-SPIRE"] = new(
                     "P1-BATTLEFIELD-MARAI-SPIRE",
-                    cardNo: BattlefieldEchoCostReductionCardNo,
+                    cardNo: "SFD·211/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)

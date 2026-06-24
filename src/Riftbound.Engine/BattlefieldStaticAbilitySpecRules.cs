@@ -24,6 +24,14 @@ internal static class BattlefieldStaticAbilitySpecRules
             out ability);
     }
 
+    public static bool TryGetBattlefieldEchoCostReductionAbility(string? cardNo, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+            cardNo,
+            StaticAbilityKinds.BattlefieldEchoCostReduction,
+            out ability);
+    }
+
     private static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
     {
         ability = default!;
