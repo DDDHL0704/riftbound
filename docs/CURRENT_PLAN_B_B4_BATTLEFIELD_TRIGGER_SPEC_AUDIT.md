@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -179,6 +179,21 @@ The 2026-06-25 held grant-boon follow-up moves another implemented held-battlefi
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHoldGrantBoonCardNo` constant.
 - The old `BattlefieldHoldGrantBoonCardNo` / `IsBattlefieldHoldGrantBoonCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `78` total / `74` in `CoreRuleEngine`; Core battlefield helper count is `30`.
 
+The 2026-06-25 held create-minion follow-up moves another implemented held-battlefield trigger away from engine card-number branching:
+
+- `OGN·275/298` / 团结圣坛 official text: `当你据守此处时，打出一名1{{S}}的“随从”到你的基地。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_HELD_CREATE_MINION`
+  - `Timing = BATTLEFIELD_HELD`
+  - `CreatedTokenCount = 1`
+  - `CreatedTokenName = 随从`
+  - `CreatedTokenPower = 1`
+  - `CreatedTokenDestination = OWNER_BASE`
+- `CoreRuleEngine.TryResolveBattlefieldHeldCreateMinionTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(...)` and reads token count, token family, token power and destination from `BehaviorSpec.Triggers`.
+- The token identity is resolved through `P6TokenFactoryCatalog` by token family, power and unit tag; the current official representative continues to create `OGN·271/298`, but the runtime no longer names that card number as the trigger's source condition.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHoldCreateMinionCardNo` constant.
+- The old `BattlefieldHoldCreateMinionCardNo` / `IsBattlefieldHoldCreateMinionCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `76` total / `73` in `CoreRuleEngine`; Core battlefield helper count is `29`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -294,4 +309,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldHeld / BattlefieldTriggerSpec / Boon / FullGame / GameHub representatives: passed `360/360`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8399/8399`;
+- DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.
+
+2026-06-25 held create-minion follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `4/4`;
+- adjacent BattlefieldHeld / BattlefieldTriggerSpec / Token / FullGame / GameHub representatives: passed `349/349`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8401/8401`;
 - DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.

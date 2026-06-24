@@ -72,6 +72,14 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetBattlefieldHeldCreateMinionTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldHeldCreateMinion,
+            out trigger);
+    }
+
     public static bool TryGetBattlefieldFriendlySpellDrawTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

@@ -5985,7 +5985,6 @@ internal static class ActionPromptBuilder
 
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
-    private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
@@ -16027,7 +16026,7 @@ internal static class ActionPromptBuilder
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
             || StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(cardObject.CardNo, out _)
@@ -16560,7 +16559,6 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 public sealed class MatchSession : IMatchSession
 {
     private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
-    private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
@@ -21637,7 +21635,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-UNITY-SANCTUM"] = new(
                     "P2-BATTLEFIELD-UNITY-SANCTUM",
-                    cardNo: BattlefieldHoldCreateMinionCardNo,
+                    cardNo: "OGN·275/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P2,
                     controllerId: seed.P2),
@@ -24276,7 +24274,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-OTHER-002"] = new(
                     "P1-BATTLEFIELD-OTHER-002",
-                    cardNo: BattlefieldHoldCreateMinionCardNo,
+                    cardNo: "OGN·275/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),

@@ -1660,6 +1660,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHeldCreateMinionTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var unitySanctum = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·275/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(unitySanctum.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldHeldCreateMinion, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.Equal(1, trigger.CreatedTokenCount);
+        Assert.Equal("随从", trigger.CreatedTokenName);
+        Assert.Equal(1, trigger.CreatedTokenPower);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination);
+        Assert.Contains("当你据守此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出一名1{{S}}的“随从”到你的基地", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield held create-minion trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1995,6 +2017,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHoldGrantBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHoldGrantBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHeldCreateMinionTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHoldCreateMinionCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHoldCreateMinionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHoldCreateMinionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

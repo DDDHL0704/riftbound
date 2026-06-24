@@ -431,6 +431,24 @@ public static class TriggerParser
                 BoonCount: 1);
         }
 
+        var battlefieldHeldCreateMinionMatch = Regex.Match(
+            segment,
+            @"当你据守此处时，打出一名(\d+)\{\{S\}\}的“([^”]+)”到你的基地",
+            RegexOptions.CultureInvariant);
+        if (battlefieldHeldCreateMinionMatch.Success
+            && int.TryParse(battlefieldHeldCreateMinionMatch.Groups[1].Value, out var tokenPower))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldCreateMinion,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held create-minion trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                CreatedTokenCount: 1,
+                CreatedTokenName: battlefieldHeldCreateMinionMatch.Groups[2].Value,
+                CreatedTokenPower: tokenPower,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
+        }
+
         var friendlySpellDrawMatch = Regex.Match(
             segment,
             @"每回合首次：当你对此处的友方单位使用法术时，抽([0-9一两二三四五六七八九十]+)张牌",

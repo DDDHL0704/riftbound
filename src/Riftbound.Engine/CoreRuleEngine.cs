@@ -660,12 +660,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
-    private const string DemaciaMinionTokenCardNo = "OGN·271/298";
     private const string ZaunMinionTokenCardNo = "OGN·273/298";
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
-    private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
@@ -21463,11 +21461,24 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHoldCreateMinionCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            || trigger.CreatedTokenCount is not > 0
+            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            || trigger.CreatedTokenPower is not > 0
+            || !string.Equals(
+                trigger.CreatedTokenDestination,
+                TriggerTokenDestinations.OwnerBase,
+                StringComparison.Ordinal))
         {
             return false;
         }
 
+        var tokenCount = trigger.CreatedTokenCount.Value;
+        var tokenName = trigger.CreatedTokenName;
+        var tokenPower = trigger.CreatedTokenPower.Value;
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
             $"{playerId} 据守战场并打出随从",
@@ -21477,15 +21488,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_CREATE_MINION",
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
-                ["tokenName"] = "随从"
+                ["tokenName"] = tokenName,
+                ["tokenCount"] = tokenCount,
+                ["tokenPower"] = tokenPower,
+                ["tokenDestination"] = trigger.CreatedTokenDestination
             }));
-        CreateBattlefieldMinionTokenInBase(
+        CreateBattlefieldUnitTokensInBase(
             playerZones,
             cardObjects,
             playerId,
             battlefieldObjectId,
+            tokenName,
+            tokenPower,
+            tokenCount,
+            trigger.Kind,
             events);
         return true;
     }
@@ -22929,43 +22947,68 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static void CreateBattlefieldMinionTokenInBase(
+    private static void CreateBattlefieldUnitTokensInBase(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string battlefieldObjectId,
+        string tokenName,
+        int tokenPower,
+        int tokenCount,
+        string abilityId,
         List<GameEvent> events)
     {
         if (!playerZones.TryGetValue(playerId, out var zones)
-            || !P6TokenFactoryCatalog.TryGetByCardNo(DemaciaMinionTokenCardNo, out var tokenDefinition))
+            || tokenCount <= 0
+            || !TryGetUnitTokenDefinition(tokenName, tokenPower, out var tokenDefinition))
         {
             return;
         }
 
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, 1);
-        cardObjects[tokenObjectId] = tokenDefinition.CreateObject(
-            tokenObjectId,
-            playerId,
-            playerId);
+        var tokenObjectIds = new List<string>();
+        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+        {
+            var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, tokenIndex + 1);
+            tokenObjectIds.Add(tokenObjectId);
+            cardObjects[tokenObjectId] = tokenDefinition.CreateObject(
+                tokenObjectId,
+                playerId,
+                playerId);
+            events.Add(new GameEvent(
+                "UNIT_TOKEN_CREATED",
+                $"{battlefieldObjectId} 打出{tokenDefinition.TokenFamilyName}",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["abilityId"] = abilityId,
+                    ["tokenObjectId"] = tokenObjectId,
+                    ["tokenCardNo"] = tokenDefinition.CardNo,
+                    ["tokenName"] = tokenDefinition.TokenFamilyName,
+                    ["power"] = tokenDefinition.DefaultPower,
+                    ["destinationZone"] = "BASE",
+                    ["tokenTags"] = tokenDefinition.Tags.ToArray()
+                }));
+        }
+
         playerZones[playerId] = zones with
         {
-            Base = zones.Base.Concat([tokenObjectId]).ToArray()
+            Base = zones.Base.Concat(tokenObjectIds).ToArray()
         };
-        events.Add(new GameEvent(
-            "UNIT_TOKEN_CREATED",
-            $"{battlefieldObjectId} 打出随从",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = battlefieldObjectId,
-                ["abilityId"] = "BATTLEFIELD_HELD_CREATE_MINION",
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenCardNo"] = tokenDefinition.CardNo,
-                ["tokenName"] = tokenDefinition.TokenFamilyName,
-                ["power"] = tokenDefinition.DefaultPower,
-                ["destinationZone"] = "BASE",
-                ["tokenTags"] = tokenDefinition.Tags.ToArray()
-            }));
+    }
+
+    private static bool TryGetUnitTokenDefinition(
+        string tokenName,
+        int tokenPower,
+        out P6TokenFactoryDefinition tokenDefinition)
+    {
+        tokenDefinition = P6TokenFactoryCatalog.GetAll()
+            .Where(definition => string.Equals(definition.TokenFamilyName, tokenName, StringComparison.Ordinal)
+                && definition.DefaultPower == tokenPower
+                && definition.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            .OrderBy(definition => definition.CardNo, StringComparer.Ordinal)
+            .FirstOrDefault()!;
+        return tokenDefinition is not null;
     }
 
     private static bool TryResolveBattlefieldConquerMillTwoTrigger(
@@ -24809,7 +24852,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldMoveUnitToBaseTrigger(cardNo, out _)
-            || IsBattlefieldHoldCreateMinionCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCreateMinionTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(cardNo, out _)
@@ -24861,11 +24904,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
-    }
-
-    private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldReturnHeroCardNo(string? cardNo)

@@ -52,6 +52,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE";
     public const string BattlefieldHeldGrantBoon =
         "BATTLEFIELD_HELD_GRANT_BOON";
+    public const string BattlefieldHeldCreateMinion =
+        "BATTLEFIELD_HELD_CREATE_MINION";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -93,6 +95,11 @@ public static class TriggerDurations
 }
 
 public static class TriggerMoveDestinations
+{
+    public const string OwnerBase = "OWNER_BASE";
+}
+
+public static class TriggerTokenDestinations
 {
     public const string OwnerBase = "OWNER_BASE";
 }
@@ -231,7 +238,11 @@ public sealed record TriggerSpec(
     int? MoveCount = null,
     string? MoveDestination = null,
     bool? OncePerTurn = null,
-    bool? ExcludesTokens = null);
+    bool? ExcludesTokens = null,
+    int? CreatedTokenCount = null,
+    string? CreatedTokenName = null,
+    int? CreatedTokenPower = null,
+    string? CreatedTokenDestination = null);
 
 public sealed record ReplacementSpec(
     string Kind,
