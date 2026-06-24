@@ -1515,6 +1515,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldUnitReturnedCallRuneTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var ghostBay = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-214/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(ghostBay.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldUnitReturnedPayCallRune, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldUnitReturned, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ReturnedUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.ManaCost);
+        Assert.Equal(1, trigger.RuneCallCount);
+        Assert.Contains("当此处的一名单位返回到一名玩家的手牌时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("支付{{1}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("召出一枚休眠的符文", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield returned-unit pay-mana call-rune trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1758,6 +1780,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldPlayUnitPayOneBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldPlayUnitPayOneBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldUnitReturnedCallRuneTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldUnitReturnedCallRuneCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldUnitReturnedCallRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldUnitReturnedCallRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -389,6 +389,23 @@ public static class TriggerParser
                 BoonCount: 1);
         }
 
+        var unitReturnedPayCallRuneMatch = Regex.Match(
+            segment,
+            @"当此处的一名单位返回到一名玩家的手牌时，该玩家可以选择支付\{\{(\d+)\}\}，以此召出一枚休眠的符文",
+            RegexOptions.CultureInvariant);
+        if (unitReturnedPayCallRuneMatch.Success
+            && int.TryParse(unitReturnedPayCallRuneMatch.Groups[1].Value, out var unitReturnedManaCost))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldUnitReturnedPayCallRune,
+                TriggerTimings.BattlefieldUnitReturned,
+                segment,
+                "Battlefield returned-unit pay-mana call-rune trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.ReturnedUnitAtThisBattlefield,
+                ManaCost: unitReturnedManaCost,
+                RuneCallCount: 1);
+        }
+
         var spellPowerBonusMatch = Regex.Match(
             segment,
             @"当一名玩家打出法术时，该玩家可以选择让自己在此处控制的一名单位在本回合内\{\{S\}\}\+(\d+)",

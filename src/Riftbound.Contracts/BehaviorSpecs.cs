@@ -50,6 +50,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE";
     public const string BattlefieldPlayUnitPayBoon =
         "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON";
+    public const string BattlefieldUnitReturnedPayCallRune =
+        "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE";
 }
 
 public static class TriggerTimings
@@ -59,6 +61,7 @@ public static class TriggerTimings
     public const string BattlefieldFriendlySpellTargeted = "BATTLEFIELD_FRIENDLY_SPELL_TARGETED";
     public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
+    public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
 }
 
 public static class TriggerTargetScopes
@@ -66,6 +69,7 @@ public static class TriggerTargetScopes
     public const string MovedUnit = "MOVED_UNIT";
     public const string FriendlyUnitAtThisBattlefield = "FRIENDLY_UNIT_AT_THIS_BATTLEFIELD";
     public const string PlayedUnitAtThisBattlefield = "PLAYED_UNIT_AT_THIS_BATTLEFIELD";
+    public const string ReturnedUnitAtThisBattlefield = "RETURNED_UNIT_AT_THIS_BATTLEFIELD";
 }
 
 public static class TriggerDurations
@@ -202,7 +206,8 @@ public sealed record TriggerSpec(
     int? MinimumPaidMana = null,
     int? RecycleCount = null,
     int? ManaCost = null,
-    int? BoonCount = null);
+    int? BoonCount = null,
+    int? RuneCallCount = null);
 
 public sealed record ReplacementSpec(
     string Kind,

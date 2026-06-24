@@ -721,7 +721,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
@@ -729,7 +728,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldSandSoldierManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
-    private const int BattlefieldUnitReturnedCallRuneManaCost = 1;
     private const int BattlefieldHeldScorePowerCost = 4;
     private const int BattlefieldHeldSevenUnitsWinThreshold = 7;
     private const int BattlefieldScoreDelayReleasedTurnOrdinal = 3;
@@ -21602,18 +21600,42 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         out IReadOnlyDictionary<string, RunePool> nextRunePools)
     {
-        const string trigger = "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE";
         nextRunePools = runePools;
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
         }
 
-        var battlefieldObjectId = zones.Battlefields.FirstOrDefault(objectId =>
-            cardObjects.TryGetValue(objectId, out var candidate)
-            && IsBattlefieldUnitReturnedCallRuneCardNo(candidate.CardNo)
-            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId));
+        var battlefieldObjectId = string.Empty;
+        var manaCost = 0;
+        var runeCallCount = 0;
+        foreach (var objectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !BattlefieldTriggerSpecRules.TryGetBattlefieldUnitReturnedPayCallRuneTrigger(
+                    candidate.CardNo,
+                    out var trigger)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
+            {
+                continue;
+            }
+
+            var triggerManaCost = trigger.ManaCost.GetValueOrDefault();
+            var triggerRuneCallCount = trigger.RuneCallCount.GetValueOrDefault();
+            if (triggerManaCost <= 0 || triggerRuneCallCount <= 0)
+            {
+                continue;
+            }
+
+            battlefieldObjectId = objectId;
+            manaCost = triggerManaCost;
+            runeCallCount = triggerRuneCallCount;
+            break;
+        }
+
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || manaCost <= 0
+            || runeCallCount <= 0
             || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState))
         {
             return false;
@@ -21625,7 +21647,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < BattlefieldUnitReturnedCallRuneManaCost)
+        if (currentPool.Mana < manaCost)
         {
             return false;
         }
@@ -21633,7 +21655,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         mutableRunePools[playerId] = currentPool with
         {
-            Mana = currentPool.Mana - BattlefieldUnitReturnedCallRuneManaCost
+            Mana = currentPool.Mana - manaCost
         };
         nextRunePools = mutableRunePools;
 
@@ -21645,7 +21667,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["playerId"] = playerId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = trigger,
+                ["trigger"] = TriggerKinds.BattlefieldUnitReturnedPayCallRune,
                 ["sourceObjectId"] = sourceObjectId,
                 ["returnedObjectId"] = returnedObjectId
             }));
@@ -21655,15 +21677,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
-                ["mana"] = BattlefieldUnitReturnedCallRuneManaCost,
+                ["mana"] = manaCost,
                 ["power"] = 0,
-                ["reason"] = trigger
+                ["reason"] = TriggerKinds.BattlefieldUnitReturnedPayCallRune
             }));
         var runeCallResult = CallRunes(
             playerZones,
             cardObjects,
             playerId,
-            1);
+            runeCallCount);
         events.Add(new GameEvent(
             "RUNES_CALLED",
             $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
@@ -21673,7 +21695,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = battlefieldObjectId,
                 ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                 ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                ["reason"] = trigger,
+                ["reason"] = TriggerKinds.BattlefieldUnitReturnedPayCallRune,
                 ["returnedObjectId"] = returnedObjectId
             }));
         return true;
@@ -24822,7 +24844,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldSpellPowerBonusTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantUnitExperienceAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHighCostSpellInsightRecycleTrigger(cardNo, out _)
-            || IsBattlefieldUnitReturnedCallRuneCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldUnitReturnedPayCallRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldPlayUnitPayBoonTrigger(cardNo, out _)
             || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
@@ -25005,11 +25027,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldUnitReturnedCallRuneCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldUnitReturnedCallRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(string? cardNo)
