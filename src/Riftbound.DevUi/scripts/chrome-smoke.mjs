@@ -123,6 +123,9 @@ try {
       await runMatchRecoverySurfaceSmoke(cdp);
       await runConnectionRecoveryPanelSmoke(cdp, "match", "offline");
     }
+    if (route.path === "/matches/stage3-smoke/result") {
+      await runResultPageSurfaceSmoke(cdp);
+    }
     console.log(`Chrome smoke OK: ${route.path}`);
   }
 
@@ -2173,6 +2176,97 @@ async function runMatchRecoverySurfaceSmoke(cdp) {
   }
   if (failures.length > 0) {
     throw new Error(`Match recovery surface smoke failed:\n${failures.join("\n")}`);
+  }
+}
+
+async function runResultPageSurfaceSmoke(cdp) {
+  const result = await evaluateJson(cdp, `(() => {
+    const textOf = (node) => node?.textContent?.trim().replace(/\\s+/g, " ") ?? "";
+    const root = document.querySelector("[data-result-surface]");
+    const finalState = document.querySelector("[data-result-final-state]");
+    const eventSummary = document.querySelector("[data-result-event-summary]");
+    const errorSummary = document.querySelector("[data-result-error-summary]");
+    const returnPath = document.querySelector("[data-result-return-path]");
+    return {
+      actionCount: Number(returnPath?.getAttribute("data-result-return-action-count") ?? -1),
+      actions: Array.from(document.querySelectorAll("[data-result-action]")).map((node) => ({
+        disabled: node.hasAttribute("disabled"),
+        id: node.getAttribute("data-result-action") ?? "",
+        route: node.getAttribute("data-result-action-route") ?? "",
+        state: node.getAttribute("data-result-action-state") ?? "",
+        text: textOf(node)
+      })),
+      authority: root?.getAttribute("data-result-authority") ?? "",
+      errorCount: Number(errorSummary?.getAttribute("data-result-error-count") ?? -1),
+      eventCount: Number(eventSummary?.getAttribute("data-result-event-count") ?? -1),
+      finalAuthority: finalState?.getAttribute("data-result-authority") ?? "",
+      finalHasSnapshot: finalState?.getAttribute("data-result-has-snapshot") ?? "",
+      finalLabel: finalState?.getAttribute("data-result-final-label") ?? "",
+      finalState: finalState?.getAttribute("data-result-final-state") ?? "",
+      hasSnapshot: root?.getAttribute("data-result-has-snapshot") ?? "",
+      logEntries: Array.from(document.querySelectorAll("[data-result-log-entry]")).map((node) => ({
+        kind: node.getAttribute("data-result-log-kind") ?? "",
+        type: node.getAttribute("data-result-log-entry") ?? "",
+        text: textOf(node)
+      })),
+      matchId: root?.getAttribute("data-result-match-id") ?? "",
+      playerId: root?.getAttribute("data-result-player-id") ?? "",
+      players: Array.from(document.querySelectorAll("[data-result-player-score]")).map((node) => ({
+        id: node.getAttribute("data-result-player-id") ?? "",
+        score: node.getAttribute("data-result-player-score") ?? "",
+        text: textOf(node),
+        winner: node.getAttribute("data-result-player-winner") ?? ""
+      })),
+      returnText: textOf(returnPath),
+      roomStatus: root?.getAttribute("data-result-room-status") ?? "",
+      snapshotTick: root?.getAttribute("data-result-snapshot-tick") ?? "",
+      state: root?.getAttribute("data-result-state") ?? "",
+      text: textOf(root),
+      winnerPlayerId: root?.getAttribute("data-result-winner-player-id") ?? ""
+    };
+  })()`);
+  const failures = [];
+  if (result.authority !== "server-snapshot" || result.finalAuthority !== "server-snapshot") {
+    failures.push(`result surface must declare server snapshot authority: ${JSON.stringify(result)}`);
+  }
+  if (!result.matchId || !result.playerId || result.snapshotTick === "" || !result.state || !result.finalState) {
+    failures.push(`result surface missing match/player/tick/state contract: ${JSON.stringify(result)}`);
+  }
+  if (!["true", "false"].includes(result.hasSnapshot) || result.finalHasSnapshot !== result.hasSnapshot) {
+    failures.push(`result surface must expose consistent snapshot presence: ${JSON.stringify(result)}`);
+  }
+  if (!["finished", "in-progress", "waiting-final", "waiting-snapshot"].includes(result.state)) {
+    failures.push(`result surface state must be known: ${result.state}`);
+  }
+  if (result.actionCount !== 5 || (result.actions ?? []).length !== 5) {
+    failures.push(`result surface must expose five return/recovery actions: ${JSON.stringify(result.actions)}`);
+  }
+  const actionsById = Object.fromEntries((result.actions ?? []).map((action) => [action.id, action]));
+  for (const [actionId, route] of Object.entries({ connect: "connection", lobby: "lobby", match: "match", resync: "snapshot", room: "room" })) {
+    const action = actionsById[actionId];
+    if (action?.route !== route || !action.state || !action.text || action.disabled) {
+      failures.push(`result action ${actionId} must expose route/state/text and stay available: ${JSON.stringify(action)}`);
+    }
+  }
+  if (!Number.isFinite(result.eventCount) || !Number.isFinite(result.errorCount) || result.eventCount < 0 || result.errorCount < 0) {
+    failures.push(`result event/error summaries must expose numeric counts: ${JSON.stringify({
+      errorCount: result.errorCount,
+      eventCount: result.eventCount
+    })}`);
+  }
+  if ((result.logEntries ?? []).some((entry) => !entry.type || !entry.kind || !entry.text)) {
+    failures.push(`result log entries must expose type/kind/text when present: ${JSON.stringify(result.logEntries)}`);
+  }
+  if ((result.players ?? []).some((player) => !player.id || player.score === "" || !["true", "false"].includes(player.winner))) {
+    failures.push(`result player scores must expose id, score, and winner flag when present: ${JSON.stringify(result.players)}`);
+  }
+  for (const copy of ["服务端权威", "结果只读取服务端权威快照", "连接状态", "返回房间", "查看对战桌面", "事件 / 错误"]) {
+    if (!String(result.text ?? "").includes(copy) && !String(result.returnText ?? "").includes(copy)) {
+      failures.push(`result surface missing ${copy} copy: ${JSON.stringify(result)}`);
+    }
+  }
+  if (failures.length > 0) {
+    throw new Error(`Result surface smoke failed:\n${failures.join("\n")}`);
   }
 }
 
