@@ -58,6 +58,15 @@ export type BehaviorSpec = {
     moveDestination?: string | null;
     oncePerTurn?: boolean | null;
     excludesTokens?: boolean | null;
+    createdTokenCount?: number | null;
+    createdTokenName?: string | null;
+    createdTokenPower?: number | null;
+    createdTokenDestination?: string | null;
+    returnCount?: number | null;
+    requiredEmptyZone?: string | null;
+    returnOriginZone?: string | null;
+    returnDestinationZone?: string | null;
+    returnCardFilter?: string | null;
   }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
   activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;

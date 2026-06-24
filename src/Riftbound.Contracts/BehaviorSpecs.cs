@@ -54,6 +54,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_GRANT_BOON";
     public const string BattlefieldHeldCreateMinion =
         "BATTLEFIELD_HELD_CREATE_MINION";
+    public const string BattlefieldHeldReturnHero =
+        "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -87,6 +89,7 @@ public static class TriggerTargetScopes
     public const string OtherControlledUnitAtThisBattlefield = "OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
+    public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
 }
 
 public static class TriggerDurations
@@ -102,6 +105,17 @@ public static class TriggerMoveDestinations
 public static class TriggerTokenDestinations
 {
     public const string OwnerBase = "OWNER_BASE";
+}
+
+public static class TriggerZones
+{
+    public const string Graveyard = "GRAVEYARD";
+    public const string Champion = "CHAMPION";
+}
+
+public static class TriggerCardFilters
+{
+    public const string TagPrefix = "TAG:";
 }
 
 public static class StaticAbilityKinds
@@ -242,7 +256,12 @@ public sealed record TriggerSpec(
     int? CreatedTokenCount = null,
     string? CreatedTokenName = null,
     int? CreatedTokenPower = null,
-    string? CreatedTokenDestination = null);
+    string? CreatedTokenDestination = null,
+    int? ReturnCount = null,
+    string? RequiredEmptyZone = null,
+    string? ReturnOriginZone = null,
+    string? ReturnDestinationZone = null,
+    string? ReturnCardFilter = null);
 
 public sealed record ReplacementSpec(
     string Kind,

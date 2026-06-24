@@ -664,7 +664,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
-    private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
@@ -21837,40 +21836,63 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHeldReturnHeroCardNo(battlefieldState.CardNo)
             || !playerZones.TryGetValue(playerId, out var zones)
-            || zones.ChampionZone.Count > 0)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.OwnedHeroUnitInGraveyard, StringComparison.Ordinal)
+            || trigger.ReturnCount is not > 0
+            || !string.Equals(trigger.RequiredEmptyZone, TriggerZones.Champion, StringComparison.Ordinal)
+            || !TriggerZoneIsEmpty(zones, trigger.RequiredEmptyZone)
+            || !string.Equals(trigger.ReturnOriginZone, TriggerZones.Graveyard, StringComparison.Ordinal)
+            || !string.Equals(trigger.ReturnDestinationZone, TriggerZones.Champion, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(trigger.ReturnCardFilter))
         {
             return false;
         }
 
-        var targetObjectId = zones.Graveyard
+        var returnCount = trigger.ReturnCount.Value;
+        var targetObjectIds = TriggerZoneObjectIds(zones, trigger.ReturnOriginZone)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
                 && string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal)
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && TriggerCardMatchesFilter(trigger.ReturnCardFilter, cardObject))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+            .Take(returnCount)
+            .ToArray();
+        if (targetObjectIds.Length == 0)
         {
             return false;
         }
 
         playerZones[playerId] = zones with
         {
-            Graveyard = RemoveFromZone(zones.Graveyard, targetObjectId),
-            ChampionZone = zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal)
-                ? zones.ChampionZone
-                : zones.ChampionZone.Concat([targetObjectId]).ToArray()
+            Graveyard = zones.Graveyard
+                .Where(objectId => !targetObjectIds.Contains(objectId, StringComparer.Ordinal))
+                .ToArray(),
+            ChampionZone = zones.ChampionZone
+                .Concat(targetObjectIds.Where(objectId => !zones.ChampionZone.Contains(objectId, StringComparer.Ordinal)))
+                .ToArray()
         };
-        cardObjects[targetObjectId] = targetState with
+        foreach (var targetObjectId in targetObjectIds)
         {
-            ControllerId = playerId,
-            Damage = 0,
-            IsAttacking = false,
-            IsDefending = false,
-            IsExhausted = false
-        };
+            if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
+            {
+                continue;
+            }
+
+            cardObjects[targetObjectId] = targetState with
+            {
+                ControllerId = playerId,
+                Damage = 0,
+                IsAttacking = false,
+                IsDefending = false,
+                IsExhausted = false
+            };
+        }
+
+        var firstTargetObjectId = targetObjectIds[0];
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
             $"{playerId} 据守战场并让英雄返回英雄区域",
@@ -21880,25 +21902,62 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD",
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
-                ["targetObjectId"] = targetObjectId,
-                ["originZone"] = "GRAVEYARD",
-                ["destinationZone"] = "CHAMPION"
+                ["targetObjectId"] = firstTargetObjectId,
+                ["targetObjectIds"] = targetObjectIds,
+                ["originZone"] = trigger.ReturnOriginZone,
+                ["destinationZone"] = trigger.ReturnDestinationZone,
+                ["returnCount"] = targetObjectIds.Length
             }));
-        events.Add(new GameEvent(
-            "UNIT_RETURNED_TO_CHAMPION_ZONE",
-            $"{targetObjectId} 返回英雄区域",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = battlefieldObjectId,
-                ["targetObjectId"] = targetObjectId,
-                ["originZone"] = "GRAVEYARD",
-                ["destinationZone"] = "CHAMPION",
-                ["reason"] = "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD"
-            }));
+        foreach (var targetObjectId in targetObjectIds)
+        {
+            events.Add(new GameEvent(
+                "UNIT_RETURNED_TO_CHAMPION_ZONE",
+                $"{targetObjectId} 返回英雄区域",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["originZone"] = trigger.ReturnOriginZone,
+                    ["destinationZone"] = trigger.ReturnDestinationZone,
+                    ["reason"] = trigger.Kind
+                }));
+        }
+
         return true;
+    }
+
+    private static bool TriggerZoneIsEmpty(PlayerZones zones, string? zone)
+    {
+        return TriggerZoneObjectIds(zones, zone).Count == 0;
+    }
+
+    private static IReadOnlyList<string> TriggerZoneObjectIds(PlayerZones zones, string? zone)
+    {
+        return zone switch
+        {
+            TriggerZones.Graveyard => zones.Graveyard,
+            TriggerZones.Champion => zones.ChampionZone,
+            _ => []
+        };
+    }
+
+    private static bool TriggerCardMatchesFilter(string? filter, CardObjectState cardObject)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+        {
+            return true;
+        }
+
+        if (filter.StartsWith(TriggerCardFilters.TagPrefix, StringComparison.Ordinal))
+        {
+            var tag = filter[TriggerCardFilters.TagPrefix.Length..];
+            return cardObject.Tags.Contains(tag, StringComparer.Ordinal);
+        }
+
+        return false;
     }
 
     private static bool TryResolveBattlefieldHeldPayPowerScoreTrigger(
@@ -24856,7 +24915,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(cardNo, out _)
-            || IsBattlefieldHeldReturnHeroCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(cardNo, out _)
             || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
             || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
             || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
@@ -24904,11 +24963,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
-    }
-
-    private static bool IsBattlefieldHeldReturnHeroCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHeldReturnHeroCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldPayPowerScoreCardNo(string? cardNo)

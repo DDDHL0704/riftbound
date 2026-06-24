@@ -21,6 +21,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `UNL-207/219` 业余排练厅 has official text `当你据守此处时，你可以选择将战场上的一名单位移动到其基地。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·283/298` 纳沃利角斗场 has official text `当你据守此处时，给予此处的一名单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）`
 - `data/official/card-catalog.zh-CN.json`: `OGN·275/298` 团结圣坛 has official text `当你据守此处时，打出一名1{{S}}的“随从”到你的基地。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·281/298` 圣化之墓 has official text `当你据守此处时，如果你的英雄区域已无英雄单位牌，则可以选择让该英雄从废牌堆中返回英雄区域。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -37,6 +38,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldHeldMovesSurvivingDefenderToBase` and GameHub `P79BattlefieldHeldMoveToBaseSeedOffersBattlefieldDestinationAndMovesDefender` remain the runtime evidence for the held move-unit-to-base behavior.
 - Existing representative tests `P79BattlefieldHeldGrantsBoonToSurvivingDefender` and GameHub `P79BattlefieldHeldBoonSeedOffersBattlefieldDestinationAndGrantsBoon` remain the runtime evidence for the held grant-boon behavior.
 - Existing representative tests `P79BattlefieldHeldCreatesMinionInBase`, `P79BattlefieldHeldMinionSeedOffersBattlefieldDestinationAndCreatesToken`, and `TurnStartHeldBattlefieldScoresAndTriggersOgn275Minion` remain the runtime evidence for the held create-minion behavior.
+- Existing representative tests `P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone`, `P79BattlefieldHeldReturnHeroSkipsOpponentOwnedTomb`, and GameHub `P79BattlefieldHeldReturnHeroSeedOffersBattlefieldDestinationAndReturnsHero` remain the runtime evidence for the held return-hero behavior.
 
 ## Runtime Evidence
 
@@ -100,6 +102,10 @@ The held create-minion follow-up parser path turns the Unity Sanctum official ba
 
 The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible controlled battlefield source and creates the token in the holder's base through the server-authoritative token factory path. The concrete token card is resolved from `P6TokenFactoryCatalog` by token family, power and unit tag, preserving the current `OGN·271/298` output while removing the trigger source's card-number branch. Optional trigger choice prompts and broader token-family disambiguation remain outside this narrow routing slice.
 
+The held return-hero follow-up parser path turns the Hallowed Tomb official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD`, `Timing=BATTLEFIELD_HELD`, `TargetScope=OWNED_HERO_UNIT_IN_GRAVEYARD`, `ReturnCount=1`, `RequiredEmptyZone=CHAMPION`, `ReturnOriginZone=GRAVEYARD`, `ReturnDestinationZone=CHAMPION`, and `ReturnCardFilter=TAG:CARD_CATEGORY:英雄单位`. Runtime no longer checks `OGN·281/298` through `BattlefieldHeldReturnHeroCardNo` / `IsBattlefieldHeldReturnHeroCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible controlled battlefield source, an empty holder champion zone, and an owned hero unit card in that player's graveyard. The returned object is moved from graveyard to champion zone, damage/exhaustion/combat flags are cleared, and the emitted `BATTLEFIELD_TRIGGER_RESOLVED` / `UNIT_RETURNED_TO_CHAMPION_ZONE` payloads use the parsed trigger kind and parsed origin/destination zones. Optional trigger choice prompts remain outside this narrow routing slice.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -136,10 +142,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held grant-boon adjacent BattlefieldHeld / BattlefieldTriggerSpec / Boon / FullGame / GameHub representatives: `360/360`;
 - held create-minion focused behavior-spec/source guard/runtime/GameHub representative: `4/4`;
 - held create-minion adjacent BattlefieldHeld / BattlefieldTriggerSpec / Token / FullGame / GameHub representatives: `349/349`;
+- held return-hero focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- held return-hero adjacent BattlefieldHeld / BattlefieldTriggerSpec / ChampionZone / FullGame / GameHub representatives: `290/290`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the held create-minion follow-up: `8401/8401`;
-- DevUi build/browser smoke: not repeated for the held create-minion follow-up; this slice did not touch DevUi files or frontend behavior.
+- backend full conformance after the held return-hero follow-up: `8403/8403`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves fifteen battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves sixteen battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

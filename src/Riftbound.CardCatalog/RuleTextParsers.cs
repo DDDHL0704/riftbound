@@ -449,6 +449,25 @@ public static class TriggerParser
                 CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
         }
 
+        var battlefieldHeldReturnHeroMatch = Regex.Match(
+            segment,
+            @"当你据守此处时，如果你的英雄区域已无英雄单位牌，则可以选择让该英雄从废牌堆中返回英雄区域",
+            RegexOptions.CultureInvariant);
+        if (battlefieldHeldReturnHeroMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldReturnHero,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held return-hero trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.OwnedHeroUnitInGraveyard,
+                ReturnCount: 1,
+                RequiredEmptyZone: TriggerZones.Champion,
+                ReturnOriginZone: TriggerZones.Graveyard,
+                ReturnDestinationZone: TriggerZones.Champion,
+                ReturnCardFilter: TriggerCardFilters.TagPrefix + "CARD_CATEGORY:英雄单位");
+        }
+
         var friendlySpellDrawMatch = Regex.Match(
             segment,
             @"每回合首次：当你对此处的友方单位使用法术时，抽([0-9一两二三四五六七八九十]+)张牌",

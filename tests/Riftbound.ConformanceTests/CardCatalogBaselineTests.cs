@@ -1682,6 +1682,31 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHeldReturnHeroTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var hallowedTomb = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·281/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(hallowedTomb.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldHeldReturnHero, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OwnedHeroUnitInGraveyard, trigger.TargetScope);
+        Assert.Equal(1, trigger.ReturnCount);
+        Assert.Equal(TriggerZones.Champion, trigger.RequiredEmptyZone);
+        Assert.Equal(TriggerZones.Graveyard, trigger.ReturnOriginZone);
+        Assert.Equal(TriggerZones.Champion, trigger.ReturnDestinationZone);
+        Assert.Equal(TriggerCardFilters.TagPrefix + "CARD_CATEGORY:英雄单位", trigger.ReturnCardFilter);
+        Assert.Contains("当你据守此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("英雄区域已无英雄单位牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("从废牌堆中返回英雄区域", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield held return-hero trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2040,6 +2065,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHoldCreateMinionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHoldCreateMinionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHeldReturnHeroTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHeldReturnHeroCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHeldReturnHeroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHeldReturnHeroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
