@@ -1706,6 +1706,30 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("OGN·293/298")]
+    [InlineData("OGN·293a/298")]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHeldSevenUnitsWinTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var grandPlaza = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(grandPlaza.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldHeldSevenUnitsWin, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ControlledUnitsAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(7, trigger.RequiredUnitCount);
+        Assert.True(trigger.WinsGame);
+        Assert.Contains("当你据守此处", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("在此拥有至少七名单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("赢得游戏胜利", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield held seven-units victory trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
@@ -2088,6 +2112,31 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHeldReturnHeroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHeldReturnHeroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHeldSevenUnitsWinTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHeldSevenUnitsWinCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldHeldSevenUnitsWinAltCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHeldSevenUnitsWinCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("BattlefieldHeldSevenUnitsWinAltCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHeldSevenUnitsWinCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

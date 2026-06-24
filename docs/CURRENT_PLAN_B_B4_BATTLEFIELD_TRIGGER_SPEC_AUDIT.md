@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -210,6 +210,20 @@ The 2026-06-25 held return-hero follow-up moves another implemented held-battlef
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldReturnHeroCardNo` constant.
 - The old `BattlefieldHeldReturnHeroCardNo` / `IsBattlefieldHeldReturnHeroCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `75` total / `72` in `CoreRuleEngine`; Core battlefield helper count is `28`.
 
+The 2026-06-25 held seven-units win follow-up moves another implemented held-battlefield trigger away from engine card-number branching:
+
+- `OGN·293/298` / `OGN·293a/298` / 宏伟广场 official text: `当你据守此处，且在此拥有至少七名单位时，你赢得游戏胜利。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_HELD_SEVEN_UNITS_WIN`
+  - `Timing = BATTLEFIELD_HELD`
+  - `TargetScope = CONTROLLED_UNITS_AT_THIS_BATTLEFIELD`
+  - `RequiredUnitCount = 7`
+  - `WinsGame = true`
+- `CoreRuleEngine.TryResolveBattlefieldHeldSevenUnitsWinTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(...)`, reads the required count / win flag from `BehaviorSpec.Triggers`, and counts controlled units whose `ObjectLocations.BattlefieldObjectId` is the held battlefield object.
+- The representative regression now covers the official `在此` boundary: seven controlled battlefield-zone units split across multiple battlefields no longer satisfy the condition.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldSevenUnitsWinCardNo` / `BattlefieldHeldSevenUnitsWinAltCardNo` constants.
+- The old `BattlefieldHeldSevenUnitsWinCardNo` / `BattlefieldHeldSevenUnitsWinAltCardNo` / `IsBattlefieldHeldSevenUnitsWinCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `75` total / `71` in `CoreRuleEngine`; Core battlefield helper count is `27`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -341,4 +355,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldHeld / BattlefieldTriggerSpec / ChampionZone / FullGame / GameHub representatives: passed `290/290`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8403/8403`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
+
+2026-06-25 held seven-units win follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `7/7`;
+- adjacent BattlefieldHeld / BattlefieldTriggerSpec / FullGame / GameHub representatives: passed `293/293`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8407/8407`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.

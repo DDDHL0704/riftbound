@@ -468,6 +468,22 @@ public static class TriggerParser
                 ReturnCardFilter: TriggerCardFilters.TagPrefix + "CARD_CATEGORY:英雄单位");
         }
 
+        var battlefieldHeldSevenUnitsWinMatch = Regex.Match(
+            segment,
+            @"当你据守此处，且在此拥有至少([0-9一两二三四五六七八九十]+)名单位时，你赢得游戏胜利",
+            RegexOptions.CultureInvariant);
+        if (battlefieldHeldSevenUnitsWinMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldSevenUnitsWin,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held seven-units victory trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.ControlledUnitsAtThisBattlefield,
+                RequiredUnitCount: ParseChineseNumber(battlefieldHeldSevenUnitsWinMatch.Groups[1].Value),
+                WinsGame: true);
+        }
+
         var friendlySpellDrawMatch = Regex.Match(
             segment,
             @"每回合首次：当你对此处的友方单位使用法术时，抽([0-9一两二三四五六七八九十]+)张牌",

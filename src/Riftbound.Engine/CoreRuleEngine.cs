@@ -707,8 +707,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
-    private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
-    private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string RagingDrakeCardNo = "OGN·031/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
@@ -720,7 +718,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BattlefieldSandSoldierManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
     private const int BattlefieldHeldScorePowerCost = 4;
-    private const int BattlefieldHeldSevenUnitsWinThreshold = 7;
     private const int BattlefieldScoreDelayReleasedTurnOrdinal = 3;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
@@ -17663,6 +17660,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 if (TryResolveBattlefieldHeldSevenUnitsWinTrigger(
                         playerZones,
                         cardObjects,
+                        ReconcileObjectLocations(state.ObjectLocations, playerZones),
                         battleWinnerPlayerId,
                         battlefieldId,
                         attackerObjectId,
@@ -22183,6 +22181,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool TryResolveBattlefieldHeldSevenUnitsWinTrigger(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
@@ -22193,13 +22192,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         winnerPlayerId = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHeldSevenUnitsWinCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.ControlledUnitsAtThisBattlefield, StringComparison.Ordinal)
+            || trigger.RequiredUnitCount is not > 0
+            || trigger.WinsGame != true)
         {
             return false;
         }
 
-        var controlledBattlefieldUnitCount = CountControlledBattlefieldUnits(playerZones, cardObjects, playerId);
-        if (controlledBattlefieldUnitCount < BattlefieldHeldSevenUnitsWinThreshold)
+        var requiredUnitCount = trigger.RequiredUnitCount.Value;
+        var controlledBattlefieldUnitCount = CountControlledUnitsAtBattlefield(
+            playerZones,
+            cardObjects,
+            objectLocations,
+            playerId,
+            battlefieldObjectId);
+        if (controlledBattlefieldUnitCount < requiredUnitCount)
         {
             return false;
         }
@@ -22214,10 +22223,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_SEVEN_UNITS_WIN",
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["controlledBattlefieldUnitCount"] = controlledBattlefieldUnitCount,
-                ["requiredUnitCount"] = BattlefieldHeldSevenUnitsWinThreshold
+                ["requiredUnitCount"] = requiredUnitCount
             }));
         events.Add(new GameEvent(
             "MATCH_WON",
@@ -22226,10 +22235,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["winnerPlayerId"] = playerId,
                 ["winningScore"] = winningScore,
-                ["reason"] = "BATTLEFIELD_HELD_SEVEN_UNITS_WIN",
+                ["reason"] = trigger.Kind,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["controlledBattlefieldUnitCount"] = controlledBattlefieldUnitCount,
-                ["requiredUnitCount"] = BattlefieldHeldSevenUnitsWinThreshold
+                ["requiredUnitCount"] = requiredUnitCount
             }));
         return true;
     }
@@ -24947,7 +24956,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardNo)
             || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardNo, out _)
-            || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardNo, out _)
             || BattlefieldSourceGrantsRoam(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardNo, out _)
@@ -25102,12 +25111,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         return string.Equals(cardNo, BattlefieldConquerRevealRecycleCardNo, StringComparison.Ordinal);
     }
 
-    private static bool IsBattlefieldHeldSevenUnitsWinCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
-    }
-
     private static int EffectiveWinningScore(MatchState state)
     {
         return EffectiveWinningScore(state.PlayerZones, state.CardObjects);
@@ -25145,6 +25148,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects.TryGetValue(objectId, out var objectState)
                 && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
             : 0;
+    }
+
+    private static int CountControlledUnitsAtBattlefield(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string playerId,
+        string battlefieldObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(playerId) || string.IsNullOrWhiteSpace(battlefieldObjectId))
+        {
+            return 0;
+        }
+
+        return objectLocations.Count(entry =>
+            string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+            && IsObjectOnField(playerZones, entry.Key)
+            && cardObjects.TryGetValue(entry.Key, out var cardObject)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && string.Equals(
+                EffectiveFieldControllerId(playerZones, entry.Key, cardObject),
+                playerId,
+                StringComparison.Ordinal));
     }
 
     private static bool IsSavageJawfishCardNo(string? cardNo)

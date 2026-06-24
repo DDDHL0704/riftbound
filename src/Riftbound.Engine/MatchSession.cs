@@ -6015,8 +6015,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
-    private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
-    private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string EagerApprenticeCardNo = "OGN·084/298";
@@ -16062,8 +16060,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldTurnStartDestroyUnitDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerRevealRecycleCardNo, StringComparison.Ordinal)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldSevenUnitsWinTrigger(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventMoveToBaseAbility(cardObject.CardNo, out _)
             || BattlefieldSourceGrantsRoam(cardObject.CardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldPreventUnitPlayAbility(cardObject.CardNo, out _)
@@ -16586,7 +16583,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
-    private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
@@ -22345,7 +22341,7 @@ public sealed class MatchSession : IMatchSession
                 controllerId: seed.P1),
             ["P2-BATTLEFIELD-GRAND-PLAZA"] = new(
                 "P2-BATTLEFIELD-GRAND-PLAZA",
-                cardNo: BattlefieldHeldSevenUnitsWinCardNo,
+                cardNo: "OGN·293/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: seed.P2,
                 controllerId: seed.P2)
@@ -22361,7 +22357,7 @@ public sealed class MatchSession : IMatchSession
                 controllerId: seed.P2);
         }
 
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303052,
@@ -22387,6 +22383,18 @@ public sealed class MatchSession : IMatchSession
                     championZone: ["P2-CHAMPION-001"])
             },
             cardObjects);
+
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-GRAND-ATTACKER"] = new(seed.P1, "BATTLEFIELD"),
+            ["P2-BATTLEFIELD-GRAND-PLAZA"] = new(seed.P2, "BATTLEFIELD")
+        };
+        foreach (var defenderUnitObjectId in defenderUnitObjectIds)
+        {
+            objectLocations[defenderUnitObjectId] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-GRAND-PLAZA");
+        }
+
+        return state with { ObjectLocations = objectLocations };
     }
 
     private static MatchState BuildBattlefieldConquerRevealRecycleScenario(MatchState current, DevScenarioSeed seed)

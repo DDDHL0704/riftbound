@@ -56,6 +56,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_CREATE_MINION";
     public const string BattlefieldHeldReturnHero =
         "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD";
+    public const string BattlefieldHeldSevenUnitsWin =
+        "BATTLEFIELD_HELD_SEVEN_UNITS_WIN";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -90,6 +92,7 @@ public static class TriggerTargetScopes
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
+    public const string ControlledUnitsAtThisBattlefield = "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD";
 }
 
 public static class TriggerDurations
@@ -261,7 +264,9 @@ public sealed record TriggerSpec(
     string? RequiredEmptyZone = null,
     string? ReturnOriginZone = null,
     string? ReturnDestinationZone = null,
-    string? ReturnCardFilter = null);
+    string? ReturnCardFilter = null,
+    int? RequiredUnitCount = null,
+    bool? WinsGame = null);
 
 public sealed record ReplacementSpec(
     string Kind,
