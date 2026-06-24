@@ -435,6 +435,8 @@ export type ActionPromptServerFlowDto = {
   relatedObjectIds: string[];
   relatedObjects?: ActionPromptServerFlowObjectRefDto[] | null;
   topStackItemId?: string | null;
+  relatedBattlefieldId?: string | null;
+  relatedSpellDuelId?: string | null;
 };
 
 export type ActionPromptDto = {

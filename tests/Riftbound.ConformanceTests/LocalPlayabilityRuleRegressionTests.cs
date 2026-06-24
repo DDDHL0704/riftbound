@@ -656,6 +656,12 @@ public sealed class LocalPlayabilityRuleRegressionTests
         Assert.Equal(
             ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL"],
             p2PriorityPass.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        var p1SpellDuelPrompt = p2PriorityPass.Prompts["P1"];
+        Assert.Equal(PromptTypes.SpellDuelFocus, p1SpellDuelPrompt.View?.Type);
+        Assert.Equal("BF-1", p1SpellDuelPrompt.View?.RelatedBattlefieldId);
+        Assert.Equal("spell-duel:BF-1", p1SpellDuelPrompt.View?.RelatedSpellDuelId);
+        Assert.Equal(p1SpellDuelPrompt.View?.RelatedBattlefieldId, p1SpellDuelPrompt.ServerFlow?.RelatedBattlefieldId);
+        Assert.Equal(p1SpellDuelPrompt.View?.RelatedSpellDuelId, p1SpellDuelPrompt.ServerFlow?.RelatedSpellDuelId);
 
         var p1FocusPass = await engine.ResolveAsync(
             p2PriorityPass.State,

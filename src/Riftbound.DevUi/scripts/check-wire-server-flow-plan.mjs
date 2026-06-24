@@ -121,8 +121,10 @@ const serverFlowFixture = {
   promptType: "STACK_PRIORITY",
   queueCounts: { stack: 1 },
   reason: "服务端声明结算链存在。",
+  relatedBattlefieldId: "bf-from-server-flow",
   relatedObjectIds: ["unit-1"],
   relatedObjects: [{ objectId: "unit-1", role: "结算来源" }],
+  relatedSpellDuelId: "spell-duel-from-server-flow",
   responsiblePlayerId: "P1",
   state: "respond",
   stateLabel: "响应",
@@ -159,6 +161,8 @@ assert.equal(serverBackedPlan.primaryLabel, "响应结算链");
 assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "source").value, "服务端");
 assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "prompt").value, "优先行动");
 assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "top-stack").value, "stack-1");
+assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "battlefield").value, "bf-from-server-flow");
+assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "spell-duel").value, "spell-duel-from-server-flow");
 assert.equal(serverBackedPlan.metrics.find((metric) => metric.key === "related").value, "1");
 assert.deepEqual(serverBackedPlan.relatedObjectIds, ["unit-1"]);
 assert.equal(serverBackedPlan.relatedObjectCount, 1);

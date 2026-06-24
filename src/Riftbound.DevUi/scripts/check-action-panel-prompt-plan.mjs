@@ -371,6 +371,30 @@ const spellDuelPlan = buildActionPanelPromptPlan({
     ],
     playerId: "P1",
     reason: "SPELL_DUEL_FOCUS",
+    serverFlow: {
+      actionableForPromptPlayer: true,
+      candidateCount: 3,
+      disabledCandidateCount: 1,
+      enabledCandidateCount: 2,
+      isResponsiblePlayer: true,
+      lanes: [],
+      nextStep: "根据服务端候选处理法术对决。",
+      primaryLabel: "法术对决",
+      promptPlayerId: "P1",
+      promptType: "SPELL_DUEL_FOCUS",
+      queueCounts: { stack: 1 },
+      reason: "服务端声明当前法术对决焦点。",
+      relatedBattlefieldId: "bf-from-server-flow",
+      relatedObjectIds: ["spell-1"],
+      relatedObjects: [],
+      relatedSpellDuelId: "spell-duel-from-server-flow",
+      responsiblePlayerId: "P1",
+      state: "respond",
+      stateLabel: "响应",
+      steps: [],
+      summary: "法术对决 / 响应 / 根据服务端候选处理法术对决。",
+      tone: "info"
+    },
     view: {
       message: "处理法术对决焦点。",
       relatedBattlefieldId: "bf-1",
@@ -411,8 +435,8 @@ const spellDuelPlan = buildActionPanelPromptPlan({
 assert.equal(spellDuelPlan.genericPrompt, undefined);
 assert.equal(spellDuelPlan.spellDuel?.stateLabel, "轮到你处理焦点");
 assert.equal(spellDuelPlan.spellDuel?.nextStep, "根据服务端候选处理法术对决。");
-assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "spell-duel-id")?.value, "spell-duel-1");
-assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "battlefield")?.value, "bf-1");
+assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "spell-duel-id")?.value, "spell-duel-from-server-flow");
+assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "battlefield")?.value, "bf-from-server-flow");
 assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "focus")?.mine, true);
 assert.equal(spellDuelPlan.spellDuel?.metrics.find((row) => row.key === "stack")?.value, "1 项");
 assert.equal(spellDuelPlan.spellDuel?.actionRows.find((row) => row.key === "responses")?.value, "打出法术");

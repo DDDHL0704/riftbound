@@ -451,7 +451,9 @@ public sealed record ActionPromptServerFlowDto(
     IReadOnlyList<ActionPromptServerFlowStepDto> Steps,
     IReadOnlyList<string> RelatedObjectIds,
     IReadOnlyList<ActionPromptServerFlowObjectRefDto> RelatedObjects,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TopStackItemId = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TopStackItemId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? RelatedBattlefieldId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? RelatedSpellDuelId = null);
 
 public sealed record ActionPromptDto(
     string PlayerId,

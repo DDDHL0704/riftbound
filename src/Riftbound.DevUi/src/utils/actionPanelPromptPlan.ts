@@ -360,6 +360,18 @@ function buildSpellDuelPlan({
   const passFocus = prompt.candidates?.filter((candidate) => candidate.action === "PASS_FOCUS") ?? [];
   const blockedActions = prompt.candidates?.filter((candidate) => !candidate.enabled && candidate.action !== "PASS_FOCUS") ?? [];
   const canAct = Boolean(prompt.actionable && prompt.playerId === playerId);
+  const relatedSpellDuelId = firstNonEmpty(
+    prompt.serverFlow?.relatedSpellDuelId,
+    prompt.view?.relatedSpellDuelId,
+    stringValue(spellDuel.spellDuelId),
+    "服务端未提供"
+  );
+  const relatedBattlefieldId = firstNonEmpty(
+    prompt.serverFlow?.relatedBattlefieldId,
+    prompt.view?.relatedBattlefieldId,
+    stringValue(spellDuel.battlefieldObjectId),
+    "服务端未提供"
+  );
 
   return {
     actionRows: [
@@ -389,8 +401,8 @@ function buildSpellDuelPlan({
       }
     ],
     metrics: [
-      { key: "spell-duel-id", label: "法术对决", value: firstNonEmpty(prompt.view?.relatedSpellDuelId, stringValue(spellDuel.spellDuelId), "服务端未提供") },
-      { key: "battlefield", label: "战场", value: firstNonEmpty(prompt.view?.relatedBattlefieldId, stringValue(spellDuel.battlefieldObjectId), "服务端未提供") },
+      { key: "spell-duel-id", label: "法术对决", value: relatedSpellDuelId },
+      { key: "battlefield", label: "战场", value: relatedBattlefieldId },
       { key: "focus", label: "焦点玩家", mine: focusPlayerId === playerId, value: focusPlayerId || "服务端未提供" },
       { key: "stack", label: "对决结算链", value: stackItemIds.length > 0 ? `${stackItemIds.length} 项` : `${snapshot?.stack?.length ?? 0} 项` },
       { key: "controllers", label: "结算控制者", value: summarizeIds(stackControllerIds) },

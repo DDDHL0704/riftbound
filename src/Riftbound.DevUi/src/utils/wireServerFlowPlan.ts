@@ -202,6 +202,8 @@ function serverBackedFlowPlan(
   const relatedActionRows = serverFlowRelatedActionRows(relatedObjectRefs, interactionModel);
   const serverFlowDetail = detail ?? serverFlowRelatedObjectsDetail(serverFlow, relatedObjectRefs);
   const topStackItemId = serverFlow.topStackItemId?.trim();
+  const relatedBattlefieldId = serverFlow.relatedBattlefieldId?.trim();
+  const relatedSpellDuelId = serverFlow.relatedSpellDuelId?.trim();
   return {
     detail: serverFlowDetail,
     detailButtonLabel: detail ? "打开规则焦点" : serverFlowDetail ? "打开关联对象" : "暂无焦点",
@@ -218,6 +220,8 @@ function serverBackedFlowPlan(
       { key: "action", label: "行动", value: responsePlan.stateLabel },
       { key: "prompt", label: "提示", value: prompt.view?.title ?? serverFlow.promptType ?? "无" },
       ...(topStackItemId ? [{ key: "top-stack", label: "顶部结算", value: topStackItemId }] : []),
+      ...(relatedBattlefieldId ? [{ key: "battlefield", label: "战场", value: relatedBattlefieldId }] : []),
+      ...(relatedSpellDuelId ? [{ key: "spell-duel", label: "法术对决", value: relatedSpellDuelId }] : []),
       { key: "related", label: "关联", value: String(relatedObjectIds.length) }
     ],
     nextStepLabel: state === "selecting" ? responsePlan.nextStepLabel : serverFlow.nextStep,

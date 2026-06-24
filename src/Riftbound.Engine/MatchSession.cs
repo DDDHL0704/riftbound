@@ -5633,7 +5633,9 @@ internal static class ActionPromptBuilder
             ServerFlowSteps(state, actions, candidates, view, responsibility),
             relatedObjectIds,
             relatedObjects,
-            view.RelatedStackItemId);
+            view.RelatedStackItemId,
+            view.RelatedBattlefieldId,
+            view.RelatedSpellDuelId);
     }
 
     private static IReadOnlyList<ActionPromptServerFlowObjectRefDto> ServerFlowRelatedObjectsWithCandidateSummary(
