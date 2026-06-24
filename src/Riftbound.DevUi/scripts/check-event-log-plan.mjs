@@ -62,6 +62,11 @@ assert.equal(emptyPlan.visibleEventCount, 0);
 const compactEvents = Array.from({ length: 14 }, (_, index) => ({
   description: `事件 ${index}`,
   kind: index === 13 ? "BATTLEFIELD_CONQUERED" : "MATCH_STARTED",
+  objectRefs: index === 0
+    ? [{ isHidden: true, objectId: "HIDDEN", role: "来源" }]
+    : index === 1
+      ? [{ objectId: "missing-collapsed", role: "目标" }]
+      : undefined,
   payload: { sourceObjectId: "unit-1" }
 }));
 const compactPlan = buildEventLogPlan({
@@ -77,6 +82,14 @@ assert.equal(compactPlan.visibleEventCount, 12);
 assert.equal(compactPlan.events[0].detail.id, "event:MATCH_STARTED:2");
 assert.equal(compactPlan.events.at(-1).title, "征服战场");
 assert.equal(compactPlan.events.at(-1).refs[0].role, "来源");
+assert.deepEqual(compactPlan.collapsedSummary, {
+  eventCount: 2,
+  hiddenRefCount: 1,
+  missingRefCount: 1,
+  refCount: 2,
+  serverRefCount: 2,
+  visibleRefCount: 0
+});
 
 const serverRefPlan = buildEventLogPlan({
   errors: [],

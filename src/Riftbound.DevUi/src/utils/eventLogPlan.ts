@@ -30,7 +30,17 @@ export type EventLogEventRowPlan = {
   title: string;
 };
 
+export type EventLogCollapsedSummaryPlan = {
+  eventCount: number;
+  hiddenRefCount: number;
+  missingRefCount: number;
+  refCount: number;
+  serverRefCount: number;
+  visibleRefCount: number;
+};
+
 export type EventLogPlan = {
+  collapsedSummary?: EventLogCollapsedSummaryPlan;
   density: LogDensity;
   emptyLabel?: string;
   errorCount: number;
@@ -195,6 +205,7 @@ export function buildEventLogPlan({
   objectIndex = {}
 }: BuildEventLogPlanInput): EventLogPlan {
   const visibleEvents = density === "compact" ? events.slice(-12) : events;
+  const collapsedEvents = density === "compact" ? events.slice(0, Math.max(0, events.length - visibleEvents.length)) : [];
   const errorRows = errors.map((error, index) => ({
     key: `error-${index}`,
     message: errorMessageLabel(error),
@@ -203,6 +214,7 @@ export function buildEventLogPlan({
   const eventRows = visibleEvents.map((event, index) => eventRowPlan(event, events.length - visibleEvents.length + index, objectIndex));
 
   return {
+    collapsedSummary: collapsedEventSummary(collapsedEvents, objectIndex),
     density,
     emptyLabel: events.length === 0 && errors.length === 0 ? "暂无服务端事件。" : undefined,
     errorCount: errors.length,
@@ -268,6 +280,44 @@ function eventObjectRefs(
   return source === "payload"
     ? eventRefs.filter((ref) => ref.visibility !== "missing")
     : eventRefs;
+}
+
+function collapsedEventSummary(
+  events: GameEvent[],
+  objects: Record<string, CardObjectView>
+): EventLogCollapsedSummaryPlan | undefined {
+  if (events.length === 0) {
+    return undefined;
+  }
+
+  const summary: EventLogCollapsedSummaryPlan = {
+    eventCount: events.length,
+    hiddenRefCount: 0,
+    missingRefCount: 0,
+    refCount: 0,
+    serverRefCount: 0,
+    visibleRefCount: 0
+  };
+
+  for (const event of events) {
+    const refPlan = gameEventObjectRefPlan(event);
+    const refs = eventObjectRefs(refPlan.refs, objects, refPlan.source);
+    summary.refCount += refs.length;
+    if (refPlan.source === "server") {
+      summary.serverRefCount += refs.length;
+    }
+    for (const ref of refs) {
+      if (ref.visibility === "hidden") {
+        summary.hiddenRefCount += 1;
+      } else if (ref.visibility === "missing") {
+        summary.missingRefCount += 1;
+      } else {
+        summary.visibleRefCount += 1;
+      }
+    }
+  }
+
+  return summary;
 }
 
 function eventDetail(

@@ -33,6 +33,9 @@ export function EventLog({
       className={`side-panel event-log event-log-${plan.density}`}
       data-event-log-error-count={plan.errorCount}
       data-event-log-hidden-count={plan.hiddenEventCount}
+      data-event-log-hidden-ref-count={plan.collapsedSummary?.hiddenRefCount ?? 0}
+      data-event-log-missing-ref-count={plan.collapsedSummary?.missingRefCount ?? 0}
+      data-event-log-server-ref-count={plan.collapsedSummary?.serverRefCount ?? 0}
       data-event-log-state={plan.state}
       data-event-log-visible-count={plan.visibleEventCount}
     >
@@ -41,6 +44,11 @@ export function EventLog({
         <h2>事件 / 错误</h2>
       </header>
       {plan.hiddenEventCount > 0 && <span className="empty-hint">简洁模式显示最近 {plan.visibleEventCount} 条服务端事件。</span>}
+      {plan.collapsedSummary && (
+        <span className="empty-hint">
+          已折叠 {plan.collapsedSummary.eventCount} 条，服务端对象 {plan.collapsedSummary.serverRefCount} 项，隐藏 {plan.collapsedSummary.hiddenRefCount} 项，缺失 {plan.collapsedSummary.missingRefCount} 项。
+        </span>
+      )}
       {plan.errors.map((error) => (
         <article className="log-row log-error" data-event-log-row-kind="error" key={error.key}>
           <strong>{error.title}</strong>
