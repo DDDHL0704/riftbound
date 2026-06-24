@@ -68,6 +68,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW";
     public const string BattlefieldConquerDiscardDraw =
         "BATTLEFIELD_CONQUERED_DISCARD_DRAW";
+    public const string BattlefieldConquerDrawForOtherBattlefields =
+        "BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -107,6 +109,7 @@ public static class TriggerTargetScopes
     public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
+    public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
 }
 
 public static class TriggerDurations
@@ -264,6 +267,7 @@ public sealed record TriggerSpec(
     string? Duration = null,
     int? ManaDelta = null,
     int? DrawCount = null,
+    int? DrawCountPerParticipant = null,
     int? MinimumPaidMana = null,
     int? RevealCount = null,
     string? RevealSourceZone = null,

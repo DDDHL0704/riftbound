@@ -675,7 +675,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerReadyTwoRunesAtEndCardNo = "OGN·289/298";
-    private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerPowerfulPayOneDrawEffectKind = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW";
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
@@ -24848,7 +24847,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(battlefieldState.CardNo, out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || !string.Equals(trigger.TargetScope, TriggerTargetScopes.OtherControlledBattlefields, StringComparison.Ordinal)
+            || trigger.DrawCountPerParticipant.GetValueOrDefault() <= 0
             || !playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -24866,6 +24868,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var drawCount = otherBattlefieldObjectIds.Length * trigger.DrawCountPerParticipant.GetValueOrDefault();
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
             $"{playerId} 征服战场并按其他战场抽牌",
@@ -24875,17 +24878,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS",
+                ["trigger"] = TriggerKinds.BattlefieldConquerDrawForOtherBattlefields,
                 ["sourceObjectId"] = sourceObjectId,
                 ["otherBattlefieldObjectIds"] = otherBattlefieldObjectIds,
-                ["drawCount"] = otherBattlefieldObjectIds.Length
+                ["drawCount"] = drawCount
             }));
         drawApplication = ApplyDrawToPlayer(
             state,
             playerZones,
             playerScores,
             playerId,
-            otherBattlefieldObjectIds.Length,
+            drawCount,
             rngCursor,
             events);
         return true;
@@ -24970,7 +24973,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardNo, out _)
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
             || IsBattlefieldConquerReadyTwoRunesAtEndCardNo(cardNo)
-            || IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(cardNo, out _)
             || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
             || IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(cardNo)
             || IsBattlefieldConquerPayOneCreateGoldCardNo(cardNo)
@@ -25052,11 +25055,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerReadyTwoRunesAtEndCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerReadyTwoRunesAtEndCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerDrawForOtherBattlefieldsCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerPowerfulPayOneDrawCardNo(string? cardNo)

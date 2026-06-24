@@ -49,6 +49,7 @@ export type BehaviorSpec = {
     duration?: string | null;
     manaDelta?: number | null;
     drawCount?: number | null;
+    drawCountPerParticipant?: number | null;
     minimumPaidMana?: number | null;
     revealCount?: number | null;
     revealSourceZone?: string | null;

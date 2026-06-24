@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -294,6 +294,18 @@ The 2026-06-25 conquer discard-draw follow-up moves another implemented conquere
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerDiscardDrawCardNo` constant.
 - The old `BattlefieldConquerDiscardDrawCardNo` / `IsBattlefieldConquerDiscardDrawCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `70` total / `66` in `CoreRuleEngine`; Core battlefield helper count is `22`.
 
+The 2026-06-25 conquer draw-for-other-battlefields follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
+
+- `SFD·217/221` / 权能之座 official text: `当你征服此处时，你和盟友每控制一处其他战场，你便抽一张牌。`
+- `RuleTextParser` now parses that official text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS`
+  - `Timing = BATTLEFIELD_CONQUERED`
+  - `TargetScope = OTHER_CONTROLLED_BATTLEFIELDS`
+  - `DrawCountPerParticipant = 1`
+- `CoreRuleEngine.TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDrawForOtherBattlefieldsTrigger(...)` and reads the per-other-battlefield draw count from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerDrawForOtherBattlefieldsCardNo` constant.
+- The old `BattlefieldConquerDrawForOtherBattlefieldsCardNo` / `IsBattlefieldConquerDrawForOtherBattlefieldsCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `69` total / `65` in `CoreRuleEngine`; Core battlefield helper count is `21`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -473,4 +485,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldConquer / BattlefieldTriggerSpec / Discard / Jinx / FullGame / GameHub representatives: passed `330/330`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8417/8417`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
+
+2026-06-25 conquer draw-for-other-battlefields follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `5/5`;
+- adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: passed `282/282`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8419/8419`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.

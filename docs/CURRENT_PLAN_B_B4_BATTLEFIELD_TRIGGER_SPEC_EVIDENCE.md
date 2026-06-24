@@ -28,6 +28,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·287/298` 雷霆之纹 has official text `当你征服此处时，回收一枚你的符文。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·282/298` 希拉娜修道院 has official text `当你征服此处时，你可以选择消耗一个增益，以此抽一张牌。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·298/298` 祖安地沟 has official text `当你征服此处时，弃置一张手牌，然后抽一张牌。`
+- `data/official/card-catalog.zh-CN.json`: `SFD·217/221` 权能之座 has official text `当你征服此处时，你和盟友每控制一处其他战场，你便抽一张牌。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -51,6 +52,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldConquerRecyclesRune`, `P79BattlefieldConquerRecycleRuneSkipsOpponentControlledBaseRune`, and GameHub `P79BattlefieldConquerRecycleRuneSeedOffersBattlefieldDestinationAndRecyclesRune` remain the runtime evidence for the conquered-battlefield recycle-rune representative behavior.
 - Existing representative tests `P79BattlefieldConquerConsumesBoonAndDraws`, `P79BattlefieldConquerConsumesControlledBoonWhenDirtyBoonIsOpponentOwned`, and GameHub `P79BattlefieldConquerBoonDrawSeedOffersBattlefieldDestinationAndConsumesBoon` remain the runtime evidence for the conquered-battlefield consume-boon draw representative behavior.
 - Existing representative tests `P79BattlefieldConquerDiscardsThenDraws`, `P79BattlefieldConquerDiscardDrawSkipsOpponentControlledHandCard`, and GameHub `P79BattlefieldConquerDiscardDrawSeedOffersBattlefieldDestinationAndCyclesHand` remain the runtime evidence for the conquered-battlefield discard-draw representative behavior.
+- Existing representative tests `P79BattlefieldConquerDrawsForOtherControlledBattlefields`, `P79BattlefieldConquerDrawsForOtherBattlefieldsSkipsOpponentOwnedBattlefield`, and GameHub `P79BattlefieldConquerDrawOtherSeedOffersBattlefieldDestinationAndDraws` remain the runtime evidence for the conquered-battlefield draw-for-other-battlefields representative behavior.
 
 ## Runtime Evidence
 
@@ -142,6 +144,10 @@ The conquer discard-draw follow-up parser path turns the Zaun Sump official batt
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior: it discards the first controlled hand card when one is available, triggers the existing Jinx discard hook, draws the parsed count, and emits `BATTLEFIELD_TRIGGER_RESOLVED`, `CARD_DISCARDED`, and `CARD_DRAWN` with `BATTLEFIELD_CONQUERED_DISCARD_DRAW`. The opponent-controlled dirty hand-card guard remains covered; broader discard choice prompting remains outside this narrow routing slice.
 
+The conquer draw-for-other-battlefields follow-up parser path turns the Seat of Power official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS`, `Timing=BATTLEFIELD_CONQUERED`, `TargetScope=OTHER_CONTROLLED_BATTLEFIELDS`, and `DrawCountPerParticipant=1`. Runtime no longer checks `SFD·217/221` through `BattlefieldConquerDrawForOtherBattlefieldsCardNo` / `IsBattlefieldConquerDrawForOtherBattlefieldsCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` conquered-battlefield path still counts other controlled battlefield card objects, excludes the conquered source battlefield object, skips opponent-owned dirty battlefield objects, and draws `otherBattlefieldObjectIds.Length * DrawCountPerParticipant`. It emits `BATTLEFIELD_TRIGGER_RESOLVED` and `CARD_DRAWN` with `BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS` while preserving hidden main-deck ordering boundaries through the existing draw implementation.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -192,10 +198,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer consume-boon draw adjacent BattlefieldConquer / BattlefieldTriggerSpec / Boon / FullGame / GameHub representatives: `357/357`;
 - conquer discard-draw focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - conquer discard-draw adjacent BattlefieldConquer / BattlefieldTriggerSpec / Discard / Jinx / FullGame / GameHub representatives: `330/330`;
+- conquer draw-for-other-battlefields focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- conquer draw-for-other-battlefields adjacent BattlefieldConquer / BattlefieldTriggerSpec / FullGame / GameHub representatives: `282/282`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the conquer discard-draw follow-up: `8417/8417`;
+- backend full conformance after the conquer draw-for-other-battlefields follow-up: `8419/8419`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves twenty-two battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves twenty-three battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

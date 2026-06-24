@@ -1843,6 +1843,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerDrawForOtherBattlefieldsTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var seatOfPower = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·217/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(seatOfPower.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerDrawForOtherBattlefields, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OtherControlledBattlefields, trigger.TargetScope);
+        Assert.Equal(1, trigger.DrawCountPerParticipant);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("每控制一处其他战场", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered draw-for-other-battlefields trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2364,6 +2385,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldConquerDiscardDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldConquerDiscardDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldConquerDrawForOtherBattlefieldsTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerDrawForOtherBattlefieldsCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerDrawForOtherBattlefieldsCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerDrawForOtherBattlefieldsCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

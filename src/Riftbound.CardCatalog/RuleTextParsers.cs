@@ -434,6 +434,21 @@ public static class TriggerParser
                 DiscardDestinationZone: TriggerZones.Graveyard);
         }
 
+        var battlefieldConquerDrawForOtherBattlefieldsMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，你和盟友每控制一处其他战场，你便抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerDrawForOtherBattlefieldsMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerDrawForOtherBattlefields,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered draw-for-other-battlefields trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.OtherControlledBattlefields,
+                DrawCountPerParticipant: ParseChineseNumber(battlefieldConquerDrawForOtherBattlefieldsMatch.Groups[1].Value));
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {
