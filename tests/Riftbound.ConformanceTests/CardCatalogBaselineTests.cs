@@ -1469,6 +1469,26 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHeldEachPlayerCallRuneTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var paperTree = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·219/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(paperTree.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldHeldEachPlayerCallRune, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.EachPlayer, trigger.TargetScope);
+        Assert.Equal(1, trigger.RuneCallCount);
+        Assert.Contains("当你据守此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("每名玩家召出一枚休眠的符文", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield held each-player call-rune trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFriendlySpellDrawTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1934,6 +1954,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHoldCallRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHoldCallRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHeldEachPlayerCallRuneTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHoldEachPlayerCallRuneCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHoldEachPlayerCallRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHoldEachPlayerCallRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
