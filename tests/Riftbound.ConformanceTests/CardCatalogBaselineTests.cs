@@ -2524,6 +2524,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathDrawOneTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var watchfulSentinel = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·096/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            watchfulSentinel.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitLastBreathDrawOne, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitLastBreathDrawOne, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.Contains("{{绝念}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit last-breath draw-one trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3728,6 +3750,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("LoyalPoroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("LoyalPoroLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathDrawOneTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("WatchfulSentinelCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("WatchfulSentinelLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

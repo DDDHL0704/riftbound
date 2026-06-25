@@ -341,6 +341,13 @@ public static class TriggerParser
             triggers.Add(battlefieldDefendRevealSpellTrigger);
         }
 
+        var hasUnitLastBreathDrawOneTrigger =
+            TryParseUnitLastBreathDrawOne(text, out var unitLastBreathDrawOneTrigger);
+        if (hasUnitLastBreathDrawOneTrigger)
+        {
+            triggers.Add(unitLastBreathDrawOneTrigger);
+        }
+
         triggers.AddRange(TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
@@ -365,6 +372,28 @@ public static class TriggerParser
             .ToArray());
 
         return triggers.ToArray();
+    }
+
+    private static bool TryParseUnitLastBreathDrawOne(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"\{\{绝念\}\}\s*[—-]\s*抽一张牌",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            TriggerKinds.UnitLastBreathDrawOne,
+            TriggerTimings.UnitDestroyed,
+            match.Value,
+            "Unit last-breath draw-one trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit,
+            DrawCount: 1);
+        return true;
     }
 
     private static bool TryParseBattlefieldConquerRevealRecycle(string text, out TriggerSpec trigger)
