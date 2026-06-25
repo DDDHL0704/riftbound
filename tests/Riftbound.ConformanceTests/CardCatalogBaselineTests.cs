@@ -999,7 +999,7 @@ public sealed class CardCatalogBaselineTests
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 3, functionalUnits: 3);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 42, functionalUnits: 41);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 1, functionalUnits: 1);
-        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 20, functionalUnits: 18);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 21, functionalUnits: 19);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 11, functionalUnits: 10);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 34, functionalUnits: 34);
 
@@ -2335,6 +2335,23 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldGrantLegendAttachArmamentStaticAbility()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var poroForge = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·208/221", StringComparison.Ordinal));
+        var ability = Assert.Single(
+            poroForge.StaticAbilities,
+            candidate => string.Equals(candidate.Kind, StaticAbilityKinds.BattlefieldGrantLegendAttachArmament, StringComparison.Ordinal));
+        Assert.Equal(StaticAbilityKinds.BattlefieldGrantLegendAttachArmament, ability.Kind);
+        Assert.Contains("所有友方传奇获得", ability.Text, StringComparison.Ordinal);
+        Assert.Contains("将你控制的一件武装贴附", ability.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldHeldPayPowerScoreTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3298,6 +3315,31 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("BattlefieldExtraStandbyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldExtraStandbyAltCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldExtraStandbyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldGrantLegendAttachArmamentStaticAbilityDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldGrantLegendAttachArmamentCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("RequiredControlledBattlefieldCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldGrantLegendAttachArmamentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldGrantLegendAttachArmamentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("RequiredControlledBattlefieldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

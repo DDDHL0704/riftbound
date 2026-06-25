@@ -16,6 +16,7 @@ These slices move implemented battlefield static abilities away from engine card
 - `OGN·296/298` official text: `以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。`
 - `OGN·278/298` / `OGN·278a/298` official text: `你可以选择在此处额外布置一张{{待命}}卡牌。`
 - `UNL-206/219` official text: `如果此处的一名单位在战斗中被摧毁，其控制者可以选择支付{{A}}{{A}}{{A}}，以此改为移除其所受伤害、将其变为休眠状态、并将其召回。`
+- `SFD·208/221` official text: `如果此战场受你控制，则所有友方传奇获得“{{横置}}：将你控制的一件武装贴附到你控制的一名单位上。”`
 - `RuleTextParser` now parses those texts as `StaticAbilitySpec` with:
   - `Kind = BATTLEFIELD_PREVENT_MOVE_TO_BASE`
   - `Kind = BATTLEFIELD_PREVENT_UNIT_PLAY`
@@ -25,6 +26,7 @@ These slices move implemented battlefield static abilities away from engine card
   - `Kind = BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS`, `Amount = 1`
   - `Kind = BATTLEFIELD_EXTRA_STANDBY_DESTINATION`
   - `Kind = BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL`, `Amount = 3`
+  - `Kind = BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`
 - `CoreRuleEngine` move and play rejection paths now find eligible battlefield sources through `BattlefieldStaticAbilitySpecRules`.
 - `CoreRuleEngine` Echo optional-cost planning now reads `BATTLEFIELD_ECHO_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEchoCostReductionCardNo` branch.
 - `CoreRuleEngine` equipment play cost planning now reads `BATTLEFIELD_EQUIPMENT_COST_REDUCTION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldEquipmentCostReductionCardNo` branch.
@@ -32,11 +34,13 @@ These slices move implemented battlefield static abilities away from engine card
 - `CoreRuleEngine` spell/skill damage resolution now reads `BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldTargetSpellSkillDamageBonusCardNo` branch, and uses `Amount` for the damage modifier.
 - `CoreRuleEngine` `HIDE_CARD` battlefield destination validation now reads `BATTLEFIELD_EXTRA_STANDBY_DESTINATION` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldExtraStandbyCardNo` / `BattlefieldExtraStandbyAltCardNo` branch.
 - `CoreRuleEngine` battle-destroyed recall replacement now reads `BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL` from `BehaviorSpec.StaticAbilities` instead of the old `BattlefieldDestroyedInBattleRecallCardNo` branch, and uses `Amount` for the mana payment.
+- `CoreRuleEngine` battlefield-granted legend armament attach action now requires the player to control a battlefield whose `BehaviorSpec.StaticAbilities` includes `BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT`, instead of requiring `SFD·208/221` through `BattlefieldGrantLegendAttachArmamentCardNo` / `RequiredControlledBattlefieldCardNo`.
 - `MatchSession` prompt filtering, Echo/equipment cost metadata, and battlefield-object recognition use the same static ability spec queries instead of the old `BattlefieldPreventMoveToBaseCardNo` / `BattlefieldPreventUnitPlayCardNo` / `BattlefieldEchoCostReductionCardNo` / `BattlefieldEquipmentCostReductionCardNo` constants.
 - `MatchSession` granted unit-experience prompt filtering and battlefield-object recognition use the same static ability spec query instead of the old `BattlefieldGrantUnitExperienceCardNo` constant.
 - `MatchSession` battlefield-object recognition uses the same static ability spec query instead of the old `BattlefieldTargetSpellSkillDamageBonusCardNo` constant.
 - `MatchSession` extra-standby prompt destination filtering and battlefield-object recognition use the same static ability spec query instead of the old Bandle Tree card-number allow-list.
 - `MatchSession` battlefield-object recognition uses the same static ability spec query instead of the old Blood Altar card-number allow-list.
+- `MatchSession` legend-action prompt source filtering and battlefield-object recognition use the same static ability spec query instead of the old Poro Forge card-number allow-list; development seed data keeps `SFD·208/221` only as a seed card identity.
 
 ## Non-Closure
 
@@ -44,9 +48,8 @@ This is a narrow B4 cleanup slice. It does not close all battlefield static abil
 
 ## Validation
 
-- latest focused behavior-spec/source guard/Blood Altar battle-destroyed recall runtime representatives: passed `6/6`;
-- latest adjacent battle-destroyed recall / DeclareBattle / BattleDamageAssignment / FullGameEndToEnd representatives: passed `230/230`;
-- CardCatalog baseline: passed `168/168`;
+- latest focused behavior-spec/source guard/Poro Forge legend attach runtime representatives: passed `8/8`;
+- CardCatalog baseline: passed `172/172`;
 - MatchRecovery: passed `1989/1989`;
-- backend full conformance: passed `8459/8459`;
+- backend full conformance: passed `8471/8471`;
 - DevUi build/browser smoke: not repeated; this slice did not touch DevUi files or frontend behavior.

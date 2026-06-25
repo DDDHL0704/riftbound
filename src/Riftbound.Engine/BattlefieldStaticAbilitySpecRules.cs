@@ -56,6 +56,19 @@ internal static class BattlefieldStaticAbilitySpecRules
             out ability);
     }
 
+    public static bool TryGetBattlefieldGrantLegendAttachArmamentAbility(string? cardNo, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+            cardNo,
+            StaticAbilityKinds.BattlefieldGrantLegendAttachArmament,
+            out ability);
+    }
+
+    public static bool TryGetBattlefieldStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(cardNo, kind, out ability);
+    }
+
     public static bool TryGetBattlefieldScoreDelayUntilTurnAbility(string? cardNo, out StaticAbilitySpec ability)
     {
         return TryGetStaticAbility(

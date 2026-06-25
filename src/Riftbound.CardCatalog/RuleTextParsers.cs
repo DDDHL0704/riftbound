@@ -1265,6 +1265,17 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (segment.Contains("所有友方传奇获得", StringComparison.Ordinal)
+                && segment.Contains("将你控制的一件武装贴附到你控制的一名单位", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldGrantLegendAttachArmament,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield granted legend attach-armament activated ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities."));
+                continue;
+            }
+
             if (segment.Contains("单位无法从此处移动到基地", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(

@@ -5992,7 +5992,6 @@ internal static class ActionPromptBuilder
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
-    private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string EagerApprenticeCardNo = "OGN·084/298";
@@ -6158,7 +6157,7 @@ internal static class ActionPromptBuilder
         bool RequiresPendingEquipmentStackItem = false,
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
-        string RequiredControlledBattlefieldCardNo = "");
+        string RequiredControlledBattlefieldStaticAbilityKind = "");
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
@@ -9478,7 +9477,7 @@ internal static class ActionPromptBuilder
                 true,
                 "ATTACH_ARMAMENT",
                 RequiresArmamentSecondTarget: true,
-                RequiredControlledBattlefieldCardNo: BattlefieldGrantLegendAttachArmamentCardNo),
+                RequiredControlledBattlefieldStaticAbilityKind: StaticAbilityKinds.BattlefieldGrantLegendAttachArmament),
             new(
                 DariusLegendAbilityId,
                 [DariusOriginLegendCardNo, "OGN·302/298", "OGN·302*/298"],
@@ -9813,8 +9812,11 @@ internal static class ActionPromptBuilder
         LegendActionAbilityDefinition ability)
     {
         return ability.SourceCardNos.Contains(sourceCardNo, StringComparer.Ordinal)
-            || (!string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldCardNo)
-                && PlayerControlsBattlefieldCard(state, playerId, ability.RequiredControlledBattlefieldCardNo));
+            || (!string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldStaticAbilityKind)
+                && PlayerControlsBattlefieldStaticAbility(
+                    state,
+                    playerId,
+                    ability.RequiredControlledBattlefieldStaticAbilityKind));
     }
 
     private static bool LegendActionTimingAllowed(
@@ -15970,12 +15972,15 @@ internal static class ActionPromptBuilder
             : [];
     }
 
-    private static bool PlayerControlsBattlefieldCard(MatchState state, string playerId, string cardNo)
+    private static bool PlayerControlsBattlefieldStaticAbility(MatchState state, string playerId, string staticAbilityKind)
     {
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal)
+                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldStaticAbility(
+                    cardObject.CardNo,
+                    staticAbilityKind,
+                    out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
@@ -16018,7 +16023,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantLegendAttachArmamentAbility(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(cardObject.CardNo, out _)
@@ -16536,7 +16541,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 public sealed class MatchSession : IMatchSession
 {
     private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
-    private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
+    private const string BattlefieldLegendAttachArmamentSeedCardNo = "SFD·208/221";
     private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
@@ -19356,7 +19361,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-PORO-FORGE"] = new(
                     "P1-BATTLEFIELD-PORO-FORGE",
-                    cardNo: BattlefieldGrantLegendAttachArmamentCardNo,
+                    cardNo: BattlefieldLegendAttachArmamentSeedCardNo,
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
@@ -22901,7 +22906,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-PORO-FORGE"] = new(
                     "P1-BATTLEFIELD-PORO-FORGE",
-                    cardNo: BattlefieldGrantLegendAttachArmamentCardNo,
+                    cardNo: BattlefieldLegendAttachArmamentSeedCardNo,
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)

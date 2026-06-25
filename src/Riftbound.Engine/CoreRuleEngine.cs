@@ -664,7 +664,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
-    private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
@@ -11756,29 +11755,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         LegendAbilityDefinition ability)
     {
         return ability.SourceCardNos.Contains(sourceCardNo, StringComparer.Ordinal)
-            || (!string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldCardNo)
-                && PlayerControlsBattlefieldCard(state, playerId, ability.RequiredControlledBattlefieldCardNo));
+            || (!string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldStaticAbilityKind)
+                && PlayerControlsBattlefieldStaticAbility(
+                    state,
+                    playerId,
+                    ability.RequiredControlledBattlefieldStaticAbilityKind));
     }
 
-    private static bool PlayerControlsBattlefieldCard(
+    private static bool PlayerControlsBattlefieldStaticAbility(
         MatchState state,
         string playerId,
-        string cardNo)
+        string staticAbilityKind)
     {
-        return TryGetControlledBattlefieldCardObject(
+        return TryGetControlledBattlefieldStaticAbilityObject(
             state.PlayerZones,
             state.CardObjects,
             playerId,
-            cardNo,
+            staticAbilityKind,
             out _,
             out _);
     }
 
-    private static bool TryGetControlledBattlefieldCardObject(
+    private static bool TryGetControlledBattlefieldStaticAbilityObject(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
-        string cardNo,
+        string staticAbilityKind,
         out string battlefieldObjectId,
         out CardObjectState battlefieldState)
     {
@@ -11792,7 +11794,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.Battlefields)
         {
             if (cardObjects.TryGetValue(objectId, out var candidate)
-                && string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal)
+                && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldStaticAbility(
+                    candidate.CardNo,
+                    staticAbilityKind,
+                    out _)
                 && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
             {
                 battlefieldObjectId = objectId;
@@ -11936,7 +11941,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: true,
                 LegendAbilityEffectKinds.AttachArmament,
                 RequiresArmamentSecondTarget: true,
-                RequiredControlledBattlefieldCardNo: BattlefieldGrantLegendAttachArmamentCardNo),
+                RequiredControlledBattlefieldStaticAbilityKind: StaticAbilityKinds.BattlefieldGrantLegendAttachArmament),
             DariusLegendAbilityId => new LegendAbilityDefinition(
                 DariusLegendAbilityId,
                 [DariusOriginLegendCardNo, "OGN·302/298", "OGN·302*/298"],
@@ -12708,12 +12713,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         LegendAbilityDefinition ability,
         List<GameEvent> events)
     {
-        if (string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldCardNo)
-            || !TryGetControlledBattlefieldCardObject(
+        if (string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldStaticAbilityKind)
+            || !TryGetControlledBattlefieldStaticAbilityObject(
                 playerZones,
                 cardObjects,
                 playerId,
-                ability.RequiredControlledBattlefieldCardNo,
+                ability.RequiredControlledBattlefieldStaticAbilityKind,
                 out var battlefieldObjectId,
                 out var battlefieldState))
         {
@@ -12722,7 +12727,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 通过魄罗熔炉贴附武装",
+            $"{playerId} 通过战场静态能力贴附武装",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -25153,7 +25158,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(cardNo, out _)
-            || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldGrantLegendAttachArmamentAbility(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(cardNo, out _)
@@ -25198,11 +25203,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
-    }
-
-    private static bool IsBattlefieldGrantLegendAttachArmamentCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -44171,7 +44171,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool RequiresPendingEquipmentStackItem = false,
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
-        string RequiredControlledBattlefieldCardNo = "");
+        string RequiredControlledBattlefieldStaticAbilityKind = "");
 
     private static class LegendAbilityEffectKinds
     {
