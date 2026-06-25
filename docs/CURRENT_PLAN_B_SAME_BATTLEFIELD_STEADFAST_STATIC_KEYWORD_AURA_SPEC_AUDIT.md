@@ -1,6 +1,6 @@
 # Plan B Same-Battlefield Steadfast Static Keyword Aura Spec Audit
 
-更新时间：2026-06-25
+更新时间：2026-06-26
 
 ## Scope
 
@@ -25,6 +25,7 @@ Runtime evidence now covers:
 - The projection excludes Taric itself, enemy units at the same battlefield, and friendly units at a different battlefield.
 - `CoreRuleEngine` reads the same `BehaviorSpec` static aura during `DECLARE_BATTLE`; a defending friendly target receives `keyword=坚守`, `keywordBonus=1`, and adjusted combat power.
 - The opposing attacker keeps `keywordBonus=0` and receives no static power bonus.
+- Source-leaves lifecycle guard: when Taric is no longer on the field, the RULE_TEXT continuous effect is absent and the formerly granted defender recomputes to `keywordBonus=0` / base combat power.
 
 ## Not Closed
 
@@ -34,7 +35,7 @@ Still open:
 
 - Full `坚守` keyword family breadth beyond the representative combat bonus path.
 - Full `壁垒` damage-assignment ordering for Taric.
-- Complete RULE_TEXT keyword grant scopes and keyword removal.
+- Complete RULE_TEXT keyword grant scopes and broader keyword removal/loss layering beyond this same-battlefield source-leaves representative.
 - Complete battle / spell-duel lifecycle and assignment prompt breadth.
 - FU-level matrix blocker reduction / fullOfficial status for `OGN·074/298`.
 - READY.
@@ -63,6 +64,30 @@ Adjacent:
 ```
 
 Result: 543/543 passed.
+
+2026-06-26 source-leaves lifecycle focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~P79SameBattlefieldStaticKeywordGrantExpiresWhenSourceLeavesBattlefield" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 source-leaves lifecycle adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefield|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Steadfast|FullyQualifiedName~Taric|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2063/2063 passed.
+
+2026-06-26 backend full after lifecycle guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8611/8611 passed.
 
 Hidden-information / recovery:
 

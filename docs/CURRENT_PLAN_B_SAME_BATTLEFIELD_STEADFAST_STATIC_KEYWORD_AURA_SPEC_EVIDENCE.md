@@ -1,6 +1,6 @@
 # Plan B Same-Battlefield Steadfast Static Keyword Aura Spec Evidence
 
-更新时间：2026-06-25
+更新时间：2026-06-26
 
 ## Evidence Summary
 
@@ -23,6 +23,11 @@ Combat resolution:
 - `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs` verifies a defending friendly unit granted `坚守` receives `keywordBonus=1`, `keyword=坚守`, and combat power 3 from base power 2.
 - The same test verifies the enemy attacker remains at `keywordBonus=0`, no `staticPowerBonus`, combat power 5.
 
+Lifecycle removal:
+
+- `P79SameBattlefieldStaticKeywordGrantExpiresWhenSourceLeavesBattlefield` verifies that the RULE_TEXT continuous effect exists while Taric remains at the same battlefield, but disappears when the source object is no longer on the field.
+- The same lifecycle guard verifies combat resolution recomputes from current locations: the formerly granted defender drops from `keywordBonus=1` / combat power 3 to `keywordBonus=0` / combat power 2 after the source leaves.
+
 Existing fixture alignment:
 
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-taric-keyword-unit.fixture.json` still covers the ordinary hand-play path into the controller base, and now points the same-battlefield static keyword grant to the B2 RULE_TEXT aura representative.
@@ -34,6 +39,9 @@ Existing fixture alignment:
 - Adjacent StaticAura / StaticPower / ContinuousEffect / Steadfast / Taric / DeclareBattle / FullGameEndToEnd representatives: 543/543 passed.
 - MatchRecovery hidden-information boundary: 1989/1989 passed.
 - Backend full: 8532/8532 passed.
+- Focused source-leaves lifecycle guard `P79SameBattlefieldStaticKeywordGrantExpiresWhenSourceLeavesBattlefield`: 1/1 passed.
+- Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / MatchRecovery representatives: 2063/2063 passed.
+- Backend full after lifecycle guard: 8611/8611 passed.
 
 ## Remaining Evidence Needed
 
