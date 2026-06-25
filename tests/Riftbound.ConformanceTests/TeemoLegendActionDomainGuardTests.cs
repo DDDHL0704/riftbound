@@ -58,6 +58,10 @@ public sealed class TeemoLegendActionDomainGuardTests
         var matchSessionSource = File.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("LegendActionIsTeemoUnitCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsTeemoLegendCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsImplementedLegendActionCardNo", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("HasImplementedLegendActionAbility", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("TeemoLegendAbilityId", matchSessionSource, StringComparison.Ordinal);
         Assert.Contains("CardBehaviorRegistry.IsImplementedUnitNamed", matchSessionSource, StringComparison.Ordinal);
     }
 

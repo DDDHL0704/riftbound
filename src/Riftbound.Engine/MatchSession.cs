@@ -8551,15 +8551,7 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(legendObjectId =>
                 state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-                && IsTeemoLegendCardNo(legendState.CardNo));
-    }
-
-    private static bool IsTeemoLegendCardNo(string? cardNo)
-    {
-        return cardNo is TeemoOriginLegendCardNo
-            or "OGN·263a/298"
-            or "OGN·307/298"
-            or "OGN·307*/298";
+                && HasImplementedLegendActionAbility(legendState.CardNo, TeemoLegendAbilityId));
     }
 
     private static bool IsMovableUnitSource(MatchState state, string playerId, string objectId)
@@ -15993,10 +15985,11 @@ internal static class ActionPromptBuilder
         return ActivateAbilityRequirementsForSource(state, playerId, objectId).Count > 0;
     }
 
-    private static bool IsImplementedLegendActionCardNo(string? cardNo)
+    private static bool HasImplementedLegendActionAbility(string? sourceCardNo, string abilityId)
     {
         return ImplementedLegendActionAbilities()
-            .Any(ability => ability.SourceCardNos.Contains(cardNo, StringComparer.Ordinal));
+            .Any(ability => string.Equals(ability.AbilityId, abilityId, StringComparison.Ordinal)
+                && ability.SourceCardNos.Contains(sourceCardNo, StringComparer.Ordinal));
     }
 
     private static bool IsBattlefieldCardObject(CardObjectState cardObject)
