@@ -2421,6 +2421,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitFirstFriendlyDestroyedDrawTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var resonantSoul = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·118/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            resonantSoul.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitFirstFriendlyDestroyedDrawOne, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitFirstFriendlyDestroyedDrawOne, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OtherFriendlyDestroyedUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.True(trigger.OncePerTurn);
+        Assert.Contains("每回合首次", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("友方单位被摧毁", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit first-friendly-destroyed draw trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3567,6 +3591,19 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
 
         Assert.DoesNotContain("GhostlyCentaurCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitFirstFriendlyDestroyedDrawTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("ResonantSoulCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

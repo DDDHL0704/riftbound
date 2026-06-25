@@ -8,6 +8,7 @@ Project status: **NOT READY**.
 
 - `data/official/card-catalog.zh-CN.json`: `UNL-129/219` 凶残颚鱼 has official text `当另一名友方单位被摧毁时，获得1经验。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-068/219` 幽魂半人马 has official text `当另一名友方单位被摧毁时，让我本回合内{{S}}+2。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·118/298` 残响之魂 has official text `每回合首次：当你的友方单位被摧毁时，抽一张牌。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official catalog text remains the local rule authority input for this representative slice.
 
 ## BehaviorSpec Evidence
@@ -16,6 +17,8 @@ Project status: **NOT READY**.
 - `UnitFriendlyDestroyedGainExperienceTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `SavageJawfishCardNo` / `IsSavageJawfishCardNo`.
 - `BehaviorSpecCatalogParsesUnitFriendlyDestroyedPowerUntilEndTrigger` verifies that 幽魂半人马's official text parses to `TriggerSpec.Kind = GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `Timing = UNIT_DESTROYED`, `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`, `Duration = UNTIL_END_OF_TURN`, and `PowerDelta = 2`.
 - `UnitFriendlyDestroyedPowerUntilEndTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `GhostlyCentaurCardNo`.
+- `BehaviorSpecCatalogParsesUnitFirstFriendlyDestroyedDrawTrigger` verifies that 残响之魂's official text parses to `TriggerSpec.Kind = RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`, `DrawCount = 1`, and `OncePerTurn = true`.
+- `UnitFirstFriendlyDestroyedDrawTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ResonantSoulCardNo`.
 
 ## Runtime Evidence
 
@@ -25,7 +28,10 @@ Project status: **NOT READY**.
 - `RealGhostlyCentaurFriendlyDestroyedTriggersEnterApnapOrderWindowAndGainPowerThroughStack` verifies the real stack-destruction trigger route still queues APNAP ordered triggers and resolves until-end-of-turn power through the stack.
 - `P79GhostlyCentaurGainsTemporaryPowerWhenAnotherFriendlyUnitDestroyed` keeps the representative fixture route green.
 - `StateBasedCleanupGhostlyCentaursTriggerOrderAndGainPowerThroughStack`, `StateBasedCleanupHiddenGhostlyCentaursDoNotEnqueueTriggers`, and `StateBasedCleanupGhostlyCentaurSkipsWhenSourceAlsoDies` are covered by the adjacent `GhostlyCentaur|FriendlyDestroyed|StateBasedCleanup` filter and keep cleanup-trigger behavior, hidden-source filtering, and same-removal skip behavior green.
-- Existing recovery validators for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1` and `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2` still pass because the stack effect values are unchanged.
+- `RealResonantSoulFirstFriendlyDestroyedTriggersEnterApnapOrderWindowAndDrawThroughStack` verifies the real stack-destruction trigger route still queues APNAP ordered triggers and resolves draw through the stack while respecting the first-destroyed owner guard.
+- `P79ResonantSoulDrawsOnlyForFirstFriendlyUnitDestroyedEachTurn` keeps the representative fixture route green.
+- `StateBasedCleanupResonantSoulsTriggerOrderAndDrawThroughStack`, `StateBasedCleanupHiddenResonantSoulsDoNotEnqueueTriggers`, `StateBasedCleanupResonantSoulsSkipWhenOwnersAlreadyDestroyedThisTurn`, and `StateBasedCleanupResonantSoulSkipsWhenSourceAlsoDies` are covered by the adjacent `ResonantSoul|FriendlyDestroyed|StateBasedCleanup` filter and keep cleanup-trigger behavior, hidden-source filtering, first-owner guard, and same-removal skip behavior green.
+- Existing recovery validators for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, and `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1` still pass because the stack effect values are unchanged.
 
 ## Validation
 
@@ -33,12 +39,14 @@ Project status: **NOT READY**.
 - Adjacent `SavageJawfish|FriendlyDestroyed|StateBasedCleanup` representatives: `111/111` passing.
 - Focused 幽魂半人马 behavior-spec/source-guard/runtime representatives: `4/4` passing.
 - Adjacent `GhostlyCentaur|FriendlyDestroyed|StateBasedCleanup` representatives: `114/114` passing.
+- Focused 残响之魂 behavior-spec/source-guard/runtime representatives: `4/4` passing.
+- Adjacent `ResonantSoul|FriendlyDestroyed|StateBasedCleanup` representatives: `116/116` passing.
 - `MatchRecovery`: `1989/1989` passing.
-- Backend full conformance: `8502/8502` passing.
+- Backend full conformance: `8504/8504` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk
 
-- The effect-kind values remain the legacy `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1` and `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`; only source recognition, TriggerSpec parsing, and effect amount routing moved to data-driven engine paths.
+- The effect-kind values remain the legacy `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, and `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`; only source recognition, TriggerSpec parsing, and effect amount routing moved to data-driven engine paths.
 - Other destroyed-trigger families still have card-number based source recognition and remain follow-up work.
 - Complete destroyed-trigger prompt breadth and hidden-information edge matrices remain open.

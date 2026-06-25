@@ -134,6 +134,8 @@ public static class TriggerKinds
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =
         "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+    public const string UnitFirstFriendlyDestroyedDrawOne =
+        "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
 }
 
 public static class TriggerTimings

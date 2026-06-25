@@ -551,6 +551,22 @@ public static class TriggerParser
                 Duration: TriggerDurations.UntilEndOfTurn);
         }
 
+        var unitFirstFriendlyDestroyedDrawMatch = Regex.Match(
+            segment,
+            @"每回合首次：当你的友方单位被摧毁时，抽一张牌。?$",
+            RegexOptions.CultureInvariant);
+        if (unitFirstFriendlyDestroyedDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitFirstFriendlyDestroyedDrawOne,
+                TriggerTimings.UnitDestroyed,
+                segment,
+                "Unit first-friendly-destroyed draw trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.OtherFriendlyDestroyedUnit,
+                DrawCount: 1,
+                OncePerTurn: true);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",

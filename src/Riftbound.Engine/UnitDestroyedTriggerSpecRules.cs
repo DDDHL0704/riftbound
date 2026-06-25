@@ -24,6 +24,14 @@ internal static class UnitDestroyedTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetFirstFriendlyDestroyedDrawTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitFirstFriendlyDestroyedDrawOne,
+            out trigger);
+    }
+
     public static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;
