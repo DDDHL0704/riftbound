@@ -730,6 +730,17 @@ public static class TriggerParser
         }
 
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
+            && segment.Contains("激活此处所有单位的征服效果", StringComparison.Ordinal))
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldActivateUnitConquestEffects,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held activate-unit-conquest-effects trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.UnitAtThisBattlefield);
+        }
+
+        if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {
             return new TriggerSpec(

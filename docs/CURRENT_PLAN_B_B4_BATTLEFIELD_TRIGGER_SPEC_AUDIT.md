@@ -2,9 +2,21 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, defend move-friendly-unit-to-base, defend grant-Steadfast, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, held activate-unit-conquest-effects, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-06-25 held activate-unit-conquest-effects follow-up moves another implemented battlefield held trigger away from engine card-number branching:
+
+- `OGN·286/298` / 清算人竞技场 official text: `当你据守此处时，激活此处所有单位的征服效果。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS`
+  - `Timing = BATTLEFIELD_HELD`
+  - `TargetScope = UNIT_AT_THIS_BATTLEFIELD`
+- `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now finds eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger(...)`, validates the parsed timing / target scope shape, and emits the parsed trigger kind in battlefield resolution and unit-conquest activation events.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldHeldActivateConquestEffectsCardNo` constant; the dev seed keeps only the catalog card number literal for scenario construction.
+- The old `BattlefieldHeldActivateConquestEffectsCardNo` / `IsBattlefieldHeldActivateConquestEffectsCardNo` branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `48` total / `45` in `CoreRuleEngine`; Core battlefield helper count is `1`.
+- This slice only routes the battlefield source trigger through `BehaviorSpec.Triggers`. The individual unit conquest-effect implementations that are activated by this battlefield remain the existing representative paths and are still part of the open B3/B4 cleanup matrix.
 
 The 2026-06-25 defend grant-Steadfast follow-up moves another implemented battlefield defended trigger away from engine card-number branching:
 
@@ -824,3 +836,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8442/8442`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
+
+2026-06-25 held activate-unit-conquest-effects follow-up validation:
+
+- focused behavior-spec/source guard/runtime representatives: passed `8/8`;
+- CardCatalog baseline: passed `170/170`;
+- adjacent BattlefieldHeldActivateConquest / DeclareBattle / BattleDamageAssignment / FullGameEndToEnd / GameHub representatives: passed `230/230`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8461/8461`;
+- DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.

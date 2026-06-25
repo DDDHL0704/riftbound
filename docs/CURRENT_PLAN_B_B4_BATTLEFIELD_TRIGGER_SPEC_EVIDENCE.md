@@ -46,6 +46,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `SFD·214/221` 能量枢纽 has official text `当你据守此处时，你可以选择支付{{A}}{{A}}{{A}}{{A}}，以此额外获得1分。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·285/298` 劫掠船巷 has official text `当你防守此处时，你可以选择将此处的一名友方单位移动到基地。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·279/298` 强化阵地 has official text `当你防守此处时，选择一名单位，使其在本次战斗期间获得{{坚守2}}。（如果它是防守方，则{{S}}+2。）`
+- `data/official/card-catalog.zh-CN.json`: `OGN·286/298` 清算人竞技场 has official text `当你据守此处时，激活此处所有单位的征服效果。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -87,6 +88,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldHeldPaysPowerToGainScore...`, Brush replacement held-score tests, battle-response held-score payment-resource tests, and GameHub `P79BattlefieldHeldScore...` representatives remain the runtime evidence for the held pay-power score behavior.
 - Existing representative tests `P79BattlefieldDefendMovesChosenSurvivingDefenderToBase`, `P79BattlefieldDefendMoveToBaseRejectsAttackerControlledBattlefield`, and GameHub `P79BattlefieldDefendMoveToBaseSeedOffersBattlefieldDestinationAndChoice` remain the runtime evidence for the defend move-friendly-unit-to-base behavior.
 - Existing representative tests `P79BattlefieldDefenderSteadfastTwoChoosesDefender` and GameHub `P79BattlefieldDefenderSteadfastSeedOffersBattlefieldDestinationAndChoice` remain the runtime evidence for the defend grant-Steadfast behavior.
+- Existing representative tests `P79BattlefieldHeldActivateConquestEffects...` and GameHub `P79BattlefieldHeldActivateConquestSeedOffersBattlefieldDestinationAndActivatesUnits` remain the runtime evidence for the held activate-unit-conquest-effects behavior.
 
 ## Runtime Evidence
 
@@ -250,6 +252,10 @@ The held pay-power score follow-up parser path turns the Energy Hub official bat
 
 The accepted `DECLARE_BATTLE` held-battlefield path keeps the existing representative behavior: when the battlefield holder can pay the parsed power cost, the engine pays through the same PaymentEngine path, marks the battlefield scored for the turn, adds the parsed score amount, and emits the existing `BATTLEFIELD_TRIGGER_RESOLVED`, `COST_PAID`, and `SCORE_GAINED` payloads with `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE`. The same spec-routed cost is used by prompt payment-resource choices, battle-response resume filtering, and Brush replacement validation.
 
+The held activate-unit-conquest-effects follow-up parser path turns the Reckoner Arena official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS`, `Timing=BATTLEFIELD_HELD`, and `TargetScope=UNIT_AT_THIS_BATTLEFIELD`. Runtime no longer checks `OGN·286/298` through `BattlefieldHeldActivateConquestEffectsCardNo` / `IsBattlefieldHeldActivateConquestEffectsCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` held-battlefield path keeps the existing representative behavior: the battlefield source activates the conquest effects of controlled units at that battlefield and emits `BATTLEFIELD_TRIGGER_RESOLVED` plus per-unit conquest activation events with the parsed trigger kind. This slice deliberately does not migrate the individual unit conquest-effect implementations themselves; those remain open cleanup work for the broader unit-trigger / conquest family.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -346,6 +352,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - defend grant-Steadfast focused behavior-spec/source guard/runtime representatives: `4/4`;
 - defend grant-Steadfast CardCatalog baseline: `163/163`;
 - defend grant-Steadfast adjacent BattlefieldDefender / BattlefieldDefend / DeclareBattle / FullGame / GameHub representatives: `134/134`;
+- held activate-unit-conquest-effects focused behavior-spec/source guard/runtime representatives: `8/8`;
+- held activate-unit-conquest-effects CardCatalog baseline: `170/170`;
+- held activate-unit-conquest-effects adjacent BattlefieldHeldActivateConquest / DeclareBattle / BattleDamageAssignment / FullGameEndToEnd / GameHub representatives: `230/230`;
 - MatchRecovery: `1989/1989`;
 - backend full conformance after the conquer overkill create-Warhawk follow-up: `8436/8436`;
 - backend full conformance after the turn-start damage-units follow-up: `8438/8438`;
@@ -357,13 +366,15 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - backend full conformance after the held pay-power score follow-up: `8450/8450`;
 - backend full conformance after the defend move-friendly-unit-to-base follow-up: `8452/8452`;
 - backend full conformance after the defend grant-Steadfast follow-up: `8454/8454`;
+- backend full conformance after the held activate-unit-conquest-effects follow-up: `8461/8461`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 - score-delay DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 - winning-score increase DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 - held pay-power score DevUi build: passed after synchronizing `BehaviorSpec.triggers.powerCost` catalog typing.
 - defend move-friendly-unit-to-base DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 - defend grant-Steadfast DevUi build: passed after synchronizing `BehaviorSpec.triggers.grantedKeyword` / `keywordBonus` catalog typing.
+- held activate-unit-conquest-effects DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 ## Non-Closure
 
-This evidence proves thirty-eight battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, broader Fortified Position target-choice semantics, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-nine battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, broader Fortified Position target-choice semantics, the individual unit conquest-effect helper family activated by Reckoner Arena, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

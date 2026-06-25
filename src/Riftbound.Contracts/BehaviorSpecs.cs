@@ -112,6 +112,8 @@ public static class TriggerKinds
         "BATTLEFIELD_FIRST_TURN_EXTRA_RUNE";
     public const string BattlefieldFirstTurnScore =
         "BATTLEFIELD_FIRST_TURN_GAIN_SCORE";
+    public const string BattlefieldHeldActivateUnitConquestEffects =
+        "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
 }
 
 public static class TriggerTimings

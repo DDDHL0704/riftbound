@@ -2160,6 +2160,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHeldActivateUnitConquestEffectsTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var reckonerArena = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·286/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            reckonerArena.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.BattlefieldHeldActivateUnitConquestEffects, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.BattlefieldHeldActivateUnitConquestEffects, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.UnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Contains("当你据守此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("激活此处所有单位的征服效果", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield held activate-unit-conquest-effects trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3127,6 +3148,29 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("BattlefieldDestroyedInBattleRecallCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldDestroyedInBattleRecallCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldDestroyedInBattleRecallManaCost", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHeldActivateUnitConquestEffectsTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHeldActivateConquestEffectsCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHeldActivateConquestEffectsCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHeldActivateConquestEffectsCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

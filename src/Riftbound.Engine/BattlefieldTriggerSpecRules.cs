@@ -120,6 +120,14 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldHeldActivateUnitConquestEffects,
+            out trigger);
+    }
+
     public static bool TryGetBattlefieldConquerRevealRecycleTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

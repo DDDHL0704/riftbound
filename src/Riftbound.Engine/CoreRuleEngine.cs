@@ -665,7 +665,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
-    private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
@@ -22373,12 +22372,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects)
     {
-        const string trigger = "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHeldActivateConquestEffectsCardNo(battlefieldState.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger(
+                battlefieldState.CardNo,
+                out var triggerSpec)
+            || !string.Equals(triggerSpec.Timing, TriggerTimings.BattlefieldHeld, StringComparison.Ordinal)
+            || !string.Equals(triggerSpec.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
             || !playerZones.TryGetValue(playerId, out var zones))
         {
             return false;
@@ -22407,7 +22409,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = trigger,
+                ["trigger"] = triggerSpec.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["activatedUnitObjectIds"] = unitObjectIds
             }));
@@ -22431,7 +22433,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     "UNIT_CONQUEST_CREATE_DORMANT_GOLD",
                     battlefieldObjectId,
-                    trigger);
+                    triggerSpec.Kind);
                 CreateLegendEquipmentToken(
                     playerZones,
                     cardObjects,
@@ -22454,7 +22456,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     "UNIT_CONQUEST_DRAW_ONE",
                     battlefieldObjectId,
-                    trigger);
+                    triggerSpec.Kind);
                 var drawResult = ApplyDrawToPlayer(
                     state,
                     playerZones,
@@ -22478,7 +22480,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE",
                     battlefieldObjectId,
-                    trigger);
+                    triggerSpec.Kind);
                 if (playerZones.TryGetValue(playerId, out var currentZones)
                     && currentZones.MainDeck.Count > 0)
                 {
@@ -22522,7 +22524,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     "UNIT_CONQUEST_GRANT_SELF_BOON",
                     battlefieldObjectId,
-                    trigger);
+                    triggerSpec.Kind);
                 GrantLegendBoon(
                     cardObjects,
                     unitObjectId,
@@ -22548,7 +22550,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN",
                     battlefieldObjectId,
-                    trigger);
+                    triggerSpec.Kind);
                 nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(nextUntilEndOfTurnEffects, readyEffectId);
                 var wasExhausted = unitState.IsExhausted;
                 cardObjects[unitObjectId] = unitState with
@@ -22586,7 +22588,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     "UNIT_CONQUEST_GRANT_FRIENDLY_BOON",
                     battlefieldObjectId,
-                    trigger,
+                    triggerSpec.Kind,
                     boonTargetObjectId);
                 GrantLegendBoon(
                     cardObjects,
@@ -22615,7 +22617,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN",
                     battlefieldObjectId,
-                    trigger,
+                    triggerSpec.Kind,
                     powerTargetObjectId);
                 cardObjects[powerTargetObjectId] = ApplyDirectUntilEndPowerModifier(
                     powerTargetState,
@@ -22652,7 +22654,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitState.CardNo,
                     "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON",
                     battlefieldObjectId,
-                    trigger,
+                    triggerSpec.Kind,
                     equipmentObjectId);
                 var stackItem = new StackItemState(
                     $"unit-conquest-{unitObjectId}",
@@ -25153,7 +25155,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(cardNo, out _)
             || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardNo, out _)
-            || IsBattlefieldHeldActivateConquestEffectsCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerConsumeBoonDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardNo, out _)
@@ -25201,11 +25203,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldGrantLegendAttachArmamentCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldHeldActivateConquestEffectsCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHeldActivateConquestEffectsCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
