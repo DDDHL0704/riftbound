@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B0 standby hide/reveal action-log replay slice accepted; project remains **NOT READY**.
+Status: focused B0 standby reaction action-log replay slice accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -25,6 +25,7 @@ This slice adds a server-authoritative full-game probe that starts from legal of
 - from a seated official Lillia initial state, the full multi-defender `DECLARE_BATTLE` -> `ASSIGN_COMBAT_DAMAGE` command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official Vex initial state, the full Shadow `DECLARE_BATTLE` -> `ACTIVATE_ABILITY` -> stack resolution -> battle close command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - from a seated official Poppy standby initial state, the full `HIDE_CARD` -> `REVEAL_CARD` -> non-standby battle -> score-victory command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
+- from a seated official Vex / Teemo / Shadow initial state, the full `HIDE_CARD` -> Shadow `ACTIVATE_ABILITY` -> `REVEAL_CARD` as `STANDBY_REACTION` -> Teemo stack resolution -> Shadow stack resolution -> battle close command stream replays through `MatchActionLogReplayer` to the same final state hash and recovered event payload hash;
 - the score-victory path now runs the original mirrored Jhin deck, a distinct Jhin-vs-Rumble official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair;
 - a legal official Lillia deck pair can drive multi-defender `DECLARE_BATTLE` into `ASSIGN_COMBAT_DAMAGE`, submit both players' assignments, and close battle with `DAMAGE_APPLIED` / `BATTLE_CLOSED`;
 - a legal official Vex deck pair can drive `DECLARE_BATTLE` into `BATTLE_RESPONSE_PRIORITY_OPENED`, activate `UNL-194/219` Shadow through `ACTIVATE_ABILITY`, resolve the stack, return to battle response priority, and close battle with `BATTLE_RESPONSE_PRIORITY_CLOSED` / `BATTLE_CLOSED`;
@@ -53,6 +54,8 @@ This battle-prompt replay slice also adds no runtime rule changes. It extends th
 
 This standby hide/reveal replay slice adds no runtime rule changes. It extends the seated-room action-log recovery check into explicit standby prompt coverage: a legal official Poppy deck hides official `OGN·135/298` Pakaa Cub through server-authored `HIDE_CARD` with `STANDBY_A`, verifies the `CARD_HIDDEN` payload does not expose `cardNo`, reveals the same object through `REVEAL_CARD` with `STANDBY_REVEAL_0`, then continues through the existing non-standby battle / score-victory route. The test driver now writes replayable raw payloads for `HIDE_CARD` and `REVEAL_CARD`.
 
+This standby reaction replay slice also adds no runtime rule changes. It extends the same seated-room action-log recovery check to a real priority-window standby reaction: a legal official Vex deck hides official `OGN·197/298` Teemo through `HIDE_CARD`, opens the existing Shadow battle-response stack, passes priority back to the hidden-card controller, reveals Teemo through `REVEAL_CARD` with `Mode=STANDBY_REACTION` and `Destination=STACK`, resolves Teemo's on-play self-power modifier, then resolves Shadow and closes the battle.
+
 ## Evidence
 
 - Added `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs`.
@@ -67,6 +70,7 @@ This standby hide/reveal replay slice adds no runtime rule changes. It extends t
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveMultiDefenderBattleDamageAssignmentActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveShadowBattleResponseActivationActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash`.
+- Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts`.
 - Strengthened `tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs` with `OfficialDecksResolveMultiDefenderBattleDamageAssignmentThroughServerPrompts`.
@@ -81,14 +85,14 @@ This standby hide/reveal replay slice adds no runtime rule changes. It extends t
 
 ## Residuals
 
-This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves an official Lillia multi-defender damage-assignment deck pair can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, and an official Vex / Shadow deck pair can open and resolve a battle response activation through server prompts. The action-log replay slice now proves the mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Vex / Shadow response-activation, and explicit Pakaa Cub standby hide/reveal paths can be recovered from seated-room `SUBMIT_DECK` through the final representative battle / score result to the same final state hash. It does not prove all real deck archetypes, standby reaction-to-stack timing, battlefield extra-standby destinations, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, all response windows, or all card-effect families can complete a game.
+This is not a READY claim and does not close complete game resolution. The current B0 full-game probe now proves mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble low-curve official deck pair, and a standby-heavy Jhin-vs-Poppy official deck pair can submit legal decks, pass opening prompts, create a contested battlefield, consume no-legal battle tasks, reopen them on later turns, declare and close a real battle, and finish by score-based `MATCH_WON` without surrender. It also proves an official Lillia multi-defender damage-assignment deck pair can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, and official Vex / Shadow deck pairs can open and resolve a battle response activation through server prompts. The action-log replay slice now proves the mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Vex / Shadow response-activation, explicit Pakaa Cub standby hide/reveal, and Vex / Shadow / Teemo standby reaction paths can be recovered from seated-room `SUBMIT_DECK` through the final representative battle / score result to the same final state hash. It does not prove all real deck archetypes, all standby reaction card effects / targeted standby reactions, battlefield extra-standby destinations, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, all response windows, or all card-effect families can complete a game.
 
 Current §6 mouth count after this slice: `private static bool Is*CardNo(...)` helper definitions remain 48 in `src/Riftbound.Engine`. Coverage-matrix unsupported functional-unit count was not changed by this B0 test-driver slice.
 
 Open follow-up:
 
 - evidence whether same-turn effects that ready or add units after a no-legal battle skip should reopen that battlefield battle task before turn end.
-- broaden standby-heavy coverage beyond base hide/reveal into reaction-to-stack, extra battlefield standby destinations, and non-ready-base cleanup branches.
+- broaden standby-heavy coverage beyond the Teemo stack-reaction representative into targeted standby reactions, extra battlefield standby destinations, and non-ready-base cleanup branches.
 - broaden B0 beyond representative damage assignment / response activation into more target ordering, replacement / duration cleanup, and card-effect families.
 
 ## Validation
@@ -102,7 +106,7 @@ Focused validation passed:
 Result:
 
 ```text
-Passed: 14, Failed: 0, Skipped: 0, Total: 14
+Passed: 15, Failed: 0, Skipped: 0, Total: 15
 ```
 
 Adjacent validation passed:
@@ -114,7 +118,7 @@ Adjacent validation passed:
 Result:
 
 ```text
-Passed: 699, Failed: 0, Skipped: 0, Total: 699
+Passed: 700, Failed: 0, Skipped: 0, Total: 700
 ```
 
 Recovery / hidden-info validation passed:
@@ -138,5 +142,5 @@ Backend full validation passed:
 Result:
 
 ```text
-Passed: 8468, Failed: 0, Skipped: 0, Total: 8468
+Passed: 8469, Failed: 0, Skipped: 0, Total: 8469
 ```

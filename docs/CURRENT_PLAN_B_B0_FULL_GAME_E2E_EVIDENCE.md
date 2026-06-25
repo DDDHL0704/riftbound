@@ -45,6 +45,8 @@ The battle-prompt action-log replay regressions prove the two complex B0 prompt 
 
 The standby hide/reveal action-log replay regression proves explicit standby setup is also recoverable from seated-room command logs. `StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal official Poppy deck path that hides official `OGN·135/298` Pakaa Cub through prompt-derived `HIDE_CARD` with `STANDBY_A`, confirms `CARD_HIDDEN` does not expose `cardNo`, reveals the same base object through prompt-derived `REVEAL_CARD` with `STANDBY_REVEAL_0`, then continues through the existing non-standby battle / score-victory route. The hide/reveal raw payloads now preserve source object id, card number, destination, mode and optional cost fields used by recovery.
 
+The standby reaction action-log replay regression proves a real priority-window standby reaction is recoverable from seated-room command logs. `OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash` records legal official Vex decks containing `UNL-194/219` Shadow and `OGN·197/298` Teemo. The driver hides Teemo through prompt-derived `HIDE_CARD`, opens Shadow's battle-response stack, passes priority to the hidden-card controller, reveals Teemo through prompt-derived `REVEAL_CARD` with `Mode=STANDBY_REACTION` and `Destination=STACK`, resolves Teemo's on-play self-power modifier, then resolves Shadow and closes battle. This slice changes only test / evidence coverage; it does not add runtime rule behavior.
+
 The distinct-deck regression proves the full-game score-victory path is not limited to two copies of the same deck. `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts` submits legal official Jhin and Rumble low-curve decks with different legend and champion cards, then drives the same server prompt path to real battle close and score-based `MATCH_WON`. This slice changes only the test driver / evidence: it parameterizes the deck pair and skips `待命` units when selecting the representative unit to play or move, so the B0 probe remains focused on battle / score instead of standby cleanup.
 
 The standby-heavy regression proves that the same full-game score-victory route remains stable when one official low-curve deck includes standby-capable cards. `StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts` submits distinct legal Jhin and Poppy low-curve decks, keeps representative unit selection on non-standby battle-path units, then drives setup, real battle close and score-based `MATCH_WON` through server-authored prompts. This slice changes only test / evidence coverage; it does not add runtime rule behavior or close full standby reveal / reaction mechanics.
@@ -68,7 +70,7 @@ Focused validation:
 Result:
 
 ```text
-Passed: 14, Failed: 0, Skipped: 0, Total: 14
+Passed: 15, Failed: 0, Skipped: 0, Total: 15
 ```
 
 Adjacent validation:
@@ -80,7 +82,7 @@ Adjacent validation:
 Result:
 
 ```text
-Passed: 699, Failed: 0, Skipped: 0, Total: 699
+Passed: 700, Failed: 0, Skipped: 0, Total: 700
 ```
 
 Recovery / hidden-info validation:
@@ -104,9 +106,9 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8468, Failed: 0, Skipped: 0, Total: 8468
+Passed: 8469, Failed: 0, Skipped: 0, Total: 8469
 ```
 
 ## Non-Closure
 
-This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves an official Lillia multi-defender damage-assignment path can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, an official Vex / Shadow battle response path can open and resolve `ACTIVATE_ABILITY` through server prompts, and an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Vex / Shadow response-activation, and Pakaa Cub standby hide/reveal command streams can now be recovered from seated-room `SUBMIT_DECK` through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, standby reaction-to-stack timing, battlefield extra-standby destinations, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
+This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves an official Lillia multi-defender damage-assignment path can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, official Vex / Shadow battle response paths can open and resolve `ACTIVATE_ABILITY` through server prompts, an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event, and an official Vex / Shadow / Teemo path can reveal a hidden standby card as a stack reaction during response priority. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Vex / Shadow response-activation, Pakaa Cub standby hide/reveal, and Teemo standby reaction command streams can now be recovered from seated-room `SUBMIT_DECK` through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, all standby reaction card effects / targeted standby reactions, battlefield extra-standby destinations, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.

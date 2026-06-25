@@ -21,6 +21,7 @@ public sealed class FullGameEndToEndTests
     private const string VexLegendCardNo = "UNL-232/219";
     private const string VexChampionCardNo = "UNL-055/219";
     private const string ShadowCardNo = "UNL-194/219";
+    private const string TeemoSelfPowerCardNo = "OGN·197/298";
     private const string PakaaCubCardNo = "OGN·135/298";
     private const long LowCurveReplaySeed = 424242;
     private static readonly int[] ShadowResponseDriverSeeds = [7, 11, 17, 23, 31, 42, 101, 404, 20260624, 424242];
@@ -247,6 +248,49 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(openedResponse);
         AssertNoHiddenZoneLeak(activated);
         AssertNoHiddenZoneLeak(stackResolved);
+        AssertNoHiddenZoneLeak(battleResult);
+    }
+
+    [Fact]
+    public async Task OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildStandbyReactionOfficialDeck(catalog);
+
+        var (initialState, journal, hidden, openedResponse, activated, revealed, teemoResolved, shadowResolved, battleResult, teemoObjectId, targetObjectId) =
+            await DriveOfficialDecksToStandbyReactionShadowBattleCloseForReplayAsync(
+                "b0-full-game-standby-reaction-shadow-replay-room",
+                deck,
+                deck);
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, battleResult);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.HideCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.RevealCard, StringComparison.Ordinal));
+        Assert.Contains(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        var hiddenEvent = Assert.Single(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
+        Assert.Contains(openedResponse.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(revealed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3", StringComparison.Ordinal));
+        Assert.Contains(teemoResolved.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.Contains(teemoObjectId, teemoResolved.State.PlayerZones[teemoResolved.State.ObjectLocations[teemoObjectId].PlayerId].Base, StringComparer.Ordinal);
+        Assert.False(teemoResolved.State.CardObjects[teemoObjectId].IsFaceDown);
+        Assert.Equal(4, teemoResolved.State.CardObjects[teemoObjectId].Power);
+        Assert.Contains(shadowResolved.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        Assert.Contains("STUNNED", shadowResolved.State.CardObjects[targetObjectId].UntilEndOfTurnEffects);
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertNoHiddenZoneLeak(hidden);
+        AssertNoHiddenZoneLeak(openedResponse);
+        AssertNoHiddenZoneLeak(activated);
+        AssertNoHiddenZoneLeak(revealed);
+        AssertNoHiddenZoneLeak(teemoResolved);
+        AssertNoHiddenZoneLeak(shadowResolved);
         AssertNoHiddenZoneLeak(battleResult);
     }
 
@@ -743,6 +787,227 @@ public sealed class FullGameEndToEndTests
         MatchState InitialState,
         RecordingMatchJournal Journal,
         ResolutionResult Hidden,
+        ResolutionResult OpenedResponse,
+        ResolutionResult Activated,
+        ResolutionResult Revealed,
+        ResolutionResult TeemoResolved,
+        ResolutionResult ShadowResolved,
+        ResolutionResult BattleResult,
+        string TeemoObjectId,
+        string TargetObjectId)> DriveOfficialDecksToStandbyReactionShadowBattleCloseForReplayAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in ShadowResponseDriverSeeds.Concat(StandbyDriverSeeds).Distinct())
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            var journal = new RecordingMatchJournal();
+            try
+            {
+                var result = await DriveOfficialDecksToStandbyReactionShadowBattleCloseAsync(
+                    initialState,
+                    journal,
+                    p1Deck,
+                    p2Deck);
+                return (
+                    initialState,
+                    journal,
+                    result.Hidden,
+                    result.OpenedResponse,
+                    result.Activated,
+                    result.Revealed,
+                    result.TeemoResolved,
+                    result.ShadowResolved,
+                    result.BattleResult,
+                    result.TeemoObjectId,
+                    result.TargetObjectId);
+            }
+            catch (InvalidOperationException ex) when (
+                ex.Message.StartsWith("B0 standby-reaction driver", StringComparison.Ordinal)
+                || ex.Message.StartsWith("B0 shadow-response driver", StringComparison.Ordinal)
+                || ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+            catch (MatchSessionException ex) when (ex.Message.Contains("对局已经结束", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: match ended before standby reaction response path");
+            }
+        }
+
+        throw new InvalidOperationException(
+            "B0 standby-reaction driver could not find a deterministic official-deck standby reaction response path. "
+            + string.Join(" | ", failures));
+    }
+
+    private static async ValueTask<(
+        ResolutionResult Hidden,
+        ResolutionResult OpenedResponse,
+        ResolutionResult Activated,
+        ResolutionResult Revealed,
+        ResolutionResult TeemoResolved,
+        ResolutionResult ShadowResolved,
+        ResolutionResult BattleResult,
+        string TeemoObjectId,
+        string TargetObjectId)> DriveOfficialDecksToStandbyReactionShadowBattleCloseAsync(
+        MatchState initialState,
+        IMatchJournal journal,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-standby-reaction-submit-p1");
+        var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-standby-reaction-submit-p2");
+        AssertAccepted(p1Submit);
+        AssertAccepted(p2Submit);
+
+        AssertAccepted(await session.ReadyAsync("P1", "b0-standby-reaction-ready-p1", RawCommand(CommandTypes.Ready), CancellationToken.None));
+        var ready = await session.ReadyAsync("P2", "b0-standby-reaction-ready-p2", RawCommand(CommandTypes.Ready), CancellationToken.None);
+        AssertAccepted(ready);
+        AssertNoHiddenZoneLeak(ready);
+
+        var activePlayerId = ready.State.ActivePlayerId;
+        var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
+        var activeMulligan = await session.SubmitAsync(
+            activePlayerId,
+            "b0-standby-reaction-mulligan-active",
+            new MulliganCommand([]),
+            RawCommand(new MulliganCommand([])),
+            CancellationToken.None);
+        AssertAccepted(activeMulligan);
+        AssertNoHiddenZoneLeak(activeMulligan);
+
+        var current = await session.SubmitAsync(
+            secondPlayerId,
+            "b0-standby-reaction-mulligan-second",
+            new MulliganCommand([]),
+            RawCommand(new MulliganCommand([])),
+            CancellationToken.None);
+        AssertAccepted(current);
+        AssertNoHiddenZoneLeak(current);
+        Assert.Equal(MatchPhases.Main, current.State.Phase);
+
+        var battlefieldOwnerId = current.State.ActivePlayerId;
+        var setup = await DriveStandbyReactionOwnerSetupAsync(
+            session,
+            current,
+            battlefieldOwnerId,
+            "b0-standby-reaction-owner-setup");
+        current = setup.Current;
+        var hidden = setup.Hidden;
+        var teemoObjectId = setup.TeemoObjectId;
+
+        var shadowControllerId = OpponentOf(current.State, battlefieldOwnerId);
+        current = await EndTurnAsync(session, battlefieldOwnerId, "b0-standby-reaction-end-owner-setup");
+        AssertNoHiddenZoneLeak(current);
+
+        current = await DriveShadowOntoBattlefieldAsync(
+            session,
+            current,
+            shadowControllerId,
+            battlefieldOwnerId);
+
+        var openedResponse = await DriveContestedBattlefieldToShadowResponseAsync(
+            session,
+            current,
+            battlefieldOwnerId,
+            shadowControllerId);
+        var (activated, targetObjectId) = await ActivateCurrentShadowResponseAsync(
+            session,
+            openedResponse,
+            openedResponse.State.PriorityPlayerId!,
+            "b0-standby-reaction-activate-shadow");
+        var standbyPriority = await PassPriorityUntilAsync(
+            session,
+            activated,
+            battlefieldOwnerId,
+            "b0-standby-reaction-pass-to-standby");
+        var (revealed, revealedObjectId) = await SubmitStandbyReactionRevealCandidateAsync(
+            session,
+            standbyPriority,
+            battlefieldOwnerId,
+            TeemoSelfPowerCardNo,
+            "b0-standby-reaction-reveal-teemo");
+        Assert.Equal(teemoObjectId, revealedObjectId);
+
+        var teemoResolved = await ResolveOneStackItemPassPassAsync(session, revealed, "b0-standby-reaction-resolve-teemo");
+        var shadowResolved = await ResolveCurrentStackOnlyAsync(session, teemoResolved, "b0-standby-reaction-resolve-shadow");
+        var battleResult = await PassOpenBattleResponseAsync(session, shadowResolved, "b0-standby-reaction-pass-returned-response");
+        return (hidden, openedResponse, activated, revealed, teemoResolved, shadowResolved, battleResult, teemoObjectId, targetObjectId);
+    }
+
+    private static async ValueTask<(
+        ResolutionResult Current,
+        ResolutionResult Hidden,
+        string TeemoObjectId)> DriveStandbyReactionOwnerSetupAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string battlefieldOwnerId,
+        string intentPrefix)
+    {
+        var result = current;
+        ResolutionResult? hidden = null;
+        string? teemoObjectId = null;
+        for (var turnIndex = 0; turnIndex < 40; turnIndex++)
+        {
+            if (!string.Equals(result.State.ActivePlayerId, battlefieldOwnerId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-wait-for-owner-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            result = await TapAllAvailableRunesAsync(session, battlefieldOwnerId, result, $"{intentPrefix}-tap-{turnIndex}");
+            if (hidden is null)
+            {
+                var hideCandidate = EnabledCandidate(result.Prompts[battlefieldOwnerId], CommandTypes.HideCard);
+                var canHideTeemo = hideCandidate?.Sources?.Any(source =>
+                    result.State.CardObjects.TryGetValue(source.Id, out var cardObject)
+                    && string.Equals(cardObject.CardNo, TeemoSelfPowerCardNo, StringComparison.Ordinal)) == true;
+                if (canHideTeemo)
+                {
+                    (hidden, teemoObjectId) = await SubmitHideSpecificCardCandidateAsync(
+                        session,
+                        result,
+                        battlefieldOwnerId,
+                        TeemoSelfPowerCardNo,
+                        $"{intentPrefix}-hide-teemo-{turnIndex}");
+                    result = hidden;
+                }
+            }
+
+            if (hidden is not null
+                && EnabledCandidate(result.Prompts[battlefieldOwnerId], CommandTypes.PlayCard) is not null)
+            {
+                try
+                {
+                    result = await TryPlayFirstUnitAsync(
+                        session,
+                        battlefieldOwnerId,
+                        result,
+                        $"{intentPrefix}-play-attacker-{turnIndex}",
+                        playUnitToBattlefield: true);
+                    return (result, hidden, teemoObjectId!);
+                }
+                catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 auto-driver", StringComparison.Ordinal))
+                {
+                    // Keep looking on the next natural turn; the prompt may have exposed only sources this narrow route cannot use.
+                }
+            }
+
+            result = await EndTurnAsync(session, battlefieldOwnerId, $"{intentPrefix}-end-owner-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException("B0 standby-reaction driver could not stage hidden Teemo plus a battlefield attacker.");
+    }
+
+    private static async ValueTask<(
+        MatchState InitialState,
+        RecordingMatchJournal Journal,
+        ResolutionResult Hidden,
         ResolutionResult Revealed,
         ResolutionResult BattleResult,
         ResolutionResult Result)> DriveOfficialStandbyDecksToHideRevealScoreVictoryForReplayAsync(
@@ -931,6 +1196,74 @@ public sealed class FullGameEndToEndTests
         var command = new RevealCardCommand(
             sourceObjectId,
             cardNo,
+            [],
+            Mode: mode,
+            OptionalCosts: [optionalCost],
+            Destination: destination);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return (result, sourceObjectId);
+    }
+
+    private static async ValueTask<(ResolutionResult Result, string SourceObjectId)> SubmitHideSpecificCardCandidateAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string expectedCardNo,
+        string intentId)
+    {
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.HideCard)
+            ?? throw new InvalidOperationException($"B0 standby-reaction driver could not find HIDE_CARD for {playerId}.");
+        var sourceObjectId = (candidate.Sources ?? [])
+            .Select(source => source.Id)
+            .FirstOrDefault(sourceObjectId => current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, expectedCardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException($"B0 standby-reaction driver could not find {expectedCardNo} in HIDE_CARD sources.");
+        var destination = candidate.Destinations?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STANDBY hide destination.");
+        var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_A", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STANDBY_A hide optional cost.");
+        var command = new HideCardCommand(sourceObjectId, expectedCardNo, destination, [optionalCost]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return (result, sourceObjectId);
+    }
+
+    private static async ValueTask<(ResolutionResult Result, string SourceObjectId)> SubmitStandbyReactionRevealCandidateAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string expectedCardNo,
+        string intentId)
+    {
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.RevealCard)
+            ?? throw new InvalidOperationException($"B0 standby-reaction driver could not find REVEAL_CARD for {playerId}.");
+        var sourceObjectId = (candidate.Sources ?? [])
+            .Select(source => source.Id)
+            .FirstOrDefault(sourceObjectId => current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, expectedCardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException($"B0 standby-reaction driver could not find {expectedCardNo} in REVEAL_CARD sources.");
+        var mode = candidate.Modes?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_REACTION", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STANDBY_REACTION reveal mode.");
+        var destination = candidate.Destinations?.FirstOrDefault(choice => string.Equals(choice.Id, "STACK", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STACK reveal destination.");
+        var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_REVEAL_0", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STANDBY_REVEAL_0 optional cost.");
+        var command = new RevealCardCommand(
+            sourceObjectId,
+            expectedCardNo,
             [],
             Mode: mode,
             OptionalCosts: [optionalCost],
@@ -1744,6 +2077,82 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException("B0 auto-driver exceeded stack pass guard.");
     }
 
+    private static async ValueTask<ResolutionResult> PassPriorityUntilAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var index = 0; index < 4; index++)
+        {
+            if (string.Equals(result.State.PriorityPlayerId, playerId, StringComparison.Ordinal))
+            {
+                return result;
+            }
+
+            var priorityPlayerId = result.State.PriorityPlayerId;
+            if (string.IsNullOrWhiteSpace(priorityPlayerId) || result.State.StackItems.Count == 0)
+            {
+                throw new InvalidOperationException($"B0 standby-reaction driver could not pass priority to {playerId}.");
+            }
+
+            var stackCountBefore = result.State.StackItems.Count;
+            result = await session.SubmitAsync(
+                priorityPlayerId,
+                $"{intentPrefix}-pass-priority-{index}",
+                new PassPriorityCommand(),
+                RawCommand(new PassPriorityCommand()),
+                CancellationToken.None);
+            AssertAccepted(result);
+            AssertNoHiddenZoneLeak(result);
+            if (result.State.StackItems.Count < stackCountBefore
+                && !string.Equals(result.State.PriorityPlayerId, playerId, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException($"B0 standby-reaction driver resolved the stack before {playerId} received priority.");
+            }
+        }
+
+        throw new InvalidOperationException($"B0 standby-reaction driver exceeded priority pass guard for {playerId}.");
+    }
+
+    private static async ValueTask<ResolutionResult> ResolveOneStackItemPassPassAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string intentPrefix)
+    {
+        var result = current;
+        var stackCountBefore = result.State.StackItems.Count;
+        if (stackCountBefore == 0)
+        {
+            throw new InvalidOperationException("B0 standby-reaction driver expected a stack item to resolve.");
+        }
+
+        for (var index = 0; index < 6; index++)
+        {
+            var priorityPlayerId = result.State.PriorityPlayerId;
+            if (string.IsNullOrWhiteSpace(priorityPlayerId))
+            {
+                throw new InvalidOperationException("B0 standby-reaction driver found stack items without a priority player.");
+            }
+
+            result = await session.SubmitAsync(
+                priorityPlayerId,
+                $"{intentPrefix}-pass-priority-{index}",
+                new PassPriorityCommand(),
+                RawCommand(new PassPriorityCommand()),
+                CancellationToken.None);
+            AssertAccepted(result);
+            AssertNoHiddenZoneLeak(result);
+            if (result.State.StackItems.Count < stackCountBefore)
+            {
+                return result;
+            }
+        }
+
+        throw new InvalidOperationException("B0 standby-reaction driver exceeded single stack item pass guard.");
+    }
+
     private static async ValueTask<ResolutionResult> ResolveCurrentStackOnlyAsync(
         MatchSession session,
         ResolutionResult current,
@@ -2112,6 +2521,22 @@ public sealed class FullGameEndToEndTests
                 ShadowCardNo,
                 ShadowCardNo,
                 ShadowCardNo
+            ]);
+    }
+
+    private static OfficialDecklist BuildStandbyReactionOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return BuildLowCurveOfficialDeck(
+            catalog,
+            VexLegendCardNo,
+            VexChampionCardNo,
+            [
+                ShadowCardNo,
+                ShadowCardNo,
+                ShadowCardNo,
+                TeemoSelfPowerCardNo,
+                TeemoSelfPowerCardNo,
+                TeemoSelfPowerCardNo
             ]);
     }
 
