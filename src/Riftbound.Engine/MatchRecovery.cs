@@ -17412,6 +17412,7 @@ public static class MatchRecoveryValidator
 
         if (string.Equals(layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
             && (string.Equals(duration, "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", StringComparison.Ordinal)
+                || string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal)
                 || string.Equals(duration, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)))
         {
             return;

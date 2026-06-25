@@ -280,6 +280,7 @@ public static class StaticAuraKinds
         "SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
     public const string OtherFriendlyUnitsPower = "OTHER_FRIENDLY_UNITS_POWER";
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
+    public const string FriendlyFilteredUnitsKeyword = "FRIENDLY_FILTERED_UNITS_KEYWORD";
     public const string SourceAttackingWithAnotherUnitPower = "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER";
     public const string SourceLoneBattlePower = "SOURCE_LONE_BATTLE_POWER";
     public const string SourceAttackingReadyEnemyUnitPower = "SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER";

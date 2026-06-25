@@ -2149,6 +2149,60 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var friendlyTokenUnitsKeywordMatch = Regex.Match(
+                segment,
+                @"你的指示物单位获得\{\{([^}]+)\}\}(?!\+)",
+                RegexOptions.CultureInvariant);
+            if (friendlyTokenUnitsKeywordMatch.Success)
+            {
+                var grantedKeyword = friendlyTokenUnitsKeywordMatch.Groups[1].Value.Trim();
+                if (!string.IsNullOrWhiteSpace(grantedKeyword)
+                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+                {
+                    auras.Add(new StaticAuraSpec(
+                        StaticAuraKinds.FriendlyFilteredUnitsKeyword,
+                        RuleTextLayer,
+                        "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                        StaticAuraTargetScopes.FriendlyFilteredUnits,
+                        StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                        0,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                        StaticAuraTargetFilters.UnitToken,
+                        GrantedKeyword: grantedKeyword));
+                    continue;
+                }
+            }
+
+            var friendlyTaggedUnitsKeywordMatch = Regex.Match(
+                segment,
+                @"你的“([^”]+)”属性单位获得\{\{([^}]+)\}\}(?!\+)",
+                RegexOptions.CultureInvariant);
+            if (friendlyTaggedUnitsKeywordMatch.Success)
+            {
+                var targetTag = friendlyTaggedUnitsKeywordMatch.Groups[1].Value.Trim();
+                var grantedKeyword = friendlyTaggedUnitsKeywordMatch.Groups[2].Value.Trim();
+                if (!string.IsNullOrWhiteSpace(targetTag)
+                    && !string.IsNullOrWhiteSpace(grantedKeyword)
+                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+                {
+                    auras.Add(new StaticAuraSpec(
+                        StaticAuraKinds.FriendlyFilteredUnitsKeyword,
+                        RuleTextLayer,
+                        "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                        StaticAuraTargetScopes.FriendlyFilteredUnits,
+                        StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                        0,
+                        segment,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                        StaticAuraTargetFilters.TagPrefix + targetTag,
+                        GrantedKeyword: grantedKeyword));
+                    continue;
+                }
+            }
+
             var friendlyTokenUnitsPowerMatch = Regex.Match(
                 segment,
                 @"你的指示物单位获得\{\{S\}\}\+(\d+)",

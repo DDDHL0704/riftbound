@@ -1886,6 +1886,7 @@ public sealed record MatchState
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildFriendlyFilteredUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildFriendlyFilteredUnitsStaticAuraEffects(state));
         var publicFieldSourceOrders = PublicFieldSourceOrders(state);
 
@@ -2323,6 +2324,47 @@ public sealed record MatchState
                     SourceDependencyObjectIds: sourceDependencyObjectIds,
                     TargetDependencyObjectIds: targetDependencyObjectIds,
                     ParticipantDependencyObjectIds: participantDependencyObjectIds));
+            }
+        }
+
+        return effects;
+    }
+
+    private static IReadOnlyList<ContinuousEffectState> BuildFriendlyFilteredUnitsKeywordAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(state))
+        {
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var source)
+                || string.IsNullOrWhiteSpace(source.CardNo)
+                || source.IsFaceDown
+                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !StaticAuraSpecRules.TryGetFriendlyFilteredUnitsKeywordAura(source.CardNo, out var aura)
+                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+            {
+                continue;
+            }
+
+            var controllerId = EffectivePublicStaticAuraSourceControllerId(state, sourceObjectId, source);
+            if (string.IsNullOrWhiteSpace(controllerId))
+            {
+                continue;
+            }
+
+            var participantObjectIds = FriendlyFilteredPublicFieldUnitObjectIds(
+                state,
+                controllerId,
+                aura);
+            foreach (var participantObjectId in participantObjectIds)
+            {
+                effects.Add(new ContinuousEffectState(
+                    $"RULE_TEXT:FRIENDLY_FILTERED_UNITS_KEYWORD:{sourceObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                    "OBJECT",
+                    ContinuousEffectLayers.RuleText,
+                    aura.Duration,
+                    participantObjectId,
+                    sourceObjectId));
             }
         }
 
@@ -2826,6 +2868,67 @@ public sealed record MatchState
         }
 
         return sourceOrders;
+    }
+
+    private static IReadOnlyList<string> PublicStaticAuraSourceObjectIds(MatchState state)
+    {
+        return state.PlayerZones
+            .SelectMany(entry => entry.Value.Base
+                .Concat(entry.Value.Battlefields)
+                .Concat(entry.Value.LegendZone))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string EffectivePublicStaticAuraSourceControllerId(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return cardObject.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
+        {
+            return cardObject.OwnerId;
+        }
+
+        return TryFindPublicStaticAuraSourceLocation(state.PlayerZones, objectId, out var location)
+            ? location.PlayerId
+            : string.Empty;
+    }
+
+    private static bool TryFindPublicStaticAuraSourceLocation(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        out (string PlayerId, string Zone) location)
+    {
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "BASE");
+                return true;
+            }
+
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "BATTLEFIELD");
+                return true;
+            }
+
+            if (zones.LegendZone.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "LEGEND");
+                return true;
+            }
+        }
+
+        location = default;
+        return false;
     }
 
     private static bool IsObjectLocationCompatibleWithBattlefield(
@@ -12927,7 +13030,10 @@ internal static class ActionPromptBuilder
             {
                 entry.ObjectId,
                 Choice = ObjectChoice(state, entry.ObjectId, "服务端合法防守单位"),
-                SupportsMultiDefenderAssignment = HasBattleDamageAssignmentKeyword(state.CardObjects[entry.ObjectId].Tags)
+                SupportsMultiDefenderAssignment = HasBattleDamageAssignmentKeyword(
+                    state,
+                    entry.ObjectId,
+                    state.CardObjects[entry.ObjectId])
             })
             .ToArray();
         var defenderChoices = defenderCandidates
@@ -15891,6 +15997,155 @@ internal static class ActionPromptBuilder
     {
         return tags.Contains(CardCombatKeywordNames.Bulwark, StringComparer.Ordinal)
             || tags.Contains(CardCombatKeywordNames.BackRow, StringComparer.Ordinal);
+    }
+
+    private static bool HasBattleDamageAssignmentKeyword(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        return HasBattleDamageAssignmentKeyword(cardObject.Tags)
+            || HasFriendlyFilteredUnitsGrantedKeyword(
+                state,
+                objectId,
+                cardObject,
+                CardCombatKeywordNames.Bulwark)
+            || HasFriendlyFilteredUnitsGrantedKeyword(
+                state,
+                objectId,
+                cardObject,
+                CardCombatKeywordNames.BackRow);
+    }
+
+    private static bool HasFriendlyFilteredUnitsGrantedKeyword(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject,
+        string keyword)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !TryFindPromptPublicFieldObjectLocation(state.PlayerZones, objectId, out var targetLocation)
+            || !IsPromptPublicObjectLocationCompatible(state, objectId, targetLocation.Zone))
+        {
+            return false;
+        }
+
+        var controllerId = EffectivePromptPublicObjectControllerId(state.PlayerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return false;
+        }
+
+        return PromptPublicStaticAuraSourceObjectIds(state)
+            .Any(sourceObjectId =>
+                state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && StaticAuraSpecRules.TryGetFriendlyFilteredUnitsKeywordAura(sourceState.CardNo, out var aura)
+                && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                && CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], keyword) > 0
+                && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+                && string.Equals(
+                    EffectivePromptPublicObjectControllerId(state.PlayerZones, sourceObjectId, sourceState),
+                    controllerId,
+                    StringComparison.Ordinal));
+    }
+
+    private static IReadOnlyList<string> PromptPublicStaticAuraSourceObjectIds(MatchState state)
+    {
+        return state.PlayerZones
+            .SelectMany(entry => entry.Value.Base
+                .Concat(entry.Value.Battlefields)
+                .Concat(entry.Value.LegendZone))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string EffectivePromptPublicObjectControllerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return cardObject.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
+        {
+            return cardObject.OwnerId;
+        }
+
+        return TryFindPromptPublicStaticAuraSourceLocation(playerZones, objectId, out var location)
+            ? location.PlayerId
+            : string.Empty;
+    }
+
+    private static bool TryFindPromptPublicStaticAuraSourceLocation(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        out (string PlayerId, string Zone) location)
+    {
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "BASE");
+                return true;
+            }
+
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "BATTLEFIELD");
+                return true;
+            }
+
+            if (zones.LegendZone.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "LEGEND");
+                return true;
+            }
+        }
+
+        location = default;
+        return false;
+    }
+
+    private static bool TryFindPromptPublicFieldObjectLocation(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        out (string PlayerId, string Zone) location)
+    {
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "BASE");
+                return true;
+            }
+
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "BATTLEFIELD");
+                return true;
+            }
+        }
+
+        location = default;
+        return false;
+    }
+
+    private static bool IsPromptPublicObjectLocationCompatible(
+        MatchState state,
+        string objectId,
+        string zone)
+    {
+        return !state.ObjectLocations.TryGetValue(objectId, out var location)
+            || string.Equals(location.Zone, zone, StringComparison.Ordinal);
     }
 
     private static IEnumerable<string> ControlledBattlefieldExtraStandbyObjects(MatchState state, string playerId)

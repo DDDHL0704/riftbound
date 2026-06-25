@@ -3984,7 +3984,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ObjectId = objectId,
                 Index = index,
                 Priority = state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? BattleDamageAssignmentPriority(cardObject.Tags)
+                    ? BattleDamageAssignmentPriority(state, state.PlayerZones, objectId, cardObject)
                     : 1
             })
             .OrderBy(item => item.Priority)
@@ -17108,7 +17108,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var hasMultipleAttackers = attackerObjectIds.Count > 1;
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
-        var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
+        var defenderAssignments = BuildBattleDamageAssignmentOrder(state, playerZones, defenderObjectIds, defenderStates);
         var defendingUnitCount = defenderAssignments.Count;
         var readyEnemyUnitCount = defenderStates.Values.Count(defenderState => !defenderState.IsExhausted);
         var assignedOverkillDamageToEnemyUnits = 0;
@@ -17193,7 +17193,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
-        var attackerAssignments = BuildBattleDamageAssignmentOrder(attackerObjectIds, attackerStates);
+        var attackerAssignments = BuildBattleDamageAssignmentOrder(state, playerZones, attackerObjectIds, attackerStates);
         foreach (var assignment in defenderAssignments)
         {
             var defenderState = defenderStates[assignment.ObjectId];
@@ -19175,7 +19175,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 return false;
             }
 
-            hasAssignmentOrderingKeyword |= HasBattleDamageAssignmentKeyword(defenderState.Tags);
+            hasAssignmentOrderingKeyword |= HasBattleDamageAssignmentKeyword(
+                state,
+                state.PlayerZones,
+                defenderObjectId,
+                defenderState);
         }
 
         return defenderObjectIds.Count == 1 || hasAssignmentOrderingKeyword;
@@ -19479,7 +19483,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             && defenderObjectIds.Count > 1
             && defenderObjectIds.Any(defenderObjectId =>
                 defenderStates.TryGetValue(defenderObjectId, out var defenderState)
-                && HasBattleDamageAssignmentKeyword(defenderState.Tags));
+                && HasBattleDamageAssignmentKeyword(
+                    state,
+                    state.PlayerZones,
+                    defenderObjectId,
+                    defenderState));
     }
 
     private static bool IsObjectLocatedAtBattlefield(
@@ -19540,6 +19548,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 cardObject,
                 combatKeyword));
+        keywordBonus = Math.Max(
+            keywordBonus,
+            ResolveFriendlyFilteredUnitsKeywordBonus(
+                state,
+                playerZones,
+                objectId,
+                cardObject,
+                combatKeyword));
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
@@ -19549,11 +19565,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObject,
                 keywordBonus,
                 defendingPlayerId);
-        }
-
-        if (!isAttacking && HasRumbleLegendMechanicalSteadfastBonus(state, playerZones, objectId, cardObject))
-        {
-            keywordBonus += 1;
         }
 
         keywordBonus += ResolveBattlefieldIsolatedDefenderKeywordModifier(
@@ -19955,6 +19966,50 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             bonus += aura.PowerDeltaPerParticipant;
+        }
+
+        return bonus;
+    }
+
+    private static int ResolveFriendlyFilteredUnitsKeywordBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject,
+        string combatKeyword)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var bonus = 0;
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
+        {
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !StaticAuraSpecRules.TryGetFriendlyFilteredUnitsKeywordAura(sourceState.CardNo, out var aura)
+                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+                || !string.Equals(
+                    EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState),
+                    controllerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
         }
 
         return bonus;
@@ -25440,28 +25495,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !destroyedState.Tags.Contains(CardObjectTags.MinionTokenFamily, StringComparer.Ordinal));
     }
 
-    private static bool HasRumbleLegendMechanicalSteadfastBonus(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string objectId,
-        CardObjectState cardObject)
-    {
-        if (!cardObject.Tags.Contains("机械", StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        var location = FindFieldObjectLocation(playerZones, objectId);
-        if (location is null || !playerZones.TryGetValue(location.Value.PlayerId, out var zones))
-        {
-            return false;
-        }
-
-        return zones.LegendZone.Any(legendObjectId =>
-            state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-            && LegendCardHasIdentity(legendState.CardNo, RumbleLegendIdentityId));
-    }
-
     private static int CombatKeywordAmount(
         IReadOnlyList<string> tags,
         string keyword)
@@ -25526,6 +25559,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static IReadOnlyList<BattleDamageAssignmentTarget> BuildBattleDamageAssignmentOrder(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyList<string> defenderObjectIds,
         IReadOnlyDictionary<string, CardObjectState> defenderStates)
     {
@@ -25534,8 +25569,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ObjectId = objectId,
                 Index = index,
-                Role = BattleDamageAssignmentRole(defenderStates[objectId].Tags),
-                Priority = BattleDamageAssignmentPriority(defenderStates[objectId].Tags)
+                Role = BattleDamageAssignmentRole(state, playerZones, objectId, defenderStates[objectId]),
+                Priority = BattleDamageAssignmentPriority(state, playerZones, objectId, defenderStates[objectId])
             })
             .OrderBy(item => item.Priority)
             .ThenBy(item => item.Index)
@@ -25549,24 +25584,79 @@ public sealed class CoreRuleEngine : IRuleEngine
             || HasExactCombatKeyword(tags, CardCombatKeywordNames.BackRow);
     }
 
-    private static int BattleDamageAssignmentPriority(IReadOnlyList<string> tags)
+    private static bool HasBattleDamageAssignmentKeyword(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
     {
-        if (HasExactCombatKeyword(tags, CardCombatKeywordNames.Bulwark))
+        return HasBattleDamageAssignmentKeyword(cardObject.Tags)
+            || ResolveFriendlyFilteredUnitsKeywordBonus(
+                state,
+                playerZones,
+                objectId,
+                cardObject,
+                CardCombatKeywordNames.Bulwark) > 0
+            || ResolveFriendlyFilteredUnitsKeywordBonus(
+                state,
+                playerZones,
+                objectId,
+                cardObject,
+                CardCombatKeywordNames.BackRow) > 0;
+    }
+
+    private static int BattleDamageAssignmentPriority(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.Bulwark)
+            || ResolveFriendlyFilteredUnitsKeywordBonus(
+                state,
+                playerZones,
+                objectId,
+                cardObject,
+                CardCombatKeywordNames.Bulwark) > 0)
         {
             return 0;
         }
 
-        return HasExactCombatKeyword(tags, CardCombatKeywordNames.BackRow) ? 2 : 1;
+        return HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.BackRow)
+            || ResolveFriendlyFilteredUnitsKeywordBonus(
+                state,
+                playerZones,
+                objectId,
+                cardObject,
+                CardCombatKeywordNames.BackRow) > 0
+            ? 2
+            : 1;
     }
 
-    private static string BattleDamageAssignmentRole(IReadOnlyList<string> tags)
+    private static string BattleDamageAssignmentRole(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
     {
-        if (HasExactCombatKeyword(tags, CardCombatKeywordNames.Bulwark))
+        if (HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.Bulwark)
+            || ResolveFriendlyFilteredUnitsKeywordBonus(
+                state,
+                playerZones,
+                objectId,
+                cardObject,
+                CardCombatKeywordNames.Bulwark) > 0)
         {
             return "BULWARK_FIRST";
         }
 
-        return HasExactCombatKeyword(tags, CardCombatKeywordNames.BackRow)
+        return HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.BackRow)
+            || ResolveFriendlyFilteredUnitsKeywordBonus(
+                state,
+                playerZones,
+                objectId,
+                cardObject,
+                CardCombatKeywordNames.BackRow) > 0
             ? "BACK_ROW_LAST"
             : "NORMAL";
     }
@@ -42489,6 +42579,46 @@ public sealed class CoreRuleEngine : IRuleEngine
         return playerZones.Values.Any(zones =>
             zones.Base.Contains(objectId, StringComparer.Ordinal)
             || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static IReadOnlyList<string> PublicStaticAuraSourceObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones)
+    {
+        return playerZones
+            .SelectMany(entry => entry.Value.Base
+                .Concat(entry.Value.Battlefields)
+                .Concat(entry.Value.LegendZone))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string EffectivePublicStaticAuraSourceControllerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return cardObject.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
+        {
+            return cardObject.OwnerId;
+        }
+
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
+                || zones.LegendZone.Contains(objectId, StringComparer.Ordinal))
+            {
+                return playerId;
+            }
+        }
+
+        return string.Empty;
     }
 
     private static bool TryFindBattlefieldZonePlayerId(

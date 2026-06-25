@@ -35770,6 +35770,20 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        var rumbleLegendAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, "P2-LEGEND-RUMBLE", StringComparison.Ordinal));
+        Assert.Equal("OBJECT", rumbleLegendAura.Scope);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", rumbleLegendAura.Duration);
+        Assert.Equal("P2-BATTLEFIELD-MECHANICAL-DEFENDER", rumbleLegendAura.TargetObjectId);
+        Assert.Equal(0, rumbleLegendAura.PowerDelta);
+        Assert.Equal(0, rumbleLegendAura.BasePower);
+        Assert.Equal(0, rumbleLegendAura.EffectivePower);
+        Assert.Empty(rumbleLegendAura.EffectKind);
+        Assert.Null(rumbleLegendAura.SourceCardNo);
+        Assert.Empty(rumbleLegendAura.SourcePath);
+        Assert.Null(rumbleLegendAura.ParticipantObjectIds);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-rumble-static-battle", "P1", "DECLARE_BATTLE"),
@@ -39179,6 +39193,211 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79FriendlyFilteredStaticKeywordGrantsKeywordsToMatchingFriendlyUnits()
+    {
+        var state = FriendlyFilteredStaticKeywordState();
+        var rumbleHeroAuras = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-RUMBLE-HERO-SOURCE", StringComparison.Ordinal))
+            .OrderBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(2, rumbleHeroAuras.Length);
+        Assert.Equal(
+            ["P1-RUMBLE-HERO-SOURCE", "P1-RUMBLE-MECH-ALLY"],
+            rumbleHeroAuras.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        Assert.All(
+            rumbleHeroAuras,
+            effect =>
+            {
+                Assert.Equal("OBJECT", effect.Scope);
+                Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", effect.Duration);
+                Assert.Equal(0, effect.PowerDelta);
+                Assert.Equal(0, effect.BasePower);
+                Assert.Equal(0, effect.EffectivePower);
+                Assert.Empty(effect.EffectKind);
+                Assert.Null(effect.SourceCardNo);
+                Assert.Empty(effect.SourcePath);
+                Assert.Null(effect.ParticipantObjectIds);
+                Assert.Null(effect.SourceDependencyObjectIds);
+                Assert.Null(effect.TargetDependencyObjectIds);
+                Assert.Null(effect.ParticipantDependencyObjectIds);
+                Assert.Null(effect.SourceOrder);
+            });
+
+        var rumbleLegendAuras = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-RUMBLE-LEGEND", StringComparison.Ordinal))
+            .OrderBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(2, rumbleLegendAuras.Length);
+        Assert.Equal(
+            ["P1-RUMBLE-HERO-SOURCE", "P1-RUMBLE-MECH-ALLY"],
+            rumbleLegendAuras.Select(effect => Assert.IsType<string>(effect.TargetObjectId)).ToArray());
+        Assert.All(
+            rumbleLegendAuras,
+            effect =>
+            {
+                Assert.Equal("OBJECT", effect.Scope);
+                Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", effect.Duration);
+                Assert.Equal(0, effect.PowerDelta);
+                Assert.Equal(0, effect.BasePower);
+                Assert.Equal(0, effect.EffectivePower);
+                Assert.Empty(effect.EffectKind);
+                Assert.Null(effect.SourceCardNo);
+                Assert.Empty(effect.SourcePath);
+                Assert.Null(effect.ParticipantObjectIds);
+                Assert.Null(effect.SourceDependencyObjectIds);
+                Assert.Null(effect.TargetDependencyObjectIds);
+                Assert.Null(effect.ParticipantDependencyObjectIds);
+                Assert.Null(effect.SourceOrder);
+            });
+
+        var lilliaAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, "P1-LILLIA-SOURCE", StringComparison.Ordinal));
+        Assert.Equal("OBJECT", lilliaAura.Scope);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", lilliaAura.Duration);
+        Assert.Equal("P1-LILLIA-TOKEN", lilliaAura.TargetObjectId);
+        Assert.Equal(0, lilliaAura.PowerDelta);
+        Assert.Equal(0, lilliaAura.BasePower);
+        Assert.Equal(0, lilliaAura.EffectivePower);
+        Assert.Empty(lilliaAura.EffectKind);
+        Assert.Null(lilliaAura.SourceCardNo);
+        Assert.Empty(lilliaAura.SourcePath);
+        Assert.Null(lilliaAura.ParticipantObjectIds);
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-RUMBLE-HERO-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-RUMBLE-NONMECH-BASE", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-RUMBLE-HERO-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-RUMBLE-MECH-DEFENDER", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-LILLIA-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-LILLIA-TOKEN", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-friendly-filtered-static-keyword", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-RUMBLE-BATTLEFIELD",
+                ["P1-RUMBLE-MECH-ALLY"],
+                ["P2-RUMBLE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-RUMBLE-MECH-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, attackerDamageEvent.Payload["keywordBonus"]);
+        Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-RUMBLE-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, defenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79FriendlyFilteredStaticKeywordBulwarkSupportsMultiDefenderAssignment()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-LILLIA-BATTLEFIELD", "P1-LILLIA-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-LILLIA-SOURCE"],
+                    Battlefields = ["P2-LILLIA-TOKEN", "P2-LILLIA-OTHER-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LILLIA-BATTLEFIELD"] = new(
+                    "P1-LILLIA-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LILLIA-ATTACKER"] = new(
+                    "P1-LILLIA-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-LILLIA-SOURCE"] = new(
+                    "P2-LILLIA-SOURCE",
+                    cardNo: "UNL-058/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "仙灵"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-LILLIA-TOKEN"] = new(
+                    "P2-LILLIA-TOKEN",
+                    cardNo: "UNL·T07",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, "仙灵"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-LILLIA-OTHER-DEFENDER"] = new(
+                    "P2-LILLIA-OTHER-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-LILLIA-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-LILLIA-BATTLEFIELD"),
+                ["P1-LILLIA-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-LILLIA-BATTLEFIELD"),
+                ["P2-LILLIA-SOURCE"] = new("P2", "BASE"),
+                ["P2-LILLIA-TOKEN"] = new("P2", "BATTLEFIELD", "P1-LILLIA-BATTLEFIELD"),
+                ["P2-LILLIA-OTHER-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-LILLIA-BATTLEFIELD")
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-LILLIA-BATTLEFIELD")]
+        };
+
+        var ruleTextAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, "P2-LILLIA-SOURCE", StringComparison.Ordinal));
+        Assert.Equal("P2-LILLIA-TOKEN", ruleTextAura.TargetObjectId);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-friendly-filtered-static-keyword-bulwark", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-LILLIA-BATTLEFIELD",
+                ["P1-LILLIA-ATTACKER"],
+                ["P2-LILLIA-TOKEN", "P2-LILLIA-OTHER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -66430,6 +66649,121 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-RUMBLE-MECH-ALLY"] = new("P1", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
                 ["P2-RUMBLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
                 ["P2-RUMBLE-MECH-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD")
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-RUMBLE-BATTLEFIELD")]
+        };
+    }
+
+    private static MatchState FriendlyFilteredStaticKeywordState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-RUMBLE-HERO-SOURCE",
+                        "P1-LILLIA-SOURCE",
+                        "P1-LILLIA-TOKEN",
+                        "P1-RUMBLE-NONMECH-BASE"
+                    ],
+                    Battlefields =
+                    [
+                        "P1-RUMBLE-BATTLEFIELD",
+                        "P1-RUMBLE-MECH-ALLY"
+                    ],
+                    LegendZone = ["P1-RUMBLE-LEGEND"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-LILLIA-TOKEN"],
+                    Battlefields = ["P2-RUMBLE-DEFENDER", "P2-RUMBLE-MECH-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RUMBLE-HERO-SOURCE"] = new(
+                    "P1-RUMBLE-HERO-SOURCE",
+                    cardNo: "SFD·026/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LILLIA-SOURCE"] = new(
+                    "P1-LILLIA-SOURCE",
+                    cardNo: "UNL-058/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "仙灵"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LILLIA-TOKEN"] = new(
+                    "P1-LILLIA-TOKEN",
+                    cardNo: "UNL·T07",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, "仙灵"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUMBLE-NONMECH-BASE"] = new(
+                    "P1-RUMBLE-NONMECH-BASE",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUMBLE-LEGEND"] = new(
+                    "P1-RUMBLE-LEGEND",
+                    cardNo: "SFD·181/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUMBLE-BATTLEFIELD"] = new(
+                    "P1-RUMBLE-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUMBLE-MECH-ALLY"] = new(
+                    "P1-RUMBLE-MECH-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "机械"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-RUMBLE-DEFENDER"] = new(
+                    "P2-RUMBLE-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-RUMBLE-MECH-DEFENDER"] = new(
+                    "P2-RUMBLE-MECH-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "机械"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-LILLIA-TOKEN"] = new(
+                    "P2-LILLIA-TOKEN",
+                    cardNo: "UNL·T07",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, "仙灵"],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-RUMBLE-HERO-SOURCE"] = new("P1", "BASE"),
+                ["P1-LILLIA-SOURCE"] = new("P1", "BASE"),
+                ["P1-LILLIA-TOKEN"] = new("P1", "BASE"),
+                ["P1-RUMBLE-NONMECH-BASE"] = new("P1", "BASE"),
+                ["P1-RUMBLE-LEGEND"] = new("P1", "LEGEND"),
+                ["P1-RUMBLE-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
+                ["P1-RUMBLE-MECH-ALLY"] = new("P1", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
+                ["P2-RUMBLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
+                ["P2-RUMBLE-MECH-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-RUMBLE-BATTLEFIELD"),
+                ["P2-LILLIA-TOKEN"] = new("P2", "BASE")
             },
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-RUMBLE-BATTLEFIELD")]
         };
