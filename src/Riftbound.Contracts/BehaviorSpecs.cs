@@ -140,6 +140,8 @@ public static class TriggerKinds
         "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
     public const string UnitLastBreathDrawOne =
         "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
+    public const string UnitLastBreathCallRuneOne =
+        "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
     public const string UnitLastBreathDrawIfAlone =
         "SAD_PORO_LAST_BREATH_DRAW_1";
     public const string UnitLastBreathDrawIfNotAlone =

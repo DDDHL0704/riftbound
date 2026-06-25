@@ -2545,6 +2545,30 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("OGN·216/298")]
+    [InlineData("UNL-152/219")]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathCallRuneTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var unit = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            unit.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitLastBreathCallRuneOne, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitLastBreathCallRuneOne, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.RuneCallCount);
+        Assert.Contains("{{绝念", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("召出一枚休眠的符文", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit last-breath call-rune trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
@@ -3764,6 +3788,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("WatchfulSentinelCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("WatchfulSentinelLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathCallRuneTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("ScoutingWarhawkCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ScoutingWarhawkLastBreathCallRuneEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

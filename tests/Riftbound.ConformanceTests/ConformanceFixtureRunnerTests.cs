@@ -40004,8 +40004,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-SAD-PORO", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
     }
 
-    [Fact]
-    public async Task P79ScoutingWarhawkCallsSleepingRuneWhenDestroyed()
+    [Theory]
+    [InlineData("OGN·216/298", "P1-SCOUTING-WARHAWK", "P1-SCOUTING-WARHAWK-RUNE", 1, "鸟类")]
+    [InlineData("UNL-152/219", "P1-BLACK-ROSE-AGENT", "P1-BLACK-ROSE-AGENT-RUNE", 2, "强攻")]
+    public async Task P79ScoutingWarhawkCallsSleepingRuneWhenDestroyed(
+        string sourceCardNo,
+        string sourceObjectId,
+        string runeObjectId,
+        int sourcePower,
+        string sourceTag)
     {
         var engine = new CoreRuleEngine();
         var state = PunishmentState(mana: 4) with
@@ -40015,22 +40022,22 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Hand = ["P1-SPELL-VENGEANCE"],
-                    RuneDeck = ["P1-SCOUTING-WARHAWK-RUNE"],
-                    Base = ["P1-SCOUTING-WARHAWK"]
+                    RuneDeck = [runeObjectId],
+                    Base = [sourceObjectId]
                 },
                 ["P2"] = PlayerZones.Empty
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["P1-SCOUTING-WARHAWK"] = new(
-                    "P1-SCOUTING-WARHAWK",
-                    cardNo: "OGN·216/298",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard, "鸟类"],
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    power: sourcePower,
+                    tags: [CardObjectTags.UnitCard, sourceTag],
                     ownerId: "P1",
                     controllerId: "P1"),
-                ["P1-SCOUTING-WARHAWK-RUNE"] = new(
-                    "P1-SCOUTING-WARHAWK-RUNE",
+                [runeObjectId] = new(
+                    runeObjectId,
                     ownerId: "P1",
                     controllerId: "P1",
                     tags: [CardObjectTags.RuneCard])
@@ -40040,7 +40047,7 @@ public sealed class ConformanceFixtureRunnerTests
         var play = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-scouting-warhawk-play-vengeance", "P1", "PLAY_CARD"),
-            new PlayCardCommand("P1-SPELL-VENGEANCE", "OGN·229/298", ["P1-SCOUTING-WARHAWK"]),
+            new PlayCardCommand("P1-SPELL-VENGEANCE", "OGN·229/298", [sourceObjectId]),
             CancellationToken.None);
         var p1Pass = await engine.ResolveAsync(
             play.State,
@@ -40059,7 +40066,7 @@ public sealed class ConformanceFixtureRunnerTests
         var triggerQueued = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1", StringComparison.Ordinal));
-        Assert.Equal("P1-SCOUTING-WARHAWK", triggerQueued.Payload["sourceObjectId"]);
+        Assert.Equal(sourceObjectId, triggerQueued.Payload["sourceObjectId"]);
         Assert.Equal("P1", triggerQueued.Payload["controllerId"]);
         Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
         Assert.Contains(p2Pass.Events, gameEvent =>
@@ -40069,17 +40076,17 @@ public sealed class ConformanceFixtureRunnerTests
         var runeEvent = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
         Assert.Equal("P1", runeEvent.Payload["playerId"]);
-        Assert.Equal("P1-SCOUTING-WARHAWK", runeEvent.Payload["sourceObjectId"]);
+        Assert.Equal(sourceObjectId, runeEvent.Payload["sourceObjectId"]);
         Assert.Equal(1, runeEvent.Payload["count"]);
         Assert.Equal("SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1", runeEvent.Payload["reason"]);
         Assert.Equal(
-            ["P1-SCOUTING-WARHAWK-RUNE"],
+            [runeObjectId],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(runeEvent.Payload["runeObjectIds"]));
         Assert.Empty(p2Pass.State.PlayerZones["P1"].RuneDeck);
-        Assert.Equal(["P1-SCOUTING-WARHAWK-RUNE"], p2Pass.State.PlayerZones["P1"].Base);
-        Assert.True(p2Pass.State.CardObjects["P1-SCOUTING-WARHAWK-RUNE"].IsExhausted);
-        Assert.Equal(["P1-SCOUTING-WARHAWK", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-SCOUTING-WARHAWK"));
+        Assert.Equal([runeObjectId], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.True(p2Pass.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal([sourceObjectId, "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(p2Pass.State.CardObjects.ContainsKey(sourceObjectId));
     }
 
     [Fact]

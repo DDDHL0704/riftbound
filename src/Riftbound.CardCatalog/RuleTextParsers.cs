@@ -348,6 +348,13 @@ public static class TriggerParser
             triggers.Add(unitLastBreathDrawOneTrigger);
         }
 
+        var hasUnitLastBreathCallRuneTrigger =
+            TryParseUnitLastBreathCallRuneOne(text, out var unitLastBreathCallRuneTrigger);
+        if (hasUnitLastBreathCallRuneTrigger)
+        {
+            triggers.Add(unitLastBreathCallRuneTrigger);
+        }
+
         triggers.AddRange(TargetParser.SplitRulesText(text)
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
@@ -393,6 +400,28 @@ public static class TriggerParser
             "Unit last-breath draw-one trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
             TargetScope: TriggerTargetScopes.SourceUnit,
             DrawCount: 1);
+        return true;
+    }
+
+    private static bool TryParseUnitLastBreathCallRuneOne(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(
+            text,
+            @"\{\{绝念>?\}\}\s*[—-]?\s*召出一枚休眠的符文",
+            RegexOptions.CultureInvariant);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        trigger = new TriggerSpec(
+            TriggerKinds.UnitLastBreathCallRuneOne,
+            TriggerTimings.UnitDestroyed,
+            match.Value,
+            "Unit last-breath call-rune trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit,
+            RuneCallCount: 1);
         return true;
     }
 

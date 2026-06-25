@@ -400,8 +400,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
     private const string SharpshooterPirateCardNo = "OGN·130/298";
     private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
-    private const string ScoutingWarhawkCardNo = "OGN·216/298";
-    private const string ScoutingWarhawkLastBreathCallRuneEffectKind = "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
     private const string MechanicalTricksterCardNo = "OGN·239/298";
     private const string MechanicalTricksterLastBreathCreateMinionsEffectKind = "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
     private static readonly CardBehaviorDefinition MechanicalTricksterLastBreathCreateMinionsBehavior = new(
@@ -6615,14 +6613,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         return ResolveWatchfulSentinelLastBreathDrawPlayerId(destroyedState, removalResult);
     }
 
-    private static string? ResolveScoutingWarhawkLastBreathRunePlayerId(
+    private static string? ResolveUnitLastBreathCallRunePlayerId(
         CardObjectState destroyedState,
         FieldRemovalResult removalResult)
     {
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !string.Equals(destroyedState.CardNo, ScoutingWarhawkCardNo, StringComparison.Ordinal)
+            || !UnitDestroyedTriggerSpecRules.TryGetLastBreathCallRuneOneTrigger(
+                destroyedState.CardNo,
+                out var triggerSpec)
+            || !IsUnitLastBreathCallRuneOneTriggerSpec(triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -7196,6 +7197,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             && trigger.DrawCount is > 0;
     }
 
+    private static bool IsUnitLastBreathCallRuneOneTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitLastBreathCallRuneOne,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.RuneCallCount is > 0;
+    }
+
     private static bool IsUnitLastBreathDrawIfNotAloneTriggerSpec(TriggerSpec trigger)
     {
         return string.Equals(
@@ -7250,6 +7262,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawOneTrigger(cardNo, out var trigger)
             && IsUnitLastBreathDrawOneTriggerSpec(trigger)
                 ? trigger.DrawCount.GetValueOrDefault(1)
+                : 1;
+    }
+
+    private static int UnitLastBreathCallRuneCount(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId)
+    {
+        return cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            ? UnitLastBreathCallRuneCount(sourceState.CardNo)
+            : 1;
+    }
+
+    private static int UnitLastBreathCallRuneCount(string? cardNo)
+    {
+        return UnitDestroyedTriggerSpecRules.TryGetLastBreathCallRuneOneTrigger(cardNo, out var trigger)
+            && IsUnitLastBreathCallRuneOneTriggerSpec(trigger)
+                ? trigger.RuneCallCount.GetValueOrDefault(1)
                 : 1;
     }
 
@@ -33196,9 +33225,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, ScoutingWarhawkLastBreathCallRuneEffectKind, StringComparison.Ordinal))
+        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathCallRuneOne, StringComparison.Ordinal))
         {
-            return ResolveScoutingWarhawkLastBreathStackItem(state, stackItem);
+            return ResolveUnitLastBreathCallRuneStackItem(state, stackItem);
         }
 
         if (string.Equals(stackItem.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal))
@@ -35264,7 +35293,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 officialLastBreathTriggers.Add(trigger);
                             }
 
-                            var warhawkRunePlayerId = ResolveScoutingWarhawkLastBreathRunePlayerId(
+                            var warhawkRunePlayerId = ResolveUnitLastBreathCallRunePlayerId(
                                 targetState,
                                 removalResult);
                             if (warhawkRunePlayerId is not null)
@@ -35273,7 +35302,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     stackItem,
                                     targetObjectId,
                                     warhawkRunePlayerId,
-                                    ScoutingWarhawkLastBreathCallRuneEffectKind);
+                                    TriggerKinds.UnitLastBreathCallRuneOne);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 officialLastBreathTriggers.Add(trigger);
                             }
@@ -35959,9 +35988,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                     BuildStackItemForLastBreathTrigger(trigger, HonestBrokerCardNo),
                     events);
             }
-            else if (string.Equals(trigger.EffectKind, ScoutingWarhawkLastBreathCallRuneEffectKind, StringComparison.Ordinal))
+            else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathCallRuneOne, StringComparison.Ordinal))
             {
-                var runeCallResult = CallRunes(playerZones, cardObjects, trigger.ControllerId, 1);
+                var runeCallResult = CallRunes(
+                    playerZones,
+                    cardObjects,
+                    trigger.ControllerId,
+                    UnitLastBreathCallRuneCount(cardObjects, trigger.SourceObjectId));
                 events.Add(new GameEvent(
                     "RUNES_CALLED",
                     $"{trigger.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张休眠符文",
@@ -35971,7 +36004,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["sourceObjectId"] = trigger.SourceObjectId,
                         ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                         ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                        ["reason"] = ScoutingWarhawkLastBreathCallRuneEffectKind
+                        ["reason"] = TriggerKinds.UnitLastBreathCallRuneOne
                     }));
             }
         }
@@ -36611,7 +36644,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
-    private static StackResolutionResult ResolveScoutingWarhawkLastBreathStackItem(
+    private static StackResolutionResult ResolveUnitLastBreathCallRuneStackItem(
         MatchState state,
         StackItemState stackItem)
     {
@@ -36628,7 +36661,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.EffectKind,
                 "UNIT_DESTROYED"))
         };
-        var runeCallResult = CallRunes(playerZones, cardObjects, stackItem.ControllerId, 1);
+        var runeCallResult = CallRunes(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            UnitLastBreathCallRuneCount(cardObjects, stackItem.SourceObjectId));
         events.Add(new GameEvent(
             "RUNES_CALLED",
             $"{stackItem.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张休眠符文",
@@ -36638,7 +36675,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                 ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                ["reason"] = ScoutingWarhawkLastBreathCallRuneEffectKind
+                ["reason"] = TriggerKinds.UnitLastBreathCallRuneOne
             }));
 
         return new StackResolutionResult(
@@ -42367,7 +42404,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
-            var scoutingWarhawkControllerId = ResolveScoutingWarhawkLastBreathRunePlayerId(
+            var scoutingWarhawkControllerId = ResolveUnitLastBreathCallRunePlayerId(
                 destroyedState,
                 removalResult);
             if (scoutingWarhawkControllerId is not null)
@@ -42376,7 +42413,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem,
                     objectId,
                     scoutingWarhawkControllerId,
-                    ScoutingWarhawkLastBreathCallRuneEffectKind);
+                    TriggerKinds.UnitLastBreathCallRuneOne);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

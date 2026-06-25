@@ -13,6 +13,8 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `SFD·036/221` and `UNL-221/219` 哀哀魄罗 have official text `{{绝念}} — 当我被摧毁时，如果此处没有其他友方单位，则抽一张牌。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-156/219` 忠忠魄罗 has official text `{{绝念>}} 如果我被摧毁时未处于落单状态，则抽一张牌。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·096/298` 警觉的哨兵 has official text `{{绝念}}—抽一张牌。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·216/298` 侦察飞鹰 has official text `{{绝念}}—召出一枚休眠的符文。`
+- `data/official/card-catalog.zh-CN.json`: `UNL-152/219` 黑色玫瑰要员 has official text `{{强攻}}（如果我是进攻方，则{{S}}+1。）\n{{绝念>}} 召出一枚休眠的符文。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official catalog text remains the local rule authority input for this representative slice.
 
 ## BehaviorSpec Evidence
@@ -31,6 +33,8 @@ Project status: **NOT READY**.
 - `UnitLastBreathDrawIfNotAloneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `LoyalPoroCardNo` or `LoyalPoroLastBreathDrawEffectKind`.
 - `BehaviorSpecCatalogParsesUnitLastBreathDrawOneTrigger` verifies that 警觉的哨兵 parses to `TriggerSpec.Kind = WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, and `DrawCount = 1`.
 - `UnitLastBreathDrawOneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `WatchfulSentinelCardNo` or `WatchfulSentinelLastBreathDrawEffectKind`.
+- `BehaviorSpecCatalogParsesUnitLastBreathCallRuneTrigger` verifies that both 侦察飞鹰 and 黑色玫瑰要员 parse to `TriggerSpec.Kind = SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, and `RuneCallCount = 1`.
+- `UnitLastBreathCallRuneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ScoutingWarhawkCardNo` or `ScoutingWarhawkLastBreathCallRuneEffectKind`.
 
 ## Runtime Evidence
 
@@ -56,7 +60,9 @@ Project status: **NOT READY**.
 - `StateBasedCleanupWatchfulSentinelTriggersOrderAndResolveThroughStack` verifies both visible Watchful Sentinel cleanup triggers still enqueue and resolve through the stack.
 - `StateBasedCleanupHiddenWatchfulSentinelsDoNotEnqueueTriggers` verifies hidden / standby source filtering remains intact.
 - `CoreRuleEngineQueuesWatchfulSentinelLastBreathDrawWhenDestroyed` keeps the representative fixture route green.
-- Existing recovery validators for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, `LOYAL_PORO_LAST_BREATH_DRAW_1`, and `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1` still pass because the stack effect values are unchanged.
+- `P79ScoutingWarhawkCallsSleepingRuneWhenDestroyed` now covers both 侦察飞鹰 and 黑色玫瑰要员 through the same last-breath call-rune TriggerSpec route; each visible source queues `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`, resolves it, calls one dormant rune, exhausts that rune, and moves the source unit to graveyard.
+- Existing `ScoutingWarhawk` real trigger queue and state-based cleanup tests verify the migrated route still supports APNAP trigger ordering, stack resolution, hidden / standby source filtering, and unchanged recovery-visible effect-kind payloads.
+- Existing recovery validators for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, `LOYAL_PORO_LAST_BREATH_DRAW_1`, `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`, and `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1` still pass because the stack effect values are unchanged.
 
 ## Validation
 
@@ -75,14 +81,16 @@ Project status: **NOT READY**.
 - Adjacent `LoyalPoro` representatives: `13/13` passing.
 - Focused 警觉的哨兵 behavior-spec/source-guard representatives: `2/2` passing.
 - Adjacent `WatchfulSentinel` representatives: `12/12` passing.
-- Adjacent `LastBreath|StateBasedCleanup` representatives: `213/213` passing.
+- Focused 侦察飞鹰 / 黑色玫瑰要员 call-rune behavior-spec/source-guard/runtime representatives: `5/5` passing.
+- Adjacent `ScoutingWarhawk` representatives: `13/13` passing.
+- Adjacent `LastBreath|StateBasedCleanup` representatives: `216/216` passing.
 - `FullGameEndToEnd`: `15/15` passing.
 - `MatchRecovery`: `1989/1989` passing.
-- Backend full conformance: `8515/8515` passing.
-- DevUi catalog TypeScript shape did not change in the Watchful Sentinel slice; the latest shape sync remains covered by the prior `/opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build` pass.
+- Backend full conformance: `8519/8519` passing.
+- DevUi catalog TypeScript shape did not change in the Scouting Warhawk call-rune slice; the latest shape sync remains covered by the prior `/opt/homebrew/bin/npm --prefix src/Riftbound.DevUi run build` pass.
 
 ## Residual Risk
 
-- The effect-kind values remain the legacy `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, `LOYAL_PORO_LAST_BREATH_DRAW_1`, and `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`; only source recognition, TriggerSpec parsing, condition checks, and effect amount / token-count routing moved to data-driven engine paths.
+- The effect-kind values remain the legacy `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, `LOYAL_PORO_LAST_BREATH_DRAW_1`, `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`, and `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`; only source recognition, TriggerSpec parsing, condition checks, and effect amount / token-count / rune-count routing moved to data-driven engine paths.
 - Other destroyed-trigger families still have card-number based source recognition and remain follow-up work.
 - Complete destroyed-trigger prompt breadth and hidden-information edge matrices remain open.
