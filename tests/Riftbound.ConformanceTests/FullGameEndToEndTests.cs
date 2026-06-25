@@ -349,7 +349,7 @@ public sealed class FullGameEndToEndTests
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var deck = BuildStandbyReactionOfficialDeck(catalog);
 
-        var (initialState, journal, hidden, openedResponse, activated, revealed, teemoResolved, shadowResolved, battleResult, teemoObjectId, targetObjectId) =
+        var (initialState, journal, _, hidden, openedResponse, activated, revealed, teemoResolved, shadowResolved, battleResult, teemoObjectId, targetObjectId) =
             await DriveOfficialDecksToStandbyReactionShadowBattleCloseForReplayAsync(
                 "b0-full-game-standby-reaction-shadow-replay-room",
                 deck,
@@ -384,6 +384,57 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(teemoResolved);
         AssertNoHiddenZoneLeak(shadowResolved);
         AssertNoHiddenZoneLeak(battleResult);
+    }
+
+    [Fact]
+    public async Task OfficialDecksResolveStandbyReactionDuringShadowResponseScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildStandbyReactionOfficialDeck(catalog);
+
+        var (initialState, journal, session, hidden, openedResponse, activated, revealed, teemoResolved, shadowResolved, battleResult, teemoObjectId, targetObjectId) =
+            await DriveOfficialDecksToStandbyReactionShadowBattleCloseForReplayAsync(
+                "b0-full-game-standby-reaction-shadow-score-replay-room",
+                deck,
+                deck);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-standby-reaction-shadow-score");
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.HideCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.RevealCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        Assert.Contains(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        var hiddenEvent = Assert.Single(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
+        Assert.Contains(openedResponse.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(revealed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3", StringComparison.Ordinal));
+        Assert.Contains(teemoResolved.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.Contains(teemoObjectId, teemoResolved.State.PlayerZones[teemoResolved.State.ObjectLocations[teemoObjectId].PlayerId].Base, StringComparer.Ordinal);
+        Assert.False(teemoResolved.State.CardObjects[teemoObjectId].IsFaceDown);
+        Assert.Equal(4, teemoResolved.State.CardObjects[teemoObjectId].Power);
+        Assert.Contains(shadowResolved.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        Assert.Contains("STUNNED", shadowResolved.State.CardObjects[targetObjectId].UntilEndOfTurnEffects);
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertScoreVictory(result);
+        AssertNoHiddenZoneLeak(hidden);
+        AssertNoHiddenZoneLeak(openedResponse);
+        AssertNoHiddenZoneLeak(activated);
+        AssertNoHiddenZoneLeak(revealed);
+        AssertNoHiddenZoneLeak(teemoResolved);
+        AssertNoHiddenZoneLeak(shadowResolved);
+        AssertNoHiddenZoneLeak(battleResult);
+        AssertNoHiddenZoneLeak(result);
     }
 
     [Fact]
@@ -933,6 +984,7 @@ public sealed class FullGameEndToEndTests
     private static async ValueTask<(
         MatchState InitialState,
         RecordingMatchJournal Journal,
+        MatchSession Session,
         ResolutionResult Hidden,
         ResolutionResult OpenedResponse,
         ResolutionResult Activated,
@@ -961,6 +1013,7 @@ public sealed class FullGameEndToEndTests
                 return (
                     initialState,
                     journal,
+                    result.Session,
                     result.Hidden,
                     result.OpenedResponse,
                     result.Activated,
@@ -990,6 +1043,7 @@ public sealed class FullGameEndToEndTests
     }
 
     private static async ValueTask<(
+        MatchSession Session,
         ResolutionResult Hidden,
         ResolutionResult OpenedResponse,
         ResolutionResult Activated,
@@ -1082,7 +1136,7 @@ public sealed class FullGameEndToEndTests
         var teemoResolved = await ResolveOneStackItemPassPassAsync(session, revealed, "b0-standby-reaction-resolve-teemo");
         var shadowResolved = await ResolveCurrentStackOnlyAsync(session, teemoResolved, "b0-standby-reaction-resolve-shadow");
         var battleResult = await PassOpenBattleResponseAsync(session, shadowResolved, "b0-standby-reaction-pass-returned-response");
-        return (hidden, openedResponse, activated, revealed, teemoResolved, shadowResolved, battleResult, teemoObjectId, targetObjectId);
+        return (session, hidden, openedResponse, activated, revealed, teemoResolved, shadowResolved, battleResult, teemoObjectId, targetObjectId);
     }
 
     private static async ValueTask<(
