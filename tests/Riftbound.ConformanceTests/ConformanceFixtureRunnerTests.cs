@@ -39854,6 +39854,49 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79FriendlyFilteredStaticKeywordGrantDoesNotProjectFromFaceDownSource()
+    {
+        var hiddenSourceState = FriendlyFilteredStaticKeywordState(
+            rumbleHeroSourceFaceDown: true,
+            includeRumbleLegend: false);
+
+        Assert.DoesNotContain(
+            hiddenSourceState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-RUMBLE-HERO-SOURCE", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            hiddenSourceState,
+            new PlayerIntent("intent-p7-9-friendly-filtered-static-keyword-face-down-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-RUMBLE-BATTLEFIELD",
+                ["P1-RUMBLE-MECH-ALLY"],
+                ["P2-RUMBLE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-RUMBLE-MECH-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
+    }
+
+    [Fact]
+    public void P79FriendlyFilteredStaticKeywordGrantDoesNotProjectToFaceDownTarget()
+    {
+        var hiddenTargetState = FriendlyFilteredStaticKeywordState(rumbleMechanicalAllyFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenTargetState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-RUMBLE-MECH-ALLY", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79FriendlyFilteredStaticKeywordGrantsMultipleNonCombatKeywordsToMatchingFriendlyUnits()
     {
         var state = FriendlyFilteredMultiKeywordStaticAuraState();
@@ -67264,7 +67307,10 @@ public sealed class ConformanceFixtureRunnerTests
         };
     }
 
-    private static MatchState FriendlyFilteredStaticKeywordState()
+    private static MatchState FriendlyFilteredStaticKeywordState(
+        bool rumbleHeroSourceFaceDown = false,
+        bool rumbleMechanicalAllyFaceDown = false,
+        bool includeRumbleLegend = true)
     {
         return PunishmentState(mana: 0) with
         {
@@ -67284,7 +67330,7 @@ public sealed class ConformanceFixtureRunnerTests
                         "P1-RUMBLE-BATTLEFIELD",
                         "P1-RUMBLE-MECH-ALLY"
                     ],
-                    LegendZone = ["P1-RUMBLE-LEGEND"]
+                    LegendZone = includeRumbleLegend ? ["P1-RUMBLE-LEGEND"] : []
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
@@ -67297,6 +67343,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-RUMBLE-HERO-SOURCE"] = new(
                     "P1-RUMBLE-HERO-SOURCE",
                     cardNo: "SFD·026/221",
+                    isFaceDown: rumbleHeroSourceFaceDown,
                     power: 4,
                     tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
                     ownerId: "P1",
@@ -67336,6 +67383,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-RUMBLE-MECH-ALLY"] = new(
                     "P1-RUMBLE-MECH-ALLY",
                     cardNo: "SFD·125/221",
+                    isFaceDown: rumbleMechanicalAllyFaceDown,
                     power: 2,
                     tags: [CardObjectTags.UnitCard, "机械"],
                     ownerId: "P1",

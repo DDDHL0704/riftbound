@@ -1,6 +1,6 @@
 # Plan B Friendly-Filtered Static Keyword Aura Spec Audit
 
-更新时间：2026-06-25
+更新时间：2026-06-26
 
 ## Scope
 
@@ -35,6 +35,7 @@ Runtime evidence now covers:
 - `SFD·071/221` dynamic Spellshield contributes one mana of enemy spell target tax in both prompt legality and Core payment.
 - `SFD·065/221` parses and projects static-granted `预知` as RULE_TEXT; when the public source already grants `预知` to a later-played matching friendly mechanical unit, prompts and Core stack resolution now reuse the shared top-1 optional main-deck recycle path.
 - Printed/source-tag `预知` permanents now receive a generic lifecycle default in `CardBehaviorRegistry`: if no explicit look/target model exists, the shared engine path exposes only the controller's top main-deck card as an optional recycle target. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
+- Face-down source and target guards: a face-down friendly-filtered keyword source is not projected and grants no combat keyword bonus, and a face-down matching friendly target is not emitted as a RULE_TEXT continuous-effect target.
 
 ## Not Closed
 
@@ -112,6 +113,22 @@ Adjacent:
 
 Result: 313/313 passed.
 
+2026-06-26 hidden-boundary focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~P79FriendlyFilteredStaticKeywordGrantDoesNotProject" --nologo
+```
+
+Result: 2/2 passed.
+
+2026-06-26 hidden-boundary adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Roam|FullyQualifiedName~Spellshield|FullyQualifiedName~Hidden|FullyQualifiedName~FaceDown|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2238/2238 passed.
+
 Hidden-information / recovery:
 
 ```bash
@@ -127,3 +144,11 @@ Backend full:
 ```
 
 Result: 8592/8592 passed.
+
+2026-06-26 backend full after hidden-boundary guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8617/8617 passed.

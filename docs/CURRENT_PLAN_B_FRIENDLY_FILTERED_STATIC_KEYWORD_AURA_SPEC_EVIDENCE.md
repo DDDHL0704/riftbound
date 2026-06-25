@@ -1,6 +1,6 @@
 # Plan B Friendly-Filtered Static Keyword Aura Spec Evidence
 
-更新时间：2026-06-25
+更新时间：2026-06-26
 
 ## Evidence Summary
 
@@ -18,6 +18,7 @@ Implemented evidence:
 - The prior Rumble legend steadfast special case has been removed; `SFD·181/221` and `SFD·240/221` now flow through `FRIENDLY_FILTERED_UNITS_KEYWORD`.
 - Source-tag `预知` permanents with no explicit look/target model now receive a shared lifecycle default in `CardBehaviorRegistry`, using the existing top-1 optional main-deck recycle path instead of per-card registrations. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
 - Static-granted `预知` from `FRIENDLY_FILTERED_UNITS_KEYWORD` now feeds the same lifecycle default when a public source already grants `预知` to a later-played matching friendly unit. `SFD·065/221` Prescient Mech plus `SFD·075/221` Progress Glory is the representative prompt and Core stack-resolution fixture.
+- Hidden-boundary guards now cover `FRIENDLY_FILTERED_UNITS_KEYWORD`: face-down public-field sources do not project RULE_TEXT effects or grant combat keyword bonuses, and face-down matching friendly targets are excluded from continuous-effect target projection.
 
 ## Covered Cards
 
@@ -56,6 +57,10 @@ Implemented evidence:
   - Verifies public-field `SFD·065/221` grants `预知` to a later-played friendly mechanical hand unit and exposes only the controller's top main-deck card as an optional prompt target.
 - `ConformanceFixtureRunnerTests.CoreRuleEnginePlaysStaticGrantedPredictSourceUnitRecycleTopCard`
   - Adds `p2-preflight-play-progress-glory-static-granted-predict-recycle.fixture.json` as a static-granted `预知` representative that plays a non-printed-Predict mechanical unit, resolves it to base, and recycles the selected top main-deck card.
+- `ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticKeywordGrantDoesNotProjectFromFaceDownSource`
+  - Verifies a face-down Rumble hero source does not project `FRIENDLY_FILTERED_UNITS_KEYWORD` RULE_TEXT effects and does not grant Assault combat keyword bonus even when authoritative test state still carries card number and tags.
+- `ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticKeywordGrantDoesNotProjectToFaceDownTarget`
+  - Verifies a face-down matching friendly mechanical unit is not emitted as a RULE_TEXT continuous-effect target.
 
 ## Validation Results
 
@@ -65,8 +70,11 @@ Implemented evidence:
 - Focused source-tag Predict lifecycle slice: 8/8 passed.
 - Focused static-granted Predict lifecycle slice: 2/2 passed.
 - Adjacent Predict / Gemstone / Lifecycle: 112/112 passed.
+- Focused hidden-boundary slice: 2/2 passed.
+- Adjacent FriendlyFiltered / StaticKeyword / StaticAura / Roam / Spellshield / Hidden / FaceDown / MatchRecovery: 2238/2238 passed.
 - MatchRecovery: 1989/1989 passed.
 - Backend full conformance: 8592/8592 passed.
+- Backend full after hidden-boundary guard: 8617/8617 passed.
 
 ## Residuals
 
