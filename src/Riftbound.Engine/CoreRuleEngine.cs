@@ -607,10 +607,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string DuneDrakeCardNo = "OGN·131/298";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
-    private const string ViktorDestroyedNonMinionCreateMinionEffectKind = "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
-    private const string ViktorDestroyedNonMinionArcCardNo = "ARC-006/006";
-    private const string ViktorDestroyedNonMinionOgnCardNo = "OGN·246/298";
-    private const string ViktorDestroyedNonMinionOgnAltACardNo = "OGN·246a/298";
     private const string ScarletPigeonCardNo = "UNL-154/219";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
@@ -7204,35 +7200,45 @@ public sealed class CoreRuleEngine : IRuleEngine
         string destroyedControllerId)
     {
         if (string.IsNullOrWhiteSpace(destroyedControllerId)
-            || !IsViktorDestroyedNonMinionTriggerTarget(destroyedState, removalResult))
+            || !removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
         {
             return [];
         }
 
-        return playerZones
+        var triggers = new List<TriggerQueueItemState>();
+        foreach (var sourceObjectId in playerZones
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Distinct(StringComparer.Ordinal)
             .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
             .Where(sourceObjectId => !pendingRemovalObjectIds.Contains(sourceObjectId))
             .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
-            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && IsViktorDestroyedNonMinionCardNo(sourceState.CardNo)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown
-                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                && IsObjectOnField(playerZones, sourceObjectId)
-                && string.Equals(
-                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                    destroyedControllerId,
-                    StringComparison.Ordinal))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
-            .Select(sourceObjectId => new TriggerQueueItemState(
-                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{ViktorDestroyedNonMinionCreateMinionEffectKind}",
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal))
+        {
+            if (!TryGetFriendlyDestroyedTriggerSource(
+                playerZones,
+                cardObjects,
+                sourceObjectId,
+                destroyedControllerId,
+                TriggerKinds.UnitDestroyedNonMinionCreateMinion,
+                out _,
+                out var triggerSpec)
+                || !IsUnitDestroyedNonMinionCreateMinionTriggerSpec(triggerSpec)
+                || !IsUnitDestroyedNonMinionCreateMinionTriggerTarget(destroyedState, removalResult, triggerSpec))
+            {
+                continue;
+            }
+
+            triggers.Add(new TriggerQueueItemState(
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{triggerSpec.Kind}",
                 destroyedControllerId,
                 sourceObjectId,
-                ViktorDestroyedNonMinionCreateMinionEffectKind,
-                "UNIT_DESTROYED"))
-            .ToArray();
+                triggerSpec.Kind,
+                TriggerTimings.UnitDestroyed));
+        }
+
+        return triggers;
     }
 
     private static GameEvent BuildTriggerQueuedEvent(TriggerQueueItemState trigger)
@@ -25348,21 +25354,37 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StringComparison.Ordinal));
     }
 
-    private static bool IsViktorDestroyedNonMinionCardNo(string? cardNo)
+    private static bool IsUnitDestroyedNonMinionCreateMinionTriggerSpec(TriggerSpec trigger)
     {
-        return string.Equals(cardNo, ViktorDestroyedNonMinionArcCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, ViktorDestroyedNonMinionOgnCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, ViktorDestroyedNonMinionOgnAltACardNo, StringComparison.Ordinal);
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitDestroyedNonMinionCreateMinion,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(
+                trigger.TargetScope,
+                TriggerTargetScopes.OtherFriendlyDestroyedUnit,
+                StringComparison.Ordinal)
+            && trigger.ExcludesTokens == true
+            && trigger.CreatedTokenCount is > 0
+            && string.Equals(trigger.CreatedTokenName, "随从", StringComparison.Ordinal)
+            && trigger.CreatedTokenPower is > 0
+            && string.Equals(
+                trigger.CreatedTokenDestination,
+                TriggerTokenDestinations.OwnerBase,
+                StringComparison.Ordinal);
     }
 
-    private static bool IsViktorDestroyedNonMinionTriggerTarget(
+    private static bool IsUnitDestroyedNonMinionCreateMinionTriggerTarget(
         CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
+        FieldRemovalResult removalResult,
+        TriggerSpec trigger)
     {
         return removalResult.WasDestroyed
             && removalResult.WasUnit
             && destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !destroyedState.Tags.Contains(CardObjectTags.MinionTokenFamily, StringComparer.Ordinal);
+            && (!trigger.ExcludesTokens.GetValueOrDefault()
+                || !destroyedState.Tags.Contains(CardObjectTags.MinionTokenFamily, StringComparer.Ordinal));
     }
 
     private static bool IsScarletPigeonCardNo(string? cardNo)
@@ -33127,7 +33149,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal))
+        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal))
         {
             return ResolveViktorDestroyedNonMinionStackItem(state, stackItem);
         }
@@ -36992,21 +37014,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "UNIT_DESTROYED"))
         };
 
-        if (cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-            && IsViktorDestroyedNonMinionCardNo(sourceState.CardNo)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && IsObjectOnField(playerZones, stackItem.SourceObjectId)
-            && string.Equals(
-                EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, sourceState),
+        if (TryGetFriendlyDestroyedTriggerSource(
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
                 stackItem.ControllerId,
-                StringComparison.Ordinal))
+                TriggerKinds.UnitDestroyedNonMinionCreateMinion,
+                out _,
+                out var triggerSpec)
+            && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal)
+            && IsUnitDestroyedNonMinionCreateMinionTriggerSpec(triggerSpec))
         {
             CreateViktorDestroyedNonMinionMinionToken(
                 playerZones,
                 cardObjects,
                 stackItem,
+                triggerSpec,
                 events);
         }
 
@@ -37031,6 +37054,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem,
+        TriggerSpec trigger,
         List<GameEvent> events)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)
@@ -37039,32 +37063,39 @@ public sealed class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        var tokenObjectId = NextTokenObjectId(
-            playerZones,
-            cardObjects,
-            stackItem.SourceObjectId,
-            1);
-        var tokenState = tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId);
-        cardObjects[tokenObjectId] = tokenState;
+        var tokenObjectIds = new List<string>();
+        var tokenCount = Math.Max(1, trigger.CreatedTokenCount.GetValueOrDefault(1));
+        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+        {
+            var tokenObjectId = NextTokenObjectId(
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
+                tokenIndex + 1);
+            tokenObjectIds.Add(tokenObjectId);
+            var tokenState = tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId);
+            cardObjects[tokenObjectId] = tokenState;
+            events.Add(new GameEvent(
+                "UNIT_TOKEN_CREATED",
+                $"{stackItem.SourceObjectId} 打出随从",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["tokenObjectId"] = tokenObjectId,
+                    ["tokenCardNo"] = tokenDefinition.CardNo,
+                    ["tokenName"] = tokenDefinition.TokenFamilyName,
+                    ["power"] = tokenState.Power,
+                    ["destinationZone"] = "BASE",
+                    ["tokenTags"] = tokenState.Tags.ToArray(),
+                    ["reason"] = trigger.Kind
+                }));
+        }
+
         playerZones[stackItem.ControllerId] = zones with
         {
-            Base = zones.Base.Concat([tokenObjectId]).ToArray()
+            Base = zones.Base.Concat(tokenObjectIds).ToArray()
         };
-        events.Add(new GameEvent(
-            "UNIT_TOKEN_CREATED",
-            $"{stackItem.SourceObjectId} 打出随从",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = stackItem.ControllerId,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenCardNo"] = tokenDefinition.CardNo,
-                ["tokenName"] = tokenDefinition.TokenFamilyName,
-                ["power"] = tokenState.Power,
-                ["destinationZone"] = "BASE",
-                ["tokenTags"] = tokenState.Tags.ToArray(),
-                ["reason"] = ViktorDestroyedNonMinionCreateMinionEffectKind
-            }));
     }
 
     private static bool ShouldResolveSingleOfficialTriggerImmediately(TriggerQueueItemState trigger)
@@ -37072,7 +37103,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFirstFriendlyDestroyedDrawOne, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal)
+            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, IroncladVanguardLastBreathCreateRobotsEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, MuddyDredgerLastBreathCreateWarhawkEffectKind, StringComparison.Ordinal)

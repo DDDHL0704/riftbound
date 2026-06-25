@@ -567,6 +567,25 @@ public static class TriggerParser
                 OncePerTurn: true);
         }
 
+        var unitDestroyedNonMinionCreateMinionMatch = Regex.Match(
+            segment,
+            @"如果我在场上，则每当你的另一名非“随从”单位被摧毁时，打出一名([0-9一两二三四五六七八九十]+)\{\{S\}\}的“随从”到你的基地。?$",
+            RegexOptions.CultureInvariant);
+        if (unitDestroyedNonMinionCreateMinionMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitDestroyedNonMinionCreateMinion,
+                TriggerTimings.UnitDestroyed,
+                segment,
+                "Unit destroyed non-minion create-minion trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.OtherFriendlyDestroyedUnit,
+                ExcludesTokens: true,
+                CreatedTokenCount: 1,
+                CreatedTokenName: "随从",
+                CreatedTokenPower: ParseChineseNumber(unitDestroyedNonMinionCreateMinionMatch.Groups[1].Value),
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",

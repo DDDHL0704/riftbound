@@ -136,6 +136,8 @@ public static class TriggerKinds
         "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     public const string UnitFirstFriendlyDestroyedDrawOne =
         "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
+    public const string UnitDestroyedNonMinionCreateMinion =
+        "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
 }
 
 public static class TriggerTimings

@@ -2444,6 +2444,36 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("ARC-006/006")]
+    [InlineData("OGN·246/298")]
+    [InlineData("OGN·246a/298")]
+    public async Task BehaviorSpecCatalogParsesUnitDestroyedNonMinionCreateMinionTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var viktor = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            viktor.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitDestroyedNonMinionCreateMinion, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OtherFriendlyDestroyedUnit, trigger.TargetScope);
+        Assert.True(trigger.ExcludesTokens);
+        Assert.Equal(1, trigger.CreatedTokenCount);
+        Assert.Equal("随从", trigger.CreatedTokenName);
+        Assert.Equal(1, trigger.CreatedTokenPower);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination);
+        Assert.Contains("如果我在场上", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("非“随从”单位被摧毁", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出一名1{{S}}的“随从”", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit destroyed non-minion create-minion trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
@@ -3604,6 +3634,22 @@ public sealed class CardCatalogBaselineTests
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
 
         Assert.DoesNotContain("ResonantSoulCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitDestroyedNonMinionCreateMinionTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("ViktorDestroyedNonMinionArcCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ViktorDestroyedNonMinionOgnCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ViktorDestroyedNonMinionOgnAltACardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsViktorDestroyedNonMinionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

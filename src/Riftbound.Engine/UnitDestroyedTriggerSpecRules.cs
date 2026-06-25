@@ -32,6 +32,14 @@ internal static class UnitDestroyedTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetDestroyedNonMinionCreateMinionTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitDestroyedNonMinionCreateMinion,
+            out trigger);
+    }
+
     public static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;

@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused friendly-destroyed gain-experience, power-until-end, and first-friendly-destroyed draw TriggerSpec slices accepted; project remains **NOT READY**.
+Status: focused friendly-destroyed gain-experience, power-until-end, first-friendly-destroyed draw, and destroyed non-minion create-minion TriggerSpec slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -48,10 +48,28 @@ This slice also moves the implemented first-friendly-destroyed draw trigger away
 - The old `ResonantSoulCardNo` direct card-number branch and `ResonantSoulFirstFriendlyDestroyedDrawEffectKind` Core constant are removed from `CoreRuleEngine`.
 - Current source-helper count for `private static bool Is*CardNo(...)` is `38` total / `35` in `CoreRuleEngine`; this count is unchanged by the Ghostly Centaur and Resonant Soul slices because the old Core paths used direct card-number comparisons rather than `Is*CardNo(...)` helpers.
 
+This slice also moves the implemented destroyed non-minion create-minion trigger away from engine card-number branching:
+
+- `ARC-006/006`, `OGN·246/298`, and `OGN·246a/298` 维克托 official text from `data/official/card-catalog.zh-CN.json`: `如果我在场上，则每当你的另一名非“随从”单位被摧毁时，打出一名1{{S}}的“随从”到你的基地。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`
+  - `Timing = UNIT_DESTROYED`
+  - `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`
+  - `ExcludesTokens = true`
+  - `CreatedTokenCount = 1`
+  - `CreatedTokenName = 随从`
+  - `CreatedTokenPower = 1`
+  - `CreatedTokenDestination = OWNER_BASE`
+- `TriggerKinds.UnitDestroyedNonMinionCreateMinion` keeps the existing effect-kind value for stack / replay compatibility while exposing a generic engine name.
+- `CoreRuleEngine.BuildViktorDestroyedNonMinionTriggerQueueItems` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path and emits the effect id from `BehaviorSpec.Triggers`.
+- `CoreRuleEngine.ResolveViktorDestroyedNonMinionStackItem` now validates the source through the same TriggerSpec path and reads token count / event reason from the `TriggerSpec`.
+- The old `ViktorDestroyedNonMinionArcCardNo` / `ViktorDestroyedNonMinionOgnCardNo` / `ViktorDestroyedNonMinionOgnAltACardNo` / `IsViktorDestroyedNonMinionCardNo` Core branch is removed from `CoreRuleEngine`.
+- Current source-helper count for `private static bool Is*CardNo(...)` is `37` total / `34` in `CoreRuleEngine`.
+
 ## Non-Goals
 
-- This keeps the existing `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, and `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1` stack effect strings for compatibility with recovery and replay validators.
-- This does not migrate Viktor or other destroyed-trigger families to TriggerSpec.
+- This keeps the existing `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, and `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION` stack effect strings for compatibility with recovery and replay validators.
+- This does not migrate other destroyed-trigger families to TriggerSpec.
 - This does not rename existing recovery validator constants or old audit file names that describe the legacy effect id.
 - This does not close complete natural destroyed-trigger prompt breadth, B0 full-game readiness, or project READY.
 
