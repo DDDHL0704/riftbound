@@ -2300,6 +2300,31 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("UNL-029/219")]
+    [InlineData("UNL-029a/219")]
+    public async Task BehaviorSpecCatalogParsesUnitConquestGrantFriendlyBoonTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var treant = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            treant.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestGrantFriendlyBoon, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ControlledUnitOnField, trigger.TargetScope);
+        Assert.Equal(1, trigger.BoonCount);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("给予一名友方单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("增益", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest grant-friendly-boon trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
@@ -3378,6 +3403,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("LucianUnitConquestReadyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsLucianUnitConquestReadyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitConquestGrantFriendlyBoonTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("FriendlyBoonUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsFriendlyBoonUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

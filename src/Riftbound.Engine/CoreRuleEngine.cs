@@ -22598,7 +22598,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (IsFriendlyBoonUnitConquestCardNo(unitState.CardNo)
+            if (UnitConquestTriggerSpecRules.TryGetUnitConquestGrantFriendlyBoonTrigger(unitState.CardNo, out var unitConquestFriendlyBoonTrigger)
                 && TryGetFirstControlledBattlefieldUnit(
                     playerZones,
                     cardObjects,
@@ -22611,7 +22611,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     playerId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_GRANT_FRIENDLY_BOON",
+                    unitConquestFriendlyBoonTrigger.Kind,
                     battlefieldObjectId,
                     triggerSpec.Kind,
                     boonTargetObjectId);
@@ -22620,7 +22620,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     boonTargetObjectId,
                     playerId,
                     unitObjectId,
-                    "UNIT_CONQUEST_GRANT_FRIENDLY_BOON",
+                    unitConquestFriendlyBoonTrigger.Kind,
                     events);
                 continue;
             }
@@ -22764,14 +22764,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestReadySelfOnceTrigger(cardNo, out _)
-            || IsFriendlyBoonUnitConquestCardNo(cardNo)
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantFriendlyBoonTrigger(cardNo, out _)
             || IsFriendlyPowerUnitConquestCardNo(cardNo)
             || IsDestroyEquipmentBoonUnitConquestCardNo(cardNo);
-    }
-
-    private static bool IsFriendlyBoonUnitConquestCardNo(string? cardNo)
-    {
-        return cardNo is "UNL-029/219" or "UNL-029a/219";
     }
 
     private static bool IsFriendlyPowerUnitConquestCardNo(string? cardNo)

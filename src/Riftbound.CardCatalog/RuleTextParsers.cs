@@ -472,6 +472,21 @@ public static class TriggerParser
                 OncePerTurn: true);
         }
 
+        var unitConquestGrantFriendlyBoonMatch = Regex.Match(
+            segment,
+            @"当我征服一处战场时，给予一名友方单位(?:\{\{增益\}\}|增益)。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestGrantFriendlyBoonMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestGrantFriendlyBoon,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest grant-friendly-boon trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.ControlledUnitOnField,
+                BoonCount: 1);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
