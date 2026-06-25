@@ -558,7 +558,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string DuneDrakeCardNo = "OGN·131/298";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
-    private const string ScarletPigeonCardNo = "UNL-154/219";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string LucianLegendCardNo = "SFD·183/221";
@@ -19529,7 +19528,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             objectId,
             cardObject);
-        staticPowerBonus += ResolveScarletPigeonMultiAttackerPowerBonus(cardObject, isAttacking, attackingUnitCount);
+        staticPowerBonus += ResolveSourceAttackingWithAnotherUnitPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveDuneDrakeReadyEnemyAttackPowerBonus(cardObject, isAttacking, attacksReadyEnemyUnit);
         staticPowerBonus += ResolveSourceObjectFilteredPowerBonus(cardObject);
         staticPowerBonus += ResolveWaterbenderLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
@@ -19942,16 +19941,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StringComparison.Ordinal)) * aura.PowerDeltaPerParticipant;
     }
 
-    private static int ResolveScarletPigeonMultiAttackerPowerBonus(
+    private static int ResolveSourceAttackingWithAnotherUnitPowerBonus(
         CardObjectState cardObject,
         bool isAttacking,
         int attackingUnitCount)
     {
         return isAttacking
-            && attackingUnitCount > 1
-            && IsScarletPigeonCardNo(cardObject.CardNo)
+            && StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(cardObject.CardNo, out var aura)
+            && attackingUnitCount >= aura.RequiredAttackingUnitCount.GetValueOrDefault(2)
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            ? 2
+            ? aura.PowerDeltaPerParticipant
             : 0;
     }
 
@@ -25438,11 +25437,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             && destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && (!trigger.ExcludesTokens.GetValueOrDefault()
                 || !destroyedState.Tags.Contains(CardObjectTags.MinionTokenFamily, StringComparer.Ordinal));
-    }
-
-    private static bool IsScarletPigeonCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, ScarletPigeonCardNo, StringComparison.Ordinal);
     }
 
     private static bool HasRumbleLegendMechanicalSteadfastBonus(

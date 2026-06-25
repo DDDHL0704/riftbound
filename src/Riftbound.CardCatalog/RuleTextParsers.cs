@@ -1873,6 +1873,27 @@ public static class StaticAuraParser
                 }
             }
 
+            var sourceAttackingWithAnotherUnitPowerMatch = Regex.Match(
+                segment,
+                @"如果我和另一名单位一起进攻一处战场，则我获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (sourceAttackingWithAnotherUnitPowerMatch.Success
+                && int.TryParse(sourceAttackingWithAnotherUnitPowerMatch.Groups[1].Value, out var attackingPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.SourceAttackingWithAnotherUnitPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT",
+                    StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.AttackingBattlefieldPublicUnits,
+                    attackingPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Combat static aura parsed for B1 routing; execution is available when combat power calculation reads BehaviorSpec.StaticAuras.",
+                    RequiredAttackingUnitCount: 2));
+                continue;
+            }
+
             var brushBattlefieldFilteredPowerMatch = Regex.Match(
                 segment,
                 @"此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得\{\{S\}\}\+(\d+)",

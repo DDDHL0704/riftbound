@@ -1366,6 +1366,18 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
         }
 
+        var scarletPigeon = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-154/219", StringComparison.Ordinal));
+        var scarletPigeonAura = Assert.Single(scarletPigeon.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SourceAttackingWithAnotherUnitPower, scarletPigeonAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, scarletPigeonAura.Layer);
+        Assert.Equal("WHILE_SOURCE_ATTACKING_WITH_REQUIRED_ATTACKER_COUNT", scarletPigeonAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SourceObject, scarletPigeonAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.AttackingBattlefieldPublicUnits, scarletPigeonAura.ParticipantScope);
+        Assert.Equal(2, scarletPigeonAura.PowerDeltaPerParticipant);
+        Assert.Equal(2, scarletPigeonAura.RequiredAttackingUnitCount);
+        Assert.Contains("如果我和另一名单位一起进攻一处战场", scarletPigeonAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, scarletPigeonAura.Status);
+
         var enthusiasticAnnouncer = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-043/219", StringComparison.Ordinal));
         Assert.Empty(enthusiasticAnnouncer.StaticAuras);
     }
@@ -2881,6 +2893,9 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("IsBattlefieldAllUnitsPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldStaticRoamCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ScarletPigeonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsScarletPigeonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("UNL-154/219", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
