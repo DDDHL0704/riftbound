@@ -19732,6 +19732,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !cardObject.IsFaceDown
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && !battlefieldState.IsFaceDown
             && StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(battlefieldState.CardNo, out var aura)
             && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
             && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
@@ -19746,6 +19747,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string combatKeyword)
     {
         return TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && !battlefieldState.IsFaceDown
             && StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(battlefieldState.CardNo, out var aura)
             && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
             ? GrantedCombatKeywordAmount(aura, combatKeyword)
@@ -29898,6 +29900,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !cardObject.IsFaceDown
             && BattlefieldSourceGrantsRoam(cardObject.CardNo)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }

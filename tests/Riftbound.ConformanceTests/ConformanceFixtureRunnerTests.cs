@@ -39591,6 +39591,48 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldFilteredStaticKeywordGrantDoesNotProjectFromFaceDownBattlefieldSource()
+    {
+        var hiddenSourceState = BattlefieldFilteredStaticKeywordState(battlefieldSourceFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenSourceState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BLACKFLAME-BATTLEFIELD", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            hiddenSourceState,
+            new PlayerIntent("intent-p7-9-battlefield-filtered-static-keyword-face-down-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BLACKFLAME-BATTLEFIELD",
+                ["P1-BLACKFLAME-ATTACKER"],
+                ["P2-BLACKFLAME-EPHEMERAL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BLACKFLAME-EPHEMERAL-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
+    }
+
+    [Fact]
+    public void P79BattlefieldFilteredStaticKeywordGrantDoesNotProjectToFaceDownTarget()
+    {
+        var hiddenTargetState = BattlefieldFilteredStaticKeywordState(ephemeralDefenderFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenTargetState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BLACKFLAME-BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-BLACKFLAME-EPHEMERAL-DEFENDER", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79OtherFriendlyStaticPowerAddsTwoAcrossPublicField()
     {
         var state = OtherFriendlyStaticPowerState();
@@ -67044,7 +67086,9 @@ public sealed class ConformanceFixtureRunnerTests
         };
     }
 
-    private static MatchState BattlefieldFilteredStaticKeywordState()
+    private static MatchState BattlefieldFilteredStaticKeywordState(
+        bool battlefieldSourceFaceDown = false,
+        bool ephemeralDefenderFaceDown = false)
     {
         return PunishmentState(mana: 0) with
         {
@@ -67073,6 +67117,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BLACKFLAME-BATTLEFIELD"] = new(
                     "P1-BLACKFLAME-BATTLEFIELD",
                     cardNo: "UNL-208/219",
+                    isFaceDown: battlefieldSourceFaceDown,
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1"),
@@ -67120,6 +67165,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BLACKFLAME-EPHEMERAL-DEFENDER"] = new(
                     "P2-BLACKFLAME-EPHEMERAL-DEFENDER",
                     cardNo: "SFD·125/221",
+                    isFaceDown: ephemeralDefenderFaceDown,
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
                     ownerId: "P2",

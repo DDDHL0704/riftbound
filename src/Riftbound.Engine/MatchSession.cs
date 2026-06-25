@@ -2880,6 +2880,7 @@ public sealed record MatchState
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || battlefield.IsFaceDown
                 || !StaticAuraSpecRules.TryGetBattlefieldAllUnitsKeywordAura(battlefield.CardNo, out var aura)
                 || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                 || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
@@ -2914,6 +2915,7 @@ public sealed record MatchState
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || battlefield.IsFaceDown
                 || !StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsKeywordAura(battlefield.CardNo, out var aura)
                 || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                 || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
@@ -9294,6 +9296,7 @@ internal static class ActionPromptBuilder
                 MoveUnitRoamKeyword)
             || zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsFaceDown
                 && BattlefieldSourceGrantsRoam(cardObject.CardNo)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
