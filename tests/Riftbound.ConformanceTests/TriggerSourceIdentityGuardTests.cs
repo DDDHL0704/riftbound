@@ -12,6 +12,10 @@ public sealed class TriggerSourceIdentityGuardTests
     [InlineData("OGN·091/298", "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·130/298", "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·167/298", "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT")]
+    [InlineData("OGN·178/298", "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT")]
+    [InlineData("OGN·190/298", "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT")]
+    [InlineData("SFD·155/221", "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT")]
+    [InlineData("SFD·167/221", "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_PLAY_UNIT")]
     public void CardBehaviorRegistryIdentifiesCatalogTriggerSourceUnitsByEffectKind(
         string cardNo,
         string effectKind)
@@ -28,6 +32,10 @@ public sealed class TriggerSourceIdentityGuardTests
     [InlineData("OGN·130/298", "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·121/298", "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·167/298", "RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT")]
+    [InlineData("OGN·178/298", "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT")]
+    [InlineData("OGN·190/298", "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT")]
+    [InlineData("SFD·155/221", "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_PLAY_UNIT")]
+    [InlineData("SFD·167/221", "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT")]
     public void CardBehaviorRegistryRejectsNonMatchingCatalogTriggerSourceUnits(
         string cardNo,
         string effectKind)
@@ -51,6 +59,10 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, ArenaServiceCrewCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, EmberMonkCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(attackerState.CardNo, SharpshooterPirateCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(destroyedState.CardNo, KogmawCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(destroyedState.CardNo, UndercoverAgentCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(destroyedState.CardNo, HonestBrokerCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(destroyedState.CardNo, UnsungHeroCardNo", source, StringComparison.Ordinal);
         Assert.Contains("IsControlledFaceUpFieldUnitWithEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
     }

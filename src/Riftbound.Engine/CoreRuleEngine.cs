@@ -410,6 +410,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string UndercoverAgentLastBreathEffectKind = "UNDERCOVER_AGENT_LAST_BREATH_PLAY_UNIT";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
     private const string HonestBrokerCardNo = "SFD·155/221";
+    private const string HonestBrokerLastBreathSourceEffectKind = "HONEST_BROKER_LAST_BREATH_GOLD_PLAY_UNIT";
     private const string HonestBrokerLastBreathCreateGoldEffectKind = "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     private static readonly CardBehaviorDefinition HonestBrokerLastBreathCreateGoldBehavior = new(
         HonestBrokerCardNo,
@@ -427,6 +428,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DunehornBeastCardNo = "SFD·027/221";
     private const string DunehornBeastBattlefieldHeldDrawEffectKind = "DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2";
     private const string UnsungHeroCardNo = "SFD·167/221";
+    private const string UnsungHeroLastBreathSourceEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_PLAY_UNIT";
     private const string UnsungHeroLastBreathPowerfulDrawEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
@@ -6612,10 +6614,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !removalResult.WasUnit
             || string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !string.Equals(destroyedState.CardNo, KogmawCardNo, StringComparison.Ordinal)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || !IsFaceUpNonStandbyUnitWithEffectKind(
+                destroyedState,
+                KogmawLastBreathAoeEffectKind))
         {
             return null;
         }
@@ -6632,10 +6633,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !string.Equals(destroyedState.CardNo, UndercoverAgentCardNo, StringComparison.Ordinal)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || !IsFaceUpNonStandbyUnitWithEffectKind(
+                destroyedState,
+                UndercoverAgentLastBreathEffectKind))
         {
             return null;
         }
@@ -6671,10 +6671,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !string.Equals(destroyedState.CardNo, HonestBrokerCardNo, StringComparison.Ordinal)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || !IsFaceUpNonStandbyUnitWithEffectKind(
+                destroyedState,
+                HonestBrokerLastBreathSourceEffectKind))
         {
             return null;
         }
@@ -6691,11 +6690,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!removalResult.WasDestroyed
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !string.Equals(destroyedState.CardNo, UnsungHeroCardNo, StringComparison.Ordinal)
-            || destroyedState.Power < PowerfulUnitPowerThreshold
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || !IsFaceUpNonStandbyUnitWithEffectKind(
+                destroyedState,
+                UnsungHeroLastBreathSourceEffectKind)
+            || destroyedState.Power < PowerfulUnitPowerThreshold)
         {
             return null;
         }
@@ -28959,6 +28957,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static bool IsControlledFaceUpFieldUnitWithEffectKind(
+        CardObjectState sourceState,
+        string sourceEffectKind)
+    {
+        return IsFaceUpNonStandbyUnitWithEffectKind(sourceState, sourceEffectKind);
+    }
+
+    private static bool IsFaceUpNonStandbyUnitWithEffectKind(
         CardObjectState sourceState,
         string sourceEffectKind)
     {
