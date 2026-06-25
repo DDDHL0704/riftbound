@@ -1232,6 +1232,21 @@ public static class StaticAbilityParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Battlefield score-delay static ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
                     ParseChineseNumber(battlefieldScoreDelayMatch.Groups[1].Value)));
+                continue;
+            }
+
+            var battlefieldWinningScoreIncreaseMatch = Regex.Match(
+                segment,
+                @"使赢得游戏所需的分数\+([0-9一两二三四五六七八九十]+)",
+                RegexOptions.CultureInvariant);
+            if (battlefieldWinningScoreIncreaseMatch.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldWinningScoreIncrease,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield winning-score increase static ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
+                    ParseChineseNumber(battlefieldWinningScoreIncreaseMatch.Groups[1].Value)));
             }
         }
 

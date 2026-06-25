@@ -923,8 +923,6 @@ public static class MatchRecoveryValidator
     private const string DevSeedScenarioCommandType = "DEV_SEED_SCENARIO";
     private const int BaseWinningScore = 8;
     private const int MaxRetainedResolutionHistoryItems = 12;
-    private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
-    private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BlueSentinelDelayedTriggerIdPrefixForRecovery = "BLUE_SENTINEL_HELD_DELAYED_RESOURCE";
     private const string JhinMovementResourceTriggerIdPrefixForRecovery = "JHIN_MOVE_RESOURCE";
     private const string KogmawCardNoForRecovery = "OGN·190/298";
@@ -12369,12 +12367,20 @@ public static class MatchRecoveryValidator
     private static int EffectiveWinningScoreForRecovery(MatchState authoritativeState)
     {
         var modifier = authoritativeState.PlayerZones
-            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+            .Sum(entry => entry.Value.Battlefields.Sum(objectId =>
                 authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
-                && (string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
-                    || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal))
-                && SourceObjectControlledByPlayerOrLegacyOwnedForRecovery(cardObject, entry.Key)));
+                && SourceObjectControlledByPlayerOrLegacyOwnedForRecovery(cardObject, entry.Key)
+                    ? BattlefieldWinningScoreIncreaseAmountForRecovery(cardObject.CardNo)
+                    : 0));
         return BaseWinningScore + modifier;
+    }
+
+    private static int BattlefieldWinningScoreIncreaseAmountForRecovery(string? cardNo)
+    {
+        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out var ability)
+            && ability.Amount > 0
+                ? ability.Amount
+                : 0;
     }
 
     private static bool SourceObjectControlledByPlayerOrLegacyOwnedForRecovery(

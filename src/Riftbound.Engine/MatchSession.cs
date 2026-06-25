@@ -3196,8 +3196,6 @@ public sealed record ResolutionResult(
     string? ErrorCode = null)
 {
     private const int BaseWinningScore = 8;
-    private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
-    private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
 
     public static ResolutionResult Rejected(
@@ -4041,12 +4039,20 @@ public sealed record ResolutionResult(
     private static int EffectiveWinningScore(MatchState state)
     {
         var modifier = state.PlayerZones
-            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+            .Sum(entry => entry.Value.Battlefields.Sum(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && (string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
-                    || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal))
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)
+                    ? BattlefieldWinningScoreIncreaseAmount(cardObject.CardNo)
+                    : 0));
         return BaseWinningScore + modifier;
+    }
+
+    private static int BattlefieldWinningScoreIncreaseAmount(string? cardNo)
+    {
+        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out var ability)
+            && ability.Amount > 0
+                ? ability.Amount
+                : 0;
     }
 
     private static bool SourceObjectControlledByPlayerOrLegacyOwned(CardObjectState cardObject, string playerId)
@@ -5994,8 +6000,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
-    private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
-    private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string EagerApprenticeCardNo = "OGN·084/298";
@@ -11701,12 +11705,20 @@ internal static class ActionPromptBuilder
     private static int PromptEffectiveWinningScore(MatchState state)
     {
         var modifier = state.PlayerZones
-            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+            .Sum(entry => entry.Value.Battlefields.Sum(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && (string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
-                    || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal))
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)
+                    ? PromptBattlefieldWinningScoreIncreaseAmount(cardObject.CardNo)
+                    : 0));
         return BaseWinningScore + modifier;
+    }
+
+    private static int PromptBattlefieldWinningScoreIncreaseAmount(string? cardNo)
+    {
+        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out var ability)
+            && ability.Amount > 0
+                ? ability.Amount
+                : 0;
     }
 
     private static IReadOnlyList<string> PromptDelimitedValues(string values)
@@ -16032,8 +16044,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardObject.CardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardObject.CardNo, out _)

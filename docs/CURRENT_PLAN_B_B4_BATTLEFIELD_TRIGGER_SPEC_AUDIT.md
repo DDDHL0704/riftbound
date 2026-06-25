@@ -2,9 +2,19 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, and score delay; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-06-25 winning-score increase follow-up moves another implemented battlefield static rule away from engine card-number branching:
+
+- `OGN·276/298` / `OGN·276a/298` official text: `使赢得游戏所需的分数+1。`
+- `RuleTextParser` now parses that text as `StaticAbilitySpec` with:
+  - `Kind = BATTLEFIELD_WINNING_SCORE_INCREASE`
+  - `Amount = 1`
+- `CoreRuleEngine.EffectiveWinningScore`, `MatchSession` snapshot/prompt effective-winning-score projections, and `MatchRecovery` spectator validation now find eligible battlefield sources through `BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(...)` and read the score-threshold modifier from `BehaviorSpec.StaticAbilities`.
+- `MatchSession` battlefield-object recognition now uses the same static-ability query instead of the old `BattlefieldIncreaseWinningScoreCardNo` / `BattlefieldIncreaseWinningScoreAltCardNo` constants.
+- The old `BattlefieldIncreaseWinningScoreCardNo` / `BattlefieldIncreaseWinningScoreAltCardNo` / `IsBattlefieldIncreaseWinningScoreCardNo` branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `55` total / `51` in `CoreRuleEngine`; Core battlefield helper count is `7`.
 
 The 2026-06-25 score-delay follow-up moves another implemented battlefield static rule away from engine card-number branching:
 

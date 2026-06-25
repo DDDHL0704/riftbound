@@ -42,6 +42,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·284/298` 力量方尖碑 has official text `每名玩家在各自的第一个回合开始阶段，额外召出一枚符文。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·290/298` 荣耀竞技场 has official text `每名玩家在各自的第一个回合开始阶段，获得1分。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·209/221` 遗忘丰碑 has official text `每名玩家在各自的第三回合开始前，无法从此处获得分数。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·276/298` / `OGN·276a/298` has official text `使赢得游戏所需的分数+1。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -79,6 +80,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldStaticFirstTurnRuneCallsOneExtraRune`, `P79BattlefieldStaticFirstTurnRuneIgnoresBattlefieldControlChange`, and GameHub `P79BattlefieldFirstTurnRuneSeedCallsFourthRune` remain the runtime evidence for the first-turn extra-rune representative behavior.
 - Existing representative tests `P79BattlefieldStaticFirstTurnScoreGainsOneScore`, `P79BattlefieldStaticFirstTurnScoreIgnoresBattlefieldControlChange`, and GameHub `P79BattlefieldFirstTurnScoreSeedGainsScore` remain the runtime evidence for the first-turn score representative behavior.
 - Existing representative tests `P79BattlefieldScoreDelay...`, GameHub `P79BattlefieldScoreDelaySeedPreventsFirstTurnScore`, and the battle-response held-score prevention tests remain the runtime evidence for the score-delay representative behavior.
+- Existing representative tests `P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin`, `P79BattlefieldStaticWinningScoreIncreaseSkipsOpponentControlledSource`, `P79BattlefieldStaticWinningScoreIncreaseStillWinsAtNine`, and GameHub `P79BattlefieldWinningScoreSeedRaisesThresholdAndDelaysBurnoutWin` remain the runtime evidence for the winning-score increase representative behavior.
 
 ## Runtime Evidence
 
@@ -226,6 +228,10 @@ The score-delay follow-up parser path turns the Forgotten Monument official batt
 
 The accepted score-prevention path keeps the existing representative behavior: while an eligible score-delay battlefield object is present and the scoring player's turn ordinal is below the parsed release turn, battlefield-origin score is prevented and the existing `BATTLEFIELD_SCORE_PREVENTED` payload shape is preserved, including `trigger=BATTLEFIELD_SCORE_DELAY_UNTIL_THIRD_TURN`. This slice does not claim complete physical `此处` scoping; the current flat battlefield representative remains documented as non-closure.
 
+The winning-score increase follow-up parser path turns the `OGN·276/298` / `OGN·276a/298` official battlefield text into a structured `StaticAbilitySpec` with `Kind=BATTLEFIELD_WINNING_SCORE_INCREASE` and `Amount=1`. Runtime no longer checks those cards through `BattlefieldIncreaseWinningScoreCardNo` / `BattlefieldIncreaseWinningScoreAltCardNo` / `IsBattlefieldIncreaseWinningScoreCardNo`; it queries `BehaviorSpec.StaticAbilities` via `BattlefieldStaticAbilitySpecRules`.
+
+The accepted effective-winning-score path keeps the existing representative behavior: while an eligible battlefield object is present and controlled by the relevant player, the match win threshold is raised by the parsed amount. `CoreRuleEngine`, `MatchSession` snapshot/prompt projection, and `MatchRecovery` spectator validation now share that spec-routed amount and preserve the existing opponent-controlled dirty-source guard.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -311,6 +317,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - score-delay focused behavior-spec/source guard/runtime representatives: `6/6`;
 - score-delay CardCatalog baseline: `155/155`;
 - score-delay adjacent ScoreDelay / ScorePrevented / BattlefieldHeldScore / BattleResponse / BattlefieldTriggerSpec / GameHub representatives: `290/290`;
+- winning-score increase focused behavior-spec/source guard/runtime/GameHub representatives: `6/6`;
+- winning-score increase CardCatalog baseline: `157/157`;
+- winning-score increase adjacent WinningScore / BattlefieldStaticWinningScore / GameHub / MatchRecovery / MindAndBalance representatives: `2221/2221`;
 - MatchRecovery: `1989/1989`;
 - backend full conformance after the conquer overkill create-Warhawk follow-up: `8436/8436`;
 - backend full conformance after the turn-start damage-units follow-up: `8438/8438`;
@@ -318,9 +327,11 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - backend full conformance after the first-turn extra-rune follow-up: `8442/8442`;
 - backend full conformance after the first-turn score follow-up: `8444/8444`;
 - backend full conformance after the score-delay follow-up: `8446/8446`;
+- backend full conformance after the winning-score increase follow-up: `8448/8448`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 - score-delay DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+- winning-score increase DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 
 ## Non-Closure
 
-This evidence proves thirty-five battlefield trigger representatives plus one battlefield static score-delay representative have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-five battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

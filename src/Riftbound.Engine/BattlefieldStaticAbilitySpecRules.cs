@@ -64,6 +64,14 @@ internal static class BattlefieldStaticAbilitySpecRules
             out ability);
     }
 
+    public static bool TryGetBattlefieldWinningScoreIncreaseAbility(string? cardNo, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+            cardNo,
+            StaticAbilityKinds.BattlefieldWinningScoreIncrease,
+            out ability);
+    }
+
     private static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
     {
         ability = default!;

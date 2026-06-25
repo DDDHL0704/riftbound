@@ -190,6 +190,8 @@ public static class StaticAbilityKinds
         "BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS";
     public const string BattlefieldScoreDelayUntilTurn =
         "BATTLEFIELD_SCORE_DELAY_UNTIL_TURN";
+    public const string BattlefieldWinningScoreIncrease =
+        "BATTLEFIELD_WINNING_SCORE_INCREASE";
 }
 
 public static class StaticAuraKinds

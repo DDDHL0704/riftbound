@@ -684,8 +684,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
-    private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
-    private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string RagingDrakeCardNo = "OGN·031/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
@@ -25119,7 +25117,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(cardNo, out _)
-            || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardNo, out _)
@@ -25181,12 +25179,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         return string.Equals(cardNo, BattlefieldDefendMoveFriendlyUnitToBaseCardNo, StringComparison.Ordinal);
     }
 
-    private static bool IsBattlefieldIncreaseWinningScoreCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal);
-    }
-
     private static int EffectiveWinningScore(MatchState state)
     {
         return EffectiveWinningScore(state.PlayerZones, state.CardObjects);
@@ -25197,11 +25189,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
         var battlefieldModifier = playerZones
-            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+            .Sum(entry => entry.Value.Battlefields.Sum(objectId =>
                 cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldIncreaseWinningScoreCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)
+                    ? BattlefieldWinningScoreIncreaseAmount(cardObject.CardNo)
+                    : 0));
         return BaseWinningScore + battlefieldModifier;
+    }
+
+    private static int BattlefieldWinningScoreIncreaseAmount(string? cardNo)
+    {
+        return BattlefieldStaticAbilitySpecRules.TryGetBattlefieldWinningScoreIncreaseAbility(cardNo, out var ability)
+            && ability.Amount > 0
+                ? ability.Amount
+                : 0;
     }
 
     private static bool PlayerWithinWinningScoreDistance(
