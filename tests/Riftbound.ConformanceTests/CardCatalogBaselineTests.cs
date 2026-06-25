@@ -2375,6 +2375,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitFriendlyDestroyedGainExperienceTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var jawfish = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-129/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            jawfish.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitFriendlyDestroyedGainExperience, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OtherFriendlyDestroyedUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.ExperienceCount);
+        Assert.Contains("当另一名友方单位被摧毁时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("获得1经验", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit friendly-destroyed gain-experience trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3494,6 +3516,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("DestroyEquipmentBoonUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsDestroyEquipmentBoonUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitFriendlyDestroyedGainExperienceTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("SavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsSavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

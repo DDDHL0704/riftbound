@@ -130,6 +130,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN";
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
+    public const string UnitFriendlyDestroyedGainExperience =
+        "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
 }
 
 public static class TriggerTimings
@@ -143,6 +145,7 @@ public static class TriggerTimings
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
     public const string UnitConquest = "UNIT_CONQUEST";
+    public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";
 }
 
@@ -164,6 +167,7 @@ public static class TriggerTargetScopes
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
     public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
+    public const string OtherFriendlyDestroyedUnit = "OTHER_FRIENDLY_DESTROYED_UNIT";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
     public const string SurvivingPowerfulUnitAtThisBattlefield = "SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD";
@@ -394,7 +398,8 @@ public sealed record TriggerSpec(
     bool? FirstTurnOnly = null,
     int? ScoreAmount = null,
     string? GrantedKeyword = null,
-    int? KeywordBonus = null);
+    int? KeywordBonus = null,
+    int? ExperienceCount = null);
 
 public sealed record ReplacementSpec(
     string Kind,

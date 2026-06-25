@@ -608,8 +608,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ResonantSoulFirstFriendlyDestroyedDrawEffectKind = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string DuneDrakeCardNo = "OGN·131/298";
-    private const string SavageJawfishCardNo = "UNL-129/219";
-    private const string SavageJawfishFriendlyDestroyedExperienceEffectKind = "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     private const string GhostlyCentaurCardNo = "UNL-068/219";
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKind = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     private const string ViktorDestroyedNonMinionCreateMinionEffectKind = "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
@@ -7077,30 +7075,74 @@ public sealed class CoreRuleEngine : IRuleEngine
         string destroyedObjectId,
         string destroyedOwnerPlayerId)
     {
-        return playerZones
+        var triggers = new List<TriggerQueueItemState>();
+        foreach (var sourceObjectId in playerZones
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Distinct(StringComparer.Ordinal)
             .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
             .Where(sourceObjectId => !stateBasedRemovalObjectIds.Contains(sourceObjectId))
             .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
-            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && IsSavageJawfishCardNo(sourceState.CardNo)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown
-                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                && IsObjectOnField(playerZones, sourceObjectId)
-                && string.Equals(
-                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                    destroyedOwnerPlayerId,
-                    StringComparison.Ordinal))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
-            .Select(sourceObjectId => new TriggerQueueItemState(
-                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{SavageJawfishFriendlyDestroyedExperienceEffectKind}",
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal))
+        {
+            if (!TryGetFriendlyDestroyedGainExperienceTriggerSource(
+                playerZones,
+                cardObjects,
+                sourceObjectId,
+                destroyedOwnerPlayerId,
+                out _,
+                out var triggerSpec))
+            {
+                continue;
+            }
+
+            triggers.Add(new TriggerQueueItemState(
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{triggerSpec.Kind}",
                 destroyedOwnerPlayerId,
                 sourceObjectId,
-                SavageJawfishFriendlyDestroyedExperienceEffectKind,
-                "UNIT_DESTROYED"))
-            .ToArray();
+                triggerSpec.Kind,
+                TriggerTimings.UnitDestroyed));
+        }
+
+        return triggers;
+    }
+
+    private static bool TryGetFriendlyDestroyedGainExperienceTriggerSource(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId,
+        string controllerId,
+        out CardObjectState sourceState,
+        out TriggerSpec triggerSpec)
+    {
+        sourceState = default!;
+        triggerSpec = default!;
+        if (!cardObjects.TryGetValue(sourceObjectId, out var candidateSourceState)
+            || !UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger(
+                candidateSourceState.CardNo,
+                out var candidateTriggerSpec)
+            || !string.Equals(
+                candidateTriggerSpec.TargetScope,
+                TriggerTargetScopes.OtherFriendlyDestroyedUnit,
+                StringComparison.Ordinal)
+            || !candidateSourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || candidateSourceState.IsFaceDown
+            || candidateSourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, sourceObjectId))
+        {
+            return false;
+        }
+
+        if (!string.Equals(
+            EffectiveFieldControllerId(playerZones, sourceObjectId, candidateSourceState),
+            controllerId,
+            StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        sourceState = candidateSourceState;
+        triggerSpec = candidateTriggerSpec;
+        return true;
     }
 
     private static IReadOnlyList<TriggerQueueItemState> BuildViktorDestroyedNonMinionTriggerQueueItems(
@@ -25259,11 +25301,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StringComparison.Ordinal));
     }
 
-    private static bool IsSavageJawfishCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, SavageJawfishCardNo, StringComparison.Ordinal);
-    }
-
     private static bool IsViktorDestroyedNonMinionCardNo(string? cardNo)
     {
         return string.Equals(cardNo, ViktorDestroyedNonMinionArcCardNo, StringComparison.Ordinal)
@@ -32985,7 +33022,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, SavageJawfishFriendlyDestroyedExperienceEffectKind, StringComparison.Ordinal))
+        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal))
         {
             return ResolveSavageJawfishFriendlyDestroyedExperienceStackItem(state, stackItem);
         }
@@ -36835,25 +36872,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "UNIT_DESTROYED"))
         };
 
-        if (state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-            && IsSavageJawfishCardNo(sourceState.CardNo)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && IsObjectOnField(playerZones, stackItem.SourceObjectId)
-            && string.Equals(
-                EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, sourceState),
+        if (TryGetFriendlyDestroyedGainExperienceTriggerSource(
+                playerZones,
+                state.CardObjects,
+                stackItem.SourceObjectId,
                 stackItem.ControllerId,
-                StringComparison.Ordinal))
+                out var sourceState,
+                out var triggerSpec)
+            && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal))
         {
             playerExperience = GainExperience(
                 playerExperience,
                 stackItem.ControllerId,
-                1,
+                triggerSpec.ExperienceCount.GetValueOrDefault(1),
                 stackItem,
                 events,
                 stackItem.SourceObjectId,
-                SavageJawfishCardNo);
+                sourceState.CardNo);
         }
 
         return new StackResolutionResult(
@@ -36970,7 +37005,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return !string.Equals(trigger.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, ResonantSoulFirstFriendlyDestroyedDrawEffectKind, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, SavageJawfishFriendlyDestroyedExperienceEffectKind, StringComparison.Ordinal)
+            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, MechanicalTricksterLastBreathCreateMinionsEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, IroncladVanguardLastBreathCreateRobotsEffectKind, StringComparison.Ordinal)

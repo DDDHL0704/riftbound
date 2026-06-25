@@ -520,6 +520,21 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var unitFriendlyDestroyedGainExperienceMatch = Regex.Match(
+            segment,
+            @"当另一名友方单位被摧毁时，获得([0-9一两二三四五六七八九十]+)经验。?$",
+            RegexOptions.CultureInvariant);
+        if (unitFriendlyDestroyedGainExperienceMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitFriendlyDestroyedGainExperience,
+                TriggerTimings.UnitDestroyed,
+                segment,
+                "Unit friendly-destroyed gain-experience trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.OtherFriendlyDestroyedUnit,
+                ExperienceCount: ParseChineseNumber(unitFriendlyDestroyedGainExperienceMatch.Groups[1].Value));
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
