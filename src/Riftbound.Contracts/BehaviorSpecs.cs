@@ -120,6 +120,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
     public const string UnitConquestCreateDormantGold =
         "UNIT_CONQUEST_CREATE_DORMANT_GOLD";
+    public const string UnitMovedCreateDormantGold =
+        "TREASURE_HUNTER_MOVE_CREATE_GOLD";
     public const string UnitConquestGrantSelfBoon =
         "UNIT_CONQUEST_GRANT_SELF_BOON";
     public const string UnitConquestReadySelfOncePerTurn =
@@ -165,6 +167,7 @@ public static class TriggerTimings
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
     public const string UnitConquest = "UNIT_CONQUEST";
+    public const string UnitMoved = "UNIT_MOVED";
     public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";
 }

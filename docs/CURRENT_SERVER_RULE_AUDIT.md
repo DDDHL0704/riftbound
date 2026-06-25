@@ -2694,6 +2694,8 @@
 
 阶段 4C-27 审计入口：`docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_AUDIT.md`；证据入口：`docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_EVIDENCE.md`。本批已补 Treasure Hunter / 寻宝猎人 `SFD·130/221` / `FU-6144ab0271` 的极窄移动触发创建休眠 Gold 装备指示物代表切片。项目仍 **NOT READY**，`fullOfficial=false`。
 
+2026-06-25 Plan B 补充：该代表切片已迁移到 BehaviorSpec-driven unit-moved trigger routing，审计入口 `docs/CURRENT_PLAN_B_UNIT_MOVED_TRIGGER_SPEC_AUDIT.md`，证据入口 `docs/CURRENT_PLAN_B_UNIT_MOVED_TRIGGER_SPEC_EVIDENCE.md`。`CoreRuleEngine` 不再包含 Treasure Hunter 卡号 / effect-kind 常量 / helper 分支；运行时通过 `UnitMovedTriggerSpecRules` 读取 `TriggerSpec` 并用其 token 字段创建休眠 Gold。验证：focused 11/11、adjacent movement 133/133、MatchRecovery 1989/1989、backend full 8527/8527；项目仍 **NOT READY**。
+
 4C-27 已关闭代表子项：
 
 - visible face-up Treasure Hunter 通过 existing authoritative move route 成功移动后，触发 `TREASURE_HUNTER_MOVE_CREATE_GOLD` 并创建一个休眠 Gold equipment token 到 controller base。

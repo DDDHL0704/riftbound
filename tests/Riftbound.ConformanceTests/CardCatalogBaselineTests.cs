@@ -2249,6 +2249,30 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitMovedCreateDormantGoldTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var treasureHunter = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·130/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(treasureHunter.Triggers);
+        Assert.Equal(TriggerKinds.UnitMovedCreateDormantGold, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitMoved, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.CreatedTokenCount);
+        Assert.Equal("金币", trigger.CreatedTokenName);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination);
+        Assert.True(trigger.CreatedTokenExhausted);
+        Assert.Equal(["反应"], trigger.CreatedTokenKeywords);
+        Assert.Contains("每当我移动时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出一个休眠的“金币”装备指示物", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit moved create-dormant-Gold trigger parsed for movement-trigger routing; execution is available through shared unit-moved TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Theory]
     [InlineData("SFD·232/221")]
     [InlineData("SFD·232*/221")]
@@ -2854,6 +2878,23 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldMovedUnitPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldMovedUnitPowerPlusOneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitMovedCreateDormantGoldTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("TreasureHunterCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsTreasureHunterCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TreasureHunterMoveCreateGoldEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("SFD·130/221", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TREASURE_HUNTER_MOVE_CREATE_GOLD", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

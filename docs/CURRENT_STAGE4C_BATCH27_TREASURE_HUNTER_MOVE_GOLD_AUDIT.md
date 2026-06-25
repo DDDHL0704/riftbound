@@ -7,6 +7,8 @@
 
 配套证据文档：`docs/CURRENT_STAGE4C_BATCH27_TREASURE_HUNTER_MOVE_GOLD_EVIDENCE.md`。
 
+2026-06-25 Plan B 补充：该代表路径的运行时识别已迁移到 BehaviorSpec-driven unit-moved trigger routing，见 `docs/CURRENT_PLAN_B_UNIT_MOVED_TRIGGER_SPEC_AUDIT.md` 与 `docs/CURRENT_PLAN_B_UNIT_MOVED_TRIGGER_SPEC_EVIDENCE.md`。`CoreRuleEngine` 不再包含 `TreasureHunterCardNo` / `TreasureHunterMoveCreateGoldEffectKind` / `IsTreasureHunterCardNo` 或 `SFD·130/221` 分支；`TriggerSpec` 提供 `Timing=UNIT_MOVED`、`TargetScope=SOURCE_UNIT`、Gold token count/name/destination/exhausted/keywords。emitted trigger 值仍为 `TREASURE_HUNTER_MOVE_CREATE_GOLD`，用于保持既有事件/回放兼容。Plan B 验证：focused 11/11、adjacent movement 133/133、MatchRecovery 1989/1989、backend full 8527/8527。
+
 ## 本批范围
 
 - 4C-27 收 Treasure Hunter / 寻宝猎人 `SFD·130/221`、`FU-6144ab0271` 的 move -> dormant Gold representative slice。

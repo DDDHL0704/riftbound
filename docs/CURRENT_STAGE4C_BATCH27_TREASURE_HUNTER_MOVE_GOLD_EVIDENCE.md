@@ -5,6 +5,8 @@
 
 本文只记录 Treasure Hunter / 寻宝猎人 `SFD·130/221`、`FU-6144ab0271` 的代表性 move -> dormant Gold equipment token 证据。4C-27 不宣称 full-official，`fullOfficial=false`，不进入 1009 张卡全量实现，不启动最终正式 18-step E2E。
 
+2026-06-25 Plan B 补充：同一代表路径现在通过 BehaviorSpec `TriggerSpec.Kind=TREASURE_HUNTER_MOVE_CREATE_GOLD`、`Timing=UNIT_MOVED`、`TargetScope=SOURCE_UNIT` 和 Gold token 字段进入 `CoreRuleEngine`，不再通过 Core 卡号白名单选择。详见 `docs/CURRENT_PLAN_B_UNIT_MOVED_TRIGGER_SPEC_AUDIT.md` 与 `docs/CURRENT_PLAN_B_UNIT_MOVED_TRIGGER_SPEC_EVIDENCE.md`。
+
 ## 证据锚点
 
 | 领域 | 证据 | 4C-27 使用方式 |
