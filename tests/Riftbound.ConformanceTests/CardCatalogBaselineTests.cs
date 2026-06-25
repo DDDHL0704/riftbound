@@ -2120,6 +2120,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnScoreTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var gloryArena = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·290/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(gloryArena.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldFirstTurnScore, trigger.Kind);
+        Assert.Equal(TriggerTimings.TurnStart, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.EachPlayer, trigger.TargetScope);
+        Assert.True(trigger.FirstTurnOnly);
+        Assert.Equal(1, trigger.ScoreAmount);
+        Assert.Contains("第一个回合开始阶段", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("获得1分", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield first-turn score trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2921,6 +2942,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldFirstTurnExtraRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldFirstTurnExtraRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldFirstTurnScoreTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldFirstTurnScoreCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldFirstTurnScoreCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldFirstTurnScoreCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

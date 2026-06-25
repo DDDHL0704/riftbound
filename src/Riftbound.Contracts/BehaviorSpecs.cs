@@ -104,6 +104,8 @@ public static class TriggerKinds
         "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW";
     public const string BattlefieldFirstTurnExtraRune =
         "BATTLEFIELD_FIRST_TURN_EXTRA_RUNE";
+    public const string BattlefieldFirstTurnScore =
+        "BATTLEFIELD_FIRST_TURN_GAIN_SCORE";
 }
 
 public static class TriggerTimings
@@ -349,7 +351,8 @@ public sealed record TriggerSpec(
     int? DamageAmount = null,
     int? DestroyCount = null,
     bool? Optional = null,
-    bool? FirstTurnOnly = null);
+    bool? FirstTurnOnly = null,
+    int? ScoreAmount = null);
 
 public sealed record ReplacementSpec(
     string Kind,

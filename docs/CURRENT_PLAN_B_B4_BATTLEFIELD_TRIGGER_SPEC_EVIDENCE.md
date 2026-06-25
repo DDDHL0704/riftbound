@@ -40,6 +40,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `UNL-212/219` 冰霜要塞 has official text `在每名玩家各自的开始阶段开始时，对此处的所有单位造成1点伤害。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-209/219` 暮色玫瑰实验室 has official text `在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）`
 - `data/official/card-catalog.zh-CN.json`: `OGN·284/298` 力量方尖碑 has official text `每名玩家在各自的第一个回合开始阶段，额外召出一枚符文。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·290/298` 荣耀竞技场 has official text `每名玩家在各自的第一个回合开始阶段，获得1分。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -75,6 +76,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldTurnStartDamageAllBattlefieldUnitsBeforeScoring`, `P79BattlefieldTurnStartDamageSkipsOpponentControlledSource`, and GameHub `P79BattlefieldTurnStartDamageSeedDamagesAndDestroysBeforeRuneCall` remain the runtime evidence for the turn-start damage-units representative behavior.
 - Existing representative tests `P79BattlefieldTurnStartDestroyDrawsBeforeScoring`, `P79BattlefieldTurnStartDestroyDrawSkipsOpponentControlledSource`, and GameHub `P79BattlefieldTurnStartDestroyDrawSeedDestroysAndDrawsBeforeRuneCall` remain the runtime evidence for the turn-start destroy-draw representative behavior.
 - Existing representative tests `P79BattlefieldStaticFirstTurnRuneCallsOneExtraRune`, `P79BattlefieldStaticFirstTurnRuneIgnoresBattlefieldControlChange`, and GameHub `P79BattlefieldFirstTurnRuneSeedCallsFourthRune` remain the runtime evidence for the first-turn extra-rune representative behavior.
+- Existing representative tests `P79BattlefieldStaticFirstTurnScoreGainsOneScore`, `P79BattlefieldStaticFirstTurnScoreIgnoresBattlefieldControlChange`, and GameHub `P79BattlefieldFirstTurnScoreSeedGainsScore` remain the runtime evidence for the first-turn score representative behavior.
 
 ## Runtime Evidence
 
@@ -214,6 +216,10 @@ The first-turn extra-rune follow-up parser path turns the Power Obelisk official
 
 The accepted `START_TURN` path keeps the existing representative behavior: while the battlefield object is present, each player's own first turn-start rune call adds the parsed rune count to the normal turn-start rune call count. Existing dirty-control evidence remains unchanged because the official text is a global battlefield rule and not a controller-gated source.
 
+The first-turn score follow-up parser path turns the Glory Arena official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_FIRST_TURN_GAIN_SCORE`, `Timing=TURN_START`, `TargetScope=EACH_PLAYER`, `FirstTurnOnly=true`, and `ScoreAmount=1`. Runtime no longer checks `OGN·290/298` through `BattlefieldFirstTurnScoreCardNo` / `IsBattlefieldFirstTurnScoreCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `START_TURN` path keeps the existing representative behavior: while the battlefield object is present, each player's own first turn-start score step grants the parsed score amount and emits the existing `BATTLEFIELD_TRIGGER_RESOLVED` / `SCORE_GAINED` payloads with `BATTLEFIELD_FIRST_TURN_GAIN_SCORE`. Existing dirty-control evidence remains unchanged because the official text is a global battlefield rule and not a controller-gated source.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -293,13 +299,17 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - first-turn extra-rune focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - first-turn extra-rune CardCatalog baseline: `151/151`;
 - first-turn extra-rune adjacent FirstTurnRune / BattlefieldFirstTurn / BattlefieldTriggerSpec / GameHub representatives: `226/226`;
+- first-turn score focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- first-turn score CardCatalog baseline: `153/153`;
+- first-turn score adjacent FirstTurnScore / ScoreDelay / BattlefieldTriggerSpec / GameHub representatives: `229/229`;
 - MatchRecovery: `1989/1989`;
 - backend full conformance after the conquer overkill create-Warhawk follow-up: `8436/8436`;
 - backend full conformance after the turn-start damage-units follow-up: `8438/8438`;
 - backend full conformance after the turn-start destroy-draw follow-up: `8440/8440`;
 - backend full conformance after the first-turn extra-rune follow-up: `8442/8442`;
+- backend full conformance after the first-turn score follow-up: `8444/8444`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves thirty-four battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-five battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

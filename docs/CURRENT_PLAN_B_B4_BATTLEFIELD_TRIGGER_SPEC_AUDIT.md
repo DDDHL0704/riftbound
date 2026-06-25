@@ -2,9 +2,22 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, and first-turn extra-rune; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, and first-turn score; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-06-25 first-turn score follow-up moves another implemented battlefield rule away from engine card-number branching:
+
+- `OGN·290/298` / 荣耀竞技场 official text: `每名玩家在各自的第一个回合开始阶段，获得1分。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_FIRST_TURN_GAIN_SCORE`
+  - `Timing = TURN_START`
+  - `TargetScope = EACH_PLAYER`
+  - `FirstTurnOnly = true`
+  - `ScoreAmount = 1`
+- `CoreRuleEngine.ApplyBattlefieldFirstTurnScore` now finds eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(...)` and sums parsed score amounts from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldFirstTurnScoreCardNo` constant.
+- The old `BattlefieldFirstTurnScoreCardNo` / `IsBattlefieldFirstTurnScoreCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `57` total / `53` in `CoreRuleEngine`; Core battlefield helper count is `9`.
 
 The 2026-06-25 first-turn extra-rune follow-up moves another implemented battlefield rule away from engine card-number branching:
 

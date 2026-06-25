@@ -697,6 +697,22 @@ public static class TriggerParser
                 FirstTurnOnly: true);
         }
 
+        var battlefieldFirstTurnScoreMatch = Regex.Match(
+            segment,
+            @"每名玩家在各自的第一个回合开始阶段，获得([0-9一两二三四五六七八九十]+)分",
+            RegexOptions.CultureInvariant);
+        if (battlefieldFirstTurnScoreMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldFirstTurnScore,
+                TriggerTimings.TurnStart,
+                segment,
+                "Battlefield first-turn score trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.EachPlayer,
+                FirstTurnOnly: true,
+                ScoreAmount: ParseChineseNumber(battlefieldFirstTurnScoreMatch.Groups[1].Value));
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

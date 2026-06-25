@@ -686,7 +686,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
-    private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
     private const string RagingDrakeCardNo = "OGN·031/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
@@ -25124,7 +25123,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(cardNo, out _)
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(cardNo, out _)
-            || IsBattlefieldFirstTurnScoreCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardNo, out _)
             || IsBattlefieldScoreDelayCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(cardNo, out _)
@@ -25188,11 +25187,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldFirstTurnScoreCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldScoreDelayCardNo(string? cardNo)
@@ -43110,7 +43104,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new ScoreApplicationResult(playerScores, null, [], state.UntilEndOfTurnEffects);
         }
 
-        var sourceObjectIds = GlobalBattlefieldCardSourceObjectIds(state, IsBattlefieldFirstTurnScoreCardNo)
+        var sourceObjectIds = GlobalBattlefieldCardSourceObjectIds(
+                state,
+                cardNo => BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardNo, out var trigger)
+                    && IsBattlefieldFirstTurnScoreTriggerSpec(trigger))
             .Where(objectId => !BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, objectId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
@@ -43119,10 +43116,21 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new ScoreApplicationResult(playerScores, null, [], state.UntilEndOfTurnEffects);
         }
 
+        var scoreAmount = sourceObjectIds.Sum(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardObject.CardNo, out var trigger)
+            && trigger.ScoreAmount is > 0
+                ? trigger.ScoreAmount.Value
+                : 0);
+        if (scoreAmount <= 0)
+        {
+            return new ScoreApplicationResult(playerScores, null, [], state.UntilEndOfTurnEffects);
+        }
+
         if (TryBuildBattlefieldScorePreventedEvent(
                 state,
                 playerId,
-                "BATTLEFIELD_FIRST_TURN_GAIN_SCORE",
+                TriggerKinds.BattlefieldFirstTurnScore,
                 sourceObjectIds,
                 out var scorePreventedEvent)
             && scorePreventedEvent is not null)
@@ -43131,8 +43139,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         playerScores[playerId] = playerScores.TryGetValue(playerId, out var score)
-            ? score + sourceObjectIds.Length
-            : sourceObjectIds.Length;
+            ? score + scoreAmount
+            : scoreAmount;
         var nextUntilEndOfTurnEffects = sourceObjectIds.Aggregate(
             state.UntilEndOfTurnEffects,
             (effects, battlefieldObjectId) => MarkBattlefieldScoredThisTurn(effects, battlefieldObjectId, playerId));
@@ -43144,20 +43152,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
-                    ["trigger"] = "BATTLEFIELD_FIRST_TURN_GAIN_SCORE",
+                    ["trigger"] = TriggerKinds.BattlefieldFirstTurnScore,
                     ["sourceObjectIds"] = sourceObjectIds,
-                    ["amount"] = sourceObjectIds.Length,
+                    ["amount"] = scoreAmount,
                     ["score"] = playerScores[playerId]
                 }),
             new(
                 "SCORE_GAINED",
-                $"{playerId} 获得 {sourceObjectIds.Length} 分",
+                $"{playerId} 获得 {scoreAmount} 分",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
-                    ["amount"] = sourceObjectIds.Length,
+                    ["amount"] = scoreAmount,
                     ["score"] = playerScores[playerId],
-                    ["reason"] = "BATTLEFIELD_FIRST_TURN_GAIN_SCORE",
+                    ["reason"] = TriggerKinds.BattlefieldFirstTurnScore,
                     ["sourceObjectIds"] = sourceObjectIds
                 })
         };
@@ -43166,6 +43174,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             WinningPlayerId(playerScores, EffectiveWinningScore(state)),
             events,
             nextUntilEndOfTurnEffects);
+    }
+
+    private static bool IsBattlefieldFirstTurnScoreTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.EachPlayer, StringComparison.Ordinal)
+            && trigger.FirstTurnOnly == true
+            && trigger.ScoreAmount is > 0;
     }
 
     private static ScoreApplicationResult ApplyBattlefieldHeldScoresAtTurnStart(
@@ -43263,7 +43279,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsDedicatedBattlefieldScoreRuleCardNo(string? cardNo)
     {
-        return IsBattlefieldFirstTurnScoreCardNo(cardNo)
+        return BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardNo, out var trigger)
+            && IsBattlefieldFirstTurnScoreTriggerSpec(trigger)
             || IsBattlefieldScoreDelayCardNo(cardNo);
     }
 
