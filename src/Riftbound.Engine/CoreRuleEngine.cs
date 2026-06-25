@@ -22452,14 +22452,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (IsKaisaUnitConquestDrawCardNo(unitState.CardNo))
+            if (UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(unitState.CardNo, out var unitConquestDrawTrigger))
             {
+                var drawCount = unitConquestDrawTrigger.DrawCount.GetValueOrDefault(1);
                 AddUnitConquestEffectActivatedEvent(
                     events,
                     playerId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_DRAW_ONE",
+                    unitConquestDrawTrigger.Kind,
                     battlefieldObjectId,
                     triggerSpec.Kind);
                 var drawResult = ApplyDrawToPlayer(
@@ -22467,7 +22468,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     playerZones,
                     nextPlayerScores,
                     playerId,
-                    1,
+                    drawCount,
                     nextRngCursor,
                     events);
                 nextPlayerScores = drawResult.PlayerScores;
@@ -22740,7 +22741,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool HasBattlefieldHeldArenaUnitConquestEffect(string? cardNo)
     {
         return IsBadPoroUnitConquestGoldCardNo(cardNo)
-            || IsKaisaUnitConquestDrawCardNo(cardNo)
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)
             || IsQiyanaUnitConquestDrawOrRuneCardNo(cardNo)
             || IsSettUnitConquestSelfBoonCardNo(cardNo)
             || IsLucianUnitConquestReadyCardNo(cardNo)
@@ -22752,11 +22753,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBadPoroUnitConquestGoldCardNo(string? cardNo)
     {
         return cardNo is "UNL-222/219" or "SFD·069/221";
-    }
-
-    private static bool IsKaisaUnitConquestDrawCardNo(string? cardNo)
-    {
-        return cardNo is "OGN·039/298" or "OGN·039a/298";
     }
 
     private static bool IsQiyanaUnitConquestDrawOrRuneCardNo(string? cardNo)

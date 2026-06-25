@@ -442,6 +442,21 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var unitConquestDrawMatch = Regex.Match(
+            segment,
+            @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (unitConquestDrawMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestDrawOne,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest draw-one trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                DrawCount: ParseChineseNumber(unitConquestDrawMatch.Groups[1].Value));
+        }
+
         var battlefieldConquerMillMatch = Regex.Match(
             segment,
             @"当你征服此处时，将你主牌堆顶部的([0-9一两二三四五六七八九十]+)张牌放入废牌堆",

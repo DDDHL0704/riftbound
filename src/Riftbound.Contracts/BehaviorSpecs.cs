@@ -114,6 +114,8 @@ public static class TriggerKinds
         "BATTLEFIELD_FIRST_TURN_GAIN_SCORE";
     public const string BattlefieldHeldActivateUnitConquestEffects =
         "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
+    public const string UnitConquestDrawOne =
+        "UNIT_CONQUEST_DRAW_ONE";
 }
 
 public static class TriggerTimings
@@ -126,6 +128,7 @@ public static class TriggerTimings
     public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
+    public const string UnitConquest = "UNIT_CONQUEST";
     public const string TurnStart = "TURN_START";
 }
 
@@ -149,6 +152,7 @@ public static class TriggerTargetScopes
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
     public const string SurvivingPowerfulUnitAtThisBattlefield = "SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD";
     public const string FriendlyEquipment = "FRIENDLY_EQUIPMENT";
+    public const string SourceUnit = "SOURCE_UNIT";
 }
 
 public static class TriggerDurations
