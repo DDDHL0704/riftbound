@@ -8354,6 +8354,15 @@ public static class CardBehaviorRegistry
         return definition is not null;
     }
 
+    public static bool IsImplementedUnitNamed(string? cardNo, string displayName)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && !string.IsNullOrWhiteSpace(displayName)
+            && TryGetByCardNo(cardNo.Trim(), out var definition)
+            && definition.PlaysSourceToBaseAsUnit
+            && string.Equals(definition.DisplayName, displayName.Trim(), StringComparison.Ordinal);
+    }
+
     public static IReadOnlyList<CardBehaviorDefinition> GetAll()
     {
         return Definitions;

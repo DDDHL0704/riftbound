@@ -9740,19 +9740,7 @@ internal static class ActionPromptBuilder
             && !targetState.IsFaceDown
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && string.Equals(targetState.OwnerId, playerId, StringComparison.Ordinal)
-            && LegendActionIsTeemoUnitCardNo(targetState.CardNo);
-    }
-
-    private static bool LegendActionIsTeemoUnitCardNo(string? cardNo)
-    {
-        return cardNo is "FND-196/298"
-            or "OGN·121/298"
-            or "OGN·121a/298"
-            or "OGN·197/298"
-            or "OGN·197a/298"
-            or "OGN·197b/298"
-            or "SFD·230/221"
-            or "SFD·230*/221";
+            && CardBehaviorRegistry.IsImplementedUnitNamed(targetState.CardNo, "提莫");
     }
 
     private static bool LegendActionIsPendingFriendlyUnitTarget(
