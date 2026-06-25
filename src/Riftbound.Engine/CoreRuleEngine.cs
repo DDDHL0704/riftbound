@@ -397,6 +397,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ShepherdsHeirloomAssembleExperienceCost)
         };
     private const string EmberMonkCardNo = "OGN·167/298";
+    private const string EmberMonkStandbyTriggerSourceEffectKind = "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT";
     private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
     private const string SharpshooterPirateCardNo = "OGN·130/298";
     private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
@@ -14640,10 +14641,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Distinct(StringComparer.Ordinal)
             .Where(sourceObjectId => !string.Equals(sourceObjectId, hiddenObjectId, StringComparison.Ordinal))
             .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && string.Equals(sourceState.CardNo, EmberMonkCardNo, StringComparison.Ordinal)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown
-                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && IsControlledFaceUpFieldUnitWithEffectKind(
+                    sourceState,
+                    EmberMonkStandbyTriggerSourceEffectKind)
                 && IsObjectOnField(playerZones, sourceObjectId)
                 && string.Equals(
                     EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
