@@ -45,6 +45,7 @@ Implemented in this slice:
 - Battlefield keyword aura hidden-boundary guard: battlefield keyword sources that are face-down no longer project `BATTLEFIELD_*_UNITS_KEYWORD` RULE_TEXT effects, grant combat keyword bonuses, or provide static Roam prompt / movement permission.
 - Battlefield static-power hidden-boundary guard: battlefield power sources that are face-down no longer project `BATTLEFIELD_*_UNITS_POWER` `STATIC_AURA` effects or grant combat static-power bonuses; all-units battlefield power targets that are face-down / standby are excluded from participant projection and Core static-power bonus.
 - Other-friendly static-power hidden-boundary guard: standby non-local other-friendly power sources no longer project `OTHER_FRIENDLY_UNITS_POWER` `STATIC_AURA` effects or grant combat static-power bonuses; standby target units are excluded from other-friendly participant projection.
+- Same-battlefield other-friendly static-power hidden-boundary guard: standby same-battlefield other-friendly power sources no longer project `SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS_POWER_PLUS_ONE` `STATIC_AURA` effects or grant combat static-power bonuses; standby same-battlefield target units are excluded from participant projection and Core static-power bonus.
 - `MatchSession` projects the Master Yi level legend aura as a legend-source `FRIENDLY_UNITS_POWER` continuous effect when the controller satisfies the required experience threshold; static-aura source ordering/dependencies now include public legend-zone sources.
 - Recovery static-aura source-card validation now checks the source card's `BehaviorSpec` aura surface for battlefield all-units, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, friendly-units, and friendly-filtered unit auras instead of a projection allow-list.
 
@@ -221,6 +222,30 @@ Result: 2229/2229 passed.
 ```
 
 Result: 8625/8625 passed.
+
+2026-06-26 same-battlefield other-friendly static-power standby hidden-boundary focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~P79SameBattlefieldOtherFriendlyStaticPowerDoesNotProject" --nologo
+```
+
+Result: 2/2 passed.
+
+2026-06-26 same-battlefield other-friendly static-power standby hidden-boundary adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefield|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~Hidden|FullyQualifiedName~Standby|FullyQualifiedName~FaceDown|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2233/2233 passed.
+
+2026-06-26 backend full after same-battlefield other-friendly static-power standby hidden-boundary fix:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8627/8627 passed.
 
 Adjacent:
 

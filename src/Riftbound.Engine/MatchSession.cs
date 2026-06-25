@@ -2398,6 +2398,7 @@ public sealed record MatchState
             var source = entry.Value;
             if (string.IsNullOrWhiteSpace(source.CardNo)
                 || source.IsFaceDown
+                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsPowerAura(source.CardNo, out var aura)
                 || !TryFindBattlefieldUnitLocation(state, sourceObjectId, source, out var battlefieldObjectId))
@@ -3027,6 +3028,7 @@ public sealed record MatchState
                 && state.CardObjects.TryGetValue(entry.Key, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !participant.IsFaceDown
+                && !participant.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out var fieldLocation)
                 && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && IsPublicFieldObjectLocationCompatible(state, entry.Key, "BATTLEFIELD")
