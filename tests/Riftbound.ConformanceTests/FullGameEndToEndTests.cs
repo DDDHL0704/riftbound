@@ -129,36 +129,44 @@ public sealed class FullGameEndToEndTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var deck = BuildLowCurveOfficialDeck(catalog);
-        var initialState = BuildSeatedInitialState("b0-full-game-official-low-curve-replay-room", LowCurveReplaySeed);
-        var journal = new RecordingMatchJournal();
-        var (session, _, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
-            initialState,
-            journal,
+
+        await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+            "b0-full-game-official-low-curve-replay-room",
+            "b0-full-replay-score",
             deck,
             deck);
+    }
 
-        var result = await DriveBattleCloseToScoreVictoryAsync(
-            session,
-            battleResult,
-            "b0-full-replay-score");
+    [Fact]
+    public async Task DistinctOfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildLowCurveOfficialDeck(catalog, JhinLegendCardNo, JhinChampionCardNo);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        Assert.NotEqual(p1Deck.LegendCardNo, p2Deck.LegendCardNo);
+        Assert.NotEqual(p1Deck.ChampionCardNo, p2Deck.ChampionCardNo);
 
-        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
-            initialState,
-            journal.Entries.Select(ToRecoveredCommand).ToArray(),
-            result.State,
-            new CoreRuleEngine(),
-            CancellationToken.None,
-            ToRecoveredEvents(journal.Entries));
+        await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+            "b0-full-game-distinct-low-curve-replay-room",
+            "b0-full-distinct-replay-score",
+            p1Deck,
+            p2Deck);
+    }
 
-        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
-        Assert.Equal(MatchStateHasher.Hash(result.State), replay.ExpectedStateHash);
-        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
-        Assert.Empty(replay.Errors);
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.SubmitDeck, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Ready, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Mulligan, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
-        AssertScoreVictory(result);
+    [Fact]
+    public async Task StandbyHeavyOfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildLowCurveOfficialDeck(catalog, JhinLegendCardNo, JhinChampionCardNo);
+        var p2Deck = BuildLowCurveOfficialDeck(catalog, PoppyLegendCardNo, PoppyChampionCardNo);
+        Assert.NotEqual(p1Deck.LegendCardNo, p2Deck.LegendCardNo);
+        Assert.NotEqual(p1Deck.ChampionCardNo, p2Deck.ChampionCardNo);
+
+        await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+            "b0-full-game-standby-heavy-low-curve-replay-room",
+            "b0-full-standby-heavy-replay-score",
+            p1Deck,
+            p2Deck);
     }
 
     [Fact]
@@ -283,6 +291,45 @@ public sealed class FullGameEndToEndTests
 
         Assert.True(scoreEvents > 0, "Expected the prompt-driven game to gain battlefield score before match win.");
         return result;
+    }
+
+    private static async ValueTask AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+        string roomId,
+        string scoreIntentPrefix,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var initialState = BuildSeatedInitialState(roomId, LowCurveReplaySeed);
+        var journal = new RecordingMatchJournal();
+        var (session, _, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
+            initialState,
+            journal,
+            p1Deck,
+            p2Deck);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            scoreIntentPrefix);
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            result.State,
+            new CoreRuleEngine(),
+            CancellationToken.None,
+            ToRecoveredEvents(journal.Entries));
+
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        Assert.Equal(MatchStateHasher.Hash(result.State), replay.ExpectedStateHash);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Empty(replay.Errors);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.SubmitDeck, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Ready, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Mulligan, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
     }
 
     private static void AssertScoreVictory(ResolutionResult result)
