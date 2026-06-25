@@ -8363,6 +8363,15 @@ public static class CardBehaviorRegistry
             && string.Equals(definition.DisplayName, displayName.Trim(), StringComparison.Ordinal);
     }
 
+    public static bool IsImplementedUnitWithEffectKind(string? cardNo, string effectKind)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && !string.IsNullOrWhiteSpace(effectKind)
+            && TryGetByCardNo(cardNo.Trim(), out var definition)
+            && definition.PlaysSourceToBaseAsUnit
+            && string.Equals(definition.EffectKind, effectKind.Trim(), StringComparison.Ordinal);
+    }
+
     public static IReadOnlyList<CardBehaviorDefinition> GetAll()
     {
         return Definitions;

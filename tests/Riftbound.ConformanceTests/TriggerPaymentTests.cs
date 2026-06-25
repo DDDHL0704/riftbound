@@ -18,6 +18,49 @@ public sealed class TriggerPaymentTests
     private const string PayOneYellowPower = "SPEND_POWER:yellow:1";
     private const string Decline = "DECLINE";
 
+    [Theory]
+    [InlineData("SFD·119/221", "SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT")]
+    [InlineData("SFD·119a/221", "SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT")]
+    [InlineData("SFD·180/221", "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT")]
+    [InlineData("SFD·180a/221", "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT")]
+    public void CardBehaviorRegistryIdentifiesTriggerPaymentSourceUnitsByEffectKind(
+        string cardNo,
+        string effectKind)
+    {
+        Assert.True(CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, effectKind));
+    }
+
+    [Theory]
+    [InlineData("SFD·054/221", "SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT")]
+    [InlineData("SFD·119/221", "SFD_JAX_PLAY_KEYWORD_UNIT")]
+    [InlineData("SFD·180/221", "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT")]
+    [InlineData("SFD·082/221", "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT")]
+    public void CardBehaviorRegistryRejectsNonMatchingTriggerPaymentSourceUnits(
+        string cardNo,
+        string effectKind)
+    {
+        Assert.False(CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, effectKind));
+    }
+
+    [Fact]
+    public void TriggerPaymentSourceIdentityDoesNotUseDuplicatedCardNumberAllowLists()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var source = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("IsSfdFioraPowerfulReadyCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SfdFioraPowerfulReadyCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SfdFioraPowerfulReadyAltCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsJaxWeaponAttachCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SfdJaxWeaponAttachCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SfdJaxWeaponAttachAltCardNo", source, StringComparison.Ordinal);
+        Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task BattlefieldConquerGoldOpensTriggerPaymentPrompt()
     {
@@ -3077,5 +3120,22 @@ public sealed class TriggerPaymentTests
                 ["P1"] = 0,
                 ["P2"] = 0
             });
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 }

@@ -522,8 +522,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgsLuxHighCostSpellCardNo = "OGS·006/024";
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
-    private const string SfdFioraPowerfulReadyCardNo = "SFD·180/221";
-    private const string SfdFioraPowerfulReadyAltCardNo = "SFD·180a/221";
+    private const string SfdFioraPowerfulReadySourceEffectKind = "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT";
+    private const string SfdFioraPowerfulReadyAltSourceEffectKind = "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
@@ -599,8 +599,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
     private const string IcevaleArcherAttackPayOnePowerMinusOneEffectKind = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
-    private const string SfdJaxWeaponAttachCardNo = "SFD·119/221";
-    private const string SfdJaxWeaponAttachAltCardNo = "SFD·119a/221";
+    private const string SfdJaxWeaponAttachSourceEffectKind = "SFD_119_JAX_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT";
+    private const string SfdJaxWeaponAttachAltSourceEffectKind = "SFD_119_JAX_ALT_A_NO_OPTIONAL_ASSEMBLE_PLAY_UNIT";
     private const string JaxWeaponAttachPayOneDrawEffectKind = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
@@ -24459,7 +24459,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         sourceState = candidate;
-        return IsSfdFioraPowerfulReadyCardNo(sourceState.CardNo)
+        return IsSfdFioraPowerfulReadySourceBehavior(sourceState.CardNo)
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -24508,10 +24508,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(controllerId);
     }
 
-    private static bool IsSfdFioraPowerfulReadyCardNo(string? cardNo)
+    private static bool IsSfdFioraPowerfulReadySourceBehavior(string? cardNo)
     {
-        return string.Equals(cardNo, SfdFioraPowerfulReadyCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, SfdFioraPowerfulReadyAltCardNo, StringComparison.Ordinal);
+        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, SfdFioraPowerfulReadySourceEffectKind)
+            || CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, SfdFioraPowerfulReadyAltSourceEffectKind);
     }
 
     private static bool TryGetJaxWeaponAttachSource(
@@ -24528,7 +24528,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         sourceState = candidate;
-        return IsJaxWeaponAttachCardNo(sourceState.CardNo)
+        return IsJaxWeaponAttachSourceBehavior(sourceState.CardNo)
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -24559,10 +24559,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             && IsObjectOnField(playerZones, equipmentObjectId);
     }
 
-    private static bool IsJaxWeaponAttachCardNo(string? cardNo)
+    private static bool IsJaxWeaponAttachSourceBehavior(string? cardNo)
     {
-        return string.Equals(cardNo, SfdJaxWeaponAttachCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, SfdJaxWeaponAttachAltCardNo, StringComparison.Ordinal);
+        return CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, SfdJaxWeaponAttachSourceEffectKind)
+            || CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, SfdJaxWeaponAttachAltSourceEffectKind);
     }
 
     private static bool TryGetIcevaleArcherAttackSource(
