@@ -94,6 +94,36 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialLowCurvePostBattleScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var (_, _, battleResult) = await DriveOfficialLowCurveDecksToBattleCloseAsync(
+            "b0-full-game-official-low-curve-score-room");
+        var initialState = battleResult.State;
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-replay-score");
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            result.State,
+            new CoreRuleEngine(),
+            CancellationToken.None,
+            ToRecoveredEvents(journal.Entries));
+
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        Assert.Equal(MatchStateHasher.Hash(result.State), replay.ExpectedStateHash);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Empty(replay.Errors);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
+    }
+
+    [Fact]
     public async Task StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1645,6 +1675,50 @@ public sealed class FullGameEndToEndTests
                     Assert.DoesNotContain(objectId, snapshotJson, StringComparison.Ordinal);
                 }
             }
+        }
+    }
+
+    private static RecoveredCommand ToRecoveredCommand(MatchJournalEntry entry)
+    {
+        return new RecoveredCommand(
+            entry.PlayerId,
+            entry.ClientIntentId,
+            entry.CommandType,
+            entry.RawCommand?.Clone(),
+            entry.StartedTick,
+            entry.CompletedTick,
+            entry.StartedEventSequence,
+            entry.CompletedEventSequence,
+            entry.Accepted,
+            entry.ErrorMessage);
+    }
+
+    private static IReadOnlyList<RecoveredEvent> ToRecoveredEvents(IEnumerable<MatchJournalEntry> entries)
+    {
+        var recoveredEvents = new List<RecoveredEvent>();
+        foreach (var entry in entries)
+        {
+            for (var index = 0; index < entry.Events.Count; index++)
+            {
+                recoveredEvents.Add(new RecoveredEvent(
+                    entry.StartedEventSequence + index + 1,
+                    entry.CompletedTick,
+                    index,
+                    entry.Events[index]));
+            }
+        }
+
+        return recoveredEvents;
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
         }
     }
 }
