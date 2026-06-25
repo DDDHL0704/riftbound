@@ -19648,7 +19648,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(cardObject.CardNo, out var aura)
             || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
         {
             return 0;
         }
@@ -19681,6 +19682,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return isAttacking
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(cardObject.CardNo, out var aura)
             && readyEnemyUnitCount >= aura.RequiredReadyEnemyUnitCount.GetValueOrDefault(1)
             ? aura.PowerDeltaPerParticipant
@@ -20211,6 +20213,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && StaticAuraSpecRules.TryGetSourceAttackingWithAnotherUnitPowerAura(cardObject.CardNo, out var aura)
             && attackingUnitCount >= aura.RequiredAttackingUnitCount.GetValueOrDefault(2)
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             ? aura.PowerDeltaPerParticipant
             : 0;
     }

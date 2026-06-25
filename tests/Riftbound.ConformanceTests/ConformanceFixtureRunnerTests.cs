@@ -41969,6 +41969,69 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79ScarletPigeonSkipsSourceCombatPowerWhenSourceIsStandby()
+    {
+        var state = WithStandbyTag(
+            PunishmentState(mana: 0) with
+            {
+                PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+                {
+                    ["P1"] = PlayerZones.Empty with
+                    {
+                        Battlefields = ["P1-SCARLET-PIGEON", "P1-ALLY-ATTACKER"]
+                    },
+                    ["P2"] = PlayerZones.Empty with
+                    {
+                        Battlefields = ["P2-DEFENDER"]
+                    }
+                },
+                CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+                {
+                    ["P1-SCARLET-PIGEON"] = new(
+                        "P1-SCARLET-PIGEON",
+                        cardNo: "UNL-154/219",
+                        power: 3,
+                        tags: [CardObjectTags.UnitCard, "鸟类"],
+                        ownerId: "P1",
+                        controllerId: "P1"),
+                    ["P1-ALLY-ATTACKER"] = new(
+                        "P1-ALLY-ATTACKER",
+                        cardNo: "SFD·125/221",
+                        power: 1,
+                        tags: [CardObjectTags.UnitCard],
+                        ownerId: "P1",
+                        controllerId: "P1"),
+                    ["P2-DEFENDER"] = new(
+                        "P2-DEFENDER",
+                        cardNo: "SFD·125/221",
+                        power: 8,
+                        tags: [CardObjectTags.UnitCard],
+                        ownerId: "P2",
+                        controllerId: "P2")
+                }
+            },
+            "P1-SCARLET-PIGEON");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-scarlet-pigeon-standby-source-static-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-SCARLET-PIGEON", "P1-ALLY-ATTACKER"],
+                ["P2-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var pigeonDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SCARLET-PIGEON", StringComparison.Ordinal));
+        Assert.Equal(3, pigeonDamageEvent.Payload["basePower"]);
+        AssertNoStaticPowerBonus(pigeonDamageEvent);
+        Assert.Equal(3, pigeonDamageEvent.Payload["combatPower"]);
+    }
+
+    [Fact]
     public async Task P79SharpshooterPirateDamagesEnemyUnitWhenAttackingBattlefield()
     {
         var state = SharpshooterPirateBattleState(sharpshooterAttacks: true);
@@ -42066,6 +42129,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, duneDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(7, duneDamageEvent.Payload["combatPower"]);
         Assert.Equal(7, duneDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79DuneDrakeSkipsSourceCombatPowerWhenSourceIsStandby()
+    {
+        var state = WithStandbyTag(DuneDrakeBattleState(duneDrakeAttacks: true), "P1-DUNE-DRAKE");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-dune-drake-standby-source-static", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-DUNE-DRAKE"],
+                ["P2-DUNE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var duneDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-DUNE-DRAKE", StringComparison.Ordinal));
+        Assert.Equal(5, duneDamageEvent.Payload["basePower"]);
+        AssertNoStaticPowerBonus(duneDamageEvent);
+        Assert.Equal(5, duneDamageEvent.Payload["combatPower"]);
     }
 
     [Fact]
@@ -42965,6 +43052,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, waterbenderDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(4, waterbenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(4, waterbenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79WaterbenderSkipsSourceCombatPowerWhenSourceIsStandby()
+    {
+        var state = WithStandbyTag(WaterbenderBattleState(isAttacking: true, lone: true), "P1-WATERBENDER");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-waterbender-standby-source-static", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-WATERBENDER"],
+                ["P2-WATERBENDER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var waterbenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-WATERBENDER", StringComparison.Ordinal));
+        Assert.Equal(2, waterbenderDamageEvent.Payload["basePower"]);
+        AssertNoStaticPowerBonus(waterbenderDamageEvent);
+        Assert.Equal(2, waterbenderDamageEvent.Payload["combatPower"]);
     }
 
     [Fact]
@@ -67980,6 +68091,31 @@ public sealed class ConformanceFixtureRunnerTests
             },
             CardObjects = cardObjects
         };
+    }
+
+    private static MatchState WithStandbyTag(MatchState state, string objectId)
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal);
+        cardObjects[objectId] = cardObjects[objectId] with
+        {
+            Tags = cardObjects[objectId]
+                .Tags
+                .Append(CardObjectTags.Standby)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+        return state with
+        {
+            CardObjects = cardObjects
+        };
+    }
+
+    private static void AssertNoStaticPowerBonus(GameEvent gameEvent)
+    {
+        if (gameEvent.Payload.TryGetValue("staticPowerBonus", out var value))
+        {
+            Assert.Equal(0, value);
+        }
     }
 
     private static MatchState BilgewaterBullyBoonRoamState(bool hasBoon)

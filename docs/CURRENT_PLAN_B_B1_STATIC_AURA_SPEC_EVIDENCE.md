@@ -25,6 +25,7 @@ Engine projection:
 - `src/Riftbound.Engine/MatchSession.cs` projects the Master Yi level legend aura from the legend zone as `FRIENDLY_UNITS_POWER` only when the controller meets `StaticAuraSpec.RequiredPlayerExperience`.
 - `src/Riftbound.Engine/MatchSession.cs` projects source-object combat static auras from the active battle state for `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER`.
 - `src/Riftbound.Engine/MatchSession.cs` now excludes standby battle participants from source-combat participant evaluation and from static-aura participant / dependency metadata.
+- `src/Riftbound.Engine/CoreRuleEngine.cs` now excludes standby source units before applying source-combat static-power bonuses in `DECLARE_BATTLE` damage calculation.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` exposes the lone-battle representative through the generic `ResolveSourceLoneBattlePowerBonus` source path rather than a Waterbender-named helper.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` now resolves Ornn-style friendly-equipment count-to-source power recompute and source-unit entry power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` has been deleted.
 - `src/Riftbound.Engine/CardEquipmentKeywordRules.cs` now marks the friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` rather than a registry runtime flag.
@@ -63,6 +64,8 @@ Recovery:
 - Latest source-combat standby participant hidden-boundary focused representatives: 2/2 passed.
 - Latest source-combat static-aura projection focused after standby participant guard: 5/5 passed.
 - Latest source-combat static-aura / recovery adjacent after standby participant guard: 2044/2044 passed.
+- Latest source-combat standby source Core recompute focused representatives: 3/3 passed.
+- Latest source-combat static-aura / recovery adjacent after standby source Core guard: 2047/2047 passed.
 - Latest static-aura stacking / until-end modifier focused representative: StaticAuraStackingAndModifier 1/1 passed.
 - Latest static-aura stacking / source-combat / recovery adjacent representative: 2043/2043 passed.
 - Latest battlefield-filtered keyword hidden-boundary focused representative: 2/2 passed.
@@ -87,6 +90,7 @@ Recovery:
 - Latest backend full after same-battlefield other-friendly static-power standby hidden-boundary fix: 8627/8627 passed.
 - Latest backend full after friendly-equipment static-power standby hidden-boundary fix: 8628/8628 passed.
 - Latest backend full after source-combat standby participant hidden-boundary fix: 8631/8631 passed.
+- Latest backend full after source-combat standby source Core guard: 8634/8634 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
