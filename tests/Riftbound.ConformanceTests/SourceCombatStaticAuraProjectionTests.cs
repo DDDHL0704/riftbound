@@ -45,6 +45,27 @@ public sealed class SourceCombatStaticAuraProjectionTests
     }
 
     [Fact]
+    public void ScarletPigeonSourceCombatStaticAuraIgnoresStandbyAttackerParticipants()
+    {
+        const string sourceObjectId = "P1-SCARLET-PIGEON";
+        var state = BuildBattleState(
+            sourceObjectId,
+            "UNL-154/219",
+            sourcePower: 3,
+            sourceControllerId: "P1",
+            sourceIsAttacking: true,
+            sourceIsDefending: false,
+            extraP1BattlefieldUnits:
+            [
+                Unit("P1-STANDBY-ATTACKER", "P1", 2, isAttacking: true, isStandby: true)
+            ]);
+
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.EffectKind, StaticAuraKinds.SourceAttackingWithAnotherUnitPower, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void WaterbenderDefendingAloneProjectsSourceCombatStaticAura()
     {
         const string sourceObjectId = "P2-WATERBENDER";
@@ -109,6 +130,24 @@ public sealed class SourceCombatStaticAuraProjectionTests
             participantObjectIds: [DefenderObjectId]);
     }
 
+    [Fact]
+    public void DuneDrakeSourceCombatStaticAuraIgnoresStandbyReadyDefenderParticipants()
+    {
+        const string sourceObjectId = "P1-DUNE-DRAKE";
+        var state = BuildBattleState(
+            sourceObjectId,
+            "OGN·131/298",
+            sourcePower: 5,
+            sourceControllerId: "P1",
+            sourceIsAttacking: true,
+            sourceIsDefending: false,
+            defaultDefenderIsStandby: true);
+
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.EffectKind, StaticAuraKinds.SourceAttackingReadyEnemyUnitPower, StringComparison.Ordinal));
+    }
+
     private static void AssertSourceCombatAura(
         ContinuousEffectState aura,
         string effectId,
@@ -149,7 +188,8 @@ public sealed class SourceCombatStaticAuraProjectionTests
         bool sourceIsAttacking,
         bool sourceIsDefending,
         IReadOnlyList<CardObjectState>? extraP1BattlefieldUnits = null,
-        bool includeDefaultDefender = true)
+        bool includeDefaultDefender = true,
+        bool defaultDefenderIsStandby = false)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -170,7 +210,7 @@ public sealed class SourceCombatStaticAuraProjectionTests
 
         if (includeDefaultDefender)
         {
-            cardObjects[DefenderObjectId] = Unit(DefenderObjectId, "P2", 10, isDefending: true);
+            cardObjects[DefenderObjectId] = Unit(DefenderObjectId, "P2", 10, isDefending: true, isStandby: defaultDefenderIsStandby);
         }
 
         foreach (var unit in extraP1BattlefieldUnits ?? [])
@@ -233,7 +273,8 @@ public sealed class SourceCombatStaticAuraProjectionTests
         int power,
         string cardNo = "SFD·125/221",
         bool isAttacking = false,
-        bool isDefending = false)
+        bool isDefending = false,
+        bool isStandby = false)
     {
         return new CardObjectState(
             objectId,
@@ -242,7 +283,7 @@ public sealed class SourceCombatStaticAuraProjectionTests
             isAttacking: isAttacking,
             isDefending: isDefending,
             isExhausted: false,
-            tags: [CardObjectTags.UnitCard],
+            tags: isStandby ? [CardObjectTags.UnitCard, CardObjectTags.Standby] : [CardObjectTags.UnitCard],
             ownerId: playerId,
             controllerId: playerId);
     }

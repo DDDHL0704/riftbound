@@ -2960,6 +2960,7 @@ public sealed record MatchState
         battlefieldObjectId = string.Empty;
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
             || !string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
             || !state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
@@ -2979,6 +2980,7 @@ public sealed record MatchState
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
                 && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && IsPublicFieldObjectLocationCompatible(state, objectId, "BATTLEFIELD"))
@@ -2992,6 +2994,7 @@ public sealed record MatchState
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
                 && string.Equals(fieldLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && IsPublicFieldObjectLocationCompatible(state, objectId, "BATTLEFIELD"))
@@ -3304,6 +3307,7 @@ public sealed record MatchState
             .Distinct(StringComparer.Ordinal)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var location)
                 && IsPublicFieldObjectLocationCompatible(state, objectId, location.Zone))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -3320,6 +3324,7 @@ public sealed record MatchState
             .Distinct(StringComparer.Ordinal)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && TryFindPublicStaticAuraSourceLocation(state.PlayerZones, objectId, out var location)
                 && (string.Equals(location.Zone, "LEGEND", StringComparison.Ordinal)
                     || IsPublicFieldObjectLocationCompatible(state, objectId, location.Zone)))
@@ -3342,7 +3347,8 @@ public sealed record MatchState
             {
                 if (sourceOrders.ContainsKey(objectId)
                     || !state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    || cardObject.IsFaceDown)
+                    || cardObject.IsFaceDown
+                    || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
                 {
                     continue;
                 }

@@ -38,6 +38,7 @@ Implemented in this slice:
 - Friendly-equipment static-power hidden-boundary guard: standby friendly-equipment count-to-source power sources no longer project `FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER` `STATIC_AURA` effects or recompute source power from public equipment count.
 - `CoreRuleEngine` resolves Master Yi intro single-defender power and Master Yi level friendly-unit power through `StaticAuraSpec.Kind=FRIENDLY_SINGLE_DEFENDING_UNIT_POWER` and `StaticAuraSpec.Kind=FRIENDLY_UNITS_POWER`; the old `HasMasterYiSingleDefenderBonus` / `ResolveMasterYiLevelLegendPowerBonus` combat-power special paths have been deleted.
 - `MatchSession` now projects source-object combat static auras for `SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER`, `SOURCE_LONE_BATTLE_POWER`, and `SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER` from `BehaviorSpec.StaticAuras` while the current battle state satisfies their parsed participant-count conditions.
+- Source-combat static-aura hidden-boundary guard: standby battle participants are excluded from battle attacker/defender participant evaluation and from source-combat participant / dependency metadata, so standby objects do not enable source-combat static auras or appear in their participant lists.
 - `tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs` now covers additive stacking between a source-combat `STATIC_AURA`, a non-local other-friendly `STATIC_AURA`, and an until-end-of-turn `POWER_MODIFIER` in both continuous-effect projection and real combat damage.
 - The old generic `ResolveWaterbenderLoneBattlePowerBonus` method name has been replaced by `ResolveSourceLoneBattlePowerBonus` so the source path no longer names a single representative card.
 - `MatchRecovery` now validates source-object combat static-aura `powerDelta` as the fixed BehaviorSpec power delta rather than multiplying by the participant object count.
@@ -386,6 +387,38 @@ Latest source combat static-aura projection adjacent check:
 ```
 
 Result: 2041/2041 passed.
+
+2026-06-26 source-combat standby participant hidden-boundary focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~ScarletPigeonSourceCombatStaticAuraIgnoresStandbyAttackerParticipants|FullyQualifiedName~DuneDrakeSourceCombatStaticAuraIgnoresStandbyReadyDefenderParticipants" --nologo
+```
+
+Result: 2/2 passed.
+
+2026-06-26 source-combat static-aura projection focused after standby participant guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SourceCombatStaticAuraProjection" --nologo
+```
+
+Result: 5/5 passed.
+
+2026-06-26 source-combat static-aura / recovery adjacent after standby participant guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SourceCombatStaticAuraProjection|FullyQualifiedName~P79ScarletPigeon|FullyQualifiedName~P79Waterbender|FullyQualifiedName~P79DuneDrake|FullyQualifiedName~StaticAura|FullyQualifiedName~ContinuousEffect|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2044/2044 passed.
+
+2026-06-26 backend full after source-combat standby participant guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8631/8631 passed.
 
 Latest static-aura stacking / until-end power modifier focused check:
 
