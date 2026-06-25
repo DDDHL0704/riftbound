@@ -39237,6 +39237,31 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, movedDefenderDamage.Payload["combatPower"]);
     }
 
+    [Fact]
+    public async Task P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromFaceDownSource()
+    {
+        var hiddenSourceState = TaricSameBattlefieldKeywordGrantLifecycleState(
+            sourceOnBattlefield: true,
+            targetAtSameBattlefield: true,
+            sourceFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenSourceState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-TARIC-LIFECYCLE-SOURCE", StringComparison.Ordinal));
+
+        var result = await ResolveTaricLifecycleBattleAsync(
+            hiddenSourceState,
+            "intent-p7-9-taric-face-down-source",
+            "P1-TARIC-LIFECYCLE-BATTLEFIELD");
+        var defenderDamage = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", defenderDamage.Payload["sourceObjectId"]);
+        Assert.Equal(0, defenderDamage.Payload["keywordBonus"]);
+        Assert.Equal(2, defenderDamage.Payload["combatPower"]);
+    }
+
     private static async ValueTask<ResolutionResult> ResolveTaricLifecycleBattleAsync(
         MatchState state,
         string intentId,
@@ -39258,7 +39283,8 @@ public sealed class ConformanceFixtureRunnerTests
 
     private static MatchState TaricSameBattlefieldKeywordGrantLifecycleState(
         bool sourceOnBattlefield,
-        bool targetAtSameBattlefield = true)
+        bool targetAtSameBattlefield = true,
+        bool sourceFaceDown = false)
     {
         var targetBattlefieldObjectId = targetAtSameBattlefield
             ? "P1-TARIC-LIFECYCLE-BATTLEFIELD"
@@ -39310,6 +39336,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-TARIC-LIFECYCLE-SOURCE"] = new(
                     "P1-TARIC-LIFECYCLE-SOURCE",
                     cardNo: "OGN·074/298",
+                    isFaceDown: sourceFaceDown,
                     power: 4,
                     tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.Steadfast, CardCombatKeywordNames.Bulwark],
                     ownerId: "P1",

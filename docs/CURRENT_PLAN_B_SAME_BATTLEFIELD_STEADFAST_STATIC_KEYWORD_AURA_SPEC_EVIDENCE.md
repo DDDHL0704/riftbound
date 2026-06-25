@@ -33,6 +33,10 @@ Controller scope:
 
 - `P79SameBattlefieldStaticKeywordGrantUsesCurrentControllerForFriendlyScope` verifies `other friendly` is evaluated from the source object's current controller. A Farron Captain owned by P1 but controlled by P2 grants `强攻` only to the same-battlefield P2 attacker and not to P1's same-battlefield defender.
 
+Hidden source boundary:
+
+- `P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromFaceDownSource` verifies a face-down same-battlefield keyword source produces no RULE_TEXT continuous effect even when authoritative test state still carries the card number, and combat resolution does not grant `坚守` to the same-battlefield friendly defender.
+
 Existing fixture alignment:
 
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-taric-keyword-unit.fixture.json` still covers the ordinary hand-play path into the controller base, and now points the same-battlefield static keyword grant to the B2 RULE_TEXT aura representative.
@@ -53,6 +57,9 @@ Existing fixture alignment:
 - Focused controller-scope guard `P79SameBattlefieldStaticKeywordGrantUsesCurrentControllerForFriendlyScope`: 1/1 passed.
 - Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Farron / Control / MatchRecovery representatives: 2271/2271 passed.
 - Backend full after controller-scope guard: 8613/8613 passed.
+- Focused face-down source guard `P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromFaceDownSource`: 1/1 passed.
+- Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / Hidden / FaceDown / MatchRecovery representatives: 2163/2163 passed.
+- Backend full after face-down source guard: 8614/8614 passed.
 
 ## Remaining Evidence Needed
 
