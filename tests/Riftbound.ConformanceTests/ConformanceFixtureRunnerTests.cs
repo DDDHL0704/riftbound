@@ -11050,7 +11050,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-EQUIPMENT-SOUL-SWORD"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-SOUL-SWORD"].Tags);
+        Assert.Equal(ExpectedEquipmentTagsForCard("UNL-039/219"), result.FinalState.CardObjects["P1-EQUIPMENT-SOUL-SWORD"].Tags);
         Assert.False(result.FinalState.CardObjects["P1-EQUIPMENT-SOUL-SWORD"].IsExhausted);
     }
 
@@ -11133,7 +11133,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-EQUIPMENT-JAGGED-DIRK"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-JAGGED-DIRK"].Tags);
+        Assert.Equal(ExpectedEquipmentTagsForCard("SFD·009/221"), result.FinalState.CardObjects["P1-EQUIPMENT-JAGGED-DIRK"].Tags);
         Assert.False(result.FinalState.CardObjects["P1-EQUIPMENT-JAGGED-DIRK"].IsExhausted);
     }
 
@@ -11216,7 +11216,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-EQUIPMENT-DORANS-SHIELD"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-DORANS-SHIELD"].Tags);
+        Assert.Equal(ExpectedEquipmentTagsForCard("SFD·033/221"), result.FinalState.CardObjects["P1-EQUIPMENT-DORANS-SHIELD"].Tags);
         Assert.False(result.FinalState.CardObjects["P1-EQUIPMENT-DORANS-SHIELD"].IsExhausted);
     }
 
@@ -11299,7 +11299,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK"].Tags);
+        Assert.Equal(ExpectedEquipmentTagsForCard("SFD·073/221"), result.FinalState.CardObjects["P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK"].Tags);
         Assert.False(result.FinalState.CardObjects["P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK"].IsExhausted);
     }
 
@@ -11382,7 +11382,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-EQUIPMENT-DORANS-BLADE"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-DORANS-BLADE"].Tags);
+        Assert.Equal(ExpectedEquipmentTagsForCard("SFD·095/221"), result.FinalState.CardObjects["P1-EQUIPMENT-DORANS-BLADE"].Tags);
         Assert.False(result.FinalState.CardObjects["P1-EQUIPMENT-DORANS-BLADE"].IsExhausted);
     }
 
@@ -69489,10 +69489,27 @@ public sealed class ConformanceFixtureRunnerTests
         }
 
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
-        var expectedEquipmentTags = expectedTags ?? [CardObjectTags.EquipmentCard];
+        var expectedEquipmentTags = expectedTags
+            ?? ExpectedEquipmentTagsForCard(result.FinalState.CardObjects[equipmentObjectId].CardNo);
         Assert.Equal(expectedEquipmentTags, result.FinalState.CardObjects[equipmentObjectId].Tags);
         Assert.Equal(expectedIsExhausted, result.FinalState.CardObjects[equipmentObjectId].IsExhausted);
         Assert.Equal(expectedAttachedToObjectId, result.FinalState.CardObjects[equipmentObjectId].AttachedToObjectId);
+    }
+
+    private static IReadOnlyList<string> ExpectedEquipmentTagsForCard(string? cardNo)
+    {
+        var tags = new List<string> { CardObjectTags.EquipmentCard };
+        if (!string.IsNullOrWhiteSpace(cardNo)
+            && CardBehaviorRegistry.TryGetByCardNo(cardNo, out var behavior))
+        {
+            tags.AddRange(behavior.SourceEquipmentTags
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(tag => !string.IsNullOrWhiteSpace(tag)));
+        }
+
+        return tags
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static Task AssertAgileEquipmentMissingTargetRejectedAsync(

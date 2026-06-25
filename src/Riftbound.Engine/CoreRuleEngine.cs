@@ -6156,44 +6156,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsArmamentPlayBehavior(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsEquipment
-            && (ParseDelimitedValues(behavior.SourceEquipmentTags)
-                    .Contains("武装", StringComparer.Ordinal)
-                || IsOfficialArmamentEquipmentCardNo(behavior.CardNo));
-    }
-
-    private static bool IsOfficialArmamentEquipmentCardNo(string? cardNo)
-    {
-        return cardNo is "UNL-019/219"
-            or "UNL-039/219"
-            or "UNL-096/219"
-            or "UNL-158/219"
-            or "SFD·009/221"
-            or "SFD·016/221"
-            or "SFD·022/221"
-            or "SFD·030/221"
-            or "SFD·033/221"
-            or "SFD·042/221"
-            or "SFD·051/221"
-            or "SFD·056/221"
-            or "SFD·059/221"
-            or "SFD·064/221"
-            or "SFD·073/221"
-            or "SFD·090/221"
-            or "SFD·095/221"
-            or "SFD·102/221"
-            or "SFD·108/221"
-            or "SFD·115/221"
-            or "SFD·118/221"
-            or "SFD·118a/221·P"
-            or "SFD·124/221"
-            or "SFD·133/221"
-            or "SFD·134/221"
-            or "SFD·139/221"
-            or "SFD·150/221"
-            or "SFD·153/221"
-            or "SFD·161/221"
-            or "SFD·172/221"
-            or "SFD·178/221";
+            && ParseDelimitedValues(behavior.SourceEquipmentTags)
+                .Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal);
     }
 
     private static string BuildPlayedArmamentThisTurnEffectId(string playerId)

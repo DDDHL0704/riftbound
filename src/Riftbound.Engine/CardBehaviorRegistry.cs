@@ -1290,7 +1290,8 @@ public static class CardBehaviorRegistry
             "SOUL_SWORD_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·009/221",
             "锯齿短匕",
@@ -1298,7 +1299,8 @@ public static class CardBehaviorRegistry
             "JAGGED_DIRK_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·033/221",
             "多兰之盾",
@@ -1306,7 +1308,8 @@ public static class CardBehaviorRegistry
             "DORANS_SHIELD_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·073/221",
             "海克斯注力刚壁",
@@ -1314,7 +1317,8 @@ public static class CardBehaviorRegistry
             "HEXTECH_INFUSED_BULWARK_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·095/221",
             "多兰之刃",
@@ -1322,7 +1326,8 @@ public static class CardBehaviorRegistry
             "DORANS_BLADE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·124/221",
             "多兰之戒",
@@ -1330,7 +1335,8 @@ public static class CardBehaviorRegistry
             "DORANS_RING_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·153/221",
             "先锋之眼",
@@ -1338,7 +1344,8 @@ public static class CardBehaviorRegistry
             "VANGUARDS_EYE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·016/221",
             "反曲之弓",
@@ -1346,7 +1353,8 @@ public static class CardBehaviorRegistry
             "RECURVE_BOW_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·022/221",
             "长剑",
@@ -1363,7 +1371,8 @@ public static class CardBehaviorRegistry
             "BRUTALIZER_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·051/221",
             "守护天使",
@@ -1371,7 +1380,8 @@ public static class CardBehaviorRegistry
             "GUARDIAN_ANGEL_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·056/221",
             "斯特拉克的挑战护手",
@@ -1397,7 +1407,8 @@ public static class CardBehaviorRegistry
             "HEXDRINKER_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·108/221",
             "狂徒铠甲",
@@ -1405,7 +1416,8 @@ public static class CardBehaviorRegistry
             "WARMOGS_ARMOR_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·115/221",
             "三相之力",
@@ -1413,7 +1425,8 @@ public static class CardBehaviorRegistry
             "TRINITY_FORCE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·186/221",
             "旋转飞斧",
@@ -1430,7 +1443,8 @@ public static class CardBehaviorRegistry
             "BOOTS_OF_SWIFTNESS_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·134/221",
             "萃取",
@@ -1438,7 +1452,8 @@ public static class CardBehaviorRegistry
             "CULL_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·172/221",
             "神圣剪刀",
@@ -1446,7 +1461,8 @@ public static class CardBehaviorRegistry
             "SACRED_SHEARS_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·161/221",
             "暴风大剑",
@@ -1454,7 +1470,8 @@ public static class CardBehaviorRegistry
             "BF_SWORD_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·086/221",
             "云游图鉴",
@@ -1470,7 +1487,8 @@ public static class CardBehaviorRegistry
             "ARIONS_FALL_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "UNL-096/219",
             "猎人的宽刃刀",
@@ -1478,7 +1496,8 @@ public static class CardBehaviorRegistry
             "HUNTERS_MACHETE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "UNL-019/219",
             "枯萎战斧",
@@ -1486,7 +1505,8 @@ public static class CardBehaviorRegistry
             "WITHERED_BATTLEAXE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·118/221",
             "碎骨棒",
@@ -1494,7 +1514,8 @@ public static class CardBehaviorRegistry
             "BONE_CLUB_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·117/221",
             "远古簇碑",
@@ -1654,7 +1675,8 @@ public static class CardBehaviorRegistry
             "SFUR_SONG_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·090/221",
             "Z型驱动",
@@ -1662,7 +1684,8 @@ public static class CardBehaviorRegistry
             "Z_DRIVE_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·168/221",
             "先锋军备",
@@ -1855,7 +1878,8 @@ public static class CardBehaviorRegistry
             "LAST_RITES_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·178/221",
             "破败王者之刃",
@@ -1863,7 +1887,8 @@ public static class CardBehaviorRegistry
             "BLADE_OF_RUINED_KING_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "OGN·023/298",
             "来路不明的武器",
@@ -1904,7 +1929,8 @@ public static class CardBehaviorRegistry
             "EDGE_OF_NIGHT_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "SFD·190/221",
             "炉火斗篷",
@@ -1975,7 +2001,8 @@ public static class CardBehaviorRegistry
             "BONECLUB_PROMO_PLAY_EQUIPMENT",
             0,
             0,
-            PlaysSourceToBaseAsEquipment: true),
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new(
             "UNL-188/219",
             "海克斯科技护手",

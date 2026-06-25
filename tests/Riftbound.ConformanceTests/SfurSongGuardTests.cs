@@ -50,7 +50,7 @@ public sealed class SfurSongGuardTests
         Assert.Equal("SFD·059/221", equipment.CardNo);
         Assert.Equal("P1", equipment.OwnerId);
         Assert.Equal("P1", equipment.ControllerId);
-        Assert.Equal([CardObjectTags.EquipmentCard], equipment.Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon], equipment.Tags);
         Assert.False(equipment.IsExhausted);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_PLAYED_TO_BASE", StringComparison.Ordinal)

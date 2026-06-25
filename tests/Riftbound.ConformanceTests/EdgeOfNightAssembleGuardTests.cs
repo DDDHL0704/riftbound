@@ -391,7 +391,7 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal(["P1-UNIT-ASSEMBLE-TARGET", "P1-EQUIPMENT-EDGE-OF-NIGHT"], p2Pass.State.PlayerZones["P1"].Base);
         Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
         Assert.Empty(p2Pass.State.StackItems);
-        Assert.Equal([CardObjectTags.EquipmentCard], p2Pass.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon], p2Pass.State.CardObjects["P1-EQUIPMENT-EDGE-OF-NIGHT"].Tags);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_PLAYED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal)

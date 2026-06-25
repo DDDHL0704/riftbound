@@ -5202,9 +5202,11 @@ public sealed class CardCatalogBaselineTests
         Assert.True(doransShield.HasAssemble);
         Assert.False(doransShield.HasAgile);
         Assert.False(doransShield.HasTempered);
+        Assert.True(doransShield.HasWeapon);
         Assert.True(doransShield.HasImplementedRepresentativeAssembleBoundary);
-        Assert.Equal(EquipmentKeywordProfileStatuses.ImplementedRepresentative, doransShield.Status);
+        Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, doransShield.Status);
         Assert.Contains("ASSEMBLE_EQUIPMENT", doransShield.Reason, StringComparison.Ordinal);
+        Assert.Contains("deferred equipment breadth", doransShield.Reason, StringComparison.Ordinal);
 
         var longSword = BuildEquipmentProfile(
             specs,
@@ -5272,6 +5274,50 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, ornn.Status);
         Assert.Contains("Ornn friendly-equipment static power", ornn.Reason, StringComparison.Ordinal);
         Assert.Contains("full Tempered official breadth", ornn.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task OfficialArmamentEquipmentRegistryDefinitionsCarryWeaponSourceTag()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var implementedArmaments = catalog.Cards
+            .Select(card =>
+            {
+                CardBehaviorRegistry.TryGetByCardNo(card.CardNo, out var definition);
+                return new
+                {
+                    Card = card,
+                    Definition = definition
+                };
+            })
+            .Where(row => row.Definition is not null
+                && row.Definition.PlaysSourceToBaseAsEquipment
+                && string.Equals(row.Card.CardCategoryName, "装备", StringComparison.Ordinal)
+                && row.Card.Tag.Contains("武装", StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.NotEmpty(implementedArmaments);
+        Assert.All(
+            implementedArmaments,
+            row => Assert.Contains("武装", ParseDelimitedValues(row.Definition!.SourceEquipmentTags)));
+    }
+
+    [Fact]
+    public void ArmamentPlayTrackingDoesNotUseCoreCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            "..",
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("IsOfficialArmamentEquipmentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -84,7 +84,7 @@
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
-      { "kind": "EQUIPMENT_PLAYED_TO_BASE", "payload": { "playerId": "P1", "sourceObjectId": "P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK", "equipmentObjectId": "P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK", "equipmentName": "海克斯注力刚壁", "destinationZone": "BASE", "tags": ["CARD_TYPE:EQUIPMENT"] } }
+      { "kind": "EQUIPMENT_PLAYED_TO_BASE", "payload": { "playerId": "P1", "sourceObjectId": "P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK", "equipmentObjectId": "P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK", "equipmentName": "海克斯注力刚壁", "destinationZone": "BASE", "tags": ["CARD_TYPE:EQUIPMENT", "武装"] } }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
@@ -102,7 +102,7 @@
         "P1-EQUIPMENT-HEXTECH-INFUSED-BULWARK": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false

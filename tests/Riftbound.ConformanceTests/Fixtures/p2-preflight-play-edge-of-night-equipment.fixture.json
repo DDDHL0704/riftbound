@@ -116,7 +116,7 @@
           "equipmentObjectId": "P1-EQUIPMENT-EDGE-OF-NIGHT",
           "equipmentName": "夜之锋刃",
           "destinationZone": "BASE",
-          "tags": ["CARD_TYPE:EQUIPMENT"]
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装"]
         }
       }
     ],
@@ -146,7 +146,7 @@
         "P1-EQUIPMENT-EDGE-OF-NIGHT": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false

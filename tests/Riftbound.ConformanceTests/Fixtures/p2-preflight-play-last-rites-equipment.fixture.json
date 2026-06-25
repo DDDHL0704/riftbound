@@ -111,7 +111,7 @@
         "P1-EQUIPMENT-LAST-RITES": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false
