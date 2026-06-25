@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused unit-conquest draw-one, draw-or-call-rune, and create-dormant-Gold TriggerSpec slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, and grant-self-boon TriggerSpec slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -37,15 +37,23 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `CreatedTokenKeywords = [反应]`
 - `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 坏坏魄罗's representative dormant-Gold effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(...)`, and reads the emitted effect id, token name, token count, exhausted state, and token tags from `BehaviorSpec.Triggers`.
 - The old `BadPoroUnitConquestGoldCardNo` / `IsBadPoroUnitConquestGoldCardNo` branch is removed.
-- Current source-helper count for `private static bool Is*CardNo(...)` is `44` total / `41` in `CoreRuleEngine`; the remaining unit-conquest helper count is `5`.
+- `SFD·232/221` / `SFD·232*/221` / `OGN·164/298` / `OGN·164a/298` 瑟提 official text from `data/official/card-catalog.zh-CN.json`: `当我被打出时、或当我征服一处战场时，给予我增益。`
+- `RuleTextParser` now parses that conquest text as `TriggerSpec` with:
+  - `Kind = UNIT_CONQUEST_GRANT_SELF_BOON`
+  - `Timing = UNIT_CONQUEST`
+  - `TargetScope = SOURCE_UNIT`
+  - `BoonCount = 1`
+- `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 瑟提's representative self-boon effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(...)`, and reads the emitted effect id from `BehaviorSpec.Triggers`.
+- The old `SettUnitConquestSelfBoonCardNo` / `IsSettUnitConquestSelfBoonCardNo` branch is removed.
+- Current source-helper count for `private static bool Is*CardNo(...)` is `43` total / `40` in `CoreRuleEngine`; the remaining unit-conquest helper count is `4`.
 
 ## Non-Goals
 
-- This does not close the full unit-conquest family. Sett / Lucian / friendly-boon / friendly-power / destroy-equipment conquest representatives still have card-number helper branches.
+- This does not close the full unit-conquest family. Lucian / friendly-boon / friendly-power / destroy-equipment conquest representatives still have card-number helper branches.
 - This does not add natural battle-conquest trigger queuing for every unit. The validated runtime route is the existing 清算人竞技场 representative that activates unit conquest effects from a battlefield held trigger.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, B0 full-game readiness, or project READY.
 
 ## Follow-Up
 
-- Migrate the remaining unit-conquest helpers one effect kind at a time into `TriggerSpec` shapes, starting with simple non-targeted effects before optional / targeted choices.
+- Migrate the remaining unit-conquest helpers one effect kind at a time into `TriggerSpec` shapes, keeping simple non-targeted effects ahead of optional / targeted choices.
 - After each migration, keep the source guard pattern and the `P79BattlefieldHeldActivateConquestEffects...` runtime representatives green.

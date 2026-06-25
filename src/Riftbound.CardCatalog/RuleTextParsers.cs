@@ -442,6 +442,21 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var unitConquestGrantSelfBoonMatch = Regex.Match(
+            segment,
+            @"当我被打出时、或当我征服一处战场时，给予我增益。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestGrantSelfBoonMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestGrantSelfBoon,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest grant-self-boon trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                BoonCount: 1);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",

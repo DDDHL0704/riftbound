@@ -22534,14 +22534,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (IsSettUnitConquestSelfBoonCardNo(unitState.CardNo))
+            if (UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(unitState.CardNo, out var unitConquestSelfBoonTrigger))
             {
                 AddUnitConquestEffectActivatedEvent(
                     events,
                     playerId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_GRANT_SELF_BOON",
+                    unitConquestSelfBoonTrigger.Kind,
                     battlefieldObjectId,
                     triggerSpec.Kind);
                 GrantLegendBoon(
@@ -22549,7 +22549,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     unitObjectId,
                     playerId,
                     unitObjectId,
-                    "UNIT_CONQUEST_GRANT_SELF_BOON",
+                    unitConquestSelfBoonTrigger.Kind,
                     events);
                 continue;
             }
@@ -22756,16 +22756,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(cardNo, out _)
-            || IsSettUnitConquestSelfBoonCardNo(cardNo)
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(cardNo, out _)
             || IsLucianUnitConquestReadyCardNo(cardNo)
             || IsFriendlyBoonUnitConquestCardNo(cardNo)
             || IsFriendlyPowerUnitConquestCardNo(cardNo)
             || IsDestroyEquipmentBoonUnitConquestCardNo(cardNo);
-    }
-
-    private static bool IsSettUnitConquestSelfBoonCardNo(string? cardNo)
-    {
-        return cardNo is "SFD·232/221" or "SFD·232*/221" or "OGN·164/298" or "OGN·164a/298";
     }
 
     private static bool IsLucianUnitConquestReadyCardNo(string? cardNo)

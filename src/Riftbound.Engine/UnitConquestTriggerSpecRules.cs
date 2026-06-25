@@ -32,6 +32,14 @@ internal static class UnitConquestTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetUnitConquestGrantSelfBoonTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitConquestGrantSelfBoon,
+            out trigger);
+    }
+
     private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;

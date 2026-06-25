@@ -2249,6 +2249,32 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("SFD·232/221")]
+    [InlineData("SFD·232*/221")]
+    [InlineData("OGN·164/298")]
+    [InlineData("OGN·164a/298")]
+    public async Task BehaviorSpecCatalogParsesUnitConquestGrantSelfBoonTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var sett = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            sett.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestGrantSelfBoon, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestGrantSelfBoon, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.BoonCount);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("给予我增益", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest grant-self-boon trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
@@ -3299,6 +3325,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BadPoroUnitConquestGoldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBadPoroUnitConquestGoldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitConquestGrantSelfBoonTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("SettUnitConquestSelfBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsSettUnitConquestSelfBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
