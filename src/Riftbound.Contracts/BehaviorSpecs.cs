@@ -52,6 +52,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE";
     public const string BattlefieldDefendMoveFriendlyUnitToBase =
         "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE";
+    public const string BattlefieldDefendGrantSteadfast =
+        "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO";
     public const string BattlefieldHeldGrantBoon =
         "BATTLEFIELD_HELD_GRANT_BOON";
     public const string BattlefieldHeldCreateMinion =
@@ -129,6 +131,7 @@ public static class TriggerTargetScopes
 {
     public const string MovedUnit = "MOVED_UNIT";
     public const string FriendlyUnitAtThisBattlefield = "FRIENDLY_UNIT_AT_THIS_BATTLEFIELD";
+    public const string DefenderUnitAtThisBattlefield = "DEFENDER_UNIT_AT_THIS_BATTLEFIELD";
     public const string PlayedUnitAtThisBattlefield = "PLAYED_UNIT_AT_THIS_BATTLEFIELD";
     public const string ReturnedUnitAtThisBattlefield = "RETURNED_UNIT_AT_THIS_BATTLEFIELD";
     public const string OtherControlledUnitAtThisBattlefield = "OTHER_CONTROLLED_UNIT_AT_THIS_BATTLEFIELD";
@@ -361,7 +364,9 @@ public sealed record TriggerSpec(
     int? DestroyCount = null,
     bool? Optional = null,
     bool? FirstTurnOnly = null,
-    int? ScoreAmount = null);
+    int? ScoreAmount = null,
+    string? GrantedKeyword = null,
+    int? KeywordBonus = null);
 
 public sealed record ReplacementSpec(
     string Kind,

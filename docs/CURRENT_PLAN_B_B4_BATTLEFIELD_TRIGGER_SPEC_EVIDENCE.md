@@ -45,6 +45,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `OGN·276/298` / `OGN·276a/298` has official text `使赢得游戏所需的分数+1。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·214/221` 能量枢纽 has official text `当你据守此处时，你可以选择支付{{A}}{{A}}{{A}}{{A}}，以此额外获得1分。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·285/298` 劫掠船巷 has official text `当你防守此处时，你可以选择将此处的一名友方单位移动到基地。`
+- `data/official/card-catalog.zh-CN.json`: `OGN·279/298` 强化阵地 has official text `当你防守此处时，选择一名单位，使其在本次战斗期间获得{{坚守2}}。（如果它是防守方，则{{S}}+2。）`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -85,6 +86,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin`, `P79BattlefieldStaticWinningScoreIncreaseSkipsOpponentControlledSource`, `P79BattlefieldStaticWinningScoreIncreaseStillWinsAtNine`, and GameHub `P79BattlefieldWinningScoreSeedRaisesThresholdAndDelaysBurnoutWin` remain the runtime evidence for the winning-score increase representative behavior.
 - Existing representative tests `P79BattlefieldHeldPaysPowerToGainScore...`, Brush replacement held-score tests, battle-response held-score payment-resource tests, and GameHub `P79BattlefieldHeldScore...` representatives remain the runtime evidence for the held pay-power score behavior.
 - Existing representative tests `P79BattlefieldDefendMovesChosenSurvivingDefenderToBase`, `P79BattlefieldDefendMoveToBaseRejectsAttackerControlledBattlefield`, and GameHub `P79BattlefieldDefendMoveToBaseSeedOffersBattlefieldDestinationAndChoice` remain the runtime evidence for the defend move-friendly-unit-to-base behavior.
+- Existing representative tests `P79BattlefieldDefenderSteadfastTwoChoosesDefender` and GameHub `P79BattlefieldDefenderSteadfastSeedOffersBattlefieldDestinationAndChoice` remain the runtime evidence for the defend grant-Steadfast behavior.
 
 ## Runtime Evidence
 
@@ -143,6 +145,10 @@ The accepted `DECLARE_BATTLE` held-battlefield path still requires an eligible c
 The defend move-friendly-unit-to-base follow-up parser path turns the Plunder Alley official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`, `Timing=BATTLEFIELD_DEFENDED`, `TargetScope=FRIENDLY_UNIT_AT_THIS_BATTLEFIELD`, `MoveCount=1`, `MoveDestination=OWNER_BASE`, and `Optional=true`. Runtime no longer checks `OGN·285/298` through `BattlefieldDefendMoveFriendlyUnitToBaseCardNo` / `IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
 The accepted `DECLARE_BATTLE` defended-battlefield path still requires an eligible battlefield source controlled or legacy-owned by the defending player, and a selected surviving friendly defender target from that battle. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` and `UNIT_MOVED_TO_BASE` payloads now use the parsed trigger kind, while the optional no-target path and stale attacker-controlled battlefield rejection remain covered by existing Plunder Alley tests.
+
+The defend grant-Steadfast follow-up parser path turns the Fortified Position official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO`, `Timing=BATTLEFIELD_DEFENDED`, `TargetScope=DEFENDER_UNIT_AT_THIS_BATTLEFIELD`, `GrantedKeyword=坚守`, and `KeywordBonus=2`. Runtime no longer checks `OGN·279/298` through `BattlefieldDefenderSteadfastTwoCardNo` / `IsBattlefieldDefenderSteadfastTwoCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` defended-battlefield path still requires an eligible battlefield source controlled or legacy-owned by the defending player and exactly one declared defender target when multiple targets could be present. The emitted `BATTLEFIELD_TRIGGER_RESOLVED` payload now uses the parsed trigger kind / keyword / bonus, and combat power reads the parsed keyword bonus instead of a hardcoded `+2`.
 
 The held grant-boon follow-up parser path turns the Navori Arena official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_HELD_GRANT_BOON`, `Timing=BATTLEFIELD_HELD`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, and `BoonCount=1`. Runtime no longer checks `OGN·283/298` through `BattlefieldHoldGrantBoonCardNo` / `IsBattlefieldHoldGrantBoonCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
 
@@ -337,6 +343,9 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - held pay-power score adjacent BattlefieldHeldScore / BrushReplacement / BattleDamageAssignmentLifecycle / GameHub / PaymentEngine representatives: `1082/1082`;
 - defend move-friendly-unit-to-base focused behavior-spec/source guard/runtime representatives: `5/5`;
 - defend move-friendly-unit-to-base CardCatalog baseline: `161/161`;
+- defend grant-Steadfast focused behavior-spec/source guard/runtime representatives: `4/4`;
+- defend grant-Steadfast CardCatalog baseline: `163/163`;
+- defend grant-Steadfast adjacent BattlefieldDefender / BattlefieldDefend / DeclareBattle / FullGame / GameHub representatives: `134/134`;
 - MatchRecovery: `1989/1989`;
 - backend full conformance after the conquer overkill create-Warhawk follow-up: `8436/8436`;
 - backend full conformance after the turn-start damage-units follow-up: `8438/8438`;
@@ -347,12 +356,14 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - backend full conformance after the winning-score increase follow-up: `8448/8448`;
 - backend full conformance after the held pay-power score follow-up: `8450/8450`;
 - backend full conformance after the defend move-friendly-unit-to-base follow-up: `8452/8452`;
+- backend full conformance after the defend grant-Steadfast follow-up: `8454/8454`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 - score-delay DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 - winning-score increase DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
 - held pay-power score DevUi build: passed after synchronizing `BehaviorSpec.triggers.powerCost` catalog typing.
 - defend move-friendly-unit-to-base DevUi build: not run; this follow-up did not change DevUi source or catalog TypeScript shape.
+- defend grant-Steadfast DevUi build: passed after synchronizing `BehaviorSpec.triggers.grantedKeyword` / `keywordBonus` catalog typing.
 
 ## Non-Closure
 
-This evidence proves thirty-seven battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-eight battlefield trigger representatives plus two battlefield static representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, complete `此处` physical battlefield scoping for score prevention, broader Fortified Position target-choice semantics, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

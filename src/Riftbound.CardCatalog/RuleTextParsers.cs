@@ -832,6 +832,22 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var battlefieldDefendGrantSteadfastMatch = Regex.Match(
+            segment,
+            @"当你防守此处时，选择一名单位，使其在本次战斗期间获得\{\{坚守([0-9一两二三四五六七八九十]+)\}\}",
+            RegexOptions.CultureInvariant);
+        if (battlefieldDefendGrantSteadfastMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldDefendGrantSteadfast,
+                TriggerTimings.BattlefieldDefended,
+                segment,
+                "Battlefield defend grant-Steadfast trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.DefenderUnitAtThisBattlefield,
+                GrantedKeyword: "坚守",
+                KeywordBonus: ParseChineseNumber(battlefieldDefendGrantSteadfastMatch.Groups[1].Value));
+        }
+
         var battlefieldHeldGrantBoonMatch = Regex.Match(
             segment,
             @"当你据守此处时，给予此处的一名单位增益",

@@ -72,6 +72,14 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetBattlefieldDefendGrantSteadfastTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldDefendGrantSteadfast,
+            out trigger);
+    }
+
     public static bool TryGetBattlefieldHeldGrantBoonTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

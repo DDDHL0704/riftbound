@@ -669,7 +669,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
-    private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
@@ -16721,6 +16720,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var battlefieldSteadfastObjectId,
                 out var battlefieldSteadfastObjectSourceId,
                 out var battlefieldSteadfastCardNo,
+                out var battlefieldSteadfastGrantedKeyword,
+                out var battlefieldSteadfastKeywordBonus,
                 out var battlefieldSteadfastRejection))
         {
             return battlefieldSteadfastRejection;
@@ -16895,10 +16896,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldId,
                     ["battlefieldObjectId"] = battlefieldSteadfastObjectSourceId,
                     ["battlefieldCardNo"] = battlefieldSteadfastCardNo,
-                    ["trigger"] = "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO",
+                    ["trigger"] = TriggerKinds.BattlefieldDefendGrantSteadfast,
                     ["targetObjectId"] = battlefieldSteadfastObjectId,
-                    ["keyword"] = CardCombatKeywordNames.Steadfast,
-                    ["keywordBonus"] = 2
+                    ["keyword"] = battlefieldSteadfastGrantedKeyword,
+                    ["keywordBonus"] = battlefieldSteadfastKeywordBonus
                 }));
         }
 
@@ -16931,6 +16932,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defendingPlayerId,
                 battlefieldId,
                 battlefieldSteadfastObjectId,
+                battlefieldSteadfastKeywordBonus,
                 attacksReadyEnemyUnit,
                 out var assaultBonus,
                 out var attackerStaticPowerBonus);
@@ -16950,6 +16952,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     null,
                     battlefieldId,
                     battlefieldSteadfastObjectId,
+                    battlefieldSteadfastKeywordBonus,
                     false,
                     out _,
                     out _);
@@ -17003,6 +17006,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 null,
                 battlefieldId,
                 battlefieldSteadfastObjectId,
+                battlefieldSteadfastKeywordBonus,
                 false,
                 out var steadfastBonus,
                 out var defenderStaticPowerBonus);
@@ -17027,6 +17031,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     defendingPlayerId,
                     battlefieldId,
                     battlefieldSteadfastObjectId,
+                    battlefieldSteadfastKeywordBonus,
                     attacksReadyEnemyUnit,
                     out _,
                     out _);
@@ -19296,6 +19301,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? defendingPlayerId,
         string battlefieldId,
         string? battlefieldSteadfastObjectId,
+        int battlefieldSteadfastKeywordBonus,
         bool attacksReadyEnemyUnit,
         out int keywordBonus,
         out int staticPowerBonus)
@@ -19360,7 +19366,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!isAttacking
             && string.Equals(objectId, battlefieldSteadfastObjectId, StringComparison.Ordinal))
         {
-            keywordBonus += 2;
+            keywordBonus += battlefieldSteadfastKeywordBonus;
         }
 
         if (!isAttacking && HasMasterYiSingleDefenderBonus(state, playerZones, objectId, defendingUnitCount))
@@ -22837,11 +22843,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         out string? targetObjectId,
         out string battlefieldObjectId,
         out string? battlefieldCardNo,
+        out string? grantedKeyword,
+        out int keywordBonus,
         out ResolutionResult rejection)
     {
         targetObjectId = null;
         battlefieldObjectId = string.Empty;
         battlefieldCardNo = null;
+        grantedKeyword = null;
+        keywordBonus = 0;
         rejection = default!;
 
         var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
@@ -22849,8 +22859,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         var sourceControlledByDefender = hasBattlefieldObject
             && !string.IsNullOrWhiteSpace(defendingPlayerId)
             && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId);
-        var isSteadfastBattlefield = sourceControlledByDefender
-            && IsBattlefieldDefenderSteadfastTwoCardNo(battlefieldState.CardNo);
+        TriggerSpec? steadfastTrigger = null;
+        if (sourceControlledByDefender
+            && BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(
+                battlefieldState.CardNo,
+                out var candidateSteadfastTrigger)
+            && IsBattlefieldDefendGrantSteadfastTrigger(candidateSteadfastTrigger))
+        {
+            steadfastTrigger = candidateSteadfastTrigger;
+        }
+        var isSteadfastBattlefield = steadfastTrigger is not null;
         var isMoveToBaseBattlefield = sourceControlledByDefender
             && BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(
                 battlefieldState.CardNo,
@@ -22871,6 +22889,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         battlefieldCardNo = battlefieldState.CardNo;
+        grantedKeyword = steadfastTrigger!.GrantedKeyword;
+        keywordBonus = steadfastTrigger.KeywordBonus.GetValueOrDefault();
         var selectedTargetObjectId = requestedTargetObjectIds.Count == 0 && defenderObjectIds.Count == 1
             ? defenderObjectIds[0]
             : requestedTargetObjectIds.Count == 1
@@ -22888,6 +22908,14 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         targetObjectId = selectedTargetObjectId;
         return true;
+    }
+
+    private static bool IsBattlefieldDefendGrantSteadfastTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.DefenderUnitAtThisBattlefield, StringComparison.Ordinal)
+            && string.Equals(trigger.GrantedKeyword, CardCombatKeywordNames.Steadfast, StringComparison.Ordinal)
+            && trigger.KeywordBonus.GetValueOrDefault() > 0;
     }
 
     private static bool TryResolveIcevaleArcherAttackPaymentChoice(
@@ -25129,7 +25157,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerMillTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardNo, out _)
-            || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendGrantSteadfastTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(cardNo, out _)
@@ -25188,11 +25216,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHeldActivateConquestEffectsCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHeldActivateConquestEffectsCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldDefenderSteadfastTwoCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldDefenderSteadfastTwoCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
