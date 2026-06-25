@@ -80,6 +80,14 @@ internal static class BattlefieldStaticAbilitySpecRules
             out ability);
     }
 
+    public static bool TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(string? cardNo, out StaticAbilitySpec ability)
+    {
+        return TryGetStaticAbility(
+            cardNo,
+            StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement,
+            out ability);
+    }
+
     private static bool TryGetStaticAbility(string? cardNo, string kind, out StaticAbilitySpec ability)
     {
         ability = default!;

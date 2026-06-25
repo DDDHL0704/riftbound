@@ -201,6 +201,8 @@ public static class StaticAbilityKinds
         "BATTLEFIELD_WINNING_SCORE_INCREASE";
     public const string BattlefieldExtraStandbyDestination =
         "BATTLEFIELD_EXTRA_STANDBY_DESTINATION";
+    public const string BattlefieldDestroyedInBattlePayRecallReplacement =
+        "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL";
 }
 
 public static class StaticAuraKinds

@@ -664,7 +664,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
-    private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string OgnVayneCardNo = "OGN·035/298";
@@ -683,7 +682,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
-    private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
@@ -697,7 +695,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string RagingDrakeNextSpellCostReductionEffectKind = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION";
     private const string UnitConquestReadySelfOnceEffectPrefix = "UNIT_CONQUEST_READY_SELF_ONCE:";
-    private const string BattlefieldDestroyedInBattleRecallEffectId = "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL";
+    private const string BattlefieldDestroyedInBattleRecallEffectId =
+        StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement;
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
     private const string DiscardedHandCardThisTurnEffectPrefix = "DISCARDED_HAND_CARD_THIS_TURN:";
@@ -20473,18 +20472,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !TryGetFieldControllerId(playerZones, battlefieldObjectId, out var battlefieldControllerId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, battlefieldControllerId)
-            || !IsBattlefieldDestroyedInBattleRecallCardNo(battlefieldState.CardNo))
+            || !BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(
+                battlefieldState.CardNo,
+                out var replacementAbility)
+            || replacementAbility.Amount <= 0)
         {
             return false;
         }
 
+        var replacementManaCost = replacementAbility.Amount;
         var controllerId = !string.IsNullOrWhiteSpace(targetState.ControllerId)
             && playerZones.ContainsKey(targetState.ControllerId)
                 ? targetState.ControllerId
                 : location.Value.PlayerId;
         var ownerId = string.IsNullOrWhiteSpace(targetState.OwnerId) ? location.Value.PlayerId : targetState.OwnerId;
         var currentPool = runePools.TryGetValue(controllerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < BattlefieldDestroyedInBattleRecallManaCost)
+        if (currentPool.Mana < replacementManaCost)
         {
             return false;
         }
@@ -20492,7 +20495,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         mutableRunePools[controllerId] = currentPool with
         {
-            Mana = currentPool.Mana - BattlefieldDestroyedInBattleRecallManaCost
+            Mana = currentPool.Mana - replacementManaCost
         };
         nextRunePools = mutableRunePools;
 
@@ -20545,7 +20548,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = controllerId,
-                    ["mana"] = BattlefieldDestroyedInBattleRecallManaCost,
+                    ["mana"] = replacementManaCost,
                     ["power"] = 0,
                     ["reason"] = BattlefieldDestroyedInBattleRecallEffectId
                 }),
@@ -25147,7 +25150,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(cardNo, out _)
-            || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldDestroyedInBattlePayRecallReplacementAbility(cardNo, out _)
             || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldExtraStandbyDestinationAbility(cardNo, out _)
             || IsBattlefieldHeldActivateConquestEffectsCardNo(cardNo)
@@ -25193,11 +25196,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
-    }
-
-    private static bool IsBattlefieldDestroyedInBattleRecallCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldGrantLegendAttachArmamentCardNo(string? cardNo)

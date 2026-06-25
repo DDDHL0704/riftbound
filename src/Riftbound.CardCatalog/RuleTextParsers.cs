@@ -1304,6 +1304,21 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var battlefieldDestroyedInBattleRecallMatch = Regex.Match(
+                segment,
+                @"如果此处的一名单位在战斗中被摧毁，其控制者可以选择支付(?<cost>(?:\{\{A\}\})+)，以此改为移除其所受伤害、将其变为休眠状态、并将其召回",
+                RegexOptions.CultureInvariant);
+            if (battlefieldDestroyedInBattleRecallMatch.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield battle-destroyed pay-power recall replacement parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
+                    ParsePowerCostSymbols(battlefieldDestroyedInBattleRecallMatch.Groups["cost"].Value)));
+                continue;
+            }
+
             if (segment.Contains("你可以选择在此处额外布置一张{{待命}}卡牌", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(
@@ -1355,6 +1370,10 @@ public static class StaticAbilityParser
         };
     }
 
+    private static int ParsePowerCostSymbols(string raw)
+    {
+        return Regex.Matches(raw, @"\{\{A\}\}", RegexOptions.CultureInvariant).Count;
+    }
 }
 
 public static class StaticAuraParser
