@@ -11533,13 +11533,13 @@ internal static class ActionPromptBuilder
     private static bool IsAgileDirectPlayAttachRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsEquipment
-            && CardEquipmentKeywordRules.IsAgileDirectPlayAttachRepresentativeCardNo(behavior.CardNo);
+            && CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary(behavior.CardNo);
     }
 
     private static bool IsTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsUnit
-            && CardEquipmentKeywordRules.IsTemperedOptionalAttachRepresentativeCardNo(behavior.CardNo);
+            && CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo);
     }
 
     private static int PromptMinimumManaCost(

@@ -5586,8 +5586,8 @@ public sealed class CardCatalogBaselineTests
             .Select(method => method.Name)
             .ToHashSet(StringComparer.Ordinal);
 
-        Assert.True(CardEquipmentKeywordRules.IsEquipmentStateRepresentativeCardNo("SFD·022/221"));
-        Assert.False(CardEquipmentKeywordRules.IsEquipmentStateRepresentativeCardNo("SFD·033/221"));
+        Assert.True(CardEquipmentKeywordRules.TryGetEquipmentStateRepresentative("SFD·022/221", out _));
+        Assert.False(CardEquipmentKeywordRules.TryGetEquipmentStateRepresentative("SFD·033/221", out _));
         Assert.True(longSword.HasImplementedRepresentativeEquipmentStateBoundary);
         Assert.Equal(stateRepresentative.VerifierTestNames, longSword.EquipmentStateRepresentativeVerifierTests);
         Assert.Equal("Long Sword", stateRepresentative.CardName);

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -23,6 +24,14 @@ public static class EquipmentAttachmentProfileStatuses
     public const string NotApplicable = "not-applicable";
 }
 
+public static class EquipmentRepresentativeBoundaryKinds
+{
+    public const string AgileDirectPlayAttach = "AGILE_DIRECT_PLAY_ATTACH";
+    public const string TemperedOptionalAttach = "TEMPERED_OPTIONAL_ATTACH";
+    public const string FriendlyEquipmentStaticPower = "FRIENDLY_EQUIPMENT_STATIC_POWER";
+    public const string EquipmentState = "EQUIPMENT_STATE";
+}
+
 public sealed record CardEquipmentKeywordProfile(
     bool HasAssemble,
     bool HasAgile,
@@ -43,6 +52,10 @@ public sealed record CardEquipmentStateRepresentative(
     IReadOnlyList<string> CoveredBoundaries,
     IReadOnlyList<string> VerifierTestNames);
 
+public sealed record CardEquipmentRepresentativeBoundary(
+    string CardNo,
+    string Kind);
+
 public sealed record CardEquipmentAttachmentProfile(
     bool CanAttachOrDetachWeapon,
     int DrawCount,
@@ -51,26 +64,19 @@ public sealed record CardEquipmentAttachmentProfile(
 
 public static class CardEquipmentKeywordRules
 {
-    private static readonly HashSet<string> AgileDirectPlayAttachRepresentativeCardNos =
+    public static readonly IReadOnlyList<CardEquipmentRepresentativeBoundary> EquipmentRepresentativeBoundaries =
     [
-        "SFD·022/221",
-        "SFD·056/221",
-        "SFD·064/221",
-        "SFD·186/221"
-    ];
-
-    private static readonly HashSet<string> TemperedOptionalAttachRepresentativeCardNos =
-    [
-        "SFD·002/221",
-        "SFD·008/221",
-        "SFD·119/221",
-        "SFD·119a/221"
-    ];
-
-    private static readonly HashSet<string> FriendlyEquipmentStaticPowerRepresentativeCardNos =
-    [
-        "SFD·085/221",
-        "SFD·085a/221"
+        new("SFD·022/221", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach),
+        new("SFD·056/221", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach),
+        new("SFD·064/221", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach),
+        new("SFD·186/221", EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach),
+        new("SFD·002/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
+        new("SFD·008/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
+        new("SFD·119/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
+        new("SFD·119a/221", EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach),
+        new("SFD·085/221", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower),
+        new("SFD·085a/221", EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower),
+        new("SFD·022/221", EquipmentRepresentativeBoundaryKinds.EquipmentState)
     ];
 
     public static readonly IReadOnlyList<CardEquipmentStateRepresentative> EquipmentStateRepresentatives =
@@ -98,29 +104,51 @@ public static class CardEquipmentKeywordRules
             ])
     ];
 
-    public static bool IsAgileDirectPlayAttachRepresentativeCardNo(string? cardNo)
+    public static bool HasRepresentativeBoundary(
+        string? cardNo,
+        string boundaryKind)
     {
         return !string.IsNullOrWhiteSpace(cardNo)
-            && AgileDirectPlayAttachRepresentativeCardNos.Contains(cardNo);
+            && !string.IsNullOrWhiteSpace(boundaryKind)
+            && EquipmentRepresentativeBoundaries.Any(boundary =>
+                string.Equals(boundary.CardNo, cardNo, StringComparison.Ordinal)
+                && string.Equals(boundary.Kind, boundaryKind, StringComparison.Ordinal));
     }
 
-    public static bool IsTemperedOptionalAttachRepresentativeCardNo(string? cardNo)
+    public static bool HasAgileDirectPlayAttachRepresentativeBoundary(string? cardNo)
     {
-        return !string.IsNullOrWhiteSpace(cardNo)
-            && TemperedOptionalAttachRepresentativeCardNos.Contains(cardNo);
+        return HasRepresentativeBoundary(
+            cardNo,
+            EquipmentRepresentativeBoundaryKinds.AgileDirectPlayAttach);
     }
 
-    public static bool IsFriendlyEquipmentStaticPowerRepresentativeCardNo(string? cardNo)
+    public static bool HasTemperedOptionalAttachRepresentativeBoundary(string? cardNo)
     {
-        return !string.IsNullOrWhiteSpace(cardNo)
-            && FriendlyEquipmentStaticPowerRepresentativeCardNos.Contains(cardNo);
+        return HasRepresentativeBoundary(
+            cardNo,
+            EquipmentRepresentativeBoundaryKinds.TemperedOptionalAttach);
     }
 
-    public static bool IsEquipmentStateRepresentativeCardNo(string? cardNo)
+    public static bool HasFriendlyEquipmentStaticPowerRepresentativeBoundary(string? cardNo)
     {
-        return !string.IsNullOrWhiteSpace(cardNo)
-            && EquipmentStateRepresentatives.Any(representative =>
-                string.Equals(representative.CardNo, cardNo, StringComparison.Ordinal));
+        return HasRepresentativeBoundary(
+            cardNo,
+            EquipmentRepresentativeBoundaryKinds.FriendlyEquipmentStaticPower);
+    }
+
+    public static bool TryGetEquipmentStateRepresentative(
+        string? cardNo,
+        [NotNullWhen(true)] out CardEquipmentStateRepresentative? representative)
+    {
+        representative = null;
+        if (!HasRepresentativeBoundary(cardNo, EquipmentRepresentativeBoundaryKinds.EquipmentState))
+        {
+            return false;
+        }
+
+        representative = EquipmentStateRepresentatives.FirstOrDefault(candidate =>
+            string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal));
+        return representative is not null;
     }
 
     public static CardEquipmentKeywordProfile BuildProfile(
@@ -147,14 +175,13 @@ public static class CardEquipmentKeywordRules
         var hasImplementedRepresentativeAssembleBoundary = hasAssemble
             && ActionPromptBuilder.HasImplementedRepresentativeAssembleEquipmentProfile(spec.CardNo);
         var hasImplementedRepresentativeAgileDirectPlayAttachBoundary = hasAgile
-            && IsAgileDirectPlayAttachRepresentativeCardNo(spec.CardNo);
+            && HasAgileDirectPlayAttachRepresentativeBoundary(spec.CardNo);
         var hasImplementedRepresentativeTemperedOptionalAttachBoundary = hasTempered
-            && IsTemperedOptionalAttachRepresentativeCardNo(spec.CardNo);
+            && HasTemperedOptionalAttachRepresentativeBoundary(spec.CardNo);
         var hasImplementedRepresentativeFriendlyEquipmentStaticPowerBoundary =
-            IsFriendlyEquipmentStaticPowerRepresentativeCardNo(spec.CardNo)
+            HasFriendlyEquipmentStaticPowerRepresentativeBoundary(spec.CardNo)
             && behavior?.AddsFriendlyFieldEquipmentCountToSourceUnitPower == true;
-        var equipmentStateRepresentative = EquipmentStateRepresentatives.FirstOrDefault(representative =>
-            string.Equals(representative.CardNo, spec.CardNo, StringComparison.Ordinal));
+        TryGetEquipmentStateRepresentative(spec.CardNo, out var equipmentStateRepresentative);
         var hasImplementedRepresentativeEquipmentStateBoundary = equipmentStateRepresentative is not null;
         var hasDeferredOfficialBreadth = hasAgile
             || hasTempered

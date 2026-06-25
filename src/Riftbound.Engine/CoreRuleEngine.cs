@@ -32863,13 +32863,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsAgileDirectPlayAttachRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsEquipment
-            && CardEquipmentKeywordRules.IsAgileDirectPlayAttachRepresentativeCardNo(behavior.CardNo);
+            && CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary(behavior.CardNo);
     }
 
     private static bool IsTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsUnit
-            && CardEquipmentKeywordRules.IsTemperedOptionalAttachRepresentativeCardNo(behavior.CardNo);
+            && CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo);
     }
 
     private static bool IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
