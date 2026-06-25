@@ -522,7 +522,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgsLuxHighCostSpellCardNo = "OGS·006/024";
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
-    private const string WaterbenderCardNo = "OGN·055/298";
     private const string SfdFioraPowerfulReadyCardNo = "SFD·180/221";
     private const string SfdFioraPowerfulReadyAltCardNo = "SFD·180a/221";
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
@@ -19548,7 +19547,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int attackingUnitCount,
         int defendingUnitCount)
     {
-        if (!string.Equals(cardObject.CardNo, WaterbenderCardNo, StringComparison.Ordinal)
+        if (!StaticAuraSpecRules.TryGetSourceLoneBattlePowerAura(cardObject.CardNo, out var aura)
             || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown)
         {
@@ -19556,8 +19555,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return isAttacking
-            ? attackingUnitCount == 1 ? 2 : 0
-            : defendingUnitCount == 1 ? 2 : 0;
+            ? attackingUnitCount == aura.RequiredAttackingUnitCount.GetValueOrDefault(1)
+                ? aura.PowerDeltaPerParticipant
+                : 0
+            : defendingUnitCount == aura.RequiredDefendingUnitCount.GetValueOrDefault(1)
+                ? aura.PowerDeltaPerParticipant
+                : 0;
     }
 
     private static int ResolveSourceObjectFilteredPowerBonus(CardObjectState cardObject)

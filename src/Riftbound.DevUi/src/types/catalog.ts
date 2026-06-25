@@ -25,6 +25,7 @@ export type StaticAuraSpec = {
   targetFilter?: string | null;
   grantedKeyword?: string | null;
   requiredAttackingUnitCount?: number | null;
+  requiredDefendingUnitCount?: number | null;
 };
 
 export type BehaviorSpec = {

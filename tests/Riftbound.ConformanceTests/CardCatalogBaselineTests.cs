@@ -1378,6 +1378,19 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("如果我和另一名单位一起进攻一处战场", scarletPigeonAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, scarletPigeonAura.Status);
 
+        var waterbender = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·055/298", StringComparison.Ordinal));
+        var waterbenderAura = Assert.Single(waterbender.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SourceLoneBattlePower, waterbenderAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, waterbenderAura.Layer);
+        Assert.Equal("WHILE_SOURCE_ATTACKING_OR_DEFENDING_ALONE", waterbenderAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SourceObject, waterbenderAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.BattlefieldPublicUnits, waterbenderAura.ParticipantScope);
+        Assert.Equal(2, waterbenderAura.PowerDeltaPerParticipant);
+        Assert.Equal(1, waterbenderAura.RequiredAttackingUnitCount);
+        Assert.Equal(1, waterbenderAura.RequiredDefendingUnitCount);
+        Assert.Contains("如果我独自进攻或防守一处战场", waterbenderAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, waterbenderAura.Status);
+
         var enthusiasticAnnouncer = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-043/219", StringComparison.Ordinal));
         Assert.Empty(enthusiasticAnnouncer.StaticAuras);
     }
@@ -2896,6 +2909,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ScarletPigeonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsScarletPigeonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UNL-154/219", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("WaterbenderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("OGN·055/298", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]
