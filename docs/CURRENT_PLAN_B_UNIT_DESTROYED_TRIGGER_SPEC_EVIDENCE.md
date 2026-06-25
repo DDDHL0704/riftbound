@@ -10,6 +10,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `UNL-068/219` 幽魂半人马 has official text `当另一名友方单位被摧毁时，让我本回合内{{S}}+2。`
 - `data/official/card-catalog.zh-CN.json`: `OGN·118/298` 残响之魂 has official text `每回合首次：当你的友方单位被摧毁时，抽一张牌。`
 - `data/official/card-catalog.zh-CN.json`: `ARC-006/006`, `OGN·246/298`, and `OGN·246a/298` 维克托 have official text `如果我在场上，则每当你的另一名非“随从”单位被摧毁时，打出一名1{{S}}的“随从”到你的基地。`
+- `data/official/card-catalog.zh-CN.json`: `SFD·036/221` and `UNL-221/219` 哀哀魄罗 have official text `{{绝念}} — 当我被摧毁时，如果此处没有其他友方单位，则抽一张牌。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official catalog text remains the local rule authority input for this representative slice.
 
 ## BehaviorSpec Evidence
@@ -22,6 +23,8 @@ Project status: **NOT READY**.
 - `UnitFirstFriendlyDestroyedDrawTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ResonantSoulCardNo`.
 - `BehaviorSpecCatalogParsesUnitDestroyedNonMinionCreateMinionTrigger` verifies that all three 维克托 destroyed-trigger prints parse to `TriggerSpec.Kind = VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `Timing = UNIT_DESTROYED`, `TargetScope = OTHER_FRIENDLY_DESTROYED_UNIT`, `ExcludesTokens = true`, `CreatedTokenCount = 1`, `CreatedTokenName = 随从`, `CreatedTokenPower = 1`, and `CreatedTokenDestination = OWNER_BASE`.
 - `UnitDestroyedNonMinionCreateMinionTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `ViktorDestroyedNonMinionArcCardNo`, `ViktorDestroyedNonMinionOgnCardNo`, `ViktorDestroyedNonMinionOgnAltACardNo`, or `IsViktorDestroyedNonMinionCardNo`.
+- `BehaviorSpecCatalogParsesUnitLastBreathDrawIfAloneTrigger` verifies that both 哀哀魄罗 prints parse to `TriggerSpec.Kind = SAD_PORO_LAST_BREATH_DRAW_1`, `Timing = UNIT_DESTROYED`, `TargetScope = SOURCE_UNIT`, `DrawCount = 1`, and `RequiresNoOtherFriendlyUnitAtSamePosition = true`.
+- `UnitLastBreathDrawIfAloneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `SadPoroOriginalCardNo`, `SadPoroUnleashedCardNo`, or `IsSadPoroCardNo`.
 
 ## Runtime Evidence
 
@@ -37,7 +40,10 @@ Project status: **NOT READY**.
 - `RealViktorDestroyedNonMinionTriggersAutoStackAndCreatesMinionToken` verifies the real stack-destruction trigger route still queues APNAP ordered triggers and resolves the Zaun minion token through the stack.
 - `StateBasedCleanupViktorDestroyedNonMinionTriggersAutoStackAndCreatesMinionToken` verifies the same TriggerSpec source route from state-based cleanup.
 - The broader `ViktorDestroyedNonMinion|FriendlyDestroyed|StateBasedCleanup` adjacent filter keeps the existing invalid-source, hidden-source, token-exclusion, and shared destroyed-trigger cleanup paths green.
-- Existing recovery validators for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, and `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION` still pass because the stack effect values are unchanged.
+- `StateBasedCleanupSadPorosTriggerOrderAndDrawThroughStack` verifies both Sad Poro prints still enqueue APNAP ordered last-breath draw triggers and resolve through the stack.
+- `StateBasedCleanupSadPoroSkipsWhenNotIsolated` verifies the TriggerSpec source route preserves the existing "no other friendly unit at this position" condition.
+- `P79SadPoroDrawsWhenDestroyedWhileIsolated` and `P79SadPoroSkipsDrawWhenDestroyedWithAnotherFriendlyUnitAtSameBase` keep the representative fixture route green.
+- Existing recovery validators for `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, and `SAD_PORO_LAST_BREATH_DRAW_1` still pass because the stack effect values are unchanged.
 
 ## Validation
 
@@ -50,12 +56,15 @@ Project status: **NOT READY**.
 - Focused 维克托 behavior-spec/source-guard representatives: `4/4` passing.
 - Focused 维克托 runtime representatives: `2/2` passing.
 - Adjacent `ViktorDestroyedNonMinion|FriendlyDestroyed|StateBasedCleanup` representatives: `131/131` passing.
+- Focused 哀哀魄罗 behavior-spec/source-guard representatives: `3/3` passing.
+- Adjacent `SadPoro` representatives: `13/13` passing.
+- Adjacent `LastBreath|StateBasedCleanup` representatives: `209/209` passing.
 - `MatchRecovery`: `1989/1989` passing.
-- Backend full conformance: `8508/8508` passing.
+- Backend full conformance: `8511/8511` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk
 
-- The effect-kind values remain the legacy `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, and `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`; only source recognition, TriggerSpec parsing, and effect amount / token-count routing moved to data-driven engine paths.
+- The effect-kind values remain the legacy `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, and `SAD_PORO_LAST_BREATH_DRAW_1`; only source recognition, TriggerSpec parsing, condition checks, and effect amount / token-count routing moved to data-driven engine paths.
 - Other destroyed-trigger families still have card-number based source recognition and remain follow-up work.
 - Complete destroyed-trigger prompt breadth and hidden-information edge matrices remain open.

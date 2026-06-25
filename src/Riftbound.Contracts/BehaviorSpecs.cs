@@ -138,6 +138,8 @@ public static class TriggerKinds
         "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
     public const string UnitDestroyedNonMinionCreateMinion =
         "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
+    public const string UnitLastBreathDrawIfAlone =
+        "SAD_PORO_LAST_BREATH_DRAW_1";
 }
 
 public static class TriggerTimings
@@ -405,7 +407,8 @@ public sealed record TriggerSpec(
     int? ScoreAmount = null,
     string? GrantedKeyword = null,
     int? KeywordBonus = null,
-    int? ExperienceCount = null);
+    int? ExperienceCount = null,
+    bool? RequiresNoOtherFriendlyUnitAtSamePosition = null);
 
 public sealed record ReplacementSpec(
     string Kind,

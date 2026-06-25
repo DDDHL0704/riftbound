@@ -2474,6 +2474,32 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("SFD·036/221")]
+    [InlineData("UNL-221/219")]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathDrawIfAloneTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var sadPoro = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            sadPoro.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitLastBreathDrawIfAlone, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitLastBreathDrawIfAlone, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.True(trigger.RequiresNoOtherFriendlyUnitAtSamePosition);
+        Assert.Contains("当我被摧毁时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("没有其他友方单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit last-breath draw-if-alone trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
@@ -3650,6 +3676,21 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnAltACardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsViktorDestroyedNonMinionCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathDrawIfAloneTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("SadPoroOriginalCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("SadPoroUnleashedCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsSadPoroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

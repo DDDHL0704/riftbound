@@ -40,6 +40,14 @@ internal static class UnitDestroyedTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetLastBreathDrawIfAloneTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitLastBreathDrawIfAlone,
+            out trigger);
+    }
+
     public static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;

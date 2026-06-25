@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused friendly-destroyed gain-experience, power-until-end, first-friendly-destroyed draw, and destroyed non-minion create-minion TriggerSpec slices accepted; project remains **NOT READY**.
+Status: focused friendly-destroyed gain-experience, power-until-end, first-friendly-destroyed draw, destroyed non-minion create-minion, and last-breath draw-if-alone TriggerSpec slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -66,9 +66,24 @@ This slice also moves the implemented destroyed non-minion create-minion trigger
 - The old `ViktorDestroyedNonMinionArcCardNo` / `ViktorDestroyedNonMinionOgnCardNo` / `ViktorDestroyedNonMinionOgnAltACardNo` / `IsViktorDestroyedNonMinionCardNo` Core branch is removed from `CoreRuleEngine`.
 - Current source-helper count for `private static bool Is*CardNo(...)` is `37` total / `34` in `CoreRuleEngine`.
 
+This slice also moves the implemented Sad Poro last-breath draw trigger away from engine card-number branching:
+
+- `SFD·036/221` and `UNL-221/219` 哀哀魄罗 official text from `data/official/card-catalog.zh-CN.json`: `{{绝念}} — 当我被摧毁时，如果此处没有其他友方单位，则抽一张牌。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = SAD_PORO_LAST_BREATH_DRAW_1`
+  - `Timing = UNIT_DESTROYED`
+  - `TargetScope = SOURCE_UNIT`
+  - `DrawCount = 1`
+  - `RequiresNoOtherFriendlyUnitAtSamePosition = true`
+- `TriggerKinds.UnitLastBreathDrawIfAlone` keeps the existing effect-kind value for stack / replay compatibility while exposing a generic engine name.
+- `CoreRuleEngine.ResolveSadPoroLastBreathDrawPlayerId` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path while preserving the existing field-position isolation check.
+- `CoreRuleEngine` explicit-destroy and state-based-cleanup trigger construction now emits the effect id from `BehaviorSpec.Triggers`, and stack resolution reads the draw count from `TriggerSpec.DrawCount`.
+- The old `SadPoroOriginalCardNo` / `SadPoroUnleashedCardNo` / `IsSadPoroCardNo` Core branch is removed from `CoreRuleEngine`.
+- Current source-helper count for `private static bool Is*CardNo(...)` is `36` total / `33` in `CoreRuleEngine`.
+
 ## Non-Goals
 
-- This keeps the existing `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, and `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION` stack effect strings for compatibility with recovery and replay validators.
+- This keeps the existing `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, and `SAD_PORO_LAST_BREATH_DRAW_1` stack effect strings for compatibility with recovery and replay validators.
 - This does not migrate other destroyed-trigger families to TriggerSpec.
 - This does not rename existing recovery validator constants or old audit file names that describe the legacy effect id.
 - This does not close complete natural destroyed-trigger prompt breadth, B0 full-game readiness, or project READY.
