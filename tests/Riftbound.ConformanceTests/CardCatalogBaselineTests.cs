@@ -2397,6 +2397,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitFriendlyDestroyedPowerUntilEndTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var centaur = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-068/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            centaur.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.OtherFriendlyDestroyedUnit, trigger.TargetScope);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Equal(2, trigger.PowerDelta);
+        Assert.Contains("当另一名友方单位被摧毁时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("本回合内", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("+2", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit friendly-destroyed power trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3530,6 +3554,19 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("SavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsSavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitFriendlyDestroyedPowerUntilEndTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("GhostlyCentaurCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

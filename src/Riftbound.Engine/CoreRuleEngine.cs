@@ -608,20 +608,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ResonantSoulFirstFriendlyDestroyedDrawEffectKind = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string DuneDrakeCardNo = "OGN·131/298";
-    private const string GhostlyCentaurCardNo = "UNL-068/219";
-    private const string GhostlyCentaurFriendlyDestroyedPowerEffectKind = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+    private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string ViktorDestroyedNonMinionCreateMinionEffectKind = "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
     private const string ViktorDestroyedNonMinionArcCardNo = "ARC-006/006";
     private const string ViktorDestroyedNonMinionOgnCardNo = "OGN·246/298";
     private const string ViktorDestroyedNonMinionOgnAltACardNo = "OGN·246a/298";
-    private static readonly CardBehaviorDefinition GhostlyCentaurFriendlyDestroyedPowerBehavior = new(
-        GhostlyCentaurCardNo,
-        "幽魂半人马",
-        0,
-        GhostlyCentaurFriendlyDestroyedPowerEffectKind,
-        0,
-        0,
-        PowerModifierAmount: 2);
     private const string ScarletPigeonCardNo = "UNL-154/219";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
@@ -6999,30 +6990,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         string destroyedObjectId,
         string destroyedOwnerPlayerId)
     {
-        return playerZones
+        var triggers = new List<TriggerQueueItemState>();
+        foreach (var sourceObjectId in playerZones
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Distinct(StringComparer.Ordinal)
             .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
             .Where(sourceObjectId => !stateBasedRemovalObjectIds.Contains(sourceObjectId))
             .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
-            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && string.Equals(sourceState.CardNo, GhostlyCentaurCardNo, StringComparison.Ordinal)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown
-                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                && IsObjectOnField(playerZones, sourceObjectId)
-                && string.Equals(
-                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                    destroyedOwnerPlayerId,
-                    StringComparison.Ordinal))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
-            .Select(sourceObjectId => new TriggerQueueItemState(
-                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{GhostlyCentaurFriendlyDestroyedPowerEffectKind}",
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal))
+        {
+            if (!TryGetFriendlyDestroyedTriggerSource(
+                playerZones,
+                cardObjects,
+                sourceObjectId,
+                destroyedOwnerPlayerId,
+                TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn,
+                out _,
+                out var triggerSpec)
+                || !IsFriendlyDestroyedPowerUntilEndTriggerSpec(triggerSpec))
+            {
+                continue;
+            }
+
+            triggers.Add(new TriggerQueueItemState(
+                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{triggerSpec.Kind}",
                 destroyedOwnerPlayerId,
                 sourceObjectId,
-                GhostlyCentaurFriendlyDestroyedPowerEffectKind,
-                "UNIT_DESTROYED"))
-            .ToArray();
+                triggerSpec.Kind,
+                TriggerTimings.UnitDestroyed));
+        }
+
+        return triggers;
     }
 
     private static IReadOnlyList<TriggerQueueItemState> BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems(
@@ -7084,11 +7082,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
             .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal))
         {
-            if (!TryGetFriendlyDestroyedGainExperienceTriggerSource(
+            if (!TryGetFriendlyDestroyedTriggerSource(
                 playerZones,
                 cardObjects,
                 sourceObjectId,
                 destroyedOwnerPlayerId,
+                TriggerKinds.UnitFriendlyDestroyedGainExperience,
                 out _,
                 out var triggerSpec))
             {
@@ -7106,19 +7105,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         return triggers;
     }
 
-    private static bool TryGetFriendlyDestroyedGainExperienceTriggerSource(
+    private static bool TryGetFriendlyDestroyedTriggerSource(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string sourceObjectId,
         string controllerId,
+        string triggerKind,
         out CardObjectState sourceState,
         out TriggerSpec triggerSpec)
     {
         sourceState = default!;
         triggerSpec = default!;
         if (!cardObjects.TryGetValue(sourceObjectId, out var candidateSourceState)
-            || !UnitDestroyedTriggerSpecRules.TryGetFriendlyDestroyedGainExperienceTrigger(
+            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 candidateSourceState.CardNo,
+                triggerKind,
                 out var candidateTriggerSpec)
             || !string.Equals(
                 candidateTriggerSpec.TargetScope,
@@ -7143,6 +7144,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         sourceState = candidateSourceState;
         triggerSpec = candidateTriggerSpec;
         return true;
+    }
+
+    private static bool IsFriendlyDestroyedPowerUntilEndTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(
+                trigger.TargetScope,
+                TriggerTargetScopes.OtherFriendlyDestroyedUnit,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
+            && trigger.PowerDelta is not null;
     }
 
     private static IReadOnlyList<TriggerQueueItemState> BuildViktorDestroyedNonMinionTriggerQueueItems(
@@ -33075,7 +33091,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveUndercoverAgentLastBreathStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal))
+        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn, StringComparison.Ordinal))
         {
             return ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(state, stackItem);
         }
@@ -36816,23 +36832,31 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "UNIT_DESTROYED"))
         };
 
-        if (cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-            && string.Equals(sourceState.CardNo, GhostlyCentaurCardNo, StringComparison.Ordinal)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && IsObjectOnField(playerZones, stackItem.SourceObjectId)
-            && string.Equals(
-                EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, sourceState),
+        if (TryGetFriendlyDestroyedTriggerSource(
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
                 stackItem.ControllerId,
-                StringComparison.Ordinal))
+                TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn,
+                out var sourceState,
+                out var triggerSpec)
+            && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal)
+            && IsFriendlyDestroyedPowerUntilEndTriggerSpec(triggerSpec))
         {
+            var powerBehavior = new CardBehaviorDefinition(
+                sourceState.CardNo ?? string.Empty,
+                GhostlyCentaurDisplayName,
+                0,
+                triggerSpec.Kind,
+                0,
+                0,
+                PowerModifierAmount: triggerSpec.PowerDelta.GetValueOrDefault());
             cardObjects[stackItem.SourceObjectId] = ApplyPowerModifier(
                 sourceState,
-                GhostlyCentaurFriendlyDestroyedPowerBehavior,
+                powerBehavior,
                 stackItem,
                 stackItem.SourceObjectId,
-                GhostlyCentaurFriendlyDestroyedPowerBehavior.PowerModifierAmount,
+                powerBehavior.PowerModifierAmount,
                 out var powerEvent);
             events.Add(powerEvent);
         }
@@ -36872,11 +36896,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "UNIT_DESTROYED"))
         };
 
-        if (TryGetFriendlyDestroyedGainExperienceTriggerSource(
+        if (TryGetFriendlyDestroyedTriggerSource(
                 playerZones,
                 state.CardObjects,
                 stackItem.SourceObjectId,
                 stackItem.ControllerId,
+                TriggerKinds.UnitFriendlyDestroyedGainExperience,
                 out var sourceState,
                 out var triggerSpec)
             && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal))
@@ -37003,7 +37028,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool ShouldResolveSingleOfficialTriggerImmediately(TriggerQueueItemState trigger)
     {
-        return !string.Equals(trigger.EffectKind, GhostlyCentaurFriendlyDestroyedPowerEffectKind, StringComparison.Ordinal)
+        return !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, ResonantSoulFirstFriendlyDestroyedDrawEffectKind, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal)
             && !string.Equals(trigger.EffectKind, ViktorDestroyedNonMinionCreateMinionEffectKind, StringComparison.Ordinal)

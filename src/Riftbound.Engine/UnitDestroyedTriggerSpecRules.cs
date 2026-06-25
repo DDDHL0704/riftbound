@@ -16,7 +16,15 @@ internal static class UnitDestroyedTriggerSpecRules
             out trigger);
     }
 
-    private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
+    public static bool TryGetFriendlyDestroyedPowerUntilEndTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn,
+            out trigger);
+    }
+
+    public static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;
         if (string.IsNullOrWhiteSpace(cardNo))

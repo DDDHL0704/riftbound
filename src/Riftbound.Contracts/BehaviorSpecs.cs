@@ -132,6 +132,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
     public const string UnitFriendlyDestroyedGainExperience =
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
+    public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =
+        "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
 }
 
 public static class TriggerTimings

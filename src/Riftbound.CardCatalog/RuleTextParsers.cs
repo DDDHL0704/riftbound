@@ -535,6 +535,22 @@ public static class TriggerParser
                 ExperienceCount: ParseChineseNumber(unitFriendlyDestroyedGainExperienceMatch.Groups[1].Value));
         }
 
+        var unitFriendlyDestroyedPowerUntilEndMatch = Regex.Match(
+            segment,
+            @"当另一名友方单位被摧毁时，让我本回合内\{\{S\}\}\+([0-9一两二三四五六七八九十]+)。?$",
+            RegexOptions.CultureInvariant);
+        if (unitFriendlyDestroyedPowerUntilEndMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn,
+                TriggerTimings.UnitDestroyed,
+                segment,
+                "Unit friendly-destroyed power trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.OtherFriendlyDestroyedUnit,
+                PowerDelta: ParseChineseNumber(unitFriendlyDestroyedPowerUntilEndMatch.Groups[1].Value),
+                Duration: TriggerDurations.UntilEndOfTurn);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
