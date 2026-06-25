@@ -21,8 +21,10 @@ public sealed class FullGameEndToEndTests
     private const string VexLegendCardNo = "UNL-232/219";
     private const string VexChampionCardNo = "UNL-055/219";
     private const string ShadowCardNo = "UNL-194/219";
+    private const string PakaaCubCardNo = "OGN·135/298";
     private const long LowCurveReplaySeed = 424242;
     private static readonly int[] ShadowResponseDriverSeeds = [7, 11, 17, 23, 31, 42, 101, 404, 20260624, 424242];
+    private static readonly int[] StandbyDriverSeeds = [424242, 7, 11, 17, 23, 31, 42, 101, 404, 20260624];
 
     [Fact]
     public async Task OfficialLowCurveDecksSkipNoLegalBattleAndReachMatchResultThroughServerPrompts()
@@ -168,6 +170,32 @@ public sealed class FullGameEndToEndTests
             "b0-full-standby-heavy-replay-score",
             p1Deck,
             p2Deck);
+    }
+
+    [Fact]
+    public async Task StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildStandbyOfficialDeck(catalog);
+
+        var (initialState, journal, hidden, revealed, battleResult, result) =
+            await DriveOfficialStandbyDecksToHideRevealScoreVictoryForReplayAsync(
+                "b0-full-game-standby-hide-reveal-replay-room",
+                deck,
+                deck);
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.HideCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.RevealCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        var hiddenEvent = Assert.Single(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
+        Assert.True(Assert.IsType<bool>(hiddenEvent.Payload["isFaceDown"]));
+        Assert.Contains(revealed.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_REVEALED", StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertScoreVictory(result);
     }
 
     [Fact]
@@ -709,6 +737,213 @@ public sealed class FullGameEndToEndTests
         var stackResolved = await ResolveCurrentStackOnlyAsync(session, activated, "b0-shadow-resolve-stack");
         var battleResult = await PassOpenBattleResponseAsync(session, stackResolved, "b0-shadow-pass-returned-response");
         return (session, openedResponse, activated, stackResolved, battleResult, targetObjectId);
+    }
+
+    private static async ValueTask<(
+        MatchState InitialState,
+        RecordingMatchJournal Journal,
+        ResolutionResult Hidden,
+        ResolutionResult Revealed,
+        ResolutionResult BattleResult,
+        ResolutionResult Result)> DriveOfficialStandbyDecksToHideRevealScoreVictoryForReplayAsync(
+        string roomId,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var failures = new List<string>();
+        foreach (var seed in StandbyDriverSeeds)
+        {
+            var initialState = BuildSeatedInitialState($"{roomId}-{seed}", seed);
+            var journal = new RecordingMatchJournal();
+            try
+            {
+                var result = await DriveOfficialStandbyDecksToHideRevealScoreVictoryAsync(
+                    initialState,
+                    journal,
+                    p1Deck,
+                    p2Deck);
+                return (initialState, journal, result.Hidden, result.Revealed, result.BattleResult, result.Result);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("B0 standby driver", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: {ex.Message}");
+            }
+            catch (MatchSessionException ex) when (ex.Message.Contains("对局已经结束", StringComparison.Ordinal))
+            {
+                failures.Add($"{seed}: match ended before standby hide/reveal score path");
+            }
+        }
+
+        throw new InvalidOperationException(
+            "B0 standby driver could not find a deterministic official-deck hide/reveal score path. "
+            + string.Join(" | ", failures));
+    }
+
+    private static async ValueTask<(
+        ResolutionResult Hidden,
+        ResolutionResult Revealed,
+        ResolutionResult BattleResult,
+        ResolutionResult Result)> DriveOfficialStandbyDecksToHideRevealScoreVictoryAsync(
+        MatchState initialState,
+        IMatchJournal journal,
+        OfficialDecklist p1Deck,
+        OfficialDecklist p2Deck)
+    {
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var p1Submit = await SubmitDeckAsync(session, "P1", p1Deck, "b0-standby-submit-p1");
+        var p2Submit = await SubmitDeckAsync(session, "P2", p2Deck, "b0-standby-submit-p2");
+        AssertAccepted(p1Submit);
+        AssertAccepted(p2Submit);
+
+        AssertAccepted(await session.ReadyAsync("P1", "b0-standby-ready-p1", RawCommand(CommandTypes.Ready), CancellationToken.None));
+        var ready = await session.ReadyAsync("P2", "b0-standby-ready-p2", RawCommand(CommandTypes.Ready), CancellationToken.None);
+        AssertAccepted(ready);
+        AssertNoHiddenZoneLeak(ready);
+
+        var activePlayerId = ready.State.ActivePlayerId;
+        var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
+        var activeMulligan = await session.SubmitAsync(
+            activePlayerId,
+            "b0-standby-mulligan-active",
+            new MulliganCommand([]),
+            RawCommand(new MulliganCommand([])),
+            CancellationToken.None);
+        AssertAccepted(activeMulligan);
+        AssertNoHiddenZoneLeak(activeMulligan);
+
+        var current = await session.SubmitAsync(
+            secondPlayerId,
+            "b0-standby-mulligan-second",
+            new MulliganCommand([]),
+            RawCommand(new MulliganCommand([])),
+            CancellationToken.None);
+        AssertAccepted(current);
+        AssertNoHiddenZoneLeak(current);
+        Assert.Equal(MatchPhases.Main, current.State.Phase);
+
+        var standbyPlayerId = current.State.ActivePlayerId;
+        current = await TapAllAvailableRunesAsync(session, standbyPlayerId, current, "b0-standby-hide-tap");
+        var (hidden, hiddenObjectId) = await SubmitFirstHideCardCandidateAsync(
+            session,
+            current,
+            standbyPlayerId,
+            "b0-standby-hide-card");
+        var (revealed, revealedObjectId) = await SubmitFirstRevealCardCandidateAsync(
+            session,
+            hidden,
+            standbyPlayerId,
+            "b0-standby-reveal-card");
+        Assert.Equal(hiddenObjectId, revealedObjectId);
+        Assert.Contains(revealedObjectId, revealed.State.PlayerZones[standbyPlayerId].Base, StringComparer.Ordinal);
+        Assert.False(revealed.State.CardObjects[revealedObjectId].IsFaceDown);
+
+        current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-end-after-reveal");
+        AssertNoHiddenZoneLeak(current);
+        var opponentId = current.State.ActivePlayerId;
+        current = await PreparePlayerBoardAsync(session, opponentId, current, "standby-opponent", playUnitToBattlefield: false);
+        current = await EndTurnAsync(session, opponentId, "b0-standby-end-opponent-setup");
+        AssertNoHiddenZoneLeak(current);
+        if (!string.Equals(current.State.ActivePlayerId, standbyPlayerId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("B0 standby driver expected standby player to regain the turn after opponent setup.");
+        }
+
+        current = await PreparePlayerBoardAsync(session, standbyPlayerId, current, "standby-owner", playUnitToBattlefield: true);
+        current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-end-owner-setup");
+        AssertNoHiddenZoneLeak(current);
+        if (!string.Equals(current.State.ActivePlayerId, opponentId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("B0 standby driver expected opponent to regain the turn after standby owner setup.");
+        }
+
+        current = await MoveBaseUnitToOpponentBattlefieldAsync(session, opponentId, current);
+        current = await PassOpenSpellDuelAsync(session, current, "b0-standby-pass-focus");
+        Assert.Contains(current.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_SKIPPED", StringComparison.Ordinal));
+
+        var (_, _, battleResult) = await DriveSkippedOfficialLowCurveDecksToBattleCloseAsync(session, current);
+        var result = await DriveBattleCloseToScoreVictoryAsync(session, battleResult, "b0-standby-score");
+        return (hidden, revealed, battleResult, result);
+    }
+
+    private static async ValueTask<(ResolutionResult Result, string SourceObjectId)> SubmitFirstHideCardCandidateAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.HideCard)
+            ?? throw new InvalidOperationException($"B0 standby driver could not find HIDE_CARD for {playerId}.");
+        var sourceObjectId = candidate.Sources?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a standby hide source.");
+        var cardNo = current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
+            ? cardObject.CardNo
+            : null;
+        if (string.IsNullOrWhiteSpace(cardNo))
+        {
+            throw new InvalidOperationException("B0 standby driver could not resolve the standby hide card number.");
+        }
+
+        var destination = candidate.Destinations?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY", StringComparison.Ordinal))?.Id
+            ?? candidate.Destinations?.FirstOrDefault()?.Id
+            ?? "STANDBY";
+        var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_A", StringComparison.Ordinal))?.Id
+            ?? candidate.OptionalCosts?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a standby hide optional cost.");
+        var command = new HideCardCommand(sourceObjectId, cardNo, destination, [optionalCost]);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return (result, sourceObjectId);
+    }
+
+    private static async ValueTask<(ResolutionResult Result, string SourceObjectId)> SubmitFirstRevealCardCandidateAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string intentId)
+    {
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.RevealCard)
+            ?? throw new InvalidOperationException($"B0 standby driver could not find REVEAL_CARD for {playerId}.");
+        var sourceObjectId = candidate.Sources?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a standby reveal source.");
+        var cardNo = current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
+            ? cardObject.CardNo
+            : null;
+        if (string.IsNullOrWhiteSpace(cardNo))
+        {
+            throw new InvalidOperationException("B0 standby driver could not resolve the standby reveal card number.");
+        }
+
+        var mode = candidate.Modes?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_REVEAL", StringComparison.Ordinal))?.Id
+            ?? candidate.Modes?.FirstOrDefault()?.Id
+            ?? "STANDBY_REVEAL";
+        var destination = candidate.Destinations?.FirstOrDefault(choice => string.Equals(choice.Id, "BASE", StringComparison.Ordinal))?.Id
+            ?? candidate.Destinations?.FirstOrDefault()?.Id
+            ?? "BASE";
+        var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_REVEAL_0", StringComparison.Ordinal))?.Id
+            ?? candidate.OptionalCosts?.FirstOrDefault()?.Id
+            ?? throw new InvalidOperationException("B0 standby driver could not find a standby reveal optional cost.");
+        var command = new RevealCardCommand(
+            sourceObjectId,
+            cardNo,
+            [],
+            Mode: mode,
+            OptionalCosts: [optionalCost],
+            Destination: destination);
+        var result = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            RawCommand(command),
+            CancellationToken.None);
+        AssertAccepted(result);
+        AssertNoHiddenZoneLeak(result);
+        return (result, sourceObjectId);
     }
 
     private static async ValueTask<(
@@ -1880,6 +2115,19 @@ public sealed class FullGameEndToEndTests
             ]);
     }
 
+    private static OfficialDecklist BuildStandbyOfficialDeck(OfficialCardCatalog catalog)
+    {
+        return BuildLowCurveOfficialDeck(
+            catalog,
+            PoppyLegendCardNo,
+            PoppyChampionCardNo,
+            [
+                PakaaCubCardNo,
+                PakaaCubCardNo,
+                PakaaCubCardNo
+            ]);
+    }
+
     private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
     {
         return card.CardCategoryName is "单位" or "英雄单位"
@@ -1936,6 +2184,24 @@ public sealed class FullGameEndToEndTests
                 mode = playCard.Mode,
                 optionalCosts = playCard.OptionalCosts ?? [],
                 destination = playCard.Destination
+            }),
+            HideCardCommand hideCard => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = hideCard.CmdType,
+                sourceObjectId = hideCard.SourceObjectId,
+                cardNo = hideCard.CardNo,
+                destination = hideCard.Destination,
+                optionalCosts = hideCard.OptionalCosts ?? []
+            }),
+            RevealCardCommand revealCard => JsonSerializer.SerializeToElement(new
+            {
+                cmdType = revealCard.CmdType,
+                sourceObjectId = revealCard.SourceObjectId,
+                cardNo = revealCard.CardNo,
+                targetObjectIds = revealCard.TargetObjectIds,
+                mode = revealCard.Mode,
+                optionalCosts = revealCard.OptionalCosts ?? [],
+                destination = revealCard.Destination
             }),
             MoveUnitCommand moveUnit => JsonSerializer.SerializeToElement(new
             {

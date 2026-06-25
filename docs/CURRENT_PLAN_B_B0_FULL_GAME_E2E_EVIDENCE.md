@@ -26,6 +26,8 @@ The new B0 probe exercises a real `MatchSession` with legal official decks. It d
 - `DECLARE_BATTLE`
 - `ACTIVATE_ABILITY`
 - `ASSIGN_COMBAT_DAMAGE`
+- `HIDE_CARD`
+- `REVEAL_CARD`
 - score-based `END_TURN` advancement to `MATCH_WON`
 - `SURRENDER`
 
@@ -40,6 +42,8 @@ The score-victory regression proves the same legal official-deck path can contin
 The action-log replay regressions prove the score-victory command stream can be journaled and replayed to the same final state hash. `OfficialLowCurvePostBattleScoreVictoryActionLogReplaysToFinalStateHash` starts from the existing mirrored Jhin official low-curve battle-closed state and covers post-battle `END_TURN` scoring. `OfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash`, `DistinctOfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash`, and `StandbyHeavyOfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash` start from a seated official low-curve initial state, record `SUBMIT_DECK`, `READY`, `MULLIGAN`, tap/play/move/focus, reopened battle declaration, and score-victory `END_TURN` commands through `MatchJournal`, convert entries to recovered commands / events, and verify `MatchActionLogReplayer.VerifyFinalStateAsync` reaches the expected final state hash with no replay errors. The B0 test driver writes replayable raw command payloads for prompt-derived object ids and destinations instead of only storing `cmdType`.
 
 The battle-prompt action-log replay regressions prove the two complex B0 prompt representatives are also recoverable from seated-room command logs. `OfficialDecksResolveMultiDefenderBattleDamageAssignmentActionLogReplaysToFinalStateHash` records a legal official Lillia multi-defender path through prompt-derived `DECLARE_BATTLE` and both players' `ASSIGN_COMBAT_DAMAGE` submissions, then replays to the same battle-closed final state hash. `OfficialDecksResolveShadowBattleResponseActivationActionLogReplaysToFinalStateHash` records a legal official Vex / Shadow path through prompt-derived `DECLARE_BATTLE`, `ACTIVATE_ABILITY`, stack resolution and response priority close, then replays to the same battle-closed final state hash. The damage raw payload now uses the protocol lower-camel `assignments[].sourceObjectId`, `assignments[].targetObjectId` and `assignments[].damage` fields used by recovery.
+
+The standby hide/reveal action-log replay regression proves explicit standby setup is also recoverable from seated-room command logs. `StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash` records a legal official Poppy deck path that hides official `OGN·135/298` Pakaa Cub through prompt-derived `HIDE_CARD` with `STANDBY_A`, confirms `CARD_HIDDEN` does not expose `cardNo`, reveals the same base object through prompt-derived `REVEAL_CARD` with `STANDBY_REVEAL_0`, then continues through the existing non-standby battle / score-victory route. The hide/reveal raw payloads now preserve source object id, card number, destination, mode and optional cost fields used by recovery.
 
 The distinct-deck regression proves the full-game score-victory path is not limited to two copies of the same deck. `DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts` submits legal official Jhin and Rumble low-curve decks with different legend and champion cards, then drives the same server prompt path to real battle close and score-based `MATCH_WON`. This slice changes only the test driver / evidence: it parameterizes the deck pair and skips `待命` units when selecting the representative unit to play or move, so the B0 probe remains focused on battle / score instead of standby cleanup.
 
@@ -64,19 +68,19 @@ Focused validation:
 Result:
 
 ```text
-Passed: 13, Failed: 0, Skipped: 0, Total: 13
+Passed: 14, Failed: 0, Skipped: 0, Total: 14
 ```
 
 Adjacent validation:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~BoardTaskQueueFoundationTests|FullyQualifiedName~SpellDuelBattleStateMachineTests|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~BattleDamageAssignment|FullyQualifiedName~ShadowActivatedAbility"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FullGameEndToEndTests|FullyQualifiedName~BoardTaskQueueFoundationTests|FullyQualifiedName~SpellDuelBattleStateMachineTests|FullyQualifiedName~BattlefieldContestBattleTaskGuardTests|FullyQualifiedName~DeclareBattle|FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~BattleDamageAssignment|FullyQualifiedName~ShadowActivatedAbility|FullyQualifiedName~RevealCard|FullyQualifiedName~Standby|FullyQualifiedName~HideCard"
 ```
 
 Result:
 
 ```text
-Passed: 534, Failed: 0, Skipped: 0, Total: 534
+Passed: 699, Failed: 0, Skipped: 0, Total: 699
 ```
 
 Recovery / hidden-info validation:
@@ -100,9 +104,9 @@ Backend full validation:
 Result:
 
 ```text
-Passed: 8467, Failed: 0, Skipped: 0, Total: 8467
+Passed: 8468, Failed: 0, Skipped: 0, Total: 8468
 ```
 
 ## Non-Closure
 
-This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves an official Lillia multi-defender damage-assignment path can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, an official Vex / Shadow battle response path can open and resolve `ACTIVATE_ABILITY` through server prompts, and the mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, and Vex / Shadow response-activation command streams can be recovered from seated-room `SUBMIT_DECK` through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, full standby reveal / reaction mechanics, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
+This evidence proves the engine can drive mirrored Jhin low-curve decks, a distinct Jhin-vs-Rumble official low-curve deck pair, and a standby-heavy Jhin-vs-Poppy official low-curve deck pair through setup, opening, live prompt-driven gameplay, contested battlefield task creation, no-legal battle skip, later turn-start battlefield reopen, real battle declaration, battle close and score-based match result without leaking hidden zones. It also proves an official Lillia multi-defender damage-assignment path can open and resolve `ASSIGN_COMBAT_DAMAGE` through server prompts, an official Vex / Shadow battle response path can open and resolve `ACTIVATE_ABILITY` through server prompts, and an official Poppy / Pakaa Cub standby path can hide and reveal a standby card through server prompts without exposing the hidden card number in the hide event. The mirrored Jhin, distinct Jhin-vs-Rumble, standby-heavy Jhin-vs-Poppy, Lillia damage-assignment, Vex / Shadow response-activation, and Pakaa Cub standby hide/reveal command streams can now be recovered from seated-room `SUBMIT_DECK` through their final representative battle / score state to the same final state hash. It does not close all official deck archetypes, standby reaction-to-stack timing, battlefield extra-standby destinations, non-ready-base standby cleanup breadth, complete combat damage assignment breadth, complete spell-duel / battle lifecycle breadth, all response windows, full card matrix readiness, frontend gates or final READY.
