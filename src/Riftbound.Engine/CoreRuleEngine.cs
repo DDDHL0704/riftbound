@@ -400,6 +400,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string EmberMonkStandbyTriggerSourceEffectKind = "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT";
     private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
     private const string SharpshooterPirateCardNo = "OGN·130/298";
+    private const string SharpshooterPirateAttackTriggerSourceEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT";
     private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
     private const string KogmawCardNo = "OGN·190/298";
     private const string KogmawLastBreathAoeEffectKind = "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
@@ -18927,10 +18928,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var attackerObjectId in attackerObjectIds)
         {
             if (!cardObjects.TryGetValue(attackerObjectId, out var attackerState)
-                || !string.Equals(attackerState.CardNo, SharpshooterPirateCardNo, StringComparison.Ordinal)
-                || !attackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || attackerState.IsFaceDown
-                || attackerState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !IsControlledFaceUpFieldUnitWithEffectKind(
+                    attackerState,
+                    SharpshooterPirateAttackTriggerSourceEffectKind)
                 || !IsObjectOnField(playerZones, attackerObjectId)
                 || !string.Equals(
                     EffectiveFieldControllerId(playerZones, attackerObjectId, attackerState),

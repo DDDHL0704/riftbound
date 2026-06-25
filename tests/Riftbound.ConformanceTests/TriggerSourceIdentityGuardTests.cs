@@ -10,6 +10,7 @@ public sealed class TriggerSourceIdentityGuardTests
     [InlineData("OGN·103/298", "RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT")]
     [InlineData("OGS·006/024", "OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·091/298", "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT")]
+    [InlineData("OGN·130/298", "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·167/298", "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT")]
     public void CardBehaviorRegistryIdentifiesCatalogTriggerSourceUnitsByEffectKind(
         string cardNo,
@@ -23,6 +24,8 @@ public sealed class TriggerSourceIdentityGuardTests
     [InlineData("OGN·103/298", "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·091/298", "OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT")]
     [InlineData("OGS·006/024", "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT")]
+    [InlineData("OGN·167/298", "SHARPSHOOTER_PIRATE_ATTACK_TRIGGER_PLAY_UNIT")]
+    [InlineData("OGN·130/298", "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·121/298", "EMBER_MONK_STANDBY_TRIGGER_PLAY_UNIT")]
     [InlineData("OGN·167/298", "RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT")]
     public void CardBehaviorRegistryRejectsNonMatchingCatalogTriggerSourceUnits(
@@ -47,6 +50,7 @@ public sealed class TriggerSourceIdentityGuardTests
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, OgsLuxHighCostSpellCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, ArenaServiceCrewCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, EmberMonkCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("string.Equals(attackerState.CardNo, SharpshooterPirateCardNo", source, StringComparison.Ordinal);
         Assert.Contains("IsControlledFaceUpFieldUnitWithEffectKind", source, StringComparison.Ordinal);
         Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
     }
