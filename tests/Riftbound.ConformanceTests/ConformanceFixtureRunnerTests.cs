@@ -38723,6 +38723,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldAllUnitsStaticPowerDoesNotProjectFromFaceDownBattlefieldSource()
+    {
+        var hiddenSourceState = BattlefieldStaticPowerState(battlefieldSourceFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenSourceState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BATTLEFIELD-POWER-PLUS", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            hiddenSourceState,
+            new PlayerIntent("intent-p7-9-battlefield-all-units-static-power-face-down-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-POWER-PLUS",
+                ["P1-BATTLEFIELD-STATIC-ATTACKER"],
+                ["P2-BATTLEFIELD-STATIC-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-STATIC-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-STATIC-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
+        Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
+    }
+
+    [Fact]
+    public void P79BattlefieldAllUnitsStaticPowerDoesNotProjectToFaceDownTarget()
+    {
+        var hiddenTargetState = BattlefieldStaticPowerState(defenderFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenTargetState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BATTLEFIELD-POWER-PLUS", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-BATTLEFIELD-STATIC-DEFENDER", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79SameBattlefieldOtherFriendlyStaticPowerAddsOneToOnlyOtherFriendlyUnits()
     {
         var state = SameBattlefieldOtherFriendlyStaticPowerState();
@@ -66835,7 +66885,9 @@ public sealed class ConformanceFixtureRunnerTests
             });
     }
 
-    private static MatchState BattlefieldStaticPowerState()
+    private static MatchState BattlefieldStaticPowerState(
+        bool battlefieldSourceFaceDown = false,
+        bool defenderFaceDown = false)
     {
         return PunishmentState(mana: 0) with
         {
@@ -66855,6 +66907,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BATTLEFIELD-POWER-PLUS"] = new(
                     "P1-BATTLEFIELD-POWER-PLUS",
                     cardNo: "OGN·294/298",
+                    isFaceDown: battlefieldSourceFaceDown,
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1"),
@@ -66868,6 +66921,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-STATIC-DEFENDER"] = new(
                     "P2-BATTLEFIELD-STATIC-DEFENDER",
                     cardNo: "SFD·125/221",
+                    isFaceDown: defenderFaceDown,
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

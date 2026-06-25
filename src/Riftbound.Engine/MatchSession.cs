@@ -3228,6 +3228,8 @@ public sealed record MatchState
                 && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
                 && state.CardObjects.TryGetValue(entry.Key, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !participant.IsFaceDown
+                && !participant.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out _))
             .Select(entry => entry.Key)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -3242,6 +3244,8 @@ public sealed record MatchState
             .Where(objectId => !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
                 && state.CardObjects.TryGetValue(objectId, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !participant.IsFaceDown
+                && !participant.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && IsObjectLocationCompatibleWithBattlefield(state, objectId, battlefieldObjectId))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)

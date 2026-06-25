@@ -19699,6 +19699,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
             && !battlefieldState.IsFaceDown
             && StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(battlefieldState.CardNo, out var aura)
