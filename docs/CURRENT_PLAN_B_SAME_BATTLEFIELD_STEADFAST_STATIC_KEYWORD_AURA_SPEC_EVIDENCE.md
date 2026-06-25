@@ -29,6 +29,10 @@ Lifecycle removal:
 - The same lifecycle guard verifies combat resolution recomputes from current locations: the formerly granted defender drops from `keywordBonus=1` / combat power 3 to `keywordBonus=0` / combat power 2 after the source leaves.
 - `P79SameBattlefieldStaticKeywordGrantExpiresWhenTargetMovesToAnotherBattlefield` verifies the same duration from the target side: if the friendly unit moves to another battlefield while Taric remains at the original battlefield, the continuous effect is absent and battle power recomputes without the granted `坚守`.
 
+Controller scope:
+
+- `P79SameBattlefieldStaticKeywordGrantUsesCurrentControllerForFriendlyScope` verifies `other friendly` is evaluated from the source object's current controller. A Farron Captain owned by P1 but controlled by P2 grants `强攻` only to the same-battlefield P2 attacker and not to P1's same-battlefield defender.
+
 Existing fixture alignment:
 
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-taric-keyword-unit.fixture.json` still covers the ordinary hand-play path into the controller base, and now points the same-battlefield static keyword grant to the B2 RULE_TEXT aura representative.
@@ -46,6 +50,9 @@ Existing fixture alignment:
 - Focused source-leaves + target-moves lifecycle guards: 2/2 passed.
 - Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / MatchRecovery representatives after target-moves guard: 2064/2064 passed.
 - Backend full after target-moves guard: 8612/8612 passed.
+- Focused controller-scope guard `P79SameBattlefieldStaticKeywordGrantUsesCurrentControllerForFriendlyScope`: 1/1 passed.
+- Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Farron / Control / MatchRecovery representatives: 2271/2271 passed.
+- Backend full after controller-scope guard: 8613/8613 passed.
 
 ## Remaining Evidence Needed
 
