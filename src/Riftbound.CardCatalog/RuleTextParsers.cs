@@ -487,6 +487,22 @@ public static class TriggerParser
                 BoonCount: 1);
         }
 
+        var unitConquestFriendlyPowerUntilEndMatch = Regex.Match(
+            segment,
+            @"当我征服一处战场时，让一名友方单位本回合内\{\{S\}\}\+([0-9一两二三四五六七八九十]+)。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestFriendlyPowerUntilEndMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestFriendlyPowerUntilEndOfTurn,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest friendly-power trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.ControlledUnitOnField,
+                PowerDelta: ParseChineseNumber(unitConquestFriendlyPowerUntilEndMatch.Groups[1].Value),
+                Duration: TriggerDurations.UntilEndOfTurn);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",

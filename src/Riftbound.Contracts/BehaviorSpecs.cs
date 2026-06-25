@@ -126,6 +126,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN";
     public const string UnitConquestGrantFriendlyBoon =
         "UNIT_CONQUEST_GRANT_FRIENDLY_BOON";
+    public const string UnitConquestFriendlyPowerUntilEndOfTurn =
+        "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN";
 }
 
 public static class TriggerTimings

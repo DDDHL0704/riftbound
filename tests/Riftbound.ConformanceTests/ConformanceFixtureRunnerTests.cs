@@ -45033,6 +45033,43 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldActivateConquestEffectsSkyvoiceWyrmlingGrantsFriendlyPower()
+    {
+        var state = BattlefieldHeldActivateConquestFriendlyPowerState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-friendly-power", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RECKONER-ARENA",
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
+                ["P2-BATTLEFIELD-POWER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P2-BATTLEFIELD-SKYVOICE-WYRMLING"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["activatedUnitObjectIds"]));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectId"] as string, "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P2-BATTLEFIELD-SKYVOICE-WYRMLING", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-SKYVOICE-WYRMLING", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-SKYVOICE-WYRMLING", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["powerDelta"], 8));
+
+        var wyrmling = result.State.CardObjects["P2-BATTLEFIELD-SKYVOICE-WYRMLING"];
+        Assert.Equal(16, wyrmling.Power);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldActivateConquestEffectsAdaptiveRobotDestroysEquipmentAndGrantsSelfBoon()
     {
         var state = BattlefieldHeldActivateConquestAdaptiveRobotState(hasEquipment: true);
@@ -68163,6 +68200,65 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "UNL-029/219",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldActivateConquestFriendlyPowerState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-RECKONER-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-RECKONER-ARENA",
+                        "P2-BATTLEFIELD-POWER-DEFENDER",
+                        "P2-BATTLEFIELD-SKYVOICE-WYRMLING"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-RECKONER-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-RECKONER-ARENA"] = new(
+                    "P2-BATTLEFIELD-RECKONER-ARENA",
+                    cardNo: "OGN·286/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-POWER-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-POWER-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-SKYVOICE-WYRMLING"] = new(
+                    "P2-BATTLEFIELD-SKYVOICE-WYRMLING",
+                    cardNo: "UNL-027/219",
+                    power: 8,
+                    tags: [CardObjectTags.UnitCard, "龙"],
                     ownerId: "P2",
                     controllerId: "P2")
             }

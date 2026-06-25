@@ -22625,7 +22625,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (IsFriendlyPowerUnitConquestCardNo(unitState.CardNo)
+            if (UnitConquestTriggerSpecRules.TryGetUnitConquestFriendlyPowerUntilEndTrigger(unitState.CardNo, out var unitConquestFriendlyPowerTrigger)
                 && TryGetFirstControlledBattlefieldUnit(
                     playerZones,
                     cardObjects,
@@ -22634,13 +22634,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                     out var powerTargetObjectId)
                 && cardObjects.TryGetValue(powerTargetObjectId, out var powerTargetState))
             {
-                const int powerDelta = 8;
+                var powerDelta = unitConquestFriendlyPowerTrigger.PowerDelta.GetValueOrDefault(0);
                 AddUnitConquestEffectActivatedEvent(
                     events,
                     playerId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN",
+                    unitConquestFriendlyPowerTrigger.Kind,
                     battlefieldObjectId,
                     triggerSpec.Kind,
                     powerTargetObjectId);
@@ -22649,7 +22649,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     powerTargetObjectId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN",
+                    unitConquestFriendlyPowerTrigger.Kind,
                     "CoreRuleEngine.ResolveUnitConquestTriggers",
                     powerDelta,
                     powerTargetState.Power + powerDelta);
@@ -22664,7 +22664,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["powerDelta"] = powerDelta,
                         ["appliedPowerDelta"] = powerDelta,
                         ["resultingPower"] = powerTargetState.Power + powerDelta,
-                        ["reason"] = "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN"
+                        ["reason"] = unitConquestFriendlyPowerTrigger.Kind
                     }));
                 continue;
             }
@@ -22765,13 +22765,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestReadySelfOnceTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantFriendlyBoonTrigger(cardNo, out _)
-            || IsFriendlyPowerUnitConquestCardNo(cardNo)
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestFriendlyPowerUntilEndTrigger(cardNo, out _)
             || IsDestroyEquipmentBoonUnitConquestCardNo(cardNo);
-    }
-
-    private static bool IsFriendlyPowerUnitConquestCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, "UNL-027/219", StringComparison.Ordinal);
     }
 
     private static bool IsDestroyEquipmentBoonUnitConquestCardNo(string? cardNo)

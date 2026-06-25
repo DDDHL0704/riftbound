@@ -2326,6 +2326,30 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitConquestFriendlyPowerUntilEndTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var wyrmling = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-027/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            wyrmling.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestFriendlyPowerUntilEndOfTurn, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestFriendlyPowerUntilEndOfTurn, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
+        Assert.Equal(TriggerTargetScopes.ControlledUnitOnField, trigger.TargetScope);
+        Assert.Equal(8, trigger.PowerDelta);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("一名友方单位", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("+8", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest friendly-power trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3417,6 +3441,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("FriendlyBoonUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsFriendlyBoonUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitConquestFriendlyPowerUntilEndTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("FriendlyPowerUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsFriendlyPowerUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

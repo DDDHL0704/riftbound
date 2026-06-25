@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, and grant-friendly-boon TriggerSpec slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, and friendly-power TriggerSpec slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -61,11 +61,20 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `BoonCount = 1`
 - `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 绯红印记树怪's representative friendly-boon effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestGrantFriendlyBoonTrigger(...)`, and reads the emitted effect id from `BehaviorSpec.Triggers`.
 - The old `FriendlyBoonUnitConquestCardNo` / `IsFriendlyBoonUnitConquestCardNo` branch is removed.
-- Current source-helper count for `private static bool Is*CardNo(...)` is `41` total / `38` in `CoreRuleEngine`; the remaining unit-conquest helper count is `2`.
+- `UNL-027/219` 天声玄龙 official text from `data/official/card-catalog.zh-CN.json`: `当我征服一处战场时，让一名友方单位本回合内{{S}}+8。`
+- `RuleTextParser` now parses that conquest text as `TriggerSpec` with:
+  - `Kind = UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN`
+  - `Timing = UNIT_CONQUEST`
+  - `TargetScope = CONTROLLED_UNIT_ON_FIELD`
+  - `PowerDelta = 8`
+  - `Duration = UNTIL_END_OF_TURN`
+- `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 天声玄龙's representative friendly-power effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestFriendlyPowerUntilEndTrigger(...)`, and reads the emitted effect id plus power delta from `BehaviorSpec.Triggers`.
+- The old `FriendlyPowerUnitConquestCardNo` / `IsFriendlyPowerUnitConquestCardNo` branch is removed.
+- Current source-helper count for `private static bool Is*CardNo(...)` is `40` total / `37` in `CoreRuleEngine`; the remaining unit-conquest helper count is `1`.
 
 ## Non-Goals
 
-- This does not close the full unit-conquest family. Friendly-power / destroy-equipment conquest representatives still have card-number helper branches.
+- This does not close the full unit-conquest family. The destroy-equipment conquest representative still has a card-number helper branch.
 - This does not implement 绯红印记树怪's separate `你征服此处时的征服效果额外触发一次。` doubling effect.
 - This does not add natural battle-conquest trigger queuing for every unit. The validated runtime route is the existing 清算人竞技场 representative that activates unit conquest effects from a battlefield held trigger.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, B0 full-game readiness, or project READY.
