@@ -1391,6 +1391,19 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("如果我独自进攻或防守一处战场", waterbenderAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, waterbenderAura.Status);
 
+        var duneDrake = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·131/298", StringComparison.Ordinal));
+        var duneDrakeAura = Assert.Single(duneDrake.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SourceAttackingReadyEnemyUnitPower, duneDrakeAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, duneDrakeAura.Layer);
+        Assert.Equal("WHILE_SOURCE_ATTACKING_READY_ENEMY_UNIT_BATTLEFIELD", duneDrakeAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SourceObject, duneDrakeAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.ReadyEnemyBattlefieldPublicUnits, duneDrakeAura.ParticipantScope);
+        Assert.Equal(2, duneDrakeAura.PowerDeltaPerParticipant);
+        Assert.Equal(1, duneDrakeAura.RequiredReadyEnemyUnitCount);
+        Assert.Contains("当我进攻时", duneDrakeAura.Text, StringComparison.Ordinal);
+        Assert.Contains("处于活跃状态的敌方单位", duneDrakeAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, duneDrakeAura.Status);
+
         var enthusiasticAnnouncer = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-043/219", StringComparison.Ordinal));
         Assert.Empty(enthusiasticAnnouncer.StaticAuras);
     }
@@ -2911,6 +2924,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("UNL-154/219", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("WaterbenderCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("OGN·055/298", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("DuneDrakeCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("OGN·131/298", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

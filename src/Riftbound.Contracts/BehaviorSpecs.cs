@@ -282,6 +282,7 @@ public static class StaticAuraKinds
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
     public const string SourceAttackingWithAnotherUnitPower = "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER";
     public const string SourceLoneBattlePower = "SOURCE_LONE_BATTLE_POWER";
+    public const string SourceAttackingReadyEnemyUnitPower = "SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER";
 }
 
 public static class StaticAuraTargetScopes
@@ -313,6 +314,7 @@ public static class StaticAuraParticipantScopes
     public const string FriendlyFilteredPublicUnits = "FRIENDLY_FILTERED_PUBLIC_UNITS";
     public const string BattlefieldPublicUnits = "BATTLEFIELD_PUBLIC_UNITS";
     public const string AttackingBattlefieldPublicUnits = "ATTACKING_BATTLEFIELD_PUBLIC_UNITS";
+    public const string ReadyEnemyBattlefieldPublicUnits = "READY_ENEMY_BATTLEFIELD_PUBLIC_UNITS";
 }
 
 public static class StaticAuraTargetFilters
@@ -467,7 +469,8 @@ public sealed record StaticAuraSpec(
     string? TargetFilter = null,
     string? GrantedKeyword = null,
     int? RequiredAttackingUnitCount = null,
-    int? RequiredDefendingUnitCount = null);
+    int? RequiredDefendingUnitCount = null,
+    int? RequiredReadyEnemyUnitCount = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,

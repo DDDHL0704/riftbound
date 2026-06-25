@@ -555,7 +555,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         0,
         PowerModifierAmount: 1);
     private const string BilgewaterBullyCardNo = "OGN·125/298";
-    private const string DuneDrakeCardNo = "OGN·131/298";
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
@@ -17055,7 +17054,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
         var defendingUnitCount = defenderAssignments.Count;
-        var attacksReadyEnemyUnit = defenderStates.Values.Any(defenderState => !defenderState.IsExhausted);
+        var readyEnemyUnitCount = defenderStates.Values.Count(defenderState => !defenderState.IsExhausted);
         var assignedOverkillDamageToEnemyUnits = 0;
         combatEvents.AddRange(ResolveSharpshooterPirateAttackDamageTrigger(
             playerZones,
@@ -17080,7 +17079,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 battlefieldSteadfastObjectId,
                 battlefieldSteadfastKeywordBonus,
-                attacksReadyEnemyUnit,
+                readyEnemyUnitCount,
                 out var assaultBonus,
                 out var attackerStaticPowerBonus);
             var remainingAttackerDamage = attackerCombatPower;
@@ -17100,7 +17099,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     battlefieldId,
                     battlefieldSteadfastObjectId,
                     battlefieldSteadfastKeywordBonus,
-                    false,
+                    0,
                     out _,
                     out _);
                 var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
@@ -17154,7 +17153,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 battlefieldSteadfastObjectId,
                 battlefieldSteadfastKeywordBonus,
-                false,
+                0,
                 out var steadfastBonus,
                 out var defenderStaticPowerBonus);
             if (defenderCombatPower <= 0)
@@ -17179,7 +17178,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     battlefieldId,
                     battlefieldSteadfastObjectId,
                     battlefieldSteadfastKeywordBonus,
-                    attacksReadyEnemyUnit,
+                    readyEnemyUnitCount,
                     out _,
                     out _);
                 var lethalDamage = Math.Max(0, targetAttackerCombatPower - targetAttackerState.Damage);
@@ -19449,7 +19448,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string battlefieldId,
         string? battlefieldSteadfastObjectId,
         int battlefieldSteadfastKeywordBonus,
-        bool attacksReadyEnemyUnit,
+        int readyEnemyUnitCount,
         out int keywordBonus,
         out int staticPowerBonus)
     {
@@ -19528,7 +19527,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             objectId,
             cardObject);
         staticPowerBonus += ResolveSourceAttackingWithAnotherUnitPowerBonus(cardObject, isAttacking, attackingUnitCount);
-        staticPowerBonus += ResolveDuneDrakeReadyEnemyAttackPowerBonus(cardObject, isAttacking, attacksReadyEnemyUnit);
+        staticPowerBonus += ResolveSourceAttackingReadyEnemyUnitPowerBonus(cardObject, isAttacking, readyEnemyUnitCount);
         staticPowerBonus += ResolveSourceObjectFilteredPowerBonus(cardObject);
         staticPowerBonus += ResolveWaterbenderLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
@@ -19574,15 +19573,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
-    private static int ResolveDuneDrakeReadyEnemyAttackPowerBonus(
+    private static int ResolveSourceAttackingReadyEnemyUnitPowerBonus(
         CardObjectState cardObject,
         bool isAttacking,
-        bool attacksReadyEnemyUnit)
+        int readyEnemyUnitCount)
     {
         return isAttacking
-            && attacksReadyEnemyUnit
-            && string.Equals(cardObject.CardNo, DuneDrakeCardNo, StringComparison.Ordinal)
-            ? 2
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && StaticAuraSpecRules.TryGetSourceAttackingReadyEnemyUnitPowerAura(cardObject.CardNo, out var aura)
+            && readyEnemyUnitCount >= aura.RequiredReadyEnemyUnitCount.GetValueOrDefault(1)
+            ? aura.PowerDeltaPerParticipant
             : 0;
     }
 

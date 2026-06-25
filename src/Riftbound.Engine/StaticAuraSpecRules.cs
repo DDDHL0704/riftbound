@@ -142,6 +142,14 @@ internal static class StaticAuraSpecRules
             out aura);
     }
 
+    public static bool TryGetSourceAttackingReadyEnemyUnitPowerAura(string? cardNo, out StaticAuraSpec aura)
+    {
+        return TryGetAura(
+            cardNo,
+            StaticAuraKinds.SourceAttackingReadyEnemyUnitPower,
+            out aura);
+    }
+
     public static bool TargetMatchesFilter(StaticAuraSpec aura, CardObjectState target)
     {
         if (string.IsNullOrWhiteSpace(aura.TargetFilter))

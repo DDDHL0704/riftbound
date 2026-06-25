@@ -26,6 +26,7 @@ export type StaticAuraSpec = {
   grantedKeyword?: string | null;
   requiredAttackingUnitCount?: number | null;
   requiredDefendingUnitCount?: number | null;
+  requiredReadyEnemyUnitCount?: number | null;
 };
 
 export type BehaviorSpec = {
