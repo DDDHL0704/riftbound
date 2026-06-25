@@ -8,6 +8,7 @@ public sealed class NaturalUnitConquestTriggerTests
 {
     private const string BattlefieldId = "P1-NATURAL-UNIT-CONQUEST-BATTLEFIELD";
     private const string KaisaObjectId = "P1-NATURAL-CONQUEST-KAISA";
+    private const string TreantObjectId = "P1-NATURAL-CONQUEST-TREANT";
     private const string DefenderObjectId = "P2-NATURAL-CONQUEST-DEFENDER";
     private const string DrawObjectId = "P1-NATURAL-CONQUEST-DRAW";
 
@@ -42,6 +43,49 @@ public sealed class NaturalUnitConquestTriggerTests
         Assert.Equal(1, drawEvent.Payload["count"]);
         Assert.Equal([DrawObjectId], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CrimsonSignetTreantRepeatsUnitConquestTriggerAfterNaturalBattlefieldConquest()
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(
+            BuildNaturalConquestTreantState(),
+            new PlayerIntent("intent-natural-unit-conquest-treant-repeat", "P1", CommandTypes.DeclareBattle),
+            new DeclareBattleCommand(
+                BattlefieldId,
+                [TreantObjectId],
+                [DefenderObjectId],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, TreantObjectId, StringComparison.Ordinal));
+
+        var conquestTriggers = result.Events
+            .Where(gameEvent =>
+                string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, TreantObjectId, StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["effectId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, conquestTriggers.Length);
+
+        var boonEvents = result.Events
+            .Where(gameEvent =>
+                string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, TreantObjectId, StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["targetObjectId"] as string, TreantObjectId, StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, boonEvents.Length);
+        Assert.False(Assert.IsType<bool>(boonEvents[0].Payload["alreadyHadBoon"]));
+        Assert.True(Assert.IsType<bool>(boonEvents[1].Payload["alreadyHadBoon"]));
+
+        var treant = result.State.CardObjects[TreantObjectId];
+        Assert.Equal(5, treant.Power);
+        Assert.Contains(CardObjectTags.Boon, treant.Tags);
     }
 
     private static MatchState BuildNaturalConquestState()
@@ -93,6 +137,56 @@ public sealed class NaturalUnitConquestTriggerTests
                 [KaisaObjectId] = new("P1", "BATTLEFIELD", BattlefieldId),
                 [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId),
                 [DrawObjectId] = new("P1", "MAIN_DECK")
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
+    }
+
+    private static MatchState BuildNaturalConquestTreantState()
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [BattlefieldId] = new(
+                BattlefieldId,
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1"),
+            [TreantObjectId] = Unit(TreantObjectId, "P1", 4, "UNL-029/219"),
+            [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1)
+        };
+
+        return new MatchState(
+            "natural-unit-conquest-trigger-treant-room",
+            tick: 1,
+            turnNumber: 1,
+            activePlayerId: "P1",
+            seats: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = [BattlefieldId, TreantObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = [DefenderObjectId]
+                }
+            },
+            cardObjects: cardObjects,
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [BattlefieldId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                [TreantObjectId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                [DefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldId)
             },
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldId)]);
     }

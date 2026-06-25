@@ -32,6 +32,7 @@ Project status: **NOT READY**.
 - `BehaviorSpecCatalogParsesUnitConquestGrantSelfBoonTrigger` verifies that the four 瑟提 prints parse their official conquest self-boon text to `TriggerSpec.Kind = UNIT_CONQUEST_GRANT_SELF_BOON`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, and `BoonCount = 1`.
 - `BehaviorSpecCatalogParsesUnitConquestReadySelfOnceTrigger` verifies that the two 卢锡安 prints parse their official conquest ready-self text to `TriggerSpec.Kind = UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, and `OncePerTurn = true`.
 - `BehaviorSpecCatalogParsesUnitConquestGrantFriendlyBoonTrigger` verifies that the two 绯红印记树怪 prints parse their official conquest friendly-boon text to `TriggerSpec.Kind = UNIT_CONQUEST_GRANT_FRIENDLY_BOON`, `Timing = UNIT_CONQUEST`, `TargetScope = CONTROLLED_UNIT_ON_FIELD`, and `BoonCount = 1`.
+- `BehaviorSpecCatalogParsesUnitConquestAdditionalActivationTrigger` verifies that the two 绯红印记树怪 prints parse their official `你征服此处时的征服效果额外触发一次。` text to `TriggerSpec.Kind = UNIT_CONQUEST_ADDITIONAL_ACTIVATION`, `Timing = BATTLEFIELD_CONQUERED`, `TargetScope = CONTROLLED_UNITS_AT_THIS_BATTLEFIELD`, and `AdditionalTriggerCount = 1`.
 - `BehaviorSpecCatalogParsesUnitConquestFriendlyPowerUntilEndTrigger` verifies that 天声玄龙's official conquest power text parses to `TriggerSpec.Kind = UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN`, `Timing = UNIT_CONQUEST`, `TargetScope = CONTROLLED_UNIT_ON_FIELD`, `PowerDelta = 8`, and `Duration = UNTIL_END_OF_TURN`.
 - `BehaviorSpecCatalogParsesUnitConquestDestroyEquipmentGrantSelfBoonTrigger` verifies that 自适应机器人的 official conquest destroy-equipment text parses to `TriggerSpec.Kind = UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON`, `Timing = UNIT_CONQUEST`, `TargetScope = EQUIPMENT_ON_FIELD`, `DestroyCount = 1`, `BoonCount = 1`, and `Optional = true`.
 - `UnitConquestDrawOneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `KaisaUnitConquestDrawCardNo` / `IsKaisaUnitConquestDrawCardNo`.
@@ -46,13 +47,14 @@ Project status: **NOT READY**.
 ## Runtime Evidence
 
 - `NaturalUnitConquestTriggerTests.KaisaDrawsFromUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `OGN·039/298` 卡莎 emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_DRAW_ONE` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
+- `NaturalUnitConquestTriggerTests.CrimsonSignetTreantRepeatsUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `UNL-029/219` 绯红印记树怪 uses its same-battlefield `UNIT_CONQUEST_ADDITIONAL_ACTIVATION` source to activate `UNIT_CONQUEST_GRANT_FRIENDLY_BOON` twice with reason `BATTLEFIELD_CONQUERED`, while the second boon event records `alreadyHadBoon = true` and does not stack another power increase.
 - `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` verifies the 清算人竞技场 representative still activates 卡莎's conquest draw effect, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
 - The same `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` representative verifies the 坏坏魄罗 dormant-Gold effect still emits `UNIT_CONQUEST_EFFECT_ACTIVATED` with `UNIT_CONQUEST_CREATE_DORMANT_GOLD`, creates an exhausted equipment token, and moves that token to the controller's base.
 - `P79BattlefieldHeldActivateConquestEffectsQiyanaDrawsWhenMainDeckAvailable` verifies the 清算人竞技场 representative activates 奇亚娜's draw-or-rune effect as `UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE` and draws one card when the controller's main deck is non-empty.
 - `P79BattlefieldHeldActivateConquestEffectsQiyanaCallsRuneWhenMainDeckEmpty` verifies the same TriggerSpec-driven effect calls one exhausted rune from the controller's rune deck when the main deck is empty.
 - `P79BattlefieldHeldActivateConquestEffectsSkipsOpponentOwnedUnits` keeps the ownership/control guard for unit-conquest activation.
 - `P79BattlefieldHeldActivateConquestEffectsReadiesLucianAndGrantsSettBoon` verifies the 清算人竞技场 representative activates 卢锡安's ready-self effect as `UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN`, records the once-per-turn marker, and activates 瑟提's self-boon effect as `UNIT_CONQUEST_GRANT_SELF_BOON`.
-- `P79BattlefieldHeldActivateConquestEffectsCrimsonSignetTreantGrantsFriendlyBoon` verifies the 清算人竞技场 representative activates 绯红印记树怪's friendly-boon effect as `UNIT_CONQUEST_GRANT_FRIENDLY_BOON` and grants a boon to a legal controlled battlefield unit.
+- `P79BattlefieldHeldActivateConquestEffectsCrimsonSignetTreantGrantsFriendlyBoon` verifies the 清算人竞技场 representative activates 绯红印记树怪's friendly-boon effect as `UNIT_CONQUEST_GRANT_FRIENDLY_BOON` exactly once and grants one boon to a legal controlled battlefield unit, proving `UNIT_CONQUEST_ADDITIONAL_ACTIVATION` is scoped to natural `BATTLEFIELD_CONQUERED` rather than battlefield-held activation.
 - `P79BattlefieldHeldActivateConquestEffectsSkyvoiceWyrmlingGrantsFriendlyPower` verifies the 清算人竞技场 representative activates 天声玄龙's friendly-power effect as `UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN` and applies +8 power until end of turn to a legal controlled battlefield unit.
 - `P79BattlefieldHeldActivateConquestEffectsAdaptiveRobotDestroysEquipmentAndGrantsSelfBoon` verifies the 清算人竞技场 representative activates 自适应机器人的 destroy-equipment self-boon effect as `UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON`, destroys the chosen equipment, and grants self-boon.
 - `P79BattlefieldHeldActivateConquestEffectsAdaptiveRobotSkipsBoonWhenNoEquipment` verifies the same TriggerSpec-driven effect does not activate when no equipment exists.
@@ -60,14 +62,14 @@ Project status: **NOT READY**.
 
 ## Validation
 
-- Focused natural unit conquest + 清算人竞技场 shared helper representatives: `2/2` passing.
-- Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `MatchRecovery` representatives: `2265/2265` passing.
-- Backend full conformance: `8603/8603` passing.
+- Focused natural unit conquest additional-activation + 清算人竞技场 non-repeat representatives: `5/5` passing.
+- Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `MatchRecovery` / `CardCatalogBaseline` representatives: `2469/2469` passing.
+- Backend full conformance: `8606/8606` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk
 
 - The old `Is*UnitConquest*CardNo(...)` helper set in `CoreRuleEngine` is now empty for this 清算人竞技场 representative family.
-- 绯红印记树怪's conquest-effect doubling text is not implemented in this slice.
-- Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete ordering / optional target / doubling breadth remains open.
+- 绯红印记树怪's conquest-effect additional-activation text now has a natural-conquest representative; complete ordering and multi-source breadth remain open.
+- Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete APNAP ordering, simultaneous multi-source ordering, and optional-target breadth remain open.
 - Complete optional yes/no target selection and hidden-information edge cases for targeted conquest effects remain open.

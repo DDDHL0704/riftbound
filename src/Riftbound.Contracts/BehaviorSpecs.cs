@@ -130,6 +130,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN";
     public const string UnitConquestGrantFriendlyBoon =
         "UNIT_CONQUEST_GRANT_FRIENDLY_BOON";
+    public const string UnitConquestAdditionalActivation =
+        "UNIT_CONQUEST_ADDITIONAL_ACTIVATION";
     public const string UnitConquestFriendlyPowerUntilEndOfTurn =
         "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN";
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
@@ -409,6 +411,7 @@ public sealed record TriggerSpec(
     int? ManaCost = null,
     int? PowerCost = null,
     int? BoonCount = null,
+    int? AdditionalTriggerCount = null,
     int? ConsumedBoonCount = null,
     int? RuneCallCount = null,
     int? RuneReadyCount = null,

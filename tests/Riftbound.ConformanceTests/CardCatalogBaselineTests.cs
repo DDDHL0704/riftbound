@@ -2628,6 +2628,30 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("UNL-029/219")]
+    [InlineData("UNL-029a/219")]
+    public async Task BehaviorSpecCatalogParsesUnitConquestAdditionalActivationTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var treant = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            treant.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestAdditionalActivation, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestAdditionalActivation, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.ControlledUnitsAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.AdditionalTriggerCount);
+        Assert.Contains("你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("征服效果额外触发一次", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest additional-activation trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution when its controller conquers this battlefield.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesUnitConquestFriendlyPowerUntilEndTrigger()
     {

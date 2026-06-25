@@ -45662,12 +45662,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             ["P2-BATTLEFIELD-CRIMSON-SIGNET-TREANT"],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["activatedUnitObjectIds"]));
-        Assert.Contains(result.Events, gameEvent =>
+        Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectId"] as string, "UNIT_CONQUEST_GRANT_FRIENDLY_BOON", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P2-BATTLEFIELD-CRIMSON-SIGNET-TREANT", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-CRIMSON-SIGNET-TREANT", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
+        Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["abilityId"] as string, "UNIT_CONQUEST_GRANT_FRIENDLY_BOON", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-CRIMSON-SIGNET-TREANT", StringComparison.Ordinal));

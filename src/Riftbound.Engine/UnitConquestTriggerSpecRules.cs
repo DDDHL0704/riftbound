@@ -56,6 +56,14 @@ internal static class UnitConquestTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetUnitConquestAdditionalActivationTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitConquestAdditionalActivation,
+            out trigger);
+    }
+
     public static bool TryGetUnitConquestFriendlyPowerUntilEndTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

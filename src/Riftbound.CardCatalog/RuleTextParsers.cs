@@ -591,6 +591,21 @@ public static class TriggerParser
                 BoonCount: 1);
         }
 
+        var unitConquestAdditionalActivationMatch = Regex.Match(
+            segment,
+            @"你征服此处时的征服效果额外触发([0-9一两二三四五六七八九十]+)次。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestAdditionalActivationMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestAdditionalActivation,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Unit conquest additional-activation trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution when its controller conquers this battlefield.",
+                TargetScope: TriggerTargetScopes.ControlledUnitsAtThisBattlefield,
+                AdditionalTriggerCount: ParseChineseNumber(unitConquestAdditionalActivationMatch.Groups[1].Value));
+        }
+
         var unitConquestFriendlyPowerUntilEndMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，让一名友方单位本回合内\{\{S\}\}\+([0-9一两二三四五六七八九十]+)。?$",
