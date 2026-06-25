@@ -50,6 +50,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_EACH_PLAYER_CALL_RUNE";
     public const string BattlefieldHeldMoveUnitToBase =
         "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE";
+    public const string BattlefieldDefendMoveFriendlyUnitToBase =
+        "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE";
     public const string BattlefieldHeldGrantBoon =
         "BATTLEFIELD_HELD_GRANT_BOON";
     public const string BattlefieldHeldCreateMinion =

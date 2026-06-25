@@ -670,7 +670,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
-    private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
     private const string IcevaleArcherCardNo = "UNL-065/219";
@@ -22853,7 +22852,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         var isSteadfastBattlefield = sourceControlledByDefender
             && IsBattlefieldDefenderSteadfastTwoCardNo(battlefieldState.CardNo);
         var isMoveToBaseBattlefield = sourceControlledByDefender
-            && IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(battlefieldState.CardNo);
+            && BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(
+                battlefieldState.CardNo,
+                out var moveToBaseTrigger)
+            && IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(moveToBaseTrigger);
         if (!isSteadfastBattlefield)
         {
             if (requestedTargetObjectIds.Count > 0 && !isMoveToBaseBattlefield)
@@ -22951,7 +22953,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState)
             || string.IsNullOrWhiteSpace(defendingPlayerId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
-            || !IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(trigger))
         {
             return true;
         }
@@ -22994,6 +22999,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(trigger)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId))
@@ -23023,7 +23032,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldCardNo,
-                ["trigger"] = "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE",
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
                 ["targetObjectId"] = targetObjectId
             }));
@@ -23037,9 +23046,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["originZone"] = MoveUnitBattlefieldZone,
                 ["destinationZone"] = MoveUnitBaseZone,
-                ["reason"] = "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE"
+                ["reason"] = trigger.Kind
             }));
         return true;
+    }
+
+    private static bool IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(TriggerSpec trigger)
+    {
+        return string.Equals(trigger.Timing, TriggerTimings.BattlefieldDefended, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.FriendlyUnitAtThisBattlefield, StringComparison.Ordinal)
+            && trigger.MoveCount.GetValueOrDefault() == 1
+            && string.Equals(trigger.MoveDestination, TriggerMoveDestinations.OwnerBase, StringComparison.Ordinal)
+            && trigger.Optional == true;
     }
 
     private static void CreateBattlefieldUnitTokensInBase(
@@ -25112,7 +25130,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardNo, out _)
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
-            || IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(cardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardNo, out _)
@@ -25175,11 +25193,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefenderSteadfastTwoCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefenderSteadfastTwoCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldDefendMoveFriendlyUnitToBaseCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)

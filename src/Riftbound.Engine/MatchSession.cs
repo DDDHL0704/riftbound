@@ -5998,7 +5998,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
-    private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string EagerApprenticeCardNo = "OGN·084/298";
@@ -16032,7 +16031,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldEachPlayerCallRuneTrigger(cardObject.CardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldDefenderSteadfastTwoCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldDefendMoveFriendlyUnitToBaseCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRecycleRuneTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldDefendRevealTopDrawSpellOrRecycleTrigger(cardObject.CardNo, out _)
             || StaticAuraSpecRules.TryGetBattlefieldIsolatedDefenderKeywordModifierAura(cardObject.CardNo, out _)
@@ -16554,7 +16553,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
-    private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
@@ -24044,7 +24042,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-PLUNDER-ALLEY"] = new(
                     "P2-BATTLEFIELD-PLUNDER-ALLEY",
-                    cardNo: BattlefieldDefendMoveFriendlyUnitToBaseCardNo,
+                    cardNo: "OGN·285/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P2,
                     controllerId: seed.P2),

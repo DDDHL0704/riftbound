@@ -1640,6 +1640,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldDefendMoveFriendlyUnitToBaseTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var plunderAlley = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·285/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(plunderAlley.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldDefendMoveFriendlyUnitToBase, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldDefended, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.FriendlyUnitAtThisBattlefield, trigger.TargetScope);
+        Assert.Equal(1, trigger.MoveCount);
+        Assert.Equal(TriggerMoveDestinations.OwnerBase, trigger.MoveDestination);
+        Assert.True(trigger.Optional);
+        Assert.Contains("当你防守此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("此处的一名友方单位移动到基地", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield defend move-friendly-unit-to-base trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldHeldGrantBoonTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2512,6 +2534,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldHeldMoveUnitToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldHeldMoveUnitToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldDefendMoveFriendlyUnitToBaseTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldDefendMoveFriendlyUnitToBaseCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldDefendMoveFriendlyUnitToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

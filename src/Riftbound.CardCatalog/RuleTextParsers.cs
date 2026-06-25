@@ -815,6 +815,23 @@ public static class TriggerParser
                 MoveDestination: TriggerMoveDestinations.OwnerBase);
         }
 
+        var battlefieldDefendMoveFriendlyUnitToBaseMatch = Regex.Match(
+            segment,
+            @"当你防守此处时，你可以选择将此处的一名友方单位移动到基地",
+            RegexOptions.CultureInvariant);
+        if (battlefieldDefendMoveFriendlyUnitToBaseMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldDefendMoveFriendlyUnitToBase,
+                TriggerTimings.BattlefieldDefended,
+                segment,
+                "Battlefield defend move-friendly-unit-to-base trigger parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.FriendlyUnitAtThisBattlefield,
+                MoveCount: 1,
+                MoveDestination: TriggerMoveDestinations.OwnerBase,
+                Optional: true);
+        }
+
         var battlefieldHeldGrantBoonMatch = Regex.Match(
             segment,
             @"当你据守此处时，给予此处的一名单位增益",
