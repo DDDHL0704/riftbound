@@ -12293,11 +12293,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             && CardBehaviorRegistry.IsImplementedUnitNamed(targetState.CardNo, "提莫");
     }
 
-    private static bool IsAzirLegendCardNo(string? cardNo)
-    {
-        return cardNo is AzirSpiritforgedLegendCardNo or "SFD·247/221";
-    }
-
     private static bool IsRengarLegendCardNo(string? cardNo)
     {
         return cardNo is RengarLegendCardNo or "UNL-227/219" or "UNL-227*/219";
@@ -12327,7 +12322,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && zones.LegendZone.Any(objectId =>
                 cardObjects.TryGetValue(objectId, out var legendState)
                 && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                && IsAzirLegendCardNo(legendState.CardNo));
+                && LegendCardHasAbility(legendState.CardNo, AzirLegendAbilityId));
     }
 
     private static bool ControllerHasRengarLegend(MatchState state, string playerId)

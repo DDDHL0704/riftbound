@@ -3,7 +3,7 @@
 日期：2026-06-25
 结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
 
-本文件记录 Plan B 小切片：把 `CoreRuleEngine` 中三个已经存在于 `TryGetLegendAbility` source 表的传奇来源识别从独立 `Is*LegendCardNo` helper 改为通用 `LegendCardHasAbility(cardNo, abilityId)` 查询。该切片只收窄 Ezreal / Teemo / Irelia legend-action source identity 的重复 cardNo 分支，不改变传奇技能费用、时序、目标、待命布置、响应窗口或完整传奇结算语义。
+本文件记录 Plan B 小切片：把 `CoreRuleEngine` 中已经存在于 `TryGetLegendAbility` source 表的传奇来源识别从独立 `Is*LegendCardNo` helper 改为通用 `LegendCardHasAbility(cardNo, abilityId)` 查询。该切片已覆盖 Azir / Ezreal / Teemo / Irelia legend-action source identity 的重复 cardNo 分支，不改变传奇技能费用、时序、目标、待命布置、响应窗口或完整传奇结算语义。
 
 ## 1. Scope
 
@@ -20,13 +20,14 @@ Not changed:
 - `TryGetLegendAbility` source lists or ability semantics
 - official card catalog JSON
 - Teemo standby hide payment semantics
-- Ezreal / Irelia / Teemo runtime effects
+- Azir / Ezreal / Irelia / Teemo runtime effects
 - frontend runtime
 
 ## 2. Acceptance Review
 
 | Requirement | Evidence | Verdict |
 |---|---|---|
+| Core Azir legend source identity no longer has a duplicated card-number helper | `IsAzirLegendCardNo` was removed; `ControllerHasAzirLegend` now checks `LegendCardHasAbility(legendState.CardNo, AzirLegendAbilityId)` | Accepted |
 | Core Ezreal legend source identity no longer has a duplicated card-number helper | `IsEzrealLegendCardNo` was removed; `ControllerHasEzrealLegend` now checks `LegendCardHasAbility(cardObject.CardNo, EzrealLegendAbilityId)` | Accepted |
 | Core Teemo standby-hide source identity no longer has a duplicated card-number helper | `IsTeemoLegendCardNo` was removed; Core `HasTeemoStandbyHidePermission` now checks `LegendCardHasAbility(legendState.CardNo, TeemoLegendAbilityId)` | Accepted |
 | Core Irelia trigger source identity no longer has a duplicated card-number helper | `IsIreliaLegendCardNo` was removed; `TryGetExhaustedIreliaLegend` now checks `LegendCardHasAbility(candidate.CardNo, IreliaLegendAbilityId)` | Accepted |
@@ -42,15 +43,15 @@ Focused:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~CoreLegendActionSourceIdentityDoesNotUseDuplicatedCardNumberHelpers"
 ```
 
-Result: failed before implementation on `IsEzrealLegendCardNo`, then 1/1 passed after implementation.
+Result: failed before implementation on `IsEzrealLegendCardNo` in the first slice and `IsAzirLegendCardNo` in the follow-up slice, then 1/1 passed after each implementation.
 
 Adjacent:
 
 ```sh
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~LegendAction|FullyQualifiedName~LegendAct|FullyQualifiedName~Ezreal|FullyQualifiedName~Teemo|FullyQualifiedName~Irelia|FullyQualifiedName~HideCard|FullyQualifiedName~RevealCard|FullyQualifiedName~GameHub|FullyQualifiedName~FullGameEndToEnd"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Azir|FullyQualifiedName~LegendAction|FullyQualifiedName~LegendAct|FullyQualifiedName~Armament|FullyQualifiedName~SandSoldier|FullyQualifiedName~GameHub|FullyQualifiedName~FullGameEndToEnd"
 ```
 
-Result: 544/544 passed.
+Result: 384/384 passed.
 
 Hidden-info / recovery boundary:
 
@@ -72,5 +73,5 @@ Result: 8580/8580 passed.
 
 - This does not move the full legend-action ability table out of `CoreRuleEngine`.
 - This does not remove the remaining non-action Core legend helpers.
-- This does not broaden Ezreal / Teemo / Irelia official behavior beyond the already implemented representative paths.
+- This does not broaden Azir / Ezreal / Teemo / Irelia official behavior beyond the already implemented representative paths.
 - Project remains **NOT READY**.
