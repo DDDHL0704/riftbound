@@ -279,6 +279,39 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDecksResolveMultiDefenderBattleDamageAssignmentScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildDamageAssignmentOfficialDeck(catalog);
+        var initialState = BuildSeatedInitialState("b0-full-game-damage-assignment-score-replay-room", LowCurveReplaySeed);
+        var journal = new RecordingMatchJournal();
+
+        var (session, assignmentOpened, battleResult) = await DriveOfficialDecksToDamageAssignmentBattleCloseAsync(
+            initialState,
+            journal,
+            deck,
+            deck);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-damage-assignment-score");
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, result);
+        Assert.Contains(assignmentOpened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.AssignCombatDamage, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertScoreVictory(result);
+        AssertNoHiddenZoneLeak(assignmentOpened);
+        AssertNoHiddenZoneLeak(battleResult);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    [Fact]
     public async Task OfficialDecksResolveShadowBattleResponseActivationActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
