@@ -332,6 +332,48 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(P6TokenFactoryCatalog.CopySourceRequiredTag, imageDefinition.Tags);
     }
 
+    [Theory]
+    [InlineData("UNL·T02")]
+    [InlineData("UNL·T06")]
+    [InlineData("UNL·T07")]
+    [InlineData("SFD·T01")]
+    [InlineData("SFD·T02")]
+    [InlineData("OGN·271/298")]
+    [InlineData("OGN·272/298")]
+    [InlineData("OGN·273/298")]
+    [InlineData("OGN·274/298")]
+    public void P6TokenFactoryClassifiesUnitTokenFactoriesByCategory(string cardNo)
+    {
+        Assert.True(P6TokenFactoryCatalog.IsUnitTokenFactory(cardNo));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("UNL·T01")]
+    [InlineData("UNL·T03")]
+    [InlineData("UNL·T05")]
+    [InlineData("SFD·T03")]
+    [InlineData("SFD·082/221")]
+    public void P6TokenFactoryRejectsNonUnitTokenFactoriesByCategory(string? cardNo)
+    {
+        Assert.False(P6TokenFactoryCatalog.IsUnitTokenFactory(cardNo));
+    }
+
+    [Fact]
+    public void StaticAuraUnitTokenFilterDoesNotUseLocalCardNumberHelper()
+    {
+        var staticAuraSpecRulesPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "StaticAuraSpecRules.cs");
+        var source = File.ReadAllText(staticAuraSpecRulesPath);
+
+        Assert.DoesNotContain("IsUnitTokenCardNo", source, StringComparison.Ordinal);
+        Assert.Contains("P6TokenFactoryCatalog.IsUnitTokenFactory", source, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void P6TokenFactoryMarksOnlyOfficialMinionTokenFamily()
     {

@@ -171,7 +171,7 @@ internal static class StaticAuraSpecRules
     {
         if (string.Equals(targetFilter, StaticAuraTargetFilters.UnitToken, StringComparison.Ordinal))
         {
-            return IsUnitTokenCardNo(target.CardNo);
+            return P6TokenFactoryCatalog.IsUnitTokenFactory(target.CardNo);
         }
 
         if (targetFilter.StartsWith(StaticAuraTargetFilters.TagPrefix, StringComparison.Ordinal))
@@ -205,13 +205,6 @@ internal static class StaticAuraSpecRules
 
         aura = match;
         return true;
-    }
-
-    private static bool IsUnitTokenCardNo(string? cardNo)
-    {
-        return !string.IsNullOrWhiteSpace(cardNo)
-            && P6TokenFactoryCatalog.TryGetByCardNo(cardNo, out var definition)
-            && string.Equals(definition.CategoryName, "指示物单位", StringComparison.Ordinal);
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<StaticAuraSpec>> BuildStaticAuraMap()
