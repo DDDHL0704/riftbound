@@ -2203,6 +2203,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitConquestDrawOneOrCallRuneTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var qiyana = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·155/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(qiyana.Triggers);
+        Assert.Equal(TriggerKinds.UnitConquestDrawOneOrCallRune, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.Equal(1, trigger.RuneCallCount);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽一张牌或召出一枚休眠的符文", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest draw-or-call-rune trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3224,6 +3245,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("KaisaUnitConquestDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsKaisaUnitConquestDrawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitConquestDrawOneOrCallRuneTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("QiyanaUnitConquestDrawOrRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsQiyanaUnitConquestDrawOrRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

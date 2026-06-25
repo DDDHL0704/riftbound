@@ -22477,14 +22477,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (IsQiyanaUnitConquestDrawOrRuneCardNo(unitState.CardNo))
+            if (UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(unitState.CardNo, out var unitConquestDrawOrRuneTrigger))
             {
+                var drawCount = unitConquestDrawOrRuneTrigger.DrawCount.GetValueOrDefault(1);
+                var runeCallCount = unitConquestDrawOrRuneTrigger.RuneCallCount.GetValueOrDefault(1);
                 AddUnitConquestEffectActivatedEvent(
                     events,
                     playerId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE",
+                    unitConquestDrawOrRuneTrigger.Kind,
                     battlefieldObjectId,
                     triggerSpec.Kind);
                 if (playerZones.TryGetValue(playerId, out var currentZones)
@@ -22495,7 +22497,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         playerZones,
                         nextPlayerScores,
                         playerId,
-                        1,
+                        drawCount,
                         nextRngCursor,
                         events);
                     nextPlayerScores = drawResult.PlayerScores;
@@ -22504,7 +22506,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
                 else
                 {
-                    var runeCallResult = CallRunes(playerZones, cardObjects, playerId, 1);
+                    var runeCallResult = CallRunes(playerZones, cardObjects, playerId, runeCallCount);
                     events.Add(new GameEvent(
                         "RUNES_CALLED",
                         $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
@@ -22514,7 +22516,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                             ["sourceObjectId"] = unitObjectId,
                             ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                             ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                            ["reason"] = "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE"
+                            ["reason"] = unitConquestDrawOrRuneTrigger.Kind
                         }));
                 }
 
@@ -22742,7 +22744,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return IsBadPoroUnitConquestGoldCardNo(cardNo)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)
-            || IsQiyanaUnitConquestDrawOrRuneCardNo(cardNo)
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(cardNo, out _)
             || IsSettUnitConquestSelfBoonCardNo(cardNo)
             || IsLucianUnitConquestReadyCardNo(cardNo)
             || IsFriendlyBoonUnitConquestCardNo(cardNo)
@@ -22753,11 +22755,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBadPoroUnitConquestGoldCardNo(string? cardNo)
     {
         return cardNo is "UNL-222/219" or "SFD·069/221";
-    }
-
-    private static bool IsQiyanaUnitConquestDrawOrRuneCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, "OGN·155/298", StringComparison.Ordinal);
     }
 
     private static bool IsSettUnitConquestSelfBoonCardNo(string? cardNo)

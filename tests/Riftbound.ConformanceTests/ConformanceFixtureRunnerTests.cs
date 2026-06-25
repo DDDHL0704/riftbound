@@ -44903,6 +44903,68 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldActivateConquestEffectsQiyanaDrawsWhenMainDeckAvailable()
+    {
+        var state = BattlefieldHeldActivateQiyanaConquestState(hasMainDeck: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-qiyana-draw", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RECKONER-ARENA",
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
+                ["P2-BATTLEFIELD-QIYANA"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P2-BATTLEFIELD-QIYANA"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["activatedUnitObjectIds"]));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectId"] as string, "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P2-BATTLEFIELD-QIYANA", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-QIYANA-DRAW-001"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.PlayerZones["P2"].MainDeck);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHeldActivateConquestEffectsQiyanaCallsRuneWhenMainDeckEmpty()
+    {
+        var state = BattlefieldHeldActivateQiyanaConquestState(hasMainDeck: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-qiyana-call-rune", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RECKONER-ARENA",
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
+                ["P2-BATTLEFIELD-QIYANA"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectId"] as string, "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P2-BATTLEFIELD-QIYANA", StringComparison.Ordinal));
+        var runeEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE", StringComparison.Ordinal));
+        Assert.Equal(1, runeEvent.Payload["count"]);
+        Assert.Equal(["P2-BATTLEFIELD-QIYANA-RUNE-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.PlayerZones["P2"].RuneDeck);
+        Assert.True(result.State.CardObjects["P2-BATTLEFIELD-QIYANA-RUNE-001"].IsExhausted);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldActivateConquestEffectsReadiesLucianAndGrantsSettBoon()
     {
         var state = BattlefieldHeldActivateConquestReadinessState();
@@ -67867,6 +67929,79 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P2",
                     controllerId: "P2")
             }
+        };
+    }
+
+    private static MatchState BattlefieldHeldActivateQiyanaConquestState(bool hasMainDeck)
+    {
+        string[] mainDeck = hasMainDeck ? ["P2-BATTLEFIELD-QIYANA-DRAW-001"] : [];
+        string[] runeDeck = hasMainDeck ? [] : ["P2-BATTLEFIELD-QIYANA-RUNE-001"];
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new(
+                "P1-BATTLEFIELD-RECKONER-ATTACKER",
+                cardNo: "SFD·125/221",
+                power: 1,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P2-BATTLEFIELD-RECKONER-ARENA"] = new(
+                "P2-BATTLEFIELD-RECKONER-ARENA",
+                cardNo: "OGN·286/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P2",
+                controllerId: "P2"),
+            ["P2-BATTLEFIELD-QIYANA"] = new(
+                "P2-BATTLEFIELD-QIYANA",
+                cardNo: "OGN·155/298",
+                power: 4,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        if (hasMainDeck)
+        {
+            cardObjects["P2-BATTLEFIELD-QIYANA-DRAW-001"] = new(
+                "P2-BATTLEFIELD-QIYANA-DRAW-001",
+                cardNo: "SFD·001/221",
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+        else
+        {
+            cardObjects["P2-BATTLEFIELD-QIYANA-RUNE-001"] = new(
+                "P2-BATTLEFIELD-QIYANA-RUNE-001",
+                cardNo: "P2-RUNE-QIYANA-001",
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-RECKONER-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = mainDeck,
+                    RuneDeck = runeDeck,
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-RECKONER-ARENA",
+                        "P2-BATTLEFIELD-QIYANA"
+                    ]
+                }
+            },
+            CardObjects = cardObjects
         };
     }
 

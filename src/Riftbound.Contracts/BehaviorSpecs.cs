@@ -116,6 +116,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
     public const string UnitConquestDrawOne =
         "UNIT_CONQUEST_DRAW_ONE";
+    public const string UnitConquestDrawOneOrCallRune =
+        "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
 }
 
 public static class TriggerTimings

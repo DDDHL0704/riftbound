@@ -442,9 +442,25 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var unitConquestDrawOrCallRuneMatch = Regex.Match(
+            segment,
+            @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌或召出([0-9一两二三四五六七八九十]+)枚休眠的符文。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestDrawOrCallRuneMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestDrawOneOrCallRune,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest draw-or-call-rune trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                DrawCount: ParseChineseNumber(unitConquestDrawOrCallRuneMatch.Groups[1].Value),
+                RuneCallCount: ParseChineseNumber(unitConquestDrawOrCallRuneMatch.Groups[2].Value));
+        }
+
         var unitConquestDrawMatch = Regex.Match(
             segment,
-            @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌",
+            @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌。?$",
             RegexOptions.CultureInvariant);
         if (unitConquestDrawMatch.Success)
         {
