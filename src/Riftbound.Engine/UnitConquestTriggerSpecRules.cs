@@ -40,6 +40,14 @@ internal static class UnitConquestTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetUnitConquestReadySelfOnceTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.UnitConquestReadySelfOncePerTurn,
+            out trigger);
+    }
+
     private static bool TryGetTrigger(string? cardNo, string kind, out TriggerSpec trigger)
     {
         trigger = default!;

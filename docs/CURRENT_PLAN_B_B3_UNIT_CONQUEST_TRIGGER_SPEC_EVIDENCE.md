@@ -13,6 +13,8 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `SFD·069/221` 坏坏魄罗 has the same official text.
 - `data/official/card-catalog.zh-CN.json`: `SFD·232/221` 瑟提 has official text `当我被打出时、或当我征服一处战场时，给予我增益。（如果我未拥有增益，则获得一个{{S}}+1增益。）\n消耗我的增益：让我本回合内{{S}}+4。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·232*/221`, `OGN·164/298`, and `OGN·164a/298` 瑟提 have the same unit conquest self-boon text.
+- `data/official/card-catalog.zh-CN.json`: `SFD·113/221` 卢锡安 has official text `{{百炼}}（当你打出我时，你可以选择为我{{装配}}你的一件武装，其装配费用减少{{A}}。可选择已贴附的武装。）\n每回合首次，当我征服一处战场时，让我变为活跃状态。`
+- `data/official/card-catalog.zh-CN.json`: `SFD·113a/221` 卢锡安 has the same unit conquest ready-self text.
 - `data/official/card-catalog.zh-CN.json`: `OGN·286/298` 清算人竞技场 has official text `当你据守此处时，激活此处所有单位的征服效果。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official catalog text remains the local rule authority input for this representative slice.
 
@@ -24,10 +26,12 @@ Project status: **NOT READY**.
 - `BehaviorSpecCatalogParsesUnitConquestCreateDormantGoldTrigger(UNL-222/219)` verifies that 坏坏魄罗's official unit text parses to `TriggerSpec.Kind = UNIT_CONQUEST_CREATE_DORMANT_GOLD`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, `CreatedTokenCount = 1`, `CreatedTokenName = 金币`, `CreatedTokenDestination = OWNER_BASE`, `CreatedTokenExhausted = true`, and `CreatedTokenKeywords = [反应]`.
 - `BehaviorSpecCatalogParsesUnitConquestCreateDormantGoldTrigger(SFD·069/221)` verifies the same shape for the SFD print.
 - `BehaviorSpecCatalogParsesUnitConquestGrantSelfBoonTrigger` verifies that the four 瑟提 prints parse their official conquest self-boon text to `TriggerSpec.Kind = UNIT_CONQUEST_GRANT_SELF_BOON`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, and `BoonCount = 1`.
+- `BehaviorSpecCatalogParsesUnitConquestReadySelfOnceTrigger` verifies that the two 卢锡安 prints parse their official conquest ready-self text to `TriggerSpec.Kind = UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN`, `Timing = UNIT_CONQUEST`, `TargetScope = SOURCE_UNIT`, and `OncePerTurn = true`.
 - `UnitConquestDrawOneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `KaisaUnitConquestDrawCardNo` / `IsKaisaUnitConquestDrawCardNo`.
 - `UnitConquestDrawOneOrCallRuneTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `QiyanaUnitConquestDrawOrRuneCardNo` / `IsQiyanaUnitConquestDrawOrRuneCardNo`.
 - `UnitConquestCreateDormantGoldTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `BadPoroUnitConquestGoldCardNo` / `IsBadPoroUnitConquestGoldCardNo`.
 - `UnitConquestGrantSelfBoonTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `SettUnitConquestSelfBoonCardNo` / `IsSettUnitConquestSelfBoonCardNo`.
+- `UnitConquestReadySelfOnceTriggerDoesNotUseCardNumberAllowList` verifies that `CoreRuleEngine` no longer contains `LucianUnitConquestReadyCardNo` / `IsLucianUnitConquestReadyCardNo`.
 
 ## Runtime Evidence
 
@@ -36,20 +40,20 @@ Project status: **NOT READY**.
 - `P79BattlefieldHeldActivateConquestEffectsQiyanaDrawsWhenMainDeckAvailable` verifies the 清算人竞技场 representative activates 奇亚娜's draw-or-rune effect as `UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE` and draws one card when the controller's main deck is non-empty.
 - `P79BattlefieldHeldActivateConquestEffectsQiyanaCallsRuneWhenMainDeckEmpty` verifies the same TriggerSpec-driven effect calls one exhausted rune from the controller's rune deck when the main deck is empty.
 - `P79BattlefieldHeldActivateConquestEffectsSkipsOpponentOwnedUnits` keeps the ownership/control guard for unit-conquest activation.
-- `P79BattlefieldHeldActivateConquestEffectsReadiesLucianAndGrantsSettBoon` verifies the 清算人竞技场 representative activates 瑟提's self-boon effect as `UNIT_CONQUEST_GRANT_SELF_BOON` and grants a boon to the source unit.
+- `P79BattlefieldHeldActivateConquestEffectsReadiesLucianAndGrantsSettBoon` verifies the 清算人竞技场 representative activates 卢锡安's ready-self effect as `UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN`, records the once-per-turn marker, and activates 瑟提's self-boon effect as `UNIT_CONQUEST_GRANT_SELF_BOON`.
 - `P79BattlefieldHeldActivateConquestEffectsAdaptiveRobotDestroysEquipmentAndGrantsSelfBoon` and `P79BattlefieldHeldActivateConquestEffectsAdaptiveRobotSkipsBoonWhenNoEquipment` remain adjacent representatives for the still-open unit-conquest family.
 - `GameHubJoinTests.P79BattlefieldHeldActivateConquestSeedOffersBattlefieldDestinationAndActivatesUnits` remains the API/seed representative for the same battlefield-held route.
 
 ## Validation
 
-- Focused 瑟提 grant-self-boon behavior-spec/source-guard tests: `5/5` passing.
-- Adjacent unit-conquest / `P79BattlefieldHeldActivateConquest...` representatives: `23/23` passing.
+- Focused 卢锡安 ready-self-once behavior-spec/source-guard tests: `3/3` passing.
+- Adjacent unit-conquest / `P79BattlefieldHeldActivateConquest...` representatives: `26/26` passing.
 - `MatchRecovery`: `1989/1989` passing.
-- Backend full conformance: `8486/8486` passing.
+- Backend full conformance: `8489/8489` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk
 
-- The remaining four unit-conquest effect helpers are still card-number based and must be migrated in follow-up slices.
+- The remaining three unit-conquest effect helpers are still card-number based and must be migrated in follow-up slices.
 - The current runtime validation uses 清算人竞技场 to activate unit conquest effects; complete natural conquest trigger queuing remains open.
 - Complete optional target selection and hidden-information edge cases for targeted conquest effects remain open.

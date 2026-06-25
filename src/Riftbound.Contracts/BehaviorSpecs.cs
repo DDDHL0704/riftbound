@@ -122,6 +122,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_CREATE_DORMANT_GOLD";
     public const string UnitConquestGrantSelfBoon =
         "UNIT_CONQUEST_GRANT_SELF_BOON";
+    public const string UnitConquestReadySelfOncePerTurn =
+        "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN";
 }
 
 public static class TriggerTimings

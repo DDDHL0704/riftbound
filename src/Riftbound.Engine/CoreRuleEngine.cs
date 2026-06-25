@@ -22554,10 +22554,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (IsLucianUnitConquestReadyCardNo(unitState.CardNo))
+            if (UnitConquestTriggerSpecRules.TryGetUnitConquestReadySelfOnceTrigger(unitState.CardNo, out var unitConquestReadySelfTrigger))
             {
                 var readyEffectId = BuildUnitConquestReadySelfOnceEffectId(playerId, unitObjectId);
-                if (nextUntilEndOfTurnEffects.Contains(readyEffectId, StringComparer.Ordinal))
+                var isOncePerTurn = unitConquestReadySelfTrigger.OncePerTurn.GetValueOrDefault(true);
+                if (isOncePerTurn
+                    && nextUntilEndOfTurnEffects.Contains(readyEffectId, StringComparer.Ordinal))
                 {
                     continue;
                 }
@@ -22567,10 +22569,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                     playerId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN",
+                    unitConquestReadySelfTrigger.Kind,
                     battlefieldObjectId,
                     triggerSpec.Kind);
-                nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(nextUntilEndOfTurnEffects, readyEffectId);
+                if (isOncePerTurn)
+                {
+                    nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(nextUntilEndOfTurnEffects, readyEffectId);
+                }
+
                 var wasExhausted = unitState.IsExhausted;
                 cardObjects[unitObjectId] = unitState with
                 {
@@ -22587,7 +22593,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["wasExhausted"] = wasExhausted,
                         ["isExhausted"] = false,
                         ["effectId"] = readyEffectId,
-                        ["reason"] = "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN"
+                        ["reason"] = unitConquestReadySelfTrigger.Kind
                     }));
                 continue;
             }
@@ -22757,15 +22763,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantSelfBoonTrigger(cardNo, out _)
-            || IsLucianUnitConquestReadyCardNo(cardNo)
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestReadySelfOnceTrigger(cardNo, out _)
             || IsFriendlyBoonUnitConquestCardNo(cardNo)
             || IsFriendlyPowerUnitConquestCardNo(cardNo)
             || IsDestroyEquipmentBoonUnitConquestCardNo(cardNo);
-    }
-
-    private static bool IsLucianUnitConquestReadyCardNo(string? cardNo)
-    {
-        return cardNo is "SFD·113/221" or "SFD·113a/221";
     }
 
     private static bool IsFriendlyBoonUnitConquestCardNo(string? cardNo)

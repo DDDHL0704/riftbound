@@ -2275,6 +2275,31 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("SFD·113/221")]
+    [InlineData("SFD·113a/221")]
+    public async Task BehaviorSpecCatalogParsesUnitConquestReadySelfOnceTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var lucian = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            lucian.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestReadySelfOncePerTurn, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestReadySelfOncePerTurn, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.True(trigger.OncePerTurn);
+        Assert.Contains("每回合首次", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("让我变为活跃状态", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest ready-self once-per-turn trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
@@ -3339,6 +3364,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("SettUnitConquestSelfBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsSettUnitConquestSelfBoonCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitConquestReadySelfOnceTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("LucianUnitConquestReadyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsLucianUnitConquestReadyCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

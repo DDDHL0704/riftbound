@@ -457,6 +457,21 @@ public static class TriggerParser
                 BoonCount: 1);
         }
 
+        var unitConquestReadySelfOnceMatch = Regex.Match(
+            segment,
+            @"每回合首次，当我征服一处战场时，让我变为活跃状态。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestReadySelfOnceMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestReadySelfOncePerTurn,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest ready-self once-per-turn trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                OncePerTurn: true);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
