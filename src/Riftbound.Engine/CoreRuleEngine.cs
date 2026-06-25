@@ -19961,6 +19961,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsObjectOnField(playerZones, sourceObjectId)
                 || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !StaticAuraSpecRules.TryGetOtherFriendlyUnitsPowerAura(sourceState.CardNo, out var aura)
                 || !string.Equals(

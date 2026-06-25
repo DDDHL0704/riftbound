@@ -39798,6 +39798,48 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79OtherFriendlyStaticPowerDoesNotProjectFromStandbySource()
+    {
+        var hiddenSourceState = OtherFriendlyStaticPowerState(sourceStandby: true);
+
+        Assert.DoesNotContain(
+            hiddenSourceState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BARON-SOURCE", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            hiddenSourceState,
+            new PlayerIntent("intent-p7-9-other-friendly-static-power-standby-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BARON-BATTLEFIELD",
+                ["P1-BARON-ALLY"],
+                ["P2-BARON-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-BARON-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
+    }
+
+    [Fact]
+    public void P79OtherFriendlyStaticPowerDoesNotProjectToStandbyTarget()
+    {
+        var hiddenTargetState = OtherFriendlyStaticPowerState(battlefieldAllyStandby: true);
+
+        Assert.DoesNotContain(
+            hiddenTargetState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BARON-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-BARON-ALLY", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79FriendlyFilteredStaticPowerAddsOneToMatchingFriendlyUnits()
     {
         var state = FriendlyFilteredStaticPowerState();
@@ -67297,8 +67339,17 @@ public sealed class ConformanceFixtureRunnerTests
         };
     }
 
-    private static MatchState OtherFriendlyStaticPowerState()
+    private static MatchState OtherFriendlyStaticPowerState(
+        bool sourceStandby = false,
+        bool battlefieldAllyStandby = false)
     {
+        static IReadOnlyList<string> UnitTags(bool standby)
+        {
+            return standby
+                ? [CardObjectTags.UnitCard, CardObjectTags.Standby]
+                : [CardObjectTags.UnitCard];
+        }
+
         return PunishmentState(mana: 0) with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -67319,14 +67370,14 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-BARON-SOURCE",
                     cardNo: "UNL-147/219",
                     power: 12,
-                    tags: [CardObjectTags.UnitCard],
+                    tags: UnitTags(sourceStandby),
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-BARON-BASE-ALLY"] = new(
                     "P1-BARON-BASE-ALLY",
                     cardNo: "SFD·125/221",
                     power: 1,
-                    tags: [CardObjectTags.UnitCard],
+                    tags: UnitTags(standby: false),
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-BARON-BATTLEFIELD"] = new(
@@ -67339,14 +67390,14 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-BARON-ALLY",
                     cardNo: "SFD·125/221",
                     power: 2,
-                    tags: [CardObjectTags.UnitCard],
+                    tags: UnitTags(battlefieldAllyStandby),
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BARON-DEFENDER"] = new(
                     "P2-BARON-DEFENDER",
                     cardNo: "SFD·125/221",
                     power: 5,
-                    tags: [CardObjectTags.UnitCard],
+                    tags: UnitTags(standby: false),
                     ownerId: "P2",
                     controllerId: "P2")
             },

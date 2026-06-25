@@ -2530,6 +2530,7 @@ public sealed record MatchState
             var source = entry.Value;
             if (string.IsNullOrWhiteSpace(source.CardNo)
                 || source.IsFaceDown
+                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !StaticAuraSpecRules.TryGetOtherFriendlyUnitsPowerAura(source.CardNo, out var aura)
                 || !TryFindFieldObjectLocation(state.PlayerZones, sourceObjectId, out var sourceLocation)
@@ -3165,6 +3166,7 @@ public sealed record MatchState
                 && state.CardObjects.TryGetValue(objectId, out var candidate)
                 && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !candidate.IsFaceDown
+                && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
                 && IsPublicFieldObjectLocationCompatible(state, objectId, fieldLocation.Zone)
                 && string.Equals(

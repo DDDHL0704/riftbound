@@ -34,6 +34,7 @@ Engine projection:
 - `src/Riftbound.Engine/CoreRuleEngine.cs` now requires battlefield static-power aura sources to be non-face-down before applying battlefield all-units / filtered-units combat power bonuses.
 - `src/Riftbound.Engine/MatchSession.cs` now excludes face-down / standby units from all-units battlefield static-aura participant projection.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` now excludes face-down / standby target units before applying all-units battlefield static-power bonuses.
+- `src/Riftbound.Engine/MatchSession.cs` now excludes standby sources and standby participant targets from non-local other-friendly static-power projection, and `src/Riftbound.Engine/CoreRuleEngine.cs` excludes standby other-friendly static-power sources before combat recompute.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` no longer declares `IsPetalPixieCardNo`; the Petal Pixie battle power representative is now spec-driven.
 - `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` includes a source-level guard that rejects reintroducing `ContinuousEffectStaticAuraCards` in `MatchSession`, rejects Ornn friendly-equipment static power reintroducing the old registry runtime bridge in `CoreRuleEngine`, `CardEquipmentKeywordRules`, or `CardBehaviorRegistry`, and rejects reintroducing Master Yi-specific combat-power helpers.
 - `tests/Riftbound.ConformanceTests/MasterYiLegendStaticAuraSpecTests.cs` verifies that the level-6 Master Yi aura projects from a legend-zone source into both player snapshots and stays absent below six experience.
@@ -64,12 +65,15 @@ Recovery:
 - Latest battlefield static-power hidden-boundary adjacent BattlefieldFiltered / BattlefieldStatic / StaticAura / StaticPower / Hidden / FaceDown / MatchRecovery representative: 2192/2192 passed.
 - Latest battlefield all-units static-power hidden-boundary focused representative: 2/2 passed.
 - Latest battlefield all-units static-power hidden-boundary adjacent BattlefieldStatic / BattlefieldAllUnits / StaticAura / StaticPower / Hidden / FaceDown / MatchRecovery representative: 2193/2193 passed.
+- Latest other-friendly static-power standby hidden-boundary focused representative: 2/2 passed.
+- Latest other-friendly static-power standby hidden-boundary adjacent OtherFriendly / StaticAura / StaticPower / Hidden / Standby / FaceDown / MatchRecovery representative: 2229/2229 passed.
 - Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
 - Latest MatchRecovery hidden-information boundary: 1989/1989 passed.
 - Latest backend full: 8602/8602 passed.
 - Latest backend full after battlefield keyword hidden-boundary fix: 8619/8619 passed.
 - Latest backend full after battlefield static-power hidden-boundary fix: 8621/8621 passed.
 - Latest backend full after battlefield all-units static-power hidden-boundary fix: 8623/8623 passed.
+- Latest backend full after other-friendly static-power standby hidden-boundary fix: 8625/8625 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
