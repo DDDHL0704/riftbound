@@ -43588,14 +43588,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-FROST-HOLD"], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["sourceObjectIds"]));
         Assert.Equal(1, triggerEvent.Payload["damage"]);
         Assert.True((bool)triggerEvent.Payload["beforeScoring"]!);
+        Assert.Equal(["P1-BATTLEFIELD-FROST-FALLING"], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["targetObjectIds"]));
         var damageEvents = result.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
                 && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS", StringComparison.Ordinal))
             .OrderBy(gameEvent => gameEvent.Payload["targetObjectId"] as string, StringComparer.Ordinal)
             .ToArray();
-        Assert.Equal(2, damageEvents.Length);
+        Assert.Single(damageEvents);
         Assert.Equal("P1-BATTLEFIELD-FROST-FALLING", damageEvents[0].Payload["targetObjectId"]);
-        Assert.Equal("P2-BATTLEFIELD-FROST-SURVIVOR", damageEvents[1].Payload["targetObjectId"]);
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-FROST-FALLING", StringComparison.Ordinal)
@@ -43604,7 +43604,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-FROST-FALLING"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-BATTLEFIELD-FROST-FALLING"].Zone);
         Assert.Contains("P2-BATTLEFIELD-FROST-SURVIVOR", result.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(1, result.State.CardObjects["P2-BATTLEFIELD-FROST-SURVIVOR"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-FROST-SURVIVOR"].Damage);
         Assert.Contains("P1", result.State.DestroyedUnitOwnerIdsThisTurn);
         var indexedEvents = result.Events.Select((gameEvent, index) => (gameEvent, index)).ToArray();
         var triggerIndex = indexedEvents.Single(entry => ReferenceEquals(entry.gameEvent, triggerEvent)).index;

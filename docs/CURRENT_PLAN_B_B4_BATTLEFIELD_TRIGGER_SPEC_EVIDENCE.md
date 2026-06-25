@@ -37,6 +37,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `SFD·210/221` 传奇殿堂 has official text `当你征服此处时，你可以选择支付{{1}}，以此让你的传奇变为活跃状态。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·215/221` 拉文布鲁姆学院 has official text `当你防守此处时，展示你主牌堆顶部的一张牌。如果是一张法术牌，则将其放入你的手牌，否则将其回收。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-217/219` 捕猎场 has official text `当你征服此处时，如果你给敌方单位分配了不低于3点的过量伤害，则打出一名1{{S}}“战鹰”，它拥有{{法盾}}。`
+- `data/official/card-catalog.zh-CN.json`: `UNL-212/219` 冰霜要塞 has official text `在每名玩家各自的开始阶段开始时，对此处的所有单位造成1点伤害。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -69,6 +70,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldConquerReadyLegendPaysOne`, `P79BattlefieldConquerReadyLegendSkipsOpponentOwnedLegend`, and GameHub `P79BattlefieldConquerReadyLegendSeedOffersBattlefieldDestinationAndReadiesLegend` remain the runtime evidence for the conquered-battlefield pay-ready-legend representative behavior.
 - Existing representative tests `P79BattlefieldDefendRevealSpellDrawsTopSpell`, `P79BattlefieldDefendRevealSpellRecyclesTopNonSpell`, `P79BattlefieldDefendRevealSpellSkipsOpponentControlledTopCard`, `P79BattlefieldDefendRevealSpellSkipsAttackerControlledBattlefield`, and GameHub `P79BattlefieldDefendRevealSpellSeedOffersBattlefieldDestinationAndDrawsSpell` remain the runtime evidence for the defended-battlefield reveal-spell-or-recycle representative behavior.
 - Existing representative tests `P79BattlefieldConquerOverkillCreatesWarhawk` and GameHub `P79BattlefieldConquerWarhawkSeedOffersBattlefieldDestinationAndCreatesWarhawk` remain the runtime evidence for the conquered-battlefield overkill create-Warhawk representative behavior.
+- Existing representative tests `P79BattlefieldTurnStartDamageAllBattlefieldUnitsBeforeScoring`, `P79BattlefieldTurnStartDamageSkipsOpponentControlledSource`, and GameHub `P79BattlefieldTurnStartDamageSeedDamagesAndDestroysBeforeRuneCall` remain the runtime evidence for the turn-start damage-units representative behavior.
 
 ## Runtime Evidence
 
@@ -196,6 +198,10 @@ The conquer overkill create-Warhawk follow-up parser path turns the Hunting Grou
 
 The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior: when assigned overkill damage to enemy units reaches the parsed threshold, it creates the parsed Warhawk token on the battlefield. The concrete token resolves by parsed token family and power through `P6TokenFactoryCatalog`, and the parsed `法盾` keyword is checked against the token definition tags before creation.
 
+The turn-start damage-units follow-up parser path turns the Frost Hold official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, `Timing=TURN_START`, `TargetScope=UNIT_AT_THIS_BATTLEFIELD`, and `DamageAmount=1`. Runtime no longer checks `UNL-212/219` through `BattlefieldTurnStartDamageAllUnitsCardNo` / `IsBattlefieldTurnStartDamageAllUnitsCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `START_TURN` path keeps the existing start-phase timing before scoring and rune-call progression. It now derives affected units from the source battlefield object's location scope, so the official `此处` wording damages only units at that battlefield object rather than every battlefield-zone unit. The same source-controlled guard remains in place for dirty-state protection.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -265,10 +271,15 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - defend reveal-spell-or-recycle adjacent BattlefieldDefend / BattlefieldDefender / BattlefieldTriggerSpec / RevealCard / DeclareBattle representatives: `188/188`;
 - conquer overkill create-Warhawk focused behavior-spec/source guard/runtime/GameHub representative: `3/3`;
 - conquer overkill create-Warhawk adjacent BattlefieldConquer / BattlefieldTriggerSpec / Overkill / Warhawk / DeclareBattle representatives: `221/221`;
+- turn-start damage-units focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- turn-start damage-units CardCatalog baseline: `147/147`;
+- turn-start damage-units adjacent BattlefieldTurnStartDamage / BattlefieldTriggerSpec / GameHub representatives: `226/226`;
+- turn-start damage-units FullGame representatives: `7/7`;
 - MatchRecovery: `1989/1989`;
 - backend full conformance after the conquer overkill create-Warhawk follow-up: `8436/8436`;
+- backend full conformance after the turn-start damage-units follow-up: `8438/8438`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves thirty-one battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-two battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

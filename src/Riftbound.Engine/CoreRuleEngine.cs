@@ -689,7 +689,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
-    private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string RagingDrakeCardNo = "OGN·031/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
@@ -25129,7 +25128,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
             || IsBattlefieldFirstTurnScoreCardNo(cardNo)
             || IsBattlefieldScoreDelayCardNo(cardNo)
-            || IsBattlefieldTurnStartDamageAllUnitsCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(cardNo, out _)
             || IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRevealRecycleTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardNo, out _)
@@ -25206,11 +25205,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldScoreDelayCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldScoreDelayCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldTurnStartDamageAllUnitsCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldTurnStartDamageAllUnitsCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldTurnStartDestroyUnitDrawCardNo(string? cardNo)
@@ -27603,6 +27597,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var battlefieldStartDamageResult = ApplyBattlefieldTurnStartDamageAllUnits(
             playerZones,
             cardObjects,
+            state.ObjectLocations,
             turnPlayerId,
             state.Tick,
             state.RunePools);
@@ -42845,29 +42840,65 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static BattlefieldStartDamageResult ApplyBattlefieldTurnStartDamageAllUnits(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         string turnPlayerId,
         long currentTick,
         IReadOnlyDictionary<string, RunePool> runePools)
     {
-        var sourceObjectIds = playerZones
-            .SelectMany(entry => entry.Value.Battlefields.Where(objectId =>
-                cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldTurnStartDamageAllUnitsCardNo(cardObject.CardNo)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .ToArray();
-        if (sourceObjectIds.Length == 0)
+        var sourceEntries = new List<(string SourceObjectId, string BattlefieldObjectId, int DamageAmount)>();
+        foreach (var (playerId, zones) in playerZones.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            foreach (var sourceObjectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
+            {
+                if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                    || !BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(
+                        sourceState.CardNo,
+                        out var trigger)
+                    || !string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
+                    || !string.Equals(trigger.TargetScope, TriggerTargetScopes.UnitAtThisBattlefield, StringComparison.Ordinal)
+                    || trigger.DamageAmount is not > 0
+                    || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId))
+                {
+                    continue;
+                }
+
+                sourceEntries.Add((
+                    sourceObjectId,
+                    BattlefieldScopeForSource(objectLocations, sourceObjectId),
+                    trigger.DamageAmount.Value));
+            }
+        }
+
+        if (sourceEntries.Count == 0)
         {
             return BattlefieldStartDamageResult.Empty;
         }
 
-        var targetObjectIds = playerZones
-            .SelectMany(entry => entry.Value.Battlefields.Where(objectId =>
-                cardObjects.TryGetValue(objectId, out var cardObject)
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, entry.Key, objectId)))
-            .Distinct(StringComparer.Ordinal)
+        var damageByTargetObjectId = new Dictionary<string, int>(StringComparer.Ordinal);
+        var sourceObjectIdsByTargetObjectId = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var sourceEntry in sourceEntries)
+        {
+            var scopedTargetObjectIds = GetBattlefieldUnitObjectIdsAtBattlefield(
+                playerZones,
+                cardObjects,
+                objectLocations,
+                sourceEntry.BattlefieldObjectId);
+            foreach (var targetObjectId in scopedTargetObjectIds)
+            {
+                damageByTargetObjectId[targetObjectId] = damageByTargetObjectId.TryGetValue(targetObjectId, out var currentDamage)
+                    ? currentDamage + sourceEntry.DamageAmount
+                    : sourceEntry.DamageAmount;
+                if (!sourceObjectIdsByTargetObjectId.TryGetValue(targetObjectId, out var targetSourceObjectIds))
+                {
+                    targetSourceObjectIds = [];
+                    sourceObjectIdsByTargetObjectId[targetObjectId] = targetSourceObjectIds;
+                }
+
+                targetSourceObjectIds.Add(sourceEntry.SourceObjectId);
+            }
+        }
+
+        var targetObjectIds = damageByTargetObjectId.Keys
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
         if (targetObjectIds.Length == 0)
@@ -42875,7 +42906,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return BattlefieldStartDamageResult.Empty;
         }
 
-        var damageAmount = sourceObjectIds.Length;
+        var sourceObjectIds = sourceEntries
+            .Select(entry => entry.SourceObjectId)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        var damageAmount = damageByTargetObjectId.Values.Max();
         var events = new List<GameEvent>
         {
             new(
@@ -42884,7 +42920,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = turnPlayerId,
-                    ["trigger"] = "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS",
+                    ["trigger"] = TriggerKinds.BattlefieldTurnStartDamageAllUnits,
                     ["sourceObjectIds"] = sourceObjectIds,
                     ["targetObjectIds"] = targetObjectIds,
                     ["damage"] = damageAmount,
@@ -42896,14 +42932,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var targetObjectId in targetObjectIds)
         {
+            var targetDamageAmount = damageByTargetObjectId[targetObjectId];
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
                 targetObjectId,
-                damageAmount,
+                targetDamageAmount,
                 damageTriggeredDestroyTargetObjectIds);
-            var payload = BuildDamagePayload(sourceObjectIds[0], targetObjectId, damageApplication);
-            payload["sourceObjectIds"] = sourceObjectIds;
-            payload["reason"] = "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS";
+            var targetSourceObjectIds = sourceObjectIdsByTargetObjectId[targetObjectId]
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray();
+            var payload = BuildDamagePayload(targetSourceObjectIds[0], targetObjectId, damageApplication);
+            payload["sourceObjectIds"] = targetSourceObjectIds;
+            payload["reason"] = TriggerKinds.BattlefieldTurnStartDamageAllUnits;
             payload["timing"] = MatchPhases.TurnStart;
             events.Add(new GameEvent(
                 "DAMAGE_APPLIED",
@@ -42915,7 +42956,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             $"TURN-START-BATTLEFIELD-DAMAGE-{currentTick}",
             turnPlayerId,
             sourceObjectIds[0],
-            "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS",
+            TriggerKinds.BattlefieldTurnStartDamageAllUnits,
             string.Empty,
             [],
             0);
@@ -42924,7 +42965,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             pseudoStackItem,
             runePools,
-            damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds);
+            damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds,
+            objectLocations: new Dictionary<string, ObjectLocationState>(objectLocations, StringComparer.Ordinal));
         events.AddRange(lethalCleanup.Events);
 
         return new BattlefieldStartDamageResult(
@@ -42934,6 +42976,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
             lethalCleanup.RunePools);
+    }
+
+    private static string BattlefieldScopeForSource(
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string sourceObjectId)
+    {
+        return objectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
+            && string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId)
+                ? sourceLocation.BattlefieldObjectId.Trim()
+                : sourceObjectId.Trim();
     }
 
     private static BattlefieldStartDrawResult ApplyBattlefieldTurnStartDestroyUnitDraw(

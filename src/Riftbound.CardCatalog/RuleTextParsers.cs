@@ -346,6 +346,9 @@ public static class TriggerParser
                 || segment.Contains("每当", StringComparison.Ordinal)
                 || segment.Contains("打出我时", StringComparison.Ordinal)
                 || segment.Contains("回合开始", StringComparison.Ordinal)
+                || (segment.Contains("开始阶段开始时", StringComparison.Ordinal)
+                    && segment.Contains("造成", StringComparison.Ordinal)
+                    && segment.Contains("伤害", StringComparison.Ordinal))
                 || segment.Contains("被摧毁", StringComparison.Ordinal)
                 || segment.Contains("征服", StringComparison.Ordinal))
             .Where(segment => !hasBattlefieldConquerRevealRecycleTrigger
@@ -641,6 +644,21 @@ public static class TriggerParser
                 CreatedTokenPower: ParseChineseNumber(battlefieldConquerOverkillWarhawkMatch.Groups[2].Value),
                 CreatedTokenDestination: TriggerTokenDestinations.Battlefield,
                 CreatedTokenKeywords: [battlefieldConquerOverkillWarhawkMatch.Groups[4].Value]);
+        }
+
+        var battlefieldTurnStartDamageUnitsMatch = Regex.Match(
+            segment,
+            @"在每名玩家各自的开始阶段开始时，对此处的所有单位造成([0-9一两二三四五六七八九十]+)点伤害",
+            RegexOptions.CultureInvariant);
+        if (battlefieldTurnStartDamageUnitsMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldTurnStartDamageAllUnits,
+                TriggerTimings.TurnStart,
+                segment,
+                "Battlefield turn-start damage-units trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.UnitAtThisBattlefield,
+                DamageAmount: ParseChineseNumber(battlefieldTurnStartDamageUnitsMatch.Groups[1].Value));
         }
 
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)

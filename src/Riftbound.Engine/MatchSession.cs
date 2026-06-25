@@ -5999,7 +5999,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
-    private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
@@ -16042,7 +16041,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldFirstTurnExtraRuneCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldScoreDelayCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldTurnStartDamageAllUnitsCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldTurnStartDestroyUnitDrawCardNo, StringComparison.Ordinal)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRevealRecycleTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldMovedUnitPowerModifierTrigger(cardObject.CardNo, out _)
@@ -16553,7 +16552,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
-    private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
@@ -22150,7 +22148,7 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldTurnStartDamageScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303058,
@@ -22177,7 +22175,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-FROST-HOLD"] = new(
                     "P1-BATTLEFIELD-FROST-HOLD",
-                    cardNo: BattlefieldTurnStartDamageAllUnitsCardNo,
+                    cardNo: "UNL-212/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
@@ -22194,6 +22192,20 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+
+        return state with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-FROST-HOLD"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-FROST-HOLD"),
+                ["P1-BATTLEFIELD-FROST-FALLING"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-FROST-HOLD"),
+                ["P2-BATTLEFIELD-FROST-SURVIVOR"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FROST-OTHER"),
+                ["P2-MAIN-001"] = new(seed.P2, "MAIN_DECK"),
+                ["P2-RUNE-001"] = new(seed.P2, "RUNE_DECK"),
+                ["P2-RUNE-002"] = new(seed.P2, "RUNE_DECK"),
+                ["P2-RUNE-003"] = new(seed.P2, "RUNE_DECK")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldTurnStartDestroyDrawScenario(MatchState current, DevScenarioSeed seed)

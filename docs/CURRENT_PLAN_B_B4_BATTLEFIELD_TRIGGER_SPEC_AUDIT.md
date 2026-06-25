@@ -2,9 +2,22 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, and turn-start damage-units; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-06-25 turn-start damage-units follow-up moves another implemented battlefield trigger away from engine card-number branching and corrects the official `此处` scope:
+
+- `UNL-212/219` / 冰霜要塞 official text: `在每名玩家各自的开始阶段开始时，对此处的所有单位造成1点伤害。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`
+  - `Timing = TURN_START`
+  - `TargetScope = UNIT_AT_THIS_BATTLEFIELD`
+  - `DamageAmount = 1`
+- `CoreRuleEngine.ApplyBattlefieldTurnStartDamageAllUnits` now finds eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(...)` and reads the damage amount from `BehaviorSpec.Triggers`.
+- The runtime now resolves the affected unit set from the source battlefield's `ObjectLocations[source].BattlefieldObjectId` and no longer damages units at unrelated battlefield objects, preserving the official `此处` boundary.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldTurnStartDamageAllUnitsCardNo` constant, and the dev seed now includes explicit battlefield `ObjectLocations` for the source and targets.
+- The old `BattlefieldTurnStartDamageAllUnitsCardNo` / `IsBattlefieldTurnStartDamageAllUnitsCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `60` total / `56` in `CoreRuleEngine`; Core battlefield helper count is `12`.
 
 This slice moves one implemented battlefield trigger away from engine card-number branching:
 
@@ -681,3 +694,12 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8436/8436`.
+
+2026-06-25 turn-start damage-units follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `5/5`;
+- CardCatalog baseline: passed `147/147`;
+- adjacent BattlefieldTurnStartDamage / BattlefieldTriggerSpec / GameHub representatives: passed `226/226`;
+- FullGame representatives: passed `7/7`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8438/8438`.

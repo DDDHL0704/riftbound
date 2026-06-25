@@ -98,6 +98,8 @@ public static class TriggerKinds
         "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE";
     public const string BattlefieldFirstUnitPlayedMoveOtherToBase =
         "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE";
+    public const string BattlefieldTurnStartDamageAllUnits =
+        "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS";
 }
 
 public static class TriggerTimings
@@ -110,6 +112,7 @@ public static class TriggerTimings
     public const string BattlefieldSpellPlayed = "BATTLEFIELD_SPELL_PLAYED";
     public const string BattlefieldUnitPlayed = "BATTLEFIELD_UNIT_PLAYED";
     public const string BattlefieldUnitReturned = "BATTLEFIELD_UNIT_RETURNED";
+    public const string TurnStart = "TURN_START";
 }
 
 public static class TriggerTargetScopes
@@ -338,7 +341,8 @@ public sealed record TriggerSpec(
     string? ReturnCardFilter = null,
     int? RequiredUnitCount = null,
     int? RequiredPowerThreshold = null,
-    bool? WinsGame = null);
+    bool? WinsGame = null,
+    int? DamageAmount = null);
 
 public sealed record ReplacementSpec(
     string Kind,
