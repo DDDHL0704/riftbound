@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused friendly-destroyed gain-experience, power-until-end, first-friendly-destroyed draw, destroyed non-minion create-minion, and last-breath draw-if-alone TriggerSpec slices accepted; project remains **NOT READY**.
+Status: focused friendly-destroyed gain-experience, power-until-end, first-friendly-destroyed draw, destroyed non-minion create-minion, last-breath draw-if-alone, and last-breath draw-if-not-alone TriggerSpec slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -81,9 +81,24 @@ This slice also moves the implemented Sad Poro last-breath draw trigger away fro
 - The old `SadPoroOriginalCardNo` / `SadPoroUnleashedCardNo` / `IsSadPoroCardNo` Core branch is removed from `CoreRuleEngine`.
 - Current source-helper count for `private static bool Is*CardNo(...)` is `36` total / `33` in `CoreRuleEngine`.
 
+This slice also moves the implemented Loyal Poro last-breath draw trigger away from engine card-number branching:
+
+- `UNL-156/219` 忠忠魄罗 official text from `data/official/card-catalog.zh-CN.json`: `{{绝念>}} 如果我被摧毁时未处于落单状态，则抽一张牌。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = LOYAL_PORO_LAST_BREATH_DRAW_1`
+  - `Timing = UNIT_DESTROYED`
+  - `TargetScope = SOURCE_UNIT`
+  - `DrawCount = 1`
+  - `RequiresOtherFriendlyUnitAtSamePosition = true`
+- `TriggerKinds.UnitLastBreathDrawIfNotAlone` keeps the existing effect-kind value for stack / replay compatibility while exposing a generic engine name.
+- `CoreRuleEngine.ResolveLoyalPoroLastBreathDrawPlayerId` now identifies eligible source units through the shared `UnitDestroyedTriggerSpecRules` path while preserving the existing field-position non-isolation check.
+- `CoreRuleEngine` explicit-destroy and state-based-cleanup trigger construction now emits the effect id from `BehaviorSpec.Triggers`, and stack resolution reads the draw count from `TriggerSpec.DrawCount`.
+- The old `LoyalPoroCardNo` and `LoyalPoroLastBreathDrawEffectKind` Core constants are removed from `CoreRuleEngine`.
+- Current source-helper count for `private static bool Is*CardNo(...)` remains `36` total / `33` in `CoreRuleEngine`; this slice removes direct Core card-number/effect-kind constants rather than an `Is*CardNo(...)` helper.
+
 ## Non-Goals
 
-- This keeps the existing `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, and `SAD_PORO_LAST_BREATH_DRAW_1` stack effect strings for compatibility with recovery and replay validators.
+- This keeps the existing `SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1`, `GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2`, `RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1`, `VIKTOR_DESTROYED_NON_MINION_CREATE_MINION`, `SAD_PORO_LAST_BREATH_DRAW_1`, and `LOYAL_PORO_LAST_BREATH_DRAW_1` stack effect strings for compatibility with recovery and replay validators.
 - This does not migrate other destroyed-trigger families to TriggerSpec.
 - This does not rename existing recovery validator constants or old audit file names that describe the legacy effect id.
 - This does not close complete natural destroyed-trigger prompt breadth, B0 full-game readiness, or project READY.

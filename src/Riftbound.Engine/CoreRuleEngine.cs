@@ -402,8 +402,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
     private const string SharpshooterPirateCardNo = "OGN·130/298";
     private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
-    private const string LoyalPoroCardNo = "UNL-156/219";
-    private const string LoyalPoroLastBreathDrawEffectKind = "LOYAL_PORO_LAST_BREATH_DRAW_1";
     private const string ScoutingWarhawkCardNo = "OGN·216/298";
     private const string ScoutingWarhawkLastBreathCallRuneEffectKind = "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
     private const string MechanicalTricksterCardNo = "OGN·239/298";
@@ -6805,7 +6803,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId,
         CardObjectState destroyedState)
     {
-        if (!string.Equals(destroyedState.CardNo, LoyalPoroCardNo, StringComparison.Ordinal)
+        if (!UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfNotAloneTrigger(
+                destroyedState.CardNo,
+                out var triggerSpec)
+            || !IsUnitLastBreathDrawIfNotAloneTriggerSpec(triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -7183,6 +7184,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             && trigger.RequiresNoOtherFriendlyUnitAtSamePosition == true;
     }
 
+    private static bool IsUnitLastBreathDrawIfNotAloneTriggerSpec(TriggerSpec trigger)
+    {
+        return string.Equals(
+                trigger.Kind,
+                TriggerKinds.UnitLastBreathDrawIfNotAlone,
+                StringComparison.Ordinal)
+            && string.Equals(trigger.Timing, TriggerTimings.UnitDestroyed, StringComparison.Ordinal)
+            && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
+            && trigger.DrawCount is > 0
+            && trigger.RequiresOtherFriendlyUnitAtSamePosition == true;
+    }
+
     private static int UnitFirstFriendlyDestroyedDrawCount(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string sourceObjectId)
@@ -7207,6 +7220,23 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfAloneTrigger(cardNo, out var trigger)
             && IsUnitLastBreathDrawIfAloneTriggerSpec(trigger)
+                ? trigger.DrawCount.GetValueOrDefault(1)
+                : 1;
+    }
+
+    private static int UnitLastBreathDrawIfNotAloneDrawCount(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId)
+    {
+        return cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            ? UnitLastBreathDrawIfNotAloneDrawCount(sourceState.CardNo)
+            : 1;
+    }
+
+    private static int UnitLastBreathDrawIfNotAloneDrawCount(string? cardNo)
+    {
+        return UnitDestroyedTriggerSpecRules.TryGetLastBreathDrawIfNotAloneTrigger(cardNo, out var trigger)
+            && IsUnitLastBreathDrawIfNotAloneTriggerSpec(trigger)
                 ? trigger.DrawCount.GetValueOrDefault(1)
                 : 1;
     }
@@ -33120,11 +33150,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawIfAlone, StringComparison.Ordinal) ||
-            string.Equals(stackItem.EffectKind, LoyalPoroLastBreathDrawEffectKind, StringComparison.Ordinal))
+            string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawIfNotAlone, StringComparison.Ordinal))
         {
             return string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawIfAlone, StringComparison.Ordinal)
                 ? ResolveUnitLastBreathDrawIfAloneStackItem(state, stackItem)
-                : ResolveWatchfulSentinelLastBreathStackItem(state, stackItem);
+                : ResolveUnitLastBreathDrawIfNotAloneStackItem(state, stackItem);
         }
 
         if (string.Equals(stackItem.EffectKind, UnsungHeroLastBreathPowerfulDrawEffectKind, StringComparison.Ordinal))
@@ -35360,7 +35390,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     stackItem,
                                     targetObjectId,
                                     loyalPoroLastBreathDrawPlayerId,
-                                    LoyalPoroLastBreathDrawEffectKind);
+                                    TriggerKinds.UnitLastBreathDrawIfNotAlone);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 events.Add(BuildTriggerResolvedEvent(trigger));
 
@@ -35369,7 +35399,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     playerZones,
                                     playerScores,
                                     loyalPoroLastBreathDrawPlayerId,
-                                    1,
+                                    UnitLastBreathDrawIfNotAloneDrawCount(targetState.CardNo),
                                     rngCursor,
                                     events);
                                 playerScores = drawApplication.PlayerScores;
@@ -35972,6 +36002,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             state,
             stackItem,
             UnitLastBreathDrawIfAloneDrawCount(state.CardObjects, stackItem.SourceObjectId));
+    }
+
+    private static StackResolutionResult ResolveUnitLastBreathDrawIfNotAloneStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        return ResolveLastBreathDrawStackItem(
+            state,
+            stackItem,
+            UnitLastBreathDrawIfNotAloneDrawCount(state.CardObjects, stackItem.SourceObjectId));
     }
 
     private static StackResolutionResult ResolveRenataGlascDrawAbilityStackItem(
@@ -42276,7 +42316,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem,
                     objectId,
                     loyalPoroLastBreathDrawPlayerId,
-                    LoyalPoroLastBreathDrawEffectKind);
+                    TriggerKinds.UnitLastBreathDrawIfNotAlone);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

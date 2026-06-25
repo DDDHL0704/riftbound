@@ -101,6 +101,9 @@ export type BehaviorSpec = {
     scoreAmount?: number | null;
     grantedKeyword?: string | null;
     keywordBonus?: number | null;
+    experienceCount?: number | null;
+    requiresNoOtherFriendlyUnitAtSamePosition?: boolean | null;
+    requiresOtherFriendlyUnitAtSamePosition?: boolean | null;
   }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
   activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;

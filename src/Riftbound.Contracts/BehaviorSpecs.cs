@@ -140,6 +140,8 @@ public static class TriggerKinds
         "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
     public const string UnitLastBreathDrawIfAlone =
         "SAD_PORO_LAST_BREATH_DRAW_1";
+    public const string UnitLastBreathDrawIfNotAlone =
+        "LOYAL_PORO_LAST_BREATH_DRAW_1";
 }
 
 public static class TriggerTimings
@@ -408,7 +410,8 @@ public sealed record TriggerSpec(
     string? GrantedKeyword = null,
     int? KeywordBonus = null,
     int? ExperienceCount = null,
-    bool? RequiresNoOtherFriendlyUnitAtSamePosition = null);
+    bool? RequiresNoOtherFriendlyUnitAtSamePosition = null,
+    bool? RequiresOtherFriendlyUnitAtSamePosition = null);
 
 public sealed record ReplacementSpec(
     string Kind,

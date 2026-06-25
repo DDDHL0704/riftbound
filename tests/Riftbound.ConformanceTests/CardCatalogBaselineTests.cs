@@ -2501,6 +2501,29 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitLastBreathDrawIfNotAloneTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var loyalPoro = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-156/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            loyalPoro.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitLastBreathDrawIfNotAlone, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitLastBreathDrawIfNotAlone, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.DrawCount);
+        Assert.True(trigger.RequiresOtherFriendlyUnitAtSamePosition);
+        Assert.Contains("如果我被摧毁时未处于落单状态", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit last-breath draw-if-not-alone trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3691,6 +3714,20 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("SadPoroOriginalCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("SadPoroUnleashedCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsSadPoroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitLastBreathDrawIfNotAloneTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("LoyalPoroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("LoyalPoroLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

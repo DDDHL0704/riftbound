@@ -602,6 +602,22 @@ public static class TriggerParser
                 RequiresNoOtherFriendlyUnitAtSamePosition: true);
         }
 
+        var unitLastBreathDrawIfNotAloneMatch = Regex.Match(
+            segment,
+            @"(?:\{\{绝念>?\}\}\s*[—-]?\s*)?如果我被摧毁时未处于落单状态，则抽一张牌。?$",
+            RegexOptions.CultureInvariant);
+        if (unitLastBreathDrawIfNotAloneMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitLastBreathDrawIfNotAlone,
+                TriggerTimings.UnitDestroyed,
+                segment,
+                "Unit last-breath draw-if-not-alone trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                DrawCount: 1,
+                RequiresOtherFriendlyUnitAtSamePosition: true);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
