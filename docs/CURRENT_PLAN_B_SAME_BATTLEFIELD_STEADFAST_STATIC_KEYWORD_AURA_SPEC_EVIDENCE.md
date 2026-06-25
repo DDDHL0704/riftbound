@@ -37,6 +37,7 @@ Hidden source boundary:
 
 - `P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromFaceDownSource` verifies a face-down same-battlefield keyword source produces no RULE_TEXT continuous effect even when authoritative test state still carries the card number, and combat resolution does not grant `坚守` to the same-battlefield friendly defender.
 - `P79SameBattlefieldStaticKeywordGrantDoesNotProjectToFaceDownTarget` verifies a face-down same-battlefield friendly unit is not emitted as a RULE_TEXT continuous-effect target.
+- `P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromStandbySource` verifies a standby same-battlefield keyword source produces no RULE_TEXT continuous effect and combat resolution does not grant `坚守` to the same-battlefield friendly defender.
 
 Existing fixture alignment:
 
@@ -64,9 +65,14 @@ Existing fixture alignment:
 - Focused face-down target guard `P79SameBattlefieldStaticKeywordGrantDoesNotProjectToFaceDownTarget`: 1/1 passed.
 - Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / Hidden / FaceDown / MatchRecovery representatives after face-down target guard: 2164/2164 passed.
 - Backend full after face-down target guard: 8615/8615 passed.
+- Focused standby source guard `P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromStandbySource`: 1/1 passed.
+- Same-battlefield static keyword adjacent representatives after standby source guard: 15/15 passed.
+- StaticAura / StaticKeyword / MatchRecovery adjacent representatives after standby source guard: 2050/2050 passed.
+- Backend full after standby source guard: 8629/8629 passed.
 
 ## Remaining Evidence Needed
 
 - Full Taric official coverage still needs `壁垒` damage ordering and any broader defensive keyword interactions not covered by this representative.
 - Full RULE_TEXT keyword grant scope coverage remains open beyond same-battlefield other-friendly units.
+- Full standby / face-down identity coverage remains open beyond the covered same-battlefield source and target representatives.
 - The card-effect matrix FU row for `OGN·074/298` still requires a separate, matrix-aware blocker-reduction slice before its FU-level status is changed.

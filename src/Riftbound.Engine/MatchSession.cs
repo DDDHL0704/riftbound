@@ -2355,6 +2355,7 @@ public sealed record MatchState
             var source = entry.Value;
             if (string.IsNullOrWhiteSpace(source.CardNo)
                 || source.IsFaceDown
+                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !source.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura(source.CardNo, out var aura)
                 || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)

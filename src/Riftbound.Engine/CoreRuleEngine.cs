@@ -19819,6 +19819,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
             || !string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId)
@@ -19844,6 +19845,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsObjectOnField(playerZones, sourceObjectId)
                 || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !StaticAuraSpecRules.TryGetSameBattlefieldOtherFriendlyUnitsKeywordAura(sourceState.CardNo, out var aura)
                 || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)

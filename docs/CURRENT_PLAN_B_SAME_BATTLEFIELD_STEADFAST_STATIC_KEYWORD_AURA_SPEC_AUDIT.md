@@ -30,6 +30,7 @@ Runtime evidence now covers:
 - Controller-scope guard: `other friendly` is based on the source object's current controller; a controlled Farron Captain grants `强攻` to the controller's same-battlefield attacker, not to the owner's unit.
 - Face-down source guard: a face-down source does not project RULE_TEXT static keyword effects or grant combat keyword bonuses, preserving hidden-information boundaries.
 - Face-down target guard: a face-down same-battlefield friendly unit is not emitted as a RULE_TEXT continuous-effect target, preventing hidden target dependency leakage.
+- Standby source guard: a standby source does not project RULE_TEXT static keyword effects or grant combat keyword bonuses from the same-battlefield other-friendly aura path.
 
 ## Not Closed
 
@@ -40,6 +41,7 @@ Still open:
 - Full `坚守` keyword family breadth beyond the representative combat bonus path.
 - Full `壁垒` damage-assignment ordering for Taric.
 - Complete RULE_TEXT keyword grant scopes and broader keyword removal/loss layering beyond this same-battlefield source-leaves representative.
+- Complete standby / face-down identity matrix beyond the covered same-battlefield source and target representatives.
 - Complete battle / spell-duel lifecycle and assignment prompt breadth.
 - FU-level matrix blocker reduction / fullOfficial status for `OGN·074/298`.
 - READY.
@@ -188,6 +190,38 @@ Result: 2164/2164 passed.
 ```
 
 Result: 8615/8615 passed.
+
+2026-06-26 standby source focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromStandbySource" --nologo
+```
+
+Result: 1/1 passed.
+
+2026-06-26 same-battlefield static keyword adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefieldStaticKeyword|FullyQualifiedName~SameBattlefieldOtherFriendlyStaticKeyword|FullyQualifiedName~StaticKeywordGrant" --nologo
+```
+
+Result: 15/15 passed.
+
+2026-06-26 static-aura / static-keyword / recovery adjacent after standby source guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~StaticAura|FullyQualifiedName~StaticKeyword|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2050/2050 passed.
+
+2026-06-26 backend full after standby source guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8629/8629 passed.
 
 Hidden-information / recovery:
 

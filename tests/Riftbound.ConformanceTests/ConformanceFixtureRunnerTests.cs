@@ -39355,6 +39355,31 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79SameBattlefieldStaticKeywordGrantDoesNotProjectFromStandbySource()
+    {
+        var standbySourceState = TaricSameBattlefieldKeywordGrantLifecycleState(
+            sourceOnBattlefield: true,
+            targetAtSameBattlefield: true,
+            sourceStandby: true);
+
+        Assert.DoesNotContain(
+            standbySourceState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-TARIC-LIFECYCLE-SOURCE", StringComparison.Ordinal));
+
+        var result = await ResolveTaricLifecycleBattleAsync(
+            standbySourceState,
+            "intent-p7-9-taric-standby-source",
+            "P1-TARIC-LIFECYCLE-BATTLEFIELD");
+        var defenderDamage = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", defenderDamage.Payload["sourceObjectId"]);
+        Assert.Equal(0, defenderDamage.Payload["keywordBonus"]);
+        Assert.Equal(2, defenderDamage.Payload["combatPower"]);
+    }
+
+    [Fact]
     public void P79SameBattlefieldStaticKeywordGrantDoesNotProjectToFaceDownTarget()
     {
         var hiddenTargetState = TaricSameBattlefieldKeywordGrantLifecycleState(
@@ -39391,7 +39416,8 @@ public sealed class ConformanceFixtureRunnerTests
         bool sourceOnBattlefield,
         bool targetAtSameBattlefield = true,
         bool sourceFaceDown = false,
-        bool targetFaceDown = false)
+        bool targetFaceDown = false,
+        bool sourceStandby = false)
     {
         var targetBattlefieldObjectId = targetAtSameBattlefield
             ? "P1-TARIC-LIFECYCLE-BATTLEFIELD"
@@ -39410,6 +39436,16 @@ public sealed class ConformanceFixtureRunnerTests
         var p1Graveyard = sourceOnBattlefield
             ? []
             : new[] { "P1-TARIC-LIFECYCLE-SOURCE" };
+        var sourceTags = new List<string>
+        {
+            CardObjectTags.UnitCard,
+            CardCombatKeywordNames.Steadfast,
+            CardCombatKeywordNames.Bulwark
+        };
+        if (sourceStandby)
+        {
+            sourceTags.Add(CardObjectTags.Standby);
+        }
 
         return PunishmentState(mana: 0) with
         {
@@ -39445,7 +39481,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·074/298",
                     isFaceDown: sourceFaceDown,
                     power: 4,
-                    tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.Steadfast, CardCombatKeywordNames.Bulwark],
+                    tags: sourceTags.ToArray(),
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-TARIC-LIFECYCLE-ALLY"] = new(
