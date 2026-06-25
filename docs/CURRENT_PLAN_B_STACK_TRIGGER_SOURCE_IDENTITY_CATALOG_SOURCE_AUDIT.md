@@ -1,0 +1,86 @@
+# Plan B Stack Trigger Source Identity Catalog Source Audit
+
+日期：2026-06-26
+结论：**FOCUSED SLICE ACCEPTED / PROJECT NOT READY**
+
+本文件记录 Plan B 小切片：把 Eclipse Vanguard、Ravenbloom Student、OGS Lux、Arena Service Crew 这组 stack/card-play 代表触发的来源单位身份，从 `CoreRuleEngine` 里的直接 `sourceState.CardNo` 分支迁移到 `CardBehaviorRegistry.IsImplementedUnitWithEffectKind`。该切片只收窄 trigger source identity 硬编码，并补齐 standby 来源不触发的隐藏边界；不关闭完整 TriggerSpec、完整 `ORDER_TRIGGERS`、APNAP ordering、完整 high-cost spell / equipment trigger breadth 或 READY。
+
+## Scope
+
+Changed:
+
+- `src/Riftbound.Engine/CoreRuleEngine.cs`
+- `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`
+- `tests/Riftbound.ConformanceTests/TriggerSourceIdentityGuardTests.cs`
+- `docs/CURRENT_PLAN_B_STACK_TRIGGER_SOURCE_IDENTITY_CATALOG_SOURCE_AUDIT.md`
+- `docs/CURRENT_PLAN_B_STACK_TRIGGER_SOURCE_IDENTITY_CATALOG_SOURCE_EVIDENCE.md`
+- `docs/rules-evidence-index.md`
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`
+
+Not changed:
+
+- official card catalog JSON
+- card matrix JSON
+- protocol shape
+- trigger timing / ordering semantics
+- frontend runtime
+- `fullOfficial` / READY status
+
+## Acceptance Review
+
+| Requirement | Evidence | Verdict |
+|---|---|---|
+| Stack/card-play trigger sources no longer directly select by these source card numbers | `ResolveEclipseVanguardStunTriggers`, `ResolveRavenbloomStudentSpellPlayedTriggers`, `ResolveOgsLuxHighCostSpellPlayedTriggers`, and `ResolveArenaServiceCrewEquipmentPlayedTriggers` call `IsControlledFaceUpFieldUnitWithEffectKind` instead of comparing `sourceState.CardNo` with the representative card constants | Accepted |
+| Runtime source checks consume registered source behavior rows | source identities use `ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT`, `RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT`, `OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT`, and `ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT` through `CardBehaviorRegistry.IsImplementedUnitWithEffectKind` | Accepted |
+| Hidden/standby source boundary is enforced consistently | the shared helper requires unit tag, not face-down, and not `CardObjectTags.Standby`; new tests cover Ravenbloom, Eclipse Vanguard, and Arena Service Crew standby sources | Accepted |
+| Existing representative behavior is preserved | adjacent Ravenbloom / Eclipse Vanguard / Arena Service Crew / OGS Lux / Lux high-cost regression remains green | Accepted |
+| Full trigger engine breadth | complete `TriggerSpec` migration, optional trigger ordering, APNAP, and full official breadth remain residual | Residual, no READY claim |
+
+## Verification
+
+Focused source identity guard:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~TriggerSourceIdentityGuardTests"
+```
+
+Result: 9/9 passed.
+
+Focused standby source regressions:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~RavenbloomStudentSpellTriggerWhenSourceIsStandby|FullyQualifiedName~EclipseVanguardSkipsTriggerWhenSourceIsStandby|FullyQualifiedName~ArenaServiceCrewSkipsEquipmentTriggerWhenSourceIsStandby"
+```
+
+Result: 3/3 passed.
+
+Adjacent trigger/high-cost/equipment regression:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~RavenbloomStudent|FullyQualifiedName~EclipseVanguard|FullyQualifiedName~ArenaServiceCrew|FullyQualifiedName~OgsLuxHighCostSpell|FullyQualifiedName~LuxHighCost"
+```
+
+Result: 57/57 passed.
+
+Hidden-info / recovery boundary:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo --filter "FullyQualifiedName~MatchRecovery"
+```
+
+Result: 1989/1989 passed.
+
+Full backend conformance:
+
+```sh
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8646/8646 passed.
+
+## Residual Risks
+
+- This does not move these trigger conditions into `TriggerSpecRules`; it only removes direct source card-number identity checks from the current representative runtime paths.
+- This does not implement complete simultaneous trigger ordering or `ORDER_TRIGGERS` breadth for this family.
+- OGS Lux recovery validation still has card-context checks for the current protocol payload; those are replay/snapshot integrity guards, not source-selection runtime branches.
+- Project remains **NOT READY**.

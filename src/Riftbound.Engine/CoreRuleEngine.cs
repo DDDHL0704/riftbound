@@ -523,6 +523,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgsLuxHighCostSpellCardNo = "OGS·006/024";
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
+    private const string EclipseVanguardStunTriggerSourceEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_PLAY_UNIT";
+    private const string RavenbloomStudentSpellTriggerSourceEffectKind = "RAVENBLOOM_STUDENT_SPELL_TRIGGER_PLAY_UNIT";
+    private const string OgsLuxHighCostSpellTriggerSourceEffectKind = "OGS_LUX_HIGH_COST_SPELL_TRIGGER_PLAY_UNIT";
+    private const string ArenaServiceCrewEquipmentTriggerSourceEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_TRIGGER_PLAY_UNIT";
     private const string SfdFioraPowerfulReadySourceEffectKind = "SFD_180_FIORA_POWERFUL_READY_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyAltSourceEffectKind = "SFD_180A_FIORA_POWERFUL_READY_PLAY_UNIT";
     private const string SfdFioraPowerfulReadyEffectKind = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
@@ -28900,9 +28904,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && string.Equals(sourceState.CardNo, EclipseVanguardCardNo, StringComparison.Ordinal)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown)
+                && IsControlledFaceUpFieldUnitWithEffectKind(
+                    sourceState,
+                    EclipseVanguardStunTriggerSourceEffectKind))
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             foreach (var stunnedEnemyObjectId in stunnedEnemyObjectIds)
@@ -28913,7 +28917,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     controllerId: stackItem.ControllerId,
                     sourceObjectId: sourceObjectId,
                     effectKind: EclipseVanguardStunTriggerEffectKind,
-                    cardNo: EclipseVanguardCardNo);
+                    cardNo: sourceState.CardNo ?? EclipseVanguardCardNo);
                 events.Add(new GameEvent(
                     "TRIGGER_RESOLVED",
                     $"{stackItem.ControllerId} 的星蚀先锋因眩晕敌方单位而触发",
@@ -28952,6 +28956,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return events;
+    }
+
+    private static bool IsControlledFaceUpFieldUnitWithEffectKind(
+        CardObjectState sourceState,
+        string sourceEffectKind)
+    {
+        return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && CardBehaviorRegistry.IsImplementedUnitWithEffectKind(sourceState.CardNo, sourceEffectKind);
     }
 
     private static IReadOnlyList<GameEvent> ResolveLeonaStunBoonTrigger(
@@ -32673,9 +32687,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && string.Equals(sourceState.CardNo, RavenbloomStudentCardNo, StringComparison.Ordinal)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown)
+                && IsControlledFaceUpFieldUnitWithEffectKind(
+                    sourceState,
+                    RavenbloomStudentSpellTriggerSourceEffectKind))
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             var sourceState = cardObjects[sourceObjectId];
@@ -32684,7 +32698,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 controllerId: playerId,
                 sourceObjectId: sourceObjectId,
                 effectKind: RavenbloomStudentSpellPowerEffectKind,
-                cardNo: RavenbloomStudentCardNo);
+                cardNo: sourceState.CardNo ?? RavenbloomStudentCardNo);
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
                 $"{playerId} 的拉文布鲁姆学生因法术打出获得战力",
@@ -32724,10 +32738,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && string.Equals(sourceState.CardNo, OgsLuxHighCostSpellCardNo, StringComparison.Ordinal)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown
-                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                && IsControlledFaceUpFieldUnitWithEffectKind(
+                    sourceState,
+                    OgsLuxHighCostSpellTriggerSourceEffectKind))
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             var sourceState = cardObjects[sourceObjectId];
@@ -32742,7 +32755,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 controllerId: playerId,
                 sourceObjectId: sourceObjectId,
                 effectKind: OgsLuxHighCostSpellPowerEffectKind,
-                cardNo: OgsLuxHighCostSpellCardNo);
+                cardNo: sourceState.CardNo ?? OgsLuxHighCostSpellCardNo);
 
             events.Add(BuildTriggerQueuedEvent(trigger));
             events.Add(BuildTriggerResolvedEvent(trigger));
@@ -32772,9 +32785,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
             .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
-                && string.Equals(sourceState.CardNo, ArenaServiceCrewCardNo, StringComparison.Ordinal)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown)
+                && IsControlledFaceUpFieldUnitWithEffectKind(
+                    sourceState,
+                    ArenaServiceCrewEquipmentTriggerSourceEffectKind))
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             var sourceState = cardObjects[sourceObjectId];

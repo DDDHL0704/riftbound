@@ -26429,6 +26429,33 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineSkipsRavenbloomStudentSpellTriggerWhenSourceIsStandby()
+    {
+        var state = WithStandbyTag(RavenbloomStudentSpellTriggerState(), "P1-UNIT-RAVENBLOOM-STUDENT");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-ravenbloom-standby-spell-trigger", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-PRACTICAL-EXPERIENCE",
+                "UNL-031/219",
+                ["P2-BATTLEFIELD-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var ravenbloom = result.State.CardObjects["P1-UNIT-RAVENBLOOM-STUDENT"];
+        Assert.Equal(2, ravenbloom.Power);
+        Assert.Equal(0, ravenbloom.UntilEndOfTurnPowerModifier);
+        Assert.DoesNotContain(result.Events, evt =>
+            string.Equals(evt.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && evt.Payload.TryGetValue("trigger", out var trigger)
+            && string.Equals(trigger as string, "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, evt =>
+            string.Equals(evt.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(evt.Payload["targetObjectId"] as string, "P1-UNIT-RAVENBLOOM-STUDENT", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDuelingStanceFriendlyPowerBoost()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -42980,6 +43007,51 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79EclipseVanguardSkipsTriggerWhenSourceIsStandby()
+    {
+        var state = WithStandbyTag(EclipseVanguardStunTriggerState(stunEnemy: true), "P1-UNIT-ECLIPSE-VANGUARD");
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-standby-play-stunner", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SUN-SHIELDGUARD",
+                "OGN·051/298",
+                ["P2-ECLIPSE-STUN-TARGET"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-standby-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-standby-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Contains("STUNNED", p2Pass.State.CardObjects["P2-ECLIPSE-STUN-TARGET"].UntilEndOfTurnEffects);
+
+        var vanguard = p2Pass.State.CardObjects["P1-UNIT-ECLIPSE-VANGUARD"];
+        Assert.True(vanguard.IsExhausted);
+        Assert.Equal(7, vanguard.Power);
+        Assert.Equal(0, vanguard.UntilEndOfTurnPowerModifier);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ECLIPSE-VANGUARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ECLIPSE-VANGUARD", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79WiseElderWithBoonAddsPowerInBattle()
     {
         var state = WiseElderBoonBattleState(hasBoon: true);
@@ -43522,6 +43594,31 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79ArenaServiceCrewSkipsEquipmentTriggerWhenSourceIsStandby()
+    {
+        var state = AddArenaEquipmentTarget(
+            WithStandbyTag(ArenaServiceCrewEquipmentReadyState(), "P1-UNIT-ARENA-SERVICE-CREW"));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-arena-service-crew-standby-equipment", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "SFD·022/221",
+                ["P1-UNIT-EQUIPMENT-TARGET"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
         Assert.True(result.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -68455,6 +68552,47 @@ public sealed class ConformanceFixtureRunnerTests
         };
     }
 
+    private static MatchState RavenbloomStudentSpellTriggerState()
+    {
+        return PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-PRACTICAL-EXPERIENCE"],
+                    Base = ["P1-UNIT-RAVENBLOOM-STUDENT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-RAVENBLOOM-STUDENT"] = new(
+                    "P1-UNIT-RAVENBLOOM-STUDENT",
+                    cardNo: "OGN·103/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPELL-PRACTICAL-EXPERIENCE"] = new(
+                    "P1-SPELL-PRACTICAL-EXPERIENCE",
+                    cardNo: "UNL-031/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new(
+                    "P2-BATTLEFIELD-UNIT-001",
+                    cardNo: "UNL-097/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
     private static MatchState WiseElderBoonBattleState(bool hasBoon)
     {
         string[] wiseTags = hasBoon
@@ -68846,6 +68984,36 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P2",
                     controllerId: "P2")
             }
+        };
+    }
+
+    private static MatchState AddArenaEquipmentTarget(MatchState state)
+    {
+        var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        playerZones["P1"] = p1Zones with
+        {
+            Base = p1Zones.Base
+                .Append("P1-UNIT-EQUIPMENT-TARGET")
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+
+        var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
+        {
+            ["P1-UNIT-EQUIPMENT-TARGET"] = new(
+                "P1-UNIT-EQUIPMENT-TARGET",
+                cardNo: "SFD·125/221",
+                power: 3,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1")
+        };
+
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
         };
     }
 
