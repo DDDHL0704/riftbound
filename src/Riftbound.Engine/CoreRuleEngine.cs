@@ -22429,26 +22429,37 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (IsBadPoroUnitConquestGoldCardNo(unitState.CardNo))
+            if (UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(unitState.CardNo, out var unitConquestGoldTrigger))
             {
+                var tokenName = unitConquestGoldTrigger.CreatedTokenName ?? "金币";
+                var tokenTags = new[] { CardObjectTags.EquipmentCard, tokenName }
+                    .Concat(unitConquestGoldTrigger.CreatedTokenKeywords ?? [])
+                    .Distinct(StringComparer.Ordinal)
+                    .ToArray();
+                var tokenCount = Math.Max(1, unitConquestGoldTrigger.CreatedTokenCount.GetValueOrDefault(1));
+                var tokenIsExhausted = unitConquestGoldTrigger.CreatedTokenExhausted.GetValueOrDefault(true);
                 AddUnitConquestEffectActivatedEvent(
                     events,
                     playerId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_CREATE_DORMANT_GOLD",
+                    unitConquestGoldTrigger.Kind,
                     battlefieldObjectId,
                     triggerSpec.Kind);
-                CreateLegendEquipmentToken(
-                    playerZones,
-                    cardObjects,
-                    playerId,
-                    unitObjectId,
-                    "UNIT_CONQUEST_CREATE_DORMANT_GOLD",
-                    "金币",
-                    [CardObjectTags.EquipmentCard, "金币", "反应"],
-                    isExhausted: true,
-                    events);
+                for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+                {
+                    CreateLegendEquipmentToken(
+                        playerZones,
+                        cardObjects,
+                        playerId,
+                        unitObjectId,
+                        unitConquestGoldTrigger.Kind,
+                        tokenName,
+                        tokenTags,
+                        tokenIsExhausted,
+                        events);
+                }
+
                 continue;
             }
 
@@ -22742,7 +22753,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool HasBattlefieldHeldArenaUnitConquestEffect(string? cardNo)
     {
-        return IsBadPoroUnitConquestGoldCardNo(cardNo)
+        return UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(cardNo, out _)
             || IsSettUnitConquestSelfBoonCardNo(cardNo)
@@ -22750,11 +22761,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsFriendlyBoonUnitConquestCardNo(cardNo)
             || IsFriendlyPowerUnitConquestCardNo(cardNo)
             || IsDestroyEquipmentBoonUnitConquestCardNo(cardNo);
-    }
-
-    private static bool IsBadPoroUnitConquestGoldCardNo(string? cardNo)
-    {
-        return cardNo is "UNL-222/219" or "SFD·069/221";
     }
 
     private static bool IsSettUnitConquestSelfBoonCardNo(string? cardNo)

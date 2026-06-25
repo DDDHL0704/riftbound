@@ -442,6 +442,29 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var unitConquestCreateDormantGoldMatch = Regex.Match(
+            segment,
+            @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestCreateDormantGoldMatch.Success)
+        {
+            var rawCount = unitConquestCreateDormantGoldMatch.Groups[1].Success
+                && !string.IsNullOrWhiteSpace(unitConquestCreateDormantGoldMatch.Groups[1].Value)
+                    ? unitConquestCreateDormantGoldMatch.Groups[1].Value
+                    : "一";
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestCreateDormantGold,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest create-dormant-Gold trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                CreatedTokenCount: ParseChineseNumber(rawCount),
+                CreatedTokenName: "金币",
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
+                CreatedTokenExhausted: true,
+                CreatedTokenKeywords: ["反应"]);
+        }
+
         var unitConquestDrawOrCallRuneMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，抽([0-9一两二三四五六七八九十]+)张牌或召出([0-9一两二三四五六七八九十]+)枚休眠的符文。?$",

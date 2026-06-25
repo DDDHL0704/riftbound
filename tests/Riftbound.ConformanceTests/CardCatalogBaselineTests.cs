@@ -2223,6 +2223,32 @@ public sealed class CardCatalogBaselineTests
             trigger.Reason);
     }
 
+    [Theory]
+    [InlineData("UNL-222/219")]
+    [InlineData("SFD·069/221")]
+    public async Task BehaviorSpecCatalogParsesUnitConquestCreateDormantGoldTrigger(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var badPoro = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        var trigger = Assert.Single(badPoro.Triggers);
+        Assert.Equal(TriggerKinds.UnitConquestCreateDormantGold, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(1, trigger.CreatedTokenCount);
+        Assert.Equal("金币", trigger.CreatedTokenName);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination);
+        Assert.True(trigger.CreatedTokenExhausted);
+        Assert.Equal(["反应"], trigger.CreatedTokenKeywords);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出一个休眠的“金币”装备指示物", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest create-dormant-Gold trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
     [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
@@ -3259,6 +3285,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("QiyanaUnitConquestDrawOrRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsQiyanaUnitConquestDrawOrRuneCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitConquestCreateDormantGoldTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BadPoroUnitConquestGoldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBadPoroUnitConquestGoldCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

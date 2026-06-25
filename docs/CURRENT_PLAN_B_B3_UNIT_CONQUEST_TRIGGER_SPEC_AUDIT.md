@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused unit-conquest draw-one and draw-or-call-rune TriggerSpec slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, and create-dormant-Gold TriggerSpec slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -25,11 +25,23 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `RuneCallCount = 1`
 - `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 奇亚娜's representative draw-or-call-rune effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestDrawOrCallRuneTrigger(...)`, and reads the emitted effect id, draw count, and rune-call count from `BehaviorSpec.Triggers`.
 - The old `QiyanaUnitConquestDrawOrRuneCardNo` / `IsQiyanaUnitConquestDrawOrRuneCardNo` branch is removed.
-- Current source-helper count for `private static bool Is*CardNo(...)` is `45` total / `42` in `CoreRuleEngine`; the remaining unit-conquest helper count is `6`.
+- `UNL-222/219` / `SFD·069/221` 坏坏魄罗 official text from `data/official/card-catalog.zh-CN.json`: `当我征服一处战场时，打出一个休眠的“金币”装备指示物。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = UNIT_CONQUEST_CREATE_DORMANT_GOLD`
+  - `Timing = UNIT_CONQUEST`
+  - `TargetScope = SOURCE_UNIT`
+  - `CreatedTokenCount = 1`
+  - `CreatedTokenName = 金币`
+  - `CreatedTokenDestination = OWNER_BASE`
+  - `CreatedTokenExhausted = true`
+  - `CreatedTokenKeywords = [反应]`
+- `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 坏坏魄罗's representative dormant-Gold effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestCreateDormantGoldTrigger(...)`, and reads the emitted effect id, token name, token count, exhausted state, and token tags from `BehaviorSpec.Triggers`.
+- The old `BadPoroUnitConquestGoldCardNo` / `IsBadPoroUnitConquestGoldCardNo` branch is removed.
+- Current source-helper count for `private static bool Is*CardNo(...)` is `44` total / `41` in `CoreRuleEngine`; the remaining unit-conquest helper count is `5`.
 
 ## Non-Goals
 
-- This does not close the full unit-conquest family. Bad Poro / Sett / Lucian / friendly-boon / friendly-power / destroy-equipment conquest representatives still have card-number helper branches.
+- This does not close the full unit-conquest family. Sett / Lucian / friendly-boon / friendly-power / destroy-equipment conquest representatives still have card-number helper branches.
 - This does not add natural battle-conquest trigger queuing for every unit. The validated runtime route is the existing 清算人竞技场 representative that activates unit conquest effects from a battlefield held trigger.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, B0 full-game readiness, or project READY.
 

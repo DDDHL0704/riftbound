@@ -118,6 +118,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_DRAW_ONE";
     public const string UnitConquestDrawOneOrCallRune =
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
+    public const string UnitConquestCreateDormantGold =
+        "UNIT_CONQUEST_CREATE_DORMANT_GOLD";
 }
 
 public static class TriggerTimings
