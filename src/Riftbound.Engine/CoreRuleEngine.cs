@@ -664,7 +664,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
-    private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
@@ -690,7 +689,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
-    private const int BattlefieldHeldScorePowerCost = 4;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
@@ -17639,7 +17637,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     battlefieldScoreEvents.Add(BuildBrushReplacementAppliedEvent(
                         battleWinnerPlayerId,
                         brushReplacement,
-                        "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"));
+                        TriggerKinds.BattlefieldHeldPayPowerScore));
                 }
 
                 if (TryResolveBattlefieldHeldPayPowerScoreTrigger(
@@ -18995,7 +18993,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.BattlefieldId?.Trim() ?? string.Empty,
             brushReplacementChoices,
             out replacement)
-            && IsBattlefieldHeldPayPowerScoreCardNo(replacement.OriginalBattlefieldState.CardNo);
+            && BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(
+                replacement.OriginalBattlefieldState.CardNo,
+                out _);
     }
 
     private sealed record BrushReplacementChoice(
@@ -19102,10 +19102,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(battlefieldState.CardNo, out var trigger)
+            || trigger.PowerCost.GetValueOrDefault() <= 0)
         {
             return false;
         }
+        var powerCost = trigger.PowerCost.GetValueOrDefault();
 
         var paymentPlayerId = ResolveBattlefieldPaymentControllerId(playerZones, battlefieldObjectId, battlefieldState);
         if (string.IsNullOrWhiteSpace(paymentPlayerId)
@@ -19114,7 +19116,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || (TryBuildBattlefieldScorePreventedEvent(
                     state,
                     paymentPlayerId,
-                    "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                    trigger.Kind,
                     [battlefieldObjectId],
                     out var scorePreventedEvent)
                 && scorePreventedEvent is not null))
@@ -19145,7 +19147,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 currentPool,
                 state.CardObjects,
                 recycledRuneObjectIds,
-                BattlefieldHeldScorePowerCost,
+                powerCost,
                 new Dictionary<string, int>(StringComparer.Ordinal));
         if (!recycleRunePaymentResourceActionsRequired
             && !allowDeferredBattleResponsePaymentResourceNeed)
@@ -19161,7 +19163,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && temporaryPaymentResourceActions.Count > 0
             && CanPayPowerCost(
                 adjustedPool,
-                BattlefieldHeldScorePowerCost,
+                powerCost,
                 new Dictionary<string, int>(StringComparer.Ordinal)))
         {
             return true;
@@ -19176,12 +19178,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 paymentWindow,
                 paymentPlayerId,
                 battlefieldObjectId,
-                reason: "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"),
+                reason: trigger.Kind),
             paymentWindow,
             paymentPlayerId,
             manaCost: 0,
-            powerCost: BattlefieldHeldScorePowerCost,
-            reason: "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+            powerCost: powerCost,
+            reason: trigger.Kind,
             legalPaymentChoiceIds: paymentResourceActions);
         if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
                 state,
@@ -19201,7 +19203,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             : RunePool.Empty;
         return CanPayPowerCost(
             finalPool,
-            BattlefieldHeldScorePowerCost,
+            powerCost,
             new Dictionary<string, int>(StringComparer.Ordinal));
     }
 
@@ -22002,17 +22004,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         nextTemporaryPaymentResources = state.TemporaryPaymentResources;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
-            || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(battlefieldState.CardNo, out var trigger)
+            || trigger.PowerCost.GetValueOrDefault() <= 0
+            || trigger.ScoreAmount.GetValueOrDefault() <= 0)
         {
             return false;
         }
+        var powerCost = trigger.PowerCost.GetValueOrDefault();
+        var scoreAmount = trigger.ScoreAmount.GetValueOrDefault();
 
         if (BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, battlefieldObjectId))
         {
             events.Add(BuildBattlefieldScoreAlreadyGainedEvent(
                 state,
                 playerId,
-                "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                trigger.Kind,
                 [battlefieldObjectId]));
             return true;
         }
@@ -22020,7 +22026,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (TryBuildBattlefieldScorePreventedEvent(
                 state,
                 playerId,
-                "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                trigger.Kind,
                 [battlefieldObjectId],
                 out var scorePreventedEvent)
             && scorePreventedEvent is not null)
@@ -22059,7 +22065,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 currentPool,
                 state.CardObjects,
                 recycledRuneObjectIds,
-                BattlefieldHeldScorePowerCost,
+                powerCost,
                 new Dictionary<string, int>(StringComparer.Ordinal)))
         {
             return false;
@@ -22069,10 +22075,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentId,
             paymentWindow,
             playerId,
-            genericPowerCost: BattlefieldHeldScorePowerCost,
-            totalPowerCost: BattlefieldHeldScorePowerCost,
+            genericPowerCost: powerCost,
+            totalPowerCost: powerCost,
             paymentResourceActionIds: paymentResourceActions,
-            reason: "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+            reason: trigger.Kind,
             sourceObjectId: battlefieldObjectId);
         var paymentEvents = new List<GameEvent>();
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
@@ -22091,8 +22097,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             paymentWindow,
             playerId,
             manaCost: 0,
-            powerCost: BattlefieldHeldScorePowerCost,
-            reason: "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+            powerCost: powerCost,
+            reason: trigger.Kind,
             legalPaymentChoiceIds: paymentResourceActions);
         if (!TryApplyTemporaryPaymentResourcesToPendingPayment(
                 state,
@@ -22118,7 +22124,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             scorePlayerId => scorePlayerId,
             scorePlayerId => playerScores.TryGetValue(scorePlayerId, out var currentScore) ? currentScore : 0,
             StringComparer.Ordinal);
-        mutablePlayerScores[playerId] = mutablePlayerScores.TryGetValue(playerId, out var score) ? score + 1 : 1;
+        mutablePlayerScores[playerId] = mutablePlayerScores.TryGetValue(playerId, out var score)
+            ? score + scoreAmount
+            : scoreAmount;
         winnerPlayerId = WinningPlayerId(mutablePlayerScores, winningScore);
         nextUntilEndOfTurnEffects = MarkBattlefieldScoredThisTurn(
             state.UntilEndOfTurnEffects,
@@ -22134,10 +22142,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                ["trigger"] = trigger.Kind,
                 ["sourceObjectId"] = sourceObjectId,
-                ["powerCost"] = BattlefieldHeldScorePowerCost,
-                ["amount"] = 1,
+                ["powerCost"] = powerCost,
+                ["amount"] = scoreAmount,
                 ["score"] = mutablePlayerScores[playerId]
             }));
         events.AddRange(paymentEvents);
@@ -22156,8 +22164,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["mana"] = 0,
-                ["power"] = BattlefieldHeldScorePowerCost,
-                ["reason"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                ["power"] = powerCost,
+                ["reason"] = trigger.Kind,
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
                 ["temporaryPaymentResourceIds"] = consumedTemporaryPaymentResources
                     .Select(resource => resource.ResourceId)
@@ -22171,13 +22179,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             })));
         events.Add(new GameEvent(
             "SCORE_GAINED",
-            $"{playerId} 获得 1 分",
+            $"{playerId} 获得 {scoreAmount} 分",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
-                ["amount"] = 1,
+                ["amount"] = scoreAmount,
                 ["score"] = mutablePlayerScores[playerId],
-                ["reason"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                ["reason"] = trigger.Kind,
                 ["sourceObjectId"] = battlefieldObjectId
             }));
         if (winnerPlayerId is not null)
@@ -25094,7 +25102,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(cardNo, out _)
-            || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(cardNo, out _)
             || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
             || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
             || IsBattlefieldExtraStandbyCardNo(cardNo)
@@ -25141,11 +25149,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(cardNo, out _)
             || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldTargetSpellSkillDamageBonusAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldUnitCostIncreaseTrigger(cardNo, out _);
-    }
-
-    private static bool IsBattlefieldHeldPayPowerScoreCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldDestroyedInBattleRecallCardNo(string? cardNo)
@@ -26755,10 +26758,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, paymentBattlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(battlefieldState.CardNo, out var trigger)
+            || trigger.PowerCost.GetValueOrDefault() <= 0)
         {
             return command;
         }
+        var powerCost = trigger.PowerCost.GetValueOrDefault();
 
         var paymentPlayerId = ResolveBattlefieldPaymentControllerId(playerZones, battlefieldObjectId, battlefieldState);
         if (string.IsNullOrWhiteSpace(paymentPlayerId))
@@ -26771,7 +26776,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             : RunePool.Empty;
         if (!CanPayPowerCost(
                 currentPool,
-                BattlefieldHeldScorePowerCost,
+                powerCost,
                 new Dictionary<string, int>(StringComparer.Ordinal)))
         {
             return command;

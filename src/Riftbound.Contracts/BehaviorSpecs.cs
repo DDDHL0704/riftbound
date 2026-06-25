@@ -58,6 +58,8 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD";
     public const string BattlefieldHeldSevenUnitsWin =
         "BATTLEFIELD_HELD_SEVEN_UNITS_WIN";
+    public const string BattlefieldHeldPayPowerScore =
+        "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE";
     public const string BattlefieldConquerRevealRecycle =
         "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE";
     public const string BattlefieldConquerMill =
@@ -326,6 +328,7 @@ public sealed record TriggerSpec(
     string? DiscardSourceZone = null,
     string? DiscardDestinationZone = null,
     int? ManaCost = null,
+    int? PowerCost = null,
     int? BoonCount = null,
     int? ConsumedBoonCount = null,
     int? RuneCallCount = null,

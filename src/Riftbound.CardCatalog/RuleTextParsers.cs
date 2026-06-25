@@ -713,6 +713,22 @@ public static class TriggerParser
                 ScoreAmount: ParseChineseNumber(battlefieldFirstTurnScoreMatch.Groups[1].Value));
         }
 
+        var battlefieldHeldPayPowerScoreMatch = Regex.Match(
+            segment,
+            @"当你据守此处时，你可以选择支付((?:\{\{A\}\})+)，以此额外获得([0-9一两二三四五六七八九十]+)分",
+            RegexOptions.CultureInvariant);
+        if (battlefieldHeldPayPowerScoreMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldHeldPayPowerScore,
+                TriggerTimings.BattlefieldHeld,
+                segment,
+                "Battlefield held pay-power score trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                PowerCost: ParsePowerCostSymbols(battlefieldHeldPayPowerScoreMatch.Groups[1].Value),
+                ScoreAmount: ParseChineseNumber(battlefieldHeldPayPowerScoreMatch.Groups[2].Value),
+                Optional: true);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {
@@ -1015,6 +1031,11 @@ public static class TriggerParser
         };
     }
 
+    private static int ParsePowerCostSymbols(string raw)
+    {
+        return Regex.Matches(raw, @"\{\{A\}\}", RegexOptions.CultureInvariant).Count;
+    }
+
     private static string DetermineKind(string segment)
     {
         if (segment.Contains("打出", StringComparison.Ordinal))
@@ -1290,6 +1311,7 @@ public static class StaticAbilityParser
             _ => 1
         };
     }
+
 }
 
 public static class StaticAuraParser

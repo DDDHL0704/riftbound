@@ -5991,7 +5991,6 @@ internal static class ActionPromptBuilder
 
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const int CrescentGuardReadyPowerCost = 1;
-    private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
@@ -6166,7 +6165,6 @@ internal static class ActionPromptBuilder
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldCardNo = "");
-    private const int BattlefieldHeldScorePowerCost = 4;
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
@@ -12891,7 +12889,7 @@ internal static class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(originalBattlefieldObjectId, out var originalState)
             || !IsPromptBattlefieldCardObject(originalState)
             || string.Equals(originalState.CardNo, P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, StringComparison.Ordinal)
-            || !string.Equals(originalState.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(originalState.CardNo, out _)
             || !PublicBattlefieldCardObjects(state).Contains(originalBattlefieldObjectId, StringComparer.Ordinal))
         {
             return false;
@@ -13060,10 +13058,12 @@ internal static class ActionPromptBuilder
         {
             var battlefieldObjectId = battlefieldChoice.Id;
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-                || !string.Equals(battlefieldState.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal))
+                || !BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(battlefieldState.CardNo, out var trigger)
+                || trigger.PowerCost.GetValueOrDefault() <= 0)
             {
                 continue;
             }
+            var powerCost = trigger.PowerCost.GetValueOrDefault();
 
             var paymentPlayerId = ResolveBattlefieldPaymentControllerId(state, battlefieldObjectId, battlefieldState);
             if (string.IsNullOrWhiteSpace(paymentPlayerId)
@@ -13079,13 +13079,13 @@ internal static class ActionPromptBuilder
                 : RunePool.Empty;
             if (PaymentCostRules.CanPayPowerCost(
                     runePool,
-                    BattlefieldHeldScorePowerCost,
+                    powerCost,
                     new Dictionary<string, int>(StringComparer.Ordinal)))
             {
                 continue;
             }
 
-            var recycleChoices = DeclareBattleHeldScoreRecycleRuneChoices(state, paymentPlayerId, runePool);
+            var recycleChoices = DeclareBattleHeldScoreRecycleRuneChoices(state, paymentPlayerId, runePool, powerCost);
             foreach (var choice in recycleChoices)
             {
                 choices.TryAdd(choice.Id, choice);
@@ -13099,7 +13099,7 @@ internal static class ActionPromptBuilder
                          state,
                          paymentPlayerId,
                          runePoolWithRecycleChoices,
-                         BattlefieldHeldScorePowerCost,
+                         powerCost,
                          new Dictionary<string, int>(StringComparer.Ordinal),
                          "payment resource action: temporary resource for battlefield held score power"))
             {
@@ -13133,7 +13133,8 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleHeldScoreRecycleRuneChoices(
         MatchState state,
         string paymentPlayerId,
-        RunePool runePool)
+        RunePool runePool,
+        int powerCost)
     {
         if (!state.PlayerZones.TryGetValue(paymentPlayerId, out var zones))
         {
@@ -13146,7 +13147,7 @@ internal static class ActionPromptBuilder
                 state,
                 objectId,
                 runePool,
-                BattlefieldHeldScorePowerCost))
+                powerCost))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId =>
             {
@@ -16021,7 +16022,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldCallRuneTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldGrantBoonTrigger(cardObject.CardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldReturnHeroTrigger(cardObject.CardNo, out _)
-            || string.Equals(cardObject.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal)
             || IsBattlefieldExtraStandbyCardNo(cardObject.CardNo)
@@ -16547,7 +16548,6 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 public sealed class MatchSession : IMatchSession
 {
     private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
-    private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
@@ -22319,7 +22319,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-ENERGY-HUB"] = new(
                     "P2-BATTLEFIELD-ENERGY-HUB",
-                    cardNo: BattlefieldHeldPayPowerScoreCardNo,
+                    cardNo: "SFD·214/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P2,
                     controllerId: seed.P2),

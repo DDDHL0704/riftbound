@@ -96,6 +96,14 @@ internal static class BattlefieldTriggerSpecRules
             out trigger);
     }
 
+    public static bool TryGetBattlefieldHeldPayPowerScoreTrigger(string? cardNo, out TriggerSpec trigger)
+    {
+        return TryGetTrigger(
+            cardNo,
+            TriggerKinds.BattlefieldHeldPayPowerScore,
+            out trigger);
+    }
+
     public static bool TryGetBattlefieldConquerRevealRecycleTrigger(string? cardNo, out TriggerSpec trigger)
     {
         return TryGetTrigger(

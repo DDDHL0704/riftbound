@@ -2235,6 +2235,27 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldHeldPayPowerScoreTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var energyHub = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·214/221", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            energyHub.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.BattlefieldHeldPayPowerScore, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.BattlefieldHeldPayPowerScore, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldHeld, trigger.Timing);
+        Assert.True(trigger.Optional);
+        Assert.Equal(4, trigger.PowerCost);
+        Assert.Equal(1, trigger.ScoreAmount);
+        Assert.Contains("支付{{A}}{{A}}{{A}}{{A}}", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("额外获得1分", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, energyHub.Status);
+    }
+
+    [Fact]
     public void StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(
@@ -3058,6 +3079,29 @@ public sealed class CardCatalogBaselineTests
         var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("BattlefieldIncreaseWinningScoreCardNo", matchRecoverySource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldHeldPayPowerScoreTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldHeldPayPowerScoreCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldHeldPayPowerScoreCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldHeldPayPowerScoreCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

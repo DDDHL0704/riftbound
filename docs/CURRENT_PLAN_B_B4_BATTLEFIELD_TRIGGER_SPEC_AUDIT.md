@@ -2,9 +2,22 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; project remains **NOT READY**.
+Status: focused B4 battlefield trigger/static spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, held pay-power score, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, first-turn extra-rune, first-turn score, score delay, and winning-score increase; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-06-25 held pay-power score follow-up moves another implemented battlefield held trigger away from engine card-number branching:
+
+- `SFD·214/221` / 能量枢纽 official text: `当你据守此处时，你可以选择支付{{A}}{{A}}{{A}}{{A}}，以此额外获得1分。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE`
+  - `Timing = BATTLEFIELD_HELD`
+  - `PowerCost = 4`
+  - `ScoreAmount = 1`
+  - `Optional = true`
+- `CoreRuleEngine.TryResolveBattlefieldHeldPayPowerScoreTrigger`, held-score payment-resource validation, battle-response resume filtering, and Brush battlefield replacement validation now find eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldHeldPayPowerScoreTrigger(...)` and read the power cost / score amount from `BehaviorSpec.Triggers`.
+- `MatchSession` prompt metadata and battlefield-object recognition now use the same trigger-spec query instead of the old `BattlefieldHeldPayPowerScoreCardNo` constant; `BehaviorSpec.triggers` catalog typing now exposes `powerCost` to DevUi.
+- The old `BattlefieldHeldPayPowerScoreCardNo` / `IsBattlefieldHeldPayPowerScoreCardNo` / fixed `BattlefieldHeldScorePowerCost` branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `54` total / `50` in `CoreRuleEngine`; Core battlefield helper count is `6`.
 
 The 2026-06-25 winning-score increase follow-up moves another implemented battlefield static rule away from engine card-number branching:
 
