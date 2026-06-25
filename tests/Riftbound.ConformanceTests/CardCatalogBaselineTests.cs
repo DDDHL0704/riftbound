@@ -1309,6 +1309,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("此处的其他友方单位获得{{强攻}}", farronCaptainAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, farronCaptainAura.Status);
 
+        var taric = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·074/298", StringComparison.Ordinal));
+        var taricAura = Assert.Single(taric.StaticAuras);
+        Assert.Equal(StaticAuraKinds.SameBattlefieldOtherFriendlyUnitsKeyword, taricAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.RuleText, taricAura.Layer);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", taricAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.SameBattlefieldOtherFriendlyUnits, taricAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnits, taricAura.ParticipantScope);
+        Assert.Equal(0, taricAura.PowerDeltaPerParticipant);
+        Assert.Equal(CardCombatKeywordNames.Steadfast, taricAura.GrantedKeyword);
+        Assert.Contains("此处的其他友方单位获得{{坚守}}", taricAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, taricAura.Status);
+
         foreach (var cardNo in new[] { "UNL-147/219", "UNL-147a/219", "UNL-238/219" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));

@@ -38696,6 +38696,145 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79SameBattlefieldOtherFriendlyStaticKeywordGrantsSteadfastToOnlyOtherFriendlyDefenders()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-TARIC-BATTLEFIELD",
+                        "P1-TARIC-SOURCE",
+                        "P1-TARIC-ALLY",
+                        "P1-TARIC-OTHER-BATTLEFIELD",
+                        "P1-TARIC-OTHER-BATTLEFIELD-ALLY"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-TARIC-ATTACKER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-TARIC-BATTLEFIELD"] = new(
+                    "P1-TARIC-BATTLEFIELD",
+                    cardNo: "UNL-208/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-TARIC-SOURCE"] = new(
+                    "P1-TARIC-SOURCE",
+                    cardNo: "OGN·074/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.Steadfast, CardCombatKeywordNames.Bulwark],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-TARIC-ALLY"] = new(
+                    "P1-TARIC-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-TARIC-OTHER-BATTLEFIELD"] = new(
+                    "P1-TARIC-OTHER-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-TARIC-OTHER-BATTLEFIELD-ALLY"] = new(
+                    "P1-TARIC-OTHER-BATTLEFIELD-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-TARIC-ATTACKER"] = new(
+                    "P2-TARIC-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-TARIC-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-TARIC-BATTLEFIELD"),
+                ["P1-TARIC-SOURCE"] = new("P1", "BATTLEFIELD", "P1-TARIC-BATTLEFIELD"),
+                ["P1-TARIC-ALLY"] = new("P1", "BATTLEFIELD", "P1-TARIC-BATTLEFIELD"),
+                ["P2-TARIC-ATTACKER"] = new("P2", "BATTLEFIELD", "P1-TARIC-BATTLEFIELD"),
+                ["P1-TARIC-OTHER-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-TARIC-OTHER-BATTLEFIELD"),
+                ["P1-TARIC-OTHER-BATTLEFIELD-ALLY"] = new("P1", "BATTLEFIELD", "P1-TARIC-OTHER-BATTLEFIELD")
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-TARIC-BATTLEFIELD")]
+        };
+
+        var ruleTextAura = Assert.Single(state.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, "P1-TARIC-SOURCE", StringComparison.Ordinal));
+        Assert.Equal("OBJECT", ruleTextAura.Scope);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD", ruleTextAura.Duration);
+        Assert.Equal("P1-TARIC-ALLY", ruleTextAura.TargetObjectId);
+        Assert.Equal(0, ruleTextAura.PowerDelta);
+        Assert.Equal(0, ruleTextAura.BasePower);
+        Assert.Equal(0, ruleTextAura.EffectivePower);
+        Assert.Empty(ruleTextAura.EffectKind);
+        Assert.Null(ruleTextAura.SourceCardNo);
+        Assert.Empty(ruleTextAura.SourcePath);
+        Assert.Null(ruleTextAura.ParticipantObjectIds);
+        Assert.Null(ruleTextAura.SourceOrder);
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-TARIC-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-TARIC-SOURCE", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-TARIC-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-TARIC-ATTACKER", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.SourceObjectId, "P1-TARIC-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-TARIC-OTHER-BATTLEFIELD-ALLY", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-same-battlefield-static-steadfast-keyword", "P2", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-TARIC-BATTLEFIELD",
+                ["P2-TARIC-ATTACKER"],
+                ["P1-TARIC-ALLY"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P2-TARIC-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
+        Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P1-TARIC-ALLY", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-TARIC-ATTACKER", defenderDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(CardCombatKeywordNames.Steadfast, defenderDamageEvent.Payload["keyword"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79SameBattlefieldOtherFriendlyFilteredStaticPowerAddsTwoToBoonUnits()
     {
         var state = SameBattlefieldOtherFriendlyFilteredStaticPowerState();
