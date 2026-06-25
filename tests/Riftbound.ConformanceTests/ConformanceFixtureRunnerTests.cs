@@ -39517,6 +39517,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldFilteredStaticPowerDoesNotProjectFromFaceDownBattlefieldSource()
+    {
+        var hiddenSourceState = BattlefieldFilteredStaticPowerState(battlefieldSourceFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenSourceState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BRUSH-BATTLEFIELD", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            hiddenSourceState,
+            new PlayerIntent("intent-p7-9-battlefield-filtered-static-power-face-down-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BRUSH-BATTLEFIELD",
+                ["P1-BRUSH-BIRD-ATTACKER"],
+                ["P2-BRUSH-CAT-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-BRUSH-BIRD-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BRUSH-CAT-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
+        Assert.False(defenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
+    }
+
+    [Fact]
+    public void P79BattlefieldFilteredStaticPowerDoesNotProjectToFaceDownTarget()
+    {
+        var hiddenTargetState = BattlefieldFilteredStaticPowerState(catDefenderFaceDown: true);
+
+        Assert.DoesNotContain(
+            hiddenTargetState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-BRUSH-BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-BRUSH-CAT-DEFENDER", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldFilteredStaticKeywordGrantsSteadfastToEphemeralDefenders()
     {
         var state = BattlefieldFilteredStaticKeywordState();
@@ -66999,7 +67049,9 @@ public sealed class ConformanceFixtureRunnerTests
         };
     }
 
-    private static MatchState BattlefieldFilteredStaticPowerState()
+    private static MatchState BattlefieldFilteredStaticPowerState(
+        bool battlefieldSourceFaceDown = false,
+        bool catDefenderFaceDown = false)
     {
         return PunishmentState(mana: 0) with
         {
@@ -67027,6 +67079,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BRUSH-BATTLEFIELD"] = new(
                     "P1-BRUSH-BATTLEFIELD",
                     cardNo: "UNL·T03",
+                    isFaceDown: battlefieldSourceFaceDown,
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag, "草丛"],
                     ownerId: "P1",
                     controllerId: "P1"),
@@ -67067,6 +67120,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BRUSH-CAT-DEFENDER"] = new(
                     "P2-BRUSH-CAT-DEFENDER",
                     cardNo: "SFD·125/221",
+                    isFaceDown: catDefenderFaceDown,
                     power: 3,
                     tags: [CardObjectTags.UnitCard, "猫科"],
                     ownerId: "P2",

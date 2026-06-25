@@ -43,6 +43,7 @@ Implemented in this slice:
 - `CardEquipmentKeywordRules` marks the Ornn friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` instead of a registry runtime flag.
 - `CoreRuleEngine.HasBattlefieldStaticRoamPermission` and `ActionPromptBuilder.HasMoveUnitPromptRoamPermission` now grant `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走` instead of the old `BattlefieldStaticRoamCardNo` branch.
 - Battlefield keyword aura hidden-boundary guard: battlefield keyword sources that are face-down no longer project `BATTLEFIELD_*_UNITS_KEYWORD` RULE_TEXT effects, grant combat keyword bonuses, or provide static Roam prompt / movement permission.
+- Battlefield static-power hidden-boundary guard: battlefield power sources that are face-down no longer project `BATTLEFIELD_*_UNITS_POWER` `STATIC_AURA` effects or grant combat static-power bonuses.
 - `MatchSession` projects the Master Yi level legend aura as a legend-source `FRIENDLY_UNITS_POWER` continuous effect when the controller satisfies the required experience threshold; static-aura source ordering/dependencies now include public legend-zone sources.
 - Recovery static-aura source-card validation now checks the source card's `BehaviorSpec` aura surface for battlefield all-units, battlefield-filtered, same-battlefield friendly-filtered count-to-source, same-battlefield other-friendly, same-battlefield friendly-filtered, non-local other-friendly, friendly-units, and friendly-filtered unit auras instead of a projection allow-list.
 
@@ -147,6 +148,30 @@ Result: 2206/2206 passed.
 ```
 
 Result: 8619/8619 passed.
+
+2026-06-26 battlefield-filtered static-power hidden-boundary focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~P79BattlefieldFilteredStaticPowerDoesNotProject" --nologo
+```
+
+Result: 2/2 passed.
+
+2026-06-26 battlefield static-power hidden-boundary adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BattlefieldFiltered|FullyQualifiedName~BattlefieldStatic|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticPower|FullyQualifiedName~Hidden|FullyQualifiedName~FaceDown|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2192/2192 passed.
+
+2026-06-26 backend full after battlefield static-power hidden-boundary fix:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8621/8621 passed.
 
 Adjacent:
 

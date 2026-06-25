@@ -19700,6 +19700,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && !battlefieldState.IsFaceDown
             && StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(battlefieldState.CardNo, out var aura)
             ? aura.PowerDeltaPerParticipant
             : 0;
@@ -19715,6 +19716,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !cardObject.IsFaceDown
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && !battlefieldState.IsFaceDown
             && StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(battlefieldState.CardNo, out var aura)
             && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
             ? aura.PowerDeltaPerParticipant

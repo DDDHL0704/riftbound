@@ -2775,6 +2775,7 @@ public sealed record MatchState
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || battlefield.IsFaceDown
                 || !StaticAuraSpecRules.TryGetBattlefieldAllUnitsPowerAura(battlefield.CardNo, out var aura)
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
                 || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
@@ -2826,6 +2827,7 @@ public sealed record MatchState
             .OrderBy(objectId => objectId, StringComparer.Ordinal))
         {
             if (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefield)
+                || battlefield.IsFaceDown
                 || !StaticAuraSpecRules.TryGetBattlefieldFilteredUnitsPowerAura(battlefield.CardNo, out var aura)
                 || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
                 || !IsObjectLocationCompatibleWithBattlefield(state, battlefieldObjectId, battlefieldObjectId))
