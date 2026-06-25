@@ -48,6 +48,7 @@ Project status: **NOT READY**.
 
 - `NaturalUnitConquestTriggerTests.KaisaDrawsFromUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `OGN·039/298` 卡莎 emits `BATTLEFIELD_CONQUERED`, activates `UNIT_CONQUEST_DRAW_ONE` through the shared TriggerSpec route with reason `BATTLEFIELD_CONQUERED`, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
 - `NaturalUnitConquestTriggerTests.CrimsonSignetTreantRepeatsUnitConquestTriggerAfterNaturalBattlefieldConquest` verifies a real `DECLARE_BATTLE` battlefield conquest by `UNL-029/219` 绯红印记树怪 uses its same-battlefield `UNIT_CONQUEST_ADDITIONAL_ACTIVATION` source to activate `UNIT_CONQUEST_GRANT_FRIENDLY_BOON` twice with reason `BATTLEFIELD_CONQUERED`, while the second boon event records `alreadyHadBoon = true` and does not stack another power increase.
+- `FullGameEndToEndTests.OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash` verifies an official-deck midgame state produced from the normal submit/ready/mulligan/no-legal-battle opening can still play `UNL-029/219` 绯红印记树怪 through `PLAY_CARD`, move it with `MOVE_UNIT`, stage a defender, resolve a natural `DECLARE_BATTLE` conquest, emit two `UNIT_CONQUEST_EFFECT_ACTIVATED` / `BOON_GRANTED` events for the TriggerSpec repeat path, continue to score victory, and replay the post-midgame action log to the same final state hash.
 - `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` verifies the 清算人竞技场 representative still activates 卡莎's conquest draw effect, emits `CARD_DRAWN`, and moves the drawn card to the controller's hand.
 - The same `P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws` representative verifies the 坏坏魄罗 dormant-Gold effect still emits `UNIT_CONQUEST_EFFECT_ACTIVATED` with `UNIT_CONQUEST_CREATE_DORMANT_GOLD`, creates an exhausted equipment token, and moves that token to the controller's base.
 - `P79BattlefieldHeldActivateConquestEffectsQiyanaDrawsWhenMainDeckAvailable` verifies the 清算人竞技场 representative activates 奇亚娜's draw-or-rune effect as `UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE` and draws one card when the controller's main deck is non-empty.
@@ -63,8 +64,10 @@ Project status: **NOT READY**.
 ## Validation
 
 - Focused natural unit conquest additional-activation + 清算人竞技场 non-repeat representatives: `5/5` passing.
+- Focused official-deck midgame Treant conquest repeat replay representative: `1/1` passing.
+- Adjacent `FullGameEndToEnd` / `NaturalUnitConquestTrigger` / `UnitConquest` / `MatchRecovery` representatives: `2034/2034` passing.
 - Adjacent `NaturalUnitConquestTrigger` / `UnitConquest` / `P79BattlefieldHeldActivateConquest` / `BattlefieldConquer` / `DeclareBattle` / `BattleDamageAssignment` / `MatchRecovery` / `CardCatalogBaseline` representatives: `2469/2469` passing.
-- Backend full conformance: `8606/8606` passing.
+- Backend full conformance: `8607/8607` passing.
 - No DevUi source or catalog TypeScript shape changed in this slice, so DevUi build was not rerun.
 
 ## Residual Risk

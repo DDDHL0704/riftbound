@@ -21,6 +21,11 @@ public sealed class FullGameEndToEndTests
     private const string VexLegendCardNo = "UNL-232/219";
     private const string VexChampionCardNo = "UNL-055/219";
     private const string ShadowCardNo = "UNL-194/219";
+    private const string CrimsonSignetTreantCardNo = "UNL-029/219";
+    private const string ForgottenMonumentBattlefieldCardNo = "SFD·209/221";
+    private const string WinningScoreIncreaseBattlefieldCardNo = "OGN·276/298";
+    private const string FirstTurnExtraRuneBattlefieldCardNo = "OGN·284/298";
+    private const string HasteReadyOptionalCost = "HASTE_READY";
     private const string TeemoSelfPowerCardNo = "OGN·197/298";
     private const string PakaaCubCardNo = "OGN·135/298";
     private const long LowCurveReplaySeed = 424242;
@@ -155,6 +160,56 @@ public sealed class FullGameEndToEndTests
             "b0-full-distinct-replay-score",
             p1Deck,
             p2Deck);
+    }
+
+    [Fact]
+    public async Task OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildCrimsonSignetTreantOfficialDeck(catalog);
+        var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        var openingInitialState = BuildSeatedInitialState("b0-full-game-treant-conquest-replay-room", LowCurveReplaySeed);
+        var (_, openingResult) = await DriveOfficialLowCurveDecksToNoLegalBattleSkipAsync(
+            openingInitialState,
+            NoopMatchJournal.Instance,
+            p1Deck,
+            p2Deck);
+        var initialState = BuildCrimsonSignetTreantMidgameInitialState(openingResult.State);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
+        var current = AcceptedCurrentResult(initialState);
+        current = await DriveSpecificUnitToOwnBattlefieldAsync(
+            session,
+            current,
+            "P1",
+            CrimsonSignetTreantCardNo,
+            "b0-treant-stage-source");
+        current = await DriveOpponentUnitToBattlefieldAsync(
+            session,
+            current,
+            "P2",
+            "P1",
+            "b0-treant-stage-defender");
+
+        var battleResult = await DriveContestedBattlefieldToCrimsonSignetTreantConquestAsync(
+            session,
+            current,
+            "P1",
+            "b0-treant-conquest");
+
+        AssertCrimsonSignetTreantConquestRepeat(battleResult);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-treant-score");
+
+        await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.MoveUnit, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        AssertScoreVictory(result);
     }
 
     [Fact]
@@ -479,6 +534,25 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.Mulligan, StringComparison.Ordinal));
     }
 
+    private static async ValueTask AssertActionLogReplaysToFinalStateHashOnlyAsync(
+        MatchState initialState,
+        RecordingMatchJournal journal,
+        ResolutionResult result)
+    {
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            result.State,
+            new CoreRuleEngine(),
+            CancellationToken.None,
+            ToRecoveredEvents(journal.Entries));
+
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        Assert.Equal(MatchStateHasher.Hash(result.State), replay.ExpectedStateHash);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Empty(replay.Errors);
+    }
+
     private static void AssertScoreVictory(ResolutionResult result)
     {
         Assert.Equal(MatchStatuses.Finished, result.State.Status);
@@ -490,6 +564,42 @@ public sealed class FullGameEndToEndTests
         Assert.True(
             result.State.PlayerScores[result.State.WinnerPlayerId!] >= winningScore,
             $"Expected winner score to satisfy winningScore={winningScore}; scores={JsonSerializer.Serialize(result.State.PlayerScores)}.");
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertCrimsonSignetTreantConquestRepeat(ResolutionResult result)
+    {
+        var conqueredEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("sourceObjectId", out var sourceObjectId)
+            && sourceObjectId is string source
+            && result.State.CardObjects.TryGetValue(source, out var sourceObject)
+            && string.Equals(sourceObject.CardNo, CrimsonSignetTreantCardNo, StringComparison.Ordinal));
+        var treantObjectId = Assert.IsType<string>(conqueredEvent.Payload["sourceObjectId"]);
+
+        var conquestTriggers = result.Events
+            .Where(gameEvent =>
+                string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, treantObjectId, StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["effectId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, conquestTriggers.Length);
+
+        var boonEvents = result.Events
+            .Where(gameEvent =>
+                string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, treantObjectId, StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, boonEvents.Length);
+        var boonTargetObjectId = Assert.IsType<string>(boonEvents[0].Payload["targetObjectId"]);
+        Assert.Equal(boonTargetObjectId, Assert.IsType<string>(boonEvents[1].Payload["targetObjectId"]));
+        Assert.False(Assert.IsType<bool>(boonEvents[0].Payload["alreadyHadBoon"]));
+        Assert.True(Assert.IsType<bool>(boonEvents[1].Payload["alreadyHadBoon"]));
+
+        var boonTarget = result.State.CardObjects[boonTargetObjectId];
+        Assert.Contains(CardObjectTags.Boon, boonTarget.Tags);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -1587,6 +1697,195 @@ public sealed class FullGameEndToEndTests
         throw new InvalidOperationException("B0 damage-assignment driver could not open a multi-defender battle task.");
     }
 
+    private static async ValueTask<ResolutionResult> DriveSpecificUnitToOwnBattlefieldAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string cardNo,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 36; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                result = await SubmitFirstDeclareBattleCandidateAsync(
+                    session,
+                    result,
+                    $"{intentPrefix}-clear-existing-battle-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Treant driver cannot stage {cardNo}: {DescribeState(result.State)}");
+            }
+
+            if (!string.Equals(result.State.ActivePlayerId, playerId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-wait-active-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            result = await TapAllAvailableRunesAsync(session, playerId, result, $"{intentPrefix}-tap-{turnIndex}");
+            var sourceObjectId = FindHandCardObjectByCardNo(result.State, playerId, cardNo);
+            var playCandidate = EnabledCandidate(result.Prompts[playerId], CommandTypes.PlayCard);
+            var runePool = result.State.RunePools[playerId];
+            var canPlaySource = sourceObjectId is not null
+                && playCandidate?.Sources?.Any(choice => string.Equals(choice.Id, sourceObjectId, StringComparison.Ordinal)) == true;
+            var canPayHasteReady = canPlaySource
+                && playCandidate?.OptionalCosts?.Any(choice => string.Equals(choice.Id, HasteReadyOptionalCost, StringComparison.Ordinal)) == true
+                && runePool.Mana >= 5
+                && runePool.PowerByTrait.TryGetValue(RuneTrait.Red, out var redPower)
+                && redPower >= 1;
+            if (sourceObjectId is not null
+                && canPlaySource
+                && (canPayHasteReady || runePool.Mana >= 4))
+            {
+                var battlefieldDestination = BattlefieldDestinationFor(result.State, playerId);
+                var played = await PlaySpecificUnitToBaseAsync(
+                    session,
+                    playerId,
+                    result,
+                    cardNo,
+                    intentPrefix,
+                    canPayHasteReady ? [HasteReadyOptionalCost] : []);
+                var moved = await DriveBaseUnitToBattlefieldWhenReadyAsync(
+                    session,
+                    played,
+                    playerId,
+                    cardNo,
+                    battlefieldDestination,
+                    $"{intentPrefix}-move-when-ready");
+                Assert.NotNull(FindBattlefieldUnitByCardNo(moved.State, playerId, cardNo));
+                return moved;
+            }
+
+            result = await EndTurnAsync(session, playerId, $"{intentPrefix}-wait-resources-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Treant driver could not stage {cardNo} for {playerId}.");
+    }
+
+    private static async ValueTask<ResolutionResult> DriveOpponentUnitToBattlefieldAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string opponentId,
+        string battlefieldOwnerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 24; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Treant defender driver cannot stage a defender: {DescribeState(result.State)}");
+            }
+
+            if (!string.Equals(result.State.ActivePlayerId, opponentId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-wait-active-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            result = await TapAllAvailableRunesAsync(session, opponentId, result, $"{intentPrefix}-tap-{turnIndex}");
+            if (EnabledCandidate(result.Prompts[opponentId], CommandTypes.PlayCard) is null)
+            {
+                result = await EndTurnAsync(session, opponentId, $"{intentPrefix}-wait-play-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            result = await TryPlayFirstUnitAsync(session, opponentId, result, $"{intentPrefix}-play", playUnitToBattlefield: false);
+            result = await MoveBaseUnitToBattlefieldAsync(
+                session,
+                opponentId,
+                result,
+                BattlefieldDestinationFor(result.State, battlefieldOwnerId),
+                $"{intentPrefix}-move");
+            result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-contest");
+            return result;
+        }
+
+        throw new InvalidOperationException($"B0 Treant driver could not stage a defender for {opponentId}.");
+    }
+
+    private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToCrimsonSignetTreantConquestAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string treantPlayerId,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 20; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
+                && result.Prompts[result.State.ActivePlayerId].Actions.Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
+            {
+                if (!string.Equals(result.State.ActivePlayerId, treantPlayerId, StringComparison.Ordinal))
+                {
+                    result = await SubmitFirstDeclareBattleCandidateAsync(
+                        session,
+                        result,
+                        $"{intentPrefix}-clear-other-battle-{turnIndex}");
+                    AssertNoHiddenZoneLeak(result);
+                    continue;
+                }
+
+                return await SubmitCrimsonSignetTreantDeclareBattleAsync(
+                    session,
+                    result,
+                    treantPlayerId,
+                    $"{intentPrefix}-declare-{turnIndex}");
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Treant driver cannot advance to conquest: {DescribeState(result.State)}");
+            }
+
+            result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-end-to-reopen-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Treant driver could not open a legal Treant battle task: {DescribeState(result.State)}");
+    }
+
     private static async ValueTask<ResolutionResult> PreparePlayerBoardAsync(
         MatchSession session,
         string playerId,
@@ -1635,6 +1934,84 @@ public sealed class FullGameEndToEndTests
         AssertAccepted(move);
         AssertNoHiddenZoneLeak(move);
         return move;
+    }
+
+    private static async ValueTask<ResolutionResult> PlaySpecificUnitToBaseAsync(
+        MatchSession session,
+        string playerId,
+        ResolutionResult current,
+        string cardNo,
+        string intentPrefix,
+        IReadOnlyList<string>? optionalCosts = null)
+    {
+        var sourceObjectId = FindHandCardObjectByCardNo(current.State, playerId, cardNo)
+            ?? throw new InvalidOperationException($"B0 Treant driver could not find {cardNo} in {playerId}'s hand.");
+        var play = await session.SubmitAsync(
+            playerId,
+            $"{intentPrefix}-play",
+            new PlayCardCommand(sourceObjectId, cardNo, [], OptionalCosts: optionalCosts, Destination: "BASE"),
+            RawCommand(new PlayCardCommand(sourceObjectId, cardNo, [], OptionalCosts: optionalCosts, Destination: "BASE")),
+            CancellationToken.None);
+        AssertAccepted(play);
+        AssertNoHiddenZoneLeak(play);
+        return await ResolveStackPassPassAsync(session, play, $"{intentPrefix}-resolve");
+    }
+
+    private static async ValueTask<ResolutionResult> DriveBaseUnitToBattlefieldWhenReadyAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string playerId,
+        string cardNo,
+        string battlefieldDestination,
+        string intentPrefix)
+    {
+        var result = current;
+        for (var turnIndex = 0; turnIndex < 12; turnIndex++)
+        {
+            if (string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
+            {
+                result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            if (!string.Equals(result.State.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(result.State.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || result.State.PendingTaskQueue.HasTasks)
+            {
+                throw new InvalidOperationException($"B0 Treant driver cannot move staged {cardNo}: {DescribeState(result.State)}");
+            }
+
+            if (!string.Equals(result.State.ActivePlayerId, playerId, StringComparison.Ordinal))
+            {
+                result = await EndTurnAsync(session, result.State.ActivePlayerId, $"{intentPrefix}-wait-active-{turnIndex}");
+                AssertNoHiddenZoneLeak(result);
+                continue;
+            }
+
+            var baseObjectId = result.State.PlayerZones[playerId].Base.FirstOrDefault(objectId =>
+                IsReadyUnit(result.State, objectId)
+                && result.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal));
+            if (baseObjectId is not null)
+            {
+                var move = await session.SubmitAsync(
+                    playerId,
+                    $"{intentPrefix}-move-{turnIndex}",
+                    new MoveUnitCommand(baseObjectId, "BASE", battlefieldDestination, []),
+                    RawCommand(new MoveUnitCommand(baseObjectId, "BASE", battlefieldDestination, [])),
+                    CancellationToken.None);
+                AssertAccepted(move);
+                AssertNoHiddenZoneLeak(move);
+                return move;
+            }
+
+            result = await EndTurnAsync(session, playerId, $"{intentPrefix}-wait-ready-{turnIndex}");
+            AssertNoHiddenZoneLeak(result);
+        }
+
+        throw new InvalidOperationException($"B0 Treant driver could not ready and move base {cardNo} for {playerId}.");
     }
 
     private static async ValueTask<ResolutionResult> PlaySpecificUnitToBattlefieldAsync(
@@ -1971,6 +2348,70 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> SubmitCrimsonSignetTreantDeclareBattleAsync(
+        MatchSession session,
+        ResolutionResult current,
+        string treantPlayerId,
+        string intentId)
+    {
+        Assert.Equal(treantPlayerId, current.State.ActivePlayerId);
+        var playerId = current.State.ActivePlayerId;
+        var opponentId = OpponentOf(current.State, playerId);
+        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.DeclareBattle)
+            ?? throw new InvalidOperationException($"B0 Treant driver could not find DECLARE_BATTLE for {playerId}.");
+        var treantObjectId = FindBattlefieldUnitByCardNo(
+            current.State,
+            playerId,
+            CrimsonSignetTreantCardNo,
+            readyOnly: true)
+            ?? throw new InvalidOperationException("B0 Treant driver could not find a ready Crimson Signet Treant attacker.");
+        var battlefieldId = current.State.ObjectLocations[treantObjectId].BattlefieldObjectId
+            ?? throw new InvalidOperationException("B0 Treant driver could not locate Treant's battlefield.");
+        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
+            ?? [];
+        Assert.Contains(treantObjectId, legalSourceIds);
+        Assert.Contains(battlefieldId, legalDestinationIds);
+
+        var defenderObjectId = FindReadyBattlefieldDefender(
+            current.State,
+            opponentId,
+            battlefieldId,
+            legalTargetIds,
+            maxPowerExclusive: current.State.CardObjects[treantObjectId].Power)
+            ?? throw new InvalidOperationException(
+                $"B0 Treant driver could not find a legal ready defender below Treant power: {DescribeState(current.State)}");
+        var command = new DeclareBattleCommand(
+            battlefieldId,
+            [treantObjectId],
+            [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"]);
+        var declared = await session.SubmitAsync(
+            playerId,
+            intentId,
+            command,
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = CommandTypes.DeclareBattle,
+                battlefieldId,
+                attackerObjectIds = new[] { treantObjectId },
+                defenderObjectIds = new[] { defenderObjectId },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }),
+            CancellationToken.None);
+        AssertAccepted(declared);
+        AssertNoHiddenZoneLeak(declared);
+
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        AssertNoHiddenZoneLeak(result);
+        return result;
+    }
+
     private static async ValueTask<ResolutionResult> TapAllAvailableRunesAsync(
         MatchSession session,
         string playerId,
@@ -2224,6 +2665,26 @@ public sealed class FullGameEndToEndTests
         string playerId,
         ResolutionResult current)
     {
+        var opponentId = OpponentOf(current.State, playerId);
+        var opponentBattlefieldObjectId = current.State.PlayerZones[opponentId].Battlefields
+            .FirstOrDefault(objectId => current.State.CardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal))
+            ?? throw new InvalidOperationException($"B0 auto-driver could not find opponent battlefield for {playerId}.");
+        return await MoveBaseUnitToBattlefieldAsync(
+            session,
+            playerId,
+            current,
+            $"BATTLEFIELD:{opponentBattlefieldObjectId}",
+            "b0-move-unit-to-opponent-battlefield");
+    }
+
+    private static async ValueTask<ResolutionResult> MoveBaseUnitToBattlefieldAsync(
+        MatchSession session,
+        string playerId,
+        ResolutionResult current,
+        string battlefieldDestination,
+        string intentId)
+    {
         var zones = current.State.PlayerZones[playerId];
         var sourceObjectId = zones.Base.FirstOrDefault(objectId => IsReadyUnit(current.State, objectId))
             ?? throw new InvalidOperationException(
@@ -2240,17 +2701,12 @@ public sealed class FullGameEndToEndTests
                         cardObject?.IsFaceDown
                     };
                 }).ToArray()));
-        var opponentId = OpponentOf(current.State, playerId);
-        var opponentBattlefieldObjectId = current.State.PlayerZones[opponentId].Battlefields
-            .FirstOrDefault(objectId => current.State.CardObjects.TryGetValue(objectId, out var cardObject)
-                && cardObject.Tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal))
-            ?? throw new InvalidOperationException($"B0 auto-driver could not find opponent battlefield for {playerId}.");
 
         var result = await session.SubmitAsync(
             playerId,
-            "b0-move-unit-to-opponent-battlefield",
-            new MoveUnitCommand(sourceObjectId, "BASE", $"BATTLEFIELD:{opponentBattlefieldObjectId}", []),
-            RawCommand(new MoveUnitCommand(sourceObjectId, "BASE", $"BATTLEFIELD:{opponentBattlefieldObjectId}", [])),
+            intentId,
+            new MoveUnitCommand(sourceObjectId, "BASE", battlefieldDestination, []),
+            RawCommand(new MoveUnitCommand(sourceObjectId, "BASE", battlefieldDestination, [])),
             CancellationToken.None);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
@@ -2313,6 +2769,43 @@ public sealed class FullGameEndToEndTests
             && !cardObject.IsFaceDown;
     }
 
+    private static string? FindBattlefieldUnitByCardNo(
+        MatchState state,
+        string playerId,
+        string cardNo,
+        string? battlefieldId = null,
+        bool readyOnly = false)
+    {
+        return state.PlayerZones[playerId].Battlefields.FirstOrDefault(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal)
+            && state.ObjectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && (string.IsNullOrWhiteSpace(battlefieldId)
+                || string.Equals(location.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal))
+            && (!readyOnly || IsReadyUnit(state, objectId)));
+    }
+
+    private static string? FindReadyBattlefieldDefender(
+        MatchState state,
+        string playerId,
+        string battlefieldId,
+        IReadOnlySet<string>? legalTargetIds = null,
+        int? maxPowerExclusive = null)
+    {
+        return state.PlayerZones[playerId].Battlefields
+            .Where(objectId => IsReadyUnit(state, objectId))
+            .Where(objectId => legalTargetIds is null || legalTargetIds.Contains(objectId))
+            .Where(objectId => state.ObjectLocations.TryGetValue(objectId, out var location)
+                && string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(location.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal))
+            .Where(objectId => !maxPowerExclusive.HasValue || state.CardObjects[objectId].Power < maxPowerExclusive.Value)
+            .OrderBy(objectId => state.CardObjects[objectId].Power)
+            .ThenBy(objectId => state.CardObjects[objectId].CardNo, StringComparer.Ordinal)
+            .ThenBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+    }
+
     private static bool PlayerHandContainsCardNo(MatchState state, string playerId, string cardNo)
     {
         return FindHandCardObjectByCardNo(state, playerId, cardNo) is not null;
@@ -2372,6 +2865,25 @@ public sealed class FullGameEndToEndTests
     private static string OpponentOf(MatchState state, string playerId)
     {
         return state.Seats.Keys.Single(seatPlayerId => !string.Equals(seatPlayerId, playerId, StringComparison.Ordinal));
+    }
+
+    private static string DescribeState(MatchState state)
+    {
+        return JsonSerializer.Serialize(new
+        {
+            state.Status,
+            state.Phase,
+            state.TimingState,
+            state.ActivePlayerId,
+            state.TurnPlayerId,
+            state.FocusPlayerId,
+            state.PriorityPlayerId,
+            Scores = state.PlayerScores,
+            RunePools = state.RunePools,
+            PendingTaskPhase = state.PendingTaskQueue.Phase,
+            state.PendingTaskQueue.ActiveTaskId,
+            TaskKinds = state.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray()
+        });
     }
 
     private static async ValueTask<ResolutionResult> SubmitDeckAsync(
@@ -2522,6 +3034,57 @@ public sealed class FullGameEndToEndTests
                 ShadowCardNo,
                 ShadowCardNo
             ]);
+    }
+
+    private static OfficialDecklist BuildCrimsonSignetTreantOfficialDeck(OfficialCardCatalog catalog)
+    {
+        var deck = BuildLowCurveOfficialDeck(
+            catalog,
+            JhinLegendCardNo,
+            JhinChampionCardNo,
+            [
+                CrimsonSignetTreantCardNo
+            ]);
+        var legend = catalog.Cards.Single(card => string.Equals(card.CardNo, deck.LegendCardNo, StringComparison.Ordinal));
+        var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
+        var redFirstRuneDeck = catalog.Cards
+            .Where(card => string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
+            .Where(card => TraitsAllowed(card, allowedColors))
+            .OrderBy(card => card.CardColorList.Contains(RuneTrait.Red, StringComparer.Ordinal) ? 0 : 1)
+            .ThenBy(card => card.CardNo, StringComparer.Ordinal)
+            .Select(card => card.CardNo)
+            .Take(OfficialDeckValidator.RuneDeckCount)
+            .ToArray();
+        Assert.Equal(OfficialDeckValidator.RuneDeckCount, redFirstRuneDeck.Length);
+
+        var tunedDeck = deck with { RuneDeck = redFirstRuneDeck };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return WithSlowBattlefields(catalog, tunedDeck);
+    }
+
+    private static OfficialDecklist BuildSlowBattlefieldLowCurveOfficialDeck(
+        OfficialCardCatalog catalog,
+        string legendCardNo,
+        string championCardNo)
+    {
+        return WithSlowBattlefields(catalog, BuildLowCurveOfficialDeck(catalog, legendCardNo, championCardNo));
+    }
+
+    private static OfficialDecklist WithSlowBattlefields(OfficialCardCatalog catalog, OfficialDecklist deck)
+    {
+        var selectedBattlefields = new List<string>
+        {
+            ForgottenMonumentBattlefieldCardNo,
+            WinningScoreIncreaseBattlefieldCardNo,
+            FirstTurnExtraRuneBattlefieldCardNo
+        };
+
+        Assert.Equal(OfficialDeckValidator.BattlefieldCount, selectedBattlefields.Count);
+        var tunedDeck = deck with { Battlefields = selectedBattlefields };
+        var validation = OfficialDeckValidator.Validate(tunedDeck, catalog);
+        Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        return tunedDeck;
     }
 
     private static OfficialDecklist BuildStandbyReactionOfficialDeck(OfficialCardCatalog catalog)
@@ -2740,6 +3303,68 @@ public sealed class FullGameEndToEndTests
         {
             Seed = seed
         };
+    }
+
+    private static MatchState BuildCrimsonSignetTreantMidgameInitialState(MatchState state)
+    {
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        runePools["P1"] = new RunePool(
+            mana: 5,
+            power: 0,
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Red] = 1
+            });
+        runePools["P2"] = RunePool.Empty;
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var p1Zones = playerZones["P1"];
+        var treantObjectId = p1Zones.Hand
+            .Concat(p1Zones.MainDeck)
+            .Concat(p1Zones.Base)
+            .FirstOrDefault(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, CrimsonSignetTreantCardNo, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("B0 Treant midgame setup could not find Crimson Signet Treant in P1 official deck zones.");
+        playerZones["P1"] = p1Zones with
+        {
+            MainDeck = p1Zones.MainDeck.Where(objectId => !string.Equals(objectId, treantObjectId, StringComparison.Ordinal)).ToArray(),
+            Hand = p1Zones.Hand
+                .Where(objectId => !string.Equals(objectId, treantObjectId, StringComparison.Ordinal))
+                .Append(treantObjectId)
+                .ToArray(),
+            Base = p1Zones.Base.Where(objectId => !string.Equals(objectId, treantObjectId, StringComparison.Ordinal)).ToArray()
+        };
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[treantObjectId] = new ObjectLocationState("P1", "HAND");
+        return state with
+        {
+            Status = MatchStatuses.InProgress,
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            Phase = MatchPhases.Main,
+            TimingState = TimingStates.NeutralOpen,
+            FocusPlayerId = null,
+            PassedFocusPlayerIds = [],
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [],
+            StackItems = [],
+            WinnerPlayerId = null,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            PlayerScores = state.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal),
+            PlayerCardsPlayedThisTurn = state.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal)
+        };
+    }
+
+    private static ResolutionResult AcceptedCurrentResult(MatchState state)
+    {
+        return new ResolutionResult(
+            true,
+            null,
+            state,
+            [],
+            ResolutionResult.BuildSnapshots(state),
+            ResolutionResult.BuildPrompts(state));
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

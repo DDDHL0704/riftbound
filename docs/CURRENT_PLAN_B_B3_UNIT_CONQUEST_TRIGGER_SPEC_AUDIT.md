@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 
-Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, and natural battle-conquest TriggerSpec activation slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, additional-activation, friendly-power, destroy-equipment self-boon, natural battle-conquest TriggerSpec activation, and official-deck midgame Treant replay slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -68,6 +68,7 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `TargetScope = CONTROLLED_UNITS_AT_THIS_BATTLEFIELD`
   - `AdditionalTriggerCount = 1`
 - `CoreRuleEngine` now computes natural `BATTLEFIELD_CONQUERED` unit-conquest repeat count from same-battlefield controlled sources that expose `UNIT_CONQUEST_ADDITIONAL_ACTIVATION`; it uses precise `ObjectLocationState.BattlefieldObjectId` to keep the modifier scoped to `此处`, and does not apply this repeat to 清算人竞技场's battlefield-held activation route.
+- `FullGameEndToEndTests.OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash` now carries that natural repeat path through an official-deck midgame state: normal opening state generation, server-authoritative `PLAY_CARD` / `MOVE_UNIT` / `DECLARE_BATTLE`, two repeated friendly-boon events, score victory, and action-log final-state replay.
 - The old `FriendlyBoonUnitConquestCardNo` / `IsFriendlyBoonUnitConquestCardNo` branch is removed.
 - `UNL-027/219` 天声玄龙 official text from `data/official/card-catalog.zh-CN.json`: `当我征服一处战场时，让一名友方单位本回合内{{S}}+8。`
 - `RuleTextParser` now parses that conquest text as `TriggerSpec` with:
@@ -94,7 +95,7 @@ This slice moves implemented unit conquest effects away from engine card-number 
 
 - This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, adds the first natural battle-conquest representative route, and covers 绯红印记树怪's `你征服此处时的征服效果额外触发一次。` representative.
 - Natural battle-conquest activation now invokes the supported TriggerSpec effects for surviving conquering units; complete APNAP ordering, simultaneous multi-source ordering, and optional-target breadth remain open.
-- This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, B0 full-game readiness, or project READY.
+- This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, the full official opening-to-5-cost Treant window, B0 full-game readiness, or project READY.
 
 ## Follow-Up
 
