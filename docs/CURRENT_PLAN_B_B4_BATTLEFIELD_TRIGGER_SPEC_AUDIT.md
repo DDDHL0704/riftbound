@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, and first-unit-play move-other-to-base; project remains **NOT READY**.
 
 ## Scope
 
@@ -412,6 +412,23 @@ The 2026-06-25 defend reveal-spell-or-recycle follow-up moves another implemente
 - `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldDefendRevealSpellCardNo` constant. The development seed keeps the official card number only as fixture data.
 - The old `BattlefieldDefendRevealSpellCardNo` / `IsBattlefieldDefendRevealSpellCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `62` total / `58` in `CoreRuleEngine`; Core battlefield helper count is `14`.
 
+The 2026-06-25 conquer overkill create-Warhawk follow-up moves another implemented conquered-battlefield trigger away from engine card-number branching:
+
+- `UNL-217/219` / 捕猎场 official text: `当你征服此处时，如果你给敌方单位分配了不低于3点的过量伤害，则打出一名1{{S}}“战鹰”，它拥有{{法盾}}。`
+- `RuleTextParser` now parses that official text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK`
+  - `Timing = BATTLEFIELD_CONQUERED`
+  - `RequiredOverkillDamage = 3`
+  - `CreatedTokenCount = 1`
+  - `CreatedTokenName = 战鹰`
+  - `CreatedTokenPower = 1`
+  - `CreatedTokenDestination = BATTLEFIELD`
+  - `CreatedTokenKeywords = [法盾]`
+- `CoreRuleEngine.TryResolveBattlefieldConquerOverkillCreateWarhawkTrigger` now recognizes eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(...)` and reads the overkill threshold, token family, token power, destination and required keyword from `BehaviorSpec.Triggers`.
+- The concrete token still resolves through `P6TokenFactoryCatalog` by parsed token family and power, then validates that the token definition carries the parsed `法盾` keyword tag.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldConquerOverkillCreateWarhawkCardNo` constant. The development seed keeps the official card number only as fixture data.
+- The old `BattlefieldConquerOverkillCreateWarhawkCardNo` / `IsBattlefieldConquerOverkillCreateWarhawkCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `61` total / `57` in `CoreRuleEngine`; Core battlefield helper count is `13`.
+
 ## Non-Closure
 
 This is a narrow B4 cleanup slice. It does not close all battlefield trigger families, same-turn movement policy, complete battlefield lifecycle, remaining conquest triggers, optional trigger choice prompts, B0 full real-deck end-to-end game completion, frontend/browser smoke, full official coverage or READY.
@@ -656,3 +673,11 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - MatchRecovery: passed `1989/1989`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
 - backend full conformance: passed `8434/8434`.
+
+2026-06-25 conquer overkill create-Warhawk follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `3/3`;
+- adjacent BattlefieldConquer / BattlefieldTriggerSpec / Overkill / Warhawk / DeclareBattle representatives: passed `221/221`;
+- MatchRecovery: passed `1989/1989`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing;
+- backend full conformance: passed `8436/8436`.

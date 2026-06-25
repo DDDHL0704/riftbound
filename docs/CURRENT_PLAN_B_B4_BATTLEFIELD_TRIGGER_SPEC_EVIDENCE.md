@@ -36,6 +36,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `SFD·207/221` 帝王神坛 has official text `当你征服此处时，你可以选择支付{{1}}并让你在此处控制的一名单位返回其所属的手牌，以此在此处打出一名2{{S}}的“黄沙士兵”。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·210/221` 传奇殿堂 has official text `当你征服此处时，你可以选择支付{{1}}，以此让你的传奇变为活跃状态。`
 - `data/official/card-catalog.zh-CN.json`: `SFD·215/221` 拉文布鲁姆学院 has official text `当你防守此处时，展示你主牌堆顶部的一张牌。如果是一张法术牌，则将其放入你的手牌，否则将其回收。`
+- `data/official/card-catalog.zh-CN.json`: `UNL-217/219` 捕猎场 has official text `当你征服此处时，如果你给敌方单位分配了不低于3点的过量伤害，则打出一名1{{S}}“战鹰”，它拥有{{法盾}}。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -67,6 +68,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldConquerSandSoldierPaysOneReturnsUnitAndCreatesToken`, `P79BattlefieldConquerSandSoldierSkipsWhenManaUnavailable`, and GameHub `P79BattlefieldConquerSandSoldierSeedReturnsUnitAndCreatesToken` remain the runtime evidence for the conquered-battlefield pay-return-unit create-Sand-Soldier representative behavior.
 - Existing representative tests `P79BattlefieldConquerReadyLegendPaysOne`, `P79BattlefieldConquerReadyLegendSkipsOpponentOwnedLegend`, and GameHub `P79BattlefieldConquerReadyLegendSeedOffersBattlefieldDestinationAndReadiesLegend` remain the runtime evidence for the conquered-battlefield pay-ready-legend representative behavior.
 - Existing representative tests `P79BattlefieldDefendRevealSpellDrawsTopSpell`, `P79BattlefieldDefendRevealSpellRecyclesTopNonSpell`, `P79BattlefieldDefendRevealSpellSkipsOpponentControlledTopCard`, `P79BattlefieldDefendRevealSpellSkipsAttackerControlledBattlefield`, and GameHub `P79BattlefieldDefendRevealSpellSeedOffersBattlefieldDestinationAndDrawsSpell` remain the runtime evidence for the defended-battlefield reveal-spell-or-recycle representative behavior.
+- Existing representative tests `P79BattlefieldConquerOverkillCreatesWarhawk` and GameHub `P79BattlefieldConquerWarhawkSeedOffersBattlefieldDestinationAndCreatesWarhawk` remain the runtime evidence for the conquered-battlefield overkill create-Warhawk representative behavior.
 
 ## Runtime Evidence
 
@@ -190,6 +192,10 @@ The defend reveal-spell-or-recycle follow-up parser path turns the Ravenbloom Co
 
 The accepted `DECLARE_BATTLE` defended-battlefield path keeps the existing representative auto-resolution behavior: the defending player reveals the top controlled main-deck card, moves it to hand when it matches the parsed spell-card filter, otherwise recycles it to the parsed miss destination. The opponent-controlled dirty top-card guard and attacker-controlled battlefield source guard remain covered.
 
+The conquer overkill create-Warhawk follow-up parser path turns the Hunting Grounds official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK`, `Timing=BATTLEFIELD_CONQUERED`, `RequiredOverkillDamage=3`, `CreatedTokenCount=1`, `CreatedTokenName=战鹰`, `CreatedTokenPower=1`, `CreatedTokenDestination=BATTLEFIELD`, and `CreatedTokenKeywords=[法盾]`. Runtime no longer checks `UNL-217/219` through `BattlefieldConquerOverkillCreateWarhawkCardNo` / `IsBattlefieldConquerOverkillCreateWarhawkCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `DECLARE_BATTLE` conquered-battlefield path keeps the existing representative auto-resolution behavior: when assigned overkill damage to enemy units reaches the parsed threshold, it creates the parsed Warhawk token on the battlefield. The concrete token resolves by parsed token family and power through `P6TokenFactoryCatalog`, and the parsed `法盾` keyword is checked against the token definition tags before creation.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -257,10 +263,12 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - conquer pay-ready-legend adjacent BattlefieldConquer / BattlefieldTriggerSpec / ReadyLegend / LegendReadied representatives: `81/81`;
 - defend reveal-spell-or-recycle focused behavior-spec/source guard/runtime/GameHub representative: `7/7`;
 - defend reveal-spell-or-recycle adjacent BattlefieldDefend / BattlefieldDefender / BattlefieldTriggerSpec / RevealCard / DeclareBattle representatives: `188/188`;
+- conquer overkill create-Warhawk focused behavior-spec/source guard/runtime/GameHub representative: `3/3`;
+- conquer overkill create-Warhawk adjacent BattlefieldConquer / BattlefieldTriggerSpec / Overkill / Warhawk / DeclareBattle representatives: `221/221`;
 - MatchRecovery: `1989/1989`;
-- backend full conformance after the defend reveal-spell-or-recycle follow-up: `8434/8434`;
+- backend full conformance after the conquer overkill create-Warhawk follow-up: `8436/8436`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves thirty battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-one battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

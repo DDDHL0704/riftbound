@@ -84,6 +84,8 @@ public static class TriggerKinds
         "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND";
     public const string BattlefieldDefendRevealTopDrawSpellOrRecycle =
         "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE";
+    public const string BattlefieldConquerOverkillCreateWarhawk =
+        "BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK";
     public const string BattlefieldFriendlySpellDraw =
         "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE";
     public const string BattlefieldSpellPowerBonus =
@@ -295,6 +297,7 @@ public sealed record TriggerSpec(
     int? DrawCount = null,
     int? DrawCountPerParticipant = null,
     int? MinimumPaidMana = null,
+    int? RequiredOverkillDamage = null,
     int? RevealCount = null,
     string? RevealSourceZone = null,
     string? RevealMatchCardFilter = null,
@@ -327,6 +330,7 @@ public sealed record TriggerSpec(
     int? CreatedTokenPower = null,
     string? CreatedTokenDestination = null,
     bool? CreatedTokenExhausted = null,
+    IReadOnlyList<string>? CreatedTokenKeywords = null,
     int? ReturnCount = null,
     string? RequiredEmptyZone = null,
     string? ReturnOriginZone = null,

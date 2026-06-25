@@ -624,6 +624,25 @@ public static class TriggerParser
                 LegendReadyCount: 1);
         }
 
+        var battlefieldConquerOverkillWarhawkMatch = Regex.Match(
+            segment,
+            @"当你征服此处时，如果你给敌方单位分配了不低于([0-9一两二三四五六七八九十]+)点的过量伤害，则打出一名([0-9一两二三四五六七八九十]+)\{\{S\}\}“([^”]+)”，它拥有\{\{([^}]+)\}\}",
+            RegexOptions.CultureInvariant);
+        if (battlefieldConquerOverkillWarhawkMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldConquerOverkillCreateWarhawk,
+                TriggerTimings.BattlefieldConquered,
+                segment,
+                "Battlefield conquered overkill create-Warhawk trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+                RequiredOverkillDamage: ParseChineseNumber(battlefieldConquerOverkillWarhawkMatch.Groups[1].Value),
+                CreatedTokenCount: 1,
+                CreatedTokenName: battlefieldConquerOverkillWarhawkMatch.Groups[3].Value,
+                CreatedTokenPower: ParseChineseNumber(battlefieldConquerOverkillWarhawkMatch.Groups[2].Value),
+                CreatedTokenDestination: TriggerTokenDestinations.Battlefield,
+                CreatedTokenKeywords: [battlefieldConquerOverkillWarhawkMatch.Groups[4].Value]);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {

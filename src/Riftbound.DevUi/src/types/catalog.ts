@@ -51,6 +51,7 @@ export type BehaviorSpec = {
     drawCount?: number | null;
     drawCountPerParticipant?: number | null;
     minimumPaidMana?: number | null;
+    requiredOverkillDamage?: number | null;
     revealCount?: number | null;
     revealSourceZone?: string | null;
     revealMatchCardFilter?: string | null;
@@ -83,6 +84,7 @@ export type BehaviorSpec = {
     createdTokenPower?: number | null;
     createdTokenDestination?: string | null;
     createdTokenExhausted?: boolean | null;
+    createdTokenKeywords?: string[] | null;
     returnCount?: number | null;
     requiredEmptyZone?: string | null;
     returnOriginZone?: string | null;

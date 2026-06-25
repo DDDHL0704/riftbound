@@ -2031,6 +2031,31 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldConquerOverkillCreateWarhawkTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var huntingGrounds = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-217/219", StringComparison.Ordinal));
+        var trigger = Assert.Single(huntingGrounds.Triggers);
+        Assert.Equal(TriggerKinds.BattlefieldConquerOverkillCreateWarhawk, trigger.Kind);
+        Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
+        Assert.Equal(3, trigger.RequiredOverkillDamage);
+        Assert.Equal(1, trigger.CreatedTokenCount);
+        Assert.Equal("战鹰", trigger.CreatedTokenName);
+        Assert.Equal(1, trigger.CreatedTokenPower);
+        Assert.Equal(TriggerTokenDestinations.Battlefield, trigger.CreatedTokenDestination);
+        Assert.Equal(["法盾"], trigger.CreatedTokenKeywords);
+        Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("不低于3点的过量伤害", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("打出一名1{{S}}“战鹰”", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Battlefield conquered overkill create-Warhawk trigger parsed for B4 routing; execution is available as an auto-resolution representative path when engine support reads BehaviorSpec.Triggers.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldStaticRestrictionSpecs()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2740,6 +2765,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldDefendRevealSpellCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldDefendRevealSpellCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldConquerOverkillCreateWarhawkTriggerDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldConquerOverkillCreateWarhawkCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldConquerOverkillCreateWarhawkCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldConquerOverkillCreateWarhawkCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -684,7 +684,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string DeclinePaymentChoiceId = "DECLINE";
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
-    private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
@@ -23107,6 +23106,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         return tokenDefinition is not null;
     }
 
+    private static bool TokenDefinitionHasRequiredKeywords(
+        P6TokenFactoryDefinition tokenDefinition,
+        IReadOnlyList<string>? requiredKeywords)
+    {
+        return requiredKeywords is null
+            || requiredKeywords.Count == 0
+            || requiredKeywords.All(keyword => tokenDefinition.Tags.Contains(keyword, StringComparer.Ordinal));
+    }
+
     private static bool TryResolveBattlefieldConquerMillTwoTrigger(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -24838,11 +24846,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         int assignedOverkillDamageToEnemyUnits,
         List<GameEvent> events)
     {
-        if (assignedOverkillDamageToEnemyUnits < 3
-            || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !IsBattlefieldConquerOverkillCreateWarhawkCardNo(battlefieldState.CardNo)
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(
+                battlefieldState.CardNo,
+                out var trigger)
+            || !string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
+            || trigger.RequiredOverkillDamage is not > 0
+            || assignedOverkillDamageToEnemyUnits < trigger.RequiredOverkillDamage.Value
+            || trigger.CreatedTokenCount is not 1
+            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+            || trigger.CreatedTokenPower is not > 0
+            || !string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.Battlefield, StringComparison.Ordinal)
             || !playerZones.TryGetValue(playerId, out var zones)
-            || !P6TokenFactoryCatalog.TryGetByCardNo(WarhawkTokenCardNo, out var tokenDefinition))
+            || !TryGetUnitTokenDefinition(trigger.CreatedTokenName, trigger.CreatedTokenPower.Value, out var tokenDefinition)
+            || !TokenDefinitionHasRequiredKeywords(tokenDefinition, trigger.CreatedTokenKeywords))
         {
             return false;
         }
@@ -24866,7 +24883,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
                 ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK",
+                ["trigger"] = TriggerKinds.BattlefieldConquerOverkillCreateWarhawk,
                 ["sourceObjectId"] = sourceObjectId,
                 ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
                 ["tokenObjectId"] = tokenObjectId
@@ -24878,12 +24895,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = battlefieldObjectId,
-                ["abilityId"] = "BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK",
+                ["abilityId"] = TriggerKinds.BattlefieldConquerOverkillCreateWarhawk,
                 ["tokenObjectId"] = tokenObjectId,
                 ["tokenCardNo"] = tokenDefinition.CardNo,
                 ["tokenName"] = tokenDefinition.TokenFamilyName,
                 ["power"] = tokenDefinition.DefaultPower,
-                ["destinationZone"] = "BATTLEFIELD",
+                ["destinationZone"] = trigger.CreatedTokenDestination,
                 ["tokenTags"] = tokenDefinition.Tags.ToArray()
             }));
         return true;
@@ -25107,7 +25124,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerPayCreateGoldTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerReadyEquipmentTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardNo, out _)
-            || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(cardNo, out _)
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
             || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
             || IsBattlefieldFirstTurnScoreCardNo(cardNo)
@@ -25168,11 +25185,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefendMoveFriendlyUnitToBaseCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldConquerOverkillCreateWarhawkCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldConquerOverkillCreateWarhawkCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldIncreaseWinningScoreCardNo(string? cardNo)
