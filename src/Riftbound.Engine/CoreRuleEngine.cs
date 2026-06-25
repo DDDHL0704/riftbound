@@ -586,16 +586,22 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JhinBanishedHighCostSpellMarker = "JHIN_BANISHED_HIGH_COST_SPELL";
     private const int JhinHighCostSpellManaThreshold = 4;
     private const string ViLegendCardNo = "UNL-187/219";
+    private const string ViLegendIdentityId = "LEGEND_IDENTITY_VI";
     private const int ViLegendOverkillThreshold = 3;
     private const string VexLegendCardNo = "UNL-193/219";
     private const string RenataLegendCardNo = "SFD·201/221";
+    private const string VexLegendIdentityId = "LEGEND_IDENTITY_VEX";
+    private const string RenataLegendIdentityId = "LEGEND_IDENTITY_RENATA";
     private const int RenataGoldBonusWinningScoreDistance = 3;
     private const string RenataGoldBonusTag = P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag;
     private const string LeblancLegendCardNo = "UNL-199/219";
+    private const string LeblancLegendIdentityId = "LEGEND_IDENTITY_LEBLANC";
     private const string LeblancEphemeralStaticSourceEffectKind = "LEBLANC_PLAY_KEYWORD_UNIT";
     private const string LeblancEphemeralStaticAltSourceEffectKind = "LEBLANC_ALT_A_BACK_ROW_STATIC_PLAY_UNIT";
     private const string ReksaiLegendCardNo = "SFD·187/221";
     private const string IvernLegendCardNo = "UNL-195/219";
+    private const string ReksaiLegendIdentityId = "LEGEND_IDENTITY_REKSAI";
+    private const string IvernLegendIdentityId = "LEGEND_IDENTITY_IVERN";
     private const string BrushBattlefieldTokenCardNo = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo;
     private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
@@ -603,6 +609,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ZaunMinionTokenCardNo = "OGN·273/298";
     private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
+    private const string SettLegendIdentityId = "LEGEND_IDENTITY_SETT";
     private const int SettLegendManaCost = 1;
     private const string OgnVayneCardNo = "OGN·035/298";
     private const string OgnVayneConquerPayOneRecallEffectKind = "OGN_VAYNE_CONQUER_PAY_1_RECALL";
@@ -12195,6 +12202,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             DravenLegendIdentityId => new LegendIdentityDefinition(
                 DravenLegendIdentityId,
                 [DravenLegendCardNo, "SFD·242/221"]),
+            SettLegendIdentityId => new LegendIdentityDefinition(
+                SettLegendIdentityId,
+                [SettLegendCardNo, "OGN·310/298", "OGN·310*/298"]),
+            ViLegendIdentityId => new LegendIdentityDefinition(
+                ViLegendIdentityId,
+                [ViLegendCardNo, "UNL-229/219", "UNL-229*/219"]),
+            VexLegendIdentityId => new LegendIdentityDefinition(
+                VexLegendIdentityId,
+                [VexLegendCardNo, "UNL-232/219", "UNL-232*/219"]),
+            RenataLegendIdentityId => new LegendIdentityDefinition(
+                RenataLegendIdentityId,
+                [RenataLegendCardNo, "SFD·249/221"]),
+            ReksaiLegendIdentityId => new LegendIdentityDefinition(
+                ReksaiLegendIdentityId,
+                [ReksaiLegendCardNo, "SFD·243/221"]),
+            IvernLegendIdentityId => new LegendIdentityDefinition(
+                IvernLegendIdentityId,
+                [IvernLegendCardNo, "UNL-233/219", "UNL-233*/219"]),
+            LeblancLegendIdentityId => new LegendIdentityDefinition(
+                LeblancLegendIdentityId,
+                [LeblancLegendCardNo, "UNL-235/219", "UNL-235*/219"]),
             RengarLegendIdentityId => new LegendIdentityDefinition(
                 RengarLegendIdentityId,
                 [RengarLegendCardNo, "UNL-227/219", "UNL-227*/219"]),
@@ -20733,7 +20761,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !IsSettLegendCardNo(candidate.CardNo)
+                || !LegendCardHasIdentity(candidate.CardNo, SettLegendIdentityId)
                 || !candidate.IsExhausted)
             {
                 continue;
@@ -20764,7 +20792,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !IsSettLegendCardNo(candidate.CardNo)
+                || !LegendCardHasIdentity(candidate.CardNo, SettLegendIdentityId)
                 || candidate.IsExhausted)
             {
                 continue;
@@ -20776,11 +20804,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsSettLegendCardNo(string? cardNo)
-    {
-        return cardNo is SettLegendCardNo or "OGN·310/298" or "OGN·310*/298";
     }
 
     private static bool TryGetExhaustedIreliaLegend(
@@ -20863,7 +20886,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !IsViLegendCardNo(candidate.CardNo)
+                || !LegendCardHasIdentity(candidate.CardNo, ViLegendIdentityId)
                 || candidate.IsExhausted)
             {
                 continue;
@@ -20875,11 +20898,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsViLegendCardNo(string? cardNo)
-    {
-        return cardNo is ViLegendCardNo or "UNL-229/219" or "UNL-229*/219";
     }
 
     private static bool TryGetViLegendReadyTarget(
@@ -20930,7 +20948,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !IsVexLegendCardNo(candidate.CardNo)
+                || !LegendCardHasIdentity(candidate.CardNo, VexLegendIdentityId)
                 || candidate.IsExhausted)
             {
                 continue;
@@ -20942,11 +20960,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsVexLegendCardNo(string? cardNo)
-    {
-        return cardNo is VexLegendCardNo or "UNL-232/219" or "UNL-232*/219";
     }
 
     private static bool TryGetActiveRenataLegend(
@@ -20966,7 +20979,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !IsRenataLegendCardNo(candidate.CardNo)
+                || !LegendCardHasIdentity(candidate.CardNo, RenataLegendIdentityId)
                 || candidate.IsExhausted)
             {
                 continue;
@@ -20978,11 +20991,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsRenataLegendCardNo(string? cardNo)
-    {
-        return cardNo is RenataLegendCardNo or "SFD·249/221";
     }
 
     private static RecycleResult ResolveReksaiLegendConquerRevealTrigger(
@@ -21142,7 +21150,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !IsReksaiLegendCardNo(candidate.CardNo)
+                || !LegendCardHasIdentity(candidate.CardNo, ReksaiLegendIdentityId)
                 || candidate.IsExhausted)
             {
                 continue;
@@ -21154,11 +21162,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsReksaiLegendCardNo(string? cardNo)
-    {
-        return cardNo is ReksaiLegendCardNo or "SFD·243/221";
     }
 
     private static bool TryResolveIvernLegendBrushTrigger(
@@ -21281,7 +21284,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !IsIvernLegendCardNo(candidate.CardNo)
+                || !LegendCardHasIdentity(candidate.CardNo, IvernLegendIdentityId)
                 || candidate.IsExhausted)
             {
                 continue;
@@ -21293,11 +21296,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsIvernLegendCardNo(string? cardNo)
-    {
-        return cardNo is IvernLegendCardNo or "UNL-233/219" or "UNL-233*/219";
     }
 
     private static bool TryResolveLeblancLegendImageTrigger(
@@ -21449,7 +21447,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !IsLeblancLegendCardNo(candidate.CardNo)
+                || !LegendCardHasIdentity(candidate.CardNo, LeblancLegendIdentityId)
                 || candidate.IsExhausted
                 || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
             {
@@ -21462,11 +21460,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsLeblancLegendCardNo(string? cardNo)
-    {
-        return cardNo is LeblancLegendCardNo or "UNL-235/219" or "UNL-235*/219";
     }
 
     private static bool IsLeblancEphemeralStaticSourceBehavior(string? cardNo)
