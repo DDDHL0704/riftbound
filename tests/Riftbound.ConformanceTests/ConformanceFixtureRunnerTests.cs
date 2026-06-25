@@ -39067,7 +39067,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         var activeResult = await ResolveTaricLifecycleBattleAsync(
             activeAuraState,
-            "intent-p7-9-taric-lifecycle-active");
+            "intent-p7-9-taric-lifecycle-active",
+            "P1-TARIC-LIFECYCLE-BATTLEFIELD");
         var activeDefenderDamage = Assert.Single(activeResult.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
@@ -39084,98 +39085,163 @@ public sealed class ConformanceFixtureRunnerTests
 
         var expiredResult = await ResolveTaricLifecycleBattleAsync(
             expiredAuraState,
-            "intent-p7-9-taric-lifecycle-expired");
+            "intent-p7-9-taric-lifecycle-expired",
+            "P1-TARIC-LIFECYCLE-BATTLEFIELD");
         var expiredDefenderDamage = Assert.Single(expiredResult.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
         Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", expiredDefenderDamage.Payload["sourceObjectId"]);
         Assert.Equal(0, expiredDefenderDamage.Payload["keywordBonus"]);
         Assert.Equal(2, expiredDefenderDamage.Payload["combatPower"]);
+    }
 
-        static async ValueTask<ResolutionResult> ResolveTaricLifecycleBattleAsync(
-            MatchState state,
-            string intentId)
+    [Fact]
+    public async Task P79SameBattlefieldStaticKeywordGrantExpiresWhenTargetMovesToAnotherBattlefield()
+    {
+        var activeAuraState = TaricSameBattlefieldKeywordGrantLifecycleState(
+            sourceOnBattlefield: true,
+            targetAtSameBattlefield: true);
+        Assert.Single(activeAuraState.ContinuousEffects, effect =>
+            string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+            && string.Equals(effect.SourceObjectId, "P1-TARIC-LIFECYCLE-SOURCE", StringComparison.Ordinal)
+            && string.Equals(effect.TargetObjectId, "P1-TARIC-LIFECYCLE-ALLY", StringComparison.Ordinal));
+
+        var activeResult = await ResolveTaricLifecycleBattleAsync(
+            activeAuraState,
+            "intent-p7-9-taric-target-lifecycle-active",
+            "P1-TARIC-LIFECYCLE-BATTLEFIELD");
+        var activeDefenderDamage = Assert.Single(activeResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", activeDefenderDamage.Payload["sourceObjectId"]);
+        Assert.Equal(1, activeDefenderDamage.Payload["keywordBonus"]);
+        Assert.Equal(3, activeDefenderDamage.Payload["combatPower"]);
+
+        var movedTargetState = TaricSameBattlefieldKeywordGrantLifecycleState(
+            sourceOnBattlefield: true,
+            targetAtSameBattlefield: false);
+        Assert.DoesNotContain(
+            movedTargetState.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-TARIC-LIFECYCLE-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-TARIC-LIFECYCLE-ALLY", StringComparison.Ordinal));
+
+        var movedResult = await ResolveTaricLifecycleBattleAsync(
+            movedTargetState,
+            "intent-p7-9-taric-target-lifecycle-moved",
+            "P1-TARIC-LIFECYCLE-OTHER-BATTLEFIELD");
+        var movedDefenderDamage = Assert.Single(movedResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P1-TARIC-LIFECYCLE-ALLY", movedDefenderDamage.Payload["sourceObjectId"]);
+        Assert.Equal(0, movedDefenderDamage.Payload["keywordBonus"]);
+        Assert.Equal(2, movedDefenderDamage.Payload["combatPower"]);
+    }
+
+    private static async ValueTask<ResolutionResult> ResolveTaricLifecycleBattleAsync(
+        MatchState state,
+        string intentId,
+        string battlefieldObjectId)
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent(intentId, "P2", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                battlefieldObjectId,
+                ["P2-TARIC-LIFECYCLE-ATTACKER"],
+                ["P1-TARIC-LIFECYCLE-ALLY"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        return result;
+    }
+
+    private static MatchState TaricSameBattlefieldKeywordGrantLifecycleState(
+        bool sourceOnBattlefield,
+        bool targetAtSameBattlefield = true)
+    {
+        var targetBattlefieldObjectId = targetAtSameBattlefield
+            ? "P1-TARIC-LIFECYCLE-BATTLEFIELD"
+            : "P1-TARIC-LIFECYCLE-OTHER-BATTLEFIELD";
+        var p1Battlefields = new List<string>
         {
-            var result = await new CoreRuleEngine().ResolveAsync(
-                state,
-                new PlayerIntent(intentId, "P2", "DECLARE_BATTLE"),
-                new DeclareBattleCommand(
-                    "P1-TARIC-LIFECYCLE-BATTLEFIELD",
-                    ["P2-TARIC-LIFECYCLE-ATTACKER"],
-                    ["P1-TARIC-LIFECYCLE-ALLY"],
-                    ["COMBAT_ASSIGNMENT"]),
-                CancellationToken.None);
-
-            Assert.True(result.Accepted, result.ErrorMessage);
-            return result;
+            "P1-TARIC-LIFECYCLE-BATTLEFIELD",
+            "P1-TARIC-LIFECYCLE-OTHER-BATTLEFIELD",
+            "P1-TARIC-LIFECYCLE-ALLY"
+        };
+        if (sourceOnBattlefield)
+        {
+            p1Battlefields.Insert(1, "P1-TARIC-LIFECYCLE-SOURCE");
         }
 
-        static MatchState TaricSameBattlefieldKeywordGrantLifecycleState(bool sourceOnBattlefield)
-        {
-            var p1Battlefields = sourceOnBattlefield
-                ? new[] { "P1-TARIC-LIFECYCLE-BATTLEFIELD", "P1-TARIC-LIFECYCLE-SOURCE", "P1-TARIC-LIFECYCLE-ALLY" }
-                : ["P1-TARIC-LIFECYCLE-BATTLEFIELD", "P1-TARIC-LIFECYCLE-ALLY"];
-            var p1Graveyard = sourceOnBattlefield
-                ? []
-                : new[] { "P1-TARIC-LIFECYCLE-SOURCE" };
+        var p1Graveyard = sourceOnBattlefield
+            ? []
+            : new[] { "P1-TARIC-LIFECYCLE-SOURCE" };
 
-            return PunishmentState(mana: 0) with
+        return PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
-                ActivePlayerId = "P2",
-                PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+                ["P1"] = PlayerZones.Empty with
                 {
-                    ["P1"] = PlayerZones.Empty with
-                    {
-                        Battlefields = p1Battlefields,
-                        Graveyard = p1Graveyard
-                    },
-                    ["P2"] = PlayerZones.Empty with
-                    {
-                        Battlefields = ["P2-TARIC-LIFECYCLE-ATTACKER"]
-                    }
+                    Battlefields = p1Battlefields,
+                    Graveyard = p1Graveyard
                 },
-                CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+                ["P2"] = PlayerZones.Empty with
                 {
-                    ["P1-TARIC-LIFECYCLE-BATTLEFIELD"] = new(
-                        "P1-TARIC-LIFECYCLE-BATTLEFIELD",
-                        cardNo: "UNL-208/219",
-                        tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                        ownerId: "P1",
-                        controllerId: "P1"),
-                    ["P1-TARIC-LIFECYCLE-SOURCE"] = new(
-                        "P1-TARIC-LIFECYCLE-SOURCE",
-                        cardNo: "OGN·074/298",
-                        power: 4,
-                        tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.Steadfast, CardCombatKeywordNames.Bulwark],
-                        ownerId: "P1",
-                        controllerId: "P1"),
-                    ["P1-TARIC-LIFECYCLE-ALLY"] = new(
-                        "P1-TARIC-LIFECYCLE-ALLY",
-                        cardNo: "SFD·125/221",
-                        power: 2,
-                        tags: [CardObjectTags.UnitCard],
-                        ownerId: "P1",
-                        controllerId: "P1"),
-                    ["P2-TARIC-LIFECYCLE-ATTACKER"] = new(
-                        "P2-TARIC-LIFECYCLE-ATTACKER",
-                        cardNo: "SFD·125/221",
-                        power: 5,
-                        tags: [CardObjectTags.UnitCard],
-                        ownerId: "P2",
-                        controllerId: "P2")
-                },
-                ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-                {
-                    ["P1-TARIC-LIFECYCLE-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-TARIC-LIFECYCLE-BATTLEFIELD"),
-                    ["P1-TARIC-LIFECYCLE-SOURCE"] = sourceOnBattlefield
-                        ? new ObjectLocationState("P1", "BATTLEFIELD", "P1-TARIC-LIFECYCLE-BATTLEFIELD")
-                        : new ObjectLocationState("P1", "GRAVEYARD"),
-                    ["P1-TARIC-LIFECYCLE-ALLY"] = new("P1", "BATTLEFIELD", "P1-TARIC-LIFECYCLE-BATTLEFIELD"),
-                    ["P2-TARIC-LIFECYCLE-ATTACKER"] = new("P2", "BATTLEFIELD", "P1-TARIC-LIFECYCLE-BATTLEFIELD")
-                },
-                UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-TARIC-LIFECYCLE-BATTLEFIELD")]
-            };
-        }
+                    Battlefields = ["P2-TARIC-LIFECYCLE-ATTACKER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-TARIC-LIFECYCLE-BATTLEFIELD"] = new(
+                    "P1-TARIC-LIFECYCLE-BATTLEFIELD",
+                    cardNo: "UNL-208/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-TARIC-LIFECYCLE-OTHER-BATTLEFIELD"] = new(
+                    "P1-TARIC-LIFECYCLE-OTHER-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-TARIC-LIFECYCLE-SOURCE"] = new(
+                    "P1-TARIC-LIFECYCLE-SOURCE",
+                    cardNo: "OGN·074/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.Steadfast, CardCombatKeywordNames.Bulwark],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-TARIC-LIFECYCLE-ALLY"] = new(
+                    "P1-TARIC-LIFECYCLE-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-TARIC-LIFECYCLE-ATTACKER"] = new(
+                    "P2-TARIC-LIFECYCLE-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-TARIC-LIFECYCLE-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-TARIC-LIFECYCLE-BATTLEFIELD"),
+                ["P1-TARIC-LIFECYCLE-OTHER-BATTLEFIELD"] = new("P1", "BATTLEFIELD", "P1-TARIC-LIFECYCLE-OTHER-BATTLEFIELD"),
+                ["P1-TARIC-LIFECYCLE-SOURCE"] = sourceOnBattlefield
+                    ? new ObjectLocationState("P1", "BATTLEFIELD", "P1-TARIC-LIFECYCLE-BATTLEFIELD")
+                    : new ObjectLocationState("P1", "GRAVEYARD"),
+                ["P1-TARIC-LIFECYCLE-ALLY"] = new("P1", "BATTLEFIELD", targetBattlefieldObjectId),
+                ["P2-TARIC-LIFECYCLE-ATTACKER"] = new("P2", "BATTLEFIELD", targetBattlefieldObjectId)
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted(targetBattlefieldObjectId)]
+        };
     }
 
     [Fact]

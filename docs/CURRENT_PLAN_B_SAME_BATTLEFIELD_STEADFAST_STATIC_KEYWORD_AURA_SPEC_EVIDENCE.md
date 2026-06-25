@@ -27,6 +27,7 @@ Lifecycle removal:
 
 - `P79SameBattlefieldStaticKeywordGrantExpiresWhenSourceLeavesBattlefield` verifies that the RULE_TEXT continuous effect exists while Taric remains at the same battlefield, but disappears when the source object is no longer on the field.
 - The same lifecycle guard verifies combat resolution recomputes from current locations: the formerly granted defender drops from `keywordBonus=1` / combat power 3 to `keywordBonus=0` / combat power 2 after the source leaves.
+- `P79SameBattlefieldStaticKeywordGrantExpiresWhenTargetMovesToAnotherBattlefield` verifies the same duration from the target side: if the friendly unit moves to another battlefield while Taric remains at the original battlefield, the continuous effect is absent and battle power recomputes without the granted `坚守`.
 
 Existing fixture alignment:
 
@@ -42,6 +43,9 @@ Existing fixture alignment:
 - Focused source-leaves lifecycle guard `P79SameBattlefieldStaticKeywordGrantExpiresWhenSourceLeavesBattlefield`: 1/1 passed.
 - Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / MatchRecovery representatives: 2063/2063 passed.
 - Backend full after lifecycle guard: 8611/8611 passed.
+- Focused source-leaves + target-moves lifecycle guards: 2/2 passed.
+- Adjacent SameBattlefield / StaticKeyword / StaticAura / Steadfast / Taric / MatchRecovery representatives after target-moves guard: 2064/2064 passed.
+- Backend full after target-moves guard: 8612/8612 passed.
 
 ## Remaining Evidence Needed
 

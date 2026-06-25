@@ -26,6 +26,7 @@ Runtime evidence now covers:
 - `CoreRuleEngine` reads the same `BehaviorSpec` static aura during `DECLARE_BATTLE`; a defending friendly target receives `keyword=坚守`, `keywordBonus=1`, and adjusted combat power.
 - The opposing attacker keeps `keywordBonus=0` and receives no static power bonus.
 - Source-leaves lifecycle guard: when Taric is no longer on the field, the RULE_TEXT continuous effect is absent and the formerly granted defender recomputes to `keywordBonus=0` / base combat power.
+- Target-moves lifecycle guard: when the friendly target moves to another battlefield while Taric remains at the original battlefield, the RULE_TEXT continuous effect is absent and the target recomputes without the granted `坚守`.
 
 ## Not Closed
 
@@ -88,6 +89,30 @@ Result: 2063/2063 passed.
 ```
 
 Result: 8611/8611 passed.
+
+2026-06-26 target-moves lifecycle focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~P79SameBattlefieldStaticKeywordGrantExpiresWhenSourceLeavesBattlefield|FullyQualifiedName~P79SameBattlefieldStaticKeywordGrantExpiresWhenTargetMovesToAnotherBattlefield" --nologo
+```
+
+Result: 2/2 passed.
+
+2026-06-26 target-moves lifecycle adjacent:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~SameBattlefield|FullyQualifiedName~StaticKeyword|FullyQualifiedName~StaticAura|FullyQualifiedName~Steadfast|FullyQualifiedName~Taric|FullyQualifiedName~MatchRecovery" --nologo
+```
+
+Result: 2064/2064 passed.
+
+2026-06-26 backend full after target-moves guard:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --nologo
+```
+
+Result: 8612/8612 passed.
 
 Hidden-information / recovery:
 
