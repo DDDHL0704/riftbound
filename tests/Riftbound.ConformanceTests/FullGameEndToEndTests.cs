@@ -307,6 +307,43 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
+    public async Task OfficialDecksResolveShadowBattleResponseActivationScoreVictoryActionLogReplaysToFinalStateHash()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var deck = BuildShadowResponseOfficialDeck(catalog);
+
+        var (initialState, journal, session, openedResponse, activated, stackResolved, battleResult, targetObjectId) =
+            await DriveOfficialDecksToShadowResponseBattleCloseForReplayAsync(
+                "b0-full-game-shadow-response-score-replay-room",
+                deck,
+                deck);
+
+        var result = await DriveBattleCloseToScoreVictoryAsync(
+            session,
+            battleResult,
+            "b0-shadow-score");
+
+        await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, result);
+        Assert.Contains(openedResponse.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(stackResolved.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
+        Assert.Contains("STUNNED", stackResolved.State.CardObjects[targetObjectId].UntilEndOfTurnEffects);
+        Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        AssertScoreVictory(result);
+        AssertNoHiddenZoneLeak(openedResponse);
+        AssertNoHiddenZoneLeak(activated);
+        AssertNoHiddenZoneLeak(stackResolved);
+        AssertNoHiddenZoneLeak(battleResult);
+        AssertNoHiddenZoneLeak(result);
+    }
+
+    [Fact]
     public async Task OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
