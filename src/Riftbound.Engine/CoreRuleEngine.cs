@@ -507,6 +507,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int AzirLegendManaCost = 1;
     private const string AzirLegendManaCostToken = "SPEND_MANA:1";
     private const string JinxLegendCardNo = "FND-251/298";
+    private const string JinxLegendIdentityId = "LEGEND_IDENTITY_JINX";
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const int LilliaLegendBaseManaCost = 4;
@@ -558,6 +559,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
+    private const string RumbleLegendIdentityId = "LEGEND_IDENTITY_RUMBLE";
     private const string LucianLegendCardNo = "SFD·183/221";
     private const string MasterYiIntroLegendCardNo = "OGS·019/024";
     private const string MasterYiLevelLegendCardNo = "UNL-191/219";
@@ -574,6 +576,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string AnnieIntroLegendCardNo = "OGS·017/024";
     private const string VolibearFoundationLegendCardNo = "FND-249/298";
     private const string FioraSpiritforgedLegendCardNo = "SFD·205/221";
+    private const string PowerfulUnitRuneLegendIdentityId = "LEGEND_IDENTITY_POWERFUL_UNIT_RUNE";
     private const int PowerfulUnitPowerThreshold = 5;
     private const string RengarLegendCardNo = "UNL-183/219";
     private const string LeonaOriginLegendCardNo = "OGN·261/298";
@@ -12202,6 +12205,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             DravenLegendIdentityId => new LegendIdentityDefinition(
                 DravenLegendIdentityId,
                 [DravenLegendCardNo, "SFD·242/221"]),
+            JinxLegendIdentityId => new LegendIdentityDefinition(
+                JinxLegendIdentityId,
+                [JinxLegendCardNo, "OGN·251/298", "OGN·301/298", "OGN·301*/298"]),
+            RumbleLegendIdentityId => new LegendIdentityDefinition(
+                RumbleLegendIdentityId,
+                [RumbleLegendCardNo, "SFD·240/221"]),
+            PowerfulUnitRuneLegendIdentityId => new LegendIdentityDefinition(
+                PowerfulUnitRuneLegendIdentityId,
+                [
+                    VolibearFoundationLegendCardNo,
+                    "OGN·249/298",
+                    "OGN·300/298",
+                    "OGN·300*/298",
+                    FioraSpiritforgedLegendCardNo,
+                    "SFD·251/221"
+                ]),
             SettLegendIdentityId => new LegendIdentityDefinition(
                 SettLegendIdentityId,
                 [SettLegendCardNo, "OGN·310/298", "OGN·310*/298"]),
@@ -25440,12 +25459,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.LegendZone.Any(legendObjectId =>
             state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-            && IsRumbleLegendCardNo(legendState.CardNo));
-    }
-
-    private static bool IsRumbleLegendCardNo(string? cardNo)
-    {
-        return cardNo is RumbleLegendCardNo or "SFD·240/221";
+            && LegendCardHasIdentity(legendState.CardNo, RumbleLegendIdentityId));
     }
 
     private static int CombatKeywordAmount(
@@ -27952,7 +27966,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (cardObjects.TryGetValue(objectId, out var legendState)
-                && IsJinxLegendCardNo(legendState.CardNo))
+                && LegendCardHasIdentity(legendState.CardNo, JinxLegendIdentityId))
             {
                 cardNo = legendState.CardNo ?? JinxLegendCardNo;
                 return true;
@@ -27960,11 +27974,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsJinxLegendCardNo(string? cardNo)
-    {
-        return cardNo is JinxLegendCardNo or "OGN·251/298" or "OGN·301/298" or "OGN·301*/298";
     }
 
     private static bool TryGetLuxHighCostSpellDrawCardNo(
@@ -28160,7 +28169,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(legendObjectId, out var legendState)
                 || legendState.IsExhausted
-                || !IsPowerfulUnitRuneLegendCardNo(legendState.CardNo))
+                || !LegendCardHasIdentity(legendState.CardNo, PowerfulUnitRuneLegendIdentityId))
             {
                 continue;
             }
@@ -28881,16 +28890,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             drawApplication.PlayerScores,
             drawApplication.WinnerPlayerId,
             drawApplication.RngCursor);
-    }
-
-    private static bool IsPowerfulUnitRuneLegendCardNo(string? cardNo)
-    {
-        return cardNo is VolibearFoundationLegendCardNo
-            or "OGN·249/298"
-            or "OGN·300/298"
-            or "OGN·300*/298"
-            or FioraSpiritforgedLegendCardNo
-            or "SFD·251/221";
     }
 
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(
