@@ -405,6 +405,44 @@ public sealed class CardCatalogBaselineTests
             definition => Assert.DoesNotContain(CardObjectTags.MinionTokenFamily, definition.Tags));
     }
 
+    [Theory]
+    [InlineData("UNL-090/219", "LEBLANC_PLAY_KEYWORD_UNIT")]
+    [InlineData("UNL-090a/219", "LEBLANC_ALT_A_BACK_ROW_STATIC_PLAY_UNIT")]
+    public void CardBehaviorRegistryIdentifiesLeblancEphemeralStaticSuppressionSourcesByEffectKind(
+        string cardNo,
+        string effectKind)
+    {
+        Assert.True(CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, effectKind));
+    }
+
+    [Theory]
+    [InlineData("UNL-172/219", "LEBLANC_PLAY_KEYWORD_UNIT")]
+    [InlineData("UNL-090/219", "LEBLANC_ALT_A_BACK_ROW_STATIC_PLAY_UNIT")]
+    [InlineData("UNL-090a/219", "LEBLANC_PLAY_KEYWORD_UNIT")]
+    [InlineData("SFD·082/221", "LEBLANC_PLAY_KEYWORD_UNIT")]
+    public void CardBehaviorRegistryRejectsNonMatchingLeblancEphemeralStaticSuppressionSources(
+        string cardNo,
+        string effectKind)
+    {
+        Assert.False(CardBehaviorRegistry.IsImplementedUnitWithEffectKind(cardNo, effectKind));
+    }
+
+    [Fact]
+    public void LeblancEphemeralStaticSuppressionDoesNotUseDuplicatedCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var source = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("IsLeblancEphemeralStaticUnitCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("LeblancEphemeralStaticUnitCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("UNL-090a/219", source, StringComparison.Ordinal);
+        Assert.Contains("CardBehaviorRegistry.IsImplementedUnitWithEffectKind", source, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints()
     {
