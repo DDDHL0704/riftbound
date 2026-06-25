@@ -39316,6 +39316,78 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79FriendlyFilteredStaticKeywordGrantsMultipleNonCombatKeywordsToMatchingFriendlyUnits()
+    {
+        var state = FriendlyFilteredMultiKeywordStaticAuraState();
+
+        var p1RoamerKeywords = state.ContinuousEffects
+            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-SPEEDING-MECH-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-SPEEDING-MECH-ROAMER", StringComparison.Ordinal))
+            .Select(effect => effect.EffectId.Split(':').Last())
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal([CardResourceKeywordNames.Spellshield, CardCombatKeywordNames.Roam], p1RoamerKeywords);
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-SPEEDING-MECH-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P1-SPEEDING-NONMECH", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, "P1-SPEEDING-MECH-SOURCE", StringComparison.Ordinal)
+                && string.Equals(effect.TargetObjectId, "P2-SPEEDING-MECH-TARGET", StringComparison.Ordinal));
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        Assert.Contains(sourceRequirements, requirement =>
+            string.Equals(requirement["sourceObjectId"] as string, "P1-SPEEDING-MECH-ROAMER", StringComparison.Ordinal)
+            && string.Equals(requirement["mode"] as string, "ROAM", StringComparison.Ordinal));
+
+        var moveResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-friendly-filtered-multi-keyword-roam", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-SPEEDING-MECH-ROAMER",
+                "BATTLEFIELD:P1-SPEEDING-ORIGIN",
+                "BATTLEFIELD:P1-SPEEDING-DESTINATION",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.True(moveResult.Accepted, moveResult.ErrorMessage);
+        var moveEvent = Assert.Single(moveResult.Events);
+        Assert.Equal("UNIT_MOVED_TO_BATTLEFIELD", moveEvent.Kind);
+        Assert.Equal(CardCombatKeywordNames.Roam, moveEvent.Payload["movementKeyword"]);
+        Assert.DoesNotContain(CardCombatKeywordNames.Roam, moveResult.State.CardObjects["P1-SPEEDING-MECH-ROAMER"].Tags);
+
+        var spellResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-friendly-filtered-multi-keyword-spellshield", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-INCINERATE",
+                "OGS·003/024",
+                ["P2-SPEEDING-MECH-TARGET"]),
+            CancellationToken.None);
+
+        Assert.True(spellResult.Accepted, spellResult.ErrorMessage);
+        var costPaidEvent = Assert.Single(spellResult.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(3, costPaidEvent.Payload["mana"]);
+        Assert.Equal(2, costPaidEvent.Payload["baseManaCost"]);
+        Assert.Equal(3, costPaidEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(
+            ["P2-SPEEDING-MECH-TARGET"],
+            Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
+    }
+
+    [Fact]
     public async Task P79FriendlyFilteredStaticKeywordBulwarkSupportsMultiDefenderAssignment()
     {
         var state = PunishmentState(mana: 0) with
@@ -66766,6 +66838,109 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-LILLIA-TOKEN"] = new("P2", "BASE")
             },
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-RUMBLE-BATTLEFIELD")]
+        };
+    }
+
+    private static MatchState FriendlyFilteredMultiKeywordStaticAuraState()
+    {
+        return PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-INCINERATE"],
+                    Base =
+                    [
+                        "P1-SPEEDING-MECH-SOURCE",
+                        "P1-SPEEDING-NONMECH"
+                    ],
+                    Battlefields =
+                    [
+                        "P1-SPEEDING-ORIGIN",
+                        "P1-SPEEDING-MECH-ROAMER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-SPEEDING-MECH-SOURCE"],
+                    Battlefields =
+                    [
+                        "P2-SPEEDING-BATTLEFIELD",
+                        "P2-SPEEDING-MECH-TARGET",
+                        "P2-SPEEDING-NONMECH-TARGET"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPEEDING-MECH-SOURCE"] = new(
+                    "P1-SPEEDING-MECH-SOURCE",
+                    cardNo: "SFD·071/221",
+                    power: 7,
+                    tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPEEDING-NONMECH"] = new(
+                    "P1-SPEEDING-NONMECH",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPEEDING-ORIGIN"] = new(
+                    "P1-SPEEDING-ORIGIN",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SPEEDING-MECH-ROAMER"] = new(
+                    "P1-SPEEDING-MECH-ROAMER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "机械"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-SPEEDING-MECH-SOURCE"] = new(
+                    "P2-SPEEDING-MECH-SOURCE",
+                    cardNo: "SFD·071/221",
+                    power: 7,
+                    tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-SPEEDING-BATTLEFIELD"] = new(
+                    "P2-SPEEDING-BATTLEFIELD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-SPEEDING-MECH-TARGET"] = new(
+                    "P2-SPEEDING-MECH-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "机械"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-SPEEDING-NONMECH-TARGET"] = new(
+                    "P2-SPEEDING-NONMECH-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-INCINERATE"] = new("P1", "HAND"),
+                ["P1-SPEEDING-MECH-SOURCE"] = new("P1", "BASE"),
+                ["P1-SPEEDING-NONMECH"] = new("P1", "BASE"),
+                ["P1-SPEEDING-ORIGIN"] = new("P1", "BATTLEFIELD", "P1-SPEEDING-ORIGIN"),
+                ["P1-SPEEDING-MECH-ROAMER"] = new("P1", "BATTLEFIELD", "P1-SPEEDING-ORIGIN"),
+                ["P2-SPEEDING-MECH-SOURCE"] = new("P2", "BASE"),
+                ["P2-SPEEDING-BATTLEFIELD"] = new("P2", "BATTLEFIELD", "P2-SPEEDING-BATTLEFIELD"),
+                ["P2-SPEEDING-MECH-TARGET"] = new("P2", "BATTLEFIELD", "P2-SPEEDING-BATTLEFIELD"),
+                ["P2-SPEEDING-NONMECH-TARGET"] = new("P2", "BATTLEFIELD", "P2-SPEEDING-BATTLEFIELD")
+            }
         };
     }
 

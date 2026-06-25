@@ -2151,54 +2151,34 @@ public static class StaticAuraParser
 
             var friendlyTokenUnitsKeywordMatch = Regex.Match(
                 segment,
-                @"你的指示物单位获得\{\{([^}]+)\}\}(?!\+)",
+                @"你的指示物单位获得(?<grants>[^。（]+)",
                 RegexOptions.CultureInvariant);
             if (friendlyTokenUnitsKeywordMatch.Success)
             {
-                var grantedKeyword = friendlyTokenUnitsKeywordMatch.Groups[1].Value.Trim();
-                if (!string.IsNullOrWhiteSpace(grantedKeyword)
-                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
-                {
-                    auras.Add(new StaticAuraSpec(
-                        StaticAuraKinds.FriendlyFilteredUnitsKeyword,
-                        RuleTextLayer,
-                        "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
-                        StaticAuraTargetScopes.FriendlyFilteredUnits,
-                        StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
-                        0,
+                if (TryAddFriendlyFilteredUnitsKeywordAuras(
+                        auras,
                         segment,
-                        BehaviorImplementationStatuses.Unimplemented,
-                        "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                         StaticAuraTargetFilters.UnitToken,
-                        GrantedKeyword: grantedKeyword));
+                        friendlyTokenUnitsKeywordMatch.Groups["grants"].Value))
+                {
                     continue;
                 }
             }
 
             var friendlyTaggedUnitsKeywordMatch = Regex.Match(
                 segment,
-                @"你的“([^”]+)”属性单位获得\{\{([^}]+)\}\}(?!\+)",
+                @"你的“([^”]+)”属性单位获得(?<grants>[^。（]+)",
                 RegexOptions.CultureInvariant);
             if (friendlyTaggedUnitsKeywordMatch.Success)
             {
                 var targetTag = friendlyTaggedUnitsKeywordMatch.Groups[1].Value.Trim();
-                var grantedKeyword = friendlyTaggedUnitsKeywordMatch.Groups[2].Value.Trim();
                 if (!string.IsNullOrWhiteSpace(targetTag)
-                    && !string.IsNullOrWhiteSpace(grantedKeyword)
-                    && !string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
-                {
-                    auras.Add(new StaticAuraSpec(
-                        StaticAuraKinds.FriendlyFilteredUnitsKeyword,
-                        RuleTextLayer,
-                        "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
-                        StaticAuraTargetScopes.FriendlyFilteredUnits,
-                        StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
-                        0,
+                    && TryAddFriendlyFilteredUnitsKeywordAuras(
+                        auras,
                         segment,
-                        BehaviorImplementationStatuses.Unimplemented,
-                        "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                         StaticAuraTargetFilters.TagPrefix + targetTag,
-                        GrantedKeyword: grantedKeyword));
+                        friendlyTaggedUnitsKeywordMatch.Groups["grants"].Value))
+                {
                     continue;
                 }
             }
@@ -2282,9 +2262,48 @@ public static class StaticAuraParser
         }
 
         return auras
-            .GroupBy(aura => $"{aura.Kind}\n{aura.Text}", StringComparer.Ordinal)
+            .GroupBy(
+                aura => $"{aura.Kind}\n{aura.TargetFilter}\n{aura.GrantedKeyword}\n{aura.PowerDeltaPerParticipant}\n{aura.Text}",
+                StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
+    }
+
+    private static bool TryAddFriendlyFilteredUnitsKeywordAuras(
+        List<StaticAuraSpec> auras,
+        string segment,
+        string targetFilter,
+        string grantsText)
+    {
+        var added = false;
+        foreach (Match keywordMatch in Regex.Matches(
+            grantsText,
+            @"\{\{([^}]+)\}\}(?!\+)",
+            RegexOptions.CultureInvariant))
+        {
+            var grantedKeyword = keywordMatch.Groups[1].Value.Trim();
+            if (string.IsNullOrWhiteSpace(grantedKeyword)
+                || string.Equals(grantedKeyword, "S", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            auras.Add(new StaticAuraSpec(
+                StaticAuraKinds.FriendlyFilteredUnitsKeyword,
+                RuleTextLayer,
+                "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                StaticAuraTargetScopes.FriendlyFilteredUnits,
+                StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                0,
+                segment,
+                BehaviorImplementationStatuses.Unimplemented,
+                "Static keyword aura parsed for B2 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
+                targetFilter,
+                GrantedKeyword: grantedKeyword));
+            added = true;
+        }
+
+        return added;
     }
 }
 

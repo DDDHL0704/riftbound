@@ -2338,10 +2338,7 @@ public sealed record MatchState
             if (!state.CardObjects.TryGetValue(sourceObjectId, out var source)
                 || string.IsNullOrWhiteSpace(source.CardNo)
                 || source.IsFaceDown
-                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetFriendlyFilteredUnitsKeywordAura(source.CardNo, out var aura)
-                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
             {
                 continue;
             }
@@ -2352,19 +2349,28 @@ public sealed record MatchState
                 continue;
             }
 
-            var participantObjectIds = FriendlyFilteredPublicFieldUnitObjectIds(
-                state,
-                controllerId,
-                aura);
-            foreach (var participantObjectId in participantObjectIds)
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(source.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword))
             {
-                effects.Add(new ContinuousEffectState(
-                    $"RULE_TEXT:FRIENDLY_FILTERED_UNITS_KEYWORD:{sourceObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
-                    "OBJECT",
-                    ContinuousEffectLayers.RuleText,
-                    aura.Duration,
-                    participantObjectId,
-                    sourceObjectId));
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    || string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+                {
+                    continue;
+                }
+
+                var participantObjectIds = FriendlyFilteredPublicFieldUnitObjectIds(
+                    state,
+                    controllerId,
+                    aura);
+                foreach (var participantObjectId in participantObjectIds)
+                {
+                    effects.Add(new ContinuousEffectState(
+                        $"RULE_TEXT:FRIENDLY_FILTERED_UNITS_KEYWORD:{sourceObjectId}:{participantObjectId}:{aura.GrantedKeyword}",
+                        "OBJECT",
+                        ContinuousEffectLayers.RuleText,
+                        aura.Duration,
+                        participantObjectId,
+                        sourceObjectId));
+                }
             }
         }
 
@@ -8802,6 +8808,11 @@ internal static class ActionPromptBuilder
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
             || HasBilgewaterBullyBoonPromptRoamPermission(sourceState)
+            || HasFriendlyFilteredUnitsGrantedKeyword(
+                state,
+                sourceObjectId,
+                sourceState,
+                MoveUnitRoamKeyword)
             || zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && BattlefieldSourceGrantsRoam(cardObject.CardNo)
@@ -11098,10 +11109,15 @@ internal static class ActionPromptBuilder
 
     private static int SpellshieldTaxManaForTarget(MatchState state, string playerId, string targetObjectId)
     {
-        return IsPromptEnemyFieldObject(state, playerId, targetObjectId)
-            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
-            ? CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags)
-            : 0;
+        if (!IsPromptEnemyFieldObject(state, playerId, targetObjectId)
+            || !state.CardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return 0;
+        }
+
+        return Math.Max(
+            CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags),
+            FriendlyFilteredUnitsGrantedSpellshieldTax(state, targetObjectId, targetState));
     }
 
     private static string? BattlefieldGrantUnitExperienceObjectId(
@@ -16043,15 +16059,67 @@ internal static class ActionPromptBuilder
                 state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 && !sourceState.IsFaceDown
                 && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                && StaticAuraSpecRules.TryGetFriendlyFilteredUnitsKeywordAura(sourceState.CardNo, out var aura)
-                && string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
-                && CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], keyword) > 0
-                && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
+                && StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword)
+                    .Any(aura => string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                        && !string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                        && CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], keyword) > 0
+                        && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
                 && string.Equals(
                     EffectivePromptPublicObjectControllerId(state.PlayerZones, sourceObjectId, sourceState),
                     controllerId,
                     StringComparison.Ordinal));
+    }
+
+    private static int FriendlyFilteredUnitsGrantedSpellshieldTax(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !TryFindPromptPublicFieldObjectLocation(state.PlayerZones, objectId, out var targetLocation)
+            || !IsPromptPublicObjectLocationCompatible(state, objectId, targetLocation.Zone))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectivePromptPublicObjectControllerId(state.PlayerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var tax = 0;
+        foreach (var sourceObjectId in PromptPublicStaticAuraSourceObjectIds(state))
+        {
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !string.Equals(
+                    EffectivePromptPublicObjectControllerId(state.PlayerZones, sourceObjectId, sourceState),
+                    controllerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword))
+            {
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                    || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+                {
+                    continue;
+                }
+
+                tax = Math.Max(
+                    tax,
+                    CardResourceKeywordRules.SpellshieldTaxFromTags([aura.GrantedKeyword]));
+            }
+        }
+
+        return tax;
     }
 
     private static IReadOnlyList<string> PromptPublicStaticAuraSourceObjectIds(MatchState state)

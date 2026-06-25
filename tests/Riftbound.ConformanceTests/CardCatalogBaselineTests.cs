@@ -1491,6 +1491,42 @@ public sealed class CardCatalogBaselineTests
             Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
         }
 
+        var prescientMech = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·065/221", StringComparison.Ordinal));
+        var prescientMechAura = Assert.Single(prescientMech.StaticAuras);
+        Assert.Equal(StaticAuraKinds.FriendlyFilteredUnitsKeyword, prescientMechAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.RuleText, prescientMechAura.Layer);
+        Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", prescientMechAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.FriendlyFilteredUnits, prescientMechAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, prescientMechAura.ParticipantScope);
+        Assert.Equal(0, prescientMechAura.PowerDeltaPerParticipant);
+        Assert.Equal(StaticAuraTargetFilters.TagPrefix + "机械", prescientMechAura.TargetFilter);
+        Assert.Equal("预知", prescientMechAura.GrantedKeyword);
+        Assert.Contains("你的“机械”属性单位获得{{预知}}", prescientMechAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, prescientMechAura.Status);
+
+        var speedingMech = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·071/221", StringComparison.Ordinal));
+        var speedingMechAuras = speedingMech.StaticAuras
+            .Where(aura => string.Equals(aura.Kind, StaticAuraKinds.FriendlyFilteredUnitsKeyword, StringComparison.Ordinal))
+            .OrderBy(aura => aura.GrantedKeyword, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(2, speedingMechAuras.Length);
+        Assert.Equal(
+            [CardResourceKeywordNames.Spellshield, CardCombatKeywordNames.Roam],
+            speedingMechAuras.Select(aura => aura.GrantedKeyword ?? string.Empty).ToArray());
+        Assert.All(
+            speedingMechAuras,
+            aura =>
+            {
+                Assert.Equal(ContinuousEffectLayers.RuleText, aura.Layer);
+                Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", aura.Duration);
+                Assert.Equal(StaticAuraTargetScopes.FriendlyFilteredUnits, aura.TargetScope);
+                Assert.Equal(StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, aura.ParticipantScope);
+                Assert.Equal(0, aura.PowerDeltaPerParticipant);
+                Assert.Equal(StaticAuraTargetFilters.TagPrefix + "机械", aura.TargetFilter);
+                Assert.Contains("你的“机械”属性单位获得{{法盾}}和{{游走}}", aura.Text, StringComparison.Ordinal);
+                Assert.Equal(BehaviorImplementationStatuses.Implemented, aura.Status);
+            });
+
         foreach (var cardNo in new[] { "OGN·151/298", "OGN·151a/298" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));

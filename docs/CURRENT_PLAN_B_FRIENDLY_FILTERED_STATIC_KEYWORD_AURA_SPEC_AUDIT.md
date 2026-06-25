@@ -9,6 +9,8 @@ This slice advances Plan B / B2 RULE_TEXT static keyword aura coverage without a
 Covered representatives:
 
 - `SFD·026/221` / `SFD·026a/221` 兰博：`你的“机械”属性单位获得{{强攻}}。`
+- `SFD·065/221` 先见机甲：`你的“机械”属性单位获得{{预知}}。`
+- `SFD·071/221` 疾驰机械：`你的“机械”属性单位获得{{法盾}}和{{游走}}。`
 - `SFD·181/221` / `SFD·240/221` 机械公敌：`你的“机械”属性单位获得{{坚守}}。`
 - `UNL-058/219` / `UNL-058a/219` 莉莉娅：`你的指示物单位获得{{壁垒}}。`
 
@@ -21,7 +23,7 @@ The official text parses into:
 - `ParticipantScope=FRIENDLY_FILTERED_PUBLIC_UNITS`
 - `PowerDeltaPerParticipant=0`
 - `TargetFilter=TAG:机械` or `UNIT_TOKEN`
-- `GrantedKeyword=强攻` / `坚守` / `壁垒`
+- `GrantedKeyword=强攻` / `预知` / `法盾` / `游走` / `坚守` / `壁垒`
 
 Runtime evidence now covers:
 
@@ -29,6 +31,9 @@ Runtime evidence now covers:
 - Rumble hero grants Assault to friendly mechanical units and excludes non-mechanical friendly units plus opposing mechanical units.
 - Rumble legend grants Steadfast to friendly mechanical defenders through the same `FRIENDLY_FILTERED_UNITS_KEYWORD` path, replacing the old Rumble-specific steadfast branch.
 - Lillia grants Bulwark to friendly unit-token objects; Core and prompt legality treat the dynamic Bulwark as a battle-damage-assignment keyword for multi-defender declarations.
+- `SFD·071/221` grants two keyword specs from one official sentence; dynamic Roam is visible in move prompts and accepted by Core precise battlefield movement without a printed Roam tag.
+- `SFD·071/221` dynamic Spellshield contributes one mana of enemy spell target tax in both prompt legality and Core payment.
+- `SFD·065/221` parses and projects `预知` as RULE_TEXT; the actual prediction look/recycle execution remains outside this slice.
 
 ## Not Closed
 
@@ -37,7 +42,8 @@ This is a representative friendly-filtered keyword aura slice only.
 Still open:
 
 - Complete keyword removal and later-layer loss effects.
-- Complete non-combat keyword grants such as prediction / spellshield / roam variants outside this representative combat path.
+- Complete prediction execution for `预知` grants, including look/recycle prompt handling.
+- Complete non-combat keyword grants outside the covered `SFD·065/221` parse/projection and `SFD·071/221` Spellshield/Roam representatives.
 - Complete Rumble conquer recycle branch and graveyard mechanical play / cost-reduction branch.
 - Complete Lillia token-play temporary power trigger.
 - FU-level matrix blocker reduction / fullOfficial status for the covered cards.
@@ -48,6 +54,8 @@ Still open:
 - Official catalog: `data/official/card-catalog.zh-CN.json`.
 - Official text:
   - `SFD·026/221` / `SFD·026a/221`: `你的“机械”属性单位获得{{强攻}}。`
+  - `SFD·065/221`: `你的“机械”属性单位获得{{预知}}。`
+  - `SFD·071/221`: `你的“机械”属性单位获得{{法盾}}和{{游走}}。`
   - `SFD·181/221` / `SFD·240/221`: `你的“机械”属性单位获得{{坚守}}。`
   - `UNL-058/219` / `UNL-058a/219`: `你的指示物单位获得{{壁垒}}。`
 - `CORE-260330` p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+.
@@ -63,13 +71,21 @@ Focused:
 
 Result: 4/4 passed.
 
+Additional focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~BehaviorSpecCatalogParsesStaticAuraSpecsForExistingRepresentatives|FullyQualifiedName~P79FriendlyFilteredStaticKeywordGrantsMultipleNonCombatKeywordsToMatchingFriendlyUnits"
+```
+
+Result: 2/2 passed.
+
 Adjacent:
 
 ```bash
-/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticKeyword|FullyQualifiedName~BattleDamageAssignment|FullyQualifiedName~MatchRecovery"
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~FriendlyFiltered|FullyQualifiedName~StaticAura|FullyQualifiedName~StaticKeyword|FullyQualifiedName~Roam|FullyQualifiedName~Spellshield"
 ```
 
-Result: 2085/2085 passed.
+Result: 313/313 passed.
 
 Hidden-information / recovery:
 
@@ -85,4 +101,4 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Result: 8587/8587 passed.
+Result: 8588/8588 passed.

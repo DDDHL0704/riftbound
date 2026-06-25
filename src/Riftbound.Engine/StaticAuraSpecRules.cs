@@ -20,6 +20,13 @@ internal static class StaticAuraSpecRules
             : [];
     }
 
+    public static IReadOnlyList<StaticAuraSpec> GetStaticAuras(string? cardNo, string kind)
+    {
+        return GetStaticAuras(cardNo)
+            .Where(aura => string.Equals(aura.Kind, kind, StringComparison.Ordinal))
+            .ToArray();
+    }
+
     public static bool TryGetFriendlyEquipmentPowerAura(string? cardNo, out StaticAuraSpec aura)
     {
         return TryGetAura(
@@ -204,8 +211,7 @@ internal static class StaticAuraSpecRules
     private static bool TryGetAura(string? cardNo, string kind, out StaticAuraSpec aura)
     {
         aura = default!;
-        var match = GetStaticAuras(cardNo)
-            .FirstOrDefault(candidate => string.Equals(candidate.Kind, kind, StringComparison.Ordinal));
+        var match = GetStaticAuras(cardNo, kind).FirstOrDefault();
         if (match is null)
         {
             return false;

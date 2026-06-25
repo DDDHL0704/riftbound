@@ -19827,6 +19827,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             : CardCombatKeywordRules.KeywordAmount([aura.GrantedKeyword], combatKeyword);
     }
 
+    private static int GrantedResourceKeywordAmount(StaticAuraSpec aura, string resourceKeyword)
+    {
+        if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
+        {
+            return 0;
+        }
+
+        return string.Equals(resourceKeyword, CardResourceKeywordNames.Spellshield, StringComparison.Ordinal)
+            ? CardResourceKeywordRules.SpellshieldTaxFromTags([aura.GrantedKeyword])
+            : string.Equals(aura.GrantedKeyword, resourceKeyword, StringComparison.Ordinal)
+                ? 1
+                : 0;
+    }
+
     private static int ResolveSameBattlefieldOtherFriendlyFilteredUnitsPowerBonus(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -19998,9 +20012,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
                 || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                || !StaticAuraSpecRules.TryGetFriendlyFilteredUnitsKeywordAura(sourceState.CardNo, out var aura)
-                || !string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)
                 || !string.Equals(
                     EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState),
                     controllerId,
@@ -20009,10 +20020,70 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword))
+            {
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+                {
+                    continue;
+                }
+
+                bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+            }
         }
 
         return bonus;
+    }
+
+    private static int ResolveFriendlyFilteredUnitsResourceKeywordAmount(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject,
+        string resourceKeyword)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var amount = 0;
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
+        {
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !string.Equals(
+                    EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState),
+                    controllerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword))
+            {
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    || string.IsNullOrWhiteSpace(aura.GrantedKeyword)
+                    || !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
+                {
+                    continue;
+                }
+
+                amount = Math.Max(amount, GrantedResourceKeywordAmount(aura, resourceKeyword));
+            }
+        }
+
+        return amount;
     }
 
     private static int ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus(
@@ -29385,6 +29456,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
             || HasBilgewaterBullyBoonRoamPermission(sourceState)
+            || ResolveFriendlyFilteredUnitsKeywordBonus(
+                state,
+                state.PlayerZones,
+                sourceObjectId,
+                sourceState,
+                MoveUnitRoamKeyword) > 0
             || HasBattlefieldStaticRoamPermission(state, playerId, sourceObjectId);
     }
 
@@ -30700,7 +30777,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            var targetTax = CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags);
+            var targetTax = Math.Max(
+                CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags),
+                ResolveFriendlyFilteredUnitsResourceKeywordAmount(
+                    state,
+                    state.PlayerZones,
+                    targetObjectId,
+                    targetState,
+                    CardResourceKeywordNames.Spellshield));
             if (targetTax <= 0)
             {
                 continue;
