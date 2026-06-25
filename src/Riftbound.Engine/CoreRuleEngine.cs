@@ -849,6 +849,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             var cardObject = entry.Value;
             if (string.IsNullOrWhiteSpace(cardObject.CardNo)
                 || cardObject.IsFaceDown
+                || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura(cardObject.CardNo, out var aura)
                 || !TryGetPublicFieldControllerId(state.PlayerZones, cardObjects, objectId, cardObject, out var controllerId))
             {

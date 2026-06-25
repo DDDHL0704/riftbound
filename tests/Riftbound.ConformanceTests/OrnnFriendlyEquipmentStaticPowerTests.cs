@@ -291,6 +291,37 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
     }
 
     [Fact]
+    public async Task OrnnFriendlyEquipmentStaticPowerDoesNotProjectFromStandbySource()
+    {
+        var state = BuildOrnnFieldState(
+            ornnPower: 4,
+            p1Base: [OrnnObjectId, FriendlyBaseEquipmentObjectId],
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [OrnnObjectId] = Unit(OrnnObjectId, OrnnCardNo, "P1", "P1", power: 4, isStandby: true),
+                [FriendlyBaseEquipmentObjectId] = Equipment(FriendlyBaseEquipmentObjectId, "P1", "P1")
+            });
+
+        Assert.DoesNotContain(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+
+        var advanced = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-ornn-standby-source-end-turn", "P1", CommandTypes.EndTurn),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(advanced.Accepted, advanced.ErrorMessage);
+        Assert.Equal(4, advanced.State.CardObjects[OrnnObjectId].Power);
+        Assert.DoesNotContain(
+            advanced.State.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                && string.Equals(effect.SourceObjectId, OrnnObjectId, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task OrnnFriendlyEquipmentStaticAuraMetadataMatchesAuthoritativeStateAcrossPlayerViews()
     {
         var engine = new CoreRuleEngine();
@@ -1512,13 +1543,16 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         string cardNo,
         string ownerId,
         string controllerId,
-        int power = 0)
+        int power = 0,
+        bool isStandby = false)
     {
         return new CardObjectState(
             objectId,
             cardNo: cardNo,
             power: power,
-            tags: [CardObjectTags.UnitCard],
+            tags: isStandby
+                ? [CardObjectTags.UnitCard, CardObjectTags.Standby]
+                : [CardObjectTags.UnitCard],
             ownerId: ownerId,
             controllerId: controllerId);
     }

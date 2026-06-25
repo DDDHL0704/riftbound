@@ -27,6 +27,7 @@ Engine projection:
 - `src/Riftbound.Engine/CoreRuleEngine.cs` exposes the lone-battle representative through the generic `ResolveSourceLoneBattlePowerBonus` source path rather than a Waterbender-named helper.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` now resolves Ornn-style friendly-equipment count-to-source power recompute and source-unit entry power through `StaticAuraSpecRules.TryGetFriendlyEquipmentPowerAura` and `StaticAuraSpec.PowerDeltaPerParticipant`; `CardBehaviorDefinition.AddsFriendlyFieldEquipmentCountToSourceUnitPower` has been deleted.
 - `src/Riftbound.Engine/CardEquipmentKeywordRules.cs` now marks the friendly-equipment static-power representative boundary from `BehaviorSpec.StaticAuras` rather than a registry runtime flag.
+- `src/Riftbound.Engine/MatchSession.cs` now excludes standby sources from Ornn-style friendly-equipment static-power projection, and `src/Riftbound.Engine/CoreRuleEngine.cs` excludes standby sources before friendly-equipment source-power recompute.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` and `src/Riftbound.Engine/MatchSession.cs` grant battlefield static `ROAM` from `StaticAuraSpec.Kind=BATTLEFIELD_ALL_UNITS_KEYWORD` + `GrantedKeyword=游走`; the old `BattlefieldStaticRoamCardNo` / `IsBattlefieldStaticRoamCardNo` branches are removed.
 - `src/Riftbound.Engine/MatchSession.cs` now requires battlefield keyword aura sources to be non-face-down before projecting `BATTLEFIELD_ALL_UNITS_KEYWORD` or `BATTLEFIELD_FILTERED_UNITS_KEYWORD` RULE_TEXT continuous effects.
 - `src/Riftbound.Engine/CoreRuleEngine.cs` now requires battlefield keyword aura sources to be non-face-down before applying battlefield all-units / filtered-units combat keyword bonuses or static Roam permission.
@@ -70,6 +71,8 @@ Recovery:
 - Latest other-friendly static-power standby hidden-boundary adjacent OtherFriendly / StaticAura / StaticPower / Hidden / Standby / FaceDown / MatchRecovery representative: 2229/2229 passed.
 - Latest same-battlefield other-friendly static-power standby hidden-boundary focused representative: 2/2 passed.
 - Latest same-battlefield other-friendly static-power standby hidden-boundary adjacent SameBattlefield / StaticAura / StaticPower / Hidden / Standby / FaceDown / MatchRecovery representative: 2233/2233 passed.
+- Latest friendly-equipment static-power standby hidden-boundary focused representative: 1/1 passed.
+- Latest friendly-equipment static-power standby hidden-boundary adjacent Ornn / EquipmentKeyword / StaticAura / StaticPower / Standby / Hidden / FaceDown / MatchRecovery representative: 2257/2257 passed.
 - Latest Ornn friendly-equipment runtime bridge removal adjacent StaticAura / Ornn / EquipmentKeyword / LayerEngine / ContinuousEffect representative: 417/417 passed.
 - Latest MatchRecovery hidden-information boundary: 1989/1989 passed.
 - Latest backend full: 8602/8602 passed.
@@ -78,6 +81,7 @@ Recovery:
 - Latest backend full after battlefield all-units static-power hidden-boundary fix: 8623/8623 passed.
 - Latest backend full after other-friendly static-power standby hidden-boundary fix: 8625/8625 passed.
 - Latest backend full after same-battlefield other-friendly static-power standby hidden-boundary fix: 8627/8627 passed.
+- Latest backend full after friendly-equipment static-power standby hidden-boundary fix: 8628/8628 passed.
 - Latest DevUi build after catalog type sync: passed.
 
 ## Remaining Evidence Needed
