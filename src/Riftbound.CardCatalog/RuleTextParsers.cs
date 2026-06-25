@@ -1894,6 +1894,49 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var friendlySingleDefendingUnitPowerMatch = Regex.Match(
+                segment,
+                @"如果你只有一名友方单位防守一处战场，则该单位\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (friendlySingleDefendingUnitPowerMatch.Success
+                && int.TryParse(friendlySingleDefendingUnitPowerMatch.Groups[1].Value, out var singleDefenderPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.FriendlySingleDefendingUnitPower,
+                    StaticAuraLayer,
+                    "WHILE_SINGLE_FRIENDLY_UNIT_DEFENDING_BATTLEFIELD",
+                    StaticAuraTargetScopes.FriendlySingleDefendingBattlefieldUnit,
+                    StaticAuraParticipantScopes.SingleFriendlyDefendingBattlefieldUnit,
+                    singleDefenderPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Combat static aura parsed for B1 routing; execution is available when combat power calculation reads BehaviorSpec.StaticAuras.",
+                    RequiredDefendingUnitCount: 1));
+                continue;
+            }
+
+            var friendlyLevelUnitsPowerMatch = Regex.Match(
+                segment,
+                @"\{\{等级(\d+)>\}\}\s*你的单位获得\{\{S\}\}\+(\d+)",
+                RegexOptions.CultureInvariant);
+            if (friendlyLevelUnitsPowerMatch.Success
+                && int.TryParse(friendlyLevelUnitsPowerMatch.Groups[1].Value, out var requiredPlayerExperience)
+                && int.TryParse(friendlyLevelUnitsPowerMatch.Groups[2].Value, out var friendlyUnitsPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.FriendlyUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.FriendlyUnits,
+                    StaticAuraParticipantScopes.FriendlyPublicUnits,
+                    friendlyUnitsPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Static aura parsed for B1 routing; execution is available when combat power calculation reads BehaviorSpec.StaticAuras.",
+                    RequiredPlayerExperience: requiredPlayerExperience));
+                continue;
+            }
+
             var sourceAttackingWithAnotherUnitPowerMatch = Regex.Match(
                 segment,
                 @"如果我和另一名单位一起进攻一处战场，则我获得\{\{S\}\}\+(\d+)",

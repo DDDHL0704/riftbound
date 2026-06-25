@@ -27,6 +27,8 @@ export type StaticAuraSpec = {
   requiredAttackingUnitCount?: number | null;
   requiredDefendingUnitCount?: number | null;
   requiredReadyEnemyUnitCount?: number | null;
+  requiredParticipantCount?: number | null;
+  requiredPlayerExperience?: number | null;
 };
 
 export type BehaviorSpec = {

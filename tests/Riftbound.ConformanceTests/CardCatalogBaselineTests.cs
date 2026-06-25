@@ -1375,6 +1375,33 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("如果你在此处有其他单位", reliableSiegeDogAura.Text, StringComparison.Ordinal);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, reliableSiegeDogAura.Status);
 
+        var masterYiIntro = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGS·019/024", StringComparison.Ordinal));
+        var masterYiIntroAura = Assert.Single(masterYiIntro.StaticAuras);
+        Assert.Equal(StaticAuraKinds.FriendlySingleDefendingUnitPower, masterYiIntroAura.Kind);
+        Assert.Equal(ContinuousEffectLayers.StaticAura, masterYiIntroAura.Layer);
+        Assert.Equal("WHILE_SINGLE_FRIENDLY_UNIT_DEFENDING_BATTLEFIELD", masterYiIntroAura.Duration);
+        Assert.Equal(StaticAuraTargetScopes.FriendlySingleDefendingBattlefieldUnit, masterYiIntroAura.TargetScope);
+        Assert.Equal(StaticAuraParticipantScopes.SingleFriendlyDefendingBattlefieldUnit, masterYiIntroAura.ParticipantScope);
+        Assert.Equal(2, masterYiIntroAura.PowerDeltaPerParticipant);
+        Assert.Equal(1, masterYiIntroAura.RequiredDefendingUnitCount);
+        Assert.Contains("如果你只有一名友方单位防守一处战场", masterYiIntroAura.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, masterYiIntroAura.Status);
+
+        foreach (var cardNo in new[] { "UNL-191/219", "UNL-231/219", "UNL-231*/219" })
+        {
+            var masterYiLevel = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            var masterYiLevelAura = Assert.Single(masterYiLevel.StaticAuras);
+            Assert.Equal(StaticAuraKinds.FriendlyUnitsPower, masterYiLevelAura.Kind);
+            Assert.Equal(ContinuousEffectLayers.StaticAura, masterYiLevelAura.Layer);
+            Assert.Equal("WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", masterYiLevelAura.Duration);
+            Assert.Equal(StaticAuraTargetScopes.FriendlyUnits, masterYiLevelAura.TargetScope);
+            Assert.Equal(StaticAuraParticipantScopes.FriendlyPublicUnits, masterYiLevelAura.ParticipantScope);
+            Assert.Equal(1, masterYiLevelAura.PowerDeltaPerParticipant);
+            Assert.Equal(6, masterYiLevelAura.RequiredPlayerExperience);
+            Assert.Contains("{{等级6>}} 你的单位获得{{S}}+1", masterYiLevelAura.Text, StringComparison.Ordinal);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, masterYiLevelAura.Status);
+        }
+
         foreach (var cardNo in new[] { "OGS·013/024", "SFD·236/221", "SFD·236*/221", "OGN·243/298", "OGN·243a/298" })
         {
             var source = Assert.Single(specs, spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
@@ -3115,6 +3142,10 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("DuneDrakeCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("OGN·131/298", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("AddsFriendlyFieldEquipmentCountToSourceUnitPower", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("HasMasterYiSingleDefenderBonus", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ResolveMasterYiLevelLegendPowerBonus", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("MasterYiIntroLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("MasterYiLevelPowerThreshold", coreRuleEngineSource, StringComparison.Ordinal);
 
         var equipmentKeywordRulesPath = Path.Combine(
             RepositoryRoot(),

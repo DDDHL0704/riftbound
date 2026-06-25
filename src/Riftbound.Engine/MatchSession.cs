@@ -1894,6 +1894,7 @@ public sealed record MatchState
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildSameBattlefieldOtherFriendlyFilteredUnitsStaticAuraEffects(state));
+        effects.AddRange(BuildFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsStaticAuraEffects(state));
         effects.AddRange(BuildFriendlyFilteredUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildFriendlyFilteredUnitsStaticAuraEffects(state));
@@ -2400,6 +2401,73 @@ public sealed record MatchState
         return effects;
     }
 
+    private static IReadOnlyList<ContinuousEffectState> BuildFriendlyUnitsStaticAuraEffects(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(state))
+        {
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var source)
+                || string.IsNullOrWhiteSpace(source.CardNo)
+                || source.IsFaceDown
+                || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            var controllerId = EffectivePublicStaticAuraSourceControllerId(state, sourceObjectId, source);
+            if (string.IsNullOrWhiteSpace(controllerId))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(source.CardNo, StaticAuraKinds.FriendlyUnitsPower))
+            {
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                    || !StaticAuraControllerRequirementsSatisfied(aura, state, controllerId))
+                {
+                    continue;
+                }
+
+                var participantObjectIds = FriendlyPublicFieldUnitObjectIds(state, controllerId);
+                if (participantObjectIds.Count == 0)
+                {
+                    continue;
+                }
+
+                var sourceDependencyObjectIds = PublicStaticAuraDependencyObjectIds(state, [sourceObjectId]);
+                var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+                foreach (var participantObjectId in participantObjectIds)
+                {
+                    var participant = state.CardObjects[participantObjectId];
+                    var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
+                    effects.Add(new ContinuousEffectState(
+                        $"STATIC_AURA:FRIENDLY_UNITS_POWER:{sourceObjectId}:{participantObjectId}",
+                        "OBJECT",
+                        ContinuousEffectLayers.StaticAura,
+                        aura.Duration,
+                        participantObjectId,
+                        sourceObjectId,
+                        aura.PowerDeltaPerParticipant,
+                        participant.Power,
+                        participant.Power + aura.PowerDeltaPerParticipant,
+                        aura.Kind,
+                        source.CardNo,
+                        "CoreRuleEngine.ResolveFriendlyUnitsPowerBonus",
+                        true,
+                        LayerEngineFoundationResiduals(),
+                        Condition: "SOURCE_PUBLIC_STATIC_AURA_AND_FRIENDLY_PUBLIC_UNITS",
+                        Lifecycle: "DERIVED_FROM_CURRENT_PUBLIC_FIELD_FRIENDLY_UNIT_LOCATIONS",
+                        ParticipantObjectIds: participantObjectIds,
+                        SourceDependencyObjectIds: sourceDependencyObjectIds,
+                        TargetDependencyObjectIds: targetDependencyObjectIds,
+                        ParticipantDependencyObjectIds: participantDependencyObjectIds));
+                }
+            }
+        }
+
+        return effects;
+    }
+
     private static IReadOnlyList<ContinuousEffectState> BuildFriendlyFilteredUnitsKeywordAuraEffects(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
@@ -2874,6 +2942,27 @@ public sealed record MatchState
             .ToArray();
     }
 
+    private static IReadOnlyList<string> FriendlyPublicFieldUnitObjectIds(
+        MatchState state,
+        string controllerId)
+    {
+        return state.PlayerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var candidate)
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !candidate.IsFaceDown
+                && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out var fieldLocation)
+                && IsPublicFieldObjectLocationCompatible(state, objectId, fieldLocation.Zone)
+                && string.Equals(
+                    EffectiveFieldControllerId(state, objectId, candidate),
+                    controllerId,
+                    StringComparison.Ordinal))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
     private static IReadOnlyList<string> FriendlyFilteredPublicFieldUnitObjectIds(
         MatchState state,
         string controllerId,
@@ -2978,6 +3067,23 @@ public sealed record MatchState
             .ToArray();
     }
 
+    private static IReadOnlyList<string> PublicStaticAuraDependencyObjectIds(
+        MatchState state,
+        IEnumerable<string?> objectIds)
+    {
+        return objectIds
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId!.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsFaceDown
+                && TryFindPublicStaticAuraSourceLocation(state.PlayerZones, objectId, out var location)
+                && (string.Equals(location.Zone, "LEGEND", StringComparison.Ordinal)
+                    || IsPublicFieldObjectLocationCompatible(state, objectId, location.Zone)))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
     private static IReadOnlyDictionary<string, int> PublicFieldSourceOrders(MatchState state)
     {
         var sourceOrders = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -2988,7 +3094,8 @@ public sealed record MatchState
             foreach (var objectId in zones.Base
                 .Where(objectId => IsPublicFieldObjectLocationCompatible(state, objectId, "BASE"))
                 .Concat(zones.Battlefields
-                    .Where(objectId => IsPublicFieldObjectLocationCompatible(state, objectId, "BATTLEFIELD"))))
+                    .Where(objectId => IsPublicFieldObjectLocationCompatible(state, objectId, "BATTLEFIELD")))
+                .Concat(zones.LegendZone))
             {
                 if (sourceOrders.ContainsKey(objectId)
                     || !state.CardObjects.TryGetValue(objectId, out var cardObject)
@@ -3002,6 +3109,21 @@ public sealed record MatchState
         }
 
         return sourceOrders;
+    }
+
+    private static bool StaticAuraControllerRequirementsSatisfied(
+        StaticAuraSpec aura,
+        MatchState state,
+        string controllerId)
+    {
+        if (aura.RequiredPlayerExperience.HasValue
+            && (!state.PlayerExperience.TryGetValue(controllerId, out var experience)
+                || experience < aura.RequiredPlayerExperience.Value))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static IReadOnlyList<string> PublicStaticAuraSourceObjectIds(MatchState state)

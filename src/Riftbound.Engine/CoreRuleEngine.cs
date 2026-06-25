@@ -561,9 +561,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string RumbleLegendIdentityId = "LEGEND_IDENTITY_RUMBLE";
     private const string LucianLegendCardNo = "SFD·183/221";
-    private const string MasterYiIntroLegendCardNo = "OGS·019/024";
     private const string MasterYiLevelLegendCardNo = "UNL-191/219";
-    private const int MasterYiLevelPowerThreshold = 6;
     private const int MasterYiLevelReadyThreshold = 11;
     private const string AhriLegendCardNo = "OGN·255/298";
     private const string DravenLegendCardNo = "SFD·185/221";
@@ -19586,12 +19584,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             keywordBonus += battlefieldSteadfastKeywordBonus;
         }
 
-        if (!isAttacking && HasMasterYiSingleDefenderBonus(state, playerZones, objectId, defendingUnitCount))
-        {
-            staticPowerBonus += 2;
-        }
-
-        staticPowerBonus += ResolveMasterYiLevelLegendPowerBonus(state, playerZones, objectId);
+        staticPowerBonus += ResolveFriendlySingleDefendingUnitPowerBonus(
+            state,
+            playerZones,
+            objectId,
+            cardObject,
+            isAttacking,
+            defendingUnitCount);
+        staticPowerBonus += ResolveFriendlyUnitsPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus(
             state,
             playerZones,
@@ -20275,47 +20275,127 @@ public sealed class CoreRuleEngine : IRuleEngine
             });
     }
 
-    private static bool HasMasterYiSingleDefenderBonus(
+    private static int ResolveFriendlySingleDefendingUnitPowerBonus(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string objectId,
+        CardObjectState cardObject,
+        bool isAttacking,
         int defendingUnitCount)
     {
-        if (defendingUnitCount != 1)
-        {
-            return false;
-        }
-
-        var location = FindFieldObjectLocation(playerZones, objectId);
-        if (location is null || !playerZones.TryGetValue(location.Value.PlayerId, out var zones))
-        {
-            return false;
-        }
-
-        return zones.LegendZone.Any(legendObjectId =>
-            state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-            && string.Equals(legendState.CardNo, MasterYiIntroLegendCardNo, StringComparison.Ordinal));
-    }
-
-    private static int ResolveMasterYiLevelLegendPowerBonus(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string objectId)
-    {
-        var location = FindFieldObjectLocation(playerZones, objectId);
-        if (location is null)
+        if (isAttacking
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, objectId))
         {
             return 0;
         }
 
-        return ControllerHasMasterYiLevelLegend(
-            playerZones,
-            state.CardObjects,
-            location.Value.PlayerId,
-            state.PlayerExperience,
-            MasterYiLevelPowerThreshold)
-            ? 1
-            : 0;
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var bonus = 0;
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
+        {
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            var sourceControllerId = EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState);
+            if (!string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(
+                sourceState.CardNo,
+                StaticAuraKinds.FriendlySingleDefendingUnitPower))
+            {
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                    || defendingUnitCount != aura.RequiredDefendingUnitCount.GetValueOrDefault(1)
+                    || !StaticAuraControllerRequirementsSatisfied(aura, state, sourceControllerId))
+                {
+                    continue;
+                }
+
+                bonus += aura.PowerDeltaPerParticipant;
+            }
+        }
+
+        return bonus;
+    }
+
+    private static int ResolveFriendlyUnitsPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var bonus = 0;
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
+        {
+            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            var sourceControllerId = EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState);
+            if (!string.Equals(sourceControllerId, controllerId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyUnitsPower))
+            {
+                if (!string.Equals(aura.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
+                    || !StaticAuraControllerRequirementsSatisfied(aura, state, sourceControllerId))
+                {
+                    continue;
+                }
+
+                bonus += aura.PowerDeltaPerParticipant;
+            }
+        }
+
+        return bonus;
+    }
+
+    private static bool StaticAuraControllerRequirementsSatisfied(
+        StaticAuraSpec aura,
+        MatchState state,
+        string controllerId)
+    {
+        if (aura.RequiredPlayerExperience.HasValue
+            && (!state.PlayerExperience.TryGetValue(controllerId, out var experience)
+                || experience < aura.RequiredPlayerExperience.Value))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static bool ControllerHasMasterYiLevelLegend(

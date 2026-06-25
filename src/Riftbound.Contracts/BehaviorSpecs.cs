@@ -280,6 +280,8 @@ public static class StaticAuraKinds
         "SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
     public const string SourceSameLocationOtherFriendlyUnitPower =
         "SOURCE_SAME_LOCATION_OTHER_FRIENDLY_UNIT_POWER";
+    public const string FriendlySingleDefendingUnitPower = "FRIENDLY_SINGLE_DEFENDING_UNIT_POWER";
+    public const string FriendlyUnitsPower = "FRIENDLY_UNITS_POWER";
     public const string OtherFriendlyUnitsPower = "OTHER_FRIENDLY_UNITS_POWER";
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
     public const string FriendlyFilteredUnitsKeyword = "FRIENDLY_FILTERED_UNITS_KEYWORD";
@@ -297,6 +299,8 @@ public static class StaticAuraTargetScopes
     public const string SameBattlefieldOtherFriendlyUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_UNITS";
     public const string SameBattlefieldOtherFriendlyFilteredUnits =
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_UNITS";
+    public const string FriendlySingleDefendingBattlefieldUnit = "FRIENDLY_SINGLE_DEFENDING_BATTLEFIELD_UNIT";
+    public const string FriendlyUnits = "FRIENDLY_UNITS";
     public const string OtherFriendlyUnits = "OTHER_FRIENDLY_UNITS";
     public const string FriendlyFilteredUnits = "FRIENDLY_FILTERED_UNITS";
 }
@@ -311,9 +315,11 @@ public static class StaticAuraParticipantScopes
     public const string SameBattlefieldFriendlyFilteredPublicUnits =
         "SAME_BATTLEFIELD_FRIENDLY_FILTERED_PUBLIC_UNITS";
     public const string SameLocationOtherFriendlyPublicUnits = "SAME_LOCATION_OTHER_FRIENDLY_PUBLIC_UNITS";
+    public const string SingleFriendlyDefendingBattlefieldUnit = "SINGLE_FRIENDLY_DEFENDING_BATTLEFIELD_UNIT";
     public const string SameBattlefieldOtherFriendlyPublicUnits = "SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS";
     public const string SameBattlefieldOtherFriendlyFilteredPublicUnits =
         "SAME_BATTLEFIELD_OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS";
+    public const string FriendlyPublicUnits = "FRIENDLY_PUBLIC_UNITS";
     public const string OtherFriendlyPublicUnits = "OTHER_FRIENDLY_PUBLIC_UNITS";
     public const string FriendlyFilteredPublicUnits = "FRIENDLY_FILTERED_PUBLIC_UNITS";
     public const string BattlefieldPublicUnits = "BATTLEFIELD_PUBLIC_UNITS";
@@ -475,7 +481,8 @@ public sealed record StaticAuraSpec(
     int? RequiredAttackingUnitCount = null,
     int? RequiredDefendingUnitCount = null,
     int? RequiredReadyEnemyUnitCount = null,
-    int? RequiredParticipantCount = null);
+    int? RequiredParticipantCount = null,
+    int? RequiredPlayerExperience = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,
