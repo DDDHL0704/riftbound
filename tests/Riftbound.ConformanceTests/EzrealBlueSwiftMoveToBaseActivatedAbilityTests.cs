@@ -35,6 +35,22 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
     }
 
     [Fact]
+    public void CoreRuleEngineUsesActivatedAbilityCatalogForEzrealBlueSwiftSourceIdentity()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var source = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("IsEzrealBlueSwiftCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("EzrealBlueSwiftAltCardNo", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("EzrealBlueSwiftPromoCardNo", source, StringComparison.Ordinal);
+        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbility", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PromptExposesEzrealSwiftMoveRequirementWithBlueCostNoTargetsAndRecycleChoice()
     {
         var state = BuildEzrealSwiftState(
@@ -926,6 +942,23 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         next[firstPlayerId] = firstZones;
         next[secondPlayerId] = secondZones;
         return next;
+    }
+
+    private static string RepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "riftbound-dotnet.sln"))
+                || File.Exists(Path.Combine(current.FullName, "Riftbound.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root from test output directory.");
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

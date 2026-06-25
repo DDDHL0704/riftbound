@@ -36387,6 +36387,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var hasAbilityDefinition = P4ActivatedAbilityCatalog.TryGetByEffectKind(
+            stackItem.EffectKind,
+            out var abilityDefinition);
         var events = new List<GameEvent>
         {
             new(
@@ -36406,12 +36409,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
 
-        if (!TryMoveEzrealBlueSwiftSourceToBase(
+        if (!hasAbilityDefinition
+            || !TryMoveEzrealBlueSwiftSourceToBase(
                 playerZones,
                 cardObjects,
                 objectLocations,
                 stackItem.ControllerId,
                 stackItem.SourceObjectId,
+                abilityDefinition,
                 stackItem.CardNo,
                 out var originLocation,
                 out var destinationLocation))
@@ -41608,6 +41613,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, ObjectLocationState> objectLocations,
         string controllerId,
         string sourceObjectId,
+        P4ActivatedAbilityDefinition abilityDefinition,
         string? stackCardNo,
         out ObjectLocationState originLocation,
         out ObjectLocationState destinationLocation)
@@ -41620,7 +41626,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId)
             || !string.Equals(sourceState.CardNo, stackCardNo, StringComparison.Ordinal)
-            || !IsEzrealBlueSwiftCardNo(sourceState.CardNo)
+            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(abilityDefinition, sourceState.CardNo)
             || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out originLocation)
             || !string.Equals(originLocation.PlayerId, controllerId, StringComparison.Ordinal)
             || !string.Equals(originLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
@@ -41634,13 +41640,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         destinationLocation = new ObjectLocationState(controllerId, MoveUnitBaseZone);
         objectLocations[sourceObjectId] = destinationLocation;
         return true;
-    }
-
-    private static bool IsEzrealBlueSwiftCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, P4ActivatedAbilityCatalog.EzrealBlueSwiftAltCardNo, StringComparison.Ordinal)
-            || string.Equals(cardNo, P4ActivatedAbilityCatalog.EzrealBlueSwiftPromoCardNo, StringComparison.Ordinal);
     }
 
     private static bool TryGetPreciseFieldLocation(
