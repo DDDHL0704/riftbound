@@ -565,6 +565,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int MasterYiLevelReadyThreshold = 11;
     private const string AhriLegendCardNo = "OGN·255/298";
     private const string DravenLegendCardNo = "SFD·185/221";
+    private const string AhriLegendIdentityId = "LEGEND_IDENTITY_AHRI";
+    private const string LucianLegendIdentityId = "LEGEND_IDENTITY_LUCIAN";
+    private const string MasterYiLevelLegendIdentityId = "LEGEND_IDENTITY_MASTER_YI_LEVEL";
+    private const string DravenLegendIdentityId = "LEGEND_IDENTITY_DRAVEN";
     private const string GarenIntroLegendCardNo = "OGS·023/024";
     private const string LuxIntroLegendCardNo = "OGS·021/024";
     private const string AnnieIntroLegendCardNo = "OGS·017/024";
@@ -12179,6 +12183,18 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         identity = identityId switch
         {
+            AhriLegendIdentityId => new LegendIdentityDefinition(
+                AhriLegendIdentityId,
+                [AhriLegendCardNo, "OGN·303/298", "OGN·303*/298"]),
+            LucianLegendIdentityId => new LegendIdentityDefinition(
+                LucianLegendIdentityId,
+                [LucianLegendCardNo, "SFD·241/221"]),
+            MasterYiLevelLegendIdentityId => new LegendIdentityDefinition(
+                MasterYiLevelLegendIdentityId,
+                [MasterYiLevelLegendCardNo, "UNL-231/219", "UNL-231*/219"]),
+            DravenLegendIdentityId => new LegendIdentityDefinition(
+                DravenLegendIdentityId,
+                [DravenLegendCardNo, "SFD·242/221"]),
             RengarLegendIdentityId => new LegendIdentityDefinition(
                 RengarLegendIdentityId,
                 [RengarLegendCardNo, "UNL-227/219", "UNL-227*/219"]),
@@ -20012,17 +20028,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !playerZones.TryGetValue(defendingPlayerId, out var defenderZones)
             || !defenderZones.LegendZone.Any(legendObjectId =>
                 state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-                && IsAhriLegendCardNo(legendState.CardNo)))
+                && LegendCardHasIdentity(legendState.CardNo, AhriLegendIdentityId)))
         {
             return 0;
         }
 
         return attackerState.Power + attackerKeywordBonus > 1 ? -1 : 0;
-    }
-
-    private static bool IsAhriLegendCardNo(string? cardNo)
-    {
-        return cardNo is AhriLegendCardNo or "OGN·303/298" or "OGN·303*/298";
     }
 
     private static int CountLucianLegendEquipmentAssaultBonus(
@@ -20035,7 +20046,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !playerZones.TryGetValue(location.Value.PlayerId, out var zones)
             || !zones.LegendZone.Any(legendObjectId =>
                 state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-                && IsLucianLegendCardNo(legendState.CardNo)))
+                && LegendCardHasIdentity(legendState.CardNo, LucianLegendIdentityId)))
         {
             return 0;
         }
@@ -20049,11 +20060,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                     && state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
                     && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
             });
-    }
-
-    private static bool IsLucianLegendCardNo(string? cardNo)
-    {
-        return cardNo is LucianLegendCardNo or "SFD·241/221";
     }
 
     private static bool HasMasterYiSingleDefenderBonus(
@@ -20111,12 +20117,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && playerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(legendObjectId =>
                 cardObjects.TryGetValue(legendObjectId, out var legendState)
-                && IsMasterYiLevelLegendCardNo(legendState.CardNo));
-    }
-
-    private static bool IsMasterYiLevelLegendCardNo(string? cardNo)
-    {
-        return cardNo is MasterYiLevelLegendCardNo or "UNL-231/219" or "UNL-231*/219";
+                && LegendCardHasIdentity(legendState.CardNo, MasterYiLevelLegendIdentityId));
     }
 
     private static GameEvent BuildBattleNoResultEvent(
@@ -20216,7 +20217,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var legendObjectId in zones.LegendZone)
         {
             if (cardObjects.TryGetValue(legendObjectId, out var legendState)
-                && IsDravenLegendCardNo(legendState.CardNo))
+                && LegendCardHasIdentity(legendState.CardNo, DravenLegendIdentityId))
             {
                 cardNo = legendState.CardNo ?? DravenLegendCardNo;
                 return true;
@@ -20224,11 +20225,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsDravenLegendCardNo(string? cardNo)
-    {
-        return cardNo is DravenLegendCardNo or "SFD·242/221";
     }
 
     private static bool TryGetGarenIntroLegendCardNo(

@@ -48,6 +48,28 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void CoreLegendStaticIdentitySourceDoesNotUseDuplicatedCardNumberHelpers()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("IsAhriLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsLucianLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsMasterYiLevelLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsDravenLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("AhriLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LucianLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("MasterYiLevelLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("DravenLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("LegendCardHasIdentity", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
     private static string RepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
