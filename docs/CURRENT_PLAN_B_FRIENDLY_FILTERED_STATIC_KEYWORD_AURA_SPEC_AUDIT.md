@@ -33,7 +33,7 @@ Runtime evidence now covers:
 - Lillia grants Bulwark to friendly unit-token objects; Core and prompt legality treat the dynamic Bulwark as a battle-damage-assignment keyword for multi-defender declarations.
 - `SFD·071/221` grants two keyword specs from one official sentence; dynamic Roam is visible in move prompts and accepted by Core precise battlefield movement without a printed Roam tag.
 - `SFD·071/221` dynamic Spellshield contributes one mana of enemy spell target tax in both prompt legality and Core payment.
-- `SFD·065/221` parses and projects static-granted `预知` as RULE_TEXT; the granted-keyword prediction look/recycle execution remains outside this slice.
+- `SFD·065/221` parses and projects static-granted `预知` as RULE_TEXT; when the public source already grants `预知` to a later-played matching friendly mechanical unit, prompts and Core stack resolution now reuse the shared top-1 optional main-deck recycle path.
 - Printed/source-tag `预知` permanents now receive a generic lifecycle default in `CardBehaviorRegistry`: if no explicit look/target model exists, the shared engine path exposes only the controller's top main-deck card as an optional recycle target. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
 
 ## Not Closed
@@ -43,8 +43,8 @@ This is a representative friendly-filtered keyword aura slice only.
 Still open:
 
 - Complete keyword removal and later-layer loss effects.
-- Complete prediction execution for static-granted `预知` RULE_TEXT grants, including look/recycle prompt handling.
-- Complete non-combat keyword grants outside the covered `SFD·065/221` parse/projection and `SFD·071/221` Spellshield/Roam representatives.
+- Complete static-granted `预知` breadth outside the covered public-source / later-played matching mechanical unit path, including simultaneous self-grant questions and broader Predict trigger sequencing.
+- Complete non-combat keyword grants outside the covered `SFD·065/221` representative and `SFD·071/221` Spellshield/Roam representatives.
 - Complete Rumble conquer recycle branch and graveyard mechanical play / cost-reduction branch.
 - Complete Lillia token-play temporary power trigger.
 - FU-level matrix blocker reduction / fullOfficial status for the covered cards.
@@ -88,13 +88,21 @@ Source-tag Predict lifecycle focused:
 
 Result: 8/8 passed.
 
+Static-granted Predict lifecycle focused:
+
+```bash
+/Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~PrescientMechStaticGrantedPredict|FullyQualifiedName~CoreRuleEnginePlaysStaticGrantedPredict"
+```
+
+Result: 2/2 passed.
+
 Source-tag Predict adjacent:
 
 ```bash
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj --filter "FullyQualifiedName~Predict|FullyQualifiedName~Gemstone|FullyQualifiedName~Lifecycle"
 ```
 
-Result: 110/110 passed.
+Result: 112/112 passed.
 
 Adjacent:
 
@@ -118,4 +126,4 @@ Backend full:
 /Users/dinghaolin/.dotnet/dotnet test tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj
 ```
 
-Result: 8590/8590 passed.
+Result: 8592/8592 passed.

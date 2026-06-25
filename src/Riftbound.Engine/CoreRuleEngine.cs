@@ -26013,6 +26013,75 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
+    private static CardBehaviorDefinition ApplyStaticGrantedPredictLifecycleDefault(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.MainDeckLookCount > 0
+            || behavior.RequiredTargetCount != 0
+            || !behavior.PlaysSourceToBaseAsUnit
+            || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            || !HasFriendlyFilteredStaticGrantedKeyword(
+                state,
+                sourceObjectId,
+                sourceState,
+                playerId,
+                CardLifecycleKeywordNames.Predict))
+        {
+            return behavior;
+        }
+
+        return behavior with
+        {
+            RequiredTargetCount = 1,
+            TargetScope = CardTargetScopes.FriendlyMainDeckCard,
+            MinTargetCount = 0,
+            MainDeckLookCount = 1,
+            RecyclesSelectedMainDeckTargets = true
+        };
+    }
+
+    private static bool HasFriendlyFilteredStaticGrantedKeyword(
+        MatchState state,
+        string targetObjectId,
+        CardObjectState targetState,
+        string targetControllerId,
+        string keyword)
+    {
+        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(state.PlayerZones))
+        {
+            if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !string.Equals(
+                    EffectivePublicStaticAuraSourceControllerId(state.PlayerZones, sourceObjectId, sourceState),
+                    targetControllerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword))
+            {
+                if (string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    && string.Equals(aura.GrantedKeyword, keyword, StringComparison.Ordinal)
+                    && StaticAuraSpecRules.TargetMatchesFilter(aura, targetState))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private static bool TryBuildPlayCardPlan(
         MatchState state,
         PlayerIntent intent,
@@ -26081,6 +26150,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 return false;
             }
         }
+
+        behavior = ApplyStaticGrantedPredictLifecycleDefault(
+            state,
+            intent.PlayerId,
+            command.SourceObjectId,
+            behavior);
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         var rengarUnitPlayedTargetObjectId = ExtractRengarUnitPlayedTriggerTarget(
@@ -33411,8 +33486,32 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ResolveEzrealBlueSwiftMoveAbilityStackItem(state, stackItem);
         }
 
-        if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
-            || !HasValidResolvedTargetCount(behavior, stackItem)
+        if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior))
+        {
+            return new StackResolutionResult(
+                state.PlayerZones,
+                state.CardObjects,
+                state.PlayerScores,
+                state.PlayerExperience,
+                state.RunePools,
+                state.UntilEndOfTurnEffects,
+                null,
+                [],
+                [],
+                null,
+                [],
+                null,
+                [],
+                state.RngCursor);
+        }
+
+        behavior = ApplyStaticGrantedPredictLifecycleDefault(
+            state,
+            stackItem.ControllerId,
+            stackItem.SourceObjectId,
+            behavior);
+
+        if (!HasValidResolvedTargetCount(behavior, stackItem)
             || !HasValidTargetEffectAdditionalCostTargets(behavior, stackItem.TargetObjectIds, stackItem.OptionalCosts))
         {
             return new StackResolutionResult(

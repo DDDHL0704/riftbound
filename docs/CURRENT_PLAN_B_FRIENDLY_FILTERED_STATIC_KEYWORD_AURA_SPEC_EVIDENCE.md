@@ -17,6 +17,7 @@ Implemented evidence:
 - Battle damage assignment legality and ordering now read dynamic friendly-filtered Bulwark / Back Row grants instead of only printed tags.
 - The prior Rumble legend steadfast special case has been removed; `SFD·181/221` and `SFD·240/221` now flow through `FRIENDLY_FILTERED_UNITS_KEYWORD`.
 - Source-tag `预知` permanents with no explicit look/target model now receive a shared lifecycle default in `CardBehaviorRegistry`, using the existing top-1 optional main-deck recycle path instead of per-card registrations. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
+- Static-granted `预知` from `FRIENDLY_FILTERED_UNITS_KEYWORD` now feeds the same lifecycle default when a public source already grants `预知` to a later-played matching friendly unit. `SFD·065/221` Prescient Mech plus `SFD·075/221` Progress Glory is the representative prompt and Core stack-resolution fixture.
 
 ## Covered Cards
 
@@ -51,6 +52,10 @@ Implemented evidence:
   - Verifies source-tag `预知` lifecycle defaults expose only the controller's top main-deck card as an optional prompt target, excluding the second friendly card and the opponent's hidden deck card.
 - `ConformanceFixtureRunnerTests.CoreRuleEnginePlaysPredictSourceUnitRecycleTopCard`
   - Adds `OGN·100/298` Gemstone Seer as a source-tag `预知` representative that recycles the selected friendly top main-deck card through the shared engine path.
+- `ConformanceFixtureRunnerTests.PrescientMechStaticGrantedPredictPromptExposesOnlyFriendlyTopMainDeckCardForMechanicalUnit`
+  - Verifies public-field `SFD·065/221` grants `预知` to a later-played friendly mechanical hand unit and exposes only the controller's top main-deck card as an optional prompt target.
+- `ConformanceFixtureRunnerTests.CoreRuleEnginePlaysStaticGrantedPredictSourceUnitRecycleTopCard`
+  - Adds `p2-preflight-play-progress-glory-static-granted-predict-recycle.fixture.json` as a static-granted `预知` representative that plays a non-printed-Predict mechanical unit, resolves it to base, and recycles the selected top main-deck card.
 
 ## Validation Results
 
@@ -58,17 +63,18 @@ Implemented evidence:
 - Focused multiple non-combat keyword slice: 2/2 passed.
 - Adjacent FriendlyFiltered / StaticAura / StaticKeyword / Roam / Spellshield: 313/313 passed.
 - Focused source-tag Predict lifecycle slice: 8/8 passed.
-- Adjacent Predict / Gemstone / Lifecycle: 110/110 passed.
+- Focused static-granted Predict lifecycle slice: 2/2 passed.
+- Adjacent Predict / Gemstone / Lifecycle: 112/112 passed.
 - MatchRecovery: 1989/1989 passed.
-- Backend full conformance: 8590/8590 passed.
+- Backend full conformance: 8592/8592 passed.
 
 ## Residuals
 
 Not closed by this slice:
 
 - Full keyword removal / loss layering.
-- Prediction execution for friendly-filtered static-granted `预知` grants, including top-deck look/recycle prompts.
-- Non-combat friendly-filtered keyword grants outside the covered `预知` parse/projection and `法盾` / `游走` runtime representatives.
+- Static-granted `预知` breadth outside the covered public-source / later-played matching mechanical unit path, including simultaneous self-grant questions and broader Predict trigger sequencing.
+- Non-combat friendly-filtered keyword grants outside the covered `预知` representative and `法盾` / `游走` runtime representatives.
 - Rumble conquer recycle and graveyard mechanical play / cost reduction.
 - Lillia token-play temporary power trigger.
 - Card matrix FU-level fullOfficial readiness.

@@ -11860,6 +11860,7 @@ internal static class ActionPromptBuilder
         var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
+            .Select(behavior => ApplyPromptStaticGrantedPredictLifecycleDefault(state, playerId, objectId, cardObject, behavior))
             .Where(behavior => PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
                 >= PromptMinimumManaCost(state, playerId, behavior, objectId))
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
@@ -11874,6 +11875,75 @@ internal static class ActionPromptBuilder
         }
 
         return behaviors;
+    }
+
+    private static CardBehaviorDefinition ApplyPromptStaticGrantedPredictLifecycleDefault(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardObjectState sourceState,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.MainDeckLookCount > 0
+            || behavior.RequiredTargetCount != 0
+            || !behavior.PlaysSourceToBaseAsUnit
+            || sourceState.IsFaceDown
+            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
+            || !HasPromptFriendlyFilteredStaticGrantedKeyword(
+                state,
+                sourceObjectId,
+                sourceState,
+                playerId,
+                CardLifecycleKeywordNames.Predict))
+        {
+            return behavior;
+        }
+
+        return behavior with
+        {
+            RequiredTargetCount = 1,
+            TargetScope = CardTargetScopes.FriendlyMainDeckCard,
+            MinTargetCount = 0,
+            MainDeckLookCount = 1,
+            RecyclesSelectedMainDeckTargets = true
+        };
+    }
+
+    private static bool HasPromptFriendlyFilteredStaticGrantedKeyword(
+        MatchState state,
+        string targetObjectId,
+        CardObjectState targetState,
+        string targetControllerId,
+        string keyword)
+    {
+        foreach (var sourceObjectId in PromptPublicStaticAuraSourceObjectIds(state))
+        {
+            if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                || sourceState.IsFaceDown
+                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !string.Equals(
+                    EffectivePromptPublicObjectControllerId(state.PlayerZones, sourceObjectId, sourceState),
+                    targetControllerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo, StaticAuraKinds.FriendlyFilteredUnitsKeyword))
+            {
+                if (string.Equals(aura.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
+                    && string.Equals(aura.GrantedKeyword, keyword, StringComparison.Ordinal)
+                    && StaticAuraSpecRules.TargetMatchesFilter(aura, targetState))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static bool PromptHasRequiredDestinationChoices(

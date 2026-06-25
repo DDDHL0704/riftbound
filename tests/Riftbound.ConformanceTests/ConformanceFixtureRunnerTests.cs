@@ -14730,6 +14730,96 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain("P2-GEMSTONE-SEER-HIDDEN-001", firstTargetChoiceIds);
     }
 
+    [Fact]
+    public void PrescientMechStaticGrantedPredictPromptExposesOnlyFriendlyTopMainDeckCardForMechanicalUnit()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-PROGRESS-GLORY"],
+                    Base = ["P1-UNIT-PRESCIENT-MECH"],
+                    MainDeck = ["P1-PROGRESS-GLORY-TOP-001", "P1-PROGRESS-GLORY-SECOND-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-PROGRESS-GLORY-HIDDEN-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-PRESCIENT-MECH"] = new(
+                    "P1-UNIT-PRESCIENT-MECH",
+                    cardNo: "SFD·065/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
+                    manaCost: 2,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-PROGRESS-GLORY"] = new(
+                    "P1-UNIT-PROGRESS-GLORY",
+                    cardNo: "SFD·075/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "机械"],
+                    manaCost: 4,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-PROGRESS-GLORY-TOP-001"] = new(
+                    "P1-PROGRESS-GLORY-TOP-001",
+                    cardNo: "UNL-007/219",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-PROGRESS-GLORY-SECOND-001"] = new(
+                    "P1-PROGRESS-GLORY-SECOND-001",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-PROGRESS-GLORY-HIDDEN-001"] = new(
+                    "P2-PROGRESS-GLORY-HIDDEN-001",
+                    cardNo: "UNL-007/219",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-UNIT-PROGRESS-GLORY", StringComparison.Ordinal));
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(
+                requirement["sourceObjectId"] as string,
+                "P1-UNIT-PROGRESS-GLORY",
+                StringComparison.Ordinal));
+
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal(["P1-PROGRESS-GLORY-TOP-001"], firstTargetChoiceIds);
+        Assert.DoesNotContain("P1-PROGRESS-GLORY-SECOND-001", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-PROGRESS-GLORY-HIDDEN-001", firstTargetChoiceIds);
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-unl-babbling-poro-predict-recycle.fixture.json", "P1-UNIT-UNL-BABBLING-PORO", "P1-UNL-BABBLING-PORO-KEEP-001", "P1-UNL-BABBLING-PORO-RECYCLE-001", 2, "CARD_TYPE:UNIT|预知|魄罗")]
     [InlineData("p2-preflight-play-babbling-poro-predict-recycle.fixture.json", "P1-UNIT-BABBLING-PORO", "P1-BABBLING-PORO-KEEP-001", "P1-BABBLING-PORO-RECYCLE-001", 2, "CARD_TYPE:UNIT|预知|魄罗")]
@@ -14765,6 +14855,42 @@ public sealed class ConformanceFixtureRunnerTests
         {
             Assert.True(result.FinalState.CardObjects[sourceObjectId].IsExhausted);
         }
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysStaticGrantedPredictSourceUnitRecycleTopCard()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(
+                AppContext.BaseDirectory,
+                "Fixtures",
+                "p2-preflight-play-progress-glory-static-granted-predict-recycle.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-UNIT-PRESCIENT-MECH", "P1-UNIT-PROGRESS-GLORY"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-PROGRESS-GLORY-KEEP-001", "P1-PROGRESS-GLORY-RECYCLE-001"],
+            result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-PROGRESS-GLORY"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, "机械"],
+            result.FinalState.CardObjects["P1-UNIT-PROGRESS-GLORY"].Tags);
+        Assert.Contains(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+                && string.Equals(
+                    gameEvent.Payload["sourceObjectId"] as string,
+                    "P1-UNIT-PROGRESS-GLORY",
+                    StringComparison.Ordinal));
     }
 
     [Theory]
