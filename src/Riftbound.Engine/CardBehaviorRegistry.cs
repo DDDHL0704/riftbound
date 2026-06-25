@@ -8347,11 +8347,18 @@ public static class CardBehaviorRegistry
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {
-        definition = Definitions.FirstOrDefault(candidate => string.Equals(
+        var candidate = Definitions.FirstOrDefault(candidate => string.Equals(
             candidate.CardNo,
             cardNo,
-            StringComparison.Ordinal))!;
-        return definition is not null;
+            StringComparison.Ordinal));
+        if (candidate is null)
+        {
+            definition = default!;
+            return false;
+        }
+
+        definition = ApplyLifecycleKeywordDefaults(candidate);
+        return true;
     }
 
     public static bool IsImplementedUnitNamed(string? cardNo, string displayName)
@@ -8374,7 +8381,7 @@ public static class CardBehaviorRegistry
 
     public static IReadOnlyList<CardBehaviorDefinition> GetAll()
     {
-        return Definitions;
+        return Definitions.Select(ApplyLifecycleKeywordDefaults).ToArray();
     }
 
     public static bool TryGetByCardNoAndMode(
@@ -8383,19 +8390,72 @@ public static class CardBehaviorRegistry
         out CardBehaviorDefinition definition)
     {
         var normalizedMode = NormalizeMode(mode);
-        definition = Definitions.FirstOrDefault(candidate =>
+        var candidate = Definitions.FirstOrDefault(candidate =>
             string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal)
-            && string.Equals(NormalizeMode(candidate.Mode), normalizedMode, StringComparison.Ordinal))!;
-        return definition is not null;
+            && string.Equals(NormalizeMode(candidate.Mode), normalizedMode, StringComparison.Ordinal));
+        if (candidate is null)
+        {
+            definition = default!;
+            return false;
+        }
+
+        definition = ApplyLifecycleKeywordDefaults(candidate);
+        return true;
     }
 
     public static bool TryGetByEffectKind(string effectKind, out CardBehaviorDefinition definition)
     {
-        definition = Definitions.FirstOrDefault(candidate => string.Equals(
+        var candidate = Definitions.FirstOrDefault(candidate => string.Equals(
             candidate.EffectKind,
             effectKind,
-            StringComparison.Ordinal))!;
-        return definition is not null;
+            StringComparison.Ordinal));
+        if (candidate is null)
+        {
+            definition = default!;
+            return false;
+        }
+
+        definition = ApplyLifecycleKeywordDefaults(candidate);
+        return true;
+    }
+
+    private static CardBehaviorDefinition ApplyLifecycleKeywordDefaults(CardBehaviorDefinition definition)
+    {
+        if (definition.MainDeckLookCount > 0
+            || definition.RequiredTargetCount != 0
+            || !PlaysSourceAsPermanent(definition)
+            || !HasSourceKeyword(definition, CardLifecycleKeywordNames.Predict))
+        {
+            return definition;
+        }
+
+        return definition with
+        {
+            RequiredTargetCount = 1,
+            TargetScope = CardTargetScopes.FriendlyMainDeckCard,
+            MinTargetCount = 0,
+            MainDeckLookCount = 1,
+            RecyclesSelectedMainDeckTargets = true
+        };
+    }
+
+    private static bool PlaysSourceAsPermanent(CardBehaviorDefinition definition)
+    {
+        return definition.PlaysSourceToBaseAsUnit
+            || definition.PlaysSourceToBaseAsEquipment;
+    }
+
+    private static bool HasSourceKeyword(CardBehaviorDefinition definition, string keyword)
+    {
+        return HasDelimitedValue(definition.SourceUnitTags, keyword)
+            || HasDelimitedValue(definition.SourceEquipmentTags, keyword);
+    }
+
+    private static bool HasDelimitedValue(string value, string expected)
+    {
+        return value
+            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(part => string.Equals(part, expected, StringComparison.Ordinal));
     }
 
     private static string NormalizeMode(string? mode)

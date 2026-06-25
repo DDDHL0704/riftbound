@@ -14649,10 +14649,92 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.StackItems);
     }
 
+    [Fact]
+    public void GemstoneSeerPredictPromptExposesOnlyFriendlyTopMainDeckCard()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-OGN-GEMSTONE-SEER"],
+                    MainDeck = ["P1-GEMSTONE-SEER-TOP-001", "P1-GEMSTONE-SEER-SECOND-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-GEMSTONE-SEER-HIDDEN-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-OGN-GEMSTONE-SEER"] = new(
+                    "P1-UNIT-OGN-GEMSTONE-SEER",
+                    cardNo: "OGN·100/298",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardLifecycleKeywordNames.Predict],
+                    manaCost: 3,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-GEMSTONE-SEER-TOP-001"] = new(
+                    "P1-GEMSTONE-SEER-TOP-001",
+                    cardNo: "UNL-007/219",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-GEMSTONE-SEER-SECOND-001"] = new(
+                    "P1-GEMSTONE-SEER-SECOND-001",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-GEMSTONE-SEER-HIDDEN-001"] = new(
+                    "P2-GEMSTONE-SEER-HIDDEN-001",
+                    cardNo: "UNL-007/219",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-UNIT-OGN-GEMSTONE-SEER", StringComparison.Ordinal));
+
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(
+                requirement["sourceObjectId"] as string,
+                "P1-UNIT-OGN-GEMSTONE-SEER",
+                StringComparison.Ordinal));
+
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+            .Select(choice => choice.Id)
+            .ToArray();
+
+        Assert.Equal(["P1-GEMSTONE-SEER-TOP-001"], firstTargetChoiceIds);
+        Assert.DoesNotContain("P1-GEMSTONE-SEER-SECOND-001", firstTargetChoiceIds);
+        Assert.DoesNotContain("P2-GEMSTONE-SEER-HIDDEN-001", firstTargetChoiceIds);
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-unl-babbling-poro-predict-recycle.fixture.json", "P1-UNIT-UNL-BABBLING-PORO", "P1-UNL-BABBLING-PORO-KEEP-001", "P1-UNL-BABBLING-PORO-RECYCLE-001", 2, "CARD_TYPE:UNIT|预知|魄罗")]
     [InlineData("p2-preflight-play-babbling-poro-predict-recycle.fixture.json", "P1-UNIT-BABBLING-PORO", "P1-BABBLING-PORO-KEEP-001", "P1-BABBLING-PORO-RECYCLE-001", 2, "CARD_TYPE:UNIT|预知|魄罗")]
     [InlineData("p2-preflight-play-gemstone-golem-predict-recycle.fixture.json", "P1-UNIT-GEMSTONE-GOLEM", "P1-GEMSTONE-GOLEM-KEEP-001", "P1-GEMSTONE-GOLEM-RECYCLE-001", 5, "CARD_TYPE:UNIT|坚守|预知")]
+    [InlineData("p2-preflight-play-ogn-gemstone-seer-predict-recycle.fixture.json", "P1-UNIT-OGN-GEMSTONE-SEER", "P1-GEMSTONE-SEER-KEEP-001", "P1-GEMSTONE-SEER-RECYCLE-001", 3, "CARD_TYPE:UNIT|预知")]
     [InlineData("p2-preflight-play-dase-scout-predict-recycle.fixture.json", "P1-UNIT-DASE-SCOUT", "P1-DASE-SCOUT-KEEP-001", "P1-DASE-SCOUT-RECYCLE-001", 5, "CARD_TYPE:UNIT|预知")]
     [InlineData("p2-preflight-play-jhin-predict-recycle.fixture.json", "P1-UNIT-JHIN", "P1-JHIN-KEEP-001", "P1-JHIN-RECYCLE-001", 4, "CARD_TYPE:UNIT|预知")]
     [InlineData("p2-preflight-play-jhin-alt-a-predict-recycle.fixture.json", "P1-UNIT-JHIN-A", "P1-JHIN-A-KEEP-001", "P1-JHIN-A-RECYCLE-001", 4, "CARD_TYPE:UNIT|预知")]

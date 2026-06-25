@@ -16,6 +16,7 @@ Implemented evidence:
 - Spellshield target-tax calculation reads dynamic friendly-filtered Spellshield grants for both action prompts and Core payment plans.
 - Battle damage assignment legality and ordering now read dynamic friendly-filtered Bulwark / Back Row grants instead of only printed tags.
 - The prior Rumble legend steadfast special case has been removed; `SFD·181/221` and `SFD·240/221` now flow through `FRIENDLY_FILTERED_UNITS_KEYWORD`.
+- Source-tag `预知` permanents with no explicit look/target model now receive a shared lifecycle default in `CardBehaviorRegistry`, using the existing top-1 optional main-deck recycle path instead of per-card registrations. `OGN·100/298` Gemstone Seer is the representative runtime fixture.
 
 ## Covered Cards
 
@@ -46,21 +47,27 @@ Implemented evidence:
   - Verifies Lillia's dynamic Bulwark grant makes a friendly unit token eligible as the assignment keyword defender in a multi-defender declaration.
 - `ConformanceFixtureRunnerTests.P79LegendStaticRumbleGrantsSteadfastToMechanicalDefender`
   - Verifies Rumble legend Steadfast is projected as a RULE_TEXT continuous effect and contributes `keywordBonus=1` to a mechanical defender.
+- `ConformanceFixtureRunnerTests.GemstoneSeerPredictPromptExposesOnlyFriendlyTopMainDeckCard`
+  - Verifies source-tag `预知` lifecycle defaults expose only the controller's top main-deck card as an optional prompt target, excluding the second friendly card and the opponent's hidden deck card.
+- `ConformanceFixtureRunnerTests.CoreRuleEnginePlaysPredictSourceUnitRecycleTopCard`
+  - Adds `OGN·100/298` Gemstone Seer as a source-tag `预知` representative that recycles the selected friendly top main-deck card through the shared engine path.
 
 ## Validation Results
 
 - Focused previous combat-keyword slice: 4/4 passed.
 - Focused multiple non-combat keyword slice: 2/2 passed.
 - Adjacent FriendlyFiltered / StaticAura / StaticKeyword / Roam / Spellshield: 313/313 passed.
+- Focused source-tag Predict lifecycle slice: 8/8 passed.
+- Adjacent Predict / Gemstone / Lifecycle: 110/110 passed.
 - MatchRecovery: 1989/1989 passed.
-- Backend full conformance: 8588/8588 passed.
+- Backend full conformance: 8590/8590 passed.
 
 ## Residuals
 
 Not closed by this slice:
 
 - Full keyword removal / loss layering.
-- Prediction execution for friendly-filtered `预知` grants, including top-deck look/recycle prompts.
+- Prediction execution for friendly-filtered static-granted `预知` grants, including top-deck look/recycle prompts.
 - Non-combat friendly-filtered keyword grants outside the covered `预知` parse/projection and `法盾` / `游走` runtime representatives.
 - Rumble conquer recycle and graveyard mechanical play / cost reduction.
 - Lillia token-play temporary power trigger.

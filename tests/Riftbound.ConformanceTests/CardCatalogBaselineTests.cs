@@ -804,11 +804,11 @@ public sealed class CardCatalogBaselineTests
             functionalUnits: 10,
             specImplementedFunctionalUnits: 10,
             profileImplementedEntries: 0,
-            profileDelegatedEntries: 7,
-            profileDeferredEntries: 5,
+            profileDelegatedEntries: 11,
+            profileDeferredEntries: 1,
             profileImplementedFunctionalUnits: 0,
-            profileDelegatedFunctionalUnits: 7,
-            profileDeferredFunctionalUnits: 3);
+            profileDelegatedFunctionalUnits: 9,
+            profileDeferredFunctionalUnits: 1);
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
@@ -5730,6 +5730,11 @@ public sealed class CardCatalogBaselineTests
         Assert.True(scryingShell.HasPredict);
         Assert.True(scryingShell.HasPredictRecyclePath);
         Assert.Equal(LifecycleKeywordProfileStatuses.RecognizedDelegated, scryingShell.Status);
+
+        var gemstoneSeer = BuildLifecycleProfile(specs, "OGN·100/298", CardLifecycleKeywordNames.Predict);
+        Assert.True(gemstoneSeer.HasPredict);
+        Assert.True(gemstoneSeer.HasPredictRecyclePath);
+        Assert.Equal(LifecycleKeywordProfileStatuses.RecognizedDelegated, gemstoneSeer.Status);
 
         var kogmaw = BuildLifecycleProfile(specs, "OGN·190/298", CardLifecycleKeywordNames.LastBreath);
         Assert.True(kogmaw.HasLastBreath);
