@@ -39,6 +39,7 @@ Project status: **NOT READY**.
 - `data/official/card-catalog.zh-CN.json`: `UNL-217/219` 捕猎场 has official text `当你征服此处时，如果你给敌方单位分配了不低于3点的过量伤害，则打出一名1{{S}}“战鹰”，它拥有{{法盾}}。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-212/219` 冰霜要塞 has official text `在每名玩家各自的开始阶段开始时，对此处的所有单位造成1点伤害。`
 - `data/official/card-catalog.zh-CN.json`: `UNL-209/219` 暮色玫瑰实验室 has official text `在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）`
+- `data/official/card-catalog.zh-CN.json`: `OGN·284/298` 力量方尖碑 has official text `每名玩家在各自的第一个回合开始阶段，额外召出一枚符文。`
 - `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`: official card text and local evidence remain the rule authority inputs for this battlefield-domain slice.
 - Existing representative tests `P79BattlefieldMovedUnitGainsTemporaryPower`, `P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource`, and `P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus` remain the runtime evidence for this narrow behavior.
 - Existing representative tests `P79BattlefieldHeldNextSpellEcho...` and GameHub `P79BattlefieldHeldNextSpellEcho...` remain the runtime evidence for the held-next-spell Echo behavior.
@@ -73,6 +74,7 @@ Project status: **NOT READY**.
 - Existing representative tests `P79BattlefieldConquerOverkillCreatesWarhawk` and GameHub `P79BattlefieldConquerWarhawkSeedOffersBattlefieldDestinationAndCreatesWarhawk` remain the runtime evidence for the conquered-battlefield overkill create-Warhawk representative behavior.
 - Existing representative tests `P79BattlefieldTurnStartDamageAllBattlefieldUnitsBeforeScoring`, `P79BattlefieldTurnStartDamageSkipsOpponentControlledSource`, and GameHub `P79BattlefieldTurnStartDamageSeedDamagesAndDestroysBeforeRuneCall` remain the runtime evidence for the turn-start damage-units representative behavior.
 - Existing representative tests `P79BattlefieldTurnStartDestroyDrawsBeforeScoring`, `P79BattlefieldTurnStartDestroyDrawSkipsOpponentControlledSource`, and GameHub `P79BattlefieldTurnStartDestroyDrawSeedDestroysAndDrawsBeforeRuneCall` remain the runtime evidence for the turn-start destroy-draw representative behavior.
+- Existing representative tests `P79BattlefieldStaticFirstTurnRuneCallsOneExtraRune`, `P79BattlefieldStaticFirstTurnRuneIgnoresBattlefieldControlChange`, and GameHub `P79BattlefieldFirstTurnRuneSeedCallsFourthRune` remain the runtime evidence for the first-turn extra-rune representative behavior.
 
 ## Runtime Evidence
 
@@ -208,6 +210,10 @@ The turn-start destroy-draw follow-up parser path turns the Duskpetal Lab offici
 
 The accepted `START_TURN` path keeps the existing auto-representative optional-trigger behavior and still resolves before scoring, rune-call progression and normal turn draw. It now chooses the destroyed unit from the source battlefield object's location scope, so a controlled unit at another battlefield object is preserved under the official `此处` boundary.
 
+The first-turn extra-rune follow-up parser path turns the Power Obelisk official battlefield text into a structured `TriggerSpec` with `Kind=BATTLEFIELD_FIRST_TURN_EXTRA_RUNE`, `Timing=TURN_START`, `TargetScope=EACH_PLAYER`, `RuneCallCount=1`, and `FirstTurnOnly=true`. Runtime no longer checks `OGN·284/298` through `BattlefieldFirstTurnExtraRuneCardNo` / `IsBattlefieldFirstTurnExtraRuneCardNo`; it queries `BehaviorSpec.Triggers` via `BattlefieldTriggerSpecRules`.
+
+The accepted `START_TURN` path keeps the existing representative behavior: while the battlefield object is present, each player's own first turn-start rune call adds the parsed rune count to the normal turn-start rune call count. Existing dirty-control evidence remains unchanged because the official text is a global battlefield rule and not a controller-gated source.
+
 ## Hidden Information Evidence
 
 No snapshot hidden-zone logic was changed. The representative GameHub and MatchRecovery validation still cover prompt/snapshot boundaries; MatchRecovery passed `1989/1989`.
@@ -284,12 +290,16 @@ No snapshot hidden-zone logic was changed. The representative GameHub and MatchR
 - turn-start destroy-draw focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
 - turn-start destroy-draw CardCatalog baseline: `149/149`;
 - turn-start destroy-draw adjacent BattlefieldTurnStart / BattlefieldTriggerSpec / GameHub representatives: `230/230`;
+- first-turn extra-rune focused behavior-spec/source guard/runtime/GameHub representative: `5/5`;
+- first-turn extra-rune CardCatalog baseline: `151/151`;
+- first-turn extra-rune adjacent FirstTurnRune / BattlefieldFirstTurn / BattlefieldTriggerSpec / GameHub representatives: `226/226`;
 - MatchRecovery: `1989/1989`;
 - backend full conformance after the conquer overkill create-Warhawk follow-up: `8436/8436`;
 - backend full conformance after the turn-start damage-units follow-up: `8438/8438`;
 - backend full conformance after the turn-start destroy-draw follow-up: `8440/8440`;
+- backend full conformance after the first-turn extra-rune follow-up: `8442/8442`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
 
 ## Non-Closure
 
-This evidence proves thirty-three battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.
+This evidence proves thirty-four battlefield trigger representatives have moved to BehaviorSpec-driven routing. It does not prove the complete B4 battlefield-effect family, all trigger timing windows, all movement / control-zone edge cases, optional trigger choice prompts, B0 full real-deck end-to-end game completion, all card-effect families, frontend smoke or READY.

@@ -5996,7 +5996,6 @@ internal static class ActionPromptBuilder
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
-    private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
@@ -16037,7 +16036,7 @@ internal static class ActionPromptBuilder
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldFirstTurnExtraRuneCardNo, StringComparison.Ordinal)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(cardObject.CardNo, out _)
             || string.Equals(cardObject.CardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldScoreDelayCardNo, StringComparison.Ordinal)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(cardObject.CardNo, out _)
@@ -16548,7 +16547,6 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
-    private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
@@ -22013,7 +22011,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-RUNE-OBELISK"] = new(
                     "P1-BATTLEFIELD-RUNE-OBELISK",
-                    cardNo: BattlefieldFirstTurnExtraRuneCardNo,
+                    cardNo: "OGN·284/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)

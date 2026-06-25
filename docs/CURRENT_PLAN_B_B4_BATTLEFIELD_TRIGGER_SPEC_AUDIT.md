@@ -2,9 +2,22 @@
 
 Date: 2026-06-25
 
-Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, and turn-start destroy-draw; project remains **NOT READY**.
+Status: focused B4 battlefield trigger spec slices accepted for moved-unit power, held-next-spell Echo, held unit-cost increase, held draw-one, held call-rune, held each-player call-rune, held move-unit-to-base, held grant-boon, held create-minion, held return-hero, held seven-units win, conquer reveal/recycle, conquer mill, conquer recycle-rune, conquer consume-boon draw, conquer discard-draw, conquer draw-for-other-battlefields, conquer ready-runes-at-end, conquer ready-equipment, conquer pay-create-gold, conquer powerful pay-draw, conquer pay-return-unit create-Sand-Soldier, conquer pay-ready-legend, defend reveal-spell-or-recycle, conquer overkill create-Warhawk, friendly-spell draw, spell-power bonus, high-cost spell insight, unit-play boon, unit-returned call-rune, first-unit-play move-other-to-base, turn-start damage-units, turn-start destroy-draw, and first-turn extra-rune; project remains **NOT READY**.
 
 ## Scope
+
+The 2026-06-25 first-turn extra-rune follow-up moves another implemented battlefield rule away from engine card-number branching:
+
+- `OGN·284/298` / 力量方尖碑 official text: `每名玩家在各自的第一个回合开始阶段，额外召出一枚符文。`
+- `RuleTextParser` now parses that text as `TriggerSpec` with:
+  - `Kind = BATTLEFIELD_FIRST_TURN_EXTRA_RUNE`
+  - `Timing = TURN_START`
+  - `TargetScope = EACH_PLAYER`
+  - `RuneCallCount = 1`
+  - `FirstTurnOnly = true`
+- `CoreRuleEngine.BattlefieldFirstTurnExtraRuneCount` now finds eligible battlefield sources through `BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(...)` and sums the parsed rune count from `BehaviorSpec.Triggers`.
+- `MatchSession` battlefield-object recognition now uses the same trigger-spec query instead of the old `BattlefieldFirstTurnExtraRuneCardNo` constant.
+- The old `BattlefieldFirstTurnExtraRuneCardNo` / `IsBattlefieldFirstTurnExtraRuneCardNo` card-number branch is removed. Current source-helper count for `private static bool Is*CardNo(...)` is `58` total / `54` in `CoreRuleEngine`; Core battlefield helper count is `10`.
 
 The 2026-06-25 turn-start destroy-draw follow-up moves another implemented battlefield trigger away from engine card-number branching and corrects the official `此处` target boundary:
 
@@ -726,4 +739,13 @@ This is a narrow B4 cleanup slice. It does not close all battlefield trigger fam
 - adjacent BattlefieldTurnStart / BattlefieldTriggerSpec / GameHub representatives: passed `230/230`;
 - MatchRecovery: passed `1989/1989`;
 - backend full conformance: passed `8440/8440`;
+- DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.
+
+2026-06-25 first-turn extra-rune follow-up validation:
+
+- focused behavior-spec/source guard/runtime/GameHub representative: passed `5/5`;
+- CardCatalog baseline: passed `151/151`;
+- adjacent FirstTurnRune / BattlefieldFirstTurn / BattlefieldTriggerSpec / GameHub representatives: passed `226/226`;
+- MatchRecovery: passed `1989/1989`;
+- backend full conformance: passed `8442/8442`;
 - DevUi build: passed after synchronizing `BehaviorSpec.triggers` catalog typing.

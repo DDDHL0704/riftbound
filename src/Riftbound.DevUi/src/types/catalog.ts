@@ -96,6 +96,7 @@ export type BehaviorSpec = {
     damageAmount?: number | null;
     destroyCount?: number | null;
     optional?: boolean | null;
+    firstTurnOnly?: boolean | null;
   }>;
   replacements: Array<{ kind: string; appliesTo: string; text: string; reason: string }>;
   activatedAbilities: Array<{ costText: string; effectText: string; templateIds: string[]; status: string; reason: string }>;

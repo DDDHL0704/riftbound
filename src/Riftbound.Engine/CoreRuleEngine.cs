@@ -686,7 +686,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
-    private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
     private const string RagingDrakeCardNo = "OGN·031/298";
@@ -25124,7 +25123,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerDiscardDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerOverkillCreateWarhawkTrigger(cardNo, out _)
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
-            || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
+            || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(cardNo, out _)
             || IsBattlefieldFirstTurnScoreCardNo(cardNo)
             || IsBattlefieldScoreDelayCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(cardNo, out _)
@@ -25189,11 +25188,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldFirstTurnExtraRuneCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldFirstTurnExtraRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldFirstTurnScoreCardNo(string? cardNo)
@@ -43499,7 +43493,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        return GlobalBattlefieldCardSourceObjectIds(state, IsBattlefieldFirstTurnExtraRuneCardNo).Count;
+        return state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldCardObject(cardObject)
+                && BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(cardObject.CardNo, out var trigger)
+                && string.Equals(trigger.Timing, TriggerTimings.TurnStart, StringComparison.Ordinal)
+                && trigger.FirstTurnOnly == true
+                && trigger.RuneCallCount is > 0)
+            .Distinct(StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(
+                    state.CardObjects[objectId].CardNo,
+                    out var trigger);
+                return trigger.RuneCallCount.GetValueOrDefault();
+            })
+            .Sum();
     }
 
     private static bool IsTurnPlayersFirstTurn(MatchState state)

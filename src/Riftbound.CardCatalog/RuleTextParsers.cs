@@ -681,6 +681,22 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var battlefieldFirstTurnExtraRuneMatch = Regex.Match(
+            segment,
+            @"每名玩家在各自的第一个回合开始阶段，额外召出([0-9一两二三四五六七八九十]+)枚符文",
+            RegexOptions.CultureInvariant);
+        if (battlefieldFirstTurnExtraRuneMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.BattlefieldFirstTurnExtraRune,
+                TriggerTimings.TurnStart,
+                segment,
+                "Battlefield first-turn extra-rune trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",
+                TargetScope: TriggerTargetScopes.EachPlayer,
+                RuneCallCount: ParseChineseNumber(battlefieldFirstTurnExtraRuneMatch.Groups[1].Value),
+                FirstTurnOnly: true);
+        }
+
         if (segment.Contains("当你据守此处时", StringComparison.Ordinal)
             && segment.Contains("下一个法术获得等同于其基础费用的{{回响}}", StringComparison.Ordinal))
         {
