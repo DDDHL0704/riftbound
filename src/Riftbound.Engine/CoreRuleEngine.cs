@@ -6471,12 +6471,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsEzrealLegendCardNo(cardObject.CardNo));
-    }
-
-    private static bool IsEzrealLegendCardNo(string? cardNo)
-    {
-        return cardNo is "SFD·199/221" or "SFD·248/221";
+                && LegendCardHasAbility(cardObject.CardNo, EzrealLegendAbilityId));
     }
 
     private static bool IsQueuedOnPlaySourcePowerTrigger(CardBehaviorDefinition behavior)
@@ -12167,6 +12162,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         return ability is not null;
     }
 
+    private static bool LegendCardHasAbility(string? cardNo, string abilityId)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && TryGetLegendAbility(abilityId, out var ability)
+            && ability.SourceCardNos.Contains(cardNo, StringComparer.Ordinal);
+    }
+
     private static int ResolveLegendAbilityManaCost(
         MatchState state,
         string playerId,
@@ -15685,15 +15687,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(legendObjectId =>
                 state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-                && IsTeemoLegendCardNo(legendState.CardNo));
-    }
-
-    private static bool IsTeemoLegendCardNo(string? cardNo)
-    {
-        return cardNo is TeemoOriginLegendCardNo
-            or "OGN·263a/298"
-            or "OGN·307/298"
-            or "OGN·307*/298";
+                && LegendCardHasAbility(legendState.CardNo, TeemoLegendAbilityId));
     }
 
     private static string FreeStandbyHideEffectId(string playerId)
@@ -20801,7 +20795,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-                || !IsIreliaLegendCardNo(candidate.CardNo)
+                || !LegendCardHasAbility(candidate.CardNo, IreliaLegendAbilityId)
                 || !candidate.IsExhausted)
             {
                 continue;
@@ -20844,11 +20838,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool IsIreliaLegendCardNo(string? cardNo)
-    {
-        return cardNo is IreliaLegendCardNo or "SFD·195a/221·P" or "SFD·246/221";
     }
 
     private static bool TryGetActiveViLegend(
