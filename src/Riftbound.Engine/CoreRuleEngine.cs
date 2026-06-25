@@ -686,7 +686,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SpendOneManaPaymentChoiceId = "SPEND_MANA:1";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
-    private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
     private const string RagingDrakeCardNo = "OGN·031/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string PoroHerderCardNo = "OGN·061/298";
@@ -694,7 +693,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int BattlefieldHeldScorePowerCost = 4;
-    private const int BattlefieldScoreDelayReleasedTurnOrdinal = 3;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
@@ -25124,7 +25122,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnExtraRuneTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardNo, out _)
-            || IsBattlefieldScoreDelayCardNo(cardNo)
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDamageAllUnitsTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldTurnStartDestroyUnitDrawTrigger(cardNo, out _)
             || BattlefieldTriggerSpecRules.TryGetBattlefieldConquerRevealRecycleTrigger(cardNo, out _)
@@ -25187,11 +25185,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsBattlefieldScoreDelayCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, BattlefieldScoreDelayCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -43281,7 +43274,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return BattlefieldTriggerSpecRules.TryGetBattlefieldFirstTurnScoreTrigger(cardNo, out var trigger)
             && IsBattlefieldFirstTurnScoreTriggerSpec(trigger)
-            || IsBattlefieldScoreDelayCardNo(cardNo);
+            || BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardNo, out var ability)
+            && IsBattlefieldScoreDelayAbilitySpec(ability);
     }
 
     private static bool TryApplyBattlefieldScore(
@@ -43378,23 +43372,39 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         scorePreventedEvent = null;
         var turnOrdinal = PlayerTurnOrdinal(state, playerId);
-        if (turnOrdinal < 0
-            || turnOrdinal >= BattlefieldScoreDelayReleasedTurnOrdinal)
+        if (turnOrdinal < 0)
         {
             return false;
         }
 
-        var sourceObjectIds = GlobalBattlefieldCardSourceObjectIds(state, IsBattlefieldScoreDelayCardNo)
+        var sourceEntries = GlobalBattlefieldCardSourceObjectIds(
+                state,
+                cardNo => BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardNo, out var ability)
+                    && IsBattlefieldScoreDelayAbilitySpec(ability))
+            .Select(objectId =>
+            {
+                var releasedTurnOrdinal = state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    && BattlefieldStaticAbilitySpecRules.TryGetBattlefieldScoreDelayUntilTurnAbility(cardObject.CardNo, out var ability)
+                    && IsBattlefieldScoreDelayAbilitySpec(ability)
+                        ? ability.Amount
+                        : 0;
+                return (SourceObjectId: objectId, ReleasedTurnOrdinal: releasedTurnOrdinal);
+            })
+            .Where(entry => entry.ReleasedTurnOrdinal > turnOrdinal)
+            .ToArray();
+        if (sourceEntries.Length == 0)
+        {
+            return false;
+        }
+
+        var sourceObjectIds = sourceEntries
+            .Select(entry => entry.SourceObjectId)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
-        if (sourceObjectIds.Length == 0)
-        {
-            return false;
-        }
-
+        var releasedTurnOrdinal = sourceEntries.Min(entry => entry.ReleasedTurnOrdinal);
         scorePreventedEvent = new GameEvent(
             "BATTLEFIELD_SCORE_PREVENTED",
-            $"{playerId} 尚未进入第 3 回合，遗忘丰碑阻止其从战场获得分数",
+            $"{playerId} 尚未进入第 {releasedTurnOrdinal} 回合，遗忘丰碑阻止其从战场获得分数",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -43403,9 +43413,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["preventedReason"] = preventedReason,
                 ["scoreSourceObjectIds"] = scoreSourceObjectIds.ToArray(),
                 ["turnOrdinal"] = turnOrdinal,
-                ["releasedTurnOrdinal"] = BattlefieldScoreDelayReleasedTurnOrdinal
+                ["releasedTurnOrdinal"] = releasedTurnOrdinal
             });
         return true;
+    }
+
+    private static bool IsBattlefieldScoreDelayAbilitySpec(StaticAbilitySpec ability)
+    {
+        return ability.Amount > 0;
     }
 
     private static bool BattlefieldScoredThisTurn(IReadOnlyList<string> untilEndOfTurnEffects, string battlefieldObjectId)

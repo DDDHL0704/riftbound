@@ -999,7 +999,7 @@ public sealed class CardCatalogBaselineTests
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 3, functionalUnits: 3);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 42, functionalUnits: 41);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 1, functionalUnits: 1);
-        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 16, functionalUnits: 15);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 17, functionalUnits: 16);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 11, functionalUnits: 10);
         AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 34, functionalUnits: 34);
 
@@ -2197,6 +2197,24 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesBattlefieldScoreDelayStaticAbility()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var forgottenMonument = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·209/221", StringComparison.Ordinal));
+        var ability = Assert.Single(
+            forgottenMonument.StaticAbilities,
+            candidate => string.Equals(candidate.Kind, StaticAbilityKinds.BattlefieldScoreDelayUntilTurn, StringComparison.Ordinal));
+        Assert.Equal(StaticAbilityKinds.BattlefieldScoreDelayUntilTurn, ability.Kind);
+        Assert.Equal(3, ability.Amount);
+        Assert.Contains("第三回合开始前", ability.Text, StringComparison.Ordinal);
+        Assert.Contains("无法从此处获得分数", ability.Text, StringComparison.Ordinal);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, ability.Status);
+    }
+
+    [Fact]
     public void StaticAuraProjectionDoesNotUseMatchSessionCardNumberAllowList()
     {
         var matchSessionPath = Path.Combine(
@@ -2965,6 +2983,29 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("BattlefieldFirstTurnScoreCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsBattlefieldFirstTurnScoreCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BattlefieldScoreDelayStaticAbilityDoesNotUseCardNumberAllowList()
+    {
+        var matchSessionPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "MatchSession.cs");
+        var source = File.ReadAllText(matchSessionPath);
+
+        Assert.DoesNotContain("BattlefieldScoreDelayCardNo", source, StringComparison.Ordinal);
+
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("BattlefieldScoreDelayCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsBattlefieldScoreDelayCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

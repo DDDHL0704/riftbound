@@ -1217,6 +1217,21 @@ public static class StaticAbilityParser
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Battlefield prevent-unit-play static ability parsed for B4 routing; execution remains gated until engine support reads BehaviorSpec.StaticAbilities."));
+                continue;
+            }
+
+            var battlefieldScoreDelayMatch = Regex.Match(
+                segment,
+                @"每名玩家在各自的第([0-9一两二三四五六七八九十]+)回合开始前，无法从此处获得分数",
+                RegexOptions.CultureInvariant);
+            if (battlefieldScoreDelayMatch.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.BattlefieldScoreDelayUntilTurn,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Battlefield score-delay static ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
+                    ParseChineseNumber(battlefieldScoreDelayMatch.Groups[1].Value)));
             }
         }
 
@@ -1235,6 +1250,30 @@ public static class StaticAbilityParser
             .GroupBy(spec => $"{spec.Kind}\n{spec.Text}", StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
+    }
+
+    private static int ParseChineseNumber(string raw)
+    {
+        if (int.TryParse(raw, out var numeric))
+        {
+            return numeric;
+        }
+
+        return raw switch
+        {
+            "一" => 1,
+            "两" => 2,
+            "二" => 2,
+            "三" => 3,
+            "四" => 4,
+            "五" => 5,
+            "六" => 6,
+            "七" => 7,
+            "八" => 8,
+            "九" => 9,
+            "十" => 10,
+            _ => 1
+        };
     }
 }
 

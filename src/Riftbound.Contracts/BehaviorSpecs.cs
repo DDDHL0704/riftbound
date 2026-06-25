@@ -188,6 +188,8 @@ public static class StaticAbilityKinds
         "BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE";
     public const string BattlefieldTargetSpellSkillDamageBonus =
         "BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS";
+    public const string BattlefieldScoreDelayUntilTurn =
+        "BATTLEFIELD_SCORE_DELAY_UNTIL_TURN";
 }
 
 public static class StaticAuraKinds
