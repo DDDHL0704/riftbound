@@ -2350,6 +2350,31 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task BehaviorSpecCatalogParsesUnitConquestDestroyEquipmentGrantSelfBoonTrigger()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var adaptiveRobot = Assert.Single(specs, spec => string.Equals(spec.CardNo, "OGN·056/298", StringComparison.Ordinal));
+        var trigger = Assert.Single(
+            adaptiveRobot.Triggers,
+            candidate => string.Equals(candidate.Kind, TriggerKinds.UnitConquestDestroyEquipmentGrantSelfBoon, StringComparison.Ordinal));
+        Assert.Equal(TriggerKinds.UnitConquestDestroyEquipmentGrantSelfBoon, trigger.Kind);
+        Assert.Equal(TriggerTimings.UnitConquest, trigger.Timing);
+        Assert.Equal(TriggerTargetScopes.EquipmentOnField, trigger.TargetScope);
+        Assert.Equal(1, trigger.DestroyCount);
+        Assert.Equal(1, trigger.BoonCount);
+        Assert.True(trigger.Optional);
+        Assert.Contains("当我征服一处战场时", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("摧毁一件装备", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("给予我增益", trigger.Text, StringComparison.Ordinal);
+        Assert.Equal(
+            "Unit conquest destroy-equipment grant-self-boon trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+            trigger.Reason);
+    }
+
+    [Fact]
     public async Task BehaviorSpecCatalogParsesBattlefieldFirstTurnExtraRuneTrigger()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -3455,6 +3480,20 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("FriendlyPowerUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsFriendlyPowerUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnitConquestDestroyEquipmentGrantSelfBoonTriggerDoesNotUseCardNumberAllowList()
+    {
+        var coreRuleEnginePath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Riftbound.Engine",
+            "CoreRuleEngine.cs");
+        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+
+        Assert.DoesNotContain("DestroyEquipmentBoonUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsDestroyEquipmentBoonUnitConquestCardNo", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     [Fact]

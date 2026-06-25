@@ -503,6 +503,23 @@ public static class TriggerParser
                 Duration: TriggerDurations.UntilEndOfTurn);
         }
 
+        var unitConquestDestroyEquipmentGrantSelfBoonMatch = Regex.Match(
+            segment,
+            @"当我征服一处战场时，你可以选择摧毁一件装备，以此给予我增益。?$",
+            RegexOptions.CultureInvariant);
+        if (unitConquestDestroyEquipmentGrantSelfBoonMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitConquestDestroyEquipmentGrantSelfBoon,
+                TriggerTimings.UnitConquest,
+                segment,
+                "Unit conquest destroy-equipment grant-self-boon trigger parsed for B3 routing; execution is available through shared unit-conquest TriggerSpec resolution.",
+                TargetScope: TriggerTargetScopes.EquipmentOnField,
+                DestroyCount: 1,
+                BoonCount: 1,
+                Optional: true);
+        }
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",

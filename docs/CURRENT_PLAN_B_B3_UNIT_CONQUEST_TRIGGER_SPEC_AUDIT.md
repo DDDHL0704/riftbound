@@ -2,7 +2,7 @@
 
 Date: 2026-06-25
 
-Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, and friendly-power TriggerSpec slices accepted; project remains **NOT READY**.
+Status: focused unit-conquest draw-one, draw-or-call-rune, create-dormant-Gold, grant-self-boon, ready-self-once, grant-friendly-boon, friendly-power, and destroy-equipment self-boon TriggerSpec slices accepted; project remains **NOT READY**.
 
 ## Scope
 
@@ -70,11 +70,21 @@ This slice moves implemented unit conquest effects away from engine card-number 
   - `Duration = UNTIL_END_OF_TURN`
 - `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 天声玄龙's representative friendly-power effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestFriendlyPowerUntilEndTrigger(...)`, and reads the emitted effect id plus power delta from `BehaviorSpec.Triggers`.
 - The old `FriendlyPowerUnitConquestCardNo` / `IsFriendlyPowerUnitConquestCardNo` branch is removed.
-- Current source-helper count for `private static bool Is*CardNo(...)` is `40` total / `37` in `CoreRuleEngine`; the remaining unit-conquest helper count is `1`.
+- `OGN·056/298` 自适应机器人 official text from `data/official/card-catalog.zh-CN.json`: `当我征服一处战场时，你可以选择摧毁一件装备，以此给予我增益。`
+- `RuleTextParser` now parses that conquest text as `TriggerSpec` with:
+  - `Kind = UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON`
+  - `Timing = UNIT_CONQUEST`
+  - `TargetScope = EQUIPMENT_ON_FIELD`
+  - `DestroyCount = 1`
+  - `BoonCount = 1`
+  - `Optional = true`
+- `CoreRuleEngine.TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger` now routes 自适应机器人的 representative destroy-equipment self-boon effect through `UnitConquestTriggerSpecRules.TryGetUnitConquestDestroyEquipmentGrantSelfBoonTrigger(...)`, and reads the emitted effect id from `BehaviorSpec.Triggers`.
+- The old `DestroyEquipmentBoonUnitConquestCardNo` / `IsDestroyEquipmentBoonUnitConquestCardNo` branch is removed.
+- Current source-helper count for `private static bool Is*CardNo(...)` is `39` total / `36` in `CoreRuleEngine`; remaining `Is*UnitConquest*CardNo(...)` helpers in `CoreRuleEngine`: `0`.
 
 ## Non-Goals
 
-- This does not close the full unit-conquest family. The destroy-equipment conquest representative still has a card-number helper branch.
+- This closes the old card-number helper set for the current 清算人竞技场 unit-conquest representatives, but does not close the full unit-conquest family.
 - This does not implement 绯红印记树怪's separate `你征服此处时的征服效果额外触发一次。` doubling effect.
 - This does not add natural battle-conquest trigger queuing for every unit. The validated runtime route is the existing 清算人竞技场 representative that activates unit conquest effects from a battlefield held trigger.
 - This does not close optional target prompts, complete draw replacement / fatigue breadth, full targeting-stack-timing, B0 full-game readiness, or project READY.

@@ -128,6 +128,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_GRANT_FRIENDLY_BOON";
     public const string UnitConquestFriendlyPowerUntilEndOfTurn =
         "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN";
+    public const string UnitConquestDestroyEquipmentGrantSelfBoon =
+        "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
 }
 
 public static class TriggerTimings
@@ -161,6 +163,7 @@ public static class TriggerTargetScopes
     public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
+    public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
     public const string SurvivingPowerfulUnitAtThisBattlefield = "SURVIVING_POWERFUL_UNIT_AT_THIS_BATTLEFIELD";

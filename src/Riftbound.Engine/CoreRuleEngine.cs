@@ -22669,7 +22669,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            if (IsDestroyEquipmentBoonUnitConquestCardNo(unitState.CardNo)
+            if (UnitConquestTriggerSpecRules.TryGetUnitConquestDestroyEquipmentGrantSelfBoonTrigger(unitState.CardNo, out var unitConquestDestroyEquipmentTrigger)
                 && TryGetFirstFieldEquipment(playerZones, cardObjects, out var equipmentObjectId))
             {
                 AddUnitConquestEffectActivatedEvent(
@@ -22677,7 +22677,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     playerId,
                     unitObjectId,
                     unitState.CardNo,
-                    "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON",
+                    unitConquestDestroyEquipmentTrigger.Kind,
                     battlefieldObjectId,
                     triggerSpec.Kind,
                     equipmentObjectId);
@@ -22685,7 +22685,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     $"unit-conquest-{unitObjectId}",
                     playerId,
                     unitObjectId,
-                    "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON",
+                    unitConquestDestroyEquipmentTrigger.Kind,
                     unitState.CardNo,
                     [equipmentObjectId]);
                 if (TryDestroyTarget(playerZones, cardObjects, equipmentObjectId, out var removalResult))
@@ -22695,13 +22695,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                         stackItem,
                         equipmentObjectId,
                         removalResult,
-                        "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON"));
+                        unitConquestDestroyEquipmentTrigger.Kind));
                     GrantLegendBoon(
                         cardObjects,
                         unitObjectId,
                         playerId,
                         unitObjectId,
-                        "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON",
+                        unitConquestDestroyEquipmentTrigger.Kind,
                         events);
                 }
             }
@@ -22766,12 +22766,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || UnitConquestTriggerSpecRules.TryGetUnitConquestReadySelfOnceTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestGrantFriendlyBoonTrigger(cardNo, out _)
             || UnitConquestTriggerSpecRules.TryGetUnitConquestFriendlyPowerUntilEndTrigger(cardNo, out _)
-            || IsDestroyEquipmentBoonUnitConquestCardNo(cardNo);
-    }
-
-    private static bool IsDestroyEquipmentBoonUnitConquestCardNo(string? cardNo)
-    {
-        return string.Equals(cardNo, "OGN·056/298", StringComparison.Ordinal);
+            || UnitConquestTriggerSpecRules.TryGetUnitConquestDestroyEquipmentGrantSelfBoonTrigger(cardNo, out _);
     }
 
     private static string BuildUnitConquestReadySelfOnceEffectId(string playerId, string unitObjectId)
